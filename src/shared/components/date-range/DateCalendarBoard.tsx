@@ -1,0 +1,126 @@
+
+import { Button, Paper, Stack, Typography, useTheme } from '@mui/material';
+import { DateCalendar } from '@mui/x-date-pickers';
+import { type PickerValue } from '@mui/x-date-pickers/internals';
+import { differenceInDays, isBefore, isEqual, isSameDay, isToday, set, subMonths } from 'date-fns';
+import { useState } from 'react';
+import { QuickDateOptions } from './constants';
+import { DateCalendarDay } from './DateCalendarDay';
+import { DateCalendarHeader } from './DateCalendarHeader';
+import Menu from './Menu';
+import { type DateRange } from './type';
+
+type Props = {
+  defaultValue?: DateRange;
+  onClose?: () => void;
+  onChange?: (value: DateRange) => void;
+};
+
+const today = set(Date.now(), { hours: 0, minutes: 0, seconds: 0, milliseconds: 0 });
+const differenceFromToday = (date: Date | string | number) => differenceInDays(today, date);
+const setEndTime = (date: Date) => set(date, { hours: 23, minutes: 59, seconds: 59, milliseconds: 999 });
+
+export const DateCalendarBoard = ({ defaultValue, onChange, onClose }: Props) => {
+  const { palette } = useTheme();
+  const [defaultStartDate, defaultEndDate] = defaultValue ?? [];
+  const [startDate, setStartDate] = useState<Date | null>(defaultStartDate ?? null);
+  const [endDate, setEndDate] = useState<Date | null>(defaultEndDate ? new Date(defaultEndDate) : null);
+  const [displayDate, setDisplayDate] = useState(defaultEndDate ?? today);
+
+  const handleChangeQuickDateOption = (diffDays: number) => {
+    const startDate = set(today, { date: today.getDate() - diffDays });
+    setStartDate(startDate);
+    setEndDate(today);
+
+    setDisplayDate(today);
+  };
+
+  const handleClickUpdate = () => {
+    if (startDate == null || endDate == null) return;
+
+    onChange?.([startDate, setEndTime(endDate)]);
+  };
+
+  const handleClickPicker = (date: PickerValue) => {
+    if (date == null) return;
+
+    if (startDate != null && isSameDay(startDate, date)) {
+      return setStartDate(null);
+    }
+    if (endDate != null && isSameDay(endDate, date)) {
+      return setEndDate(null);
+    }
+
+    if (startDate == null || isBefore(date, startDate)) {
+      return setStartDate(date);
+    }
+
+    return setEndDate(date);
+  };
+
+  const isEmpty = startDate == null || endDate == null;
+
+  return (
+    <Paper
+      sx={{
+        backgroundColor: 'white',
+        boxShadow:
+          '0px 3px 14px 2px rgba(0, 0, 0, 0.12), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 5px 5px -3px rgba(0, 0, 0, 0.20)',
+      }}
+    >
+      <Stack direction="row">
+        <DateCalendar
+          value={subMonths(displayDate, 1)}
+          slots={{
+            day: (props) => <DateCalendarDay {...props} value={[startDate, endDate]} />,
+            calendarHeader: DateCalendarHeader.Readonly,
+          }}
+          slotProps={{ calendarHeader: { format: 'yyyy년 MM월' } }}
+          onChange={handleClickPicker}
+        />
+
+        <DateCalendar
+          value={displayDate}
+          sx={{ borderLeft: `1px solid ${palette.divider}` }}
+          slots={{
+            day: (props) => <DateCalendarDay {...props} value={[startDate, endDate]} />,
+          }}
+          slotProps={{
+            calendarHeader: { format: 'yyyy년 MM월' },
+          }}
+          defaultValue={displayDate}
+          onMonthChange={(date) => setDisplayDate(date)}
+          onChange={handleClickPicker}
+        />
+
+        <Menu title="빠른 선택">
+          {QuickDateOptions.map(({ days, label }) => (
+            <Menu.Item
+              key={days}
+              actived={!isEmpty && isEqual(differenceFromToday(startDate), days) && isToday(endDate)}
+              onClick={() => handleChangeQuickDateOption(days)}
+            >
+              <Typography variant="body2">{label}</Typography>
+            </Menu.Item>
+          ))}
+        </Menu>
+      </Stack>
+
+      <Stack direction="row"
+        alignItems="flex-end"
+        justifyContent="flex-end"
+        sx={{
+          width: '100%',
+          padding: '8px',
+          borderTop: `1px solid ${palette.divider}`,
+        }}
+      >
+        <Button onClick={onClose}>취소</Button>
+        <Button variant="contained" onClick={handleClickUpdate} disabled={startDate == null || endDate == null}>
+          확인
+        </Button>
+      </Stack>
+    </Paper>
+  );
+};
+

@@ -1,0 +1,380 @@
+import { useMemo, useState } from "react";
+import { useOverlay } from "../../../shared/hooks/useOverlay";
+import { useTripPlaces } from "../trip-place/useTripPlaces";
+import { useTripRoutes } from "./useTripRoutes";
+import { formatDate } from "../../../shared/utils/formats";
+import { PlaceFormSheet } from "../../place/PlaceFormSheet";
+import type { Place } from "../../place/place.types";
+import { useRoadPath } from "../../../shared/hooks/useRoadPath";
+import { Box, Button, Chip, IconButton, Stack, styled, Tab, Tabs, Typography } from "@mui/material";
+import { KakaoMap } from "../../../shared/components/KakaoMap";
+import { DraggableBottomSheet } from "../../../shared/components/DraggableBottomSheet";
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
+import DeleteIcon from '@mui/icons-material/Delete'
+import { ListItem } from "../../../shared/components/ListItem";
+import { SortableItem } from "../../../shared/components/dnd/SortableItem";
+import { SortableList } from "../../../shared/components/dnd/SortableList";
+import { usePlaceSearchDialog } from "../../place/place-search/usePlaceSearchDialog";
+
+// 경로별 색상 팔레트
+const ROUTE_COLORS = [
+  '#1976d2', // blue
+  '#e53935', // red
+  '#43a047', // green
+  '#fb8c00', // orange
+  '#8e24aa', // purple
+  '#00acc1', // cyan
+]
+
+function getRouteColor(index: number): string {
+  return ROUTE_COLORS[index % ROUTE_COLORS.length]
+}
+
+interface RouteContentProps {
+  tripId: string
+  defaultCenter: { lat: number; lng: number }
+}
+
+export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) {
+  const {
+    data: { routes, trip },
+    create: createRoute,
+    update,
+    remove: removeRoute
+  } = useTripRoutes(tripId)
+  const { data: places, create: createPlace, update: updatePlace } = useTripPlaces(tripId)
+  const overlay = useOverlay()
+
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    const today = new Date().toISOString().split('T')[0]
+    if (today >= trip.startDate && today <= trip.endDate) {
+      return today
+    }
+    return trip.startDate
+  })
+  const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null)
+
+  const dates = useMemo(() => {
+    const result: string[] = []
+    const start = new Date(trip.startDate)
+    const end = new Date(trip.endDate)
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      result.push(d.toISOString().split('T')[0])
+    }
+    return result
+  }, [trip.startDate, trip.endDate])
+
+  const routesForDate = useMemo(() => {
+    return routes.filter((r) => r.scheduledDate === selectedDate)
+  }, [routes, selectedDate])
+
+  const currentRoute = useMemo(() => {
+    if (selectedRouteId) {
+      return routesForDate.find((r) => r.id === selectedRouteId) ?? routesForDate[0] ?? null
+    }
+    return routesForDate[0] ?? null
+  }, [routesForDate, selectedRouteId])
+
+  const handleDateChange = (date: string) => {
+    setSelectedDate(date)
+    setSelectedRouteId(null)
+  }
+
+  const handleAddRoute = () => {
+    const routeNumber = routesForDate.length + 1
+    createRoute({
+      tripId,
+      name: `${formatDate(selectedDate)} 경로 ${routeNumber}`,
+      isMain: false,
+      scheduledDate: selectedDate,
+    })
+  }
+
+  const { searchPlace } = usePlaceSearchDialog();
+  const handleAddPlace = async () => {
+    const place = await searchPlace();
+    if (place == null) return;
+    createPlace(place)
+  }
+
+  const placesUsedInOtherRoutes = useMemo(() => {
+    const usedPlaceIds = new Set<string>()
+    routes.forEach((route) => {
+      if (route.id !== currentRoute?.id) {
+        route.placeIds.forEach((id) => usedPlaceIds.add(id))
+      }
+    })
+    return usedPlaceIds
+  }, [routes, currentRoute?.id])
+
+  // 각 경로의 waypoints를 계산
+  const routeWaypointsMap = useMemo(() => {
+    const map = new Map<string, { lat: number; lng: number }[]>()
+    routesForDate.forEach((route) => {
+      const waypoints = route.placeIds
+        .map((placeId) => places.find((p) => p.id === placeId))
+        .filter((p): p is Place => p != null)
+        .map((place) => ({ lat: place.lat, lng: place.lng }))
+      map.set(route.id, waypoints)
+    })
+    return map
+  }, [routesForDate, places])
+
+  const handleRemoveFromRoute = (placeId: string) => {
+    if (!currentRoute) return
+    const newPlaceIds = currentRoute.placeIds.filter((id) => id !== placeId)
+    const newPlaceMemos = { ...currentRoute.placeMemos }
+    delete newPlaceMemos[placeId]
+    update({ routeId: currentRoute.id, data: { placeIds: newPlaceIds, placeMemos: newPlaceMemos } })
+  }
+
+  const handleEditPlaceInRoute = (place: Place) => {
+    if (!currentRoute) return
+    overlay.open(({ isOpen, close }) => (
+      <PlaceFormSheet
+        place={place}
+        isOpen={isOpen}
+        onClose={close}
+        onSubmit={(data) => {
+          // 카테고리, 태그는 장소 데이터에 저장
+          updatePlace({
+            placeId: place.id,
+            data: {
+              category: data.category || undefined,
+              tags: data.tags,
+            },
+          })
+        }}
+      />
+    ))
+  }
+
+
+  const routePlaces = useMemo(() => {
+    if (!currentRoute) return []
+    return currentRoute.placeIds
+      .map((placeId) => places.find((p) => p.id === placeId))
+      .filter((p): p is Place => p != null)
+  }, [currentRoute, places])
+
+  return (
+    <>
+      <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+        {/* Map (전체) */}
+        <Box sx={{ position: 'absolute', inset: 0 }}>
+          <KakaoMap
+            defaultCenter={defaultCenter}
+            autoFocus="path"
+            height="100%"
+          >
+            {places.map((place) => {
+              const isInCurrentRoute = currentRoute?.placeIds.includes(place.id) ?? false
+              const orderInRoute = currentRoute?.placeIds.indexOf(place.id) ?? -1
+
+              return (
+                <KakaoMap.Marker
+                  key={place.id}
+                  label={isInCurrentRoute ? `${orderInRoute + 1}` : undefined}
+                  variant={
+                    isInCurrentRoute ? 'selected' :
+                      placesUsedInOtherRoutes.has(place.id) ? 'disabled' : 'default'
+                  }
+                  onClick={() => {
+                    if (currentRoute == null) {
+                      const routeNumber = routesForDate.length + 1
+                      return createRoute({
+                        tripId,
+                        name: `${formatDate(selectedDate)} 경로 ${routeNumber}`,
+                        placeIds: [place.id],
+                        isMain: false,
+                        scheduledDate: selectedDate,
+                        placeMemos: {}
+                      })
+                    }
+                    const newPlaceIds = isInCurrentRoute
+                      ? currentRoute.placeIds.filter((id) => id !== place.id)
+                      : [...currentRoute.placeIds, place.id]
+                    update({ routeId: currentRoute.id, data: { placeIds: newPlaceIds } })
+                  }}
+                  {...place}
+                />
+              )
+            })}
+            {routesForDate.map((route, index) => (
+              <RoutePath
+                key={route.id}
+                waypoints={routeWaypointsMap.get(route.id)}
+                color={getRouteColor(index)}
+                isSelected={route.id === currentRoute?.id}
+              />
+            ))}
+          </KakaoMap>
+        </Box>
+
+        {/* Bottom Sheet */}
+        <DraggableBottomSheet
+          snapPoints={[0.25, 0.5, 0.75]}
+          defaultSnapIndex={0}
+        >
+          <Stack gap={1} sx={{ p: 1.5, pt: 0 }}>
+            {/* 날짜 선택 */}
+            <Tabs value={selectedDate} sx={{ position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 10 }}>
+              {dates.map((date) => (
+                <Tab
+                  key={date}
+                  value={date}
+                  label={formatDate(date)}
+                  onClick={() => handleDateChange(date)}
+                  sx={{ flex: 1 }}
+                />
+              ))}
+            </Tabs>
+
+
+            {/* 경로 선택 & 추가 */}
+            <Stack direction="row" spacing={0.5} mb={1.5} alignItems="center">
+              {routesForDate.map((route, index) => (
+                <Chip
+                  key={route.id}
+                  label={`경로 ${index + 1}`}
+                  variant={currentRoute?.id === route.id ? 'filled' : 'outlined'}
+                  color={currentRoute?.id === route.id ? 'primary' : 'default'}
+                  size="small"
+                  sx={{ fontSize: 11 }}
+                  onClick={() => setSelectedRouteId(route.id)}
+                  onDelete={() => {
+                    removeRoute(route.id)
+                    if (currentRoute?.id === route.id) {
+                      setSelectedRouteId(null)
+                    }
+                  }}
+                />
+              ))}
+              <IconButton size="small" onClick={handleAddRoute} color="primary" sx={{ p: 0.5 }}>
+                <AddIcon fontSize="small" />
+              </IconButton>
+              <Box flex={1} />
+              <Button
+                variant="text"
+                size="small"
+                onClick={handleAddPlace}
+                sx={{ fontSize: 11, minWidth: 'auto', px: 1 }}
+              >
+                장소 추가
+              </Button>
+            </Stack>
+
+            {routePlaces.length === 0 ? (
+              <Typography variant="caption" color="text.secondary">
+                지도에서 장소를 클릭하여 경로에 추가하세요
+              </Typography>
+            ) : (
+              <Stack spacing={0.5}>
+                <SortableList
+                  items={routePlaces}
+                  onSort={(changed) => {
+                    update({ routeId: currentRoute.id, data: { placeIds: changed.items.map(x => x.id) } })
+                  }}
+                  renderItem={(place, idx) => (
+                    <ListItem
+                      leftAddon={(
+                        <SortableItem.Handle id={place.id}>
+                          <DragIndicatorIcon />
+                        </SortableItem.Handle>
+                      )}
+                      rightAddon={(
+                        <Box flexShrink={0}>
+                          <IconButton size="small" onClick={() => handleEditPlaceInRoute(place)}>
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                          <IconButton size="small" onClick={() => handleRemoveFromRoute(place.id)} color="error">
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      )}
+                    >
+                      <Stack direction="row" alignItems="center" gap={0.5}>
+                        <Dot>{idx + 1}</Dot>
+                        <ListItem.Title>{place.name}</ListItem.Title>
+                      </Stack>
+                      <Box>
+                        {place.address && (
+                          <ListItem.Text variant="body2" color="text.secondary" fontSize={12}>
+                            {place.address}
+                          </ListItem.Text>
+                        )}
+                        {place.memo && (
+                          <ListItem.Text variant="body2" color="text.secondary" fontSize={12}>
+                            {place.memo}
+                          </ListItem.Text>
+                        )}
+                        {currentRoute.placeMemos[place.id]?.map((memo, idx) => (
+                          <ListItem.Text key={idx} variant="body2" color="primary" fontSize={12}>
+                            {memo}
+                          </ListItem.Text>
+                        ))}
+                        {placesUsedInOtherRoutes.has(place.id) && (
+                          <ListItem.Text variant="caption" color="warning.main">
+                            다른 경로에도 포함
+                          </ListItem.Text>
+                        )}
+                      </Box>
+                    </ListItem>
+                  )}
+                />
+              </Stack>
+            )}
+          </Stack>
+        </DraggableBottomSheet>
+      </Box>
+      <Box padding={1}>
+        <Button
+          sx={{ fontSize: 12 }}
+          variant="contained"
+          onClick={handleAddPlace}
+          fullWidth
+        >
+          장소 추가
+        </Button>
+      </Box>
+    </>
+  )
+}
+
+const Dot = styled(Box)(({ theme }) => ({
+  minWidth: 18,
+  minHeight: 18,
+  borderRadius: '50%',
+  backgroundColor: theme.palette.primary.main,
+  color: 'white',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: 10,
+  fontWeight: 'bold',
+  flexShrink: 0,
+}))
+
+
+interface RoutePathProps {
+  waypoints: { lat: number; lng: number }[] | undefined
+  color: string
+  isSelected: boolean
+}
+
+function RoutePath({ waypoints, color, isSelected }: RoutePathProps) {
+  const coordinates = useRoadPath(waypoints)
+
+  if (!coordinates || coordinates.length < 2) return null
+
+  return (
+    <KakaoMap.Path
+      coordinates={coordinates}
+      strokeColor={color}
+      strokeWeight={isSelected ? 5 : 3}
+      strokeOpacity={isSelected ? 1 : 0.6}
+    />
+  )
+}
