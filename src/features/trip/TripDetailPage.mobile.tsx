@@ -40,9 +40,7 @@ export function TripDetailPageMobile() {
             <Typography variant="subtitle1" fontWeight="medium" noWrap>
               {trip.name}
             </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {trip.startDate} ~ {trip.endDate}
-            </Typography>
+
           </Box>
         </Box>
 

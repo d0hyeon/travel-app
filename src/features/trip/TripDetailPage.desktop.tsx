@@ -14,12 +14,13 @@ import { useTripId } from './useTripId'
 import { useQueryParamState } from '../../shared/hooks/useQueryParamState'
 import { TripPlaceContent } from './trip-place/TripPlaceContent.desktop'
 import { TripRoutesContent } from './trip-route/TripRoutesContent.desktop'
+import { EditableText } from '../../shared/components/EditableText'
 
 type TabType = 'Place' | 'Route'
 
 export function TripDetailPageDesktop() {
   const tripId = useTripId()
-  const { data: trip } = useTrip(tripId)
+  const { data: trip, update } = useTrip(tripId)
   const navigate = useNavigate()
 
   const [currentTab, setCurrentTab] = useQueryParamState<TabType>('content', {
@@ -34,12 +35,11 @@ export function TripDetailPageDesktop() {
           <IconButton onClick={() => navigate('/')}>
             <ArrowBackIcon />
           </IconButton>
-          <Box flex={1}>
-            <Typography variant="h6">{trip.name}</Typography>
-            <Typography variant="body2" color="text.secondary">
-              {trip.destination} · {trip.startDate} ~ {trip.endDate}
-            </Typography>
-          </Box>
+          <EditableText
+            defaultValue={trip.name}
+            variant="h6"
+            onSubmit={(name) => update.mutate({ name })}
+          />
         </Box>
       </Box>
       <Box paddingX={2} paddingY={1}>
