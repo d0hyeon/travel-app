@@ -6,13 +6,12 @@ import {
   Typography
 } from '@mui/material'
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { ListItem } from '../../shared/components/ListItem'
 import { TripFormDialog } from './TripFormDialog'
 import { useTrips } from './useTrips'
 
 export function TripListPage() {
-  const navigate = useNavigate()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const { data: trips, create } = useTrips()

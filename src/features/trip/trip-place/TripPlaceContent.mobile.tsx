@@ -4,13 +4,12 @@ import { Box, Button, Chip, IconButton, Stack, Typography } from "@mui/material"
 import { useMemo, useRef } from "react";
 import { DraggableBottomSheet } from "../../../shared/components/DraggableBottomSheet";
 import { KakaoMap, type KakaoMapRef } from "../../../shared/components/KakaoMap";
-import { usePlaceSearchDialog } from "../../place/place-search/usePlaceSearchDialog";
+import { ListItem } from '../../../shared/components/ListItem';
+import { usePlaceSearchBottomSheet } from '../../place/place-search/usePlaceSearchBottomSheet';
 import { PlaceCategoryColorCode, type Place } from "../../place/place.types";
 import { useTripRoutes } from "../trip-route/useTripRoutes";
 import { useTripPlaceDetailOverlay } from "./useTripPlaceDetailOverlay";
 import { useTripPlaces } from "./useTripPlaces";
-import { ListItem } from '../../../shared/components/ListItem';
-import { usePlaceSearchBottomSheet } from '../../place/place-search/usePlaceSearchBottomSheet';
 
 interface PlaceContentProps {
   tripId: string

@@ -4,17 +4,16 @@ import {
   CircularProgress,
   IconButton,
   Tab,
-  Tabs,
-  Typography
+  Tabs
 } from '@mui/material'
 import { Suspense } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useTrip } from './useTrip'
-import { useTripId } from './useTripId'
+import { EditableText } from '../../shared/components/EditableText'
 import { useQueryParamState } from '../../shared/hooks/useQueryParamState'
 import { TripPlaceContent } from './trip-place/TripPlaceContent.desktop'
 import { TripRoutesContent } from './trip-route/TripRoutesContent.desktop'
-import { EditableText } from '../../shared/components/EditableText'
+import { useTrip } from './useTrip'
+import { useTripId } from './useTripId'
 
 type TabType = 'Place' | 'Route'
 

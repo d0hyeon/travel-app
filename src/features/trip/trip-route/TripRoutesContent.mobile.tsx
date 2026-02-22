@@ -44,7 +44,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
     update,
     remove: removeRoute
   } = useTripRoutes(tripId)
-  const { data: places, create: createPlace, update: updatePlace } = useTripPlaces(tripId)
+  const { data: places, update: updatePlace } = useTripPlaces(tripId)
   const overlay = useOverlay()
 
   const [selectedDate, setSelectedDate] = useState<string>(() => {
