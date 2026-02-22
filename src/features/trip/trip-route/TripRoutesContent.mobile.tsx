@@ -2,7 +2,7 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import EditIcon from '@mui/icons-material/Edit';
-import { Box, Chip, IconButton, Stack, styled, Tab, Tabs, Typography } from "@mui/material";
+import { Box, Button, Chip, IconButton, Stack, styled, Tab, Tabs, Typography } from "@mui/material";
 import { useMemo, useState } from "react";
 import { DraggableBottomSheet } from "../../../shared/components/DraggableBottomSheet";
 import { KakaoMap } from "../../../shared/components/KakaoMap";
@@ -13,9 +13,9 @@ import { useOverlay } from "../../../shared/hooks/useOverlay";
 import { useRoadPath } from "../../../shared/hooks/useRoadPath";
 import { formatDate } from "../../../shared/utils/formats";
 import { PlaceFormSheet } from "../../place/PlaceFormSheet";
-import { usePlaceSearchDialog } from "../../place/place-search/usePlaceSearchDialog";
 import { PlaceCategoryColorCode, type Place } from "../../place/place.types";
 import { useTripPlaces } from "../trip-place/useTripPlaces";
+import { PlaceSelectSheet } from "./PlaceSelectSheet";
 import { useTripRoutes } from "./useTripRoutes";
 
 // 경로별 색상 팔레트
@@ -152,6 +152,12 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
       .filter((p): p is Place => p != null)
   }, [currentRoute, places])
 
+  const handleAddPlacesToRoute = (placeIds: string[]) => {
+    if (!currentRoute || placeIds.length === 0) return
+    const newPlaceIds = [...currentRoute.placeIds, ...placeIds]
+    update({ routeId: currentRoute.id, data: { placeIds: newPlaceIds } })
+  }
+
   return (
     <>
       <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
@@ -197,7 +203,6 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
             <Tabs value={selectedDate} sx={{ position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 10 }}>
               {dates.map((date) => (
                 <Tab
-
                   key={date}
                   value={date}
                   label={formatDate(date)}
@@ -296,6 +301,29 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
           </Stack>
         </DraggableBottomSheet>
       </Box>
+      <Box padding={1}>
+        <Button
+          size="medium"
+          variant="contained"
+          onClick={() => {
+            overlay.open(({ isOpen, close }) => (
+              <PlaceSelectSheet
+                isOpen={isOpen}
+                onClose={close}
+                places={places}
+                selectedPlaceIds={currentRoute?.placeIds ?? []}
+                onConfirm={handleAddPlacesToRoute}
+              />
+            ))
+          }}
+          sx={{ fontSize: 12 }}
+          fullWidth
+          disabled={!currentRoute}
+        >
+          장소 추가
+        </Button>
+      </Box>
+
     </>
   )
 }
