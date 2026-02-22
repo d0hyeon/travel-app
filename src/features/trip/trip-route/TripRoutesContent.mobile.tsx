@@ -14,7 +14,7 @@ import { useRoadPath } from "../../../shared/hooks/useRoadPath";
 import { formatDate } from "../../../shared/utils/formats";
 import { PlaceFormSheet } from "../../place/PlaceFormSheet";
 import { usePlaceSearchDialog } from "../../place/place-search/usePlaceSearchDialog";
-import type { Place } from "../../place/place.types";
+import { PlaceCategoryColorCode, type Place } from "../../place/place.types";
 import { useTripPlaces } from "../trip-place/useTripPlaces";
 import { useTripRoutes } from "./useTripRoutes";
 
@@ -169,11 +169,11 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
               return (
                 <KakaoMap.Marker
                   key={place.id}
-                  label={isInCurrentRoute ? `${orderInRoute + 1}` : undefined}
+                  label={isInCurrentRoute ? `${orderInRoute + 1}. ${place.name}` : place.name}
                   variant={
-                    isInCurrentRoute ? 'selected' :
-                      placesUsedInOtherRoutes.has(place.id) ? 'disabled' : 'default'
+                    isInCurrentRoute ? 'selected' : 'disabled'
                   }
+                  color={isInCurrentRoute && place.category ? PlaceCategoryColorCode[place.category] : undefined}
                   onClick={() => {
                     if (currentRoute == null) {
                       const routeNumber = routesForDate.length + 1
@@ -216,6 +216,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
             <Tabs value={selectedDate} sx={{ position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 10 }}>
               {dates.map((date) => (
                 <Tab
+
                   key={date}
                   value={date}
                   label={formatDate(date)}
