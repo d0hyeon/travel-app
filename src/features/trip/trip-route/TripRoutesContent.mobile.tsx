@@ -170,27 +170,8 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
                 <KakaoMap.Marker
                   key={place.id}
                   label={isInCurrentRoute ? `${orderInRoute + 1}. ${place.name}` : place.name}
-                  variant={
-                    isInCurrentRoute ? 'selected' : 'disabled'
-                  }
+                  variant={isInCurrentRoute ? 'selected' : 'disabled'}
                   color={isInCurrentRoute && place.category ? PlaceCategoryColorCode[place.category] : undefined}
-                  onClick={() => {
-                    if (currentRoute == null) {
-                      const routeNumber = routesForDate.length + 1
-                      return createRoute({
-                        tripId,
-                        name: `${formatDate(selectedDate)} 경로 ${routeNumber}`,
-                        placeIds: [place.id],
-                        isMain: false,
-                        scheduledDate: selectedDate,
-                        placeMemos: {}
-                      })
-                    }
-                    const newPlaceIds = isInCurrentRoute
-                      ? currentRoute.placeIds.filter((id) => id !== place.id)
-                      : [...currentRoute.placeIds, place.id]
-                    update({ routeId: currentRoute.id, data: { placeIds: newPlaceIds } })
-                  }}
                   {...place}
                 />
               )
