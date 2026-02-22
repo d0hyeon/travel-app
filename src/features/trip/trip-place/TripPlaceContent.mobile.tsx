@@ -10,6 +10,7 @@ import { useTripRoutes } from "../trip-route/useTripRoutes";
 import { useTripPlaceDetailOverlay } from "./useTripPlaceDetailOverlay";
 import { useTripPlaces } from "./useTripPlaces";
 import { ListItem } from '../../../shared/components/ListItem';
+import { usePlaceSearchBottomSheet } from '../../place/place-search/usePlaceSearchBottomSheet';
 
 interface PlaceContentProps {
   tripId: string
@@ -30,7 +31,7 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
     }
   }
 
-  const { searchPlace } = usePlaceSearchDialog();
+  const { searchPlace } = usePlaceSearchBottomSheet();
   const handleAddPlace = async () => {
     const place = await searchPlace();
     if (place == null) return;
