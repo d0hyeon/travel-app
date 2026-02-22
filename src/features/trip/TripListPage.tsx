@@ -1,15 +1,13 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import {
   Box,
-  Container,
-  Typography,
   Button,
-  Card,
-  CardContent,
-  CardActionArea,
+  Container,
   Stack,
+  Typography
 } from '@mui/material'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { ListItem } from '../../shared/components/ListItem'
 import { TripFormDialog } from './TripFormDialog'
 import { useTrips } from './useTrips'
 
@@ -22,7 +20,7 @@ export function TripListPage() {
   return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h5" fontWeight="bold">
+        <Typography variant="h6" fontWeight="bold">
           내 여행
         </Typography>
         <Button
@@ -36,23 +34,21 @@ export function TripListPage() {
 
       {trips.length === 0 ? (
         <Box textAlign="center" py={8}>
-          <Typography color="text.secondary">
+          <Typography variant="body1" color="text.secondary">
             아직 여행이 없어요. 새 여행을 만들어보세요!
           </Typography>
         </Box>
       ) : (
         <Stack spacing={2}>
-          {trips.map((trip) => (
-            <Card key={trip.id}>
-              <CardActionArea onClick={() => navigate(`/trip/${trip.id}`)}>
-                <CardContent>
-                  <Typography variant="h6">{trip.name}</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {trip.startDate} ~ {trip.endDate}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-            </Card>
+          {trips.map((trip, idx) => (
+            <Link key={trip.id} to={`/trip/${trip.id}`}>
+              <ListItem
+                leftAddon={<ListItem.Ordering>{idx + 1}</ListItem.Ordering>}
+              >
+                <ListItem.Title>{trip.name}</ListItem.Title>
+                <ListItem.Text>{trip.startDate} ~ {trip.endDate}</ListItem.Text>
+              </ListItem>
+            </Link>
           ))}
         </Stack>
       )}

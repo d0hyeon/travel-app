@@ -12,9 +12,9 @@ export function ListItem({ leftAddon, rightAddon, children, ...props }: Props) {
   const isMobile = useIsMobile();
   return (
     <Stack
-      gap={0.5}
+      gap={isMobile ? 0.5 : 1}
       alignItems="center"
-      paddingX={isMobile ? 1.5 : 2}
+      paddingX={1.5}
       paddingY={isMobile ? 1 : 1.5}
       border={1}
       borderColor="divider"
