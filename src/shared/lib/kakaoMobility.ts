@@ -1,23 +1,11 @@
-// 카카오 모빌리티 API - 자동차 길찾기
-// https://developers.kakaomobility.com/docs/navi-api/directions/
+// 카카오 모빌리티 API - Supabase Edge Function을 통한 자동차 길찾기
+// Edge Function이 카카오 API를 프록시하므로 IP 화이트리스트 문제 해결
 
-const KAKAO_REST_KEY = import.meta.env.VITE_KAKAO_REST_KEY
+import { supabase } from './supabase'
 
 interface Coordinate {
   lat: number
   lng: number
-}
-
-interface DirectionsResponse {
-  routes: Array<{
-    result_code: number
-    result_msg: string
-    sections: Array<{
-      roads: Array<{
-        vertexes: number[] // [lng, lat, lng, lat, ...] 형식
-      }>
-    }>
-  }>
 }
 
 /**
@@ -27,11 +15,6 @@ interface DirectionsResponse {
  * @returns 도로를 따라가는 좌표 배열
  */
 export async function getDirections(waypoints: Coordinate[]): Promise<Coordinate[]> {
-  if (!KAKAO_REST_KEY) {
-    console.warn('VITE_KAKAO_REST_KEY가 설정되지 않았습니다. 직선 경로를 사용합니다.')
-    return waypoints
-  }
-
   if (waypoints.length < 2) {
     return waypoints
   }
@@ -87,59 +70,17 @@ function mergeSegments(segments: Coordinate[][]): Coordinate[] {
 }
 
 async function fetchSingleSegment(waypoints: Coordinate[]): Promise<Coordinate[]> {
-  const origin = waypoints[0]
-  const destination = waypoints[waypoints.length - 1]
-  const viaPoints = waypoints.slice(1, -1)
-
-  const params = new URLSearchParams({
-    origin: `${origin.lng},${origin.lat}`,
-    destination: `${destination.lng},${destination.lat}`,
-  })
-
-  if (viaPoints.length > 0) {
-    const waypointsStr = viaPoints
-      .map((p) => `${p.lng},${p.lat}`)
-      .join('|')
-    params.set('waypoints', waypointsStr)
-  }
-
   try {
-    const response = await fetch(
-      `https://apis-navi.kakaomobility.com/v1/directions?${params}`,
-      {
-        headers: {
-          Authorization: `KakaoAK ${KAKAO_REST_KEY}`,
-        },
-      }
-    )
+    const { data, error } = await supabase.functions.invoke('kakao-directions', {
+      body: { waypoints },
+    })
 
-    if (!response.ok) {
-      console.error('카카오 모빌리티 API 오류:', response.status)
+    if (error) {
+      console.error('Edge Function 호출 오류:', error)
       return waypoints
     }
 
-    const data: DirectionsResponse = await response.json()
-
-    if (data.routes[0]?.result_code !== 0) {
-      console.warn('경로 탐색 실패:', data.routes[0]?.result_msg)
-      return waypoints
-    }
-
-    const coordinates: Coordinate[] = []
-
-    for (const section of data.routes[0].sections) {
-      for (const road of section.roads) {
-        const vertexes = road.vertexes
-        for (let i = 0; i < vertexes.length; i += 2) {
-          coordinates.push({
-            lng: vertexes[i],
-            lat: vertexes[i + 1],
-          })
-        }
-      }
-    }
-
-    return coordinates.length > 0 ? coordinates : waypoints
+    return data?.coordinates ?? waypoints
   } catch (error) {
     console.error('경로 탐색 중 오류:', error)
     return waypoints
