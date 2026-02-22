@@ -116,7 +116,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
   }, [routesForDate, places])
 
   const handleRemoveFromRoute = (placeId: string) => {
-    if (!currentRoute) return
+    if (!currentRoute || !confirm('정말로 삭제하시겠어요?')) return
     const newPlaceIds = currentRoute.placeIds.filter((id) => id !== placeId)
     const newPlaceMemos = { ...currentRoute.placeMemos }
     delete newPlaceMemos[placeId]
@@ -225,9 +225,11 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
                   sx={{ fontSize: 11 }}
                   onClick={() => setSelectedRouteId(route.id)}
                   onDelete={() => {
-                    removeRoute(route.id)
-                    if (currentRoute?.id === route.id) {
-                      setSelectedRouteId(null)
+                    if (confirm('정말로 삭제하시겠어요?')) {
+                      removeRoute(route.id)
+                      if (currentRoute?.id === route.id) {
+                        setSelectedRouteId(null)
+                      }
                     }
                   }}
                 />
