@@ -1,22 +1,22 @@
-import { useMemo, useState } from "react";
-import { useOverlay } from "../../../shared/hooks/useOverlay";
-import { useTripPlaces } from "../trip-place/useTripPlaces";
-import { useTripRoutes } from "./useTripRoutes";
-import { formatDate } from "../../../shared/utils/formats";
-import { PlaceFormSheet } from "../../place/PlaceFormSheet";
-import type { Place } from "../../place/place.types";
-import { useRoadPath } from "../../../shared/hooks/useRoadPath";
-import { Box, Button, Chip, IconButton, Stack, styled, Tab, Tabs, Typography } from "@mui/material";
-import { KakaoMap } from "../../../shared/components/KakaoMap";
-import { DraggableBottomSheet } from "../../../shared/components/DraggableBottomSheet";
 import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import EditIcon from '@mui/icons-material/Edit';
-import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
-import DeleteIcon from '@mui/icons-material/Delete'
+import { Box, Chip, IconButton, Stack, styled, Tab, Tabs, Typography } from "@mui/material";
+import { useMemo, useState } from "react";
+import { DraggableBottomSheet } from "../../../shared/components/DraggableBottomSheet";
+import { KakaoMap } from "../../../shared/components/KakaoMap";
 import { ListItem } from "../../../shared/components/ListItem";
 import { SortableItem } from "../../../shared/components/dnd/SortableItem";
 import { SortableList } from "../../../shared/components/dnd/SortableList";
+import { useOverlay } from "../../../shared/hooks/useOverlay";
+import { useRoadPath } from "../../../shared/hooks/useRoadPath";
+import { formatDate } from "../../../shared/utils/formats";
+import { PlaceFormSheet } from "../../place/PlaceFormSheet";
 import { usePlaceSearchDialog } from "../../place/place-search/usePlaceSearchDialog";
+import type { Place } from "../../place/place.types";
+import { useTripPlaces } from "../trip-place/useTripPlaces";
+import { useTripRoutes } from "./useTripRoutes";
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = [
@@ -90,13 +90,6 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
       isMain: false,
       scheduledDate: selectedDate,
     })
-  }
-
-  const { searchPlace } = usePlaceSearchDialog();
-  const handleAddPlace = async () => {
-    const place = await searchPlace();
-    if (place == null) return;
-    createPlace(place)
   }
 
   const placesUsedInOtherRoutes = useMemo(() => {
@@ -256,14 +249,6 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
                 <AddIcon fontSize="small" />
               </IconButton>
               <Box flex={1} />
-              <Button
-                variant="text"
-                size="small"
-                onClick={handleAddPlace}
-                sx={{ fontSize: 11, minWidth: 'auto', px: 1 }}
-              >
-                장소 추가
-              </Button>
             </Stack>
 
             {routePlaces.length === 0 ? (
@@ -328,16 +313,6 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
             )}
           </Stack>
         </DraggableBottomSheet>
-      </Box>
-      <Box padding={1}>
-        <Button
-          sx={{ fontSize: 12 }}
-          variant="contained"
-          onClick={handleAddPlace}
-          fullWidth
-        >
-          장소 추가
-        </Button>
       </Box>
     </>
   )

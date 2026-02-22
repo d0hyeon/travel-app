@@ -27,6 +27,7 @@ import { ListItem } from '../../../shared/components/ListItem'
 import { SortableList } from '../../../shared/components/dnd/SortableList'
 import { SortableItem } from '../../../shared/components/dnd/SortableItem'
 import { useTripPlaceDetailOverlay } from '../trip-place/useTripPlaceDetailOverlay'
+import { EditableText } from '../../../shared/components/EditableText'
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = [
@@ -411,99 +412,60 @@ interface RouteMemoListProps {
 }
 
 function RouteMemoList({ memos, onChange }: RouteMemoListProps) {
-  const [editingIndex, setEditingIndex] = useState<number | null>(null)
-  const [draft, setDraft] = useState('')
+  const [isAdding, setIsAdding] = useState(false)
 
-  const handleSave = (index: number) => {
-    if (!draft.trim()) {
-      // 빈 값이면 삭제
+  const handleUpdate = (index: number, value: string) => {
+    if (!value.trim()) {
       onChange(memos.filter((_, i) => i !== index))
     } else {
       const newMemos = [...memos]
-      newMemos[index] = draft.trim()
+      newMemos[index] = value.trim()
       onChange(newMemos)
     }
-    setEditingIndex(null)
-    setDraft('')
   }
 
-  const handleAdd = () => {
-    setDraft('')
-    setEditingIndex(memos.length) // 새 항목 추가를 위한 인덱스
-  }
-
-  const handleDelete = (index: number) => {
+  const handleDelete = (index: number, e: React.MouseEvent) => {
+    e.stopPropagation()
     onChange(memos.filter((_, i) => i !== index))
   }
 
   return (
     <Stack gap={0.5}>
       {memos.map((memo, index) => (
-        editingIndex === index ? (
-          <TextField
-            key={index}
-            autoFocus
-            size="small"
-            variant="standard"
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onBlur={() => handleSave(index)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') handleSave(index)
-              if (e.key === 'Escape') {
-                setEditingIndex(null)
-                setDraft('')
-              }
-            }}
-            placeholder="경로 메모 입력..."
-            fullWidth
-            slotProps={{ input: { sx: { fontSize: 12 } } }}
-          />
-        ) : (
-          <Stack key={index} direction="row" alignItems="center" gap={0.5}>
-            <Typography
-              variant="body2"
-              fontSize={12}
-              color="primary"
-              onClick={() => {
-                setDraft(memo)
-                setEditingIndex(index)
-              }}
-              sx={{ cursor: 'pointer' }}
-            >
-              {memo}
-            </Typography>
+        <EditableText
+          key={index}
+          value={memo}
+          onSubmit={(value) => handleUpdate(index, value)}
+          submitOnBlur
+          variant="body2"
+          fontSize={12}
+          color="primary"
+          sx={{ cursor: 'pointer' }}
+          endIcon={
             <CloseIcon
-              onClick={() => handleDelete(index)}
+              onClick={(e) => handleDelete(index, e)}
               sx={{ fontSize: 14, color: 'text.secondary', cursor: 'pointer', '&:hover': { color: 'error.main' } }}
             />
-          </Stack>
-        )
+          }
+        />
       ))}
-      {editingIndex === memos.length ? (
+      {isAdding ? (
         <TextField
           autoFocus
           size="small"
           variant="standard"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onBlur={() => {
-            if (draft.trim()) {
-              onChange([...memos, draft.trim()])
-            }
-            setEditingIndex(null)
-            setDraft('')
+          onBlur={(e) => {
+            const value = e.target.value.trim()
+            if (value) onChange([...memos, value])
+            setIsAdding(false)
           }}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && draft.trim()) {
-              onChange([...memos, draft.trim()])
-              setEditingIndex(null)
-              setDraft('')
+            if (e.key === 'Enter') {
+              const value = (e.target as HTMLInputElement).value.trim()
+              if (value) onChange([...memos, value])
+              setIsAdding(false)
             }
-            if (e.key === 'Escape') {
-              setEditingIndex(null)
-              setDraft('')
-            }
+            if (e.key === 'Escape') setIsAdding(false)
           }}
           placeholder="경로 메모 입력..."
           fullWidth
@@ -514,7 +476,7 @@ function RouteMemoList({ memos, onChange }: RouteMemoListProps) {
           variant="body2"
           fontSize={12}
           color="text.secondary"
-          onClick={handleAdd}
+          onClick={() => setIsAdding(true)}
           sx={{ cursor: 'pointer', '&:hover': { color: 'primary.main' } }}
         >
           + 경로 메모

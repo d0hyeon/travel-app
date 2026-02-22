@@ -34,6 +34,7 @@ export type EditableTextProps<Value extends string | number> = {
   submitOnBlur?: boolean;
   rules?: Partial<Rules>;
   actions?: (props: ActionProps<Value>) => ReactNode;
+  endIcon?: ReactNode;
 } & Omit<TypographyProps, 'onSubmit'>;
 
 export function EditableText<Value extends string | number, As extends string>({
@@ -46,6 +47,7 @@ export function EditableText<Value extends string | number, As extends string>({
   submitOnBlur = false,
   actions,
   valueAs = (value) => (typeof value === 'number' ? value.toString() : value),
+  endIcon = <EditIcon fontSize="small" />,
   ...props
 }: EditableTextProps<Value>) {
   const value = _value ?? defaultValue ?? ('' as Value);
@@ -79,15 +81,16 @@ export function EditableText<Value extends string | number, As extends string>({
 
   const displayValue = format(field.value as Value);
 
+
   if (isReadonly) {
     return (
-      <Stack direction="row" gap={0.5} alignItems="center" role="button" onClick={setEdit}>
+      <Stack ref={registerDismissibleNode} direction="row" gap={0.5} alignItems="center" role="button" onClick={setEdit}>
         {typeof displayValue === 'string' ? (
           <Typography {...props}>{displayValue}</Typography>
         ) : (
           <span>{displayValue}</span>
         )}
-        <EditIcon fontSize="small" />
+        {endIcon}
       </Stack>
     );
   }
