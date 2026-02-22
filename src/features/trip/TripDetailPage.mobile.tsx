@@ -1,12 +1,11 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
-import RouteIcon from '@mui/icons-material/Route';
+import NearMeIcon from '@mui/icons-material/NearMe';
+import PinDropIcon from '@mui/icons-material/PinDrop';
 import {
-  BottomNavigation,
-  BottomNavigationAction,
   Box,
   CircularProgress,
   IconButton,
+  Stack,
   Typography
 } from '@mui/material';
 import { Suspense } from 'react';
@@ -51,21 +50,41 @@ export function TripDetailPageMobile() {
         {currentTab === 'Place' && <TripPlaceContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />}
         {currentTab === 'Route' && <TripRoutesContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />}
       </Suspense>
-      <BottomNavigation
-        showLabels
-        value={currentTab}
-        onChange={(_event, newValue) => {
-          setCurrentTab(newValue);
-        }}
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-evenly"
+        minHeight={50}
+        paddingY={1}
+        sx={theme => ({ borderTop: `1px solid ${theme.palette.divider}` })}
       >
-        <BottomNavigationAction
-          label="모든 장소"
-          value="Place"
-          icon={<LocationOnIcon />}
+        <Stack
+          component="button"
+          gap={0.5}
+          justifyContent="center"
+          alignItems="center"
+          onClick={() => setCurrentTab('Place')}
+          sx={{ flex: 1 }}
+        >
+          <PinDropIcon color={currentTab === 'Place' ? 'primary' : 'disabled'} />
+          <Typography variant='caption' fontWeight="bold" color={currentTab === 'Place' ? 'primary' : 'textDisabled'}>장소</Typography>
+        </Stack>
 
-        />
-        <BottomNavigationAction label="경로 설정" value="Route" icon={<RouteIcon />} />
-      </BottomNavigation>
+        <Box height="28px" width="1px" sx={theme => ({ backgroundColor: theme.palette.divider, opacity: 0.6 })} />
+
+        <Stack
+          component="button"
+          gap={0.5}
+          justifyContent="center"
+          alignItems="center"
+          onClick={() => setCurrentTab('Route')}
+          sx={{ flex: 1 }}
+        >
+          <NearMeIcon color={currentTab === 'Route' ? 'primary' : 'disabled'} />
+          <Typography variant='caption' fontWeight="bold" color={currentTab === 'Route' ? 'primary' : 'textDisabled'}>경로</Typography>
+        </Stack>
+      </Stack>
+
     </Box>
   )
 }
