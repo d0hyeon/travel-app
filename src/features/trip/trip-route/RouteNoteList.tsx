@@ -87,6 +87,16 @@ export function NoteEditor({ notes, onChange, action, ...props }: Props) {
           fontSize={12}
           color="primary"
           sx={{ cursor: 'pointer' }}
+          renderEditField={(props) => (
+            <TextField
+              {...props}
+              autoFocus
+              size="small"
+              variant="standard"
+              fullWidth
+              slotProps={{ input: { sx: { fontSize: 12 } } }}
+            />
+          )}
           endIcon={
             <CloseIcon
               onClick={(e) => {
