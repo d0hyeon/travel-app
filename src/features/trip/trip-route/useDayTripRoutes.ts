@@ -54,7 +54,7 @@ export function useDayTripRoutes({ tripId, date }: Params) {
 
   return {
     ...result,
-    data: { routes: routesWithPlace, tripDates, trip },
+    data: { routes: routesWithPlace, tripDates },
     update,
     updateMemo,
   }

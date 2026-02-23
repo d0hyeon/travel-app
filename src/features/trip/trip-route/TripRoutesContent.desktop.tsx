@@ -28,6 +28,7 @@ import { useTripPlaces } from '../trip-place/useTripPlaces'
 import { NoteEditor } from './RouteNoteList'
 import { useDayTripRoutes } from './useDayTripRoutes'
 import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
+import { useTrip } from '../useTrip'
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = [
@@ -52,6 +53,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
   const overlay = useOverlay();
   const confirm = useConfirmDialog();
 
+  const { data: trip } = useTrip(tripId);
   const [selectedDate, setSelectedDate] = useQueryParamState<string>('days', {
     defaultValue: () => {
       const today = new Date().toISOString().split('T')[0]
@@ -62,7 +64,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
     }
   })
   const {
-    data: { routes, trip, tripDates },
+    data: { routes, tripDates },
     create: { mutateAsync: createRoute },
     update: { mutateAsync: update },
     updateMemo,
