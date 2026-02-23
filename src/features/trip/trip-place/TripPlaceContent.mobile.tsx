@@ -101,11 +101,13 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
 
         {/* Bottom Sheet */}
         <DraggableBottomSheet
-          snapPoints={[0.25, 0.5, 1]}
+          snapPoints={[0.25, 0.5, 0.8, 1]}
           defaultSnapIndex={1}
           onSnapChange={(ratio) => {
-            setSheetRatio(ratio)
-            setTimeout(() => mapRef.current?.relayout(), 350)
+            if (ratio < 1 && ratio !== sheetRatio) {
+              setSheetRatio(ratio)
+              setTimeout(() => mapRef.current?.relayout(), 350)
+            }
           }}
         >
           <Box sx={{ p: 1.5 }}>

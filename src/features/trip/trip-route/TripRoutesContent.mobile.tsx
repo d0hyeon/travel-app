@@ -212,12 +212,13 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
 
         {/* Bottom Sheet */}
         <DraggableBottomSheet
-          snapPoints={[0.1, 0.5, 1]}
+          snapPoints={[0.1, 0.5, 0.8, 1]}
           defaultSnapIndex={1}
           onSnapChange={(ratio) => {
-            setSheetRatio(ratio)
-            // 트랜지션 완료 후 맵 relayout
-            mapRef.current?.relayout()
+            if (ratio < 1 && ratio !== sheetRatio) {
+              setSheetRatio(ratio)
+              mapRef.current?.relayout()
+            }
           }}
         >
           <Tabs
