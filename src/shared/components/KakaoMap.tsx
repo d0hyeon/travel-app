@@ -27,6 +27,8 @@ const MapContext = createContext<MapContextValue | null>(null);
 
 export interface KakaoMapRef {
   panTo: (lat: number, lng: number, level?: number) => void
+  /** 맵 컨테이너 크기 변경 후 호출하여 맵을 다시 렌더링 */
+  relayout: () => void
 }
 
 export interface KakaoMapProps extends Omit<BoxProps, 'ref' | "autoFocus"> {
@@ -131,6 +133,11 @@ function Resolved({
       if (!map) return
       map.setCenter(new kakao.maps.LatLng(lat, lng))
       if (level != null) map.setLevel(level)
+    },
+    relayout: () => {
+      if (!map) return
+      // relayout은 카카오맵 API에 존재하지만 타입 정의에 없음
+      ;(map as any).relayout()
     },
   }), [map]);
 

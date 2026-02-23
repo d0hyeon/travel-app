@@ -44,7 +44,8 @@ export function NoteEditor({ notes, onChange, action, ...props }: Props) {
               cursor: 'pointer',
               borderBottom: `1px dashed ${theme.palette.primary.main}`,
             })}
-            onClick={async () => {
+            onClick={async (event) => {
+              event.stopPropagation();
               updateNote(note, {
                 onConfirm: (updated) => handleUpdate(idx, updated),
                 onDelete: () => handleDelete(idx),
@@ -58,7 +59,8 @@ export function NoteEditor({ notes, onChange, action, ...props }: Props) {
           variant="body2"
           fontSize={12}
           color="text.secondary"
-          onClick={async () => {
+          onClick={async (event) => {
+            event.stopPropagation();
             const value = await writeNote();
             if (value == null) return;
             onChange([...notes, value])

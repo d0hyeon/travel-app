@@ -2,7 +2,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import WorkspacesIcon from '@mui/icons-material/Workspaces';
 import { Box, Button, Chip, IconButton, Stack, ToggleButton, Typography } from "@mui/material";
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useQueryParamState } from '~shared/hooks/useQueryParamState';
 import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog';
 import { DraggableBottomSheet } from "../../../shared/components/DraggableBottomSheet";
@@ -60,6 +60,7 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
     defaultValue: false,
     parse: value => value === 'true'
   })
+  const [sheetRatio, setSheetRatio] = useState(0.5) // defaultSnapIndex=1 -> snapPoints[1]=0.5
 
   return (
     <>
@@ -76,7 +77,7 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
           </ToggleButton>
         </Stack>
         {/* Map (전체) */}
-        <Box sx={{ position: 'absolute', inset: 30 }}>
+        <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `${sheetRatio * 100}%` }}>
           <KakaoMap
             ref={mapRef}
             defaultCenter={defaultCenter}
@@ -102,6 +103,10 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
         <DraggableBottomSheet
           snapPoints={[0.25, 0.5, 1]}
           defaultSnapIndex={1}
+          onSnapChange={(ratio) => {
+            setSheetRatio(ratio)
+            setTimeout(() => mapRef.current?.relayout(), 350)
+          }}
         >
           <Box sx={{ p: 1.5 }}>
             <Typography variant="caption" color="text.secondary" fontWeight="medium" mb={0.5} display="block">

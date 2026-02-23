@@ -3,11 +3,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import EditIcon from '@mui/icons-material/Edit';
 import { Box, Button, Chip, IconButton, Stack, styled, Tab, Tabs, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
-import { useMemo } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useQueryParamState } from '~shared/hooks/useQueryParamState';
 import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog';
 import { DraggableBottomSheet } from "../../../shared/components/DraggableBottomSheet";
-import { KakaoMap } from "../../../shared/components/KakaoMap";
+import { KakaoMap, type KakaoMapRef } from "../../../shared/components/KakaoMap";
 import { ListItem } from "../../../shared/components/ListItem";
 import { SortableItem } from "../../../shared/components/dnd/SortableItem";
 import { SortableList } from "../../../shared/components/dnd/SortableList";
@@ -137,11 +137,14 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
     parse: value => value === 'true'
   })
 
+  const mapRef = useRef<KakaoMapRef>(null)
+  const [sheetRatio, setSheetRatio] = useState(0.5) // defaultSnapIndex=1 -> snapPoints[1]=0.5
+
   return (
     <>
       <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
         {/* Map (전체) */}
-        <Box sx={{ position: 'absolute', inset: 0 }}>
+        <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `${sheetRatio * 100}%` }}>
           <Stack gap={1} padding={1} position="absolute" top={0} left={0} zIndex={1000}>
             <ToggleButtonGroup
               orientation="vertical"
@@ -170,6 +173,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
             </ToggleButton>
           </Stack>
           <KakaoMap
+            ref={mapRef}
             defaultCenter={defaultCenter}
             autoFocus="path"
             height="100%"
@@ -210,6 +214,11 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
         <DraggableBottomSheet
           snapPoints={[0.1, 0.5, 1]}
           defaultSnapIndex={1}
+          onSnapChange={(ratio) => {
+            setSheetRatio(ratio)
+            // 트랜지션 완료 후 맵 relayout
+            setTimeout(() => mapRef.current?.relayout(), 350)
+          }}
         >
           <Tabs
             value={selectedDate}
@@ -286,11 +295,19 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
                           <IconButton size="small" onClick={() => handleEditPlaceInRoute(place)}>
                             <EditIcon fontSize="small" />
                           </IconButton>
-                          <IconButton size="small" onClick={() => handleRemoveFromRoute(place.id)} color="error">
+                          <IconButton
+                            size="small"
+                            color="error"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleRemoveFromRoute(place.id)
+                            }}
+                          >
                             <DeleteIcon fontSize="small" />
                           </IconButton>
                         </Box>
                       )}
+                      onClick={() => mapRef.current?.panTo(place.lat, place.lng)}
                     >
                       <Stack direction="row" alignItems="center" gap={0.5}>
                         <Dot>{idx + 1}</Dot>

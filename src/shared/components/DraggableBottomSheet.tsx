@@ -13,6 +13,8 @@ interface DraggableBottomSheetProps {
   isOpen?: boolean
   /** 모달 모드: 닫기 콜백 */
   onClose?: () => void
+  /** 스냅 변경 콜백 (바텀시트가 차지하는 비율 전달) */
+  onSnapChange?: (snapRatio: number) => void
 }
 
 const DEFAULT_SNAP_POINTS = [0.3, 0.5, 0.7, 0.9]
@@ -24,6 +26,7 @@ export function DraggableBottomSheet({
   minHeight = 100,
   isOpen,
   onClose,
+  onSnapChange,
 }: DraggableBottomSheetProps) {
   const isModalMode = isOpen !== undefined
   const containerRef = useRef<HTMLDivElement>(null)
@@ -43,6 +46,11 @@ export function DraggableBottomSheet({
       }
     }
   }, [isOpen, isModalMode, defaultSnapIndex])
+
+  // 스냅 변경 시 콜백 호출
+  useEffect(() => {
+    onSnapChange?.(snapPoints[snapIndex])
+  }, [snapIndex, snapPoints, onSnapChange])
 
   // 드래그 상태를 ref로 관리 (클로저 문제 해결)
   const dragState = useRef({
