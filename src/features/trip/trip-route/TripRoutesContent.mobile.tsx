@@ -3,8 +3,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import EditIcon from '@mui/icons-material/Edit';
 import { Box, Button, Chip, IconButton, Stack, styled, Tab, Tabs, Typography } from "@mui/material";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useQueryParamState } from '~shared/hooks/useQueryParamState';
+import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog';
 import { DraggableBottomSheet } from "../../../shared/components/DraggableBottomSheet";
 import { KakaoMap } from "../../../shared/components/KakaoMap";
 import { ListItem } from "../../../shared/components/ListItem";
@@ -16,11 +17,10 @@ import { formatDate, formatDateISO } from "../../../shared/utils/formats";
 import { PlaceFormSheet } from "../../place/PlaceFormSheet";
 import { PlaceCategoryColorCode, type Place } from "../../place/place.types";
 import { useTripPlaces } from "../trip-place/useTripPlaces";
-import { PlaceSelectSheet } from "./PlaceSelectSheet";
-import { useDayTripRoutes } from './useDayTripRoutes';
-import { NoteEditor } from './RouteNoteList';
-import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog';
 import { useTrip } from '../useTrip';
+import { PlaceSelectSheet } from "./PlaceSelectSheet";
+import { NoteEditor } from './RouteNoteList';
+import { useDayTripRoutes } from './useDayTripRoutes';
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = [
