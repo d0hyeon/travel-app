@@ -152,16 +152,35 @@ interface MarkerProps {
 
 KakaoMap.Marker = ({ lat, lng, label, tooltip, variant, color, opacity = 1, onClick = () => { }, onContextMenu }: MarkerProps) => {
   const context = use(MapContext);
-
   const position = useMemo(() => new kakao.maps.LatLng(lat, lng), [lat, lng]);
+
+  const [zoom, setZoom] = useState<number | undefined>(context?.map?.getLevel());
+
+  useEffect(() => {
+    if (context?.map == null) return;
+    const handler = () => {
+      setZoom(context.map?.getLevel())
+    }
+
+    kakao.maps.event.addListener(context.map, 'zoom_changed', handler)
+    return () => {
+      if (context.map) {
+        kakao.maps.event.removeListener(context.map, 'zoom_changed', handler)
+      }
+    }
+  }, [context?.map])
+
+
+
   const marker = useMemo(() => {
-    const markerImage = getMarkerImage(variant, color, opacity);
+    const markerImage = getMarkerImage(variant, color, opacity, zoom);
 
     return new kakao.maps.Marker({
       position,
       image: markerImage,
     })
-  }, [position, variant, color]);
+  }, [position, variant, color, zoom]);
+
 
 
 
@@ -169,15 +188,19 @@ KakaoMap.Marker = ({ lat, lng, label, tooltip, variant, color, opacity = 1, onCl
     if (context?.map == null || label == null) return;
 
     const { map } = context;
+    const scale = getZoomScale(zoom);
+    // 마커 높이(36px * scale) 기준으로 라벨 위치 계산
+    // yAnchor: 1 = 라벨 하단이 position에, 2 = 라벨 하단이 마커 위에
+    const yAnchor = 1 + (36 * scale + 4) / 20; // 마커 위 4px 간격
     const overlay = new kakao.maps.CustomOverlay({
       position,
-      content: createLabelContent(label, variant, color, opacity),
-      yAnchor: 2.5,
+      content: createLabelContent(label, variant, color, opacity, zoom),
+      yAnchor,
     });
 
     overlay.setMap(map);
     return () => overlay.setMap(null);
-  }, [context, label, color]);
+  }, [context, label, color, zoom]);
 
   useEffect(function renderMarker() {
     if (marker == null || context?.map == null) return;
@@ -197,6 +220,7 @@ KakaoMap.Marker = ({ lat, lng, label, tooltip, variant, color, opacity = 1, onCl
     if (marker != null) {
       kakao.maps.event.addListener(marker, 'click', clickHandler);
       kakao.maps.event.addListener(marker, 'rightclick', contextMenuHandler)
+
       return () => {
         kakao.maps.event.removeListener(marker, 'click', clickHandler);
         kakao.maps.event.removeListener(marker, 'rightclick', contextMenuHandler)
@@ -209,10 +233,13 @@ KakaoMap.Marker = ({ lat, lng, label, tooltip, variant, color, opacity = 1, onCl
     if (context?.map == null || marker == null || tooltip == null) return;
 
     const { map } = context;
+    const scale = getZoomScale(zoom);
+    // yAnchor: 마커(36px * scale) 바로 위에 배치
+    const yAnchor = 1 + (36 * scale) / 30;
     const overlay = new kakao.maps.CustomOverlay({
       position,
-      content: createTooltipContent(tooltip),
-      yAnchor: 2.2,
+      content: createTooltipContent(tooltip, zoom),
+      yAnchor,
     });
 
     const showTooltip = () => overlay.setMap(map);
@@ -226,7 +253,7 @@ KakaoMap.Marker = ({ lat, lng, label, tooltip, variant, color, opacity = 1, onCl
       kakao.maps.event.removeListener(marker, 'mouseover', showTooltip);
       kakao.maps.event.removeListener(marker, 'mouseout', hideTooltip);
     };
-  }, [context, marker, position, tooltip]);
+  }, [context, marker, position, tooltip, zoom]);
 
   return null;
 }
@@ -234,12 +261,19 @@ KakaoMap.Marker = ({ lat, lng, label, tooltip, variant, color, opacity = 1, onCl
 
 
 
-function getMarkerImage(variant?: MapMarker['variant'], customColor?: string, opacity = 1): kakao.maps.MarkerImage | undefined {
+function getMarkerImage(
+  variant?: MapMarker['variant'],
+  customColor?: string,
+  opacity = 1,
+  level: number = 8,
+): kakao.maps.MarkerImage | undefined {
   const colors = {
     default: '#ef5350',
     selected: '#1976d2',
     disabled: '#9e9e9e',
   }
+
+  const scale = getZoomScale(level);
 
   const color = customColor ?? colors[variant ?? 'default']
   const svgMarker = `
@@ -253,26 +287,36 @@ function getMarkerImage(variant?: MapMarker['variant'], customColor?: string, op
 
   return new kakao.maps.MarkerImage(
     dataUrl,
-    new kakao.maps.Size(24, 36),
-    { offset: new kakao.maps.Point(12, 36) }
+    new kakao.maps.Size(24 * scale, 36 * scale),
+    { offset: new kakao.maps.Point(12 * scale, 36 * scale) }
   )
 }
 
-function createLabelContent(label: string, variant?: MapMarker['variant'], customColor?: string, opacity = 1): string {
+function createLabelContent(
+  label: string,
+  variant?: MapMarker['variant'],
+  customColor?: string,
+  opacity = 1,
+  level: number = 8
+): string {
   const bgColors = {
     default: '#ef5350',
     selected: '#1976d2',
     disabled: '#9e9e9e',
   }
   const bg = customColor ?? bgColors[variant ?? 'default']
+  const scale = getZoomScale(level);
+  const fontSize = Math.round(11 * scale);
+  const paddingV = Math.round(2 * scale);
+  const paddingH = Math.round(6 * scale);
 
   return `
     <div style="
       background: ${bg};
       color: white;
-      padding: 2px 6px;
+      padding: ${paddingV}px ${paddingH}px;
       border-radius: 10px;
-      font-size: 11px;
+      font-size: ${fontSize}px;
       font-weight: bold;
       white-space: nowrap;
       opacity: ${opacity};
@@ -280,18 +324,22 @@ function createLabelContent(label: string, variant?: MapMarker['variant'], custo
   `
 }
 
-function createTooltipContent(tooltip: string | string[]): string {
+function createTooltipContent(tooltip: string | string[], level: number = 8): string {
   const lines = Array.isArray(tooltip) ? tooltip : [tooltip]
   const content = lines.map(line => `<div>${line}</div>`).join('')
+  const scale = getZoomScale(level);
+  const fontSize = Math.round(12 * scale);
+  const paddingV = Math.round(8 * scale);
+  const paddingH = Math.round(12 * scale);
 
   return `
     <div style="
       position: relative;
       background: white;
       color: #333;
-      padding: 8px 12px;
+      padding: ${paddingV}px ${paddingH}px;
       border-radius: 8px;
-      font-size: 12px;
+      font-size: ${fontSize}px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.15);
       white-space: nowrap;
       pointer-events: none;
@@ -320,4 +368,22 @@ function useVariation<T>(initialValue?: T) {
     () => ref.current,
     (next: T) => ref.current = next,
   ] as const;
+}
+
+/**
+ * 줌 레벨에 따른 스케일 계산
+ * - 카카오맵 줌 레벨: 1(가장 확대) ~ 14(가장 축소)
+ * - 기준 레벨(BASE_LEVEL)에서 scale = 1
+ */
+const ZOOM_SCALE_CONFIG = {
+  BASE_LEVEL: 8,    // 기준 레벨 (이 레벨에서 scale = 1)
+  MIN_SCALE: 0.6,   // 최소 스케일 (축소 시)
+  MAX_SCALE: 1.4,   // 최대 스케일 (확대 시)
+  RATE: 0.08,       // 레벨당 변화율
+}
+
+function getZoomScale(level: number = 8): number {
+  const { BASE_LEVEL, MIN_SCALE, MAX_SCALE, RATE } = ZOOM_SCALE_CONFIG;
+  const scale = 1 + (BASE_LEVEL - level) * RATE;
+  return Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale));
 }
