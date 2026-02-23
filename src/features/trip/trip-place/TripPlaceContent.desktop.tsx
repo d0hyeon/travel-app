@@ -21,9 +21,10 @@ import { usePlaceSearchDialog } from '../../place/place-search/usePlaceSearchDia
 interface TripPlaceContentProps {
   tripId: string
   defaultCenter: { lat: number; lng: number }
+  clusterable?: boolean
 }
 
-export function TripPlaceContent({ tripId, defaultCenter }: TripPlaceContentProps) {
+export function TripPlaceContent({ tripId, defaultCenter, clusterable }: TripPlaceContentProps) {
   const { data: places, create, remove } = useTripPlaces(tripId)
   const { data: { routes } } = useTripRoutes(tripId)
   const mapRef = useRef<KakaoMapRef>(null)
@@ -210,6 +211,8 @@ export function TripPlaceContent({ tripId, defaultCenter }: TripPlaceContentProp
           ref={mapRef}
           defaultCenter={defaultCenter}
           height="100%"
+          clustering={clusterable}
+          clusterGridSize={60}
         >
           {places.map(place => (
             <KakaoMap.Marker

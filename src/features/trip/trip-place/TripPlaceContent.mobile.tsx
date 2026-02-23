@@ -15,9 +15,10 @@ import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialo
 interface PlaceContentProps {
   tripId: string
   defaultCenter: { lat: number; lng: number }
+  clusterable?: boolean
 }
 
-export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
+export function TripPlaceContent({ tripId, defaultCenter, clusterable }: PlaceContentProps) {
   const { data: places, create, remove } = useTripPlaces(tripId)
   const { data: { routes } } = useTripRoutes(tripId)
   const mapRef = useRef<KakaoMapRef>(null)
@@ -63,6 +64,8 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
             ref={mapRef}
             defaultCenter={defaultCenter}
             height="100%"
+            clustering={clusterable}
+            clusterGridSize={50}
           >
             {places.map(place => (
               <KakaoMap.Marker

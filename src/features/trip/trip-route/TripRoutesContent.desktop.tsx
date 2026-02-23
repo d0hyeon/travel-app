@@ -47,9 +47,10 @@ function getRouteColor(index: number): string {
 interface TripRoutesContentProps {
   tripId: string
   defaultCenter: { lat: number; lng: number }
+  clusterable?: boolean
 }
 
-export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentProps) {
+export function TripRoutesContent({ tripId, defaultCenter, clusterable }: TripRoutesContentProps) {
   const overlay = useOverlay();
   const confirm = useConfirmDialog();
 
@@ -263,6 +264,8 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
           defaultCenter={defaultCenter}
           autoFocus="path"
           height="100%"
+          clustering={clusterable}
+          clusterGridSize={20}
         >
           {places.map((place) => {
             const isInCurrentRoute = currentRoute?.placeIds.includes(place.id) ?? false
@@ -275,6 +278,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
                 variant={
                   isInCurrentRoute ? 'selected' : 'disabled'
                 }
+
                 color={isInCurrentRoute && place.category ? PlaceCategoryColorCode[place.category] : undefined}
                 onContextMenu={() => detailOverlay.openDialog({ placeId: place.id, tripId })}
                 onClick={() => {

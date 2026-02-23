@@ -6,10 +6,21 @@ import '../lib/kakao'
 
 type AutoFocus = 'marker' | 'path' | false;
 
+interface MarkerData {
+  id: string;
+  position: kakao.maps.LatLng;
+  label?: string;
+  variant?: 'default' | 'selected' | 'disabled';
+  color?: string;
+  opacity?: number;
+}
+
 interface MapContextValue {
   map: kakao.maps.Map | null;
   extendBound: (value: kakao.maps.LatLng) => void;
-  config: { autoFocus: AutoFocus };
+  registerMarker: (data: MarkerData) => void;
+  unregisterMarker: (id: string) => void;
+  config: { autoFocus: AutoFocus; clustering: boolean; clusterGridSize: number };
 }
 const MapContext = createContext<MapContextValue | null>(null);
 
@@ -22,6 +33,10 @@ export interface KakaoMapProps extends Omit<BoxProps, 'ref' | "autoFocus"> {
   ref?: Ref<KakaoMapRef>;
   children?: ReactNode;
   autoFocus?: AutoFocus;
+  /** 마커 클러스터링 활성화 */
+  clustering?: boolean;
+  /** 클러스터링 픽셀 거리 (이 거리 이내의 마커들을 클러스터로 묶음, 기본값 60px) */
+  clusterGridSize?: number;
 }
 
 const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 }
@@ -38,12 +53,16 @@ function Resolved({
   defaultCenter = DEFAULT_CENTER,
   ref,
   autoFocus = 'marker',
+  clustering = false,
+  clusterGridSize = 60,
+  children,
   ...boxProps
 }: KakaoMapProps) {
   use(loadKakaoMap());
 
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
+  const [zoom, setZoom] = useState(8);
 
   useEffect(() => {
     if (container) {
@@ -52,6 +71,11 @@ function Resolved({
         level: 8,
       })
       setMap(map)
+
+      // 줌 변경 감지
+      kakao.maps.event.addListener(map, 'zoom_changed', () => {
+        setZoom(map.getLevel())
+      })
     }
   }, [container])
 
@@ -78,6 +102,28 @@ function Resolved({
     });
   }, [map]);
 
+  // 마커 레지스트리
+  const markerRegistryRef = useRef<Map<string, MarkerData>>(new Map());
+  const [markerVersion, setMarkerVersion] = useState(0);
+
+  const registerMarker = useCallback((data: MarkerData) => {
+    markerRegistryRef.current.set(data.id, data);
+    setMarkerVersion(v => v + 1);
+  }, []);
+
+  const unregisterMarker = useCallback((id: string) => {
+    markerRegistryRef.current.delete(id);
+    setMarkerVersion(v => v + 1);
+  }, []);
+
+  // 클러스터링 계산
+  const clusters = useMemo(() => {
+    if (!clustering || !map) return null;
+
+    const markers = Array.from(markerRegistryRef.current.values());
+    return calculateClusters(markers, map, clusterGridSize);
+  }, [clustering, map, clusterGridSize, markerVersion, zoom]);
+
   // ref로 메서드 노출
   useImperativeHandle(ref, () => ({
     panTo: (lat: number, lng: number, level?: number) => {
@@ -91,13 +137,32 @@ function Resolved({
     return {
       map,
       extendBound,
-      config: { autoFocus }
+      registerMarker,
+      unregisterMarker,
+      config: { autoFocus, clustering, clusterGridSize }
     }
-  }, [map, autoFocus])
+  }, [map, autoFocus, clustering, clusterGridSize])
+
+  // 클러스터 클릭 핸들러
+  const handleClusterClick = useCallback((cluster: Cluster) => {
+    if (!map) return;
+    const bounds = new kakao.maps.LatLngBounds();
+    cluster.markers.forEach(m => bounds.extend(m.position));
+    map.setBounds(bounds);
+  }, [map]);
 
   return (
     <MapContext.Provider value={value}>
       <Box ref={setContainer} position="relative" {...boxProps} />
+      {children}
+      {clusters && map && (
+        <ClusterOverlays
+          map={map}
+          clusters={clusters}
+          zoom={zoom}
+          onClusterClick={handleClusterClick}
+        />
+      )}
     </MapContext.Provider>
   )
 };
@@ -139,6 +204,7 @@ export interface MapMarker {
 }
 
 interface MarkerProps {
+  id?: string
   lat: number
   lng: number
   label?: string
@@ -150,11 +216,36 @@ interface MarkerProps {
   onContextMenu?: (props: MapMarker) => void;
 }
 
-KakaoMap.Marker = ({ lat, lng, label, tooltip, variant, color, opacity = 1, onClick = () => { }, onContextMenu }: MarkerProps) => {
+KakaoMap.Marker = ({ id, lat, lng, label, tooltip, variant, color, opacity = 1, onClick = () => { }, onContextMenu }: MarkerProps) => {
   const context = use(MapContext);
   const position = useMemo(() => new kakao.maps.LatLng(lat, lng), [lat, lng]);
+  const markerId = useMemo(() => id ?? `${lat}_${lng}`, [id, lat, lng]);
 
   const [zoom, setZoom] = useState<number | undefined>(context?.map?.getLevel());
+
+  // 클러스터링 모드일 때 마커 등록
+  useEffect(() => {
+    if (!context?.config.clustering) return;
+
+    context.registerMarker({
+      id: markerId,
+      position,
+      label,
+      variant,
+      color,
+      opacity,
+    });
+
+    return () => context.unregisterMarker(markerId);
+  }, [context, markerId, position, label, variant, color, opacity]);
+
+  // 클러스터링 모드에서 클러스터에 포함되면 렌더링 안함
+  // 픽셀 기반 클러스터링이므로 항상 클러스터 로직에 위임
+  const shouldRender = useMemo(() => {
+    if (!context?.config.clustering) return true;
+    // 클러스터링 활성화시 개별 마커 숨김 (클러스터 오버레이가 대신 표시)
+    return false;
+  }, [context?.config.clustering]);
 
   useEffect(() => {
     if (context?.map == null) return;
@@ -185,7 +276,7 @@ KakaoMap.Marker = ({ lat, lng, label, tooltip, variant, color, opacity = 1, onCl
 
 
   useEffect(function renderLabel() {
-    if (context?.map == null || label == null) return;
+    if (context?.map == null || label == null || !shouldRender) return;
 
     const { map } = context;
     const scale = getZoomScale(zoom);
@@ -200,24 +291,24 @@ KakaoMap.Marker = ({ lat, lng, label, tooltip, variant, color, opacity = 1, onCl
 
     overlay.setMap(map);
     return () => overlay.setMap(null);
-  }, [context, label, color, zoom]);
+  }, [context, label, color, zoom, shouldRender]);
 
   useEffect(function renderMarker() {
-    if (marker == null || context?.map == null) return;
+    if (marker == null || context?.map == null || !shouldRender) return;
     marker.setMap(context.map);
 
     if (context.config.autoFocus === 'marker') {
       context.extendBound(position);
     }
     return () => marker.setMap(null);
-  }, [marker, position, context])
+  }, [marker, position, context, shouldRender])
 
 
   const clickHandler = useEffectEvent(() => onClick({ lat, lng, label, variant }));
   const contextMenuHandler = useEffectEvent(() => onContextMenu?.({ lat, lng, label, variant }))
 
   useEffect(function subscribeEvnet() {
-    if (marker != null) {
+    if (marker != null && shouldRender) {
       kakao.maps.event.addListener(marker, 'click', clickHandler);
       kakao.maps.event.addListener(marker, 'rightclick', contextMenuHandler)
 
@@ -226,11 +317,11 @@ KakaoMap.Marker = ({ lat, lng, label, tooltip, variant, color, opacity = 1, onCl
         kakao.maps.event.removeListener(marker, 'rightclick', contextMenuHandler)
       }
     }
-  }, [marker]);
+  }, [marker, shouldRender]);
 
   // Tooltip on hover
   useEffect(function renderTooltip() {
-    if (context?.map == null || marker == null || tooltip == null) return;
+    if (context?.map == null || marker == null || tooltip == null || !shouldRender) return;
 
     const { map } = context;
     const scale = getZoomScale(zoom);
@@ -253,7 +344,7 @@ KakaoMap.Marker = ({ lat, lng, label, tooltip, variant, color, opacity = 1, onCl
       kakao.maps.event.removeListener(marker, 'mouseover', showTooltip);
       kakao.maps.event.removeListener(marker, 'mouseout', hideTooltip);
     };
-  }, [context, marker, position, tooltip, zoom]);
+  }, [context, marker, position, tooltip, zoom, shouldRender]);
 
   return null;
 }
@@ -386,4 +477,196 @@ function getZoomScale(level: number = 8): number {
   const { BASE_LEVEL, MIN_SCALE, MAX_SCALE, RATE } = ZOOM_SCALE_CONFIG;
   const scale = 1 + (BASE_LEVEL - level) * RATE;
   return Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale));
+}
+
+// ============ 클러스터링 ============
+
+interface Cluster {
+  id: string;
+  center: kakao.maps.LatLng;
+  markers: MarkerData[];
+}
+
+/**
+ * 픽셀 기반 클러스터링 알고리즘
+ * 화면상 픽셀 거리를 기준으로 마커를 그룹화
+ * - 줌 레벨 변경 시 자동으로 클러스터링 범위가 조정됨
+ */
+function calculateClusters(
+  markers: MarkerData[],
+  map: kakao.maps.Map,
+  gridSize: number
+): Cluster[] {
+  if (markers.length === 0) return [];
+
+  // getProjection은 카카오맵 API에 존재하지만 타입 정의에 없음
+  const projection = (map as any).getProjection() as {
+    pointFromCoords: (latlng: kakao.maps.LatLng) => { x: number; y: number };
+  };
+  const clusters: Cluster[] = [];
+  const processed = new Set<string>();
+
+  // 각 마커의 픽셀 좌표 계산
+  const markerPixels = markers.map(marker => ({
+    marker,
+    pixel: projection.pointFromCoords(marker.position),
+  }));
+
+  // 각 마커에 대해 클러스터 탐색
+  markerPixels.forEach(({ marker, pixel }) => {
+    if (processed.has(marker.id)) return;
+
+    // 이 마커와 가까운 마커들 찾기
+    const nearbyMarkers: MarkerData[] = [marker];
+    processed.add(marker.id);
+
+    markerPixels.forEach(({ marker: other, pixel: otherPixel }) => {
+      if (processed.has(other.id)) return;
+
+      // 픽셀 거리 계산
+      const dx = pixel.x - otherPixel.x;
+      const dy = pixel.y - otherPixel.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance <= gridSize) {
+        nearbyMarkers.push(other);
+        processed.add(other.id);
+      }
+    });
+
+    // 2개 이상일 때만 클러스터로 생성
+    if (nearbyMarkers.length >= 2) {
+      // 클러스터 중심 계산
+      let totalLat = 0;
+      let totalLng = 0;
+      nearbyMarkers.forEach(m => {
+        totalLat += m.position.getLat();
+        totalLng += m.position.getLng();
+      });
+      const centerLat = totalLat / nearbyMarkers.length;
+      const centerLng = totalLng / nearbyMarkers.length;
+
+      clusters.push({
+        id: `cluster_${marker.id}`,
+        center: new kakao.maps.LatLng(centerLat, centerLng),
+        markers: nearbyMarkers,
+      });
+    } else {
+      // 단일 마커도 클러스터로 추가 (개별 표시용)
+      clusters.push({
+        id: `single_${marker.id}`,
+        center: marker.position,
+        markers: [marker],
+      });
+    }
+  });
+
+  return clusters;
+}
+
+interface ClusterOverlaysProps {
+  map: kakao.maps.Map;
+  clusters: Cluster[];
+  zoom: number;
+  onClusterClick: (cluster: Cluster) => void;
+}
+
+function ClusterOverlays({ map, clusters, zoom, onClusterClick }: ClusterOverlaysProps) {
+  const overlaysRef = useRef<kakao.maps.CustomOverlay[]>([]);
+  const markersRef = useRef<kakao.maps.Marker[]>([]);
+
+  useEffect(() => {
+    // 기존 오버레이/마커 제거
+    overlaysRef.current.forEach(overlay => overlay.setMap(null));
+    overlaysRef.current = [];
+    markersRef.current.forEach(marker => marker.setMap(null));
+    markersRef.current = [];
+
+    clusters.forEach(cluster => {
+      if (cluster.markers.length === 1) {
+        // 단일 마커: 일반 마커로 표시
+        const markerData = cluster.markers[0];
+        const markerImage = getMarkerImage(
+          markerData.variant,
+          markerData.color,
+          markerData.opacity,
+          zoom
+        );
+
+        const marker = new kakao.maps.Marker({
+          position: markerData.position,
+          image: markerImage,
+        });
+        marker.setMap(map);
+        markersRef.current.push(marker);
+
+        // 라벨 오버레이
+        if (markerData.label) {
+          const scale = getZoomScale(zoom);
+          const yAnchor = 1 + (36 * scale + 4) / 20;
+          const labelOverlay = new kakao.maps.CustomOverlay({
+            position: markerData.position,
+            content: createLabelContent(
+              markerData.label,
+              markerData.variant,
+              markerData.color,
+              markerData.opacity,
+              zoom
+            ),
+            yAnchor,
+          });
+          labelOverlay.setMap(map);
+          overlaysRef.current.push(labelOverlay);
+        }
+      } else {
+        // 클러스터: 숫자 원으로 표시
+        const content = document.createElement('div');
+        content.innerHTML = createClusterContent(cluster.markers.length, zoom);
+        content.style.cursor = 'pointer';
+        content.addEventListener('click', () => onClusterClick(cluster));
+
+        const overlay = new kakao.maps.CustomOverlay({
+          position: cluster.center,
+          content,
+          yAnchor: 0.5,
+          xAnchor: 0.5,
+        });
+
+        overlay.setMap(map);
+        overlaysRef.current.push(overlay);
+      }
+    });
+
+    return () => {
+      overlaysRef.current.forEach(overlay => overlay.setMap(null));
+      overlaysRef.current = [];
+      markersRef.current.forEach(marker => marker.setMap(null));
+      markersRef.current = [];
+    };
+  }, [map, clusters, zoom, onClusterClick]);
+
+  return null;
+}
+
+function createClusterContent(count: number, level: number): string {
+  const scale = getZoomScale(level);
+  const size = Math.round(40 * scale);
+  const fontSize = Math.round(14 * scale);
+
+  return `
+    <div style="
+      width: ${size}px;
+      height: ${size}px;
+      background: #1976d2;
+      border: 3px solid white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: ${fontSize}px;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    ">${count}</div>
+  `;
 }

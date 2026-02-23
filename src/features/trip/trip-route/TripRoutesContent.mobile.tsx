@@ -37,11 +37,12 @@ function getRouteColor(index: number): string {
 }
 
 interface RouteContentProps {
-  tripId: string
+  tripId: string;
+  clusterable?: boolean
   defaultCenter: { lat: number; lng: number }
 }
 
-export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) {
+export function TripRoutesContent({ tripId, defaultCenter, clusterable }: RouteContentProps) {
   const overlay = useOverlay()
   const confirm = useConfirmDialog();
 
@@ -131,6 +132,8 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
             defaultCenter={defaultCenter}
             autoFocus="path"
             height="100%"
+            clustering={clusterable}
+            clusterGridSize={50}
           >
             {places.map((place) => {
               const isInCurrentRoute = currentRoute?.placeIds.includes(place.id) ?? false
