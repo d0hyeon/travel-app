@@ -130,14 +130,14 @@ function Resolved({
   // ref로 메서드 노출
   useImperativeHandle(ref, () => ({
     panTo: (lat: number, lng: number, level?: number) => {
-      if (!map) return
-      map.setCenter(new kakao.maps.LatLng(lat, lng))
+      if (!map) return;
+      map.panTo(new kakao.maps.LatLng(lat, lng))
       if (level != null) map.setLevel(level)
     },
     relayout: () => {
       if (!map) return
       // relayout은 카카오맵 API에 존재하지만 타입 정의에 없음
-      ;(map as any).relayout()
+      map.relayout()
     },
   }), [map]);
 
