@@ -13,6 +13,7 @@ interface MarkerData {
   variant?: 'default' | 'selected' | 'disabled';
   color?: string;
   opacity?: number;
+  onClick?: () => void;
 }
 
 interface MapContextValue {
@@ -224,6 +225,8 @@ KakaoMap.Marker = ({ id, lat, lng, label, tooltip, variant, color, opacity = 1, 
   const [zoom, setZoom] = useState<number | undefined>(context?.map?.getLevel());
 
   // 클러스터링 모드일 때 마커 등록
+  const handleMarkerClick = useEffectEvent(() => onClick({ lat, lng, label, variant }));
+
   useEffect(() => {
     if (!context?.config.clustering) return;
 
@@ -234,6 +237,7 @@ KakaoMap.Marker = ({ id, lat, lng, label, tooltip, variant, color, opacity = 1, 
       variant,
       color,
       opacity,
+      onClick: handleMarkerClick,
     });
 
     return () => context.unregisterMarker(markerId);
@@ -599,6 +603,11 @@ function ClusterOverlays({ map, clusters, zoom, onClusterClick }: ClusterOverlay
         });
         marker.setMap(map);
         markersRef.current.push(marker);
+
+        // 클릭 이벤트 연결
+        if (markerData.onClick) {
+          kakao.maps.event.addListener(marker, 'click', markerData.onClick);
+        }
 
         // 라벨 오버레이
         if (markerData.label) {
