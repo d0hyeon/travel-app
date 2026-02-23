@@ -7,6 +7,7 @@ import { useCallback } from 'react';
 import { useOverlay } from '../../../shared/hooks/useOverlay';
 import { useTripPlaces } from './useTripPlaces';
 import { assert } from '../../../shared/lib/assert';
+import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog';
 
 interface PlaceDetailOverlayProps {
   tripId: string;
@@ -26,7 +27,7 @@ export function useTripPlaceDetailOverlay() {
           {...params}
           isOpen={isOpen}
           onClose={() => {
-            resolve()
+            resolve();
             close();
           }}
         />
@@ -59,7 +60,8 @@ export function PlaceDetailSheet({ placeId, tripId, isOpen, onClose }: PlaceDeta
   const { data: places, remove, update } = useTripPlaces(tripId);
   const place = places.find(x => x.id === placeId);
 
-  assert(!!place, '해당 장소가 존재하지 않습니다.')
+  assert(!!place, '해당 장소가 존재하지 않습니다.');
+  const confirm = useConfirmDialog();
 
   return (
     <DraggableBottomSheet
@@ -86,9 +88,11 @@ export function PlaceDetailSheet({ placeId, tripId, isOpen, onClose }: PlaceDeta
             variant="outlined"
             color="error"
             size="small"
-            onClick={() => {
-              remove(place.id);
-              onClose();
+            onClick={async () => {
+              if (await confirm('삭제하시겠습니까?')) {
+                onClose();
+                setTimeout(() => remove(place.id))
+              }
             }}
           >
             삭제
@@ -148,6 +152,7 @@ function PlaceDetailDialog({ tripId, placeId, isOpen, onClose }: PlaceDetailOver
   const place = places.find(x => x.id === placeId);
 
   assert(!!place, '해당 장소가 존재하지 않습니다.')
+  const confirm = useConfirmDialog();
 
 
   return (
@@ -159,10 +164,10 @@ function PlaceDetailDialog({ tripId, placeId, isOpen, onClose }: PlaceDetailOver
           variant="contained"
           size="small"
           color="error"
-          onClick={() => {
-            if (confirm('삭제하시겠습니까?')) {
-              remove(place.id);
+          onClick={async () => {
+            if (await confirm('삭제하시겠습니까?')) {
               onClose();
+              setTimeout(() => remove(place.id))
             }
           }}
         >
