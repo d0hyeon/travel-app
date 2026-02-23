@@ -54,6 +54,38 @@ export interface Database {
         }
         Update: Partial<Database['public']['Tables']['routes']['Insert']>
       }
+      trip_members: {
+        Row: {
+          id: string
+          trip_id: string
+          name: string
+          emoji: string
+          created_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['trip_members']['Row'], 'id' | 'created_at'> & {
+          id?: string
+          created_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['trip_members']['Insert']>
+      }
+      expenses: {
+        Row: {
+          id: string
+          trip_id: string
+          place_id: string | null
+          description: string
+          total_amount: number
+          payments: { memberId: string; amount: number }[]
+          split_among: string[]
+          date: string
+          created_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['expenses']['Row'], 'id' | 'created_at'> & {
+          id?: string
+          created_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['expenses']['Insert']>
+      }
     }
   }
 }
