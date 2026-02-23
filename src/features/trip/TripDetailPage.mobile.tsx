@@ -70,7 +70,8 @@ export function TripDetailPageMobile() {
         alignItems="center"
         justifyContent="space-evenly"
         minHeight={50}
-        paddingY={1}
+        paddingTop={0.9}
+        paddingBottom={0.3}
         sx={theme => ({ borderTop: `1px solid ${theme.palette.divider}` })}
       >
         <Stack
@@ -81,7 +82,7 @@ export function TripDetailPageMobile() {
           onClick={() => setCurrentTab('Place')}
           sx={{ flex: 1 }}
         >
-          <PinDropIcon color={currentTab === 'Place' ? 'primary' : 'disabled'} />
+          <PinDropIcon fontSize="small" color={currentTab === 'Place' ? 'primary' : 'disabled'} />
           <Typography variant='caption' fontWeight="bold" color={currentTab === 'Place' ? 'primary' : 'textDisabled'}>장소</Typography>
         </Stack>
 
@@ -95,7 +96,7 @@ export function TripDetailPageMobile() {
           onClick={() => setCurrentTab('Route')}
           sx={{ flex: 1 }}
         >
-          <NearMeIcon color={currentTab === 'Route' ? 'primary' : 'disabled'} />
+          <NearMeIcon fontSize="small" color={currentTab === 'Route' ? 'primary' : 'disabled'} />
           <Typography variant='caption' fontWeight="bold" color={currentTab === 'Route' ? 'primary' : 'textDisabled'}>경로</Typography>
         </Stack>
       </Stack>

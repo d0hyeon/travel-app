@@ -198,7 +198,7 @@ export function TripPlaceContent({ tripId, defaultCenter, clusterable }: PlaceCo
       </Box>
       <Box padding={1}>
         <Button
-          size="medium"
+          size="large"
           variant="contained"
           onClick={handleAddPlace}
           sx={{ fontSize: 12 }}

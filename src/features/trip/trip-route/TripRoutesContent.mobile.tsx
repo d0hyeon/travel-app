@@ -21,6 +21,7 @@ import { useTrip } from '../useTrip';
 import { PlaceSelectSheet } from "./PlaceSelectSheet";
 import { NoteEditor } from './RouteNoteList';
 import { useDayTripRoutes } from './useDayTripRoutes';
+import { useTripPlaceDetailOverlay } from '../trip-place/useTripPlaceDetailOverlay';
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = [
@@ -123,6 +124,8 @@ export function TripRoutesContent({ tripId, defaultCenter, clusterable }: RouteC
     update({ routeId: currentRoute.id, data: { placeIds: newPlaceIds } })
   }
 
+  const { openBottomSheet: openDetailSheet } = useTripPlaceDetailOverlay();
+
   return (
     <>
       <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
@@ -145,6 +148,7 @@ export function TripRoutesContent({ tripId, defaultCenter, clusterable }: RouteC
                   label={isInCurrentRoute ? `${orderInRoute + 1}. ${place.name}` : place.name}
                   variant={isInCurrentRoute ? 'selected' : 'disabled'}
                   color={isInCurrentRoute && place.category ? PlaceCategoryColorCode[place.category] : undefined}
+                  onClick={() => openDetailSheet({ tripId, placeId: place.id })}
                   {...place}
                 />
               )
@@ -190,8 +194,6 @@ export function TripRoutesContent({ tripId, defaultCenter, clusterable }: RouteC
             ))}
           </Tabs>
           <Stack gap={1} sx={{ p: 1.5 }}>
-
-
             {/* 경로 선택 & 추가 */}
             <Stack direction="row" spacing={0.5} mb={1.5} alignItems="center">
               {routes.map((route, index) => (
@@ -281,7 +283,7 @@ export function TripRoutesContent({ tripId, defaultCenter, clusterable }: RouteC
       </Box>
       <Box padding={1}>
         <Button
-          size="medium"
+          size="large"
           variant="contained"
           onClick={() => {
             overlay.open(({ isOpen, close }) => (

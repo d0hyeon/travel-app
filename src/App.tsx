@@ -64,27 +64,21 @@ const theme = createTheme({
             }
           }),
         },
-        { props: { size: 'large' }, style: { height: 52, borderRadius: 16, fontSize: 15, fontWeight: 'bold' } }
-      ],
-    },
-    MuiTextField: {
-      variants: [
         {
-          props: { variant: 'outlined' },
+          props: { size: 'large' },
           style: props => ({
+            height: 52, borderRadius: 16, fontSize: 15, fontWeight: 'bold',
             [props.theme.breakpoints.down('md')]: {
-              MuiInputBase: {
-                root: {
-                  borderWidth: 0,
-                  borderBottomWidth: 1,
-                }
-              }
-
+              height: 40,
+              fontSize: 14,
+              fontWeight: 'normal',
+              borderRadius: 12,
             }
           })
         }
-      ]
+      ],
     },
+
     MuiDialog: {
       styleOverrides: {
         paper: (props) => ({
@@ -123,7 +117,7 @@ const theme = createTheme({
       styleOverrides: {
         root: (props) => ({
           [props.theme.breakpoints.down('md')]: {
-            fontSize: 12,
+            fontSize: 14,
             padding: 8
           }
         })
