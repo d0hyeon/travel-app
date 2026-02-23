@@ -265,7 +265,7 @@ export function TripRoutesContent({ tripId, defaultCenter, clusterable }: TripRo
           autoFocus="path"
           height="100%"
           clustering={clusterable}
-          clusterGridSize={20}
+          clusterGridSize={60}
         >
           {places.map((place) => {
             const isInCurrentRoute = currentRoute?.placeIds.includes(place.id) ?? false
