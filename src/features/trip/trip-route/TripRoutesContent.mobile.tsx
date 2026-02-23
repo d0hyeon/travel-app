@@ -151,7 +151,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
               value={isVisibleOtherMarkers}
               exclusive
               size="small"
-              sx={{ backgroundColor: 'rgba(255, 255, 255, 0.7)' }}
+              sx={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
             >
               <ToggleButton value={true} aria-label="list" onClick={() => setIsVisibleOtherMarkers(true)}>
                 <VisibilityOnIcon fontSize="small" />
@@ -167,7 +167,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
               selected={cluastering}
               onChange={() => setCluastering(!cluastering)}
               size="small"
-              sx={{ backgroundColor: 'rgba(255, 255, 255, 0.7)' }}
+              sx={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
             >
               <WorkspacesIcon />
             </ToggleButton>
@@ -217,7 +217,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
           onSnapChange={(ratio) => {
             setSheetRatio(ratio)
             // 트랜지션 완료 후 맵 relayout
-            setTimeout(() => mapRef.current?.relayout(), 350)
+            mapRef.current?.relayout()
           }}
         >
           <Tabs
