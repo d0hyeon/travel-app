@@ -86,8 +86,8 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
   }
 
 
-  const handleRemoveFromRoute = (placeId: string) => {
-    if (!currentRoute || !confirm('정말로 삭제하시겠어요?')) return
+  const handleRemoveFromRoute = async (placeId: string) => {
+    if (!currentRoute || !(await confirm('정말로 삭제하시겠어요?'))) return
     const newPlaceIds = currentRoute.placeIds.filter((id) => id !== placeId)
     update({ routeId: currentRoute.id, data: { placeIds: newPlaceIds } })
   }
