@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, type ReactNode, useEffect } from 'react'
+import { createContext, useContext, useState, useCallback, type ReactNode, useEffect, useId, useRef } from 'react'
 
 interface OverlayController {
   isOpen: boolean
@@ -41,6 +41,7 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
   )
 }
 
+
 function OverlayItem({
   id: _id,
   element,
@@ -71,16 +72,21 @@ export function useOverlay() {
     throw new Error('useOverlay must be used within OverlayProvider')
   }
 
-  const { mount, unmount } = context
+  const { mount, unmount } = context;
+
+  const id = useId();
 
   const open = useCallback(
     (element: OverlayElement) => {
-      const id = `overlay-${++overlayId}`
       mount(id, element)
       return () => unmount(id)
     },
-    [mount, unmount]
+    [id, mount, unmount]
   )
 
-  return { open }
+  const close = useCallback(() => {
+    unmount(id);
+  }, [id, unmount])
+
+  return { open, close }
 }
