@@ -3,6 +3,7 @@ import { useTripRoutes } from "./useTripRoutes";
 import { arrayIncludes } from "~shared/utils/types";
 import { useCallback, useMemo } from "react";
 import { useTripPlaces } from "../trip-place/useTripPlaces";
+import { useMutation } from "@tanstack/react-query";
 
 type Params = {
   tripId: string;
@@ -40,11 +41,11 @@ export function useDayTripRoutes({ tripId, date }: Params) {
   }, [routes, allPlaces]);
 
 
-  const updateMemo = useCallback(({ memos, placeId, routeId }: UpdateMemoParams) => {
+  const updateNotes = useCallback(({ memos, placeId, routeId }: UpdateMemoParams) => {
     const targetRoute = routes.find(x => x.id === routeId);
     if (targetRoute == null) return;
 
-    return update.mutateAsync({
+    return update({
       routeId,
       data: {
         placeMemos: { ...targetRoute.placeMemos, [placeId]: memos }
@@ -56,6 +57,6 @@ export function useDayTripRoutes({ tripId, date }: Params) {
     ...result,
     data: { routes: routesWithPlace, tripDates },
     update,
-    updateMemo,
+    updateNotes,
   }
 }

@@ -57,10 +57,10 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
   })
   const {
     data: { routes, tripDates },
-    create: { mutateAsync: createRoute },
-    update: { mutateAsync: update },
-    remove: { mutateAsync: removeRoute },
-    updateMemo
+    create: createRoute,
+    update,
+    remove: removeRoute,
+    updateNotes
   } = useDayTripRoutes({ tripId, date: selectedDate })
   const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null)
   const { data: places, update: updatePlace } = useTripPlaces(tripId)
@@ -248,7 +248,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
 
                         <NoteEditor
                           notes={place.routeNotes ?? []}
-                          onChange={(memos) => updateMemo({ placeId: place.id, routeId: currentRoute.id, memos })}
+                          onChange={(memos) => updateNotes({ placeId: place.id, routeId: currentRoute.id, memos })}
                           action="dialog"
                           marginTop={1}
                         />

@@ -27,7 +27,7 @@ export function useTripRoutes(id: string) {
     ))
   }, [trip.startDate, trip.endDate]);
 
-  const create = useMutation({
+  const { mutateAsync: create } = useMutation({
     mutationFn: (params: OmitPartial<Parameters<typeof createRoute>[0], 'name' | 'tripId' | 'scheduledDate'>) => {
       return createRoute({
         placeIds: [],
@@ -41,7 +41,7 @@ export function useTripRoutes(id: string) {
     },
   });
 
-  const update = useMutation({
+  const { mutateAsync: update } = useMutation({
     mutationFn: ({ routeId, data }: { routeId: string; data: Parameters<typeof updateRoute>[1] }) => {
       return updateRoute(routeId, data);
     },
@@ -50,7 +50,7 @@ export function useTripRoutes(id: string) {
     },
   });
 
-  const remove = useMutation({
+  const { mutateAsync: remove } = useMutation({
     mutationFn: deleteRoute,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: useTripRoutes.key(id) });
