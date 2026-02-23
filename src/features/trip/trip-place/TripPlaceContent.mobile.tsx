@@ -83,7 +83,7 @@ export function TripPlaceContent({ tripId, defaultCenter, clusterable }: PlaceCo
 
         {/* Bottom Sheet */}
         <DraggableBottomSheet
-          snapPoints={[0.25, 0.5, 0.75, 1]}
+          snapPoints={[0.25, 0.5, 1]}
           defaultSnapIndex={1}
         >
           <Box sx={{ p: 1.5 }}>

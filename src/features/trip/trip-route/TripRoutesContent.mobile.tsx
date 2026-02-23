@@ -162,7 +162,7 @@ export function TripRoutesContent({ tripId, defaultCenter, clusterable }: RouteC
 
         {/* Bottom Sheet */}
         <DraggableBottomSheet
-          snapPoints={[0.25, 0.5, 0.75, 1]}
+          snapPoints={[0.1, 0.5, 1]}
           defaultSnapIndex={1}
         >
           <Tabs
