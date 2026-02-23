@@ -122,6 +122,7 @@ export function DraggableBottomSheet({
 
   // Touch handlers
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    e.stopPropagation();
     handleDragStart(e.touches[0].clientY);
   }, [handleDragStart])
 
@@ -203,10 +204,14 @@ export function DraggableBottomSheet({
         onTouchEnd={handleTouchEnd}
         onMouseDown={handleMouseDown}
         sx={{
+          position: 'relative',
+          zIndex: 15,
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          py: 1.5,
+          py: 3.5,
+          mb: -1,
+          mt: -2,
           cursor: 'grab',
           touchAction: 'none',
           userSelect: 'none',
@@ -228,7 +233,9 @@ export function DraggableBottomSheet({
 
       {/* Content */}
       <Box sx={{ flex: 1, overflow: 'auto' }}>
-        {children}
+        <Box marginTop={-2}>
+          {children}
+        </Box>
       </Box>
     </Box>
   )

@@ -87,8 +87,6 @@ export function TripPlaceContent({ tripId, defaultCenter, clusterable }: PlaceCo
           defaultSnapIndex={1}
         >
           <Box sx={{ p: 1.5 }}>
-
-
             <Typography variant="caption" color="text.secondary" fontWeight="medium" mb={0.5} display="block">
               확정 ({confirmedPlaces.length}) / 후보 ({wishedPlaces.length})
             </Typography>
