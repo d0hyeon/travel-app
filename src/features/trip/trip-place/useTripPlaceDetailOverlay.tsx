@@ -91,7 +91,7 @@ export function PlaceDetailSheet({ placeId, tripId, isOpen, onClose }: PlaceDeta
             onClick={async () => {
               if (await confirm('삭제하시겠습니까?')) {
                 onClose();
-                setTimeout(() => remove(place.id))
+                setTimeout(() => remove(place.id), 1000)
               }
             }}
           >
@@ -167,7 +167,7 @@ function PlaceDetailDialog({ tripId, placeId, isOpen, onClose }: PlaceDetailOver
           onClick={async () => {
             if (await confirm('삭제하시겠습니까?')) {
               onClose();
-              setTimeout(() => remove(place.id))
+              setTimeout(() => remove(place.id), 1000)
             }
           }}
         >
