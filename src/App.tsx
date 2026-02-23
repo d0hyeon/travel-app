@@ -38,15 +38,96 @@ const theme = createTheme({
   components: {
     MuiButton: {
       variants: [
-        { props: { size: 'small' }, style: { minWidth: 30, height: 36, borderRadius: 8 } },
-        { props: { size: 'medium' }, style: { height: 40, borderRadius: 12, fontSize: 15, lineHeight: 1, } },
+        {
+          props: { size: 'small' },
+          style: (props) => ({
+            minWidth: 30,
+            height: 36,
+            borderRadius: 8,
+            [props.theme.breakpoints.down('md')]: {
+              height: 24,
+              fontSize: 11,
+              minWidth: 28,
+              borderRadius: 4,
+            }
+          }),
+        },
+        {
+          props: { size: 'medium' },
+          style: props => ({
+            height: 40, borderRadius: 12, fontSize: 15, lineHeight: 1,
+            [props.theme.breakpoints.down('md')]: {
+              height: 32,
+              fontSize: 13,
+              minWidth: 28,
+              borderRadius: 8,
+            }
+          }),
+        },
         { props: { size: 'large' }, style: { height: 52, borderRadius: 16, fontSize: 15, fontWeight: 'bold' } }
+      ],
+    },
+    MuiTextField: {
+      variants: [
+        {
+          props: { variant: 'outlined' },
+          style: props => ({
+            [props.theme.breakpoints.down('md')]: {
+              MuiInputBase: {
+                root: {
+                  borderWidth: 0,
+                  borderBottomWidth: 1,
+                }
+              }
+
+            }
+          })
+        }
       ]
     },
     MuiDialog: {
       styleOverrides: {
-        paper: { borderRadius: 20, overflow: 'hidden' }
+        paper: (props) => ({
+          borderRadius: 20,
+          overflow: 'hidden',
+          [props.theme.breakpoints.down('md')]: {
+            padding: 1,
+          }
+        })
       }
+    },
+    MuiDialogTitle: {
+      styleOverrides: {
+        root: (props) => ({
+          [props.theme.breakpoints.down('md')]: {
+            fontSize: 14,
+            padding: 16,
+            paddingBlock: 12
+          }
+        })
+      }
+    },
+    MuiDialogContent: {
+      styleOverrides: {
+        root: (props) => ({
+          [props.theme.breakpoints.down('md')]: {
+            padding: 16,
+            paddingTop: 0,
+          }
+        })
+      }
+    },
+    MuiInputBase: {
+
+      styleOverrides: {
+        root: (props) => ({
+          [props.theme.breakpoints.down('md')]: {
+            fontSize: 12,
+            padding: 8
+          }
+        })
+      },
+
     }
   },
 })
