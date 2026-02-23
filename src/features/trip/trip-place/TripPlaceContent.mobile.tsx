@@ -65,7 +65,7 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
   return (
     <>
       <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
-        <Stack gap={1} padding={1} position="absolute" top={0} right={0} zIndex={1000}>
+        <Stack gap={1} padding={1} position="absolute" top={0} right={0} zIndex={8}>
           <ToggleButton
             value="check"
             selected={cluastering}

@@ -145,7 +145,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
       <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
         {/* Map (전체) */}
         <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `${sheetRatio * 100}%` }}>
-          <Stack gap={1} padding={1} position="absolute" top={0} left={0} zIndex={1000}>
+          <Stack gap={1} padding={1} position="absolute" top={0} left={0} zIndex={8}>
             <ToggleButtonGroup
               orientation="vertical"
               value={isVisibleOtherMarkers}
@@ -161,7 +161,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
               </ToggleButton>
             </ToggleButtonGroup>
           </Stack>
-          <Stack gap={1} padding={1} position="absolute" top={0} right={0} zIndex={1000}>
+          <Stack gap={1} padding={1} position="absolute" top={0} right={0} zIndex={8}>
             <ToggleButton
               value="check"
               selected={cluastering}
