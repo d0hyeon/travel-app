@@ -93,7 +93,7 @@ export function TripDetailPageMobile() {
         <Stack
 
           component="button"
-          gap={0.5}
+
           justifyContent="center"
           alignItems="center"
           onClick={() => setCurrentTab('Place')}
@@ -107,7 +107,7 @@ export function TripDetailPageMobile() {
 
         <Stack
           component="button"
-          gap={0.5}
+
           justifyContent="center"
           alignItems="center"
           onClick={() => setCurrentTab('Route')}
