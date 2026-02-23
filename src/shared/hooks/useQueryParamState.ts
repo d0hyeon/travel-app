@@ -3,12 +3,12 @@ import { useSearchParams } from "react-router-dom";
 
 interface OptionWithDefault<T> {
   parse?: (value: string) => T;
-  defaultValue: T;
+  defaultValue: T | (() => T);
 }
 
 interface Options<T> {
   parse?: (value?: string) => T;
-  defaultValue?: T;
+  defaultValue?: T | (() => T);
 }
 
 
@@ -21,11 +21,15 @@ export function useQueryParamState<T>(key: string, { defaultValue, parse }: Opti
   const param = searchParams.get(key);
 
   const value = useMemo(() => {
-    if (param != null && !!parse) {
-      return parse(param);
+    if (param != null) {
+      if (parse != null) return parse(param);
+      return param;
     }
-    return param ?? defaultValue;
-  }, [param, defaultValue]);
+    if (defaultValue instanceof Function) {
+      return defaultValue();
+    }
+    return defaultValue;
+  }, [param]);
 
   const setValue = useCallback((value: T) => {
     if (value == null) {
