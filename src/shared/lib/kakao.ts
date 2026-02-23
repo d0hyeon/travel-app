@@ -7,10 +7,12 @@ declare global {
   class Map {
     constructor(container: HTMLElement, options: MapOptions)
     setCenter(latlng: LatLng): void
+    panTo(latlng: LatLng): void;
     setBounds(bounds: LatLngBounds): void
     getCenter(): LatLng
     getLevel(): number
     setLevel(level: number): void
+    relayout(): void;
   }
 
   class LatLng {
