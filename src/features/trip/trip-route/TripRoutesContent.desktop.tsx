@@ -1,33 +1,32 @@
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
-import CloseIcon from '@mui/icons-material/Close'
 import {
   Box,
   Button,
   Chip,
   IconButton,
   Stack,
-  TextField,
   ToggleButton,
   ToggleButtonGroup,
   Typography
 } from '@mui/material'
 import { useMemo, useState } from 'react'
-import { useTripPlaces } from '../trip-place/useTripPlaces'
-import { useTripRoutes } from './useTripRoutes'
-import { KakaoMap } from '../../../shared/components/KakaoMap'
-import { useOverlay } from '../../../shared/hooks/useOverlay'
-import { useRoadPath } from '../../../shared/hooks/useRoadPath'
-import { PlaceSearchDialog, type PlaceSearchResult } from '../../place/place-search/PlaceSearchDialog'
-import { PlaceFormDialog } from '../../place/PlaceFormDialog'
-import { formatDate } from '../../../shared/utils/formats'
-import { PlaceCategoryColorCode, type Place } from '../../place/place.types'
-import { ListItem } from '../../../shared/components/ListItem'
-import { SortableList } from '../../../shared/components/dnd/SortableList'
 import { SortableItem } from '../../../shared/components/dnd/SortableItem'
+import { SortableList } from '../../../shared/components/dnd/SortableList'
+import { KakaoMap } from '../../../shared/components/KakaoMap'
+import { ListItem } from '../../../shared/components/ListItem'
+import { useOverlay } from '../../../shared/hooks/useOverlay'
+import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
+import { useRoadPath } from '../../../shared/hooks/useRoadPath'
+import { formatDate, formatDateISO } from '../../../shared/utils/formats'
+import { PlaceSearchDialog, type PlaceSearchResult } from '../../place/place-search/PlaceSearchDialog'
+import { PlaceCategoryColorCode, type Place } from '../../place/place.types'
+import { PlaceFormDialog } from '../../place/PlaceFormDialog'
 import { useTripPlaceDetailOverlay } from '../trip-place/useTripPlaceDetailOverlay'
-import { EditableText } from '../../../shared/components/EditableText'
+import { useTripPlaces } from '../trip-place/useTripPlaces'
+import { NoteEditor } from './RouteNoteList'
+import { useDayTripRoutes } from './useDayTripRoutes'
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = [
@@ -49,80 +48,45 @@ interface TripRoutesContentProps {
 }
 
 export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentProps) {
-  const {
-    data: { routes, trip },
-    create: createRoute,
-    update,
-    remove: removeRoute
-  } = useTripRoutes(tripId)
-  const { data: places, create: createPlace, update: updatePlace } = useTripPlaces(tripId)
   const overlay = useOverlay()
 
-  const [selectedDate, setSelectedDate] = useState<string>(() => {
-    const today = new Date().toISOString().split('T')[0]
-    if (today >= trip.startDate && today <= trip.endDate) {
-      return today
+  const [selectedDate, setSelectedDate] = useQueryParamState<string>('days', {
+    defaultValue: () => {
+      const today = new Date().toISOString().split('T')[0]
+      if (today >= trip.startDate && today <= trip.endDate) {
+        return formatDateISO(today)
+      }
+      return formatDateISO(trip.startDate)
     }
-    return trip.startDate
   })
-  const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null)
+  const {
+    data: { routes, trip, tripDates },
+    create: { mutateAsync: createRoute },
+    update: { mutateAsync: update },
+    updateMemo,
+    remove: { mutateAsync: removeRoute }
+  } = useDayTripRoutes({ tripId, date: selectedDate })
+  const { data: places, create: createPlace, update: updatePlace } = useTripPlaces(tripId)
 
-  const dates = useMemo(() => {
-    const result: string[] = []
-    const start = new Date(trip.startDate)
-    const end = new Date(trip.endDate)
-    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-      result.push(d.toISOString().split('T')[0])
-    }
-    return result
-  }, [trip.startDate, trip.endDate])
+  const [selectedRouteId, setSelectedRouteId] = useState<string | null>(routes?.[0].id ?? null);
 
-  const routesForDate = useMemo(() => {
-    return routes.filter((r) => r.scheduledDate === selectedDate)
-  }, [routes, selectedDate])
 
   const currentRoute = useMemo(() => {
     if (selectedRouteId) {
-      return routesForDate.find((r) => r.id === selectedRouteId) ?? routesForDate[0] ?? null
+      return routes.find((r) => r.id === selectedRouteId) ?? routes[0] ?? null
     }
-    return routesForDate[0] ?? null
-  }, [routesForDate, selectedRouteId])
+    return routes[0] ?? null
+  }, [routes, selectedRouteId])
 
   const handleDateChange = (date: string) => {
     setSelectedDate(date)
     setSelectedRouteId(null)
   }
 
-  const placesUsedInOtherRoutes = useMemo(() => {
-    const usedPlaceIds = new Set<string>()
-    routes.forEach((route) => {
-      if (route.id !== currentRoute?.id) {
-        route.placeIds.forEach((id) => usedPlaceIds.add(id))
-      }
-    })
-    return usedPlaceIds
-  }, [routes, currentRoute?.id])
-
-  // 각 경로의 waypoints를 계산
-  const routeWaypointsMap = useMemo(() => {
-    const map = new Map<string, { lat: number; lng: number }[]>()
-    routesForDate.forEach((route) => {
-      const waypoints = route.placeIds
-        .map((placeId) => places.find((p) => p.id === placeId))
-        .filter((p): p is Place => p != null)
-        .map((place) => ({ lat: place.lat, lng: place.lng }))
-      map.set(route.id, waypoints)
-    })
-    return map
-  }, [routesForDate, places])
-
   const handleRemoveFromRoute = (placeId: string) => {
     if (!currentRoute) return
     const newPlaceIds = currentRoute.placeIds.filter((id) => id !== placeId)
-    // placeMemos에서도 제거
-    const newPlaceMemos = { ...currentRoute.placeMemos }
-    delete newPlaceMemos[placeId]
-    update({ routeId: currentRoute.id, data: { placeIds: newPlaceIds, placeMemos: newPlaceMemos } })
+    update({ routeId: currentRoute.id, data: { placeIds: newPlaceIds } })
   }
 
   const handleEditPlaceInRoute = (place: Place) => {
@@ -147,13 +111,6 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
   }
 
 
-  const routePlaces = useMemo(() => {
-    if (!currentRoute) return []
-    return currentRoute.placeIds
-      .map((placeId) => places.find((p) => p.id === placeId))
-      .filter((p): p is Place => p != null)
-  }, [currentRoute, places]);
-
   const detailOverlay = useTripPlaceDetailOverlay();
 
   return (
@@ -168,7 +125,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
               value={selectedDate}
               exclusive
             >
-              {dates.map(x => (
+              {tripDates.map(x => (
                 <ToggleButton
                   key={x}
                   value={x}
@@ -184,7 +141,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
 
             {/* 경로 선택 */}
             <Stack direction="row" spacing={1} mb={2} alignItems="center" flexWrap="wrap">
-              {routesForDate.map((route, index) => (
+              {routes.map((route, index) => (
                 <Chip
                   key={route.id}
                   label={`경로 ${index + 1}`}
@@ -193,9 +150,11 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
                   size="small"
                   onClick={() => setSelectedRouteId(route.id)}
                   onDelete={() => {
-                    removeRoute(route.id)
-                    if (currentRoute?.id === route.id) {
-                      setSelectedRouteId(null)
+                    if (confirm('삭제하시겠어요?')) {
+                      removeRoute(route.id)
+                      if (currentRoute?.id === route.id) {
+                        setSelectedRouteId(null)
+                      }
                     }
                   }}
                 />
@@ -205,7 +164,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
                 onClick={() => {
                   createRoute({
                     tripId,
-                    name: `${formatDate(selectedDate)} 경로 ${routesForDate.length + 1}`,
+                    name: `${formatDate(selectedDate)} 경로 ${routes.length + 1}`,
                     scheduledDate: selectedDate,
                   })
                 }}
@@ -217,18 +176,19 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
 
 
             <Typography variant="subtitle2" color="text.secondary">
-              {currentRoute ? `${currentRoute.name} (${routePlaces.length}개 장소)` : '경로가 없습니다'}
+              {currentRoute ? `${currentRoute.name} (${currentRoute.places.length}개 장소)` : '경로가 없습니다'}
             </Typography>
 
-            {routePlaces.length === 0 ? (
+            {currentRoute.places.length === 0 ? (
               <Typography variant="body2" color="text.secondary">
                 지도에서 장소를 클릭하여 경로에 추가하세요
               </Typography>
             ) : (
               <Stack spacing={1}>
                 <SortableList
-                  items={routePlaces}
+                  items={currentRoute.places}
                   onSort={(changed) => {
+                    console.log(currentRoute.places, changed.items)
                     update({ routeId: currentRoute.id, data: { placeIds: changed.items.map(x => x.id) } })
                   }}
                   renderItem={place => (
@@ -260,23 +220,10 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
                           {place.memo}
                         </ListItem.Text>
                       )}
-                      <RouteMemoList
-                        memos={currentRoute.placeMemos[place.id] ?? []}
-                        onChange={(memos) => {
-                          const newPlaceMemos = { ...currentRoute.placeMemos }
-                          if (memos.length > 0) {
-                            newPlaceMemos[place.id] = memos
-                          } else {
-                            delete newPlaceMemos[place.id]
-                          }
-                          update({ routeId: currentRoute.id, data: { placeMemos: newPlaceMemos } })
-                        }}
+                      <NoteEditor
+                        notes={place.routeNotes ?? []}
+                        onChange={(memos) => updateMemo({ placeId: place.id, routeId: currentRoute.id, memos })}
                       />
-                      {placesUsedInOtherRoutes.has(place.id) && (
-                        <ListItem.Text variant="caption" color="warning.main">
-                          다른 경로에도 포함
-                        </ListItem.Text>
-                      )}
                     </ListItem>
                   )}
                 />
@@ -328,7 +275,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
                 onContextMenu={() => detailOverlay.openDialog({ placeId: place.id, tripId })}
                 onClick={() => {
                   if (currentRoute == null) {
-                    const routeNumber = routesForDate.length + 1
+                    const routeNumber = routes.length + 1
                     return createRoute({
                       tripId,
                       name: `${formatDate(selectedDate)} 경로 ${routeNumber}`,
@@ -350,10 +297,10 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
               />
             )
           })}
-          {routesForDate.map((route, index) => (
+          {routes.map((route, index) => (
             <RoutePath
               key={route.id}
-              waypoints={routeWaypointsMap.get(route.id)}
+              waypoints={route.places}
               color={getRouteColor(index)}
               isSelected={route.id === currentRoute?.id}
             />
@@ -403,85 +350,5 @@ function RoutePath({ waypoints, color, isSelected }: RoutePathProps) {
       strokeWeight={isSelected ? 5 : 3}
       strokeOpacity={isSelected ? 1 : 0.6}
     />
-  )
-}
-
-interface RouteMemoListProps {
-  memos: string[]
-  onChange: (memos: string[]) => void
-}
-
-function RouteMemoList({ memos, onChange }: RouteMemoListProps) {
-  const [isAdding, setIsAdding] = useState(false)
-
-  const handleUpdate = (index: number, value: string) => {
-    if (!value.trim()) {
-      onChange(memos.filter((_, i) => i !== index))
-    } else {
-      const newMemos = [...memos]
-      newMemos[index] = value.trim()
-      onChange(newMemos)
-    }
-  }
-
-  const handleDelete = (index: number, e: React.MouseEvent) => {
-    e.stopPropagation()
-    onChange(memos.filter((_, i) => i !== index))
-  }
-
-  return (
-    <Stack gap={0.5}>
-      {memos.map((memo, index) => (
-        <EditableText
-          key={index}
-          value={memo}
-          onSubmit={(value) => handleUpdate(index, value)}
-          submitOnBlur
-          variant="body2"
-          fontSize={12}
-          color="primary"
-          sx={{ cursor: 'pointer' }}
-          endIcon={
-            <CloseIcon
-              onClick={(e) => handleDelete(index, e)}
-              sx={{ fontSize: 14, color: 'text.secondary', cursor: 'pointer', '&:hover': { color: 'error.main' } }}
-            />
-          }
-        />
-      ))}
-      {isAdding ? (
-        <TextField
-          autoFocus
-          size="small"
-          variant="standard"
-          onBlur={(e) => {
-            const value = e.target.value.trim()
-            if (value) onChange([...memos, value])
-            setIsAdding(false)
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              const value = (e.target as HTMLInputElement).value.trim()
-              if (value) onChange([...memos, value])
-              setIsAdding(false)
-            }
-            if (e.key === 'Escape') setIsAdding(false)
-          }}
-          placeholder="경로 메모 입력..."
-          fullWidth
-          slotProps={{ input: { sx: { fontSize: 12 } } }}
-        />
-      ) : (
-        <Typography
-          variant="body2"
-          fontSize={12}
-          color="text.secondary"
-          onClick={() => setIsAdding(true)}
-          sx={{ cursor: 'pointer', '&:hover': { color: 'primary.main' } }}
-        >
-          + 경로 메모
-        </Typography>
-      )}
-    </Stack>
   )
 }

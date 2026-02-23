@@ -4,6 +4,7 @@ import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import EditIcon from '@mui/icons-material/Edit';
 import { Box, Button, Chip, IconButton, Stack, styled, Tab, Tabs, Typography } from "@mui/material";
 import { useMemo, useState } from "react";
+import { useQueryParamState } from '~shared/hooks/useQueryParamState';
 import { DraggableBottomSheet } from "../../../shared/components/DraggableBottomSheet";
 import { KakaoMap } from "../../../shared/components/KakaoMap";
 import { ListItem } from "../../../shared/components/ListItem";
@@ -11,12 +12,13 @@ import { SortableItem } from "../../../shared/components/dnd/SortableItem";
 import { SortableList } from "../../../shared/components/dnd/SortableList";
 import { useOverlay } from "../../../shared/hooks/useOverlay";
 import { useRoadPath } from "../../../shared/hooks/useRoadPath";
-import { formatDate } from "../../../shared/utils/formats";
+import { formatDate, formatDateISO } from "../../../shared/utils/formats";
 import { PlaceFormSheet } from "../../place/PlaceFormSheet";
 import { PlaceCategoryColorCode, type Place } from "../../place/place.types";
 import { useTripPlaces } from "../trip-place/useTripPlaces";
 import { PlaceSelectSheet } from "./PlaceSelectSheet";
-import { useTripRoutes } from "./useTripRoutes";
+import { useDayTripRoutes } from './useDayTripRoutes';
+import { NoteEditor } from './RouteNoteList';
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = [
@@ -38,44 +40,31 @@ interface RouteContentProps {
 }
 
 export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) {
-  const {
-    data: { routes, trip },
-    create: createRoute,
-    update,
-    remove: removeRoute
-  } = useTripRoutes(tripId)
-  const { data: places, update: updatePlace } = useTripPlaces(tripId)
   const overlay = useOverlay()
 
-  const [selectedDate, setSelectedDate] = useState<string>(() => {
-    const today = new Date().toISOString().split('T')[0]
-    if (today >= trip.startDate && today <= trip.endDate) {
-      return today
+  const [selectedDate, setSelectedDate] = useQueryParamState<string>('days', {
+    defaultValue: () => {
+      const today = new Date().toISOString().split('T')[0]
+      if (today >= trip.startDate && today <= trip.endDate) {
+        return formatDateISO(today)
+      }
+      return formatDateISO(trip.startDate)
     }
-    return trip.startDate
   })
+  const {
+    data: { routes, trip, tripDates },
+    create: { mutateAsync: createRoute },
+    update: { mutateAsync: update },
+    remove: { mutateAsync: removeRoute },
+    updateMemo
+  } = useDayTripRoutes({ tripId, date: selectedDate })
   const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null)
-
-  const dates = useMemo(() => {
-    const result: string[] = []
-    const start = new Date(trip.startDate)
-    const end = new Date(trip.endDate)
-    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-      result.push(d.toISOString().split('T')[0])
-    }
-    return result
-  }, [trip.startDate, trip.endDate])
-
-  const routesForDate = useMemo(() => {
-    return routes.filter((r) => r.scheduledDate === selectedDate)
-  }, [routes, selectedDate])
+  const { data: places, update: updatePlace } = useTripPlaces(tripId)
 
   const currentRoute = useMemo(() => {
-    if (selectedRouteId) {
-      return routesForDate.find((r) => r.id === selectedRouteId) ?? routesForDate[0] ?? null
-    }
-    return routesForDate[0] ?? null
-  }, [routesForDate, selectedRouteId])
+    if (selectedRouteId) return routes.find((r) => r.id === selectedRouteId) ?? routes[0];
+    return routes[0];
+  }, [routes, selectedRouteId])
 
   const handleDateChange = (date: string) => {
     setSelectedDate(date)
@@ -83,7 +72,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
   }
 
   const handleAddRoute = () => {
-    const routeNumber = routesForDate.length + 1
+    const routeNumber = routes.length + 1
     createRoute({
       tripId,
       name: `${formatDate(selectedDate)} 경로 ${routeNumber}`,
@@ -92,35 +81,11 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
     })
   }
 
-  const placesUsedInOtherRoutes = useMemo(() => {
-    const usedPlaceIds = new Set<string>()
-    routes.forEach((route) => {
-      if (route.id !== currentRoute?.id) {
-        route.placeIds.forEach((id) => usedPlaceIds.add(id))
-      }
-    })
-    return usedPlaceIds
-  }, [routes, currentRoute?.id])
-
-  // 각 경로의 waypoints를 계산
-  const routeWaypointsMap = useMemo(() => {
-    const map = new Map<string, { lat: number; lng: number }[]>()
-    routesForDate.forEach((route) => {
-      const waypoints = route.placeIds
-        .map((placeId) => places.find((p) => p.id === placeId))
-        .filter((p): p is Place => p != null)
-        .map((place) => ({ lat: place.lat, lng: place.lng }))
-      map.set(route.id, waypoints)
-    })
-    return map
-  }, [routesForDate, places])
 
   const handleRemoveFromRoute = (placeId: string) => {
     if (!currentRoute || !confirm('정말로 삭제하시겠어요?')) return
     const newPlaceIds = currentRoute.placeIds.filter((id) => id !== placeId)
-    const newPlaceMemos = { ...currentRoute.placeMemos }
-    delete newPlaceMemos[placeId]
-    update({ routeId: currentRoute.id, data: { placeIds: newPlaceIds, placeMemos: newPlaceMemos } })
+    update({ routeId: currentRoute.id, data: { placeIds: newPlaceIds } })
   }
 
   const handleEditPlaceInRoute = (place: Place) => {
@@ -143,14 +108,6 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
       />
     ))
   }
-
-
-  const routePlaces = useMemo(() => {
-    if (!currentRoute) return []
-    return currentRoute.placeIds
-      .map((placeId) => places.find((p) => p.id === placeId))
-      .filter((p): p is Place => p != null)
-  }, [currentRoute, places])
 
   const handleAddPlacesToRoute = (placeIds: string[]) => {
     if (!currentRoute || placeIds.length === 0) return
@@ -182,10 +139,10 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
                 />
               )
             })}
-            {routesForDate.map((route, index) => (
+            {routes.map((route, index) => (
               <RoutePath
                 key={route.id}
-                waypoints={routeWaypointsMap.get(route.id)}
+                waypoints={route.places}
                 color={getRouteColor(index)}
                 isSelected={route.id === currentRoute?.id}
               />
@@ -201,7 +158,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
           <Stack gap={1} sx={{ p: 1.5, pt: 0 }}>
             {/* 날짜 선택 */}
             <Tabs value={selectedDate} sx={{ position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 10 }}>
-              {dates.map((date) => (
+              {tripDates.map((date) => (
                 <Tab
                   key={date}
                   value={date}
@@ -215,7 +172,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
 
             {/* 경로 선택 & 추가 */}
             <Stack direction="row" spacing={0.5} mb={1.5} alignItems="center">
-              {routesForDate.map((route, index) => (
+              {routes.map((route, index) => (
                 <Chip
                   key={route.id}
                   label={`경로 ${index + 1}`}
@@ -240,14 +197,14 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
               <Box flex={1} />
             </Stack>
 
-            {routePlaces.length === 0 ? (
+            {currentRoute.places.length === 0 ? (
               <Typography variant="caption" color="text.secondary">
                 지도에서 장소를 클릭하여 경로에 추가하세요
               </Typography>
             ) : (
               <Stack spacing={0.5}>
                 <SortableList
-                  items={routePlaces}
+                  items={currentRoute.places}
                   onSort={(changed) => {
                     update({ routeId: currentRoute.id, data: { placeIds: changed.items.map(x => x.id) } })
                   }}
@@ -284,16 +241,13 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
                             {place.memo}
                           </ListItem.Text>
                         )}
-                        {currentRoute.placeMemos[place.id]?.map((memo, idx) => (
-                          <ListItem.Text key={idx} variant="body2" color="primary" fontSize={12}>
-                            {memo}
-                          </ListItem.Text>
-                        ))}
-                        {placesUsedInOtherRoutes.has(place.id) && (
-                          <ListItem.Text variant="caption" color="warning.main">
-                            다른 경로에도 포함
-                          </ListItem.Text>
-                        )}
+
+                        <NoteEditor
+                          notes={place.routeNotes ?? []}
+                          onChange={(memos) => updateMemo({ placeId: place.id, routeId: currentRoute.id, memos })}
+                          action="dialog"
+                          marginTop={1}
+                        />
                       </Box>
                     </ListItem>
                   )}

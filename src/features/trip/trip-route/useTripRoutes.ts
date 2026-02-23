@@ -3,6 +3,9 @@ import { getRoutesByTripId, routeKey, createRoute, updateRoute, deleteRoute } fr
 import { assert } from "../../../shared/lib/assert";
 import { useTrip } from "../useTrip";
 import { mergeQueriesStatus } from "../../../shared/utils/merges";
+import { useMemo } from "react";
+import { addDays, differenceInDays } from "date-fns";
+import { formatDateISO } from "../../../shared/utils/formats";
 
 export function useTripRoutes(id: string) {
   const queryClient = useQueryClient();
@@ -16,8 +19,15 @@ export function useTripRoutes(id: string) {
       return data;
     },
   });
+  
+  const dates = useMemo(() => {
+    const diffDays = differenceInDays(trip.endDate, trip.startDate);
+    return Array.from({ length: diffDays + 1 }).map((_, day) => (
+      formatDateISO(new Date(addDays(trip.startDate, day)))
+    ))
+  }, [trip.startDate, trip.endDate]);
 
-  const { mutate: create } = useMutation({
+  const create = useMutation({
     mutationFn: (params: OmitPartial<Parameters<typeof createRoute>[0], 'name' | 'tripId' | 'scheduledDate'>) => {
       return createRoute({
         placeIds: [],
@@ -31,15 +41,16 @@ export function useTripRoutes(id: string) {
     },
   });
 
-  const { mutate: update } = useMutation({
-    mutationFn: ({ routeId, data }: { routeId: string; data: Parameters<typeof updateRoute>[1] }) =>
-      updateRoute(routeId, data),
+  const update = useMutation({
+    mutationFn: ({ routeId, data }: { routeId: string; data: Parameters<typeof updateRoute>[1] }) => {
+      return updateRoute(routeId, data);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: useTripRoutes.key(id) });
     },
   });
 
-  const { mutate: remove } = useMutation({
+  const remove = useMutation({
     mutationFn: deleteRoute,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: useTripRoutes.key(id) });
@@ -47,7 +58,7 @@ export function useTripRoutes(id: string) {
   });
 
   return {
-    data: { trip, routes },
+    data: { trip, routes, tripDates: dates },
     create,
     update,
     remove,
