@@ -18,7 +18,7 @@ type UpdateMemoParams = {
 export function useDayTripRoutes({ tripId, date }: Params) {
   const { data: allPlaces } = useTripPlaces(tripId);
   const {
-    data: { routes: allRoutes, tripDates, trip },
+    data: { routes: allRoutes, tripDates },
     update,
     ...result
   } = useTripRoutes(tripId);
