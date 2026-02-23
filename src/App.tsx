@@ -92,6 +92,7 @@ const theme = createTheme({
           overflow: 'hidden',
           [props.theme.breakpoints.down('md')]: {
             padding: 1,
+            width: '80vw'
           }
         })
       }
