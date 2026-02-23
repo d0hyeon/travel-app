@@ -27,6 +27,7 @@ import { useTripPlaceDetailOverlay } from '../trip-place/useTripPlaceDetailOverl
 import { useTripPlaces } from '../trip-place/useTripPlaces'
 import { NoteEditor } from './RouteNoteList'
 import { useDayTripRoutes } from './useDayTripRoutes'
+import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = [
@@ -48,7 +49,8 @@ interface TripRoutesContentProps {
 }
 
 export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentProps) {
-  const overlay = useOverlay()
+  const overlay = useOverlay();
+  const confirm = useConfirmDialog();
 
   const [selectedDate, setSelectedDate] = useQueryParamState<string>('days', {
     defaultValue: () => {
@@ -149,8 +151,8 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
                   color={currentRoute?.id === route.id ? 'primary' : 'default'}
                   size="small"
                   onClick={() => setSelectedRouteId(route.id)}
-                  onDelete={() => {
-                    if (confirm('삭제하시겠어요?')) {
+                  onDelete={async () => {
+                    if (await confirm('삭제하시겠어요?')) {
                       removeRoute(route.id)
                       if (currentRoute?.id === route.id) {
                         setSelectedRouteId(null)

@@ -10,6 +10,7 @@ import { PlaceCategoryColorCode, type Place } from "../../place/place.types";
 import { useTripRoutes } from "../trip-route/useTripRoutes";
 import { useTripPlaceDetailOverlay } from "./useTripPlaceDetailOverlay";
 import { useTripPlaces } from "./useTripPlaces";
+import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog';
 
 interface PlaceContentProps {
   tripId: string
@@ -24,8 +25,9 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
   const { openBottomSheet: openPlaceDetailBottomSheet } = useTripPlaceDetailOverlay();
 
 
-  const handleDeletePlace = (placeId: string) => {
-    if (confirm('이 장소를 삭제하시겠습니까?')) {
+  const confirm = useConfirmDialog();
+  const handleDeletePlace = async (placeId: string) => {
+    if (await confirm('이 장소를 삭제하시겠습니까?')) {
       remove(placeId)
     }
   }
