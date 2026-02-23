@@ -2,10 +2,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import {
   Box,
   CircularProgress,
-  FormControlLabel,
   IconButton,
   Stack,
-  Switch,
   Tab,
   Tabs
 } from '@mui/material'
@@ -28,10 +26,6 @@ export function TripDetailPageDesktop() {
   const [currentTab, setCurrentTab] = useQueryParamState<TabType>('content', {
     defaultValue: 'Place'
   })
-  const [cluastering, setCluastering] = useQueryParamState('cluaster', {
-    defaultValue: false,
-    parse: value => value === 'true'
-  })
 
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -48,13 +42,7 @@ export function TripDetailPageDesktop() {
           />
         </Box>
         <Stack direction="row" alignItems="center">
-          <FormControlLabel
-            control={<Switch checked={cluastering} onChange={() => setCluastering(!cluastering)} />}
-            label="그룹 보기"
-            slotProps={{
-              typography: { fontSize: 14 }
-            }}
-          />
+
         </Stack>
 
       </Stack>
@@ -69,8 +57,8 @@ export function TripDetailPageDesktop() {
       </Box>
       {/* Content */}
       <Suspense fallback={<Box flex={1} display="flex" alignItems="center" justifyContent="center"><CircularProgress /></Box>}>
-        {currentTab === 'Place' && <TripPlaceContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} clusterable={cluastering} />}
-        {currentTab === 'Route' && <TripRoutesContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} clusterable={cluastering} />}
+        {currentTab === 'Place' && <TripPlaceContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />}
+        {currentTab === 'Route' && <TripRoutesContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />}
       </Suspense>
     </Box>
   )

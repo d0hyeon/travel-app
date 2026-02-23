@@ -7,6 +7,7 @@ import {
   Chip,
   IconButton,
   Stack,
+  ToggleButton,
   Typography
 } from '@mui/material'
 import { useMemo, useRef } from 'react'
@@ -17,14 +18,15 @@ import { PlaceCategoryColorCode, type Place } from '../../place/place.types'
 import { ListItem } from '../../../shared/components/ListItem'
 import { useTripPlaceDetailOverlay } from './useTripPlaceDetailOverlay'
 import { usePlaceSearchDialog } from '../../place/place-search/usePlaceSearchDialog'
+import WorkspacesIcon from '@mui/icons-material/Workspaces';
+import { useQueryParamState } from '~shared/hooks/useQueryParamState'
 
 interface TripPlaceContentProps {
   tripId: string
   defaultCenter: { lat: number; lng: number }
-  clusterable?: boolean
 }
 
-export function TripPlaceContent({ tripId, defaultCenter, clusterable }: TripPlaceContentProps) {
+export function TripPlaceContent({ tripId, defaultCenter }: TripPlaceContentProps) {
   const { data: places, create, remove } = useTripPlaces(tripId)
   const { data: { routes } } = useTripRoutes(tripId)
   const mapRef = useRef<KakaoMapRef>(null)
@@ -59,6 +61,11 @@ export function TripPlaceContent({ tripId, defaultCenter, clusterable }: TripPla
 
   const confirmedPlaces = places.filter((p) => confirmedPlaceIds.has(p.id))
   const wishedPlaces = places.filter((p) => !confirmedPlaceIds.has(p.id))
+
+  const [cluastering, setCluastering] = useQueryParamState('cluaster', {
+    defaultValue: false,
+    parse: value => value === 'true'
+  })
 
   return (
     <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
@@ -206,12 +213,23 @@ export function TripPlaceContent({ tripId, defaultCenter, clusterable }: TripPla
       </Box>
 
       {/* Right: Map (70%) */}
-      <Box sx={{ flex: 1 }}>
+      <Box sx={{ flex: 1, position: 'relative' }}>
+        <Stack gap={1} padding={1} position="absolute" top={0} right={0} zIndex={1000}>
+          <ToggleButton
+            value="check"
+            selected={cluastering}
+            onChange={() => setCluastering(!cluastering)}
+            size="small"
+            sx={{ backgroundColor: 'rgba(255, 255, 255, 0.7)' }}
+          >
+            <WorkspacesIcon />
+          </ToggleButton>
+        </Stack>
         <KakaoMap
           ref={mapRef}
           defaultCenter={defaultCenter}
           height="100%"
-          clustering={clusterable}
+          clustering={cluastering}
           clusterGridSize={60}
         >
           {places.map(place => (

@@ -29,6 +29,9 @@ import { NoteEditor } from './RouteNoteList'
 import { useDayTripRoutes } from './useDayTripRoutes'
 import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
 import { useTrip } from '../useTrip'
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import VisibilityOnIcon from '@mui/icons-material/Visibility';
+import WorkspacesIcon from '@mui/icons-material/Workspaces';
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = [
@@ -47,10 +50,9 @@ function getRouteColor(index: number): string {
 interface TripRoutesContentProps {
   tripId: string
   defaultCenter: { lat: number; lng: number }
-  clusterable?: boolean
 }
 
-export function TripRoutesContent({ tripId, defaultCenter, clusterable }: TripRoutesContentProps) {
+export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentProps) {
   const overlay = useOverlay();
   const confirm = useConfirmDialog();
 
@@ -117,6 +119,15 @@ export function TripRoutesContent({ tripId, defaultCenter, clusterable }: TripRo
 
 
   const detailOverlay = useTripPlaceDetailOverlay();
+
+  const [isVisibleOtherMarkers, setIsVisibleOtherMarkers] = useQueryParamState('marker', {
+    defaultValue: true,
+    parse: x => x === 'true'
+  })
+  const [cluastering, setCluastering] = useQueryParamState('cluaster', {
+    defaultValue: false,
+    parse: value => value === 'true'
+  })
 
   return (
     <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
@@ -259,17 +270,48 @@ export function TripRoutesContent({ tripId, defaultCenter, clusterable }: TripRo
       </Stack>
 
       {/* Right: Map (70%) */}
-      <Box sx={{ flex: 1 }}>
+      <Box sx={{ flex: 1, position: 'relative' }}>
+        <Stack gap={1} padding={1} position="absolute" top={0} left={0} zIndex={1000}>
+          <ToggleButtonGroup
+            orientation="vertical"
+            value={isVisibleOtherMarkers}
+            exclusive
+            size="small"
+            sx={{ backgroundColor: 'rgba(255, 255, 255, 0.7)' }}
+          >
+            <ToggleButton value={true} aria-label="list" onClick={() => setIsVisibleOtherMarkers(true)}>
+              <VisibilityOnIcon fontSize="small" />
+            </ToggleButton>
+            <ToggleButton value={false} aria-label="module" onClick={() => setIsVisibleOtherMarkers(false)}>
+              <VisibilityOffIcon fontSize="small" />
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </Stack>
+        <Stack gap={1} padding={1} position="absolute" top={0} right={0} zIndex={1000}>
+          <ToggleButton
+            value="check"
+            selected={cluastering}
+            onChange={() => setCluastering(!cluastering)}
+            size="small"
+            sx={{ backgroundColor: 'rgba(255, 255, 255, 0.7)' }}
+          >
+            <WorkspacesIcon />
+          </ToggleButton>
+        </Stack>
         <KakaoMap
           defaultCenter={defaultCenter}
           autoFocus="path"
           height="100%"
-          clustering={clusterable}
+          clustering={cluastering}
           clusterGridSize={60}
         >
           {places.map((place) => {
             const isInCurrentRoute = currentRoute?.placeIds.includes(place.id) ?? false
             const orderInRoute = currentRoute?.placeIds.indexOf(place.id) ?? -1
+
+            if (!isInCurrentRoute && !isVisibleOtherMarkers) {
+              return null;
+            }
 
             return (
               <KakaoMap.Marker

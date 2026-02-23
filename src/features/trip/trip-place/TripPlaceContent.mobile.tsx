@@ -1,7 +1,10 @@
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import { Box, Button, Chip, IconButton, Stack, Typography } from "@mui/material";
+import WorkspacesIcon from '@mui/icons-material/Workspaces';
+import { Box, Button, Chip, IconButton, Stack, ToggleButton, Typography } from "@mui/material";
 import { useMemo, useRef } from "react";
+import { useQueryParamState } from '~shared/hooks/useQueryParamState';
+import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog';
 import { DraggableBottomSheet } from "../../../shared/components/DraggableBottomSheet";
 import { KakaoMap, type KakaoMapRef } from "../../../shared/components/KakaoMap";
 import { ListItem } from '../../../shared/components/ListItem';
@@ -10,15 +13,13 @@ import { PlaceCategoryColorCode, type Place } from "../../place/place.types";
 import { useTripRoutes } from "../trip-route/useTripRoutes";
 import { useTripPlaceDetailOverlay } from "./useTripPlaceDetailOverlay";
 import { useTripPlaces } from "./useTripPlaces";
-import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog';
 
 interface PlaceContentProps {
   tripId: string
   defaultCenter: { lat: number; lng: number }
-  clusterable?: boolean
 }
 
-export function TripPlaceContent({ tripId, defaultCenter, clusterable }: PlaceContentProps) {
+export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
   const { data: places, create, remove } = useTripPlaces(tripId)
   const { data: { routes } } = useTripRoutes(tripId)
   const mapRef = useRef<KakaoMapRef>(null)
@@ -55,16 +56,32 @@ export function TripPlaceContent({ tripId, defaultCenter, clusterable }: PlaceCo
   const confirmedPlaces = places.filter((p) => confirmedPlaceIds.has(p.id))
   const wishedPlaces = places.filter((p) => !confirmedPlaceIds.has(p.id))
 
+  const [cluastering, setCluastering] = useQueryParamState('cluaster', {
+    defaultValue: false,
+    parse: value => value === 'true'
+  })
+
   return (
     <>
       <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+        <Stack gap={1} padding={1} position="absolute" top={0} right={0} zIndex={1000}>
+          <ToggleButton
+            value="check"
+            selected={cluastering}
+            onChange={() => setCluastering(!cluastering)}
+            size="small"
+            sx={{ backgroundColor: 'rgba(255, 255, 255, 0.7)' }}
+          >
+            <WorkspacesIcon />
+          </ToggleButton>
+        </Stack>
         {/* Map (전체) */}
-        <Box sx={{ position: 'absolute', inset: 0 }}>
+        <Box sx={{ position: 'absolute', inset: 30 }}>
           <KakaoMap
             ref={mapRef}
             defaultCenter={defaultCenter}
             height="100%"
-            clustering={clusterable}
+            clustering={cluastering}
             clusterGridSize={50}
           >
             {places.map(place => (

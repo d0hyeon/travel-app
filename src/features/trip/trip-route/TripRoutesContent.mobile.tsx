@@ -2,7 +2,7 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import EditIcon from '@mui/icons-material/Edit';
-import { Box, Button, Chip, IconButton, Stack, styled, Tab, Tabs, Typography } from "@mui/material";
+import { Box, Button, Chip, IconButton, Stack, styled, Tab, Tabs, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import { useMemo } from "react";
 import { useQueryParamState } from '~shared/hooks/useQueryParamState';
 import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog';
@@ -22,6 +22,9 @@ import { PlaceSelectSheet } from "./PlaceSelectSheet";
 import { NoteEditor } from './RouteNoteList';
 import { useDayTripRoutes } from './useDayTripRoutes';
 import { useTripPlaceDetailOverlay } from '../trip-place/useTripPlaceDetailOverlay';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import VisibilityOnIcon from '@mui/icons-material/Visibility';
+import WorkspacesIcon from '@mui/icons-material/Workspaces';
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = [
@@ -39,11 +42,10 @@ function getRouteColor(index: number): string {
 
 interface RouteContentProps {
   tripId: string;
-  clusterable?: boolean
   defaultCenter: { lat: number; lng: number }
 }
 
-export function TripRoutesContent({ tripId, defaultCenter, clusterable }: RouteContentProps) {
+export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) {
   const overlay = useOverlay()
   const confirm = useConfirmDialog();
 
@@ -126,21 +128,61 @@ export function TripRoutesContent({ tripId, defaultCenter, clusterable }: RouteC
 
   const { openBottomSheet: openDetailSheet } = useTripPlaceDetailOverlay();
 
+  const [isVisibleOtherMarkers, setIsVisibleOtherMarkers] = useQueryParamState('marker', {
+    defaultValue: true,
+    parse: x => x === 'true'
+  })
+  const [cluastering, setCluastering] = useQueryParamState('cluaster', {
+    defaultValue: false,
+    parse: value => value === 'true'
+  })
+
   return (
     <>
       <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
         {/* Map (전체) */}
         <Box sx={{ position: 'absolute', inset: 0 }}>
+          <Stack gap={1} padding={1} position="absolute" top={0} left={0} zIndex={1000}>
+            <ToggleButtonGroup
+              orientation="vertical"
+              value={isVisibleOtherMarkers}
+              exclusive
+              size="small"
+              sx={{ backgroundColor: 'rgba(255, 255, 255, 0.7)' }}
+            >
+              <ToggleButton value={true} aria-label="list" onClick={() => setIsVisibleOtherMarkers(true)}>
+                <VisibilityOnIcon fontSize="small" />
+              </ToggleButton>
+              <ToggleButton value={false} aria-label="module" onClick={() => setIsVisibleOtherMarkers(false)}>
+                <VisibilityOffIcon fontSize="small" />
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </Stack>
+          <Stack gap={1} padding={1} position="absolute" top={0} right={0} zIndex={1000}>
+            <ToggleButton
+              value="check"
+              selected={cluastering}
+              onChange={() => setCluastering(!cluastering)}
+              size="small"
+              sx={{ backgroundColor: 'rgba(255, 255, 255, 0.7)' }}
+            >
+              <WorkspacesIcon />
+            </ToggleButton>
+          </Stack>
           <KakaoMap
             defaultCenter={defaultCenter}
             autoFocus="path"
             height="100%"
-            clustering={clusterable}
+            clustering={cluastering}
             clusterGridSize={50}
           >
             {places.map((place) => {
-              const isInCurrentRoute = currentRoute?.placeIds.includes(place.id) ?? false
-              const orderInRoute = currentRoute?.placeIds.indexOf(place.id) ?? -1
+              const isInCurrentRoute = currentRoute?.placeIds.includes(place.id) ?? false;
+              const orderInRoute = currentRoute?.placeIds.indexOf(place.id) ?? -1;
+
+              if (!isVisibleOtherMarkers && !isInCurrentRoute) {
+                return null;
+              }
 
               return (
                 <KakaoMap.Marker
