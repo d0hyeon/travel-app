@@ -112,13 +112,32 @@ const theme = createTheme({
         })
       }
     },
-    MuiInputBase: {
+    MuiInputLabel: {
+      styleOverrides: {
 
+        root: props => ({
+          [props.theme.breakpoints.down('md')]: {
+            fontSize: 14,
+          }
+        })
+      }
+    },
+    MuiInputBase: {
+      variants: [
+        {
+          props: { size: 'small' },
+          style: props => ({
+            [props.theme.breakpoints.down('md')]: {
+              fontSize: 12,
+            }
+          })
+        }
+      ],
       styleOverrides: {
         root: (props) => ({
           [props.theme.breakpoints.down('md')]: {
-            fontSize: 14,
-            padding: 8
+            fontSize: 12,
+            padding: 4
           }
         })
       },
