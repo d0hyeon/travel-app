@@ -80,8 +80,8 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
 
         {/* Bottom Sheet */}
         <DraggableBottomSheet
-          snapPoints={[0.25, 0.5, 0.75]}
-          defaultSnapIndex={0}
+          snapPoints={[0.25, 0.5, 0.75, 1]}
+          defaultSnapIndex={1}
         >
           <Box sx={{ p: 1.5 }}>
 

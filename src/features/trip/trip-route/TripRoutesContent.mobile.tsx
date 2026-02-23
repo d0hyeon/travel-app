@@ -62,7 +62,10 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
     remove: removeRoute,
     updateNotes
   } = useDayTripRoutes({ tripId, date: selectedDate })
-  const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null)
+  const [selectedRouteId, setSelectedRouteId] = useQueryParamState<string | null>('route-id', {
+    defaultValue: routes?.[0]?.id ?? null
+  })
+
   const { data: places, update: updatePlace } = useTripPlaces(tripId)
 
   const currentRoute = useMemo(() => {
@@ -156,8 +159,8 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
 
         {/* Bottom Sheet */}
         <DraggableBottomSheet
-          snapPoints={[0.25, 0.5, 0.75]}
-          defaultSnapIndex={0}
+          snapPoints={[0.25, 0.5, 0.75, 1]}
+          defaultSnapIndex={1}
         >
           <Stack gap={1} sx={{ p: 1.5, pt: 0 }}>
             {/* 날짜 선택 */}
