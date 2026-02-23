@@ -7,12 +7,10 @@ import {
   DialogContent,
   DialogContentText,
   styled,
-  TextareaAutosize,
   TextField
 } from '@mui/material';
 import { useCallback, type ReactNode } from 'react';
 import { Form, useForm, type UseFormRegisterReturn } from 'react-hook-form';
-import { useIsMobile } from '~shared/hooks/useIsMobile';
 import { useOverlay } from '~shared/hooks/useOverlay';
 import { DialogTitle } from './DialogTitle';
 

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, type ReactNode, useEffect, useId, useRef } from 'react'
+import { createContext, useCallback, useContext, useEffect, useId, useState, type ReactNode } from 'react'
 
 interface OverlayController {
   isOpen: boolean
@@ -13,8 +13,6 @@ interface OverlayContextValue {
 }
 
 const OverlayContext = createContext<OverlayContextValue | null>(null)
-
-let overlayId = 0
 
 export function OverlayProvider({ children }: { children: ReactNode }) {
   const [overlays, setOverlays] = useState<Map<string, OverlayElement>>(new Map())
