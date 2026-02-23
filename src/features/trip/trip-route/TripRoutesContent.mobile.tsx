@@ -165,33 +165,31 @@ export function TripRoutesContent({ tripId, defaultCenter, clusterable }: RouteC
           snapPoints={[0.25, 0.5, 0.75, 1]}
           defaultSnapIndex={1}
         >
+          <Tabs
+            value={selectedDate}
+            sx={{
+              position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 20,
+              minHeight: 24,
+              height: 40,
+              overflow: "hidden",
+
+            }}
+            slotProps={{
+              list: { sx: { height: '100%' } },
+
+            }}
+          >
+            {tripDates.map((date) => (
+              <Tab
+                key={date}
+                value={date}
+                label={formatDate(date)}
+                onClick={() => handleDateChange(date)}
+                sx={{ flex: 1, minHeight: 40 }}
+              />
+            ))}
+          </Tabs>
           <Stack gap={1} sx={{ p: 1.5 }}>
-            {/* 날짜 선택 */}
-            <Tabs
-              value={selectedDate}
-
-              sx={{
-                position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 20,
-                minHeight: 24,
-                height: 40,
-                overflow: "hidden",
-
-              }}
-              slotProps={{
-                list: { sx: { height: '100%' } },
-
-              }}
-            >
-              {tripDates.map((date) => (
-                <Tab
-                  key={date}
-                  value={date}
-                  label={formatDate(date)}
-                  onClick={() => handleDateChange(date)}
-                  sx={{ flex: 1, minHeight: 40 }}
-                />
-              ))}
-            </Tabs>
 
 
             {/* 경로 선택 & 추가 */}

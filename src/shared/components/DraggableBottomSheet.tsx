@@ -211,7 +211,7 @@ export function DraggableBottomSheet({
           alignItems: 'center',
           py: 3.5,
           mb: -1,
-          mt: -2,
+          my: -2,
           cursor: 'grab',
           touchAction: 'none',
           userSelect: 'none',
@@ -219,6 +219,7 @@ export function DraggableBottomSheet({
           '&:active': {
             cursor: 'grabbing',
           },
+          background: 'transfer'
         }}
       >
         <Box
@@ -233,9 +234,7 @@ export function DraggableBottomSheet({
 
       {/* Content */}
       <Box sx={{ flex: 1, overflow: 'auto' }}>
-        <Box marginTop={-2}>
-          {children}
-        </Box>
+        {children}
       </Box>
     </Box>
   )
