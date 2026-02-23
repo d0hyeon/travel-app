@@ -220,7 +220,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
           onSnapChange={(ratio) => {
             if (ratio < 1 && ratio !== sheetRatio) {
               setSheetRatio(ratio)
-              mapRef.current?.relayout()
+              setTimeout(() => mapRef.current?.relayout(), 350)
             }
           }}
         >
