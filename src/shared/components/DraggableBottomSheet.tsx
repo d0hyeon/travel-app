@@ -1,10 +1,14 @@
 import { Box, Fade } from '@mui/material'
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useImperativeHandle, useRef, useState, type ReactNode, type Ref } from 'react'
+
+export type BottomSheetRef = {
+  snap: number;
+}
 
 interface DraggableBottomSheetProps {
   children: ReactNode
   /** 스냅 포인트 (0-1 비율, 바텀시트가 차지하는 비율) */
-  snapPoints?: number[]
+  snapPoints?: number[] | readonly number[];
   /** 초기 스냅 포인트 인덱스 */
   defaultSnapIndex?: number
   /** 최소 높이 (px) */
@@ -14,7 +18,8 @@ interface DraggableBottomSheetProps {
   /** 모달 모드: 닫기 콜백 */
   onClose?: () => void
   /** 스냅 변경 콜백 (바텀시트가 차지하는 비율 전달) */
-  onSnapChange?: (snapRatio: number) => void
+  onSnapChange?: (snapRatio: number) => void;
+  ref?: Ref<BottomSheetRef>;
 }
 
 const DEFAULT_SNAP_POINTS = [0.3, 0.5, 0.7, 0.9]
@@ -27,6 +32,7 @@ export function DraggableBottomSheet({
   isOpen,
   onClose,
   onSnapChange,
+  ref,
 }: DraggableBottomSheetProps) {
   const isModalMode = isOpen !== undefined
   const containerRef = useRef<HTMLDivElement>(null)
@@ -34,6 +40,12 @@ export function DraggableBottomSheet({
   const [dragOffset, setDragOffset] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const [isVisible, setIsVisible] = useState(!isModalMode)
+
+  useImperativeHandle(ref, () => {
+    return {
+      snap: snapPoints[snapIndex],
+    }
+  }, [snapIndex, ...snapPoints])
 
   // 모달 모드: isOpen 변경 시 visibility 제어
   useEffect(() => {

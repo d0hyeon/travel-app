@@ -45,6 +45,9 @@ interface RouteContentProps {
   defaultCenter: { lat: number; lng: number }
 }
 
+const BOTTOM_SHEET_RATIOS = [0.25, 0.5, 0.8, 1] as const;
+const DEFAULT_BOTTOM_SHEET_RATIO = 0.5 satisfies typeof BOTTOM_SHEET_RATIOS[number];
+
 export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) {
   const overlay = useOverlay()
   const confirm = useConfirmDialog();
@@ -138,7 +141,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
   })
 
   const mapRef = useRef<KakaoMapRef>(null)
-  const [sheetRatio, setSheetRatio] = useState(0.5) // defaultSnapIndex=1 -> snapPoints[1]=0.5
+  const [sheetRatio, setSheetRatio] = useState(DEFAULT_BOTTOM_SHEET_RATIO);
 
   return (
     <>
@@ -212,8 +215,8 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
 
         {/* Bottom Sheet */}
         <DraggableBottomSheet
-          snapPoints={[0.1, 0.5, 0.8, 1]}
-          defaultSnapIndex={1}
+          snapPoints={BOTTOM_SHEET_RATIOS}
+          defaultSnapIndex={BOTTOM_SHEET_RATIOS.indexOf(DEFAULT_BOTTOM_SHEET_RATIO)}
           onSnapChange={(ratio) => {
             if (ratio < 1 && ratio !== sheetRatio) {
               setSheetRatio(ratio)

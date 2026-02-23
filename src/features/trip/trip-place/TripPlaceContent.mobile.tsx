@@ -19,6 +19,9 @@ interface PlaceContentProps {
   defaultCenter: { lat: number; lng: number }
 }
 
+const BOTTOM_SHEET_RATIOS = [0.25, 0.5, 0.8, 1] as const;
+const DEFAULT_BOTTOM_SHEET_RATIO = 0.5 satisfies typeof BOTTOM_SHEET_RATIOS[number];
+
 export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
   const { data: places, create, remove } = useTripPlaces(tripId)
   const { data: { routes } } = useTripRoutes(tripId)
@@ -60,7 +63,7 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
     defaultValue: false,
     parse: value => value === 'true'
   })
-  const [sheetRatio, setSheetRatio] = useState(0.5) // defaultSnapIndex=1 -> snapPoints[1]=0.5
+  const [sheetRatio, setSheetRatio] = useState(DEFAULT_BOTTOM_SHEET_RATIO)
 
   return (
     <>
@@ -101,8 +104,8 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
 
         {/* Bottom Sheet */}
         <DraggableBottomSheet
-          snapPoints={[0.25, 0.5, 0.8, 1]}
-          defaultSnapIndex={1}
+          snapPoints={BOTTOM_SHEET_RATIOS}
+          defaultSnapIndex={BOTTOM_SHEET_RATIOS.indexOf(DEFAULT_BOTTOM_SHEET_RATIO)}
           onSnapChange={(ratio) => {
             if (ratio < 1 && ratio !== sheetRatio) {
               setSheetRatio(ratio)
