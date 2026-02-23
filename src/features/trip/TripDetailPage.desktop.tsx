@@ -53,9 +53,9 @@ export function TripDetailPageDesktop() {
           value={currentTab} onChange={(_, v) => setCurrentTab(v)}
           sx={{ borderBottom: '1px solid #ddd' }}
         >
-          <Tab label="기본 정보" value="Info" />
-          <Tab label="전체 장소" value="Place" />
-          <Tab label="일자별 경로" value="Route" />
+          <Tab label="정보" value="Info" />
+          <Tab label="장소" value="Place" />
+          <Tab label="계획" value="Route" />
           <Tab label="정산" value="Expense" />
         </Tabs>
       </Box>

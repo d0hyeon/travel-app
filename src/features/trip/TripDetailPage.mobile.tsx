@@ -114,7 +114,7 @@ export function TripDetailPageMobile() {
           sx={{ flex: 1 }}
         >
           <NearMeIcon fontSize="small" color={currentTab === 'Route' ? 'primary' : 'disabled'} />
-          <Typography variant='caption' fontWeight="bold" color={currentTab === 'Route' ? 'primary' : 'textDisabled'}>경로</Typography>
+          <Typography variant='caption' fontWeight="bold" color={currentTab === 'Route' ? 'primary' : 'textDisabled'}>계획</Typography>
         </Stack>
 
         <Box height="28px" width="1px" sx={theme => ({ backgroundColor: theme.palette.divider, opacity: 0.6 })} />
