@@ -1,9 +1,8 @@
-import { assert } from "~shared/lib/assert";
-import { useTripRoutes } from "./useTripRoutes";
-import { arrayIncludes } from "~shared/utils/types";
 import { useCallback, useMemo } from "react";
+import { assert } from "~shared/lib/assert";
+import { arrayIncludes } from "~shared/utils/types";
 import { useTripPlaces } from "../trip-place/useTripPlaces";
-import { useMutation } from "@tanstack/react-query";
+import { useTripRoutes } from "./useTripRoutes";
 
 type Params = {
   tripId: string;
