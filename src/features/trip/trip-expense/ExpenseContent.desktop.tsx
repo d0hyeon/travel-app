@@ -199,9 +199,12 @@ export function ExpenseContent({ tripId }: Props) {
                       <Box flex={1}>
                         <Stack direction="row" alignItems="center" spacing={1}>
                           <Typography fontWeight="medium">{expense.description}</Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {formatDate(expense.date)}
-                          </Typography>
+                          {expense.date && (
+                            <Typography variant="caption" color="text.secondary">
+                              {formatDate(expense.date)}
+                            </Typography>
+                          )}
+
                         </Stack>
                         <Stack direction="row" spacing={0.5} mt={0.5} flexWrap="wrap" useFlexGap>
                           {expense.payments.map(p => {

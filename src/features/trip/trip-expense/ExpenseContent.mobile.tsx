@@ -123,9 +123,12 @@ export function ExpenseContent({ tripId }: Props) {
                       <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
                         <Box flex={1}>
                           <ListItem.Title>{expense.description}</ListItem.Title>
-                          <ListItem.Text color="text.secondary">
-                            {formatDate(expense.date)}
-                          </ListItem.Text>
+                          {expense.date && (
+                            <ListItem.Text color="text.secondary">
+                              {formatDate(expense.date)}
+                            </ListItem.Text>
+                          )}
+
                           <Stack direction="row" spacing={0.5} mt={0.5} flexWrap="wrap" useFlexGap>
                             {expense.payments.map(p => {
                               const member = memberMap.get(p.memberId)

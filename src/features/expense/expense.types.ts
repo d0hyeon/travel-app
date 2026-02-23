@@ -11,7 +11,7 @@ export interface Expense {
   totalAmount: number
   payments: ExpensePayment[]
   splitAmong: string[]
-  date: string
+  date?: string
   createdAt: string
 }
 
