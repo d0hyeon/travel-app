@@ -18,7 +18,7 @@ export function ListItem({ leftAddon, rightAddon, children, ...props }: Props) {
       paddingY={isMobile ? 1 : 1.5}
       border={1}
       borderColor="divider"
-      borderRadius={2}
+      borderRadius={3}
       justifyContent="space-between"
       direction="row"
       {...props}
