@@ -20,17 +20,17 @@ export const PlaceCategoryTypes = Object.values(PlaceCategoryType);
 export const PlaceCategoryTypeLabel = reverseKeyValue(PlaceCategoryType);
 
 export const PlaceCategoryColorCode = {
-  [PlaceCategoryType.음식점]: '#e11010',
-  [PlaceCategoryType.카페]: '#8d6e63',
-  [PlaceCategoryType.숲]: '#00a413',
-  [PlaceCategoryType.바다]: '#2e2ca6',
-  [PlaceCategoryType.쇼핑]: '#7b1fa2',
-  [PlaceCategoryType.액티비티]: '#f1d500',
-  [PlaceCategoryType.관광지]: '#f98900',
-  [PlaceCategoryType.숙소]: '#ff07d6',
-  [PlaceCategoryType.술]: '#455a64',
-  [PlaceCategoryType.기타]: '#757575',
-} satisfies Record<PlaceCategoryType, string>
+  [PlaceCategoryType.음식점]: '#EB5757', // 차분한 로즈 레드
+  [PlaceCategoryType.카페]: '#A1887F',   // 부드러운 코코아 브라운
+  [PlaceCategoryType.숲]: '#66BB6A',     // 싱그러운 리프 그린
+  [PlaceCategoryType.바다]: '#5DADE2',   // 깊이감 있는 스카이 블루
+  [PlaceCategoryType.쇼핑]: '#BA68C8',   // 세련된 오키드 퍼플
+  [PlaceCategoryType.액티비티]: '#F2C94C', // 가독성을 잡은 머스타드 옐로우
+  [PlaceCategoryType.관광지]: '#F2994A', // 따뜻한 테라코타 오렌지
+  [PlaceCategoryType.숙소]: '#F06292',   // 차분한 딥 핑크
+  [PlaceCategoryType.술]: '#7986CB',     // 분위기 있는 데님 블루
+  [PlaceCategoryType.기타]: '#9E9E9E',   // 모던한 미디엄 그레이
+} satisfies Record<PlaceCategoryType, string>;
 
 export interface PlaceCategory {
   type: PlaceCategoryType
