@@ -7,19 +7,17 @@ import {
   Card,
   CardContent,
   Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
   Divider,
   IconButton,
   Paper,
   Stack,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography
 } from "@mui/material"
-import { useMemo } from "react"
-import { DialogTitle } from '~shared/modules/confirm-dialog/DialogTitle'
+import { Suspense, useMemo } from "react"
+import { useQueryParamState } from '~shared/hooks/useQueryParamState'
 import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
-import { useOverlay } from "../../../shared/hooks/useOverlay"
 import { formatDate } from "../../../shared/utils/formats"
 import {
   calculateBalances,
@@ -29,16 +27,24 @@ import {
 } from "../../expense/expense.utils"
 import { useExpenses } from "../../expense/useExpenses"
 import { useTripMembers } from "../../trip-member/useTripMembers"
-import { ExpenseForm } from "./ExpenseForm"
+import { RouteExpenseView } from "./RouteExpenseView"
+import { useExpenseFormOverlay } from "./useExpenseFormOverlay"
 
 interface Props {
   tripId: string
+  defaultCenter: { lat: number; lng: number }
 }
 
-export function ExpenseContent({ tripId }: Props) {
-  const { data: expenses, create, remove } = useExpenses(tripId)
+type ViewMode = 'list' | 'route'
+
+export function ExpenseContent({ tripId, defaultCenter }: Props) {
+  const [viewMode, setViewMode] = useQueryParamState<ViewMode>('espense-view', {
+    defaultValue: 'list'
+  })
+
+  const { data: expenses, create, update, remove } = useExpenses(tripId)
   const { data: members } = useTripMembers(tripId)
-  const overlay = useOverlay()
+  const expenseFormOverlay = useExpenseFormOverlay(tripId)
   const confirm = useConfirmDialog()
 
   const balances = useMemo(() => calculateBalances(members, expenses), [members, expenses])
@@ -47,29 +53,9 @@ export function ExpenseContent({ tripId }: Props) {
 
   const memberMap = useMemo(() => new Map(members.map(m => [m.id, m])), [members])
 
-  const handleAddExpense = () => {
-    overlay.open(({ isOpen, close }) => (
-      <Dialog open={isOpen} onClose={close} maxWidth="sm" fullWidth>
-        <DialogTitle>지출 추가</DialogTitle>
-        <DialogContent >
-          <Box position="relative" >
-            <ExpenseForm
-              tripId={tripId}
-              onSubmit={(data) => {
-                create(data)
-                close()
-              }}
-              action={(
-                <DialogActions sx={{ position: 'sticky', bottom: 0, backgroundColor: '#fff' }}>
-                  <Button type="button" onClick={close} size="large" variant="outlined" fullWidth>취소</Button>
-                  <ExpenseForm.SubmitButton size="large" />
-                </DialogActions>
-              )}
-            />
-          </Box>
-        </DialogContent>
-      </Dialog>
-    ))
+  const handleAddExpense = async () => {
+    const data = await expenseFormOverlay.open({ title: '지출 추가' });
+    if (data) create(data);
   }
 
   const handleDeleteExpense = async (expenseId: string) => {
@@ -98,6 +84,8 @@ export function ExpenseContent({ tripId }: Props) {
           elevation={0}
           sx={theme => ({
             p: 3,
+            py: 2,
+            pb: 1,
             minWidth: 200,
             background: theme.palette.primary.main,
             // background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -124,6 +112,7 @@ export function ExpenseContent({ tripId }: Props) {
               elevation={0}
               sx={{
                 p: 2,
+                pb: 1,
                 minWidth: 140,
                 borderRadius: 2,
                 border: '1px solid',
@@ -155,88 +144,141 @@ export function ExpenseContent({ tripId }: Props) {
         {/* 왼쪽: 지출 목록 */}
         <Paper
           elevation={0}
-          sx={{ flex: 2, p: 3, borderRadius: 3, minHeight: 400 }}
+          sx={{ flex: 2, p: 3, borderRadius: 3, minHeight: 400, display: 'flex', flexDirection: 'column' }}
         >
           <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-            <Typography variant="h6" fontWeight="bold">지출 내역</Typography>
-            <Button
-              variant="contained"
-              size="small"
-              startIcon={<AddIcon />}
-              onClick={handleAddExpense}
-              sx={{ borderRadius: 2 }}
-            >
-              지출 추가
-            </Button>
+            <Stack direction="row" alignItems="center" spacing={2}>
+              <Typography variant="h6" fontWeight="bold">지출 내역</Typography>
+              <ToggleButtonGroup
+                value={viewMode}
+                exclusive
+                onChange={(_, v) => v && setViewMode(v)}
+                size="small"
+              >
+                <ToggleButton value="list" sx={{ py: 0.5, px: 1.5 }}>
+                  목록
+                </ToggleButton>
+                <ToggleButton value="route" sx={{ py: 0.5, px: 1.5 }}>
+                  장소
+                </ToggleButton>
+              </ToggleButtonGroup>
+            </Stack>
+            {viewMode === 'list' && (
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<AddIcon />}
+                onClick={handleAddExpense}
+                sx={{ borderRadius: 2 }}
+              >
+                지출 추가
+              </Button>
+            )}
           </Stack>
 
-          {expenses.length === 0 ? (
-            <Box
-              sx={{
-                py: 8,
-                textAlign: 'center',
-                color: 'text.secondary',
-                bgcolor: 'grey.50',
-                borderRadius: 2,
-              }}
-            >
-              <Typography variant="body1" mb={1}>아직 지출 내역이 없습니다</Typography>
-              <Typography variant="body2">지출 추가 버튼을 눌러 첫 지출을 기록해보세요</Typography>
-            </Box>
-          ) : (
-            <Stack spacing={1.5} sx={{ maxHeight: 500, overflow: 'auto' }}>
-              {expenses.map((expense) => (
-                <Card
-                  key={expense.id}
-                  variant="outlined"
-                  sx={{
-                    '&:hover': { borderColor: 'primary.main', bgcolor: 'primary.50' },
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
-                    <Stack direction="row" justifyContent="space-between" alignItems="center">
-                      <Box flex={1}>
+          {viewMode === 'list' ? (
+            // 목록 뷰
+            expenses.length === 0 ? (
+              <Box
+                sx={{
+                  py: 8,
+                  textAlign: 'center',
+                  color: 'text.secondary',
+                  bgcolor: 'grey.50',
+                  borderRadius: 2,
+                }}
+              >
+                <Typography variant="body1" mb={1}>아직 지출 내역이 없습니다</Typography>
+                <Typography variant="body2">지출 추가 버튼을 눌러 첫 지출을 기록해보세요</Typography>
+              </Box>
+            ) : (
+              <Stack spacing={1.5} sx={{ maxHeight: 500, overflow: 'auto' }}>
+                {expenses.map((expense) => (
+                  <Card
+                    key={expense.id}
+                    variant="outlined"
+                    sx={{
+                      '&:hover': { borderColor: 'primary.main', bgcolor: 'primary.50' },
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
+                      <Stack direction="row" justifyContent="space-between" alignItems="center">
+                        <Box flex={1}>
+                          <Stack direction="row" alignItems="center" spacing={1}>
+                            <Typography fontWeight="medium">{expense.description}</Typography>
+                            {expense.date && (
+                              <Typography variant="caption" color="text.secondary">
+                                {formatDate(expense.date)}
+                              </Typography>
+                            )}
+                          </Stack>
+                          <Stack direction="row" spacing={0.5} mt={0.5} flexWrap="wrap" useFlexGap>
+                            {expense.splitAmong.map(id => {
+                              const member = memberMap.get(id);
+                              return (
+                                <Chip
+                                  key={id}
+                                  size="small"
+                                  variant="outlined"
+                                  label={`${member?.emoji} ${member?.name}`}
+                                />
+                              )
+                            })}
+                          </Stack>
+                        </Box>
                         <Stack direction="row" alignItems="center" spacing={1}>
-                          <Typography fontWeight="medium">{expense.description}</Typography>
-                          {expense.date && (
-                            <Typography variant="caption" color="text.secondary">
-                              {formatDate(expense.date)}
-                            </Typography>
-                          )}
-
+                          <Stack direction="row" spacing={0.5} mt={0.5} flexWrap="wrap" useFlexGap>
+                            {expense.payments.map(p => {
+                              const member = memberMap.get(p.memberId)
+                              return (
+                                <Chip
+                                  key={p.memberId}
+                                  size="small"
+                                  variant="outlined"
+                                  label={`${member?.emoji} ${member?.name}${p.amount === expense.totalAmount ? '' : ` ${p.amount.toLocaleString()}원`}`}
+                                />
+                              )
+                            })}
+                          </Stack>
+                          <Typography variant="h6" color="primary.main" fontWeight="bold">
+                            {formatCurrency(expense.totalAmount)}
+                          </Typography>
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            onClick={async () => {
+                              const data = await expenseFormOverlay.open({
+                                title: '지출 수정',
+                                defaultValues: expense
+                              });
+                              if (data) update({ expenseId: expense.id, data });
+                            }}
+                            sx={{ height: 30, paddingInline: 2 }}
+                          >
+                            수정
+                          </Button>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleDeleteExpense(expense.id)}
+                            sx={{ opacity: 0.5, '&:hover': { opacity: 1, color: 'error.main' } }}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
                         </Stack>
-                        <Stack direction="row" spacing={0.5} mt={0.5} flexWrap="wrap" useFlexGap>
-                          {expense.payments.map(p => {
-                            const member = memberMap.get(p.memberId)
-                            return (
-                              <Chip
-                                key={p.memberId}
-                                size="small"
-                                variant="outlined"
-                                label={`${member?.emoji} ${member?.name} ${p.amount.toLocaleString()}원`}
-                              />
-                            )
-                          })}
-                        </Stack>
-                      </Box>
-                      <Stack direction="row" alignItems="center" spacing={1}>
-                        <Typography variant="h6" color="primary.main" fontWeight="bold">
-                          {formatCurrency(expense.totalAmount)}
-                        </Typography>
-                        <IconButton
-                          size="small"
-                          onClick={() => handleDeleteExpense(expense.id)}
-                          sx={{ opacity: 0.5, '&:hover': { opacity: 1, color: 'error.main' } }}
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
                       </Stack>
-                    </Stack>
-                  </CardContent>
-                </Card>
-              ))}
-            </Stack>
+                    </CardContent>
+                  </Card>
+                ))}
+              </Stack>
+            )
+          ) : (
+            // 경로 뷰
+            <Box sx={{ mx: -3, mb: -3, mt: -1 }}>
+              <Suspense>
+                <RouteExpenseView tripId={tripId} defaultCenter={defaultCenter} />
+              </Suspense>
+            </Box>
           )}
         </Paper>
 

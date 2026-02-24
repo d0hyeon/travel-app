@@ -1,7 +1,8 @@
 import AddIcon from '@mui/icons-material/Add'
-import DeleteIcon from '@mui/icons-material/Delete'
-import { Box, Button, Chip, IconButton, Stack, Tab, Tabs, Typography } from "@mui/material"
+import EditIcon from '@mui/icons-material/Edit'
+import { Box, Button, IconButton, Stack, Tab, Tabs, Typography } from "@mui/material"
 import { useMemo, useState } from "react"
+import type { Expense } from '~features/expense/expense.types'
 import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
 import { DraggableBottomSheet } from "../../../shared/components/DraggableBottomSheet"
 import { ListItem } from "../../../shared/components/ListItem"
@@ -25,7 +26,7 @@ interface Props {
 type SubTab = 'list' | 'settlement'
 
 export function ExpenseContent({ tripId }: Props) {
-  const { data: expenses, create, remove } = useExpenses(tripId)
+  const { data: expenses, create, update, remove } = useExpenses(tripId)
   const { data: members } = useTripMembers(tripId)
   const overlay = useOverlay()
   const confirm = useConfirmDialog()
@@ -63,12 +64,51 @@ export function ExpenseContent({ tripId }: Props) {
       </DraggableBottomSheet>
     ))
   }
+  const handleEditExpense = (expense: Expense) => {
+    overlay.open(({ isOpen, close }) => (
+      <DraggableBottomSheet
+        isOpen={isOpen}
+        onClose={close}
+        snapPoints={[0.9]}
+        defaultSnapIndex={0}
+      >
+        <Stack direction="row" justifyContent="end" paddingRight={2} marginTop={2}>
 
-  const handleDeleteExpense = async (expenseId: string) => {
-    if (await confirm('이 지출을 삭제하시겠습니까?')) {
-      remove(expenseId)
-    }
+        </Stack>
+        <ExpenseForm
+          tripId={tripId}
+          padding={2}
+          defaultValues={expense}
+          onSubmit={(data) => {
+            update({ expenseId: expense.id, data })
+            close()
+          }}
+          action={(
+            <Stack position="absolute" marginLeft="-16px !important" padding={2} bottom={0} width="100%" direction="row" gap={1} >
+              <Button
+                type="button"
+                size="large"
+                variant="outlined"
+                color="error"
+                sx={{ flex: '0 0 auto' }}
+                onClick={async () => {
+                  if (await confirm('삭제하시겠습니까?')) {
+                    close();
+                    setTimeout(() => remove(expense.id), 500);
+                  }
+                }}
+              >
+                삭제
+              </Button>
+              <Button type="button" onClick={close} size="large" variant="outlined" fullWidth>취소</Button>
+              <ExpenseForm.SubmitButton size="large" fullWidth>저장</ExpenseForm.SubmitButton>
+            </Stack>
+          )}
+        />
+      </DraggableBottomSheet>
+    ))
   }
+
 
   return (
     <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -111,40 +151,57 @@ export function ExpenseContent({ tripId }: Props) {
                     <ListItem
                       key={expense.id}
                       rightAddon={
-                        <IconButton
-                          size="small"
-                          onClick={() => handleDeleteExpense(expense.id)}
-                          color="error"
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
+                        <Stack direction="row" >
+                          <IconButton
+                            size="small"
+                            onClick={() => handleEditExpense(expense)}
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                        </Stack>
                       }
                     >
-                      <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+                      <Stack direction="row" justifyContent="space-between" alignItems="center" width="100%">
                         <Box flex={1}>
-                          <ListItem.Title>{expense.description}</ListItem.Title>
-                          {expense.date && (
-                            <ListItem.Text color="text.secondary">
-                              {formatDate(expense.date)}
-                            </ListItem.Text>
-                          )}
-
+                          <ListItem.Title>
+                            {expense.date && `[${formatDate(expense.date)}] `}
+                            {expense.description}
+                          </ListItem.Title>
                           <Stack direction="row" spacing={0.5} mt={0.5} flexWrap="wrap" useFlexGap>
-                            {expense.payments.map(p => {
-                              const member = memberMap.get(p.memberId)
+                            {expense.splitAmong.map(id => {
+                              const member = memberMap.get(id);
                               return (
-                                <Chip
-                                  key={p.memberId}
-                                  size="small"
-                                  label={`${member?.emoji} ${p.amount.toLocaleString()}원`}
-                                />
+                                <ListItem.Text key={id} variant="caption">
+                                  {member?.emoji} {member?.name}
+                                </ListItem.Text>
                               )
                             })}
                           </Stack>
                         </Box>
-                        <Typography variant="h6" color="primary" ml={1}>
-                          {formatCurrency(expense.totalAmount)}
-                        </Typography>
+                        <Stack direction="row" alignItems="center">
+                          <Stack>
+                            {expense.payments.map(p => {
+                              const member = memberMap.get(p.memberId);
+                              if (member == null) return;
+
+                              return (
+                                <Stack direction="row" gap={0.5} justifyContent="space-between" alignItems="center">
+                                  <ListItem.Text>
+                                    {member.emoji} {member.name}
+                                  </ListItem.Text>
+                                  {p.amount !== expense.totalAmount && (
+                                    <ListItem.Text>
+                                      {p.amount.toLocaleString()}원
+                                    </ListItem.Text>
+                                  )}
+                                </Stack>
+                              )
+                            })}
+                          </Stack>
+                          <Typography variant="body2" color="primary" ml={1}>
+                            {formatCurrency(expense.totalAmount)}
+                          </Typography>
+                        </Stack>
                       </Stack>
                     </ListItem>
                   ))}

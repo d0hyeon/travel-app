@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useId, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 
 interface OverlayController {
   isOpen: boolean
@@ -58,10 +58,16 @@ function OverlayItem({
   const close = useCallback(() => {
     setIsOpen(false)
     // 애니메이션 후 unmount
-    setTimeout(onClose, 1000)
+    setTimeout(onClose, 300)
   }, [onClose])
 
   return <>{element({ isOpen, close })}</>
+}
+
+let id = 0;
+function getId() {
+  id++;
+  return id;
 }
 
 export function useOverlay() {
@@ -72,18 +78,20 @@ export function useOverlay() {
 
   const { mount, unmount } = context;
 
-  const id = useId();
+  const idRef = useRef<number | null>(null);
 
   const open = useCallback(
     (element: OverlayElement) => {
-      mount(id, element)
-      return () => unmount(id)
+      const id = getId();
+      idRef.current = id;
+      mount(id.toString(), element);
+      return () => unmount(id.toString())
     },
     [id, mount, unmount]
   )
 
   const close = useCallback(() => {
-    unmount(id);
+    if (idRef.current) unmount(idRef.current.toString());
   }, [id, unmount])
 
   return { open, close }

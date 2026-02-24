@@ -24,12 +24,12 @@ import { useIsMobile } from '~shared/hooks/useIsMobile'
 import { formatDateISO } from "../../../shared/utils/formats"
 import { useTripPlaces } from '../trip-place/useTripPlaces'
 
-interface PaymentField {
+export interface PaymentField {
   memberId: string
   amount: number;
 }
 
-interface ExpenseFormValues {
+export interface ExpenseFormValues {
   description: string
   date: string
   payments: PaymentField[];
@@ -57,11 +57,9 @@ export function ExpenseForm({
   const methods = useForm<ExpenseFormValues>({
     mode: 'onChange',
     defaultValues: {
-      description: '',
-      placeId: '',
-      payments: members.length ? [{ memberId: members[0]?.id ?? '', amount: 0 }] : [],
-      splitAmong: members.map(m => m.id),
       ...defaultValues,
+      payments: defaultValues?.payments ?? [{ memberId: members[0]?.id ?? '', amount: 0 }],
+      splitAmong: defaultValues?.splitAmong ?? members.map(m => m.id)
     },
   })
   const { control, handleSubmit, setValue } = methods;
@@ -87,13 +85,7 @@ export function ExpenseForm({
       .filter(p => p.memberId && p.amount > 0)
       .map(p => ({ memberId: p.memberId, amount: p.amount }))
 
-    onSubmit({
-      description: data.description,
-      payments,
-      splitAmong,
-      placeId: data.placeId || undefined,
-      date: data.date,
-    })
+    onSubmit({ ...data, payments })
   })
 
   const isMobile = useIsMobile();
@@ -293,7 +285,7 @@ ExpenseForm.SubmitButton = (props: Omit<ButtonProps, 'type'>) => {
       disabled={totalAmount === 0 || !isValid}
       {...props}
     >
-      저장 ({totalAmount.toLocaleString()}원)
+      {props.children ?? `저장 (${totalAmount.toLocaleString()}원`}
     </Button>
   )
 }

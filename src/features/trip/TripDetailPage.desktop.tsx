@@ -64,7 +64,7 @@ export function TripDetailPageDesktop() {
         {currentTab === 'Info' && <TripBasicInfoContent tripId={tripId} />}
         {currentTab === 'Place' && <TripPlaceContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />}
         {currentTab === 'Route' && <TripRoutesContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />}
-        {currentTab === 'Expense' && <ExpenseContent tripId={tripId} />}
+        {currentTab === 'Expense' && <ExpenseContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />}
       </Suspense>
     </Box>
   )

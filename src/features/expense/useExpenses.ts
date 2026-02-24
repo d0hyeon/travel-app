@@ -1,18 +1,17 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query"
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query"
 import { tripKey } from "../trip/trip.api"
 import {
-  getExpensesByTripId,
-  expenseKey,
   createExpense,
-  updateExpense,
-  deleteExpense
+  deleteExpense,
+  expenseKey,
+  getExpensesByTripId,
+  updateExpense
 } from "./expense.api"
 import type { Expense } from "./expense.types"
 
 export function useExpenses(tripId: string) {
-  const queryClient = useQueryClient()
 
-  const { data, ...queries } = useSuspenseQuery({
+  const { data, refetch, ...queries } = useSuspenseQuery({
     queryKey: useExpenses.key(tripId),
     queryFn: () => getExpensesByTripId(tripId)
   })
@@ -25,7 +24,7 @@ export function useExpenses(tripId: string) {
         ...payload,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: useExpenses.key(tripId) })
+      refetch();
     }
   })
 
@@ -42,18 +41,18 @@ export function useExpenses(tripId: string) {
       })
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: useExpenses.key(tripId) })
+      refetch();
     }
   })
 
   const { mutate: remove } = useMutation({
     mutationFn: deleteExpense,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: useExpenses.key(tripId) })
+      refetch();
     }
   })
 
-  return { data, create, update, remove, ...queries }
+  return { data, create, update, remove, refetch, ...queries }
 }
 
 useExpenses.key = (tripId: string) => [tripKey, expenseKey, tripId]
