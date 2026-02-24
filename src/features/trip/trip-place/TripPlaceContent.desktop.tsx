@@ -1,27 +1,21 @@
 import AddIcon from '@mui/icons-material/Add'
-import EditIcon from '@mui/icons-material/Edit'
-import DeleteIcon from '@mui/icons-material/Delete'
+import WorkspacesIcon from '@mui/icons-material/Workspaces'
 import {
   Box,
   Button,
-  Chip,
-  IconButton,
   Stack,
   ToggleButton,
   Typography
 } from '@mui/material'
-import { useMemo, useRef, type ComponentProps } from 'react'
-import { useTripPlaces } from './useTripPlaces'
-import { useTripRoutes } from '../trip-route/useTripRoutes'
-import { KakaoMap, type KakaoMapRef } from '../../../shared/components/KakaoMap'
-import { PlaceCategoryColorCode, type Place } from '../../place/place.types'
-import { ListItem } from '../../../shared/components/ListItem'
-import { useTripPlaceDetailOverlay } from './useTripPlaceDetailOverlay'
-import { usePlaceSearchDialog } from '../../place/place-search/usePlaceSearchDialog'
-import WorkspacesIcon from '@mui/icons-material/Workspaces';
+import { useMemo, useRef } from 'react'
 import { useQueryParamState } from '~shared/hooks/useQueryParamState'
-import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
+import { KakaoMap, type KakaoMapRef } from '../../../shared/components/KakaoMap'
+import { usePlaceSearchDialog } from '../../place/place-search/usePlaceSearchDialog'
+import { PlaceCategoryColorCode, type Place } from '../../place/place.types'
+import { useTripRoutes } from '../trip-route/useTripRoutes'
 import { TripPlaceItem } from './TripPlaceItem'
+import { useTripPlaceDetailOverlay } from './useTripPlaceDetailOverlay'
+import { useTripPlaces } from './useTripPlaces'
 
 interface TripPlaceContentProps {
   tripId: string

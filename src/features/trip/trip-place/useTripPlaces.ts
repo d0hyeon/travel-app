@@ -1,11 +1,10 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { tripKey } from "../trip.api";
-import { createPlace, getPlacesByTripId, placeKey, updatePlace, deletePlace } from "../../place/place.api";
-import type { Place } from "../../place/place.types";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import type { PickPartial } from "../../../shared/utils/types";
+import { createPlace, deletePlace, getPlacesByTripId, placeKey, updatePlace } from "../../place/place.api";
+import type { Place } from "../../place/place.types";
+import { tripKey } from "../trip.api";
 
 export function useTripPlaces(tripId: string) {
-  const queryClient = useQueryClient()
 
   const { data, refetch, ...queries } = useSuspenseQuery({
     queryKey: useTripPlaces.key(tripId),

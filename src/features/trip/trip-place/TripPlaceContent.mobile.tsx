@@ -1,20 +1,16 @@
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
 import WorkspacesIcon from '@mui/icons-material/Workspaces';
-import { Box, Button, Chip, IconButton, Stack, ToggleButton, Typography } from "@mui/material";
-import { useMemo, useRef, useState, type ComponentProps } from "react";
+import { Box, Button, Stack, ToggleButton, Typography } from "@mui/material";
+import { useMemo, useRef, useState } from "react";
+import { BottomArea } from '~shared/components/BottomArea';
 import { useQueryParamState } from '~shared/hooks/useQueryParamState';
-import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog';
 import { DraggableBottomSheet } from "../../../shared/components/DraggableBottomSheet";
 import { KakaoMap, type KakaoMapRef } from "../../../shared/components/KakaoMap";
-import { ListItem } from '../../../shared/components/ListItem';
 import { usePlaceSearchBottomSheet } from '../../place/place-search/usePlaceSearchBottomSheet';
 import { PlaceCategoryColorCode, type Place } from "../../place/place.types";
 import { useTripRoutes } from "../trip-route/useTripRoutes";
+import { TripPlaceItem } from './TripPlaceItem';
 import { useTripPlaceDetailOverlay } from "./useTripPlaceDetailOverlay";
 import { useTripPlaces } from "./useTripPlaces";
-import { TripPlaceItem } from './TripPlaceItem';
-import { BottomArea } from '~shared/components/BottomArea';
 
 interface PlaceContentProps {
   tripId: string
