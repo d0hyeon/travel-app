@@ -80,7 +80,7 @@ ListItem.Title = ({ leftAddon, ...props }: TypographyProps & { leftAddon?: React
   )
 }
 ListItem.Text = (props: TypographyProps) => {
-  return <Typography variant="caption" color="textSecondary" fontSize={12} {...props} />
+  return <Typography variant="caption" fontWeight={500} color="textSecondary" fontSize={12} {...props} />
 }
 
 ListItem.Ordering = (props: BoxProps) => {
