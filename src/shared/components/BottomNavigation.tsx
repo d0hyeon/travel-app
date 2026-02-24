@@ -23,7 +23,7 @@ export function BottomNavigation({ sx, ...props }: StackProps) {
           '.bottom-navigation-menu ~ .bottom-navigation-menu::after': {
             position: 'absolute',
             left: 0,
-            top: '50%',
+            top: 'calc(50% - env(safe-area-inset-bottom))',
             transform: 'translateY(-50%)',
             width: '1px',
             height: 20,
