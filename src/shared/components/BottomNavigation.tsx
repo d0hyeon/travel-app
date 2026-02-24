@@ -17,6 +17,7 @@ export function BottomNavigation({ sx, ...props }: StackProps) {
         theme => ({
           borderTop: `1px solid ${theme.palette.divider}`,
           backgroundColor: '#fff',
+          paddingBottom: 'env(safe-area-inset-bottom)',
           '.bottom-navigation-menu ~ .bottom-navigation-menu::after': {
             position: 'absolute',
             left: 0,
@@ -35,6 +36,7 @@ export function BottomNavigation({ sx, ...props }: StackProps) {
     />
   )
 }
+BottomNavigation.HEIGHT = 56;
 
 interface MenuProps extends StackProps<'button'> {
   icon?: ReactNode;

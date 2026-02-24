@@ -63,7 +63,7 @@ export function TripDetailPageMobile() {
       </Stack>
 
       {/* Content */}
-      <Stack paddingBottom="60px" height="100%">
+      <Stack paddingBottom={`calc(${BottomNavigation.HEIGHT}px + env(safe-area-inset-bottom))`} height="100%">
         <Suspense fallback={<Box flex={1} display="flex" alignItems="center" justifyContent="center"><CircularProgress /></Box>}>
           {currentTab === 'Info' && <TripBasicInfoContent tripId={tripId} />}
           {currentTab === 'Place' && <TripPlaceContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />}
