@@ -302,7 +302,7 @@ KakaoMap.Marker = ({ id, lat, lng, label, tooltip, variant, color, opacity = 1, 
 
     overlay.setMap(map);
     return () => overlay.setMap(null);
-  }, [context, label, color, zoom, shouldRender]);
+  }, [context, label, color, opacity, zoom, shouldRender]);
 
   useEffect(function renderMarker() {
     if (marker == null || context?.map == null || !shouldRender) return;
