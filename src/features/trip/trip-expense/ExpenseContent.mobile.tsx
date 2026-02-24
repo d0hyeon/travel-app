@@ -1,7 +1,8 @@
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
+import RouteIcon from '@mui/icons-material/Route'
 import { Box, Button, IconButton, Stack, Tab, Tabs, Typography } from "@mui/material"
-import { useMemo, useState } from "react"
+import { Suspense, useMemo, useState } from "react"
 import type { Expense } from '~features/expense/expense.types'
 import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
 import { DraggableBottomSheet } from "../../../shared/components/DraggableBottomSheet"
@@ -16,8 +17,10 @@ import {
 } from "../../expense/expense.utils"
 import { useExpenses } from "../../expense/useExpenses"
 import { useTripMembers } from "../../trip-member/useTripMembers"
-import { ExpenseForm } from "./ExpenseForm"
+import { ExpenseFormDeletationActions } from './ExpenseFormDeletationActions'
+import { RouteExpenseViewMobile } from "./RouteExpenseView.mobile"
 import { SettlementSummary } from "./SettlementSummary"
+import { useExpenseFormBottomSheet } from './useExpenseFormOverlay'
 
 interface Props {
   tripId: string
@@ -27,11 +30,31 @@ type SubTab = 'list' | 'settlement'
 
 export function ExpenseContent({ tripId }: Props) {
   const { data: expenses, create, update, remove } = useExpenses(tripId)
-  const { data: members } = useTripMembers(tripId)
+  const { data: members } = useTripMembers(tripId);
+
   const overlay = useOverlay()
   const confirm = useConfirmDialog()
 
   const [subTab, setSubTab] = useState<SubTab>('list')
+
+  const handleOpenRouteExpense = () => {
+    overlay.open(({ isOpen, close }) => (
+      <DraggableBottomSheet
+        isOpen={isOpen}
+        onClose={close}
+        snapPoints={[0.95]}
+        defaultSnapIndex={0}
+      >
+        <DraggableBottomSheet.Scrollable>
+          <Box sx={{ height: 'calc(95vh - 40px)' }}>
+            <Suspense>
+              <RouteExpenseViewMobile tripId={tripId} />
+            </Suspense>
+          </Box>
+        </DraggableBottomSheet.Scrollable>
+      </DraggableBottomSheet>
+    ))
+  }
 
   const balances = useMemo(() => calculateBalances(members, expenses), [members, expenses])
   const settlements = useMemo(() => calculateSettlements(balances), [balances])
@@ -39,74 +62,19 @@ export function ExpenseContent({ tripId }: Props) {
 
   const memberMap = useMemo(() => new Map(members.map(m => [m.id, m])), [members])
 
-  const handleAddExpense = () => {
-    overlay.open(({ isOpen, close }) => (
-      <DraggableBottomSheet
-        isOpen={isOpen}
-        onClose={close}
-        snapPoints={[0.9]}
-        defaultSnapIndex={0}
-      >
-        <ExpenseForm
-          tripId={tripId}
-          padding={2}
-          onSubmit={(data) => {
-            create(data)
-            close()
-          }}
-          action={(
-            <Stack position="absolute" marginLeft="-16px !important" padding={2} bottom={0} width="100%" direction="row" gap={1} >
-              <Button type="button" onClick={close} size="large" variant="outlined" fullWidth>취소</Button>
-              <ExpenseForm.SubmitButton size="large" fullWidth />
-            </Stack>
-          )}
-        />
-      </DraggableBottomSheet>
-    ))
+  const formBottomSheet = useExpenseFormBottomSheet(tripId);
+  const handleAddExpense = async () => {
+    const data = await formBottomSheet.open();
+    if (data) create(data)
   }
-  const handleEditExpense = (expense: Expense) => {
-    overlay.open(({ isOpen, close }) => (
-      <DraggableBottomSheet
-        isOpen={isOpen}
-        onClose={close}
-        snapPoints={[0.9]}
-        defaultSnapIndex={0}
-      >
-        <Stack direction="row" justifyContent="end" paddingRight={2} marginTop={2}>
-
-        </Stack>
-        <ExpenseForm
-          tripId={tripId}
-          padding={2}
-          defaultValues={expense}
-          onSubmit={(data) => {
-            update({ expenseId: expense.id, data })
-            close()
-          }}
-          action={(
-            <Stack position="absolute" marginLeft="-16px !important" padding={2} bottom={0} width="100%" direction="row" gap={1} >
-              <Button
-                type="button"
-                size="large"
-                variant="outlined"
-                color="error"
-                sx={{ flex: '0 0 auto' }}
-                onClick={async () => {
-                  if (await confirm('삭제하시겠습니까?')) {
-                    close();
-                    setTimeout(() => remove(expense.id), 500);
-                  }
-                }}
-              >
-                삭제
-              </Button>
-              <Button type="button" onClick={close} size="large" variant="outlined" fullWidth>취소</Button>
-              <ExpenseForm.SubmitButton size="large" fullWidth>저장</ExpenseForm.SubmitButton>
-            </Stack>
-          )}
-        />
-      </DraggableBottomSheet>
-    ))
+  const handleEditExpense = async (expense: Expense) => {
+    const data = await formBottomSheet.open({
+      defaultValues: expense,
+      renderActions: ({ close }) => (
+        <ExpenseFormDeletationActions tripId={tripId} expenseId={expense.id} onClose={close} />
+      )
+    });
+    if (data) update({ expenseId: expense.id, data });
   }
 
 
@@ -220,19 +188,29 @@ export function ExpenseContent({ tripId }: Props) {
         </Box>
       )}
 
-      {/* 지출 추가 버튼 */}
-      <Box p={1}>
+      {/* 하단 버튼 */}
+      <Stack direction="row" spacing={1} p={1}>
+        <Button
+          size="large"
+          variant="outlined"
+          onClick={handleOpenRouteExpense}
+          startIcon={<RouteIcon />}
+          disabled={members.length === 0}
+          sx={{ flex: 1 }}
+        >
+          경로 기반
+        </Button>
         <Button
           size="large"
           variant="contained"
           onClick={handleAddExpense}
           startIcon={<AddIcon />}
-          fullWidth
           disabled={members.length === 0}
+          sx={{ flex: 1 }}
         >
           지출 추가
         </Button>
-      </Box>
+      </Stack>
     </Box>
   )
 }
