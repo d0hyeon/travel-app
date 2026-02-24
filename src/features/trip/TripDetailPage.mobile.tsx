@@ -20,6 +20,7 @@ import { TripRoutesContent } from './trip-route/TripRoutesContent.mobile';
 import { useTrip } from './useTrip';
 import { useTripId } from './useTripId';
 import { BottomNavigation } from '~shared/components/BottomNavigation';
+import { useIsMobile } from '~shared/hooks/useIsMobile';
 
 type TabType = 'Info' | 'Place' | 'Route' | 'Expense'
 
@@ -32,20 +33,27 @@ export function TripDetailPageMobile() {
     defaultValue: 'Info'
   })
 
+  const isMobile = useIsMobile();
 
   return (
     <Box sx={{ height: '100dvh', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
-      <Stack height={59} position="sticky" top={0} direction="row" justifyContent="space-between" alignItems="center" sx={{ p: 1.5, bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider' }}>
-        <Box display="flex" alignItems="center" gap={1}>
+      <Stack
+        height={isMobile ? 50 : 60}
+        position="sticky" top={0}
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        sx={{ p: isMobile ? 1 : 1.5, bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider' }}
+      >
+        <Box display="flex" alignItems="center" gap={isMobile ? 0.5 : 1}>
           <IconButton onClick={() => navigate('/')} size="small">
-            <ArrowBackIcon />
+            <ArrowBackIcon fontSize={isMobile ? 'small' : 'medium'} />
           </IconButton>
           <Box flex={1} minWidth={0}>
-            <Typography variant="subtitle1" fontWeight="medium" noWrap>
+            <Typography variant={isMobile ? 'subtitle2' : "subtitle1"} fontWeight={600} noWrap>
               {trip.name}
             </Typography>
-
           </Box>
         </Box>
         <Stack direction="row" alignItems="center">
