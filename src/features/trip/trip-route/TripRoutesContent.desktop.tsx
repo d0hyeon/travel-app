@@ -191,7 +191,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
                           <IconButton
                             size="small"
                             onClick={async () => {
-                              const updated = await getUpdatedPlace({ defaultValues: place });
+                              const updated = await getUpdatedPlace({ tripId, placeId: place.id, defaultValues: place });
                               if (updated) {
                                 updatePlace({
                                   ...updated,

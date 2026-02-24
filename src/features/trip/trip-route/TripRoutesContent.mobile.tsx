@@ -268,7 +268,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
                       rightAddon={(
                         <Box flexShrink={0}>
                           <IconButton size="small" onClick={async () => {
-                            const updated = await getUpdatedPlace({ defaultValues: place });
+                            const updated = await getUpdatedPlace({ tripId, placeId: place.id, defaultValues: place });
                             if (updated) {
                               updatePlace({
                                 ...updated,
