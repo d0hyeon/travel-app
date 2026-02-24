@@ -1,5 +1,6 @@
 import { Box, Fade, type BoxProps } from '@mui/material'
 import { useCallback, useEffect, useImperativeHandle, useRef, useState, type ReactNode, type Ref } from 'react'
+import { IntersectionArea } from './IntersectionArea';
 
 export type BottomSheetRef = {
   snap: number;
@@ -43,6 +44,7 @@ export function DraggableBottomSheet({
   const [dragOffset, setDragOffset] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const [isVisible, setIsVisible] = useState(!isModalMode)
+  const [isAnimating, setIsAnimating] = useState(false)
 
   useImperativeHandle(ref, () => {
     return {
@@ -50,14 +52,20 @@ export function DraggableBottomSheet({
     }
   }, [snapIndex, ...snapPoints])
 
-  // 모달 모드: isOpen 변경 시 visibility 제어
+  // 모달 모드: isOpen 변경 시 visibility 및 애니메이션 제어
   useEffect(() => {
     if (isModalMode) {
       if (isOpen) {
         setIsVisible(true)
         setSnapIndex(defaultSnapIndex)
+        // 즉시 애니메이션 시작 (브라우저가 렌더링할 틈을 주기 위해 최소 지연)
+        const timer = setTimeout(() => setIsAnimating(true), 10)
+        return () => clearTimeout(timer)
       } else {
-        setIsVisible(false)
+        setIsAnimating(false)
+        // 애니메이션 완료 후 visibility 해제
+        const timer = setTimeout(() => setIsVisible(false), 300)
+        return () => clearTimeout(timer)
       }
     }
   }, [isOpen, isModalMode, defaultSnapIndex])
@@ -143,16 +151,27 @@ export function DraggableBottomSheet({
     }
   }, [dragOffset, getContainerHeight, findNearestSnapIndex, onClose])
 
-  // Touch handlers
+
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     e.stopPropagation();
-    handleDragStart(e.touches[0].clientY);
+    if (!shouldPreventSheetDrag(e.target)) {
+      handleDragStart(e.touches[0].clientY);
+    }
   }, [handleDragStart])
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     e.preventDefault()
     handleDragMove(e.touches[0].clientY)
-  }, [handleDragMove])
+  }, [handleDragMove]);
+
+  const [isScrolled, setIsScrolled] = useState(false);
+  const handleBodyTouchMove = useCallback((e: React.TouchEvent) => {
+    const isGuestureToBottom = dragState.current.startY < e.touches[0].clientY;
+    if (!isScrolled && isGuestureToBottom) {
+      e.preventDefault();
+      handleDragMove(e.touches[0].clientY)
+    }
+  }, [handleDragMove, isScrolled]);
 
   const handleTouchEnd = useCallback(() => {
     handleDragEnd()
@@ -193,7 +212,9 @@ export function DraggableBottomSheet({
   const containerHeight = getContainerHeight()
   const currentHeight = isDragging
     ? Math.max(0, Math.min(containerHeight * 0.95, baseHeight + dragOffset))
-    : baseHeight
+    : isModalMode && !isAnimating
+      ? 0
+      : baseHeight
 
   // 모달 모드가 아니거나 visible 상태일 때만 렌더링
   if (isModalMode && !isVisible && !isOpen) {
@@ -208,7 +229,7 @@ export function DraggableBottomSheet({
         bottom: 0,
         left: 0,
         right: 0,
-        height: isModalMode && !isOpen ? 0 : currentHeight,
+        height: currentHeight,
         bgcolor: 'background.paper',
         borderTopLeftRadius: 16,
         borderTopRightRadius: 16,
@@ -262,7 +283,16 @@ export function DraggableBottomSheet({
           { flex: 1, overflow: 'auto' },
           ...(Array.isArray(slotProps?.body?.sx) ? slotProps.body.sx : [slotProps?.body?.sx])
         ]}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleBodyTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
+        <IntersectionArea
+          onEnter={() => setIsScrolled(false)}
+          onLeave={() => setIsScrolled(true)}
+        >
+          <span />
+        </IntersectionArea>
         {children}
       </Box>
     </Box>
@@ -289,4 +319,53 @@ export function DraggableBottomSheet({
   }
 
   return sheetContent
+}
+
+DraggableBottomSheet.Scrollable = (props: BoxProps) => {
+  return (
+    <Box data-scrollable="true" {...props} />
+  )
+}
+
+function isHtmlElement(node: EventTarget): node is HTMLElement {
+  return node instanceof HTMLElement;
+}
+function isNode(node: EventTarget): node is Node {
+  return node instanceof Node && !isHtmlElement(node);
+}
+/**
+ * 해당 노드가 터치 이벤트를 독점해야 하는 요소인지 판별
+ * @param {EventTarget} target - event.target
+ * @returns {boolean} - true면 시트 드래그를 중단해야 함
+ */
+function shouldPreventSheetDrag(target: EventTarget) {
+  let current: EventTarget | null = target;
+
+  while (current) {
+    if (isNode(current)) {
+      current = current.parentElement;
+      continue;
+    }
+    if (!isHtmlElement(current)) {
+      return false;
+    }
+    const isScrollable = current.hasAttribute('[data-scrollable]');
+    if (isScrollable) return true;
+    // 1. 입력창 및 폼 요소 (포커스 및 텍스트 선택 보장)
+    const isInput = ['INPUT', 'TEXTAREA', 'SELECT', 'OPTION'].includes(current.tagName);
+    const isContentEditable = current.isContentEditable;
+
+    // 2. 개발자가 명시한 스크롤 가능 영역 (data-scrollable)
+    // 3. 지도 등 외부 라이브러리 (data-prevent-sheet 혹은 특정 클래스)
+    const hasScrollAttribute = current.dataset.scrollable === 'true' ||
+      current.dataset.preventSheet === 'true';
+
+    if (isInput || isContentEditable || hasScrollAttribute) {
+      return true; // 시트 드래그 로직 중단
+    }
+    // 상위 부모로 이동
+    current = current.parentElement;
+  }
+
+  return false; // 시트 드래그 허용
 }
