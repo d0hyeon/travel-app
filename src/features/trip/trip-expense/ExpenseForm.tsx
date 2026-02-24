@@ -285,7 +285,7 @@ ExpenseForm.SubmitButton = (props: Omit<ButtonProps, 'type'>) => {
       disabled={totalAmount === 0 || !isValid}
       {...props}
     >
-      {props.children ?? `저장 (${totalAmount.toLocaleString()}원`}
+      {props.children ?? '저장'}
     </Button>
   )
 }
