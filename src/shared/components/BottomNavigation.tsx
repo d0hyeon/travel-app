@@ -50,8 +50,7 @@ BottomNavigation.Menu = function Menu({ icon, isActived, children, ...props }: M
       justifyContent="center"
       alignItems="center"
       flex={1}
-      paddingTop={0.9}
-      paddingBottom={0.3}
+      paddingY={1}
       {...props}
     >
       {icon}
