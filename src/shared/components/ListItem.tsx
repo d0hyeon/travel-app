@@ -1,5 +1,5 @@
-import { Box, Stack, Typography, type BoxProps, type StackProps, type TypographyProps } from "@mui/material";
-import type { ReactNode } from "react";
+import { alpha, Box, Stack, Typography, type BoxProps, type StackProps, type TypographyProps } from "@mui/material";
+import { useEffect, useRef, type ReactNode } from "react";
 import { useIsMobile } from "../hooks/useIsMobile";
 
 interface Props extends Omit<StackProps, 'title'> {
@@ -32,6 +32,42 @@ export function ListItem({ leftAddon, rightAddon, children, ...props }: Props) {
 
       {rightAddon}
     </Stack>
+  )
+}
+
+interface ButtonProps extends Props {
+  focused?: boolean;
+}
+
+ListItem.Button = ({ focused, sx, ...props }: ButtonProps) => {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (focused) {
+      return ref.current?.focus();
+    }
+    if (document.activeElement === ref.current) {
+      ref.current?.blur();
+    }
+  }, [focused])
+
+  return (
+    <ListItem
+      ref={ref}
+      component="button"
+      textAlign="left"
+      width="100%"
+      sx={[
+        theme => ({
+          '&:focus': {
+            background: alpha(theme.palette.primary.main, 0.2),
+            outline: 'none'
+          }
+        }),
+        ...(Array.isArray(sx) ? sx : [sx])
+      ]}
+      {...props}
+    />
   )
 }
 

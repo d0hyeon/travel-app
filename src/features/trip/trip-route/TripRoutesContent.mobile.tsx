@@ -19,7 +19,6 @@ import { useOverlay } from "../../../shared/hooks/useOverlay";
 import { useRoadPath } from "../../../shared/hooks/useRoadPath";
 import { formatDate, formatDateISO } from "../../../shared/utils/formats";
 import { PlaceCategoryColorCode } from "../../place/place.types";
-import { useTripPlaceDetailOverlay } from '../trip-place/useTripPlaceDetailOverlay';
 import { useTripPlaces } from "../trip-place/useTripPlaces";
 import { useTrip } from '../useTrip';
 import { PlaceSelectSheet } from "./PlaceSelectSheet";
@@ -79,7 +78,6 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
     return routes[0];
   }, [routes, selectedRouteId])
 
-  const { openBottomSheet: openDetailSheet } = useTripPlaceDetailOverlay();
   const { openBottomsheet: getUpdatedPlace } = usePlaceFormOverlay();
 
   const [isVisibleOtherMarkers, setIsVisibleOtherMarkers] = useQueryParamState('marker', {
@@ -91,10 +89,12 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
     parse: value => value === 'true'
   })
   const [sheetRatio, setSheetRatio] = useState(DEFAULT_BOTTOM_SHEET_RATIO);
+  const [focusedId, setFocusedId] = useState<string | null>(null)
 
   const mapRef = useRef<KakaoMapRef>(null)
   const overlay = useOverlay()
   const confirm = useConfirmDialog();
+
 
   return (
     <>
@@ -150,7 +150,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
                   label={isInCurrentRoute ? `${orderInRoute + 1}. ${place.name}` : place.name}
                   variant={isInCurrentRoute ? 'selected' : 'disabled'}
                   color={isInCurrentRoute && place.category ? PlaceCategoryColorCode[place.category] : undefined}
-                  onClick={() => openDetailSheet({ tripId, placeId: place.id })}
+                  onClick={() => setFocusedId(place.id)}
                   {...place}
                 />
               )
@@ -174,6 +174,11 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
             if (ratio < 1 && ratio !== sheetRatio) {
               setSheetRatio(ratio)
               setTimeout(() => mapRef.current?.relayout(), 350)
+            }
+          }}
+          slotProps={{
+            body: {
+              sx: { scrollBehavior: 'smooth', scrollMarginTop: 60 }
             }
           }}
         >
@@ -253,7 +258,8 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
                     update({ routeId: currentRoute.id, placeIds: changed.items.map(x => x.id) })
                   }}
                   renderItem={(place, idx) => (
-                    <ListItem
+                    <ListItem.Button
+                      sx={{ scrollMarginTop: 50 }}
                       leftAddon={(
                         <SortableItem.Handle id={place.id}>
                           <DragIndicatorIcon />
@@ -288,6 +294,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
                         </Box>
                       )}
                       onClick={() => mapRef.current?.panTo(place.lat, place.lng)}
+                      focused={focusedId === place.id}
                     >
                       <Stack direction="row" alignItems="center" gap={0.5}>
                         <Dot>{idx + 1}</Dot>
@@ -312,7 +319,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
                           marginTop={1}
                         />
                       </Box>
-                    </ListItem>
+                    </ListItem.Button>
                   )}
                 />
               </Stack>

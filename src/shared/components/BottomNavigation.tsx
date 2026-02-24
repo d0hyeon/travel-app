@@ -23,7 +23,7 @@ export function BottomNavigation({ sx, ...props }: StackProps) {
             top: '50%',
             transform: 'translateY(-50%)',
             width: '1px',
-            height: 28,
+            height: 20,
             backgroundColor: theme.palette.divider,
             content: '""',
           }

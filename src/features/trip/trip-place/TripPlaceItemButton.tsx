@@ -1,5 +1,5 @@
 import { Box, Chip, IconButton, Stack } from "@mui/material";
-import type { ComponentProps } from "react";
+import { type ComponentProps } from "react";
 import { PlaceCategoryColorCode, type Place } from "~features/place/place.types";
 import { ListItem } from "~shared/components/ListItem";
 import { useConfirmDialog } from "~shared/modules/confirm-dialog/useConfirmDialog";
@@ -10,10 +10,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { useIsMobile } from "~shared/hooks/useIsMobile";
 
-interface ItemProps extends ComponentProps<typeof ListItem> {
+interface ItemProps extends ComponentProps<typeof ListItem.Button> {
   place: Place;
 }
-export function TripPlaceItem({ place, ...props }: ItemProps) {
+export function TripPlaceItemButton({ place, ...props }: ItemProps) {
   const confirm = useConfirmDialog();
   const { remove } = useTripPlaces(place.tripId);
   const {
@@ -24,9 +24,8 @@ export function TripPlaceItem({ place, ...props }: ItemProps) {
   const isMobile = useIsMobile();
 
   return (
-    <ListItem
+    <ListItem.Button
       key={place.id}
-      sx={{ cursor: 'pointer' }}
       rightAddon={(
         <Box flexShrink={0}>
           <IconButton
@@ -86,6 +85,6 @@ export function TripPlaceItem({ place, ...props }: ItemProps) {
           ))}
         </Stack>
       )}
-    </ListItem>
+    </ListItem.Button>
   )
 }

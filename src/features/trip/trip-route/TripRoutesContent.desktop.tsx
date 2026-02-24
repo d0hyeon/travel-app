@@ -14,11 +14,11 @@ import {
   ToggleButtonGroup,
   Typography
 } from '@mui/material'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
 import { SortableItem } from '../../../shared/components/dnd/SortableItem'
 import { SortableList } from '../../../shared/components/dnd/SortableList'
-import { KakaoMap } from '../../../shared/components/KakaoMap'
+import { KakaoMap, type KakaoMapRef } from '../../../shared/components/KakaoMap'
 import { ListItem } from '../../../shared/components/ListItem'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
@@ -97,6 +97,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
     defaultValue: false,
     parse: value => value === 'true'
   })
+  const mapRef = useRef<KakaoMapRef>(null)
 
   return (
     <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
@@ -215,6 +216,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
                           </IconButton>
                         </Box>
                       )}
+                      onClick={() => mapRef.current?.panTo(place.lat, place.lng)}
                     >
 
                       <ListItem.Title leftAddon={<Dot>{idx + 1}</Dot>}>
@@ -293,6 +295,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
           </ToggleButton>
         </Stack>
         <KakaoMap
+          ref={mapRef}
           defaultCenter={defaultCenter}
           autoFocus="path"
           height="100%"

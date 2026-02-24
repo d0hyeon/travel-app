@@ -18,7 +18,5 @@ export default defineConfig({
       { find: /^~/, replacement: path.resolve(__dirname, 'src') + '/' },
     ],
   },
-  server: {
-    port: 8080,
-  },
+  
 })

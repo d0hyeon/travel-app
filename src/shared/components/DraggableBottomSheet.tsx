@@ -1,4 +1,4 @@
-import { Box, Fade } from '@mui/material'
+import { Box, Fade, type BoxProps } from '@mui/material'
 import { useCallback, useEffect, useImperativeHandle, useRef, useState, type ReactNode, type Ref } from 'react'
 
 export type BottomSheetRef = {
@@ -20,6 +20,8 @@ interface DraggableBottomSheetProps {
   /** 스냅 변경 콜백 (바텀시트가 차지하는 비율 전달) */
   onSnapChange?: (snapRatio: number) => void;
   ref?: Ref<BottomSheetRef>;
+
+  slotProps?: { body?: BoxProps }
 }
 
 const DEFAULT_SNAP_POINTS = [0.3, 0.5, 0.7, 0.9]
@@ -33,6 +35,7 @@ export function DraggableBottomSheet({
   onClose,
   onSnapChange,
   ref,
+  slotProps,
 }: DraggableBottomSheetProps) {
   const isModalMode = isOpen !== undefined
   const containerRef = useRef<HTMLDivElement>(null)
@@ -253,7 +256,13 @@ export function DraggableBottomSheet({
       </Box>
 
       {/* Content */}
-      <Box sx={{ flex: 1, overflow: 'auto' }}>
+      <Box
+        {...slotProps?.body}
+        sx={[
+          { flex: 1, overflow: 'auto' },
+          ...(Array.isArray(slotProps?.body?.sx) ? slotProps.body.sx : [slotProps?.body?.sx])
+        ]}
+      >
         {children}
       </Box>
     </Box>

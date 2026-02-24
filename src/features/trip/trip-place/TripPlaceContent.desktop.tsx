@@ -7,14 +7,13 @@ import {
   ToggleButton,
   Typography
 } from '@mui/material'
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useQueryParamState } from '~shared/hooks/useQueryParamState'
 import { KakaoMap, type KakaoMapRef } from '../../../shared/components/KakaoMap'
 import { usePlaceSearchDialog } from '../../place/place-search/usePlaceSearchDialog'
 import { PlaceCategoryColorCode, type Place } from '../../place/place.types'
 import { useTripRoutes } from '../trip-route/useTripRoutes'
-import { TripPlaceItem } from './TripPlaceItem'
-import { useTripPlaceDetailOverlay } from './useTripPlaceDetailOverlay'
+import { TripPlaceItemButton } from './TripPlaceItemButton'
 import { useTripPlaces } from './useTripPlaces'
 
 interface TripPlaceContentProps {
@@ -26,8 +25,6 @@ export function TripPlaceContent({ tripId, defaultCenter }: TripPlaceContentProp
   const { data: places, create } = useTripPlaces(tripId)
   const { data: { routes } } = useTripRoutes(tripId)
   const mapRef = useRef<KakaoMapRef>(null)
-
-  const { openDialog: openPlaceDetailDialog } = useTripPlaceDetailOverlay();
 
   const { searchPlace } = usePlaceSearchDialog();
 
@@ -56,12 +53,13 @@ export function TripPlaceContent({ tripId, defaultCenter }: TripPlaceContentProp
     defaultValue: false,
     parse: value => value === 'true'
   })
+  const [focusedId, setFocusedId] = useState<string | null>(null)
 
   return (
     <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
       {/* Left: List (30%) */}
-      <Box sx={{ width: '30%', borderRight: 1, borderColor: 'divider', overflow: 'auto', p: 2 }}>
-        <Stack height="100%">
+      <Box sx={{ width: '30%', borderRight: 1, borderColor: 'divider', overflow: 'auto', p: 2, scrollBehavior: 'smooth', scrollMarginBottom: 40 }}>
+        <Stack height="100%" sx={{ scrollBehavior: 'smooth' }}>
           <Box flex="1 1 100%" paddingBottom={3}>
             <Typography variant="subtitle2" color="text.secondary" mb={1}>
               확정된 장소 ({confirmedPlaces.length})
@@ -73,7 +71,13 @@ export function TripPlaceContent({ tripId, defaultCenter }: TripPlaceContentProp
             ) : (
               <Stack spacing={1} mb={3}>
                 {confirmedPlaces.map((place) => (
-                  <TripPlaceItem key={place.id} place={place} onClick={() => handlePlaceClick(place)} />
+                  <TripPlaceItemButton
+                    key={place.id}
+                    place={place}
+                    onClick={() => handlePlaceClick(place)}
+                    component="button"
+                    focused={place.id === focusedId}
+                  />
                 ))}
               </Stack>
             )}
@@ -88,7 +92,12 @@ export function TripPlaceContent({ tripId, defaultCenter }: TripPlaceContentProp
             ) : (
               <Stack spacing={1}>
                 {wishedPlaces.map((place) => (
-                  <TripPlaceItem key={place.id} place={place} onClick={() => handlePlaceClick(place)} />
+                  <TripPlaceItemButton
+                    key={place.id}
+                    place={place}
+                    onClick={() => handlePlaceClick(place)}
+                    focused={place.id === focusedId}
+                  />
                 ))}
               </Stack>
             )}
@@ -135,7 +144,7 @@ export function TripPlaceContent({ tripId, defaultCenter }: TripPlaceContentProp
               lat={place.lat}
               lng={place.lng}
               color={place.category ? PlaceCategoryColorCode[place.category] : undefined}
-              onClick={() => openPlaceDetailDialog({ placeId: place.id, tripId })}
+              onClick={() => setFocusedId(place.id)}
             />
           ))}
         </KakaoMap>

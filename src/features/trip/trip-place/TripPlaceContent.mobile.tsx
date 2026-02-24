@@ -8,8 +8,7 @@ import { KakaoMap, type KakaoMapRef } from "../../../shared/components/KakaoMap"
 import { usePlaceSearchBottomSheet } from '../../place/place-search/usePlaceSearchBottomSheet';
 import { PlaceCategoryColorCode, type Place } from "../../place/place.types";
 import { useTripRoutes } from "../trip-route/useTripRoutes";
-import { TripPlaceItem } from './TripPlaceItem';
-import { useTripPlaceDetailOverlay } from "./useTripPlaceDetailOverlay";
+import { TripPlaceItemButton } from './TripPlaceItemButton';
 import { useTripPlaces } from "./useTripPlaces";
 
 interface PlaceContentProps {
@@ -47,8 +46,8 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
   })
   const [sheetRatio, setSheetRatio] = useState(DEFAULT_BOTTOM_SHEET_RATIO);
 
-  const { openBottomSheet: openPlaceDetailBottomSheet } = useTripPlaceDetailOverlay();
   const { searchPlace } = usePlaceSearchBottomSheet();
+  const [focusedId, setFocusedId] = useState<string | null>(null)
 
   return (
     <>
@@ -81,7 +80,7 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
                 lat={place.lat}
                 lng={place.lng}
                 color={place.category ? PlaceCategoryColorCode[place.category] : undefined}
-                onClick={() => openPlaceDetailBottomSheet({ placeId: place.id, tripId })}
+                onClick={() => setFocusedId(place.id)}
               />
             ))}
           </KakaoMap>
@@ -97,6 +96,11 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
               setTimeout(() => mapRef.current?.relayout(), 350)
             }
           }}
+          slotProps={{
+            body: {
+              sx: { scrollBehavior: 'smooth', }
+            }
+          }}
         >
           <Box sx={{ p: 1.5 }}>
             <Typography variant="caption" color="text.secondary" fontWeight="medium" mb={0.5} display="block">
@@ -105,17 +109,19 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
 
             <Stack spacing={0.75}>
               {confirmedPlaces.map((place) => (
-                <TripPlaceItem
+                <TripPlaceItemButton
                   key={place.id}
                   place={place}
                   onClick={() => handlePlaceClick(place)}
+                  focused={place.id === focusedId}
                 />
               ))}
               {wishedPlaces.map((place) => (
-                <TripPlaceItem
+                <TripPlaceItemButton
                   key={place.id}
                   place={place}
                   onClick={() => handlePlaceClick(place)}
+                  focused={place.id === focusedId}
                 />
               ))}
             </Stack>
