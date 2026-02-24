@@ -15,9 +15,12 @@ export function BottomNavigation({ sx, ...props }: StackProps) {
 
       sx={[
         theme => ({
-          borderTop: `1px solid ${theme.palette.divider}`,
+          border: `1px solid ${theme.palette.divider}`,
           backgroundColor: '#fff',
           paddingBottom: 'env(safe-area-inset-bottom)',
+          borderTopLeftRadius: 28,
+          borderTopRightRadius: 28,
+
           '.bottom-navigation-menu ~ .bottom-navigation-menu::after': {
             position: 'absolute',
             left: 0,
