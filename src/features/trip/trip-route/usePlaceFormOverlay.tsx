@@ -109,7 +109,16 @@ function PlaceFormSheet({ placeId, tripId, title = '장소 정보', defaultValue
         />
       </Stack>
 
-      <BottomArea position="absolute" padding={1} sx={{ backgroundColor: "#fff", zIndex: 5, borderTop: '1px solid #ddd' }}>
+      <BottomArea
+        position="absolute"
+        padding={1}
+        sx={{
+          backgroundColor: "#fff",
+          zIndex: 5,
+          borderTop: '1px solid #ddd',
+          paddingBottom: 'env(safe-area-inset-bottom)'
+        }}
+      >
         <Button type="button" onClick={onClose} size="large" variant="outlined" sx={{ flex: 1 }}>닫기</Button>
         <PlaceForm.SubmitButton form="place-form" size="large" sx={{ flex: 1 }} />
       </BottomArea>

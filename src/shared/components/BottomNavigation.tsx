@@ -38,7 +38,7 @@ export function BottomNavigation({ sx, ...props }: StackProps) {
     />
   )
 }
-BottomNavigation.HEIGHT = 64;
+BottomNavigation.HEIGHT = 62;
 
 interface MenuProps extends StackProps<'button'> {
   icon?: ReactNode;
@@ -54,9 +54,9 @@ BottomNavigation.Menu = function Menu({ icon, isActived, children, ...props }: M
       justifyContent="center"
       alignItems="center"
       flex={1}
-      paddingY={1}
+      paddingTop={1}
       sx={{
-        paddingBottom: 'calc(12px + env(safe-area-inset-bottom))',
+        paddingBottom: 'calc(8px + env(safe-area-inset-bottom))',
       }}
       {...props}
     >
