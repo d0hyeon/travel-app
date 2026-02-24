@@ -75,7 +75,7 @@ ListItem.Title = ({ leftAddon, ...props }: TypographyProps & { leftAddon?: React
   return (
     <Stack gap={1} direction="row" alignItems="center" >
       {leftAddon}
-      <Typography fontWeight="medium" fontSize={13} noWrap {...props} />
+      <Typography fontSize={13} noWrap {...props} />
     </Stack>
   )
 }

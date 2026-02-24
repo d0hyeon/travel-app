@@ -1,28 +1,25 @@
 import { createTheme } from "@mui/material";
 
-const wordleColors = {
-  correct: '#6aaa64',    // 초록 - 정답
-  present: '#c9b458',    // 노랑 - 포함
-  absent: '#787c7e',     // 회색 - 오답
-  border: '#d3d6da',
-  text: '#1a1a1b',
-  textSecondary: '#787c7e',
-} as const;
-
 export const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: wordleColors.correct,
-      dark: '#5a9a54',
+      main: '#4C84FF',
       contrastText: '#ffffff',
     },
     warning: {
-      main: wordleColors.present,
+      main: '#c9b458',
     },
     grey: {
-      500: wordleColors.absent,
+      500: '#787c7e',
     },
+  },
+  typography: {
+    fontFamily: "'SUIT', sans-serif",
+    fontWeightBold: 900,
+    fontWeightRegular: 700,
+    fontWeightMedium: 700,
+    fontWeightLight: 600
   },
   components: {
     MuiButton: {
@@ -60,7 +57,7 @@ export const theme = createTheme({
             [props.theme.breakpoints.down('md')]: {
               height: 40,
               fontSize: 14,
-              fontWeight: 'normal',
+              
               borderRadius: 12,
             }
           })

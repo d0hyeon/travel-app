@@ -62,7 +62,7 @@ BottomNavigation.Menu = function Menu({ icon, isActived, children, ...props }: M
     >
       {icon}
       {typeof children === 'string'
-        ? <Typography variant='caption' fontWeight="bold" color={isActived ? 'primary' : 'textDisabled'}>{children}</Typography>
+        ? <Typography variant='caption' fontWeight={700} color={isActived ? 'primary' : 'textDisabled'}>{children}</Typography>
         : children
       }
     </Stack>
