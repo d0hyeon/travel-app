@@ -20,16 +20,16 @@ export function BottomNavigation({ sx, ...props }: StackProps) {
           borderTopLeftRadius: 28,
           borderTopRightRadius: 28,
 
-          '.bottom-navigation-menu ~ .bottom-navigation-menu::after': {
-            position: 'absolute',
-            left: 0,
-            top: 'calc(50% - (env(safe-area-inset-bottom) / 2))',
-            transform: 'translateY(-50%)',
-            width: '1px',
-            height: 20,
-            backgroundColor: theme.palette.divider,
-            content: '""',
-          }
+          // '.bottom-navigation-menu ~ .bottom-navigation-menu::after': {
+          //   position: 'absolute',
+          //   left: 0,
+          //   top: 'calc(50% - (env(safe-area-inset-bottom) / 2))',
+          //   transform: 'translateY(-50%)',
+          //   width: '1px',
+          //   height: 20,
+          //   backgroundColor: theme.palette.divider,
+          //   content: '""',
+          // }
         }),
 
         ...(Array.isArray(sx) ? sx : [sx])
