@@ -46,9 +46,7 @@ export function useDayTripRoutes({ tripId, date }: Params) {
 
     return update({
       routeId,
-      data: {
-        placeMemos: { ...targetRoute.placeMemos, [placeId]: memos }
-      }
+      placeMemos: { ...targetRoute.placeMemos, [placeId]: memos }
     })
   }, [routes]);
 

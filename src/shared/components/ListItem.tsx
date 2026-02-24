@@ -35,8 +35,13 @@ export function ListItem({ leftAddon, rightAddon, children, ...props }: Props) {
   )
 }
 
-ListItem.Title = (props: TypographyProps) => {
-  return <Typography fontWeight="medium" fontSize={13} noWrap {...props} />
+ListItem.Title = ({ leftAddon, ...props }: TypographyProps & { leftAddon?: ReactNode }) => {
+  return (
+    <Stack gap={1} direction="row" alignItems="center" >
+      {leftAddon}
+      <Typography fontWeight="medium" fontSize={13} noWrap {...props} />
+    </Stack>
+  )
 }
 ListItem.Text = (props: TypographyProps) => {
   return <Typography variant="caption" color="textSecondary" fontSize={12} {...props} />

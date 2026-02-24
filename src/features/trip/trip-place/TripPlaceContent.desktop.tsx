@@ -10,7 +10,7 @@ import {
   ToggleButton,
   Typography
 } from '@mui/material'
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, type ComponentProps } from 'react'
 import { useTripPlaces } from './useTripPlaces'
 import { useTripRoutes } from '../trip-route/useTripRoutes'
 import { KakaoMap, type KakaoMapRef } from '../../../shared/components/KakaoMap'
@@ -20,6 +20,8 @@ import { useTripPlaceDetailOverlay } from './useTripPlaceDetailOverlay'
 import { usePlaceSearchDialog } from '../../place/place-search/usePlaceSearchDialog'
 import WorkspacesIcon from '@mui/icons-material/Workspaces';
 import { useQueryParamState } from '~shared/hooks/useQueryParamState'
+import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
+import { TripPlaceItem } from './TripPlaceItem'
 
 interface TripPlaceContentProps {
   tripId: string
@@ -27,17 +29,11 @@ interface TripPlaceContentProps {
 }
 
 export function TripPlaceContent({ tripId, defaultCenter }: TripPlaceContentProps) {
-  const { data: places, create, remove } = useTripPlaces(tripId)
+  const { data: places, create } = useTripPlaces(tripId)
   const { data: { routes } } = useTripRoutes(tripId)
   const mapRef = useRef<KakaoMapRef>(null)
 
   const { openDialog: openPlaceDetailDialog } = useTripPlaceDetailOverlay();
-
-  const handleDeletePlace = (placeId: string) => {
-    if (confirm('이 장소를 삭제하시겠습니까?')) {
-      remove(placeId)
-    }
-  }
 
   const { searchPlace } = usePlaceSearchDialog();
 
@@ -83,45 +79,7 @@ export function TripPlaceContent({ tripId, defaultCenter }: TripPlaceContentProp
             ) : (
               <Stack spacing={1} mb={3}>
                 {confirmedPlaces.map((place) => (
-                  <ListItem
-                    key={place.id}
-                    sx={{ cursor: 'pointer' }}
-                    onClick={() => handlePlaceClick(place)}
-                    rightAddon={(
-                      <Box flexShrink={0}>
-                        <IconButton size="small" onClick={() => {
-                          openPlaceDetailDialog({ placeId: place.id, tripId });
-                        }}>
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleDeletePlace(place.id) }}>
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Box>
-                    )}
-                  >
-                    <Box display="flex" justifyContent="space-between" alignItems="flex-start">
-                      <ListItem.Title>{place.name}</ListItem.Title>
-
-                    </Box>
-                    {place.address && (
-                      <ListItem.Text variant="body2" color="text.secondary" fontSize={12}>
-                        {place.address}
-                      </ListItem.Text>
-                    )}
-                    {!!place.memo && (
-                      <ListItem.Text variant="body2" color="text.secondary" fontSize={12}>
-                        {place.memo}
-                      </ListItem.Text>
-                    )}
-                    {place.tags.length > 0 && (
-                      <Stack direction="row" spacing={0.5} flexWrap="wrap" sx={{ mt: 0.5 }}>
-                        {place.tags.map(x => (
-                          <Chip key={x} label={x} size="small" />
-                        ))}
-                      </Stack>
-                    )}
-                  </ListItem>
+                  <TripPlaceItem key={place.id} place={place} onClick={() => handlePlaceClick(place)} />
                 ))}
               </Stack>
             )}
@@ -136,64 +94,7 @@ export function TripPlaceContent({ tripId, defaultCenter }: TripPlaceContentProp
             ) : (
               <Stack spacing={1}>
                 {wishedPlaces.map((place) => (
-                  <ListItem
-                    key={place.id}
-                    sx={{ cursor: 'pointer' }}
-                    onClick={() => handlePlaceClick(place)}
-                    rightAddon={(
-                      <Box flexShrink={0}>
-                        <IconButton
-                          size="small"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openPlaceDetailDialog({ placeId: place.id, tripId });
-                          }}
-                        >
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton
-                          size="small"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeletePlace(place.id)
-                          }}
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Box>
-                    )}
-                  >
-                    <Stack direction="row" gap={0.5} alignItems="center">
-                      {!!place.category && (
-                        <Box
-                          sx={{
-                            width: 12,
-                            height: 12,
-                            borderRadius: '50%',
-                            bgcolor: PlaceCategoryColorCode[place.category],
-                          }}
-                        />
-                      )}
-                      <ListItem.Title>{place.name}</ListItem.Title>
-                    </Stack>
-                    {place.address && (
-                      <ListItem.Text variant="body2" color="text.secondary" fontSize={12}>
-                        {place.address}
-                      </ListItem.Text>
-                    )}
-                    {!!place.memo && (
-                      <ListItem.Text variant="body2" color="text.secondary" fontSize={12}>
-                        {place.memo}
-                      </ListItem.Text>
-                    )}
-                    {place.tags.length > 0 && (
-                      <Stack direction="row" spacing={0.5} flexWrap="wrap" sx={{ mt: 0.5 }}>
-                        {place.tags.map(x => (
-                          <Chip key={x} label={x} size="small" />
-                        ))}
-                      </Stack>
-                    )}
-                  </ListItem>
+                  <TripPlaceItem key={place.id} place={place} onClick={() => handlePlaceClick(place)} />
                 ))}
               </Stack>
             )}

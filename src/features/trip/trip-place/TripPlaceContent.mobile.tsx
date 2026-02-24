@@ -2,7 +2,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import WorkspacesIcon from '@mui/icons-material/Workspaces';
 import { Box, Button, Chip, IconButton, Stack, ToggleButton, Typography } from "@mui/material";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, type ComponentProps } from "react";
 import { useQueryParamState } from '~shared/hooks/useQueryParamState';
 import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog';
 import { DraggableBottomSheet } from "../../../shared/components/DraggableBottomSheet";
@@ -13,6 +13,8 @@ import { PlaceCategoryColorCode, type Place } from "../../place/place.types";
 import { useTripRoutes } from "../trip-route/useTripRoutes";
 import { useTripPlaceDetailOverlay } from "./useTripPlaceDetailOverlay";
 import { useTripPlaces } from "./useTripPlaces";
+import { TripPlaceItem } from './TripPlaceItem';
+import { BottomArea } from '~shared/components/BottomArea';
 
 interface PlaceContentProps {
   tripId: string
@@ -23,27 +25,11 @@ const BOTTOM_SHEET_RATIOS = [0.25, 0.5, 0.8, 1] as const;
 const DEFAULT_BOTTOM_SHEET_RATIO = 0.5 satisfies typeof BOTTOM_SHEET_RATIOS[number];
 
 export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
-  const { data: places, create, remove } = useTripPlaces(tripId)
+  const { data: places, create } = useTripPlaces(tripId)
   const { data: { routes } } = useTripRoutes(tripId)
-  const mapRef = useRef<KakaoMapRef>(null)
-
-  const { openBottomSheet: openPlaceDetailBottomSheet } = useTripPlaceDetailOverlay();
 
 
-  const confirm = useConfirmDialog();
-  const handleDeletePlace = async (placeId: string) => {
-    if (await confirm('이 장소를 삭제하시겠습니까?')) {
-      remove(placeId)
-    }
-  }
-
-  const { searchPlace } = usePlaceSearchBottomSheet();
-  const handleAddPlace = async () => {
-    const place = await searchPlace();
-    if (place == null) return;
-    create(place)
-  }
-
+  const mapRef = useRef<KakaoMapRef>(null);
   const handlePlaceClick = (place: Place) => {
     mapRef.current?.panTo(place.lat, place.lng)
   }
@@ -63,7 +49,10 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
     defaultValue: false,
     parse: value => value === 'true'
   })
-  const [sheetRatio, setSheetRatio] = useState(DEFAULT_BOTTOM_SHEET_RATIO)
+  const [sheetRatio, setSheetRatio] = useState(DEFAULT_BOTTOM_SHEET_RATIO);
+
+  const { openBottomSheet: openPlaceDetailBottomSheet } = useTripPlaceDetailOverlay();
+  const { searchPlace } = usePlaceSearchBottomSheet();
 
   return (
     <>
@@ -120,121 +109,38 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
 
             <Stack spacing={0.75}>
               {confirmedPlaces.map((place) => (
-                <ListItem
+                <TripPlaceItem
                   key={place.id}
-                  sx={{ borderColor: 'primary.main' }}
+                  place={place}
                   onClick={() => handlePlaceClick(place)}
-                  rightAddon={(
-                    <Box flexShrink={0}>
-                      <IconButton size="small" onClick={() => {
-                        openPlaceDetailBottomSheet({ placeId: place.id, tripId });
-                      }}>
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleDeletePlace(place.id) }}>
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </Box>
-                  )}
-                >
-                  <Stack direction="row" gap={0.5} alignItems="center">
-                    {!!place.category && (
-                      <Box
-                        sx={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: '50%',
-                          bgcolor: PlaceCategoryColorCode[place.category],
-                        }}
-                      />
-                    )}
-                    <ListItem.Title>{place.name}</ListItem.Title>
-                  </Stack>
-                  {place.address && (
-                    <ListItem.Text variant="body2" color="text.secondary" fontSize={12}>
-                      {place.address}
-                    </ListItem.Text>
-                  )}
-                  {!!place.memo && (
-                    <ListItem.Text variant="body2" color="text.secondary" fontSize={12}>
-                      {place.memo}
-                    </ListItem.Text>
-                  )}
-                  {place.tags.length > 0 && (
-                    <Stack direction="row" spacing={0.5} flexWrap="wrap" sx={{ mt: 0.5 }}>
-                      {place.tags.map(x => (
-                        <Chip key={x} label={x} size="small" />
-                      ))}
-                    </Stack>
-                  )}
-                </ListItem>
+                />
               ))}
               {wishedPlaces.map((place) => (
-                <ListItem
+                <TripPlaceItem
                   key={place.id}
-                  sx={{ cursor: 'pointer' }}
+                  place={place}
                   onClick={() => handlePlaceClick(place)}
-                  rightAddon={(
-                    <Box flexShrink={0}>
-                      <IconButton size="small" onClick={() => {
-                        openPlaceDetailBottomSheet({ placeId: place.id, tripId });
-                      }}>
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleDeletePlace(place.id) }}>
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </Box>
-                  )}
-                >
-                  <Stack direction="row" gap={0.5} alignItems="center">
-                    {!!place.category && (
-                      <Box
-                        sx={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: '50%',
-                          bgcolor: PlaceCategoryColorCode[place.category],
-                        }}
-                      />
-                    )}
-                    <ListItem.Title>{place.name}</ListItem.Title>
-                  </Stack>
-                  {place.address && (
-                    <ListItem.Text variant="body2" color="text.secondary" fontSize={12}>
-                      {place.address}
-                    </ListItem.Text>
-                  )}
-                  {!!place.memo && (
-                    <ListItem.Text variant="body2" color="text.secondary" fontSize={12}>
-                      {place.memo}
-                    </ListItem.Text>
-                  )}
-                  {place.tags.length > 0 && (
-                    <Stack direction="row" spacing={0.5} flexWrap="wrap" sx={{ mt: 0.5 }}>
-                      {place.tags.map(x => (
-                        <Chip key={x} label={x} size="small" />
-                      ))}
-                    </Stack>
-                  )}
-                </ListItem>
+                />
               ))}
             </Stack>
           </Box>
         </DraggableBottomSheet>
       </Box>
-      <Box padding={1}>
+      <BottomArea position="relative">
         <Button
           size="large"
           variant="contained"
-          onClick={handleAddPlace}
+          onClick={async () => {
+            const place = await searchPlace();
+            if (place == null) return;
+            create(place)
+          }}
           sx={{ fontSize: 12 }}
           fullWidth
         >
           장소 추가
         </Button>
-      </Box>
+      </BottomArea>
     </>
   )
 }
-

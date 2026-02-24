@@ -116,11 +116,9 @@ export function PlaceDetailSheet({ placeId, tripId, isOpen, onClose }: PlaceDeta
             onSubmit={(data) => {
               console.log(data)
               update({
+                ...data,
                 placeId: place.id,
-                data: {
-                  ...data,
-                  category: data.category || undefined,
-                },
+                category: data.category || undefined,
               })
               onClose()
             }}
@@ -187,16 +185,14 @@ function PlaceDetailDialog({ tripId, placeId, isOpen, onClose }: PlaceDetailOver
           </a>
         </Stack>
         <PlaceForm
-
           defaultValues={place}
-          onSubmit={(data) => {
-            update({
+          onSubmit={async (data) => {
+            await update({
+              ...data,
               placeId: place.id,
-              data: {
-                category: data.category || undefined,
-                memo: data.memo,
-                tags: data.tags,
-              },
+              category: data.category || undefined,
+              memo: data.memo,
+              tags: data.tags,
             })
             onClose()
           }}

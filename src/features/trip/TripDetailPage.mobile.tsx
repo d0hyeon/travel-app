@@ -19,6 +19,7 @@ import { TripPlaceContent } from './trip-place/TripPlaceContent.mobile';
 import { TripRoutesContent } from './trip-route/TripRoutesContent.mobile';
 import { useTrip } from './useTrip';
 import { useTripId } from './useTripId';
+import { BottomNavigation } from '~shared/components/BottomNavigation';
 
 type TabType = 'Info' | 'Place' | 'Route' | 'Expense'
 
@@ -62,76 +63,36 @@ export function TripDetailPageMobile() {
           {currentTab === 'Expense' && <ExpenseContent tripId={tripId} />}
         </Suspense>
       </Stack>
-      <Stack
-        position="fixed"
-        bottom={0}
-        height={54}
-        width="100%"
-        direction="row"
-        alignItems="center"
-        justifyContent="space-evenly"
-        minHeight={50}
-        paddingTop={0.9}
-        paddingBottom={0.3}
-        zIndex={5}
-        sx={theme => ({ borderTop: `1px solid ${theme.palette.divider}`, backgroundColor: '#fff' })}
-      >
-        <Stack
-          component="button"
-          gap={0.5}
-          justifyContent="center"
-          alignItems="center"
+      <BottomNavigation>
+        <BottomNavigation.Menu
+          isActived={currentTab === 'Info'}
+          icon={<InfoIcon fontSize="small" color={currentTab === 'Info' ? 'primary' : 'disabled'} />}
           onClick={() => setCurrentTab('Info')}
-          sx={{ flex: 1 }}
         >
-          <InfoIcon fontSize="small" color={currentTab === 'Info' ? 'primary' : 'disabled'} />
-          <Typography variant='caption' fontWeight="bold" color={currentTab === 'Info' ? 'primary' : 'textDisabled'}>정보</Typography>
-        </Stack>
-
-        <Box height="28px" width="1px" sx={theme => ({ backgroundColor: theme.palette.divider, opacity: 0.6 })} />
-
-        <Stack
-
-          component="button"
-
-          justifyContent="center"
-          alignItems="center"
+          정보
+        </BottomNavigation.Menu>
+        <BottomNavigation.Menu
+          isActived={currentTab === 'Place'}
+          icon={<PinDropIcon fontSize="small" color={currentTab === 'Place' ? 'primary' : 'disabled'} />}
           onClick={() => setCurrentTab('Place')}
-          sx={{ flex: 1 }}
         >
-          <PinDropIcon fontSize="small" color={currentTab === 'Place' ? 'primary' : 'disabled'} />
-          <Typography variant='caption' fontWeight="bold" color={currentTab === 'Place' ? 'primary' : 'textDisabled'}>장소</Typography>
-        </Stack>
-
-        <Box height="28px" width="1px" sx={theme => ({ backgroundColor: theme.palette.divider, opacity: 0.6 })} />
-
-        <Stack
-          component="button"
-
-          justifyContent="center"
-          alignItems="center"
+          장소
+        </BottomNavigation.Menu>
+        <BottomNavigation.Menu
+          isActived={currentTab === 'Route'}
+          icon={<NearMeIcon fontSize="small" color={currentTab === 'Route' ? 'primary' : 'disabled'} />}
           onClick={() => setCurrentTab('Route')}
-          sx={{ flex: 1 }}
         >
-          <NearMeIcon fontSize="small" color={currentTab === 'Route' ? 'primary' : 'disabled'} />
-          <Typography variant='caption' fontWeight="bold" color={currentTab === 'Route' ? 'primary' : 'textDisabled'}>계획</Typography>
-        </Stack>
-
-        <Box height="28px" width="1px" sx={theme => ({ backgroundColor: theme.palette.divider, opacity: 0.6 })} />
-
-        <Stack
-          component="button"
-          gap={0.5}
-          justifyContent="center"
-          alignItems="center"
+          계획
+        </BottomNavigation.Menu>
+        <BottomNavigation.Menu
+          isActived={currentTab === 'Expense'}
+          icon={<ReceiptIcon fontSize="small" color={currentTab === 'Expense' ? 'primary' : 'disabled'} />}
           onClick={() => setCurrentTab('Expense')}
-          sx={{ flex: 1 }}
         >
-          <ReceiptIcon fontSize="small" color={currentTab === 'Expense' ? 'primary' : 'disabled'} />
-          <Typography variant='caption' fontWeight="bold" color={currentTab === 'Expense' ? 'primary' : 'textDisabled'}>정산</Typography>
-        </Stack>
-      </Stack>
-
+          정산
+        </BottomNavigation.Menu>
+      </BottomNavigation>
     </Box>
   )
 }

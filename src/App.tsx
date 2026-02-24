@@ -82,10 +82,12 @@ const theme = createTheme({
     MuiDialog: {
       styleOverrides: {
         paper: (props) => ({
+          minWidth: 500,
           borderRadius: 20,
           overflow: 'hidden',
           [props.theme.breakpoints.down('md')]: {
             padding: 1,
+            minWidth: 'auto',
             width: '80vw'
           }
         })

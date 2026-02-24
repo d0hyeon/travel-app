@@ -7,7 +7,7 @@ import type { PickPartial } from "../../../shared/utils/types";
 export function useTripPlaces(tripId: string) {
   const queryClient = useQueryClient()
 
-  const { data, ...queries } = useSuspenseQuery({
+  const { data, refetch, ...queries } = useSuspenseQuery({
     queryKey: useTripPlaces.key(tripId),
     queryFn: () => getPlacesByTripId(tripId)
   })
@@ -21,27 +21,24 @@ export function useTripPlaces(tripId: string) {
         tripId,
         ...data,
       }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: useTripPlaces.key(tripId) })
-    }
+    onSuccess: () => refetch()
   })
 
   const { mutate: update } = useMutation({
-    mutationFn: async ({ placeId, data }: { placeId: string; data: Partial<Omit<Place, 'id' | 'tripId' | 'createdAt'>> }) =>
-      updatePlace(placeId, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: useTripPlaces.key(tripId) })
-    }
+    mutationFn: async ({ placeId, ...payload }: { placeId: string; } & Partial<Omit<Place, 'id' | 'tripId' | 'createdAt'>>) =>
+      updatePlace(placeId, payload),
+    onSuccess: () => refetch()
   })
 
   const { mutate: remove } = useMutation({
     mutationFn: deletePlace,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: useTripPlaces.key(tripId) })
+      console.log('됐니??');
+      refetch()
     }
   })
 
-  return { data, create, update, remove, ...queries }
+  return { data, create, update, remove, refetch, ...queries }
 }
 
 useTripPlaces.key = (id: string) => [tripKey, placeKey, id];

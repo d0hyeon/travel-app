@@ -1,6 +1,9 @@
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
+import VisibilityOnIcon from '@mui/icons-material/Visibility'
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
+import WorkspacesIcon from '@mui/icons-material/Workspaces'
 import {
   Box,
   Button,
@@ -12,6 +15,7 @@ import {
   Typography
 } from '@mui/material'
 import { useMemo, useState } from 'react'
+import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
 import { SortableItem } from '../../../shared/components/dnd/SortableItem'
 import { SortableList } from '../../../shared/components/dnd/SortableList'
 import { KakaoMap } from '../../../shared/components/KakaoMap'
@@ -21,17 +25,14 @@ import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
 import { useRoadPath } from '../../../shared/hooks/useRoadPath'
 import { formatDate, formatDateISO } from '../../../shared/utils/formats'
 import { PlaceSearchDialog, type PlaceSearchResult } from '../../place/place-search/PlaceSearchDialog'
-import { PlaceCategoryColorCode, type Place } from '../../place/place.types'
-import { PlaceFormDialog } from '../../place/PlaceFormDialog'
+import { PlaceCategoryColorCode } from '../../place/place.types'
 import { useTripPlaceDetailOverlay } from '../trip-place/useTripPlaceDetailOverlay'
 import { useTripPlaces } from '../trip-place/useTripPlaces'
+import { useTrip } from '../useTrip'
 import { NoteEditor } from './RouteNoteList'
 import { useDayTripRoutes } from './useDayTripRoutes'
-import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
-import { useTrip } from '../useTrip'
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import VisibilityOnIcon from '@mui/icons-material/Visibility';
-import WorkspacesIcon from '@mui/icons-material/Workspaces';
+import { usePlaceFormOverlay } from './usePlaceFormOverlay'
+import { styled } from '@mui/system'
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = [
@@ -85,39 +86,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
     return routes[0] ?? null
   }, [routes, selectedRouteId])
 
-  const handleDateChange = (date: string) => {
-    setSelectedDate(date)
-    setSelectedRouteId(null)
-  }
-
-  const handleRemoveFromRoute = (placeId: string) => {
-    if (!currentRoute) return
-    const newPlaceIds = currentRoute.placeIds.filter((id) => id !== placeId)
-    update({ routeId: currentRoute.id, data: { placeIds: newPlaceIds } })
-  }
-
-  const handleEditPlaceInRoute = (place: Place) => {
-    if (!currentRoute) return
-    overlay.open(({ isOpen, close }) => (
-      <PlaceFormDialog
-        place={place}
-        isOpen={isOpen}
-        onClose={close}
-        onSubmit={(data) => {
-          // 카테고리, 태그는 장소 데이터에 저장 (경로 메모는 인라인으로 편집)
-          updatePlace({
-            placeId: place.id,
-            data: {
-              category: data.category || undefined,
-              tags: data.tags,
-            },
-          })
-        }}
-      />
-    ))
-  }
-
-
+  const { openDialog: getUpdatedPlace } = usePlaceFormOverlay();
   const detailOverlay = useTripPlaceDetailOverlay();
 
   const [isVisibleOtherMarkers, setIsVisibleOtherMarkers] = useQueryParamState('marker', {
@@ -145,7 +114,10 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
                 <ToggleButton
                   key={x}
                   value={x}
-                  onClick={() => handleDateChange(x)}
+                  onClick={() => {
+                    setSelectedDate(x)
+                    setSelectedRouteId(null)
+                  }}
                   size="small"
                   sx={{ paddingInline: 2 }}
                 >
@@ -204,10 +176,9 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
                 <SortableList
                   items={currentRoute.places}
                   onSort={(changed) => {
-                    console.log(currentRoute.places, changed.items)
-                    update({ routeId: currentRoute.id, data: { placeIds: changed.items.map(x => x.id) } })
+                    update({ routeId: currentRoute.id, placeIds: changed.items.map(x => x.id) })
                   }}
-                  renderItem={place => (
+                  renderItem={(place, idx) => (
                     <ListItem
                       leftAddon={(
                         <SortableItem.Handle id={place.id}>
@@ -216,16 +187,39 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
                       )}
                       rightAddon={(
                         <Box flexShrink={0}>
-                          <IconButton size="small" onClick={() => handleEditPlaceInRoute(place)}>
+                          <IconButton
+                            size="small"
+                            onClick={async () => {
+                              const updated = await getUpdatedPlace({ defaultValues: place });
+                              if (updated) {
+                                updatePlace({
+                                  ...updated,
+                                  placeId: place.id,
+                                  category: updated.category || undefined, tags: updated.tags,
+                                })
+                              }
+                            }}
+                          >
                             <EditIcon fontSize="small" />
                           </IconButton>
-                          <IconButton size="small" onClick={() => handleRemoveFromRoute(place.id)} color="error">
+                          <IconButton
+                            size="small"
+                            color="error"
+                            onClick={() => {
+                              if (!currentRoute) return
+                              const newPlaceIds = currentRoute.placeIds.filter((id) => id !== place.id)
+                              update({ routeId: currentRoute.id, placeIds: newPlaceIds })
+                            }}
+                          >
                             <DeleteIcon fontSize="small" />
                           </IconButton>
                         </Box>
                       )}
                     >
-                      <ListItem.Title>{place.name}</ListItem.Title>
+
+                      <ListItem.Title leftAddon={<Dot>{idx + 1}</Dot>}>
+                        {place.name}
+                      </ListItem.Title>
                       {place.address && (
                         <ListItem.Text variant="body2" color="text.secondary" fontSize={12}>
                           {place.address}
@@ -335,7 +329,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
                   const newPlaceIds = isInCurrentRoute
                     ? currentRoute.placeIds.filter((id) => id !== place.id)
                     : [...currentRoute.placeIds, place.id]
-                  update({ routeId: currentRoute.id, data: { placeIds: newPlaceIds } })
+                  update({ routeId: currentRoute.id, placeIds: newPlaceIds })
                 }}
                 tooltip={[
                   place.name,
@@ -360,6 +354,20 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
     </Box>
   )
 }
+
+const Dot = styled(Box)(({ theme }) => ({
+  minWidth: 18,
+  minHeight: 18,
+  borderRadius: '50%',
+  backgroundColor: theme.palette.primary.main,
+  color: 'white',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: 10,
+  fontWeight: 'bold',
+  flexShrink: 0,
+}))
 
 
 

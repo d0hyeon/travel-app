@@ -42,8 +42,8 @@ export function useTripRoutes(id: string) {
   });
 
   const { mutateAsync: update } = useMutation({
-    mutationFn: ({ routeId, data }: { routeId: string; data: Parameters<typeof updateRoute>[1] }) => {
-      return updateRoute(routeId, data);
+    mutationFn: ({ routeId, ...payload }: { routeId: string; } & Parameters<typeof updateRoute>[1]) => {
+      return updateRoute(routeId, payload);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: useTripRoutes.key(id) });
