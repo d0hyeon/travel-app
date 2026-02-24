@@ -112,6 +112,7 @@ function PlaceFormSheet({ placeId, tripId, title = '장소 정보', defaultValue
       <BottomArea
         position="absolute"
         padding={1}
+        paddingTop={2}
         sx={{
           backgroundColor: "#fff",
           zIndex: 5,
