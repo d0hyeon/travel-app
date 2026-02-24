@@ -4,7 +4,6 @@ import RouteIcon from '@mui/icons-material/Route'
 import { Box, Button, IconButton, Stack, Tab, Tabs, Typography } from "@mui/material"
 import { Suspense, useMemo, useState } from "react"
 import type { Expense } from '~features/expense/expense.types'
-import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
 import { DraggableBottomSheet } from "../../../shared/components/DraggableBottomSheet"
 import { ListItem } from "../../../shared/components/ListItem"
 import { useOverlay } from "../../../shared/hooks/useOverlay"
@@ -29,12 +28,10 @@ interface Props {
 type SubTab = 'list' | 'settlement'
 
 export function ExpenseContent({ tripId }: Props) {
-  const { data: expenses, create, update, remove } = useExpenses(tripId)
+  const { data: expenses, create, update } = useExpenses(tripId)
   const { data: members } = useTripMembers(tripId);
 
   const overlay = useOverlay()
-  const confirm = useConfirmDialog()
-
   const [subTab, setSubTab] = useState<SubTab>('list')
 
   const handleOpenRouteExpense = () => {
