@@ -4,24 +4,30 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  Stack,
 } from "@mui/material"
-import { useCallback } from "react"
+import { useCallback, type ComponentProps, type ReactNode } from "react"
 import { DialogTitle } from '~shared/modules/confirm-dialog/DialogTitle'
 import { useOverlay } from "../../../shared/hooks/useOverlay"
-import { useExpenses } from "../../expense/useExpenses"
 import { ExpenseForm, type ExpenseFormValues } from "./ExpenseForm"
+import { DraggableBottomSheet } from "~shared/components/DraggableBottomSheet"
+
+export type RenderProps = {
+  close: () => void;
+}
 
 interface OpenFormParams {
   title?: string
-  defaultValues?: Partial<ExpenseFormValues>
+  defaultValues?: Partial<ExpenseFormValues>;
+  renderAction?: (props: RenderProps) => ReactNode;
 }
 
 export function useExpenseFormOverlay(tripId: string) {
   const overlay = useOverlay()
-  const { create } = useExpenses(tripId)
 
   const open = useCallback((params: OpenFormParams = {}) => {
-    const { title = '지출 추가', defaultValues } = params
+    const { title = '지출 추가', defaultValues } = params;
+
     return new Promise<ExpenseFormValues | null>((resolve) => {
       overlay.open(({ isOpen, close }) => (
         <Dialog open={isOpen} onClose={close} maxWidth="sm" fullWidth>
@@ -46,7 +52,9 @@ export function useExpenseFormOverlay(tripId: string) {
                       size="large"
                       variant="outlined"
                       fullWidth
-                    >취소</Button>
+                    >
+                      취소
+                    </Button>
                     <ExpenseForm.SubmitButton size="large" />
                   </DialogActions>
                 )}
@@ -56,7 +64,77 @@ export function useExpenseFormOverlay(tripId: string) {
         </Dialog>
       ))
     })
-  }, [overlay, tripId, create])
+  }, [overlay])
 
   return { open }
+}
+
+
+type BottomSheetParams = {
+  renderActions?: (props: RenderProps) => ReactNode;
+} & OpenFormParams & Omit<ComponentProps<typeof DraggableBottomSheet>, 'isOpen' | 'onClose' | 'children'>
+
+export function useExpenseFormBottomSheet(tripId: string) {
+  const overlay = useOverlay();
+
+  const open = useCallback(({ defaultValues, renderActions, ...params }: BottomSheetParams = {}) => {
+    return new Promise<ExpenseFormValues | null>((resolve) => {
+      overlay.open(({ close, isOpen }) => {
+        const defaultAction = <ExpenseFormOverlayActions onCancel={close} />
+
+        return (
+          <DraggableBottomSheet
+            isOpen={isOpen}
+            onClose={close}
+            snapPoints={[0.8]}
+            {...params}
+          >
+            <ExpenseForm
+              tripId={tripId}
+              padding={2}
+              defaultValues={defaultValues}
+              onSubmit={(data) => {
+                resolve(data);
+                close()
+              }}
+              action={renderActions?.({ close }) ?? defaultAction}
+            />
+          </DraggableBottomSheet>
+        )
+      })
+    })
+  }, []);
+
+  return { open }
+}
+
+type ActionsProps = {
+  onCancel?: () => void;
+  secondary?: ReactNode;
+}
+export function ExpenseFormOverlayActions({ onCancel, secondary }: ActionsProps) {
+  return (
+    <Stack
+      position="absolute"
+      marginLeft="-16px !important"
+      padding={2}
+      bottom={0}
+      width="100%"
+      direction="row"
+      gap={1}
+      sx={{ backgroundColor: '#fff', zIndex: 10 }}
+    >
+      {secondary}
+      <Button
+        type="button"
+        onClick={onCancel}
+        size="large"
+        variant="outlined"
+        fullWidth
+      >
+        취소
+      </Button>
+      <ExpenseForm.SubmitButton size="large" />
+    </Stack>
+  )
 }
