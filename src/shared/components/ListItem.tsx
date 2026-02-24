@@ -23,9 +23,9 @@ export function ListItem({ leftAddon, rightAddon, children, ...props }: Props) {
       direction="row"
       {...props}
     >
-      <Stack direction="row" gap={1} alignItems="center">
+      <Stack direction="row" gap={1} alignItems="center" width="100%">
         {leftAddon}
-        <Stack gap={0.5} flex={1} minWidth={0}>
+        <Stack gap={0.5} flex={1} minWidth={0} width="100%">
           {children}
         </Stack>
       </Stack>
