@@ -1,5 +1,6 @@
-import { Box, Fade, type BoxProps } from '@mui/material'
-import { useCallback, useEffect, useImperativeHandle, useRef, useState, type ReactNode, type Ref } from 'react'
+import { Box, Fade, type BoxProps } from '@mui/material';
+import { useCallback, useEffect, useImperativeHandle, useRef, useState, type ReactNode, type Ref } from 'react';
+import { useVariation } from '~shared/hooks/useVariation';
 import { IntersectionArea } from './IntersectionArea';
 
 export type BottomSheetRef = {
@@ -154,9 +155,7 @@ export function DraggableBottomSheet({
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     e.stopPropagation();
-    if (!shouldPreventSheetDrag(e.target)) {
-      handleDragStart(e.touches[0].clientY);
-    }
+    handleDragStart(e.touches[0].clientY);
   }, [handleDragStart])
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
@@ -164,14 +163,28 @@ export function DraggableBottomSheet({
     handleDragMove(e.touches[0].clientY)
   }, [handleDragMove]);
 
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [getIsScrolled, setIsScrolled] = useVariation(false);
+
+  const isEnableControlOnBodyRef = useRef(true);
+  const handleBodyTouchStart = useCallback((e: React.TouchEvent) => {
+    if (getIsScrolled() || shouldPreventSheetDrag(e.target)) {
+      isEnableControlOnBodyRef.current = false;
+      return;
+    }
+    e.stopPropagation();
+    handleDragStart(e.touches[0].clientY);
+    isEnableControlOnBodyRef.current = true;
+  }, [handleDragStart])
   const handleBodyTouchMove = useCallback((e: React.TouchEvent) => {
+    const isEnableControlOnBody = isEnableControlOnBodyRef.current;
     const isGuestureToBottom = dragState.current.startY < e.touches[0].clientY;
-    if (!isScrolled && isGuestureToBottom) {
-      e.preventDefault();
+    const isScrolled = getIsScrolled();
+
+    if (isEnableControlOnBody && isGuestureToBottom && !isScrolled) {
+      e.stopPropagation();
       handleDragMove(e.touches[0].clientY)
     }
-  }, [handleDragMove, isScrolled]);
+  }, [handleDragMove]);
 
   const handleTouchEnd = useCallback(() => {
     handleDragEnd()
@@ -202,10 +215,6 @@ export function DraggableBottomSheet({
     e.preventDefault()
     handleDragStart(e.clientY)
   }, [handleDragStart])
-
-  const handleBackdropClick = useCallback(() => {
-    onClose?.()
-  }, [onClose])
 
   // 현재 높이 계산
   const baseHeight = getHeightForSnap(snapIndex)
@@ -286,12 +295,15 @@ export function DraggableBottomSheet({
           { flex: 1, overflow: 'auto' },
           ...(Array.isArray(slotProps?.body?.sx) ? slotProps.body.sx : [slotProps?.body?.sx])
         ]}
-        onTouchStart={handleTouchStart}
+        onTouchStart={handleBodyTouchStart}
         onTouchMove={handleBodyTouchMove}
         onTouchEnd={handleTouchEnd}
       >
         <IntersectionArea
-          onEnter={() => setIsScrolled(false)}
+          onEnter={async () => {
+            await waitForTouchEnd();
+            setIsScrolled(false);
+          }}
           onLeave={() => setIsScrolled(true)}
         >
           <span />
@@ -307,7 +319,7 @@ export function DraggableBottomSheet({
       <>
         <Fade in={isOpen}>
           <Box
-            onClick={handleBackdropClick}
+            onClick={onClose}
             sx={{
               position: 'fixed',
               inset: 0,
@@ -371,4 +383,15 @@ function shouldPreventSheetDrag(target: EventTarget) {
   }
 
   return false; // 시트 드래그 허용
+}
+
+function waitForTouchEnd() {
+  return new Promise<void>((resolve) => {
+    const handler = () => {
+      resolve();
+      console.log('터치엔드')
+      document.removeEventListener('touchend', handler);
+    }
+    document.addEventListener('touchend', handler);
+  })
 }
