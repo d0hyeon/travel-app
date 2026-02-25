@@ -12,7 +12,7 @@ export function BottomNavigation({ sx, ...props }: StackProps) {
       justifyContent="space-evenly"
       minHeight={50}
       zIndex={5}
-      paddingX={2}
+      paddingX={2.5}
       sx={[
         theme => ({
           border: `1px solid ${theme.palette.divider}`,
