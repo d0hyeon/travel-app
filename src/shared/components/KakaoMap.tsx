@@ -1,7 +1,8 @@
-import { Suspense, createContext, use, useCallback, useEffect, useEffectEvent, useImperativeHandle, useMemo, useRef, useState, type ReactNode, type Ref } from 'react'
-import { Box, type BoxProps } from '@mui/material'
-import { loadKakaoMap } from '../lib/kakao'
-import '../lib/kakao'
+import { Box, type BoxProps } from '@mui/material';
+import { Suspense, createContext, use, useCallback, useEffect, useEffectEvent, useImperativeHandle, useMemo, useRef, useState, type ReactNode, type Ref } from 'react';
+import '../lib/kakao';
+import { loadKakaoMap } from '../lib/kakao';
+import { useVariation } from '~shared/hooks/useVariation';
 
 
 type AutoFocus = 'marker' | 'path' | false;
@@ -462,15 +463,6 @@ function createTooltipContent(tooltip: string | string[], level: number = 8): st
   `
 }
 
-
-function useVariation<T>(initialValue?: T) {
-  const ref = useRef<T>(initialValue);
-
-  return [
-    () => ref.current,
-    (next: T) => ref.current = next,
-  ] as const;
-}
 
 /**
  * 줌 레벨에 따른 스케일 계산
