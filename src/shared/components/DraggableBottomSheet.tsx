@@ -225,6 +225,8 @@ export function DraggableBottomSheet({
       ? 0
       : baseHeight
 
+  const bodyRef = useRef(null);
+
   // 모달 모드가 아니거나 visible 상태일 때만 렌더링
   if (isModalMode && !isVisible && !isOpen) {
     return null
@@ -298,8 +300,10 @@ export function DraggableBottomSheet({
         onTouchStart={handleBodyTouchStart}
         onTouchMove={handleBodyTouchMove}
         onTouchEnd={handleTouchEnd}
+        ref={bodyRef}
       >
         <IntersectionArea
+          root={bodyRef.current}
           onEnter={async () => {
             await waitForTouchEnd();
             setIsScrolled(false);
@@ -389,7 +393,6 @@ function waitForTouchEnd() {
   return new Promise<void>((resolve) => {
     const handler = () => {
       resolve();
-      console.log('터치엔드')
       document.removeEventListener('touchend', handler);
     }
     document.addEventListener('touchend', handler);
