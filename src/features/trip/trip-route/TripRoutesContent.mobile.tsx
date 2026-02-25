@@ -150,7 +150,17 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
                   label={isInCurrentRoute ? `${orderInRoute + 1}. ${place.name}` : place.name}
                   variant={isInCurrentRoute ? 'selected' : 'disabled'}
                   color={isInCurrentRoute && place.category ? PlaceCategoryColorCode[place.category] : undefined}
-                  onClick={() => setFocusedId(place.id)}
+                  onClick={async () => {
+                    if (isInCurrentRoute) {
+                      return setFocusedId(place.id)
+                    }
+                    if (await confirm('경로에 추가하시겠어요?')) {
+                      update({
+                        routeId: currentRoute.id,
+                        placeIds: [...currentRoute.placeIds, place.id]
+                      })
+                    }
+                  }}
                   {...place}
                 />
               )
