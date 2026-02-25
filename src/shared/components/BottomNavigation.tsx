@@ -1,4 +1,4 @@
-import { Stack, Typography, type StackProps } from "@mui/material";
+import { alpha, Stack, Typography, type StackProps } from "@mui/material";
 import type { ReactNode } from "react";
 
 export function BottomNavigation({ sx, ...props }: StackProps) {
@@ -11,14 +11,15 @@ export function BottomNavigation({ sx, ...props }: StackProps) {
       alignItems="center"
       justifyContent="space-evenly"
       minHeight={50}
-      zIndex={5}
+      zIndex={12}
       paddingX={2.5}
       sx={[
-        theme => ({
-          border: `1px solid ${theme.palette.divider}`,
+        () => ({
+          // border: `1px solid ${theme.palette.divider}`,
           backgroundColor: '#fff',
           borderTopLeftRadius: 28,
           borderTopRightRadius: 28,
+          boxShadow: `0px 6px 10px ${alpha('#000', 0.5)}`
 
           // '.bottom-navigation-menu ~ .bottom-navigation-menu::after': {
           //   position: 'absolute',

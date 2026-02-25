@@ -85,7 +85,7 @@ function PlaceFormSheet({ placeId, tripId, title = '장소 정보', defaultValue
       defaultSnapIndex={0}
     >
       {typeof title === 'string' ? (
-        <Typography paddingX={2} variant="h6">{title}</Typography>
+        <Typography paddingX={2} variant="h6" position="sticky" top={0} width="100%" bgcolor="#fff">{title}</Typography>
       ) : title}
 
       <Stack flex="1 1 100%" px={2} pb={2}>
@@ -105,7 +105,7 @@ function PlaceFormSheet({ placeId, tripId, title = '장소 정보', defaultValue
           id="place-form"
           defaultValues={defaultValues}
           onSubmit={handleSubmit}
-          paddingBottom={6}
+          paddingBottom={10}
         />
       </Stack>
 
@@ -117,7 +117,7 @@ function PlaceFormSheet({ placeId, tripId, title = '장소 정보', defaultValue
           backgroundColor: "#fff",
           zIndex: 5,
           borderTop: '1px solid #ddd',
-          paddingBottom: 'env(safe-area-inset-bottom)'
+          paddingBottom: 'max(env(safe-area-inset-bottom), 12px)'
         }}
       >
         <Button type="button" onClick={onClose} size="large" variant="outlined" sx={{ flex: 1 }}>닫기</Button>
@@ -145,7 +145,7 @@ function PlaceFormDialog({ tripId, placeId, title = '장소 정보', defaultValu
         <DialogTitle>{title}</DialogTitle>
       ) : title}
 
-      <DialogContent sx={{ paddingTop: 0 }}>
+      <DialogContent sx={{ paddingTop: '0px !important' }}>
         <Stack direction="row" mb={2} gap={1}>
           <a href={`https://search.naver.com/search.naver?query=${place.name}`} target="_blank">
             <Chip variant="outlined" label="네이버" />
