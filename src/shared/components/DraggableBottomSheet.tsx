@@ -39,7 +39,7 @@ export function DraggableBottomSheet({
   slotProps,
 }: DraggableBottomSheetProps) {
   const isModalMode = isOpen !== undefined
-  const containerRef = useRef<HTMLDivElement>(null)
+  const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [snapIndex, setSnapIndex] = useState(defaultSnapIndex)
   const [dragOffset, setDragOffset] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
@@ -83,8 +83,8 @@ export function DraggableBottomSheet({
   })
 
   const getContainerHeight = useCallback(() => {
-    return containerRef.current?.parentElement?.clientHeight ?? window.innerHeight
-  }, [])
+    return container?.parentElement?.clientHeight ?? window.innerHeight
+  }, [container])
 
   const getHeightForSnap = useCallback((index: number) => {
     const containerHeight = getContainerHeight()
@@ -211,7 +211,7 @@ export function DraggableBottomSheet({
   const baseHeight = getHeightForSnap(snapIndex)
   const containerHeight = getContainerHeight()
   const currentHeight = isDragging
-    ? Math.max(0, Math.min(containerHeight * 0.95, baseHeight + dragOffset))
+    ? Math.max(0, Math.min(containerHeight, baseHeight + dragOffset))
     : isModalMode && !isAnimating
       ? 0
       : baseHeight
@@ -223,7 +223,7 @@ export function DraggableBottomSheet({
 
   const sheetContent = (
     <Box
-      ref={containerRef}
+      ref={setContainer}
       sx={{
         position: isModalMode ? 'fixed' : 'absolute',
         bottom: 0,
