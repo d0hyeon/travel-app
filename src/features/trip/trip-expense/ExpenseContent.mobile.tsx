@@ -76,9 +76,9 @@ export function ExpenseContent({ tripId }: Props) {
 
 
   return (
-    <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ height: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}>
       {/* 총액 표시 */}
-      <Box sx={{ px: 2, py: 1.5, bgcolor: 'primary.main', color: 'white' }}>
+      <Box flex="0 0 auto" sx={{ px: 2, py: 1.5, bgcolor: 'primary.main', color: 'white' }}>
         <Typography variant="caption">총 지출</Typography>
         <Typography variant="h5" fontWeight="bold">
           {formatCurrency(totalExpenses)}
@@ -89,7 +89,16 @@ export function ExpenseContent({ tripId }: Props) {
       <Tabs
         value={subTab}
         onChange={(_, v) => setSubTab(v)}
-        sx={{ px: 2, borderBottom: 1, borderColor: 'divider' }}
+        sx={{
+          px: 2,
+          borderBottom: 1,
+          borderColor: 'divider',
+          position: 'sticky',
+          top: 0,
+          backgroundColor: '#fff',
+          flex: '0 0 auto',
+          zIndex: 10
+        }}
       >
         <Tab label="지출 내역" value="list" />
         <Tab label="정산" value="settlement" />
@@ -103,7 +112,7 @@ export function ExpenseContent({ tripId }: Props) {
           </Typography>
         </Box>
       ) : (
-        <Box sx={{ flex: 1, overflow: 'auto', p: 2 }}>
+        <Box sx={{ flex: 1, overflowY: 'auto', p: 2, height: '100%' }}>
           {subTab === 'list' && (
             <>
               {expenses.length === 0 ? (

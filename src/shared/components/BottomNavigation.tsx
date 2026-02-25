@@ -38,7 +38,7 @@ export function BottomNavigation({ sx, ...props }: StackProps) {
     />
   )
 }
-BottomNavigation.HEIGHT = 62;
+BottomNavigation.HEIGHT = 50;
 
 interface MenuProps extends StackProps<'button'> {
   icon?: ReactNode;
