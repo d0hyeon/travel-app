@@ -10,8 +10,6 @@ html, body {
   height: 100%;
   /* 실제 스크롤은 여기서 일어나게 함 */
   overflow-y: auto;
-}
-
-* {
   overscroll-behavior-y: none;
 }
+

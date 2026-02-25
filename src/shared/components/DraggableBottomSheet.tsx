@@ -239,6 +239,9 @@ export function DraggableBottomSheet({
         overflow: 'hidden',
         transition: isDragging ? 'none' : 'height 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         zIndex: isModalMode ? 1300 : 10,
+        '& *': {
+          overscrollBehaviorY: 'none',
+        }
       }}
     >
       {/* Drag Handle */}
