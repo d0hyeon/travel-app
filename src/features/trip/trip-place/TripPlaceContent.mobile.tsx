@@ -64,7 +64,7 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
           </ToggleButton>
         </Stack>
         {/* Map (전체) */}
-        <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `${sheetRatio * 100}%` }}>
+        <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `calc(${sheetRatio * 100}% - 10px)` }}>
           <KakaoMap
             ref={mapRef}
             defaultCenter={defaultCenter}
