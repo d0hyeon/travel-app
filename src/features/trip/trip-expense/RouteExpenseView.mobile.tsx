@@ -231,7 +231,7 @@ const ListSection = styled(Box)({
   flex: 1,
   overflow: 'auto',
   padding: 12,
-  paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)'
+  paddingBottom: 'calc(env(safe-area-inset-bottom) + 24px)'
 })
 
 const PlaceItem = styled(Stack)(({ theme }) => ({
