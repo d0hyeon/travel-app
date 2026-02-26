@@ -137,8 +137,9 @@ export function BottomActions({ children, sx, ...props }: BottomActionsProps) {
 
       alignItems="stretch"
       justifyContent="center"
-      paddingY={1}
       paddingX={1.5}
+      paddingTop={1}
+      paddingBottom="max(env(safe-area-inset-bottom), 8px)"
       borderTop={theme => `1px solid ${theme.palette.divider}`}
       sx={[
         { flexShrink: 0 },
