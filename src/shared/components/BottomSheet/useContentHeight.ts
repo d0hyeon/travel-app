@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface UseContentHeightOptions {
   content: HTMLDivElement | null;
@@ -6,15 +6,19 @@ interface UseContentHeightOptions {
 }
 
 export function useContentHeight({ content, enabled }: UseContentHeightOptions) {
-
   const [contentHeight, setContentHeight] = useState<number | null>(null);
+  const contentRef = useRef(content);
+  
+  useEffect(() => {
+    contentRef.current = content;
+  }, [content])
 
   const measure = useCallback(() => {
-    if (!enabled || !content) return;
+    if (!enabled || !contentRef.current) return;
 
-    const height = content.scrollHeight;
+    const height = contentRef.current.scrollHeight;
     setContentHeight(height);
-  }, [enabled, content]);
+  }, [enabled]);
 
   useEffect(() => {
     if (!enabled) return;
@@ -24,15 +28,15 @@ export function useContentHeight({ content, enabled }: UseContentHeightOptions) 
 
     // ResizeObserver로 컨텐츠 크기 변화 감지
     const observer = new ResizeObserver(measure);
-    if (content) {
-      observer.observe(content);
+    if (contentRef.current) {
+      observer.observe(contentRef.current);
     }
 
     return () => {
       clearTimeout(timer);
       observer.disconnect();
     };
-  }, [enabled, measure, content]);
+  }, [enabled, measure]);
 
   return { contentHeight, measure, isMeasuring: enabled && contentHeight == null };
 }
