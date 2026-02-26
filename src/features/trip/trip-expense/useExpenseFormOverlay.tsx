@@ -123,7 +123,8 @@ export function ExpenseFormOverlayActions({ onCancel, secondary }: ActionsProps)
       marginTop="40px !important"
       marginX="-16px !important"
       paddingX={2}
-      paddingY={1}
+      paddingTop={1}
+      paddingBottom="max(env(safe-area-inset-bottom), 8px)"
       borderTop={theme => `1px solid ${theme.palette.divider}`}
       sx={{ backgroundColor: '#fff', zIndex: 10 }}
     >
