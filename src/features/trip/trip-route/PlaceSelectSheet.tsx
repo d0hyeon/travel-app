@@ -1,6 +1,7 @@
 import CheckIcon from '@mui/icons-material/Check'
-import { Box, Button, Checkbox, Chip, Stack, Typography } from '@mui/material'
-import { useState } from 'react'
+import SearchIcon from '@mui/icons-material/Search'
+import { Box, Button, Checkbox, Chip, InputAdornment, Stack, TextField, Typography } from '@mui/material'
+import { useMemo, useState } from 'react'
 import { DraggableBottomSheet } from '../../../shared/components/DraggableBottomSheet'
 import { ListItem } from '../../../shared/components/ListItem'
 import { PlaceCategoryColorCode, type Place } from '../../place/place.types'
@@ -22,6 +23,7 @@ export function PlaceSelectSheet({
   onConfirm,
 }: PlaceSelectSheetProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [searchQuery, setSearchQuery] = useState('')
 
   const handleToggle = (placeId: string) => {
     setSelected((prev) => {
@@ -43,10 +45,22 @@ export function PlaceSelectSheet({
 
   const handleClose = () => {
     setSelected(new Set())
+    setSearchQuery('')
     onClose()
   }
 
   const availablePlaces = places.filter((p) => !selectedPlaceIds.includes(p.id))
+
+  const filteredPlaces = useMemo(() => {
+    if (!searchQuery.trim()) return availablePlaces
+    const query = searchQuery.toLowerCase()
+    return availablePlaces.filter(
+      (place) =>
+        place.name.toLowerCase().includes(query) ||
+        place.address?.toLowerCase().includes(query) ||
+        place.tags.some((tag) => tag.toLowerCase().includes(query))
+    )
+  }, [availablePlaces, searchQuery])
 
   return (
     <DraggableBottomSheet
@@ -56,18 +70,36 @@ export function PlaceSelectSheet({
       defaultSnapIndex={0}
     >
       <Stack sx={{ px: 2, pb: 5 }}>
-        <Typography variant="h6" bgcolor="#fff" sx={{ mb: 1, position: 'sticky', top: 0, zIndex: 10 }}>
-          장소 선택
-        </Typography>
+        <Box bgcolor="#fff" sx={{ mb: 1, position: 'sticky', top: 0, zIndex: 10, pb: 1 }}>
+          <Typography variant="h6" sx={{ mb: 1 }}>
+            장소 선택
+          </Typography>
+          <TextField
+            size="small"
+            fullWidth
+            placeholder="장소 검색..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" color="action" />
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
+        </Box>
 
         <Box paddingBottom={10} >
-          {availablePlaces.length === 0 ? (
+          {filteredPlaces.length === 0 ? (
             <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: 'center' }}>
-              추가할 수 있는 장소가 없습니다
+              {searchQuery ? '검색 결과가 없습니다' : '추가할 수 있는 장소가 없습니다'}
             </Typography>
           ) : (
             <Stack spacing={0.75}>
-              {availablePlaces.map((place) => {
+              {filteredPlaces.map((place) => {
                 const isSelected = selected.has(place.id);
 
                 return (

@@ -1,13 +1,13 @@
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import {
+  Autocomplete,
   Box,
   Button,
   Chip,
   FormControl,
   IconButton,
   InputAdornment,
-  InputLabel,
   MenuItem,
   Select,
   Stack,
@@ -247,16 +247,27 @@ export function ExpenseForm({
           <Controller
             name="placeId"
             control={control}
-            render={({ field }) => (
-              <FormControl fullWidth size="small">
-                <InputLabel>장소 (선택)</InputLabel>
-                <Select {...field} label="장소 (선택)" size="small">
-                  <MenuItem value=""><em>없음</em></MenuItem>
-                  {places.map(place => (
-                    <MenuItem key={place.id} value={place.id}>{place.name}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+            render={({ field: { value, onChange } }) => (
+              <Autocomplete
+                size="small"
+                options={places}
+                getOptionLabel={(option) => option.name}
+                value={places.find((p) => p.id === value) ?? null}
+                onChange={(_, newValue) => onChange(newValue?.id ?? '')}
+                renderInput={(params) => (
+                  <TextField {...params} label="장소 (선택)" placeholder="장소 검색..." />
+                )}
+                filterOptions={(options, { inputValue }) => {
+                  const query = inputValue.toLowerCase()
+                  return options.filter(
+                    (option) =>
+                      option.name.toLowerCase().includes(query) ||
+                      option.address?.toLowerCase().includes(query)
+                  )
+                }}
+                noOptionsText="검색 결과 없음"
+                clearText="초기화"
+              />
             )}
           />
 
