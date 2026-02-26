@@ -81,8 +81,6 @@ function PlaceFormSheet({ placeId, tripId, title = '장소 정보', defaultValue
     <BottomSheet
       isOpen={isOpen}
       onClose={onClose}
-      snapPoints={[0.6, 0.8]}
-      defaultSnapIndex={0}
     >
       {typeof title === 'string' ? (
         <Typography paddingX={2} variant="h6" position="sticky" top={0} width="100%" bgcolor="#fff">{title}</Typography>

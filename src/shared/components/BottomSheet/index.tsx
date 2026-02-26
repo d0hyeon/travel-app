@@ -1,7 +1,8 @@
 import { Box, Fade, type BoxProps } from '@mui/material';
-import { useCallback, useEffect, useImperativeHandle, useRef, useState, type ReactNode, type Ref } from 'react';
+import { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState, type ReactNode, type Ref } from 'react';
 import { useVariation } from '~shared/hooks/useVariation';
 import { IntersectionArea } from '../IntersectionArea';
+import { useContentHeight } from './useContentHeight';
 import { useDrag } from './useDrag';
 import { useKeyboardStatus } from './useKeyboardStatus';
 import { useSheetStatus } from './useSheetStatus';
@@ -14,9 +15,9 @@ export type BottomSheetRef = {
 
 interface BottomSheetProps {
   children: ReactNode
-  /** 스냅 포인트 (0-1 비율, 바텀시트가 차지하는 비율) */
+  /** 스냅 포인트 (0-1 비율, 바텀시트가 차지하는 비율). 미제공시 컨텐츠 높이에 맞춤 */
   snapPoints?: number[] | readonly number[];
-  /** 초기 스냅 포인트 인덱스 */
+  /** 초기 스냅 포인트 인덱스. 미제공시 컨텐츠 높이에 가장 가까운 스냅 선택 */
   defaultSnapIndex?: number
   /** 최소 높이 (px) */
   minHeight?: number
@@ -31,12 +32,13 @@ interface BottomSheetProps {
 }
 
 const DEFAULT_SNAP_POINTS = [0.3, 0.5, 0.7, 0.9] as const;
+const DRAG_HANDLE_HEIGHT = 28; // 드래그 핸들 높이 (px)
 
 
 export function BottomSheet({
   children,
-  snapPoints = DEFAULT_SNAP_POINTS,
-  defaultSnapIndex = 0,
+  snapPoints: snapPointsProp,
+  defaultSnapIndex: defaultSnapIndexProp,
   minHeight = 100,
   isOpen,
   onClose,
@@ -45,11 +47,69 @@ export function BottomSheet({
   slotProps,
 }: BottomSheetProps) {
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
-  const [snapIndex, setSnapIndex] = useState(defaultSnapIndex);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const getContainerHeight = useCallback(() => {
     return container?.parentElement?.clientHeight ?? window.innerHeight;
   }, [container]);
+
+  // 자동 높이 계산이 필요한지 판단
+  const needsAutoHeight = snapPointsProp === undefined;
+  const needsAutoSnapIndex = snapPointsProp !== undefined && defaultSnapIndexProp === undefined;
+  const isAutoMode = needsAutoHeight || needsAutoSnapIndex;
+
+  // 컨텐츠 높이 측정
+  const { contentHeight } = useContentHeight({
+    contentRef,
+    enabled: isAutoMode,
+  });
+
+  // 실제 사용할 snapPoints와 defaultSnapIndex 계산
+  const { snapPoints, defaultSnapIndex } = useMemo(() => {
+    const containerHeight = getContainerHeight();
+
+    if (needsAutoHeight && contentHeight !== null) {
+      // Case 1: snapPoints 미제공 → 컨텐츠 높이를 단일 스냅으로 사용
+      const contentRatio = Math.min(0.95, (contentHeight + DRAG_HANDLE_HEIGHT) / containerHeight);
+      return {
+        snapPoints: [contentRatio] as const,
+        defaultSnapIndex: 0,
+      };
+    }
+
+    if (needsAutoSnapIndex && contentHeight !== null && snapPointsProp) {
+      // Case 2: snapPoints 제공, defaultSnapIndex 미제공 → 가장 가까운 스냅 찾기
+      const contentRatio = (contentHeight + DRAG_HANDLE_HEIGHT) / containerHeight;
+      let nearestIndex = 0;
+      let minDiff = Math.abs(contentRatio - snapPointsProp[0]);
+
+      for (let i = 1; i < snapPointsProp.length; i++) {
+        const diff = Math.abs(contentRatio - snapPointsProp[i]);
+        if (diff < minDiff) {
+          minDiff = diff;
+          nearestIndex = i;
+        }
+      }
+
+      return {
+        snapPoints: snapPointsProp,
+        defaultSnapIndex: nearestIndex,
+      };
+    }
+
+    // Case 3: 둘 다 제공됨 → 그대로 사용
+    return {
+      snapPoints: snapPointsProp ?? DEFAULT_SNAP_POINTS,
+      defaultSnapIndex: defaultSnapIndexProp ?? 0,
+    };
+  }, [snapPointsProp, defaultSnapIndexProp, needsAutoHeight, needsAutoSnapIndex, contentHeight, getContainerHeight]);
+
+  const [snapIndex, setSnapIndex] = useState(defaultSnapIndex);
+
+  // defaultSnapIndex가 변경되면 snapIndex도 업데이트 (auto 모드에서 컨텐츠 높이 측정 완료 시)
+  useEffect(() => {
+    setSnapIndex(defaultSnapIndex);
+  }, [defaultSnapIndex]);
 
   // 모달 애니메이션
   const { isModalMode, isVisible, isAnimating } = useSheetStatus({
@@ -129,6 +189,7 @@ export function BottomSheet({
           dragState={dragState}
           handlers={handlers}
           slotProps={slotProps}
+          contentRef={contentRef}
         >
           {children}
         </SheetBody>
@@ -245,10 +306,11 @@ interface SheetBodyProps {
     onDragEnd: () => void;
   };
   slotProps?: { body?: BoxProps };
+  contentRef: React.RefObject<HTMLDivElement | null>;
   children: ReactNode;
 }
 
-function SheetBody({ isModalMode, dragState, handlers, slotProps, children }: SheetBodyProps) {
+function SheetBody({ isModalMode, dragState, handlers, slotProps, contentRef, children }: SheetBodyProps) {
   const bodyRef = useRef<HTMLDivElement>(null);
   const [getIsScrolled, setIsScrolled] = useVariation(false);
   const isEnableControlOnBodyRef = useRef(true);
@@ -299,7 +361,9 @@ function SheetBody({ isModalMode, dragState, handlers, slotProps, children }: Sh
       >
         <span />
       </IntersectionArea>
-      {children}
+      <Box ref={contentRef}>
+        {children}
+      </Box>
     </Box>
   );
 }

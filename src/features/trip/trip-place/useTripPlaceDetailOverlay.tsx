@@ -67,10 +67,8 @@ export function PlaceDetailSheet({ placeId, tripId, isOpen, onClose }: PlaceDeta
     <BottomSheet
       isOpen={isOpen}
       onClose={onClose}
-      snapPoints={[0.6, 0.8]}
-      defaultSnapIndex={0}
     >
-      <Stack position="relative" height="100%" sx={{ pb: 3 }}>
+      <Stack position="relative" height="100%" >
         <Stack
           direction="row"
           alignItems="center"

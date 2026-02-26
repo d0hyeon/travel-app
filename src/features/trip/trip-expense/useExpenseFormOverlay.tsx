@@ -86,12 +86,12 @@ export function useExpenseFormBottomSheet(tripId: string) {
           <BottomSheet
             isOpen={isOpen}
             onClose={close}
-            snapPoints={[0.8]}
             {...params}
           >
             <ExpenseForm
               tripId={tripId}
               padding={2}
+              paddingBottom={0}
               defaultValues={defaultValues}
               onSubmit={(data) => {
                 resolve(data);
@@ -115,13 +115,16 @@ type ActionsProps = {
 export function ExpenseFormOverlayActions({ onCancel, secondary }: ActionsProps) {
   return (
     <Stack
-      position="absolute"
-      marginLeft="-16px !important"
-      padding={2}
-      bottom={0}
-      width="100%"
+      // position="absolute"
+      // marginLeft="-16px !important"
+      // padding={2}
       direction="row"
       gap={1}
+      marginTop="40px !important"
+      marginX="-16px !important"
+      paddingX={2}
+      paddingY={1}
+      borderTop={theme => `1px solid ${theme.palette.divider}`}
       sx={{ backgroundColor: '#fff', zIndex: 10 }}
     >
       {secondary}
