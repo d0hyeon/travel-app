@@ -3,6 +3,7 @@ import { useCallback, useEffect, useImperativeHandle, useRef, useState, type Rea
 import { useVariation } from '~shared/hooks/useVariation';
 import { IntersectionArea } from '../IntersectionArea';
 import { useDrag } from './useDrag';
+import { useIsOpenedKeyboard } from './useIsOpenedKeyboard';
 import { useSheetStatus } from './useSheetStatus';
 import { useSnapPoints } from './useSnapPoints';
 import { shouldPreventSheetDrag } from './utils';
@@ -30,6 +31,7 @@ interface DraggableBottomSheetProps {
 }
 
 const DEFAULT_SNAP_POINTS = [0.3, 0.5, 0.7, 0.9] as const;
+
 
 export function DraggableBottomSheet({
   children,
@@ -251,15 +253,16 @@ function SheetBody({ isModalMode, dragState, handlers, slotProps, children }: Sh
   const [getIsScrolled, setIsScrolled] = useVariation(false);
   const isEnableControlOnBodyRef = useRef(true);
 
+  const isOpenedKeyboard = useIsOpenedKeyboard();
   const handleBodyTouchStart = useCallback((e: React.TouchEvent) => {
-    if (getIsScrolled() || shouldPreventSheetDrag(e.target)) {
+    if (isOpenedKeyboard || getIsScrolled() || shouldPreventSheetDrag(e.target)) {
       isEnableControlOnBodyRef.current = false;
       return;
     }
     e.stopPropagation();
     handlers.onDragStart(e.touches[0].clientY);
     isEnableControlOnBodyRef.current = true;
-  }, [handlers, getIsScrolled]);
+  }, [handlers, isOpenedKeyboard, getIsScrolled]);
 
   const handleBodyTouchMove = useCallback((e: React.TouchEvent) => {
     const isGestureToBottom = dragState.current.startY < e.touches[0].clientY;
