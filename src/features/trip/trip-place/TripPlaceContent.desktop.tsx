@@ -15,6 +15,7 @@ import { PlaceCategoryColorCode, type Place } from '../../place/place.types'
 import { useTripRoutes } from '../trip-route/useTripRoutes'
 import { TripPlaceItemButton } from './TripPlaceItemButton'
 import { useTripPlaces } from './useTripPlaces'
+import { useTripPlaceDetailOverlay } from './useTripPlaceDetailOverlay'
 
 interface TripPlaceContentProps {
   tripId: string
@@ -54,6 +55,7 @@ export function TripPlaceContent({ tripId, defaultCenter }: TripPlaceContentProp
     parse: value => value === 'true'
   })
   const [focusedId, setFocusedId] = useState<string | null>(null)
+  const { openDialog: openDetailDialog } = useTripPlaceDetailOverlay()
 
   return (
     <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
@@ -144,7 +146,10 @@ export function TripPlaceContent({ tripId, defaultCenter }: TripPlaceContentProp
               lat={place.lat}
               lng={place.lng}
               color={place.category ? PlaceCategoryColorCode[place.category] : undefined}
-              onClick={() => setFocusedId(place.id)}
+              onClick={() => {
+                setFocusedId(place.id);
+                openDetailDialog({ tripId, placeId: place.id, })
+              }}
             />
           ))}
         </KakaoMap>

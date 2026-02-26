@@ -131,7 +131,8 @@ export function PlaceDetailSheet({ placeId, tripId, isOpen, onClose }: PlaceDeta
           padding={1}
           gap={1}
           sx={{
-            flex: '0 0 auto', position: 'sticky', bottom: 0,
+            flex: '0 0 auto',
+            position: 'sticky', bottom: 0,
             backgroundColor: '#fff',
             borderTop: `1px solid #ddd`,
             zIndex: 20
@@ -197,9 +198,9 @@ function PlaceDetailDialog({ tripId, placeId, isOpen, onClose }: PlaceDetailOver
             onClose()
           }}
           actions={(
-            <Stack direction="row" gap={1} justifyContent="space-between" position="sticky" bottom={0}>
-              <Button type="button" onClick={onClose} sx={{ flex: 1 }}>취소</Button>
-              <PlaceForm.SubmitButton sx={{ flex: 1 }} />
+            <Stack direction="row" width="100%" gap={1} justifyContent="end" alignItems="end" position="sticky" bottom={0}>
+              <Button type="button" onClick={onClose} >취소</Button>
+              <PlaceForm.SubmitButton />
             </Stack>
           )}
         />
