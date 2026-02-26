@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { DraggableBottomSheet } from '../../../shared/components/DraggableBottomSheet'
 import { ListItem } from '../../../shared/components/ListItem'
 import { PlaceCategoryColorCode, type Place } from '../../place/place.types'
+import { BottomArea } from '~shared/components/BottomArea'
 
 interface PlaceSelectSheetProps {
   isOpen: boolean
@@ -54,12 +55,12 @@ export function PlaceSelectSheet({
       snapPoints={[0.5, 0.75]}
       defaultSnapIndex={0}
     >
-      <Stack height="100%" sx={{ px: 2, pb: 2 }}>
-        <Typography variant="h6" sx={{ mb: 1 }}>
+      <Stack sx={{ px: 2, pb: 5 }}>
+        <Typography variant="h6" bgcolor="#fff" sx={{ mb: 1, position: 'sticky', top: 0, zIndex: 10 }}>
           장소 선택
         </Typography>
 
-        <Box sx={{ flex: 1, overflow: 'auto' }}>
+        <Box paddingBottom={10} >
           {availablePlaces.length === 0 ? (
             <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: 'center' }}>
               추가할 수 있는 장소가 없습니다
@@ -118,7 +119,7 @@ export function PlaceSelectSheet({
           )}
         </Box>
 
-        <Stack direction="row" spacing={1} sx={{ pt: 2 }}>
+        <BottomArea direction="row" marginLeft={-2} spacing={1} sx={{ pt: 2 }}>
           <Button variant="outlined" onClick={handleClose} sx={{ flex: 1 }}>
             취소
           </Button>
@@ -131,7 +132,7 @@ export function PlaceSelectSheet({
           >
             추가 ({selected.size})
           </Button>
-        </Stack>
+        </BottomArea>
       </Stack>
     </DraggableBottomSheet>
   )
