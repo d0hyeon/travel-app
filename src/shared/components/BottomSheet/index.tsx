@@ -3,7 +3,7 @@ import { useCallback, useEffect, useImperativeHandle, useRef, useState, type Rea
 import { useVariation } from '~shared/hooks/useVariation';
 import { IntersectionArea } from '../IntersectionArea';
 import { useDrag } from './useDrag';
-import { useIsOpenedKeyboard } from './useIsOpenedKeyboard';
+import { useKeyboardStatus } from './useKeyboardStatus';
 import { useSheetStatus } from './useSheetStatus';
 import { useSnapPoints } from './useSnapPoints';
 import { shouldPreventSheetDrag } from './utils';
@@ -166,9 +166,9 @@ function SheetContainer({ ref, isModalMode, height, isDragging, children }: Shee
         overflow: 'hidden',
         transition: isDragging ? 'none' : 'height 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         zIndex: isModalMode ? 1300 : 10,
-        '& *': {
-          overscrollBehaviorY: 'none',
-        },
+        // '& *': {
+        //   overscrollBehaviorY: 'none',
+        // },
       }}
     >
       {children}
@@ -253,16 +253,16 @@ function SheetBody({ isModalMode, dragState, handlers, slotProps, children }: Sh
   const [getIsScrolled, setIsScrolled] = useVariation(false);
   const isEnableControlOnBodyRef = useRef(true);
 
-  const isOpenedKeyboard = useIsOpenedKeyboard();
+  const { isOpen: isOpenKeyboard } = useKeyboardStatus();
   const handleBodyTouchStart = useCallback((e: React.TouchEvent) => {
-    if (isOpenedKeyboard || getIsScrolled() || shouldPreventSheetDrag(e.target)) {
+    if (isOpenKeyboard || getIsScrolled() || shouldPreventSheetDrag(e.target)) {
       isEnableControlOnBodyRef.current = false;
       return;
     }
     e.stopPropagation();
     handlers.onDragStart(e.touches[0].clientY);
     isEnableControlOnBodyRef.current = true;
-  }, [handlers, isOpenedKeyboard, getIsScrolled]);
+  }, [handlers, isOpenKeyboard, getIsScrolled]);
 
   const handleBodyTouchMove = useCallback((e: React.TouchEvent) => {
     const isGestureToBottom = dragState.current.startY < e.touches[0].clientY;
