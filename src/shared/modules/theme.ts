@@ -125,7 +125,7 @@ export const theme = createTheme({
         root: (props) => ({
           [props.theme.breakpoints.down('md')]: {
             fontSize: 12,
-            padding: 4
+            // padding: 4
           }
         })
       },
