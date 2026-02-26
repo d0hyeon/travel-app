@@ -33,5 +33,5 @@ export function useContentHeight({ contentRef, enabled }: UseContentHeightOption
     };
   }, [enabled, measure, contentRef]);
 
-  return { contentHeight, measure };
+  return { contentHeight, measure, isMeasuring: enabled && contentHeight == null };
 }
