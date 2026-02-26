@@ -1,7 +1,7 @@
 
 
 import { Button, Chip, Dialog, DialogContent, DialogTitle, Stack, Typography } from '@mui/material'
-import { DraggableBottomSheet } from '../../../shared/components/DraggableBottomSheet'
+import { BottomSheet } from '../../../shared/components/BottomSheet'
 import { PlaceForm } from '../../place/PlaceForm'
 import { useCallback } from 'react';
 import { useOverlay } from '../../../shared/hooks/useOverlay';
@@ -64,7 +64,7 @@ export function PlaceDetailSheet({ placeId, tripId, isOpen, onClose }: PlaceDeta
   const confirm = useConfirmDialog();
 
   return (
-    <DraggableBottomSheet
+    <BottomSheet
       isOpen={isOpen}
       onClose={onClose}
       snapPoints={[0.6, 0.8]}
@@ -142,7 +142,7 @@ export function PlaceDetailSheet({ placeId, tripId, isOpen, onClose }: PlaceDeta
           <PlaceForm.SubmitButton size="large" form="place-form" fullWidth />
         </Stack>
       </Stack>
-    </DraggableBottomSheet>
+    </BottomSheet>
   )
 }
 

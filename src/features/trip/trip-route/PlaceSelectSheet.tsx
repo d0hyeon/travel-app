@@ -2,7 +2,7 @@ import CheckIcon from '@mui/icons-material/Check'
 import SearchIcon from '@mui/icons-material/Search'
 import { Box, Button, Checkbox, Chip, InputAdornment, Stack, TextField, Typography } from '@mui/material'
 import { useMemo, useState } from 'react'
-import { DraggableBottomSheet } from '../../../shared/components/DraggableBottomSheet'
+import { BottomSheet } from '../../../shared/components/BottomSheet'
 import { ListItem } from '../../../shared/components/ListItem'
 import { PlaceCategoryColorCode, type Place } from '../../place/place.types'
 import { BottomArea } from '~shared/components/BottomArea'
@@ -63,7 +63,7 @@ export function PlaceSelectSheet({
   }, [availablePlaces, searchQuery])
 
   return (
-    <DraggableBottomSheet
+    <BottomSheet
       isOpen={isOpen}
       onClose={handleClose}
       snapPoints={[0.5, 0.75]}
@@ -166,6 +166,6 @@ export function PlaceSelectSheet({
           </Button>
         </BottomArea>
       </Stack>
-    </DraggableBottomSheet>
+    </BottomSheet>
   )
 }

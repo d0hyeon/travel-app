@@ -3,7 +3,7 @@ import { Box, Button, Stack, ToggleButton, Typography } from "@mui/material";
 import { useMemo, useRef, useState } from "react";
 import { BottomArea } from '~shared/components/BottomArea';
 import { useQueryParamState } from '~shared/hooks/useQueryParamState';
-import { DraggableBottomSheet } from "../../../shared/components/DraggableBottomSheet";
+import { BottomSheet } from "../../../shared/components/BottomSheet";
 import { KakaoMap, type KakaoMapRef } from "../../../shared/components/KakaoMap";
 import { usePlaceSearchBottomSheet } from '../../place/place-search/usePlaceSearchBottomSheet';
 import { PlaceCategoryColorCode, type Place } from "../../place/place.types";
@@ -87,7 +87,7 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
         </Box>
 
         {/* Bottom Sheet */}
-        <DraggableBottomSheet
+        <BottomSheet
           snapPoints={BOTTOM_SHEET_RATIOS}
           defaultSnapIndex={BOTTOM_SHEET_RATIOS.indexOf(DEFAULT_BOTTOM_SHEET_RATIO)}
           onSnapChange={(ratio) => {
@@ -126,7 +126,7 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
               ))}
             </Stack>
           </Box>
-        </DraggableBottomSheet>
+        </BottomSheet>
       </Box>
       <BottomArea position="relative">
         <Button

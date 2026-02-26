@@ -12,7 +12,7 @@ export type BottomSheetRef = {
   snap: number;
 }
 
-interface DraggableBottomSheetProps {
+interface BottomSheetProps {
   children: ReactNode
   /** 스냅 포인트 (0-1 비율, 바텀시트가 차지하는 비율) */
   snapPoints?: number[] | readonly number[];
@@ -33,7 +33,7 @@ interface DraggableBottomSheetProps {
 const DEFAULT_SNAP_POINTS = [0.3, 0.5, 0.7, 0.9] as const;
 
 
-export function DraggableBottomSheet({
+export function BottomSheet({
   children,
   snapPoints = DEFAULT_SNAP_POINTS,
   defaultSnapIndex = 0,
@@ -43,7 +43,7 @@ export function DraggableBottomSheet({
   onSnapChange,
   ref,
   slotProps,
-}: DraggableBottomSheetProps) {
+}: BottomSheetProps) {
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [snapIndex, setSnapIndex] = useState(defaultSnapIndex);
 
@@ -304,6 +304,6 @@ function SheetBody({ isModalMode, dragState, handlers, slotProps, children }: Sh
   );
 }
 
-DraggableBottomSheet.Scrollable = (props: BoxProps) => {
+BottomSheet.Scrollable = (props: BoxProps) => {
   return <Box data-scrollable="true" {...props} />;
 };

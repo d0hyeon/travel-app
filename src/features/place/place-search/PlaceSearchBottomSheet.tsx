@@ -11,7 +11,7 @@ import {
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import { loadKakaoMap } from '../../../shared/lib/kakao'
-import { DraggableBottomSheet } from '../../../shared/components/DraggableBottomSheet'
+import { BottomSheet } from '../../../shared/components/BottomSheet'
 import type { PlaceSearchResult } from './PlaceSearchDialog'
 
 interface Props {
@@ -91,7 +91,7 @@ export function PlaceSearchBottomSheet({ isOpen, onClose, onSelect }: Props) {
   }
 
   return (
-    <DraggableBottomSheet
+    <BottomSheet
       isOpen={isOpen}
       onClose={onClose}
       snapPoints={[0.5, 0.75, 0.9]}
@@ -160,6 +160,6 @@ export function PlaceSearchBottomSheet({ isOpen, onClose, onSelect }: Props) {
           )}
         </Box>
       </Box>
-    </DraggableBottomSheet>
+    </BottomSheet>
   )
 }

@@ -10,7 +10,7 @@ import { useCallback, type ComponentProps, type ReactNode } from "react"
 import { DialogTitle } from '~shared/modules/confirm-dialog/DialogTitle'
 import { useOverlay } from "../../../shared/hooks/useOverlay"
 import { ExpenseForm, type ExpenseFormValues } from "./ExpenseForm"
-import { DraggableBottomSheet } from "~shared/components/DraggableBottomSheet"
+import { BottomSheet } from "~shared/components/BottomSheet"
 
 export type RenderProps = {
   close: () => void;
@@ -72,7 +72,7 @@ export function useExpenseFormOverlay(tripId: string) {
 
 type BottomSheetParams = {
   renderActions?: (props: RenderProps) => ReactNode;
-} & OpenFormParams & Omit<ComponentProps<typeof DraggableBottomSheet>, 'isOpen' | 'onClose' | 'children'>
+} & OpenFormParams & Omit<ComponentProps<typeof BottomSheet>, 'isOpen' | 'onClose' | 'children'>
 
 export function useExpenseFormBottomSheet(tripId: string) {
   const overlay = useOverlay();
@@ -83,7 +83,7 @@ export function useExpenseFormBottomSheet(tripId: string) {
         const defaultAction = <ExpenseFormOverlayActions onCancel={close} />
 
         return (
-          <DraggableBottomSheet
+          <BottomSheet
             isOpen={isOpen}
             onClose={close}
             snapPoints={[0.8]}
@@ -99,7 +99,7 @@ export function useExpenseFormBottomSheet(tripId: string) {
               }}
               action={renderActions?.({ close }) ?? defaultAction}
             />
-          </DraggableBottomSheet>
+          </BottomSheet>
         )
       })
     })

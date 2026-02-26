@@ -10,7 +10,7 @@ import { useMemo, useRef, useState } from "react";
 import { BottomArea } from '~shared/components/BottomArea';
 import { useQueryParamState } from '~shared/hooks/useQueryParamState';
 import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog';
-import { DraggableBottomSheet } from "../../../shared/components/DraggableBottomSheet";
+import { BottomSheet } from "../../../shared/components/BottomSheet";
 import { KakaoMap, type KakaoMapRef } from "../../../shared/components/KakaoMap";
 import { ListItem } from "../../../shared/components/ListItem";
 import { SortableItem } from "../../../shared/components/dnd/SortableItem";
@@ -177,7 +177,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
         </Box>
 
         {/* Bottom Sheet */}
-        <DraggableBottomSheet
+        <BottomSheet
           snapPoints={BOTTOM_SHEET_RATIOS}
           defaultSnapIndex={BOTTOM_SHEET_RATIOS.indexOf(DEFAULT_BOTTOM_SHEET_RATIO)}
           onSnapChange={(ratio) => {
@@ -335,7 +335,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
               </Stack>
             )}
           </Stack>
-        </DraggableBottomSheet>
+        </BottomSheet>
       </Box>
       <BottomArea position="relative">
         <Button

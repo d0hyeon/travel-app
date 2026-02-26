@@ -4,7 +4,7 @@ import RouteIcon from '@mui/icons-material/Route'
 import { Box, Button, IconButton, Stack, Tab, Tabs, Typography } from "@mui/material"
 import { Suspense, useMemo, useState } from "react"
 import type { Expense } from '~features/expense/expense.types'
-import { DraggableBottomSheet } from "../../../shared/components/DraggableBottomSheet"
+import { BottomSheet } from "../../../shared/components/BottomSheet"
 import { ListItem } from "../../../shared/components/ListItem"
 import { useOverlay } from "../../../shared/hooks/useOverlay"
 import { formatDate } from "../../../shared/utils/formats"
@@ -36,20 +36,20 @@ export function ExpenseContent({ tripId }: Props) {
 
   const handleOpenRouteExpense = () => {
     overlay.open(({ isOpen, close }) => (
-      <DraggableBottomSheet
+      <BottomSheet
         isOpen={isOpen}
         onClose={close}
         snapPoints={[0.95]}
         defaultSnapIndex={0}
       >
-        <DraggableBottomSheet.Scrollable>
+        <BottomSheet.Scrollable>
           <Box sx={{ height: 'calc(95vh - 40px)' }}>
             <Suspense>
               <RouteExpenseViewMobile tripId={tripId} />
             </Suspense>
           </Box>
-        </DraggableBottomSheet.Scrollable>
-      </DraggableBottomSheet>
+        </BottomSheet.Scrollable>
+      </BottomSheet>
     ))
   }
 

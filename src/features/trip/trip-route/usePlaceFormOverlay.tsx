@@ -2,7 +2,7 @@ import { Button, Chip, Dialog, DialogContent, Stack, Typography } from "@mui/mat
 import { useCallback, type ReactNode } from "react";
 import { PlaceForm, type PlaceFormValues } from "~features/place/PlaceForm";
 import { BottomArea } from "~shared/components/BottomArea";
-import { DraggableBottomSheet } from "~shared/components/DraggableBottomSheet";
+import { BottomSheet } from "~shared/components/BottomSheet";
 import { useOverlay } from "~shared/hooks/useOverlay";
 import { DialogTitle } from "~shared/modules/confirm-dialog/DialogTitle";
 import { useTripPlaces } from "../trip-place/useTripPlaces";
@@ -78,7 +78,7 @@ function PlaceFormSheet({ placeId, tripId, title = '장소 정보', defaultValue
   }
 
   return (
-    <DraggableBottomSheet
+    <BottomSheet
       isOpen={isOpen}
       onClose={onClose}
       snapPoints={[0.6, 0.8]}
@@ -124,7 +124,7 @@ function PlaceFormSheet({ placeId, tripId, title = '장소 정보', defaultValue
         <PlaceForm.SubmitButton form="place-form" size="large" sx={{ flex: 1 }} />
       </BottomArea>
 
-    </DraggableBottomSheet >
+    </BottomSheet >
   )
 }
 

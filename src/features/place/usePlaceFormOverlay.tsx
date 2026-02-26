@@ -7,7 +7,7 @@ import {
   Stack, Typography,
 } from '@mui/material'
 import { useCallback, type ReactNode } from 'react'
-import { DraggableBottomSheet } from '../../shared/components/DraggableBottomSheet'
+import { BottomSheet } from '../../shared/components/BottomSheet'
 import type { Place } from './place.types'
 import { PlaceForm, type PlaceFormValues } from './PlaceForm'
 import { useOverlay } from '../../shared/hooks/useOverlay'
@@ -111,7 +111,7 @@ export function PlaceFormSheet({ title = '장소 정보', defaultValue, isOpen, 
   }
 
   return (
-    <DraggableBottomSheet
+    <BottomSheet
       isOpen={isOpen}
       onClose={onClose}
       snapPoints={[0.6, 0.8]}
@@ -135,6 +135,6 @@ export function PlaceFormSheet({ title = '장소 정보', defaultValue, isOpen, 
         </Stack>
 
       </Stack>
-    </DraggableBottomSheet>
+    </BottomSheet>
   )
 }
