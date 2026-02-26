@@ -297,18 +297,22 @@ export function DraggableBottomSheet({
           { flex: 1, overflow: 'auto' },
           ...(Array.isArray(slotProps?.body?.sx) ? slotProps.body.sx : [slotProps?.body?.sx])
         ]}
-        onTouchStart={handleBodyTouchStart}
-        onTouchMove={handleBodyTouchMove}
-        onTouchEnd={handleTouchEnd}
+        onTouchStart={isModalMode ? handleBodyTouchStart : undefined}
+        onTouchMove={isModalMode ? handleBodyTouchMove : undefined}
+        onTouchEnd={isModalMode ? handleTouchEnd : undefined}
         ref={bodyRef}
       >
         <IntersectionArea
           root={bodyRef.current}
           onEnter={async () => {
-            await waitForTouchEnd();
+            // await waitForTouchEnd();
+            // console.log('enter')
             setIsScrolled(false);
           }}
-          onLeave={() => setIsScrolled(true)}
+          onLeave={() => {
+            setIsScrolled(true)
+            console.log('leave')
+          }}
         >
           <span />
         </IntersectionArea>
