@@ -186,38 +186,35 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
               setTimeout(() => mapRef.current?.relayout(), 350)
             }
           }}
-          slotProps={{
-            body: {
-              sx: { scrollBehavior: 'smooth', scrollMarginTop: 60 }
-            }
-          }}
         >
-          <Tabs
-            value={selectedDate}
-            sx={{
-              position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 20,
-              minHeight: 24,
-              height: 40,
-              overflow: "hidden",
-            }}
-            slotProps={{
-              list: { sx: { height: '100%' } },
-            }}
-          >
-            {tripDates.map((date) => (
-              <Tab
-                key={date}
-                value={date}
-                label={formatDate(date)}
-                onClick={() => {
-                  setSelectedDate(date)
-                  setSelectedRouteId(null)
-                }}
-                sx={{ flex: 1, minHeight: 40 }}
-              />
-            ))}
-          </Tabs>
-          <Stack gap={1} sx={{ p: 1.5 }}>
+          <BottomSheet.Header>
+            <Tabs
+              value={selectedDate}
+              sx={{
+                width: '100%',
+                minHeight: 24,
+                height: 40,
+                overflow: "hidden",
+              }}
+              slotProps={{
+                list: { sx: { height: '100%' } },
+              }}
+            >
+              {tripDates.map((date) => (
+                <Tab
+                  key={date}
+                  value={date}
+                  label={formatDate(date)}
+                  onClick={() => {
+                    setSelectedDate(date)
+                    setSelectedRouteId(null)
+                  }}
+                  sx={{ flex: 1, minHeight: 40 }}
+                />
+              ))}
+            </Tabs>
+          </BottomSheet.Header>
+          <BottomSheet.Body gap={1} sx={{ p: 1.5 }}>
             {/* 경로 선택 & 추가 */}
             <Stack direction="row" spacing={0.5} mb={1.5} alignItems="center">
               {routes.map((route, index) => (
@@ -334,7 +331,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
                 />
               </Stack>
             )}
-          </Stack>
+          </BottomSheet.Body>
         </BottomSheet>
       </Box>
       <BottomArea position="relative">

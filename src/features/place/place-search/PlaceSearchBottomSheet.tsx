@@ -97,7 +97,7 @@ export function PlaceSearchBottomSheet({ isOpen, onClose, onSelect }: Props) {
       snapPoints={[0.5, 0.75, 0.9]}
       defaultSnapIndex={1}
     >
-      <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <BottomSheet.Header>
         <TextField
           autoFocus={isOpen}
           fullWidth
@@ -112,54 +112,52 @@ export function PlaceSearchBottomSheet({ isOpen, onClose, onSelect }: Props) {
               </InputAdornment>
             ),
           }}
-          sx={{ mb: 2, flexShrink: 0 }}
         />
+      </BottomSheet.Header>
+      <BottomSheet.Body>
+        {isLoading && (
+          <Box display="flex" justifyContent="center" py={4}>
+            <CircularProgress size={24} />
+          </Box>
+        )}
 
-        <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
-          {isLoading && (
-            <Box display="flex" justifyContent="center" py={4}>
-              <CircularProgress size={24} />
-            </Box>
-          )}
+        {error && (
+          <Typography color="error" textAlign="center" py={4}>
+            {error}
+          </Typography>
+        )}
 
-          {error && (
-            <Typography color="error" textAlign="center" py={4}>
-              {error}
-            </Typography>
-          )}
+        {!isLoading && !error && results.length === 0 && keyword && (
+          <Typography color="text.secondary" textAlign="center" py={4}>
+            검색 결과가 없습니다
+          </Typography>
+        )}
 
-          {!isLoading && !error && results.length === 0 && keyword && (
-            <Typography color="text.secondary" textAlign="center" py={4}>
-              검색 결과가 없습니다
-            </Typography>
-          )}
+        {!isLoading && !error && results.length === 0 && !keyword && (
+          <Typography color="text.secondary" textAlign="center" py={4}>
+            검색어를 입력하세요
+          </Typography>
+        )}
 
-          {!isLoading && !error && results.length === 0 && !keyword && (
-            <Typography color="text.secondary" textAlign="center" py={4}>
-              검색어를 입력하세요
-            </Typography>
-          )}
-
-          {!isLoading && results.length > 0 && (
-            <List disablePadding>
-              {results.map((place) => (
-                <ListItemButton
-                  key={place.id}
-                  onClick={() => handleSelect(place)}
-                  sx={{ borderRadius: 1, py: 1.5 }}
-                >
-                  <ListItemText
-                    primary={place.name}
-                    secondary={place.address}
-                    primaryTypographyProps={{ fontWeight: 'medium', fontSize: 14 }}
-                    secondaryTypographyProps={{ fontSize: 12 }}
-                  />
-                </ListItemButton>
-              ))}
-            </List>
-          )}
-        </Box>
-      </Box>
+        {!isLoading && results.length > 0 && (
+          <List disablePadding>
+            {results.map((place) => (
+              <ListItemButton
+                key={place.id}
+                onClick={() => handleSelect(place)}
+                sx={{ borderRadius: 1, py: 1.5 }}
+              >
+                <ListItemText
+                  primary={place.name}
+                  secondary={place.address}
+                  primaryTypographyProps={{ fontWeight: 'medium', fontSize: 14 }}
+                  secondaryTypographyProps={{ fontSize: 12 }}
+                />
+              </ListItemButton>
+            ))}
+          </List>
+        )}
+      </BottomSheet.Body>
     </BottomSheet>
   )
 }

@@ -117,24 +117,24 @@ export function PlaceFormSheet({ title = '장소 정보', defaultValue, isOpen, 
       snapPoints={[0.6, 0.8]}
       defaultSnapIndex={0}
     >
-      <Stack height="100%" sx={{ px: 2, pb: 3 }}>
+      <BottomSheet.Header>
         {typeof title === 'string' ? (
           <Typography variant="h6">{title}</Typography>
         ) : title}
+      </BottomSheet.Header>
+      <BottomSheet.Body>
         <PlaceForm
           id="place-form"
           defaultValues={defaultValue}
           onSubmit={handleSubmit}
-          sx={{ flex: '1 1 100%' }}
-          height="100%"
         />
-
-        <Stack width="100%" direction="row" padding={1} sx={{ flex: '0 0 auto' }}>
+      </BottomSheet.Body>
+      <BottomSheet.BottomActions>
+        <Stack direction="row" gap={1}>
           <Button type="button" onClick={onClose} sx={{ flex: 1 }}>닫기</Button>
           <PlaceForm.SubmitButton form="place-form" sx={{ flex: 1 }} />
         </Stack>
-
-      </Stack>
+      </BottomSheet.BottomActions>
     </BottomSheet>
   )
 }

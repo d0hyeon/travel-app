@@ -96,13 +96,8 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
               setTimeout(() => mapRef.current?.relayout(), 350)
             }
           }}
-          slotProps={{
-            body: {
-              sx: { scrollBehavior: 'smooth', }
-            }
-          }}
         >
-          <Box sx={{ p: 1.5 }}>
+          <BottomSheet.Body paddingBottom={5} sx={{ scrollBehavior: 'smooth' }}>
             <Typography variant="caption" color="text.secondary" fontWeight="medium" mb={0.5} display="block">
               확정 ({confirmedPlaces.length}) / 후보 ({wishedPlaces.length})
             </Typography>
@@ -125,7 +120,7 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
                 />
               ))}
             </Stack>
-          </Box>
+          </BottomSheet.Body>
         </BottomSheet>
       </Box>
       <BottomArea position="relative">

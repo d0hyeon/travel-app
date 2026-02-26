@@ -1,7 +1,6 @@
 import { Button, Chip, Dialog, DialogContent, Stack, Typography } from "@mui/material";
 import { useCallback, type ReactNode } from "react";
 import { PlaceForm, type PlaceFormValues } from "~features/place/PlaceForm";
-import { BottomArea } from "~shared/components/BottomArea";
 import { BottomSheet } from "~shared/components/BottomSheet";
 import { useOverlay } from "~shared/hooks/useOverlay";
 import { DialogTitle } from "~shared/modules/confirm-dialog/DialogTitle";
@@ -81,14 +80,13 @@ function PlaceFormSheet({ placeId, tripId, title = '장소 정보', defaultValue
     <BottomSheet
       isOpen={isOpen}
       onClose={onClose}
-      snapPoints={[0.6, 0.8]}
-      defaultSnapIndex={0}
     >
-      {typeof title === 'string' ? (
-        <Typography paddingX={2} variant="h6" position="sticky" top={0} width="100%" bgcolor="#fff">{title}</Typography>
-      ) : title}
-
-      <Stack flex="1 1 100%" px={2} pb={2}>
+      <BottomSheet.Header>
+        {typeof title === 'string' ? (
+          <Typography variant="h6">{title}</Typography>
+        ) : title}
+      </BottomSheet.Header>
+      <BottomSheet.Body>
         <Stack direction="row" mt={1} mb={2} gap={1}>
           <a href={`https://search.naver.com/search.naver?query=${place.name}`} target="_blank">
             <Chip label="네이버" variant="outlined" size="small" sx={{ fontSize: 11 }} />
@@ -100,31 +98,19 @@ function PlaceFormSheet({ placeId, tripId, title = '장소 정보', defaultValue
             <Chip label="구글" variant="outlined" size="small" sx={{ fontSize: 11 }} />
           </a>
         </Stack>
-
         <PlaceForm
           id="place-form"
           defaultValues={defaultValues}
           onSubmit={handleSubmit}
-          paddingBottom={10}
         />
-      </Stack>
-
-      <BottomArea
-        position="absolute"
-        padding={1}
-        paddingTop={1.5}
-        sx={{
-          backgroundColor: "#fff",
-          zIndex: 5,
-          borderTop: '1px solid #ddd',
-          paddingBottom: 'max(env(safe-area-inset-bottom), 12px)'
-        }}
-      >
-        <Button type="button" onClick={onClose} size="large" variant="outlined" sx={{ flex: 1 }}>닫기</Button>
-        <PlaceForm.SubmitButton form="place-form" size="large" sx={{ flex: 1 }} />
-      </BottomArea>
-
-    </BottomSheet >
+      </BottomSheet.Body>
+      <BottomSheet.BottomActions>
+        <Stack direction="row" gap={1}>
+          <Button type="button" onClick={onClose} size="large" variant="outlined" sx={{ flex: 1 }}>닫기</Button>
+          <PlaceForm.SubmitButton form="place-form" size="large" sx={{ flex: 1 }} />
+        </Stack>
+      </BottomSheet.BottomActions>
+    </BottomSheet>
   )
 }
 
