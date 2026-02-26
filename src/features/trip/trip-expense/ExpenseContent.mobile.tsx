@@ -42,13 +42,9 @@ export function ExpenseContent({ tripId }: Props) {
         snapPoints={[0.95]}
         defaultSnapIndex={0}
       >
-        <BottomSheet.Scrollable>
-          <Box sx={{ height: 'calc(95vh - 40px)' }}>
-            <Suspense>
-              <RouteExpenseViewMobile tripId={tripId} />
-            </Suspense>
-          </Box>
-        </BottomSheet.Scrollable>
+        <Suspense>
+          <RouteExpenseViewMobile tripId={tripId} />
+        </Suspense>
       </BottomSheet>
     ))
   }

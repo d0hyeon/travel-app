@@ -5,7 +5,6 @@ import { useMemo, useState } from 'react'
 import { BottomSheet } from '../../../shared/components/BottomSheet'
 import { ListItem } from '../../../shared/components/ListItem'
 import { PlaceCategoryColorCode, type Place } from '../../place/place.types'
-import { BottomArea } from '~shared/components/BottomArea'
 
 interface PlaceSelectSheetProps {
   isOpen: boolean
@@ -69,89 +68,86 @@ export function PlaceSelectSheet({
       snapPoints={[0.5, 0.75]}
       defaultSnapIndex={0}
     >
-      <Stack sx={{ px: 2, pb: 5 }}>
-        <Box bgcolor="#fff" sx={{ mb: 1, position: 'sticky', top: 0, zIndex: 10, pb: 1 }}>
-          <Typography variant="h6" sx={{ mb: 1 }}>
-            장소 선택
+      <BottomSheet.Header>
+        <Typography variant="h6">장소 선택</Typography>
+      </BottomSheet.Header>
+      <BottomSheet.Body>
+        <TextField
+          size="small"
+          fullWidth
+          placeholder="장소 검색..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          sx={{ mb: 1.5 }}
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" color="action" />
+                </InputAdornment>
+              ),
+            },
+          }}
+        />
+        {filteredPlaces.length === 0 ? (
+          <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: 'center' }}>
+            {searchQuery ? '검색 결과가 없습니다' : '추가할 수 있는 장소가 없습니다'}
           </Typography>
-          <TextField
-            size="small"
-            fullWidth
-            placeholder="장소 검색..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            slotProps={{
-              input: {
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon fontSize="small" color="action" />
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
-        </Box>
+        ) : (
+          <Stack spacing={0.75}>
+            {filteredPlaces.map((place) => {
+              const isSelected = selected.has(place.id);
 
-        <Box paddingBottom={10} >
-          {filteredPlaces.length === 0 ? (
-            <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: 'center' }}>
-              {searchQuery ? '검색 결과가 없습니다' : '추가할 수 있는 장소가 없습니다'}
-            </Typography>
-          ) : (
-            <Stack spacing={0.75}>
-              {filteredPlaces.map((place) => {
-                const isSelected = selected.has(place.id);
-
-                return (
-                  <ListItem
-                    key={place.id}
-                    sx={{
-                      cursor: 'pointer',
-                      borderColor: isSelected ? 'primary.main' : 'divider',
-                      bgcolor: isSelected ? 'primary.50' : undefined,
-                    }}
-                    onClick={() => handleToggle(place.id)}
-                    leftAddon={
-                      <Checkbox
-                        checked={isSelected}
-                        size="small"
-                        sx={{ p: 0, mr: 1 }}
+              return (
+                <ListItem
+                  key={place.id}
+                  sx={{
+                    cursor: 'pointer',
+                    borderColor: isSelected ? 'primary.main' : 'divider',
+                    bgcolor: isSelected ? 'primary.50' : undefined,
+                  }}
+                  onClick={() => handleToggle(place.id)}
+                  leftAddon={
+                    <Checkbox
+                      checked={isSelected}
+                      size="small"
+                      sx={{ p: 0, mr: 1 }}
+                    />
+                  }
+                >
+                  <Stack direction="row" gap={0.5} alignItems="center">
+                    {!!place.category && (
+                      <Box
+                        sx={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: '50%',
+                          bgcolor: PlaceCategoryColorCode[place.category],
+                        }}
                       />
-                    }
-                  >
-                    <Stack direction="row" gap={0.5} alignItems="center">
-                      {!!place.category && (
-                        <Box
-                          sx={{
-                            width: 8,
-                            height: 8,
-                            borderRadius: '50%',
-                            bgcolor: PlaceCategoryColorCode[place.category],
-                          }}
-                        />
-                      )}
-                      <ListItem.Title>{place.name}</ListItem.Title>
+                    )}
+                    <ListItem.Title>{place.name}</ListItem.Title>
+                  </Stack>
+                  {place.address && (
+                    <ListItem.Text variant="body2" color="text.secondary" fontSize={12}>
+                      {place.address}
+                    </ListItem.Text>
+                  )}
+                  {place.tags.length > 0 && (
+                    <Stack direction="row" spacing={0.5} flexWrap="wrap" sx={{ mt: 0.5 }}>
+                      {place.tags.map((x) => (
+                        <Chip key={x} label={x} size="small" />
+                      ))}
                     </Stack>
-                    {place.address && (
-                      <ListItem.Text variant="body2" color="text.secondary" fontSize={12}>
-                        {place.address}
-                      </ListItem.Text>
-                    )}
-                    {place.tags.length > 0 && (
-                      <Stack direction="row" spacing={0.5} flexWrap="wrap" sx={{ mt: 0.5 }}>
-                        {place.tags.map((x) => (
-                          <Chip key={x} label={x} size="small" />
-                        ))}
-                      </Stack>
-                    )}
-                  </ListItem>
-                )
-              })}
-            </Stack>
-          )}
-        </Box>
-
-        <BottomArea direction="row" marginLeft={-2} spacing={1} sx={{ pt: 2 }}>
+                  )}
+                </ListItem>
+              )
+            })}
+          </Stack>
+        )}
+      </BottomSheet.Body>
+      <BottomSheet.BottomActions>
+        <Stack direction="row" spacing={1}>
           <Button variant="outlined" onClick={handleClose} sx={{ flex: 1 }}>
             취소
           </Button>
@@ -164,8 +160,8 @@ export function PlaceSelectSheet({
           >
             추가 ({selected.size})
           </Button>
-        </BottomArea>
-      </Stack>
+        </Stack>
+      </BottomSheet.BottomActions>
     </BottomSheet>
   )
 }

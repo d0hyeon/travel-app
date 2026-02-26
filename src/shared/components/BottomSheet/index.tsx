@@ -1,13 +1,11 @@
-import { Box, Fade, type BoxProps } from '@mui/material';
-import { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState, type ReactNode, type Ref } from 'react';
-import { useVariation } from '~shared/hooks/useVariation';
-import { IntersectionArea } from '../IntersectionArea';
+import { Box, Fade, Stack } from '@mui/material';
+import { useCallback, useEffect, useImperativeHandle, useMemo, useState, type ReactNode, type Ref } from 'react';
+import { BottomSheetProvider } from './BottomSheetContext';
+import { Body, BottomActions, Header, Scrollable } from './compounds';
 import { useContentHeight } from './useContentHeight';
 import { useDrag } from './useDrag';
-import { useKeyboardStatus } from './useKeyboardStatus';
 import { useSheetStatus } from './useSheetStatus';
 import { useSnapPoints } from './useSnapPoints';
-import { shouldPreventSheetDrag } from './utils';
 
 export type BottomSheetRef = {
   snap: number;
@@ -28,12 +26,10 @@ interface BottomSheetProps {
   /** 스냅 변경 콜백 (바텀시트가 차지하는 비율 전달) */
   onSnapChange?: (snapRatio: number) => void;
   ref?: Ref<BottomSheetRef>;
-  slotProps?: { body?: BoxProps }
 }
 
 const DEFAULT_SNAP_POINTS = [0.3, 0.5, 0.7, 0.9] as const;
-const DRAG_HANDLE_HEIGHT = 28; // 드래그 핸들 높이 (px)
-
+const DRAG_HANDLE_HEIGHT = 28;
 
 export function BottomSheet({
   children,
@@ -44,10 +40,9 @@ export function BottomSheet({
   onClose,
   onSnapChange,
   ref,
-  slotProps,
 }: BottomSheetProps) {
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
+  const [content, setContent] = useState<HTMLDivElement | null>(null);
 
   const getContainerHeight = useCallback(() => {
     return container?.parentElement?.clientHeight ?? window.innerHeight;
@@ -59,8 +54,8 @@ export function BottomSheet({
   const isAutoMode = needsAutoHeight || needsAutoSnapIndex;
 
   // 컨텐츠 높이 측정
-  const { contentHeight } = useContentHeight({
-    contentRef,
+  const { contentHeight, isMeasuring } = useContentHeight({
+    content,
     enabled: isAutoMode,
   });
 
@@ -69,7 +64,6 @@ export function BottomSheet({
     const containerHeight = getContainerHeight();
 
     if (needsAutoHeight && contentHeight !== null) {
-      // Case 1: snapPoints 미제공 → 컨텐츠 높이를 단일 스냅으로 사용
       const contentRatio = Math.min(0.95, (contentHeight + DRAG_HANDLE_HEIGHT) / containerHeight);
       return {
         snapPoints: [contentRatio] as const,
@@ -78,7 +72,6 @@ export function BottomSheet({
     }
 
     if (needsAutoSnapIndex && contentHeight !== null && snapPointsProp) {
-      // Case 2: snapPoints 제공, defaultSnapIndex 미제공 → 가장 가까운 스냅 찾기
       const contentRatio = (contentHeight + DRAG_HANDLE_HEIGHT) / containerHeight;
       let nearestIndex = 0;
       let minDiff = Math.abs(contentRatio - snapPointsProp[0]);
@@ -97,7 +90,6 @@ export function BottomSheet({
       };
     }
 
-    // Case 3: 둘 다 제공됨 → 그대로 사용
     return {
       snapPoints: snapPointsProp ?? DEFAULT_SNAP_POINTS,
       defaultSnapIndex: defaultSnapIndexProp ?? 0,
@@ -106,7 +98,6 @@ export function BottomSheet({
 
   const [snapIndex, setSnapIndex] = useState(defaultSnapIndex);
 
-  // defaultSnapIndex가 변경되면 snapIndex도 업데이트 (auto 모드에서 컨텐츠 높이 측정 완료 시)
   useEffect(() => {
     setSnapIndex(defaultSnapIndex);
   }, [defaultSnapIndex]);
@@ -160,6 +151,12 @@ export function BottomSheet({
     return null;
   }
 
+  const contextValue = {
+    isModalMode,
+    handlers,
+    dragState,
+  };
+
   return (
     <>
       {isModalMode && (
@@ -181,24 +178,18 @@ export function BottomSheet({
         height={currentHeight}
         isDragging={isDragging}
       >
-        <DragHandle
-          handlers={handlers}
-        />
-        <SheetBody
-          isModalMode={isModalMode}
-          dragState={dragState}
-          handlers={handlers}
-          slotProps={slotProps}
-          contentRef={contentRef}
-        >
-          {children}
-        </SheetBody>
+        <DragHandle handlers={handlers} />
+        <Stack height={isMeasuring ? "auto" : `calc(100% - ${DRAG_HANDLE_HEIGHT}px)`} ref={setContent}>
+          <BottomSheetProvider value={contextValue}>
+            {children}
+          </BottomSheetProvider>
+        </Stack>
       </SheetContainer>
     </>
   );
 }
 
-// --- Sub Components ---
+// --- Internal Components ---
 
 interface SheetContainerProps {
   ref: (el: HTMLDivElement | null) => void;
@@ -227,9 +218,6 @@ function SheetContainer({ ref, isModalMode, height, isDragging, children }: Shee
         overflow: 'hidden',
         transition: isDragging ? 'none' : 'height 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         zIndex: isModalMode ? 1300 : 10,
-        // '& *': {
-        //   overscrollBehaviorY: 'none',
-        // },
       }}
     >
       {children}
@@ -297,77 +285,9 @@ function DragHandle({ handlers }: DragHandleProps) {
   );
 }
 
-interface SheetBodyProps {
-  isModalMode: boolean;
-  dragState: React.MutableRefObject<{ isDragging: boolean; startY: number; startHeight: number }>;
-  handlers: {
-    onDragStart: (clientY: number) => void;
-    onDragMove: (clientY: number) => void;
-    onDragEnd: () => void;
-  };
-  slotProps?: { body?: BoxProps };
-  contentRef: React.RefObject<HTMLDivElement | null>;
-  children: ReactNode;
-}
+// --- Compound Components ---
 
-function SheetBody({ isModalMode, dragState, handlers, slotProps, contentRef, children }: SheetBodyProps) {
-  const bodyRef = useRef<HTMLDivElement>(null);
-  const [getIsScrolled, setIsScrolled] = useVariation(false);
-  const isEnableControlOnBodyRef = useRef(true);
-
-  const { isOpen: isOpenKeyboard } = useKeyboardStatus();
-  const handleBodyTouchStart = useCallback((e: React.TouchEvent) => {
-    if (isOpenKeyboard || getIsScrolled() || shouldPreventSheetDrag(e.target)) {
-      isEnableControlOnBodyRef.current = false;
-      return;
-    }
-    e.stopPropagation();
-    handlers.onDragStart(e.touches[0].clientY);
-    isEnableControlOnBodyRef.current = true;
-  }, [handlers, isOpenKeyboard, getIsScrolled]);
-
-  const handleBodyTouchMove = useCallback((e: React.TouchEvent) => {
-    const isGestureToBottom = dragState.current.startY < e.touches[0].clientY;
-    const isScrolled = getIsScrolled();
-
-    // 스크롤이 발생하면 이 제스처 동안 드래그 컨트롤 비활성화 (다시 0으로 돌아와도 유지)
-    if (isScrolled) {
-      isEnableControlOnBodyRef.current = false;
-    }
-
-    const isEnableControlOnBody = isEnableControlOnBodyRef.current;
-    if (isEnableControlOnBody && isGestureToBottom && !isScrolled) {
-      e.stopPropagation();
-      handlers.onDragMove(e.touches[0].clientY);
-    }
-  }, [handlers, dragState, getIsScrolled]);
-
-  return (
-    <Box
-      {...slotProps?.body}
-      ref={bodyRef}
-      sx={[
-        { flex: 1, overflow: 'auto' },
-        ...(Array.isArray(slotProps?.body?.sx) ? slotProps.body.sx : [slotProps?.body?.sx]),
-      ]}
-      onTouchStart={isModalMode ? handleBodyTouchStart : undefined}
-      onTouchMove={isModalMode ? handleBodyTouchMove : undefined}
-      onTouchEnd={isModalMode ? handlers.onDragEnd : undefined}
-    >
-      <IntersectionArea
-        root={bodyRef.current}
-        onEnter={() => setIsScrolled(false)}
-        onLeave={() => setIsScrolled(true)}
-      >
-        <span />
-      </IntersectionArea>
-      <Box ref={contentRef}>
-        {children}
-      </Box>
-    </Box>
-  );
-}
-
-BottomSheet.Scrollable = (props: BoxProps) => {
-  return <Box data-scrollable="true" {...props} />;
-};
+BottomSheet.Header = Header;
+BottomSheet.Body = Body;
+BottomSheet.BottomActions = BottomActions;
+BottomSheet.Scrollable = Scrollable;
