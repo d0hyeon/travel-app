@@ -131,8 +131,9 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
           onClick={async () => {
             const place = await searchPlace();
             if (place == null) return;
-            create(place)
-            mapRef.current?.panTo(place.lat, place.lng, 5)
+            const { id } = await create(place);
+            setFocusedId(id)
+            mapRef.current?.panTo(place.lat, place.lng, 5);
           }}
           sx={{ fontSize: 12 }}
           fullWidth
