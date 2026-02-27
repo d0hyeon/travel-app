@@ -68,7 +68,9 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
     update,
     remove: removeRoute,
     updateNotes
-  } = useDayTripRoutes({ tripId, date: selectedDate })
+  } = useDayTripRoutes({ tripId, date: selectedDate });
+
+
   const [selectedRouteId, setSelectedRouteId] = useQueryParamState<string | null>('route-id', {
     defaultValue: routes?.[0]?.id ?? null
   })
@@ -154,10 +156,29 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
                     if (isInCurrentRoute) {
                       return setFocusedId(place.id)
                     }
-                    if (await confirm('경로에 추가하시겠어요?')) {
-                      update({
-                        routeId: currentRoute.id,
-                        placeIds: [...currentRoute.placeIds, place.id]
+
+                    const updated = await getUpdatedPlace({
+                      tripId,
+                      placeId: place.id,
+                      defaultValues: place,
+                      header: ({ onClose }) => {
+                        const handleAddRoute = () => {
+                          const payload = { routeId: currentRoute.id, placeIds: [...currentRoute.placeIds, place.id] };
+                          update(payload, { onSuccess: onClose })
+                        }
+                        return (
+                          <BottomSheet.Header rightElement={<Button onClick={handleAddRoute} size="small" variant="outlined">경로 추가</Button>}>
+                            <Typography variant="h6">{place.name}</Typography>
+                          </BottomSheet.Header>
+                        )
+                      }
+                    });
+
+                    if (updated) {
+                      updatePlace({
+                        ...updated,
+                        placeId: place.id,
+                        category: updated.category || undefined, tags: updated.tags
                       })
                     }
                   }}

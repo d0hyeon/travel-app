@@ -42,7 +42,7 @@ export function usePlaceFormOverlay() {
     })
   }, [])
 
-  const openBottomsheet = useCallback((props: Omit<PlaceFormOverlayProps, 'isOpen'>) => {
+  const openBottomsheet = useCallback((props: Omit<PlaceFormSheetProps, 'isOpen'>) => {
     return new Promise<PlaceFormValues | null>((resolve) => {
       overlay.open(({ isOpen, close }) => (
         <PlaceFormSheet
@@ -66,7 +66,21 @@ export function usePlaceFormOverlay() {
   return { openBottomsheet, openDialog }
 }
 
-function PlaceFormSheet({ placeId, tripId, title = '장소 정보', defaultValues, isOpen, onClose, onSubmit }: PlaceFormOverlayProps) {
+
+interface PlaceFormSheetProps extends PlaceFormOverlayProps {
+  header?: (props: { onClose?: () => void; }) => ReactNode;
+}
+
+function PlaceFormSheet({
+  placeId,
+  tripId,
+  title = '장소 정보',
+  header,
+  defaultValues,
+  isOpen,
+  onClose,
+  onSubmit
+}: PlaceFormSheetProps) {
   const { data: places } = useTripPlaces(tripId);
   const place = places.find(x => x.id === placeId);
   assert(!!place, '존재하지 않는 장소입니다.');
@@ -81,11 +95,13 @@ function PlaceFormSheet({ placeId, tripId, title = '장소 정보', defaultValue
       isOpen={isOpen}
       onClose={onClose}
     >
-      <BottomSheet.Header>
-        {typeof title === 'string' ? (
+      {header != null ? (
+        <>{header({ onClose })}</>
+      ) : title != null ?
+        <BottomSheet.Header>
           <Typography variant="h6">{title}</Typography>
-        ) : title}
-      </BottomSheet.Header>
+        </BottomSheet.Header>
+        : null}
       <BottomSheet.Body>
         <Stack direction="row" mt={1} mb={2} gap={1}>
           <a href={`https://search.naver.com/search.naver?query=${place.name}`} target="_blank">
@@ -105,10 +121,8 @@ function PlaceFormSheet({ placeId, tripId, title = '장소 정보', defaultValue
         />
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
-        <Stack direction="row" gap={1}>
-          <Button type="button" onClick={onClose} size="large" variant="outlined" sx={{ flex: 1 }}>닫기</Button>
-          <PlaceForm.SubmitButton form="place-form" size="large" sx={{ flex: 1 }} />
-        </Stack>
+        <Button type="button" onClick={onClose} size="large" variant="outlined" fullWidth >닫기</Button>
+        <PlaceForm.SubmitButton form="place-form" size="large" fullWidth />
       </BottomSheet.BottomActions>
     </BottomSheet>
   )
