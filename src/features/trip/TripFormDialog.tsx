@@ -22,6 +22,10 @@ interface Destination {
 const DESTINATIONS: Destination[] = [
   // 국내
   { name: '서울', lat: 37.5665, lng: 126.978 },
+  { name: '단양', lat: 36.984657769421, lng: 128.365544218556 },
+  { name: '평창', lat: 37.3707820404635, lng: 128.390161790138 },
+  { name: '포천', lat: 37.8949928340102, lng: 127.200332890653 },
+  { name: '진안', lat: 35.7917723036422, lng: 127.424865465443 },
   { name: '부산', lat: 35.1796, lng: 129.0756 },
   { name: '제주', lat: 33.4996, lng: 126.5312 },
   { name: '강릉', lat: 37.7519, lng: 128.8761 },
@@ -34,18 +38,18 @@ const DESTINATIONS: Destination[] = [
   { name: '대전', lat: 36.3504, lng: 127.3845 },
   { name: '광주', lat: 35.1595, lng: 126.8526 },
   // 해외
-  { name: '도쿄', lat: 35.6762, lng: 139.6503 },
-  { name: '오사카', lat: 34.6937, lng: 135.5023 },
-  { name: '후쿠오카', lat: 33.5904, lng: 130.4017 },
-  { name: '방콕', lat: 13.7563, lng: 100.5018 },
-  { name: '싱가포르', lat: 1.3521, lng: 103.8198 },
-  { name: '홍콩', lat: 22.3193, lng: 114.1694 },
-  { name: '타이베이', lat: 25.033, lng: 121.5654 },
-  { name: '파리', lat: 48.8566, lng: 2.3522 },
-  { name: '런던', lat: 51.5074, lng: -0.1278 },
-  { name: '뉴욕', lat: 40.7128, lng: -74.006 },
-  { name: '로스앤젤레스', lat: 34.0522, lng: -118.2437 },
-  { name: '하와이', lat: 21.3069, lng: -157.8583 },
+  // { name: '도쿄', lat: 35.6762, lng: 139.6503 },
+  // { name: '오사카', lat: 34.6937, lng: 135.5023 },
+  // { name: '후쿠오카', lat: 33.5904, lng: 130.4017 },
+  // { name: '방콕', lat: 13.7563, lng: 100.5018 },
+  // { name: '싱가포르', lat: 1.3521, lng: 103.8198 },
+  // { name: '홍콩', lat: 22.3193, lng: 114.1694 },
+  // { name: '타이베이', lat: 25.033, lng: 121.5654 },
+  // { name: '파리', lat: 48.8566, lng: 2.3522 },
+  // { name: '런던', lat: 51.5074, lng: -0.1278 },
+  // { name: '뉴욕', lat: 40.7128, lng: -74.006 },
+  // { name: '로스앤젤레스', lat: 34.0522, lng: -118.2437 },
+  // { name: '하와이', lat: 21.3069, lng: -157.8583 },
 ]
 
 interface TripFormData {
@@ -77,7 +81,7 @@ export function TripFormDialog({ open, onClose, onSubmit, initialData }: Props) 
       setDestination(
         initialData
           ? DESTINATIONS.find((d) => d.name === initialData.destination) ??
-            { name: initialData.destination, lat: initialData.lat, lng: initialData.lng }
+          { name: initialData.destination, lat: initialData.lat, lng: initialData.lng }
           : null
       )
       setStartDate(initialData?.startDate ?? '')
