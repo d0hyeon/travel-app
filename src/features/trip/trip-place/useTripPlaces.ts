@@ -11,7 +11,7 @@ export function useTripPlaces(tripId: string) {
     queryFn: () => getPlacesByTripId(tripId)
   })
 
-  const { mutate: create } = useMutation({
+  const { mutateAsync: create } = useMutation({
     mutationFn: async (data: PickPartial<Omit<Place, 'id' | 'tripId' | 'createdAt'>, 'memo' | 'tags' | 'status'>) =>
       createPlace({
         memo: '',
@@ -23,16 +23,15 @@ export function useTripPlaces(tripId: string) {
     onSuccess: () => refetch()
   })
 
-  const { mutate: update } = useMutation({
+  const { mutateAsync: update } = useMutation({
     mutationFn: async ({ placeId, ...payload }: { placeId: string; } & Partial<Omit<Place, 'id' | 'tripId' | 'createdAt'>>) =>
       updatePlace(placeId, payload),
     onSuccess: () => refetch()
   })
 
-  const { mutate: remove } = useMutation({
+  const { mutateAsync: remove } = useMutation({
     mutationFn: deletePlace,
     onSuccess: () => {
-      console.log('됐니??');
       refetch()
     }
   })
