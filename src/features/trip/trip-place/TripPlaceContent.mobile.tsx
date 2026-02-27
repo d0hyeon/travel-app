@@ -109,6 +109,7 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
                   place={place}
                   onClick={() => handlePlaceClick(place)}
                   focused={place.id === focusedId}
+                  borderColor={theme => theme.palette.primary.main}
                 />
               ))}
               {wishedPlaces.map((place) => (
@@ -131,6 +132,7 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
             const place = await searchPlace();
             if (place == null) return;
             create(place)
+            mapRef.current?.panTo(place.lat, place.lng, 5)
           }}
           sx={{ fontSize: 12 }}
           fullWidth
