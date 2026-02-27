@@ -132,8 +132,8 @@ function Resolved({
   useImperativeHandle(ref, () => ({
     panTo: (lat: number, lng: number, level?: number) => {
       if (!map) return;
-      map.panTo(new kakao.maps.LatLng(lat, lng))
       if (level != null) map.setLevel(level)
+      map.panTo(new kakao.maps.LatLng(lat, lng))
     },
     relayout: () => {
       if (!map) return
