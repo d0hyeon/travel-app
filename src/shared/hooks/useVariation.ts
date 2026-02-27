@@ -1,5 +1,7 @@
 import { useRef } from "react";
 
+export function useVariation<T>(): [() => T | undefined, (next: T | undefined) => void]
+export function useVariation<T>(initialValue: T): [() => T, (next: T) => void]
 export function useVariation<T>(initialValue?: T) {
   const ref = useRef<T>(initialValue);
 

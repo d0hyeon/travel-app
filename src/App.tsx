@@ -8,6 +8,7 @@ import { theme } from '~shared/modules/theme'
 import { TripDetailPage } from './features/trip/TripDetailPage'
 import { TripListPage } from './features/trip/TripListPage'
 import { OverlayProvider } from './shared/hooks/useOverlay'
+import { SearchParamProvider } from '~shared/modules/useSearchParams'
 
 const queryClient = new QueryClient()
 
@@ -22,23 +23,26 @@ function Loading() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={theme}>
+    <ThemeProvider theme={theme}>
+      <QueryClientProvider client={queryClient}>
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <OverlayProvider>
             <CssBaseline />
             <BrowserRouter>
-              <Suspense fallback={<Loading />}>
-                <Routes>
-                  <Route path="/" element={<TripListPage />} />
-                  <Route path="/trip/:tripId" element={<TripDetailPage />} />
-                </Routes>
-              </Suspense>
+              <SearchParamProvider>
+
+                <Suspense fallback={<Loading />}>
+                  <Routes>
+                    <Route path="/" element={<TripListPage />} />
+                    <Route path="/trip/:tripId" element={<TripDetailPage />} />
+                  </Routes>
+                </Suspense>
+              </SearchParamProvider>
             </BrowserRouter>
           </OverlayProvider>
         </LocalizationProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   )
 }
 
