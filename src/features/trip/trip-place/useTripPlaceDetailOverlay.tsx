@@ -113,7 +113,7 @@ export function PlaceDetailSheet({ placeId, tripId, isOpen, onClose }: PlaceDeta
         />
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
-        <Stack direction="row" gap={1}>
+        <Stack direction="row" gap={1} width="100%">
           <Button type="button" variant="outlined" size="large" onClick={onClose} fullWidth>닫기</Button>
           <PlaceForm.SubmitButton size="large" form="place-form" fullWidth />
         </Stack>

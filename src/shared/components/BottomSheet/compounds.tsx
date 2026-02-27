@@ -53,6 +53,8 @@ export function Header({ children, sx, rightElement, ...props }: HeaderProps) {
       onTouchEnd={isModalMode ? handlers.onDragEnd : undefined}
     >
       {children}
+      {rightElement && <Box>{rightElement}</Box>}
+
     </Stack>
   );
 }
@@ -134,11 +136,11 @@ export function BottomActions({ children, sx, ...props }: BottomActionsProps) {
   return (
     <Stack
       {...props}
-
-      alignItems="stretch"
-      justifyContent="center"
+      direction="row"
+      alignItems="center"
       paddingX={1.5}
       paddingTop={1}
+      gap={1}
       paddingBottom="max(env(safe-area-inset-bottom), 8px)"
       borderTop={theme => `1px solid ${theme.palette.divider}`}
       sx={[
