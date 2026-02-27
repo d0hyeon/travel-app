@@ -147,20 +147,18 @@ export function PlaceSelectSheet({
         )}
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
-        <Stack direction="row" spacing={1}>
-          <Button variant="outlined" onClick={handleClose} sx={{ flex: 1 }}>
-            취소
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleConfirm}
-            disabled={selected.size === 0}
-            startIcon={<CheckIcon />}
-            sx={{ flex: 1 }}
-          >
-            추가 ({selected.size})
-          </Button>
-        </Stack>
+        <Button variant="outlined" onClick={handleClose} sx={{ flex: 1 }}>
+          취소
+        </Button>
+        <Button
+          variant="contained"
+          onClick={handleConfirm}
+          disabled={selected.size === 0}
+          startIcon={<CheckIcon />}
+          sx={{ flex: 1 }}
+        >
+          추가 ({selected.size})
+        </Button>
       </BottomSheet.BottomActions>
     </BottomSheet>
   )
