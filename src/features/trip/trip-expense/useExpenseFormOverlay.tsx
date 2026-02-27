@@ -88,17 +88,18 @@ export function useExpenseFormBottomSheet(tripId: string) {
             onClose={close}
             {...params}
           >
-            <ExpenseForm
-              tripId={tripId}
-              padding={2}
-              paddingBottom={0}
-              defaultValues={defaultValues}
-              onSubmit={(data) => {
-                resolve(data);
-                close()
-              }}
-              action={renderActions?.({ close }) ?? defaultAction}
-            />
+            <BottomSheet.Body>
+              <ExpenseForm
+                tripId={tripId}
+                paddingBottom={0}
+                defaultValues={defaultValues}
+                onSubmit={(data) => {
+                  resolve(data);
+                  close()
+                }}
+                action={renderActions?.({ close }) ?? defaultAction}
+              />
+            </BottomSheet.Body>
           </BottomSheet>
         )
       })
