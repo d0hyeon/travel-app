@@ -122,7 +122,7 @@ export function ExpenseFormOverlayActions({ onCancel, secondary }: ActionsProps)
       direction="row"
       gap={1}
       marginTop="40px !important"
-      marginX="-16px !important"
+      marginX="-12px !important"
       paddingX={2}
       paddingTop={1}
       paddingBottom="max(env(safe-area-inset-bottom), 8px)"
