@@ -1,6 +1,6 @@
 import { Box, Button, Typography } from "@mui/material";
-import { useState, type ComponentProps } from "react";
-import { Swiper, SwiperSlide } from 'swiper/react';
+import { useRef, useState, type ComponentProps } from "react";
+import { Swiper, SwiperSlide, type SwiperRef } from 'swiper/react';
 import type { Photo } from "~features/photo/photo.types";
 import { BottomSheet } from "~shared/components/BottomSheet";
 
@@ -19,17 +19,30 @@ export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, 
   const [photos, setPhotos] = useState(_photos);
   const confirm = useConfirmDialog();
 
+  const currentImageRef = useRef<HTMLImageElement>(null);
+  const swiperRef = useRef<SwiperRef>(null);
+
   const handleDelete = async () => {
     const photo = photos.at(index);
-    if (photo != null) {
-      if (await confirm('추억을 지우시겠어요?')) {
-        if (photos.length === 1) {
-          onClose?.();
-        }
+    if (photo == null || currentImageRef.current == null) {
+      return;
+    }
+    if (await confirm('추억을 지우시겠어요?')) {
+      const animation = currentImageRef.current.animate({
+        opacity: 0,
+      }, { duration: 1000, fill: 'forwards' });
 
-        setPhotos((photos) => photos.filter(x => x.id !== photo.id));
-        onDelete?.(photos[index]);
+      await animation.finished;
+      const needsClose = photos.length === 1;
+      if (needsClose) {
+        onClose?.();
+      } else {
+        swiperRef.current?.swiper.slideNext(500);
+        await delay(500);
       }
+      setPhotos((curr) => curr.filter(x => x.id !== photo.id))
+      onDelete?.(photo);
+
     }
   }
   return (
@@ -48,15 +61,22 @@ export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, 
       <BottomSheet.Body>
         <BottomSheet.Scrollable display="flex" alignItems="center" justifyContent="center" height="100%">
           <Swiper
+            ref={swiperRef}
             slidesPerView={1}
             loop
             initialSlide={initialIndex}
             onSlideChange={({ realIndex }) => setIndex(realIndex)}
             style={{ height: '100%', width: '100%' }}
           >
-            {photos.map((item, index) => (
-              <SwiperSlide key={index} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Box component="img" src={item.url} sx={{ objectFit: 'contain' }} maxHeight="100%" />
+            {photos.map((item, i) => (
+              <SwiperSlide key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Box
+                  component="img"
+                  src={item.url}
+                  maxHeight="100%"
+                  sx={{ objectFit: 'contain' }}
+                  ref={index === i ? currentImageRef : undefined}
+                />
               </SwiperSlide>
             ))}
           </Swiper>
@@ -84,4 +104,10 @@ export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, 
       </BottomSheet.BottomActions>
     </BottomSheet >
   )
+}
+
+function delay(ms: number) {
+  return new Promise<void>(resolve => {
+    setTimeout(resolve, ms)
+  })
 }
