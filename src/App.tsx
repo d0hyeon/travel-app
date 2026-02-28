@@ -10,7 +10,16 @@ import { TripListPage } from './features/trip/TripListPage'
 import { OverlayProvider } from './shared/hooks/useOverlay'
 import { SearchParamProvider } from '~shared/modules/useSearchParams'
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchInterval: false,
+      refetchIntervalInBackground: false,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false
+    }
+  }
+})
 
 function Loading() {
   return (
