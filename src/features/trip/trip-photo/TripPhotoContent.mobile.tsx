@@ -1,8 +1,8 @@
-import { Box, Chip, ImageList, Stack, Typography } from '@mui/material';
+import { Box, Chip, ImageList, Stack } from '@mui/material';
 import { useMemo, useState } from 'react';
-import { useOverlay } from '~shared/hooks/useOverlay';
 import { PhotoBottomSheet } from '~shared/components/photo/PhotoBottomSheet';
 import { PhotoUploader } from '~shared/components/photo/PhotoUploader';
+import { useOverlay } from '~shared/hooks/useOverlay';
 import { PhotoThunbnail } from '../../../shared/components/photo/PhotoThumbnail';
 import type { Photo } from '../../photo/photo.types';
 import { useTripPlaces } from '../trip-place/useTripPlaces';
@@ -40,18 +40,6 @@ export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
 
   const overlay = useOverlay();
 
-  if (photos.length === 0) {
-    return (
-      <Stack alignItems="center" justifyContent="center" flex={1} p={4}>
-        <Typography color="text.secondary">
-          아직 업로드된 사진이 없습니다.
-        </Typography>
-        <Typography variant="body2" color="text.secondary" mt={1}>
-          장소 상세에서 사진을 추가해보세요.
-        </Typography>
-      </Stack>
-    );
-  }
 
   return (
     <Stack flex={1} p={2}>
@@ -61,6 +49,7 @@ export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
           variant={selectedPlaceId === null ? 'filled' : 'outlined'}
           onClick={() => setSelectedPlaceId(null)}
           size="small"
+          sx={{ fontSize: 12 }}
         />
         {placesWithPhotos.map(place => (
           <Chip
