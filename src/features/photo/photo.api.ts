@@ -1,6 +1,7 @@
 import { supabase } from '../../shared/lib/supabase'
 import type { Photo, PhotoUploadParams } from './photo.types'
 import { heicTo, isHeic } from 'heic-to'
+import Resizer from 'react-image-file-resizer';
 
 export const photoKey = 'photos'
 const BUCKET_NAME = 'photos'
@@ -49,15 +50,43 @@ async function convertHeicToJPEG(file: File) {
   const blob = await heicTo({ blob: file, type: 'image/jpeg' });
   return new File([blob], file.name);
 }
+function splitExtension(value: string) {
+  const [extension, ...filenames] = value.split('.').reverse();
 
+  return [filenames.join('.'), extension] as const;
+}
+
+
+const resizeImage = async (_file: File) => {
+  const file = (await isHeic(_file)) ? await convertHeicToJPEG(_file) : _file;
+  const [fileName, fileType = 'JPEG'] = splitExtension(file.name);
+
+  return new Promise<File>((resolve, reject) => {
+    Resizer.imageFileResizer(
+      file,
+      1000,
+      1000,
+      fileType,
+      100,
+      0,
+      (result) => {
+        if (result instanceof File || result instanceof Blob) {
+          return resolve(new File([result], `${fileName}.${fileType}`, { type: result.type }));
+        }
+        reject();
+      },
+      'file',
+      200,
+      200,
+    );
+  });
+};
 
 export async function uploadPhoto({ tripId, placeId, file: _file }: PhotoUploadParams): Promise<Photo> {
-  const file = await isHeic(_file) ? await convertHeicToJPEG(_file) : _file;
+  const file = await resizeImage(_file);
   const fileExt = file.name.split('.').pop()
   const fileName = `${Date.now()}.${fileExt}`
   const storagePath = `${tripId}/${placeId}/${fileName}`
-
-
 
   // Presigned URL 생성
   const { data: signedData, error: signedError } = await supabase.storage
