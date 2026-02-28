@@ -1,7 +1,9 @@
 import { Box, Chip, ImageList, Stack, Typography } from '@mui/material';
 import { useMemo, useState } from 'react';
+import { useOverlay } from '~shared/hooks/useOverlay';
+import { PhotoBottomSheet } from '~shared/components/photo/PhotoBottomSheet';
 import { PhotoUploader } from '~shared/components/photo/PhotoUploader';
-import { PhotoGallery } from '../../../shared/components/photo/PhotoGallery';
+import { PhotoThunbnail } from '../../../shared/components/photo/PhotoThumbnail';
 import type { Photo } from '../../photo/photo.types';
 import { useTripPlaces } from '../trip-place/useTripPlaces';
 import { useTripPhotos } from './useTripPhotos';
@@ -35,6 +37,8 @@ export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
   const filteredPhotos = selectedPlaceId
     ? photosByPlace[selectedPlaceId] ?? []
     : photos;
+
+  const overlay = useOverlay();
 
   if (photos.length === 0) {
     return (
@@ -76,8 +80,22 @@ export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
               await upload({ file, placeId: selectedPlaceId ?? undefined })
             }}
           />
-          {filteredPhotos.map(x => (
-            <PhotoGallery.Item key={x.id} photo={x} onDelete={remove} />
+          {filteredPhotos.map((x, i) => (
+            <PhotoThunbnail
+              key={x.id}
+              src={x.url}
+              onClick={() => {
+                overlay.open(({ isOpen, close }) => (
+                  <PhotoBottomSheet
+                    isOpen={isOpen}
+                    onClose={close}
+                    photos={photos}
+                    onDelete={remove}
+                    initialIndex={i}
+                  />
+                ))
+              }}
+            />
           ))}
         </ImageList>
       </Box>

@@ -1,16 +1,19 @@
 import { Box, Chip, ImageList, Stack, Typography } from '@mui/material';
 import { useMemo, useState } from 'react';
-import { PhotoGallery } from '../../../shared/components/photo/PhotoGallery';
+import { PhotoThunbnail } from '../../../shared/components/photo/PhotoThumbnail';
 import type { Photo } from '../../photo/photo.types';
 import { useTripPlaces } from '../trip-place/useTripPlaces';
 import { useTripPhotos } from './useTripPhotos';
 import { PhotoUploader } from '~shared/components/photo/PhotoUploader';
+import { useOverlay } from '~shared/hooks/useOverlay';
+import { PhotoDialog } from '~shared/components/photo/PhotoDialog';
 
 interface TripPhotoContentProps {
   tripId: string
 }
 
 export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
+  const overlay = useOverlay();
   const { data: photos, remove, upload } = useTripPhotos(tripId);
   const { data: places } = useTripPlaces(tripId);
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
@@ -74,8 +77,22 @@ export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
               await upload({ file, placeId: selectedPlaceId ?? undefined })
             }}
           />
-          {filteredPhotos.map(x => (
-            <PhotoGallery.Item key={x.id} photo={x} onDelete={remove} />
+          {filteredPhotos.map((x, i) => (
+            <PhotoThunbnail
+              key={x.id}
+              src={x.url}
+              onClick={() => {
+                overlay.open(({ isOpen, close }) => (
+                  <PhotoDialog
+                    initialIndex={i}
+                    photos={filteredPhotos}
+                    open={isOpen}
+                    onClose={close}
+                    onDelete={remove}
+                  />
+                ))
+              }}
+            />
           ))}
         </ImageList>
       </Box>

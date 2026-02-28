@@ -1,6 +1,10 @@
 import { Box, ImageList, Stack, Typography } from '@mui/material';
 import { Suspense } from 'react';
-import { PhotoGallery } from '../../../shared/components/photo/PhotoGallery';
+import { useIsMobile } from '~shared/hooks/useIsMobile';
+import { useOverlay } from '~shared/hooks/useOverlay';
+import { PhotoBottomSheet } from '~shared/components/photo/PhotoBottomSheet';
+import { PhotoDialog } from '~shared/components/photo/PhotoDialog';
+import { PhotoThunbnail } from '../../../shared/components/photo/PhotoThumbnail';
 import { PhotoUploader } from '../../../shared/components/photo/PhotoUploader';
 import type { Photo } from '../../photo/photo.types';
 import { usePlacePhotos } from './useTripPlacePhotos';
@@ -32,6 +36,9 @@ function PlacePhotoContent({ tripId, placeId }: PlacePhotoSectionProps) {
     isUploading
   } = usePlacePhotos(placeId);
 
+  const overlay = useOverlay();
+  const isMobile = useIsMobile();
+
 
 
   const handleUpload = async (file: File) => {
@@ -46,8 +53,35 @@ function PlacePhotoContent({ tripId, placeId }: PlacePhotoSectionProps) {
     <Stack spacing={2}>
       <ImageList cols={5}>
         <PhotoUploader width="100%" onUpload={handleUpload} isUploading={isUploading} />
-        {photos.map(x => (
-          <PhotoGallery.Item key={x.id} photo={x} onDelete={handleDelete} />
+        {photos.map((x, i) => (
+          <PhotoThunbnail
+            key={x.id}
+            src={x.url}
+            onClick={() => {
+              overlay.open(({ isOpen, close }) => {
+                if (isMobile) {
+                  return (
+                    <PhotoBottomSheet
+                      isOpen={isOpen}
+                      onClose={close}
+                      photos={photos}
+                      onDelete={handleDelete}
+                      initialIndex={i}
+                    />
+                  )
+                }
+                return (
+                  <PhotoDialog
+                    open={isOpen}
+                    onClose={close}
+                    photos={photos}
+                    onDelete={handleDelete}
+                    initialIndex={i}
+                  />
+                )
+              })
+            }}
+          />
         ))}
       </ImageList>
 

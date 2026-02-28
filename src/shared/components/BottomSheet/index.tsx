@@ -1,4 +1,4 @@
-import { Box, Fade, Stack } from '@mui/material';
+import { Box, Fade, Stack, type BoxProps } from '@mui/material';
 import { useCallback, useEffect, useImperativeHandle, useMemo, useState, type ReactNode, type Ref } from 'react';
 import { BottomSheetProvider } from './BottomSheetContext';
 import { Body, BottomActions, Header, Scrollable } from './compounds';
@@ -11,7 +11,7 @@ export type BottomSheetRef = {
   snap: number;
 }
 
-interface BottomSheetProps {
+interface BottomSheetProps extends BoxProps {
   children: ReactNode
   /** 스냅 포인트 (0-1 비율, 바텀시트가 차지하는 비율). 미제공시 컨텐츠 높이에 맞춤 */
   snapPoints?: number[] | readonly number[];
@@ -40,6 +40,7 @@ export function BottomSheet({
   onClose,
   onSnapChange,
   ref,
+  ...props
 }: BottomSheetProps) {
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [content, setContent] = useState<HTMLDivElement | null>(null);
@@ -173,6 +174,7 @@ export function BottomSheet({
         </Fade>
       )}
       <SheetContainer
+        {...props}
         ref={setContainer}
         isModalMode={isModalMode}
         height={currentHeight}
@@ -191,7 +193,7 @@ export function BottomSheet({
 
 // --- Internal Components ---
 
-interface SheetContainerProps {
+interface SheetContainerProps extends BoxProps {
   ref: (el: HTMLDivElement | null) => void;
   isModalMode: boolean;
   height: number;
@@ -199,11 +201,11 @@ interface SheetContainerProps {
   children: ReactNode;
 }
 
-function SheetContainer({ ref, isModalMode, height, isDragging, children }: SheetContainerProps) {
+function SheetContainer({ ref, isModalMode, height, isDragging, children, sx, ...props }: SheetContainerProps) {
   return (
     <Box
       ref={ref}
-      sx={{
+      sx={[{
         position: isModalMode ? 'fixed' : 'absolute',
         bottom: 0,
         left: 0,
@@ -218,7 +220,10 @@ function SheetContainer({ ref, isModalMode, height, isDragging, children }: Shee
         overflow: 'hidden',
         transition: isDragging ? 'none' : 'height 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         zIndex: isModalMode ? 1300 : 10,
-      }}
+      },
+      ...(Array.isArray(sx) ? sx : [sx])
+      ]}
+      {...props}
     >
       {children}
     </Box>

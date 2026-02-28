@@ -124,8 +124,8 @@ function PlaceFormSheet({
         <PlacePhotoSection placeId={placeId} tripId={tripId} />
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
-        <Button type="button" onClick={onClose} size="large" variant="outlined"  >닫기</Button>
-        <PlaceForm.SubmitButton form={formId} size="large" />
+        <Button type="button" onClick={onClose} size="large" variant="outlined" fullWidth >닫기</Button>
+        <PlaceForm.SubmitButton form={formId} size="large" fullWidth />
       </BottomSheet.BottomActions>
     </BottomSheet>
   )

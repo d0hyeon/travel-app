@@ -38,7 +38,7 @@ export function Header({ children, sx, rightElement, ...props }: HeaderProps) {
 
   return (
     <Stack
-      {...props}
+
       direction="row"
       alignItems="center"
       justifyContent={children == null ? 'end' : "space-between"}
@@ -48,6 +48,7 @@ export function Header({ children, sx, rightElement, ...props }: HeaderProps) {
         { flexShrink: 0 },
         ...(Array.isArray(sx) ? sx : [sx]),
       ]}
+      {...props}
       onTouchStart={isModalMode ? handleTouchStart : undefined}
       onTouchMove={isModalMode ? handleTouchMove : undefined}
       onTouchEnd={isModalMode ? handlers.onDragEnd : undefined}
@@ -135,7 +136,7 @@ interface BottomActionsProps extends StackProps {
 export function BottomActions({ children, sx, ...props }: BottomActionsProps) {
   return (
     <Stack
-      {...props}
+      width="100%"
       direction="row"
       alignItems="center"
       paddingX={1.5}
@@ -147,6 +148,7 @@ export function BottomActions({ children, sx, ...props }: BottomActionsProps) {
         { flexShrink: 0 },
         ...(Array.isArray(sx) ? sx : [sx]),
       ]}
+      {...props}
     >
       {children}
     </Stack>
