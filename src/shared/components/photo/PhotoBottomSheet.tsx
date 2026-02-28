@@ -32,8 +32,8 @@ export function PhotoBottomSheet({ photos, initialIndex = 0, onDelete, onClose, 
       sx={{ backgroundColor: '#010101' }}
       {...props}
     >
-      <BottomSheet.Header alignItems="center" justifyContent="center">
-        <Typography variant="body2" fontWeight={800}>
+      <BottomSheet.Header alignItems="center" justifyContent="center" marginBottom={1}>
+        <Typography variant="body2" color="#fff" fontWeight={800}>
           {index + 1} / {photos.length}
         </Typography>
       </BottomSheet.Header>
