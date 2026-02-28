@@ -11,6 +11,7 @@ export function PhotoThunbnail({ src, sx, ...props }: ItemProps) {
     <ImageListItem
       sx={[
         { cursor: 'pointer', borderRadius: 3, overflow: 'hidden' },
+        ({ palette }) => ({ border: `1px solid ${palette.divider}` }),
         ...(Array.isArray(sx) ? sx : [sx])
       ]}
       {...props}
