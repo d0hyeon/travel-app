@@ -6,6 +6,7 @@ import { BottomSheet } from "~shared/components/BottomSheet";
 
 // @ts-ignore
 import 'swiper/css';
+import { useConfirmDialog } from "~shared/modules/confirm-dialog/useConfirmDialog";
 
 type SheetProps = {
   photos: Photo[];
@@ -13,15 +14,22 @@ type SheetProps = {
   initialIndex?: number
 } & Omit<ComponentProps<typeof BottomSheet>, 'children'>;
 
-export function PhotoBottomSheet({ photos, initialIndex = 0, onDelete, onClose, ...props }: SheetProps) {
-  const [index, setIndex] = useState(initialIndex)
+export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, onClose, ...props }: SheetProps) {
+  const [index, setIndex] = useState(initialIndex);
+  const [photos, setPhotos] = useState(_photos);
+  const confirm = useConfirmDialog();
 
   const handleDelete = async () => {
-    if (await confirm('추억을 지우시겠어요?')) {
-      if (photos.length === 1) {
-        onClose?.();
+    const photo = photos.at(index);
+    if (photo != null) {
+      if (await confirm('추억을 지우시겠어요?')) {
+        if (photos.length === 1) {
+          onClose?.();
+        }
+
+        setPhotos((photos) => photos.filter(x => x.id !== photo.id));
+        onDelete?.(photos[index]);
       }
-      onDelete?.(photos[index]);
     }
   }
   return (
@@ -44,7 +52,7 @@ export function PhotoBottomSheet({ photos, initialIndex = 0, onDelete, onClose, 
             loop
             initialSlide={initialIndex}
             onSlideChange={({ realIndex }) => setIndex(realIndex)}
-            style={{ height: '100%', }}
+            style={{ height: '100%', width: '100%' }}
           >
             {photos.map((item, index) => (
               <SwiperSlide key={index} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

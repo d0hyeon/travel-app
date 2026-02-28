@@ -16,16 +16,22 @@ type Props = {
   onClose: () => void;
 } & Omit<ComponentProps<typeof Dialog>, 'onClose'>;
 
-export function PhotoDialog({ photos, onDelete, initialIndex = 0, onClose, ...props }: Props) {
+export function PhotoDialog({ photos: _photos, onDelete, initialIndex = 0, onClose, ...props }: Props) {
   const [index, setIndex] = useState(initialIndex);
+  const [photos, setPhotos] = useState(_photos);
   const confirm = useConfirmDialog();
 
   const handleDelete = async () => {
-    if (await confirm('추억을 지우시겠어요?')) {
-      if (photos.length === 1) {
-        onClose();
+    const photo = photos.at(index);
+    if (photo != null) {
+      if (await confirm('추억을 지우시겠어요?')) {
+        if (photos.length === 1) {
+          onClose();
+        }
+
+        setPhotos((photos) => photos.filter(x => x.id !== photo.id));
+        onDelete?.(photo);
       }
-      onDelete?.(photos[index]);
     }
   }
 
