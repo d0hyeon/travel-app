@@ -41,8 +41,8 @@ function PlacePhotoContent({ tripId, placeId }: PlacePhotoSectionProps) {
 
 
 
-  const handleUpload = async (file: File) => {
-    await upload({ file, tripId });
+  const handleUpload = async (files: File[]) => {
+    await upload({ files, tripId });
   };
 
   const handleDelete = async (photo: Photo) => {
@@ -52,7 +52,7 @@ function PlacePhotoContent({ tripId, placeId }: PlacePhotoSectionProps) {
   return (
     <Stack spacing={2}>
       <ImageList cols={5}>
-        <PhotoUploader width="100%" onUpload={handleUpload} isUploading={isUploading} />
+        <PhotoUploader width="100%" onUpload={handleUpload} loading={isUploading} multiple />
         {photos.map((x, i) => (
           <PhotoThunbnail
             key={x.id}

@@ -1,25 +1,51 @@
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import { Box, CircularProgress, IconButton, type BoxProps } from '@mui/material';
-import { useRef } from 'react';
+import { useRef, useTransition } from 'react';
 
-interface PhotoUploaderProps extends BoxProps {
-  onUpload: (file: File) => Promise<void>
-  isUploading?: boolean
+interface PhotoUploaderProps<Multiple extends boolean> extends BoxProps {
+  onUpload: (file: Multiple extends true ? File[] : File) => Promise<unknown>;
+  multiple?: Multiple;
+  loading?: boolean;
+  accept?: string | string[];
 }
 
-export function PhotoUploader({ onUpload, isUploading, ...props }: PhotoUploaderProps) {
+export function PhotoUploader<Multiple extends boolean = false>({
+  onUpload,
+  multiple,
+  loading,
+  accept = 'image/*',
+  ...props
+}: PhotoUploaderProps<Multiple>) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const accepts = Array.isArray(accept) ? accept : [accept];
 
   const handleClick = () => {
     inputRef.current?.click();
   };
 
+  const [isLoading, startUpload] = useTransition();
+
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      await onUpload(file);
-      e.target.value = '';
-    }
+    startUpload(async () => {
+      if (e.target.files != null) {
+        if (multiple) {
+          const files = filterByMIME(e.target.files, accepts);
+          if (files.length) {
+            // @ts-ignore
+            await onUpload(files)
+          }
+
+        } else {
+          const file = e.target.files[0];
+          if (isValidFile(file, accepts)) {
+            // @ts-ignore
+            await onUpload(file);
+          }
+        }
+        e.target.value = '';
+      }
+    })
+
   };
 
   return (
@@ -27,13 +53,14 @@ export function PhotoUploader({ onUpload, isUploading, ...props }: PhotoUploader
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept={accepts.join('')}
         onChange={handleChange}
         style={{ display: 'none' }}
+        multiple
       />
       <IconButton
         onClick={handleClick}
-        disabled={isUploading}
+        disabled={isLoading}
         sx={{
           width: '100%',
           aspectRatio: '1 / 1',
@@ -42,7 +69,7 @@ export function PhotoUploader({ onUpload, isUploading, ...props }: PhotoUploader
           borderRadius: 2,
         }}
       >
-        {isUploading ? (
+        {isLoading || loading ? (
           <CircularProgress size={24} />
         ) : (
           <AddPhotoAlternateIcon />
@@ -50,4 +77,28 @@ export function PhotoUploader({ onUpload, isUploading, ...props }: PhotoUploader
       </IconButton>
     </Box>
   );
+}
+
+function filterByMIME(files: FileList, accepts: string[]) {
+  return Array.from(files).filter((file) => {
+    return accepts.some((accept) => isValidMIME(accept, file.type));
+  });
+}
+
+function isValidFile(file: File, accepts: string[]) {
+  return accepts.some((accept) => isValidMIME(accept, file.type))
+}
+
+function isValidMIME(base: string, target: string) {
+  const [baseType, baseSubType] = base.split('/');
+  const [targetType, targetSubType] = target.split('/');
+
+  if (baseType !== targetType) {
+    return false;
+  }
+  if (baseSubType === '*') {
+    return true;
+  }
+
+  return baseSubType === targetSubType;
 }

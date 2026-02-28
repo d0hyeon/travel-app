@@ -1,18 +1,34 @@
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { deletePhoto, getPhotosByTripId, photoKey, uploadPhoto } from "~features/photo/photo.api";
-import type { Photo, PhotoUploadParams } from "~features/photo/photo.types";
+import type { Photo } from "~features/photo/photo.types";
 import { tripKey } from "../trip.api";
 
+type FileUploadParams =
+  | { files?: never; file: File; placeId?: string }
+  | { files: File[]; file?: never; placeId?: string };
+
 export function useTripPhotos(tripId: string) {
+  const queryClient = useQueryClient();
   const { data, refetch, ...queries } = useSuspenseQuery({
     queryKey: useTripPhotos.key(tripId),
     queryFn: () => getPhotosByTripId(tripId)
   })
 
   const { mutateAsync: upload, isPending: isUploading } = useMutation({
-    mutationFn: (params: Omit<PhotoUploadParams, 'tripId'>) =>
-      uploadPhoto({ tripId, ...params }),
-    onSuccess: () => refetch()
+    mutationFn: async ({ file, files, placeId }: FileUploadParams) => {
+      if (file) {
+        const response = await uploadPhoto({ tripId, placeId, file });
+        return [response];
+      }
+
+      return Promise.all(files.map(file => uploadPhoto({ file, tripId, placeId })))
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData<Photo[]>(useTripPhotos.key(tripId), (curr) => {
+        if (curr == null) return data;
+        return [...data, ...curr];
+      })
+    }
   })
 
   const { mutateAsync: remove } = useMutation({

@@ -37,10 +37,8 @@ export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, 
       if (needsClose) {
         onClose?.();
       } else {
-        swiperRef.current?.swiper.slideNext(500);
-        await delay(500);
+        setPhotos((curr) => curr.filter(x => x.id !== photo.id))
       }
-      setPhotos((curr) => curr.filter(x => x.id !== photo.id))
       onDelete?.(photo);
 
     }
@@ -106,8 +104,3 @@ export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, 
   )
 }
 
-function delay(ms: number) {
-  return new Promise<void>(resolve => {
-    setTimeout(resolve, ms)
-  })
-}

@@ -62,9 +62,10 @@ export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
         <ImageList cols={8}>
           <PhotoUploader
             width="100%"
-            onUpload={async (file) => {
-              await upload({ file, placeId: selectedPlaceId ?? undefined })
+            onUpload={async (files) => {
+              await upload({ files, placeId: selectedPlaceId ?? undefined })
             }}
+            multiple
           />
           {filteredPhotos.map((x, i) => (
             <PhotoThunbnail
