@@ -29,7 +29,8 @@ const MapContext = createContext<MapContextValue | null>(null);
 export interface KakaoMapRef {
   panTo: (lat: number, lng: number, level?: number) => void
   /** 맵 컨테이너 크기 변경 후 호출하여 맵을 다시 렌더링 */
-  relayout: () => void
+  relayout: () => void;
+  focus: () => void;
 }
 
 export interface KakaoMapProps extends Omit<BoxProps, 'ref' | "autoFocus"> {
@@ -140,6 +141,12 @@ function Resolved({
       // relayout은 카카오맵 API에 존재하지만 타입 정의에 없음
       map.relayout()
     },
+    focus: () => {
+      if (map == null) return;
+      const level = map?.getLevel()
+      map?.panTo(boundsRef.current);
+      map.setLevel(level);
+    }
   }), [map]);
 
   const value = useMemo(() => {
