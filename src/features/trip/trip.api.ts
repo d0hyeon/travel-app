@@ -1,6 +1,7 @@
 import { supabase } from '../../shared/lib/supabase'
 import type { Trip } from './trip.types'
 import { formatDate } from '../../shared/utils/formats';
+import { deletePhotosByTripId } from '~features/photo/photo.api';
 
 function getDatesBetween(startDate: string, endDate: string): string[] {
   const dates: string[] = []
@@ -142,6 +143,8 @@ export async function updateTrip(id: string, data: Partial<Omit<Trip, 'id' | 'cr
 }
 
 export async function deleteTrip(id: string): Promise<boolean> {
+  await deletePhotosByTripId(id);
+  
   const { error } = await supabase
     .from('trips')
     .delete()

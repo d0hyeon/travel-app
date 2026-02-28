@@ -1,6 +1,7 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import InfoIcon from '@mui/icons-material/Info';
 import NearMeIcon from '@mui/icons-material/NearMe';
+import PhotoIcon from '@mui/icons-material/Photo';
 import PinDropIcon from '@mui/icons-material/PinDrop';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import {
@@ -16,12 +17,13 @@ import { BottomNavigation } from '~shared/components/BottomNavigation';
 import { useQueryParamState } from '../../shared/hooks/useQueryParamState';
 import { TripBasicInfoContent } from './trip-basic-info/TripBasicInfoContent.mobile';
 import { ExpenseContent } from './trip-expense/ExpenseContent.mobile';
+import { TripPhotoContent } from './trip-photo/TripPhotoContent.mobile';
 import { TripPlaceContent } from './trip-place/TripPlaceContent.mobile';
 import { TripRoutesContent } from './trip-route/TripRoutesContent.mobile';
 import { useTrip } from './useTrip';
 import { useTripId } from './useTripId';
 
-type TabType = 'Info' | 'Place' | 'Route' | 'Expense'
+type TabType = 'Info' | 'Place' | 'Route' | 'Expense' | 'Photo'
 
 const HEADER_HEIGHT = 50;
 
@@ -80,6 +82,7 @@ export function TripDetailPageMobile() {
           {currentTab === 'Place' && <TripPlaceContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />}
           {currentTab === 'Route' && <TripRoutesContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />}
           {currentTab === 'Expense' && <ExpenseContent tripId={tripId} />}
+          {currentTab === 'Photo' && <TripPhotoContent tripId={tripId} />}
         </Suspense>
       </Stack>
       <BottomNavigation>
@@ -110,6 +113,13 @@ export function TripDetailPageMobile() {
           onClick={() => setCurrentTab('Expense')}
         >
           정산
+        </BottomNavigation.Menu>
+        <BottomNavigation.Menu
+          isActived={currentTab === 'Photo'}
+          icon={<PhotoIcon fontSize="small" color={currentTab === 'Photo' ? 'primary' : 'disabled'} />}
+          onClick={() => setCurrentTab('Photo')}
+        >
+          사진
         </BottomNavigation.Menu>
       </BottomNavigation>
     </Box>

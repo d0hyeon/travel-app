@@ -1,0 +1,84 @@
+import { Box, Chip, ImageList, Stack, Typography } from '@mui/material';
+import { useMemo, useState } from 'react';
+import { PhotoGallery } from '../../../shared/components/photo/PhotoGallery';
+import type { Photo } from '../../photo/photo.types';
+import { useTripPlaces } from '../trip-place/useTripPlaces';
+import { useTripPhotos } from './useTripPhotos';
+import { PhotoUploader } from '~shared/components/photo/PhotoUploader';
+
+interface TripPhotoContentProps {
+  tripId: string
+}
+
+export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
+  const { data: photos, remove, upload } = useTripPhotos(tripId);
+  const { data: places } = useTripPlaces(tripId);
+  const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
+
+  const photosByPlace = useMemo(() => {
+    const grouped: Record<string, Photo[]> = {};
+    photos.forEach(photo => {
+      if (photo.placeId == null) return;
+      if (!grouped[photo.placeId]) {
+        grouped[photo.placeId] = [];
+      }
+      grouped[photo.placeId].push(photo);
+    });
+    return grouped;
+  }, [photos]);
+
+  const placesWithPhotos = useMemo(() => {
+    return places.filter(place => photosByPlace[place.id]?.length > 0);
+  }, [places, photosByPlace]);
+
+  const filteredPhotos = selectedPlaceId
+    ? photosByPlace[selectedPlaceId] ?? []
+    : photos;
+
+  if (photos.length === 0) {
+    return (
+      <Stack alignItems="center" justifyContent="center" flex={1} p={4}>
+        <Typography color="text.secondary">
+          아직 업로드된 사진이 없습니다.
+        </Typography>
+        <Typography variant="body2" color="text.secondary" mt={1}>
+          장소 상세에서 사진을 추가해보세요.
+        </Typography>
+      </Stack>
+    );
+  }
+
+  return (
+    <Stack flex={1} p={3} overflow="auto">
+      <Stack direction="row" gap={1} mb={3} flexWrap="wrap">
+        <Chip
+          label="전체"
+          variant={selectedPlaceId === null ? 'filled' : 'outlined'}
+          onClick={() => setSelectedPlaceId(null)}
+        />
+        {placesWithPhotos.map(place => (
+          <Chip
+            key={place.id}
+            label={place.name}
+            variant={selectedPlaceId === place.id ? 'filled' : 'outlined'}
+            onClick={() => setSelectedPlaceId(place.id)}
+          />
+        ))}
+      </Stack>
+
+      <Box maxWidth={900}>
+        <ImageList cols={8}>
+          <PhotoUploader
+            width="100%"
+            onUpload={async (file) => {
+              await upload({ file, placeId: selectedPlaceId ?? undefined })
+            }}
+          />
+          {filteredPhotos.map(x => (
+            <PhotoGallery.Item key={x.id} photo={x} onDelete={remove} />
+          ))}
+        </ImageList>
+      </Box>
+    </Stack>
+  );
+}

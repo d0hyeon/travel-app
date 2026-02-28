@@ -1,11 +1,12 @@
-import { Button, Chip, Dialog, DialogContent, Stack, Typography } from "@mui/material";
-import { useCallback, type ReactNode } from "react";
+import { Button, Chip, Dialog, DialogActions, DialogContent, Stack, Typography } from "@mui/material";
+import { useCallback, useId, type ReactNode } from "react";
 import { PlaceForm, type PlaceFormValues } from "~features/place/PlaceForm";
 import { BottomSheet } from "~shared/components/BottomSheet";
 import { useOverlay } from "~shared/hooks/useOverlay";
 import { DialogTitle } from "~shared/modules/confirm-dialog/DialogTitle";
 import { useTripPlaces } from "../trip-place/useTripPlaces";
 import { assert } from "~shared/lib/assert";
+import { PlacePhotoSection } from "~features/trip/trip-place/PlacePhotoSection";
 
 interface PlaceFormOverlayProps {
   placeId: string;
@@ -81,6 +82,7 @@ function PlaceFormSheet({
   onClose,
   onSubmit
 }: PlaceFormSheetProps) {
+  const formId = useId();
   const { data: places } = useTripPlaces(tripId);
   const place = places.find(x => x.id === placeId);
   assert(!!place, '존재하지 않는 장소입니다.');
@@ -115,14 +117,15 @@ function PlaceFormSheet({
           </a>
         </Stack>
         <PlaceForm
-          id="place-form"
+          id={formId}
           defaultValues={defaultValues}
           onSubmit={handleSubmit}
         />
+        <PlacePhotoSection placeId={placeId} tripId={tripId} />
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
-        <Button type="button" onClick={onClose} size="large" variant="outlined" fullWidth >닫기</Button>
-        <PlaceForm.SubmitButton form="place-form" size="large" fullWidth />
+        <Button type="button" onClick={onClose} size="large" variant="outlined"  >닫기</Button>
+        <PlaceForm.SubmitButton form={formId} size="large" />
       </BottomSheet.BottomActions>
     </BottomSheet>
   )
@@ -130,6 +133,7 @@ function PlaceFormSheet({
 
 
 function PlaceFormDialog({ tripId, placeId, title = '장소 정보', defaultValues, isOpen, onClose, onSubmit }: PlaceFormOverlayProps) {
+  const formId = useId();
   const { data: places } = useTripPlaces(tripId);
   const place = places.find(x => x.id === placeId);
   assert(!!place, '존재하지 않는 장소입니다.');
@@ -158,16 +162,16 @@ function PlaceFormDialog({ tripId, placeId, title = '장소 정보', defaultValu
           </a>
         </Stack>
         <PlaceForm
+          id={formId}
           defaultValues={defaultValues}
           onSubmit={handleSubmit}
-          actions={(
-            <>
-              <Button type="button" onClick={onClose} sx={{ flex: 1 }}>취소</Button>
-              <PlaceForm.SubmitButton sx={{ flex: 1 }} />
-            </>
-          )}
         />
+        <PlacePhotoSection placeId={placeId} tripId={tripId} />
       </DialogContent>
+      <DialogActions>
+        <Button type="button" onClick={onClose}>취소</Button>
+        <PlaceForm.SubmitButton form={formId} />
+      </DialogActions>
     </Dialog>
   )
 }

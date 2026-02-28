@@ -13,12 +13,13 @@ import { EditableText } from '../../shared/components/EditableText'
 import { useQueryParamState } from '../../shared/hooks/useQueryParamState'
 import { TripBasicInfoContent } from './trip-basic-info/TripBasicInfoContent.desktop'
 import { ExpenseContent } from './trip-expense/ExpenseContent.desktop'
+import { TripPhotoContent } from './trip-photo/TripPhotoContent.desktop'
 import { TripPlaceContent } from './trip-place/TripPlaceContent.desktop'
 import { TripRoutesContent } from './trip-route/TripRoutesContent.desktop'
 import { useTrip } from './useTrip'
 import { useTripId } from './useTripId'
 
-type TabType = 'Info' | 'Place' | 'Route' | 'Expense'
+type TabType = 'Info' | 'Place' | 'Route' | 'Expense' | 'Photo'
 
 export function TripDetailPageDesktop() {
   const tripId = useTripId()
@@ -57,6 +58,7 @@ export function TripDetailPageDesktop() {
           <Tab label="장소" value="Place" />
           <Tab label="계획" value="Route" />
           <Tab label="정산" value="Expense" />
+          <Tab label="사진" value="Photo" />
         </Tabs>
       </Box>
       {/* Content */}
@@ -65,6 +67,7 @@ export function TripDetailPageDesktop() {
         {currentTab === 'Place' && <TripPlaceContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />}
         {currentTab === 'Route' && <TripRoutesContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />}
         {currentTab === 'Expense' && <ExpenseContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />}
+        {currentTab === 'Photo' && <TripPhotoContent tripId={tripId} />}
       </Suspense>
     </Box>
   )
