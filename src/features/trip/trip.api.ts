@@ -1,5 +1,19 @@
 import { supabase } from '../../shared/lib/supabase'
 import type { Trip } from './trip.types'
+import { formatDate } from '../../shared/utils/formats';
+
+function getDatesBetween(startDate: string, endDate: string): string[] {
+  const dates: string[] = []
+  const current = new Date(startDate)
+  const end = new Date(endDate)
+
+  while (current <= end) {
+    dates.push(current.toISOString().split('T')[0])
+    current.setDate(current.getDate() + 1)
+  }
+
+  return dates
+}
 
 export const tripKey = 'trips'
 
@@ -82,7 +96,25 @@ export async function createTrip(data: Omit<Trip, 'id' | 'shareLink' | 'createdA
     .single()
 
   if (error) throw error
-  return toTrip(created!)
+
+  const trip = toTrip(created!)
+
+  // 일자별 기본 경로 생성
+  const dates = getDatesBetween(data.startDate, data.endDate)
+  const routes = dates.map((date, idx) => ({
+    trip_id: trip.id,
+    name: `${formatDate(date)} 경로 1`,
+    place_ids: [],
+    place_memos: {},
+    is_main: idx === 0,
+    scheduled_date: date,
+  }))
+
+  if (routes.length > 0) {
+    await supabase.from('routes').insert(routes as never)
+  }
+
+  return trip
 }
 
 export async function updateTrip(id: string, data: Partial<Omit<Trip, 'id' | 'createdAt'>>): Promise<Trip | undefined> {

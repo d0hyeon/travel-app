@@ -1,20 +1,24 @@
+import DeleteIcon from '@mui/icons-material/Delete'
 import {
   Box,
   Button,
   Container,
+  IconButton,
   Stack,
   Typography
 } from '@mui/material'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ListItem } from '../../shared/components/ListItem'
+import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
 import { TripFormDialog } from './TripFormDialog'
 import { useTrips } from './useTrips'
 
 export function TripListPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const confirm = useConfirmDialog()
 
-  const { data: trips, create } = useTrips()
+  const { data: trips, create, remove } = useTrips()
 
   return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
@@ -40,14 +44,31 @@ export function TripListPage() {
       ) : (
         <Stack spacing={2}>
           {trips.map((trip, idx) => (
-            <Link key={trip.id} to={`/trip/${trip.id}`}>
-              <ListItem
-                leftAddon={<ListItem.Ordering>{idx + 1}</ListItem.Ordering>}
-              >
-                <ListItem.Title>{trip.name}</ListItem.Title>
-                <ListItem.Text>{trip.startDate} ~ {trip.endDate}</ListItem.Text>
-              </ListItem>
-            </Link>
+            <Stack key={trip.id} direction="row" alignItems="center" gap={1}>
+              <Link to={`/trip/${trip.id}`} style={{ flex: 1 }}>
+                <ListItem
+                  leftAddon={<ListItem.Ordering>{idx + 1}</ListItem.Ordering>}
+                  rightAddon={(
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={async (e) => {
+                        e.preventDefault()
+                        if (await confirm(`"${trip.name}" 여행을 삭제하시겠습니까?`)) {
+                          await remove(trip.id)
+                        }
+                      }}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  )}
+                >
+                  <ListItem.Title>{trip.name}</ListItem.Title>
+                  <ListItem.Text>{trip.startDate} ~ {trip.endDate}</ListItem.Text>
+                </ListItem>
+              </Link>
+
+            </Stack>
           ))}
         </Stack>
       )}

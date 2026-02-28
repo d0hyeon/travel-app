@@ -1,5 +1,5 @@
 import { useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getAllTrips, createTrip, tripKey } from "./trip.api";
+import { getAllTrips, createTrip, deleteTrip, tripKey } from "./trip.api";
 
 export function useTrips() {
   const queryClient = useQueryClient();
@@ -15,9 +15,17 @@ export function useTrips() {
     },
   });
 
+  const { mutateAsync: remove } = useMutation({
+    mutationFn: deleteTrip,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: useTrips.key() });
+    },
+  });
+
   return {
     data,
     create,
+    remove,
     ...queries,
   };
 }
