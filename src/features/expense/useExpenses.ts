@@ -1,4 +1,4 @@
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query"
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query"
 import { tripKey } from "../trip/trip.api"
 import {
   createExpense,
@@ -10,7 +10,7 @@ import {
 import type { Expense } from "./expense.types"
 
 export function useExpenses(tripId: string) {
-
+  const queryClient = useQueryClient();
   const { data, refetch, ...queries } = useSuspenseQuery({
     queryKey: useExpenses.key(tripId),
     queryFn: () => getExpensesByTripId(tripId)
@@ -23,8 +23,11 @@ export function useExpenses(tripId: string) {
         totalAmount: payload.payments.reduce((acc, x) => acc + x.amount, 0),
         ...payload,
       }),
-    onSuccess: () => {
-      refetch();
+    onSuccess: (newExpense) => {
+      queryClient.setQueryData<Expense[]>(useExpenses.key(tripId), (curr) => {
+        if (curr == null) return [newExpense];
+        return [newExpense, ...curr];
+      })
     }
   })
 
@@ -33,22 +36,34 @@ export function useExpenses(tripId: string) {
       expenseId: string
       data: Partial<Omit<Expense, 'id' | 'tripId' | 'createdAt' | 'totalAmount'>>
     }) => { 
-      updateExpense(expenseId, {
+      return updateExpense(expenseId, {
         ...data,
         totalAmount: data.payments
           ? data.payments.reduce((acc, x) => acc + x.amount, 0)
           : undefined
       })
     },
-    onSuccess: () => {
-      refetch();
+    onSuccess: (updated) => {
+      if (updated == null) {
+        return refetch();
+      }
+      queryClient.setQueryData<Expense[]>(useExpenses.key(tripId), (curr) => {
+        if (curr == null) return;
+        return curr.map(x => x.id === updated.id
+          ? updated
+          : x
+        )
+      })
     }
   })
 
   const { mutate: remove } = useMutation({
     mutationFn: deleteExpense,
-    onSuccess: () => {
-      refetch();
+    onSuccess: (_, id) => {
+      queryClient.setQueryData<Expense[]>(useExpenses.key(tripId), (curr) => {
+        if (curr == null) return;
+        return curr.filter(x => x.id !== id);
+      })
     }
   })
 
