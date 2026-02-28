@@ -44,8 +44,8 @@ function PlacePhotoContent({ tripId, placeId }: PlacePhotoSectionProps) {
 
   return (
     <Stack spacing={2}>
-      <ImageList cols={4}>
-        <PhotoUploader onUpload={handleUpload} isUploading={isUploading} />
+      <ImageList cols={5}>
+        <PhotoUploader width="100%" onUpload={handleUpload} isUploading={isUploading} />
         {photos.map(x => (
           <PhotoGallery.Item key={x.id} photo={x} onDelete={handleDelete} />
         ))}
