@@ -12,7 +12,7 @@ import { useTripPlaces } from "../trip-place/useTripPlaces"
 import { useTripRoutes } from "../trip-route/useTripRoutes"
 import { useExpenseFormOverlay } from "./useExpenseFormOverlay"
 import { type PlaceWithRoute, useExpensesByPlace } from "./useExpensesByPlace"
-import { useTripMembers } from "~features/trip-member/useTripMembers"
+import { useTripMembers } from "~features/trip/trip-member/useTripMembers"
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = [

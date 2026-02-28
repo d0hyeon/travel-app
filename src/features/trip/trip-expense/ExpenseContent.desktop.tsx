@@ -26,7 +26,7 @@ import {
   getTotalExpenses
 } from "../../expense/expense.utils"
 import { useExpenses } from "../../expense/useExpenses"
-import { useTripMembers } from "../../trip-member/useTripMembers"
+import { useTripMembers } from "../trip-member/useTripMembers"
 import { RouteExpenseView } from "./RouteExpenseView"
 import { useExpenseFormOverlay } from "./useExpenseFormOverlay"
 

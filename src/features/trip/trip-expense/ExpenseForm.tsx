@@ -19,7 +19,7 @@ import {
 import { DatePicker } from '@mui/x-date-pickers'
 import { type ReactNode } from "react"
 import { Controller, FormProvider, useFieldArray, useForm, useFormContext, useWatch } from "react-hook-form"
-import { useTripMembers } from '~features/trip-member/useTripMembers'
+import { useTripMembers } from '~features/trip/trip-member/useTripMembers'
 import { useIsMobile } from '~shared/hooks/useIsMobile'
 import { formatDateISO } from "../../../shared/utils/formats"
 import { useTripPlaces } from '../trip-place/useTripPlaces'

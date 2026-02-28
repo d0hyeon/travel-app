@@ -7,8 +7,8 @@ import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialo
 import { EditableText } from '../../../shared/components/EditableText'
 import { ListItem } from '../../../shared/components/ListItem'
 import { formatDate } from '../../../shared/utils/formats'
-import { useTripMembers } from '../../trip-member/useTripMembers'
-import { getRandomEmoji } from '../../trip-member/tripMember.types'
+import { useTripMembers } from '../trip-member/useTripMembers'
+import { getRandomEmoji } from '../trip-member/tripMember.types'
 import { useTrip } from '../useTrip'
 
 interface Props {

@@ -1,4 +1,4 @@
-import { supabase } from '../../shared/lib/supabase'
+import { supabase } from '../../../shared/lib/supabase'
 import type { TripMember } from './tripMember.types'
 
 export const tripMemberKey = 'trip_members'

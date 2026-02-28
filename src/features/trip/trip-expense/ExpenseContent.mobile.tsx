@@ -15,7 +15,7 @@ import {
   getTotalExpenses
 } from "../../expense/expense.utils"
 import { useExpenses } from "../../expense/useExpenses"
-import { useTripMembers } from "../../trip-member/useTripMembers"
+import { useTripMembers } from "../trip-member/useTripMembers"
 import { ExpenseFormDeletationActions } from './ExpenseFormDeletationActions'
 import { RouteExpenseViewMobile } from "./RouteExpenseView.mobile"
 import { SettlementSummary } from "./SettlementSummary"

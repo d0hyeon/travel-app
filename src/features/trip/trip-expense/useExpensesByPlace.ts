@@ -1,6 +1,6 @@
 import { useMemo } from "react"
 import { useExpenses } from "../../expense/useExpenses"
-import { useTripMembers } from "../../trip-member/useTripMembers"
+import { useTripMembers } from "../trip-member/useTripMembers"
 import { useTripPlaces } from "../trip-place/useTripPlaces"
 import { useTripRoutes } from "../trip-route/useTripRoutes"
 import type { Expense } from "~features/expense/expense.types"

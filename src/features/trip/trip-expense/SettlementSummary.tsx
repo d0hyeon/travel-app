@@ -1,6 +1,6 @@
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import { Box, Card, CardContent, Divider, Stack, Typography } from "@mui/material"
-import type { TripMember } from "../../trip-member/tripMember.types"
+import type { TripMember } from "../trip-member/tripMember.types"
 import type { SettlementBalance, SettlementTransaction } from "../../expense/expense.types"
 import { formatCurrency } from "../../expense/expense.utils"
 
