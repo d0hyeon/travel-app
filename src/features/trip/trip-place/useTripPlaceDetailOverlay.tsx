@@ -1,6 +1,6 @@
 
 
-import { Button, Chip, Dialog, DialogContent, DialogTitle, Stack, Typography } from '@mui/material'
+import { Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Stack, Typography } from '@mui/material'
 import { BottomSheet } from '../../../shared/components/BottomSheet'
 import { PlaceForm } from '../../place/PlaceForm'
 import { useCallback } from 'react';
@@ -8,6 +8,7 @@ import { useOverlay } from '../../../shared/hooks/useOverlay';
 import { useTripPlaces } from './useTripPlaces';
 import { assert } from '../../../shared/lib/assert';
 import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog';
+import { PlacePhotoSection } from './PlacePhotoSection';
 
 interface PlaceDetailOverlayProps {
   tripId: string;
@@ -111,6 +112,7 @@ export function PlaceDetailSheet({ placeId, tripId, isOpen, onClose }: PlaceDeta
           }}
           sx={{ 'h6': { display: 'none' } }}
         />
+        <PlacePhotoSection tripId={tripId} placeId={placeId} />
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
         <Stack direction="row" gap={1} width="100%">
@@ -162,6 +164,7 @@ function PlaceDetailDialog({ tripId, placeId, isOpen, onClose }: PlaceDetailOver
           </a>
         </Stack>
         <PlaceForm
+          id="place-form-dialog"
           defaultValues={place}
           onSubmit={async (data) => {
             await update({
@@ -173,14 +176,13 @@ function PlaceDetailDialog({ tripId, placeId, isOpen, onClose }: PlaceDetailOver
             })
             onClose()
           }}
-          actions={(
-            <Stack direction="row" width="100%" gap={1} justifyContent="end" alignItems="end" position="sticky" bottom={0}>
-              <Button type="button" onClick={onClose} >취소</Button>
-              <PlaceForm.SubmitButton />
-            </Stack>
-          )}
         />
+        <PlacePhotoSection tripId={tripId} placeId={placeId} />
       </DialogContent>
+      <DialogActions>
+        <Button type="button" onClick={onClose}>취소</Button>
+        <PlaceForm.SubmitButton form="place-form-dialog" />
+      </DialogActions>
     </Dialog>
   )
 }
