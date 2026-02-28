@@ -1,12 +1,9 @@
 import { Box, Chip, ImageList, Stack, Typography } from '@mui/material';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { getPhotosByTripId, photoKey } from '../../photo/photo.api';
-import { PhotoGallery } from '../../../shared/components/photo/PhotoGallery';
-import { tripKey } from '../trip.api';
-import { useTripPlaces } from '../trip-place/useTripPlaces';
-import type { Photo } from '../../photo/photo.types';
 import { useMemo, useState } from 'react';
 import { PhotoUploader } from '~shared/components/photo/PhotoUploader';
+import { PhotoGallery } from '../../../shared/components/photo/PhotoGallery';
+import type { Photo } from '../../photo/photo.types';
+import { useTripPlaces } from '../trip-place/useTripPlaces';
 import { useTripPhotos } from './useTripPhotos';
 
 interface TripPhotoContentProps {
