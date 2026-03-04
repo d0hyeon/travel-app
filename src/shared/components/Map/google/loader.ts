@@ -15,8 +15,12 @@ export function loadGoogleMaps(): Promise<void> {
     v: 'weekly',
   });
 
-  // maps 라이브러리 로드 (기본 Map 클래스 포함)
-  promise = importLibrary('maps').then(() => {});
+  // maps, places, routes 라이브러리 로드
+  promise = Promise.all([
+    importLibrary('maps'),
+    importLibrary('places'),
+    importLibrary('routes'),
+  ]).then(() => {});
 
   return promise;
 }
