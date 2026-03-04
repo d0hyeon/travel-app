@@ -134,18 +134,12 @@ export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, 
 
 async function downloadRemoteSource(url: string) {
   const response = await fetch(url);
-  const blob = await response.blob();
+  const buffer = await response.arrayBuffer();
 
-  const anchor = document.createElement('a');
   const [filename] = url.split('/').reverse();
-  anchor.download = filename;
-  anchor.href = URL.createObjectURL(blob);
+  const file = new File([buffer], filename);
 
-  document.body.append(anchor);
-  anchor.click()
-
-  document.body.removeChild(anchor);
-  URL.revokeObjectURL(anchor.href);
+  return navigator.share({ files: [file] })
 }
 
 function useGestureStart(callback: () => void) {
