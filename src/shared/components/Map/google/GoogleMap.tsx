@@ -110,7 +110,6 @@ function Resolved({
 }
 
 export function GoogleMarker({
-  id,
   lat,
   lng,
   label,
@@ -137,20 +136,24 @@ export function GoogleMarker({
   useEffect(() => {
     if (!context?.map) return;
 
-    const svgMarker = {
-      path: 'M12 0C5.4 0 0 5.4 0 12c0 9 12 24 12 24s12-15 12-24c0-6.6-5.4-12-12-12z',
-      fillColor: markerColor,
-      fillOpacity: opacity,
-      strokeWeight: 0,
-      scale: 1.2,
-      anchor: new google.maps.Point(12, 36),
-    };
+    // SVG 마커 with 흰색 내부 원
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="40" viewBox="0 0 24 36">
+        <path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 24 12 24s12-15 12-24c0-6.6-5.4-12-12-12z" fill="${markerColor}" fill-opacity="${opacity}"/>
+        <circle cx="12" cy="11" r="4" fill="white"/>
+      </svg>
+    `;
+    const svgUrl = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 
     const marker = new google.maps.Marker({
       position: { lat, lng },
       map: context.map,
       title: label,
-      icon: svgMarker,
+      icon: {
+        url: svgUrl,
+        scaledSize: new google.maps.Size(28, 40),
+        anchor: new google.maps.Point(14, 40),
+      },
       opacity,
     });
 
@@ -188,10 +191,39 @@ export function GoogleMarker({
     };
   }, []);
 
+  // Tooltip on hover (InfoWindow)
+  useEffect(() => {
+    const marker = markerRef.current;
+    if (!marker || !context?.map || !tooltip) return;
+
+    const infoWindow = new google.maps.InfoWindow({
+      content: `
+        <style>.gm-ui-hover-effect { display: none !important; }</style>
+        <div style="padding: 4px 8px; font-size: 12px; max-width: 200px;">${tooltip}</div>
+      `,
+      disableAutoPan: true,
+    });
+
+    const mouseoverListener = marker.addListener('mouseover', () => {
+      infoWindow.open(context.map, marker);
+    });
+
+    const mouseoutListener = marker.addListener('mouseout', () => {
+      infoWindow.close();
+    });
+
+    return () => {
+      google.maps.event.removeListener(mouseoverListener);
+      google.maps.event.removeListener(mouseoutListener);
+      infoWindow.close();
+    };
+  }, [context?.map, tooltip]);
+
   // Label as custom overlay (always visible, no close button)
   useEffect(() => {
     if (!context?.map || !label) return;
 
+    // 동적으로 클래스 생성 (SDK 로드 후에만 실행)
     class LabelOverlay extends google.maps.OverlayView {
       private div: HTMLDivElement | null = null;
       private position: google.maps.LatLng;
@@ -221,7 +253,6 @@ export function GoogleMarker({
           margin-top: -40px;
         `;
         this.div.textContent = this.text;
-
         const panes = this.getPanes();
         panes?.overlayLayer.appendChild(this.div);
       }
@@ -287,3 +318,4 @@ export function GooglePath({
 
   return null;
 }
+

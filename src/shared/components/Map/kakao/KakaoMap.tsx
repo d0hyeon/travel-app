@@ -1,9 +1,9 @@
 import { Box, type BoxProps } from '@mui/material';
 import { Suspense, createContext, use, useCallback, useEffect, useEffectEvent, useImperativeHandle, useMemo, useRef, useState, type ReactNode, type Ref } from 'react';
+import { useVariation } from '~shared/hooks/useVariation';
+import type { AutoFocus, MapRef, MarkerProps, PathProps } from '../types';
 import './loader';
 import { loadKakaoMap } from './loader';
-import { useVariation } from '~shared/hooks/useVariation';
-import type { AutoFocus, MapRef, MarkerProps, PathProps, MarkerCallbackData, MarkerData as CommonMarkerData } from '../types';
 
 interface MarkerData {
   id: string;

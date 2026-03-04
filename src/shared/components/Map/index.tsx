@@ -1,8 +1,8 @@
 import { use } from 'react';
 import { MapTypeContext } from './MapTypeContext';
-import { KakaoMapImpl, KakaoMarker, KakaoPath } from './kakao/KakaoMap';
 import { GoogleMapImpl, GoogleMarker, GooglePath } from './google/GoogleMap';
-import type { MapProps, MapRef, MarkerProps, PathProps } from './types';
+import { KakaoMapImpl, KakaoMarker, KakaoPath } from './kakao/KakaoMap';
+import type { MapProps, MarkerProps, PathProps } from './types';
 
 export function Map({ type, children, ...props }: MapProps) {
   const MapComponent = type === 'kakao' ? KakaoMapImpl : GoogleMapImpl;
@@ -28,4 +28,4 @@ Map.Marker = Marker;
 Map.Path = Path;
 
 // Re-export types
-export type { MapRef, MapProps, MarkerProps, PathProps, MapType, Coordinate, AutoFocus } from './types';
+export type { AutoFocus, Coordinate, MapProps, MapRef, MapType, MarkerProps, PathProps } from './types';
