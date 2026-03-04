@@ -7,8 +7,13 @@ import DownloadIcon from '@mui/icons-material/Downloading';
 
 // @ts-ignore
 import 'swiper/css';
+// @ts-ignore
+import 'swiper/css/virtual';
+
 import { useConfirmDialog } from "~shared/modules/confirm-dialog/useConfirmDialog";
 import { ZoomArea } from "../ZoomArea";
+import { Virtual } from 'swiper/modules';
+
 
 type SheetProps = {
   photos: Photo[];
@@ -72,10 +77,12 @@ export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, 
           <Swiper
             ref={swiperRef}
             slidesPerView={1}
-            loop
             initialSlide={initialIndex}
             onSlideChange={({ realIndex }) => setIndex(realIndex)}
             style={{ height: '100%', width: '100%' }}
+            modules={[Virtual]}
+            virtual
+            loop
           >
             {photos.map((item, i) => (
               <SwiperSlide key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
