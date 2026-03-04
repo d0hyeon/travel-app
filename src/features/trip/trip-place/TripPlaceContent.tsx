@@ -3,8 +3,9 @@ import { Box, Button, ButtonBase, Chip, Stack, Typography, type BoxProps } from 
 import AddIcon from '@mui/icons-material/Add';
 import { useTripPlaces } from "./useTripPlaces";
 import { useTripRoutes } from "../trip-route/useTripRoutes";
+import { useTrip } from "../useTrip";
 import type { Place } from "../../place/place.types";
-import { KakaoMap, type KakaoMapRef } from "../../../shared/components/KakaoMap";
+import { Map, type MapRef } from "../../../shared/components/Map";
 import { useOverlay } from "../../../shared/hooks/useOverlay";
 import { PlaceSearchDialog, type PlaceSearchResult } from "../../place/place-search/PlaceSearchDialog";
 
@@ -14,10 +15,12 @@ interface Props extends BoxProps {
 }
 
 export function TripPlaceContent({ tripId, defaultCenter, ...props }: Props) {
+  const { data: trip } = useTrip(tripId)
   const { data: places, create } = useTripPlaces(tripId)
   const { data: { routes } } = useTripRoutes(tripId)
   const overlay = useOverlay()
-  const mapRef = useRef<KakaoMapRef>(null)
+  const mapRef = useRef<MapRef>(null)
+  const mapType = trip.isOverseas ? 'google' : 'kakao'
 
   const handleAddPlace = () => {
     overlay.open(({ isOpen, close }) => (
@@ -57,7 +60,8 @@ export function TripPlaceContent({ tripId, defaultCenter, ...props }: Props) {
 
   return (
     <Box {...props}>
-      <KakaoMap
+      <Map
+        type={mapType}
         ref={mapRef}
         defaultCenter={defaultCenter}
         height={300}
@@ -67,7 +71,7 @@ export function TripPlaceContent({ tripId, defaultCenter, ...props }: Props) {
       >
         <>
           {places.map(place => (
-            <KakaoMap.Marker
+            <Map.Marker
               key={place.id}
               variant={confirmedPlaceIds.has(place.id) ? 'selected' : 'default'}
               label={place.name}
@@ -75,7 +79,7 @@ export function TripPlaceContent({ tripId, defaultCenter, ...props }: Props) {
             />
           ))}
         </>
-      </KakaoMap>
+      </Map>
       <Button
         variant="outlined"
         startIcon={<AddIcon />}

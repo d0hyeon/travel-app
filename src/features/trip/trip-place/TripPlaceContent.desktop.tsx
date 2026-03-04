@@ -9,10 +9,11 @@ import {
 } from '@mui/material'
 import { useMemo, useRef, useState } from 'react'
 import { useQueryParamState } from '~shared/hooks/useQueryParamState'
-import { KakaoMap, type KakaoMapRef } from '../../../shared/components/KakaoMap'
+import { Map, type MapRef } from '../../../shared/components/Map'
 import { usePlaceSearchDialog } from '../../place/place-search/usePlaceSearchDialog'
 import { PlaceCategoryColorCode, type Place } from '../../place/place.types'
 import { useTripRoutes } from '../trip-route/useTripRoutes'
+import { useTrip } from '../useTrip'
 import { TripPlaceItemButton } from './TripPlaceItemButton'
 import { useTripPlaces } from './useTripPlaces'
 import { useTripPlaceDetailOverlay } from './useTripPlaceDetailOverlay'
@@ -23,11 +24,13 @@ interface TripPlaceContentProps {
 }
 
 export function TripPlaceContent({ tripId, defaultCenter }: TripPlaceContentProps) {
+  const { data: trip } = useTrip(tripId)
   const { data: places, create } = useTripPlaces(tripId)
   const { data: { routes } } = useTripRoutes(tripId)
-  const mapRef = useRef<KakaoMapRef>(null)
+  const mapRef = useRef<MapRef>(null)
+  const mapType = trip.isOverseas ? 'google' : 'kakao'
 
-  const { searchPlace } = usePlaceSearchDialog();
+  const { searchPlace } = usePlaceSearchDialog({ mapType });
 
   const handleAddPlace = async () => {
     const place = await searchPlace();
@@ -131,7 +134,8 @@ export function TripPlaceContent({ tripId, defaultCenter }: TripPlaceContentProp
             <WorkspacesIcon />
           </ToggleButton>
         </Stack>
-        <KakaoMap
+        <Map
+          type={mapType}
           ref={mapRef}
           defaultCenter={defaultCenter}
           height="100%"
@@ -139,7 +143,7 @@ export function TripPlaceContent({ tripId, defaultCenter }: TripPlaceContentProp
           clusterGridSize={60}
         >
           {places.map(place => (
-            <KakaoMap.Marker
+            <Map.Marker
               key={place.id}
               variant={confirmedPlaceIds.has(place.id) ? 'selected' : 'default'}
               label={place.name}
@@ -152,7 +156,7 @@ export function TripPlaceContent({ tripId, defaultCenter }: TripPlaceContentProp
               }}
             />
           ))}
-        </KakaoMap>
+        </Map>
       </Box>
     </Box>
   )

@@ -18,11 +18,11 @@ import { useMemo, useRef, useState } from 'react'
 import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
 import { SortableItem } from '../../../shared/components/dnd/SortableItem'
 import { SortableList } from '../../../shared/components/dnd/SortableList'
-import { KakaoMap, type KakaoMapRef } from '../../../shared/components/KakaoMap'
+import { Map, type MapRef } from '../../../shared/components/Map'
 import { ListItem } from '../../../shared/components/ListItem'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
-import { useRoadPath } from '../../../shared/hooks/useRoadPath'
+import { useDirections } from '../../../shared/hooks/useDirections'
 import { formatDate, formatDateISO } from '../../../shared/utils/formats'
 import { PlaceSearchDialog, type PlaceSearchResult } from '../../place/place-search/PlaceSearchDialog'
 import { PlaceCategoryColorCode } from '../../place/place.types'
@@ -97,7 +97,8 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
     defaultValue: false,
     parse: value => value === 'true'
   })
-  const mapRef = useRef<KakaoMapRef>(null)
+  const mapRef = useRef<MapRef>(null)
+  const mapType = trip.isOverseas ? 'google' : 'kakao'
 
   return (
     <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
@@ -253,6 +254,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
                   <PlaceSearchDialog
                     isOpen={isOpen}
                     onClose={close}
+                    mapType={mapType}
                     onSelect={(place: PlaceSearchResult) => createPlace(place)}
                   />
                 ))
@@ -294,7 +296,8 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
             <WorkspacesIcon />
           </ToggleButton>
         </Stack>
-        <KakaoMap
+        <Map
+          type={mapType}
           ref={mapRef}
           defaultCenter={defaultCenter}
           autoFocus="path"
@@ -311,7 +314,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
             }
 
             return (
-              <KakaoMap.Marker
+              <Map.Marker
                 key={place.id}
                 label={isInCurrentRoute ? `${orderInRoute + 1}. ${place.name}` : place.name}
                 variant={
@@ -350,9 +353,10 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
               waypoints={route.places}
               color={getRouteColor(index)}
               isSelected={route.id === currentRoute?.id}
+              mapType={mapType}
             />
           ))}
-        </KakaoMap>
+        </Map>
       </Box>
     </Box>
   )
@@ -397,15 +401,16 @@ interface RoutePathProps {
   waypoints: { lat: number; lng: number }[] | undefined
   color: string
   isSelected: boolean
+  mapType: 'kakao' | 'google'
 }
 
-function RoutePath({ waypoints, color, isSelected }: RoutePathProps) {
-  const coordinates = useRoadPath(waypoints)
+function RoutePath({ waypoints, color, isSelected, mapType }: RoutePathProps) {
+  const coordinates = useDirections({ type: mapType, waypoints })
 
   if (!coordinates || coordinates.length < 2) return null
 
   return (
-    <KakaoMap.Path
+    <Map.Path
       coordinates={coordinates}
       strokeColor={color}
       strokeWeight={isSelected ? 5 : 3}

@@ -2,14 +2,15 @@ import { Box, Button, Stack, Typography } from "@mui/material"
 import { styled } from '@mui/system'
 import { useRef, useState } from "react"
 import { IntersectionArea } from "../../../shared/components/IntersectionArea"
-import { KakaoMap, type KakaoMapRef } from "../../../shared/components/KakaoMap"
+import { Map, type MapRef } from "../../../shared/components/Map"
 import { ResizeHandleHorizontal, useResizableSplit } from "../../../shared/hooks/useResizableSplit"
-import { useRoadPath } from "../../../shared/hooks/useRoadPath"
+import { useDirections } from "../../../shared/hooks/useDirections"
 import { formatDate } from "../../../shared/utils/formats"
 import { formatCurrency } from "../../expense/expense.utils"
 import { PlaceCategoryColorCode } from "../../place/place.types"
 import { useTripPlaces } from "../trip-place/useTripPlaces"
 import { useTripRoutes } from "../trip-route/useTripRoutes"
+import { useTrip } from "../useTrip"
 import { useExpenseFormOverlay } from "./useExpenseFormOverlay"
 import { type PlaceWithRoute, useExpensesByPlace } from "./useExpensesByPlace"
 import { useTripMembers } from "~features/trip/trip-member/useTripMembers"
@@ -34,10 +35,12 @@ interface Props {
 }
 
 export function RouteExpenseView({ tripId, defaultCenter }: Props) {
-  const mapRef = useRef<KakaoMapRef>(null)
+  const mapRef = useRef<MapRef>(null)
   const listContainerRef = useRef<HTMLDivElement>(null)
 
+  const { data: trip } = useTrip(tripId)
   const { data: { routes } } = useTripRoutes(tripId);
+  const mapType = trip.isOverseas ? 'google' : 'kakao'
   const { data: members } = useTripMembers(tripId);
   const { data: places } = useTripPlaces(tripId);
   const {
@@ -187,7 +190,8 @@ export function RouteExpenseView({ tripId, defaultCenter }: Props) {
       <ResizeHandleHorizontal {...handleProps} />
 
       <MapPanel sx={{ width: `${100 - splitRatio}%` }}>
-        <KakaoMap
+        <Map
+          type={mapType}
           ref={mapRef}
           defaultCenter={defaultCenter}
           autoFocus="path"
@@ -196,7 +200,7 @@ export function RouteExpenseView({ tripId, defaultCenter }: Props) {
           {/* 모든 장소 마커 */}
           {placesByDay.flatMap((dayPlaces, dayIndex) =>
             dayPlaces.map((place) => (
-              <KakaoMap.Marker
+              <Map.Marker
                 key={`${place.routeId}-${place.id}`}
                 id={`${place.routeId}-${place.id}`}
                 lat={place.lat}
@@ -223,10 +227,11 @@ export function RouteExpenseView({ tripId, defaultCenter }: Props) {
                 waypoints={routePlaces}
                 color={getRouteColor(dayIndex >= 0 ? dayIndex : index)}
                 isActive={activeDayIndex === dayIndex}
+                mapType={mapType}
               />
             )
           })}
-        </KakaoMap>
+        </Map>
       </MapPanel>
     </Container>
   )
@@ -287,16 +292,16 @@ interface RoutePathProps {
   waypoints: { lat: number; lng: number }[] | undefined
   color: string
   isActive: boolean
+  mapType: 'kakao' | 'google'
 }
 
-function RoutePath({ waypoints, color, isActive }: RoutePathProps) {
-  const coordinates = useRoadPath(waypoints);
+function RoutePath({ waypoints, color, isActive, mapType }: RoutePathProps) {
+  const coordinates = useDirections({ type: mapType, waypoints });
 
   if (!coordinates || coordinates.length < 2) return null;
 
-
   return (
-    <KakaoMap.Path
+    <Map.Path
       coordinates={coordinates}
       strokeColor={color}
       strokeWeight={isActive ? 5 : 3}

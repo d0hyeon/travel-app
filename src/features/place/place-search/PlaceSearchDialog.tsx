@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -14,8 +14,8 @@ import {
   InputAdornment,
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
-import { loadKakaoMap } from '../../../shared/lib/kakao'
-import { KakaoMap } from '../../../shared/components/KakaoMap'
+import { Map, type MapType } from '../../../shared/components/Map'
+import { usePlaceSearch } from '../../../shared/hooks/usePlaceSearch'
 
 export interface PlaceSearchResult {
   id: string
@@ -29,80 +29,29 @@ interface Props {
   isOpen: boolean
   onClose: () => void
   onSelect: (place: PlaceSearchResult) => void
+  mapType?: MapType
 }
 
-export function PlaceSearchDialog({ isOpen, onClose, onSelect }: Props) {
+export function PlaceSearchDialog({ isOpen, onClose, onSelect, mapType = 'kakao' }: Props) {
   const [keyword, setKeyword] = useState('')
-  const [results, setResults] = useState<PlaceSearchResult[]>([])
   const [focusedIndex, setFocusedIndex] = useState(-1)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const placesRef = useRef<kakao.maps.services.Places | null>(null)
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const listRef = useRef<HTMLUListElement>(null)
 
+  const { results, isLoading, error, search, clear } = usePlaceSearch({ type: mapType })
   const focusedPlace = focusedIndex >= 0 ? results[focusedIndex] : null
-
-
-  useEffect(() => {
-    loadKakaoMap().then(() => {
-      placesRef.current = new kakao.maps.services.Places()
-    })
-  }, [])
 
   // Reset state when dialog opens
   useEffect(() => {
     if (isOpen) {
       setKeyword('')
-      setResults([])
       setFocusedIndex(-1)
-      setError(null)
+      clear()
     }
-  }, [isOpen])
-
-  const search = useCallback((query: string) => {
-    if (!placesRef.current || !query.trim()) {
-      setResults([])
-      setFocusedIndex(-1)
-      return
-    }
-
-    setIsLoading(true)
-    setError(null)
-
-    placesRef.current.keywordSearch(query, (data, status) => {
-      setIsLoading(false)
-
-      if (status === kakao.maps.services.Status.OK) {
-        setResults(
-          data.map((item) => ({
-            id: item.id,
-            name: item.place_name,
-            address: item.road_address_name || item.address_name,
-            lat: parseFloat(item.y),
-            lng: parseFloat(item.x),
-          }))
-        )
-        setFocusedIndex(-1)
-      } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
-        setResults([])
-        setFocusedIndex(-1)
-      } else {
-        setError('검색 중 오류가 발생했습니다')
-      }
-    })
-  }, [])
+  }, [isOpen, clear])
 
   const handleKeywordChange = (value: string) => {
     setKeyword(value)
-
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current)
-    }
-
-    debounceRef.current = setTimeout(() => {
-      search(value)
-    }, 300)
+    search(value)
   }
 
   const handleSubmit = () => {
@@ -222,11 +171,11 @@ export function PlaceSearchDialog({ isOpen, onClose, onSelect }: Props) {
           </Box>
         </Box>
 
-        {/* Right: Map (preloaded) */}
+        {/* Right: Map */}
         <Box sx={{ flex: 1, position: 'relative', bgcolor: 'grey.100', borderRadius: 1, overflow: 'hidden' }}>
-          <KakaoMap height="100%" key={focusedPlace?.id}>
-            {focusedPlace && <KakaoMap.Marker {...focusedPlace} />}
-          </KakaoMap>
+          <Map type={mapType} height="100%" key={focusedPlace?.id}>
+            {focusedPlace && <Map.Marker {...focusedPlace} />}
+          </Map>
 
           {/* Overlay when no place is focused */}
           {!focusedPlace && (
