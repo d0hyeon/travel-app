@@ -7,4 +7,5 @@ export interface Route {
   isMain: boolean
   scheduledDate?: string // ISO date
   createdAt: string
+  hiddenPlaces: string[];
 }

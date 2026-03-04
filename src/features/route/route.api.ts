@@ -30,6 +30,7 @@ function toRoute(row: {
   is_main: boolean
   scheduled_date: string | null
   created_at: string
+  hidden_places: string[] | null;
 }): Route {
   return {
     id: row.id,
@@ -40,6 +41,7 @@ function toRoute(row: {
     isMain: row.is_main,
     scheduledDate: row.scheduled_date ?? undefined,
     createdAt: row.created_at,
+    hiddenPlaces: row.hidden_places ?? [],
   }
 }
 
@@ -93,7 +95,7 @@ export async function getMainRoute(tripId: string): Promise<Route | undefined> {
   return data ? toRoute(data) : undefined
 }
 
-export async function createRoute(data: Omit<Route, 'id' | 'createdAt'>): Promise<Route> {
+export async function createRoute(data: Omit<Route, 'id' | 'createdAt' | "hiddenPlaces">): Promise<Route> {
   // isMain이 true면 기존 메인 경로를 해제
   if (data.isMain) {
     await supabase
@@ -139,6 +141,7 @@ export async function updateRoute(id: string, data: Partial<Omit<Route, 'id' | '
   if (data.placeMemos !== undefined) updateData.place_memos = data.placeMemos
   if (data.isMain !== undefined) updateData.is_main = data.isMain
   if (data.scheduledDate !== undefined) updateData.scheduled_date = data.scheduledDate ?? null
+  if(data.hiddenPlaces !== null) updateData.hidden_places = data.hiddenPlaces ?? undefined
 
   const { data: updated, error } = await supabase
     .from('routes')

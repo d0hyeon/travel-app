@@ -12,7 +12,7 @@ export function useTripPlaces(tripId: string) {
   })
 
   const { mutateAsync: create } = useMutation({
-    mutationFn: async (data: PickPartial<Omit<Place, 'id' | 'tripId' | 'createdAt'>, 'memo' | 'tags' | 'status'>) =>
+    mutationFn: async (data: PickPartial<Omit<Place, 'id' | 'tripId' | 'createdAt' | 'isVisible'>, 'memo' | 'tags' | 'status'>) =>
       createPlace({
         memo: '',
         status: 'wished',

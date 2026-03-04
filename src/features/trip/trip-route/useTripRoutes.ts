@@ -41,6 +41,22 @@ export function useTripRoutes(id: string) {
     },
   });
 
+  const { mutateAsync: toggleVisible } = useMutation({
+    mutationFn: (params: { routeId: string, placeId: string }) => {
+      const route = routes.find(x => x.id === params.routeId);
+      assert(!!route, '존재하지 않는 경로입니다.');
+
+      return updateRoute(params.routeId, {
+        hiddenPlaces: route.hiddenPlaces.includes(params.placeId)
+          ? route.hiddenPlaces.filter(x => x !== params.placeId)
+          : [...route.hiddenPlaces, params.placeId]
+      });
+    },
+    onSuccess: () => {
+      routeQueries.refetch();
+    }
+  })
+
   const { mutateAsync: update } = useMutation({
     mutationFn: ({ routeId, ...payload }: { routeId: string; } & Parameters<typeof updateRoute>[1]) => {
       return updateRoute(routeId, payload);
@@ -62,6 +78,7 @@ export function useTripRoutes(id: string) {
     create,
     update,
     remove,
+    toggleVisible,
     ...mergeQueriesStatus(tripQueries, routeQueries)
   }
 }

@@ -72,6 +72,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
     create: createRoute,
     update: update,
     updateNotes,
+    toggleVisible,
     remove: removeRoute,
   } = useDayTripRoutes({ tripId, date: selectedDate })
   const { data: places, create: createPlace, update: updatePlace } = useTripPlaces(tripId)
@@ -189,6 +190,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
                       )}
                       rightAddon={(
                         <Box flexShrink={0}>
+
                           <IconButton
                             size="small"
                             onClick={async () => {
@@ -220,7 +222,21 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
                       onClick={() => mapRef.current?.panTo(place.lat, place.lng)}
                     >
 
-                      <ListItem.Title leftAddon={<Dot>{idx + 1}</Dot>}>
+                      <ListItem.Title
+                        leftAddon={<Dot>{idx + 1}</Dot>}
+                        rightAddon={(
+                          <IconButton
+                            size="small"
+                            sx={{}}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              toggleVisible({ routeId: currentRoute.id, placeId: place.id })
+                            }}
+                          >
+                            {currentRoute.hiddenPlaces.includes(place.id) ? <VisibilityOffIcon fontSize="small" sx={{ opacity: 0.7 }} /> : <VisibilityOnIcon fontSize="small" />}
+                          </IconButton>
+                        )}
+                      >
                         {place.name}
                       </ListItem.Title>
                       {place.address && (
@@ -306,6 +322,9 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
           clusterGridSize={60}
         >
           {places.map((place) => {
+            if (currentRoute.hiddenPlaces.includes(place.id)) {
+              return null;
+            }
             const isInCurrentRoute = currentRoute?.placeIds.includes(place.id) ?? false
             const orderInRoute = currentRoute?.placeIds.indexOf(place.id) ?? -1
 
@@ -335,6 +354,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
                   const newPlaceIds = isInCurrentRoute
                     ? currentRoute.placeIds.filter((id) => id !== place.id)
                     : [...currentRoute.placeIds, place.id]
+
                   update({ routeId: currentRoute.id, placeIds: newPlaceIds })
                 }}
                 tooltip={[
@@ -350,7 +370,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
           {routes.map((route, index) => (
             <RoutePath
               key={route.id}
-              waypoints={route.places}
+              waypoints={route.places.filter(x => !route.hiddenPlaces.includes(x.id))}
               color={getRouteColor(index)}
               isSelected={route.id === currentRoute?.id}
               mapType={mapType}

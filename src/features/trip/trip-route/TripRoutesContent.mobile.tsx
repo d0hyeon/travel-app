@@ -67,7 +67,8 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
     create: createRoute,
     update,
     remove: removeRoute,
-    updateNotes
+    updateNotes,
+    toggleVisible
   } = useDayTripRoutes({ tripId, date: selectedDate });
 
 
@@ -191,7 +192,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
             {routes.map((route, index) => (
               <RoutePath
                 key={route.id}
-                waypoints={route.places}
+                waypoints={route.places.filter(x => !route.hiddenPlaces.includes(x.id))}
                 color={getRouteColor(index)}
                 isSelected={route.id === currentRoute?.id}
                 mapType={mapType}
@@ -330,6 +331,16 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
                       <Stack direction="row" alignItems="center" gap={0.5}>
                         <Dot>{idx + 1}</Dot>
                         <ListItem.Title>{place.name}</ListItem.Title>
+                        <IconButton
+                          size="small"
+                          sx={{}}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            toggleVisible({ routeId: currentRoute.id, placeId: place.id })
+                          }}
+                        >
+                          {currentRoute.hiddenPlaces.includes(place.id) ? <VisibilityOffIcon fontSize="small" sx={{ opacity: 0.7 }} /> : <VisibilityOnIcon fontSize="small" />}
+                        </IconButton>
                       </Stack>
                       <Box>
                         {place.address && (

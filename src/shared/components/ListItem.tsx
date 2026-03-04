@@ -71,11 +71,12 @@ ListItem.Button = ({ focused, sx, ...props }: ButtonProps) => {
   )
 }
 
-ListItem.Title = ({ leftAddon, ...props }: TypographyProps & { leftAddon?: ReactNode }) => {
+ListItem.Title = ({ leftAddon, rightAddon, ...props }: TypographyProps & { leftAddon?: ReactNode; rightAddon?: ReactNode }) => {
   return (
     <Stack gap={1} direction="row" alignItems="center" >
       {leftAddon}
       <Typography fontSize={13} noWrap {...props} />
+      {rightAddon}
     </Stack>
   )
 }
