@@ -85,9 +85,13 @@ export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, 
             loop
           >
             {photos.map((item, i) => (
-              <SwiperSlide key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <SwiperSlide key={item.id}>
                 <ZoomArea
+                  width="100%"
                   height="100%"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
                   onZoomStart={() => swiperRef.current?.swiper.disable()}
                   onZoomEnd={() => swiperRef.current?.swiper.enable()}
                 >
