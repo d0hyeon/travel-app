@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query"
 import { deletePhoto, getPhotosByPlaceId, photoKey, uploadPhoto } from "~features/photo/photo.api"
 import type { Photo } from "~features/photo/photo.types"
+import { useTripPhotos } from "../trip-photo/useTripPhotos";
 
 type UploadParams = 
   { files: File[]; file?: never; tripId: string; } |
@@ -21,17 +22,28 @@ export function usePlacePhotos(placeId: string) {
       const response = await uploadPhoto({ file, tripId, placeId })
       return [response];
     },
-    onSuccess: (data) => {
+    onSuccess: (data, { tripId }) => {
       queryClient.setQueryData<Photo[]>(usePlacePhotos.key(placeId), (curr) => {
         if (curr == null) return data;
         return [...data, ...curr];
-      })
+      });
+      queryClient.invalidateQueries({
+        queryKey: useTripPhotos.key(tripId),
+      });
     }
   })
 
   const { mutateAsync: remove } = useMutation({
     mutationFn: (photo: Photo) => deletePhoto(photo),
-    onSuccess: () => refetch()
+    onSuccess: (_, { tripId, id }) => {
+      queryClient.setQueryData<Photo[]>(usePlacePhotos.key(placeId), (curr) => {
+        if (curr == null) return data;
+        return curr.filter(x => x.id !== id)
+      });
+      queryClient.invalidateQueries({
+        queryKey: useTripPhotos.key(tripId),
+      });
+    }
   })
 
   return { data, remove, upload, isUploading, refetch, ...queries }
