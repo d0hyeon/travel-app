@@ -27,7 +27,7 @@ export function usePlacePhotos(placeId: string) {
         if (curr == null) return data;
         return [...data, ...curr];
       });
-      queryClient.invalidateQueries({
+      queryClient.refetchQueries({
         queryKey: useTripPhotos.key(tripId),
       });
     }
@@ -40,7 +40,7 @@ export function usePlacePhotos(placeId: string) {
         if (curr == null) return data;
         return curr.filter(x => x.id !== id)
       });
-      queryClient.invalidateQueries({
+      queryClient.refetchQueries({
         queryKey: useTripPhotos.key(tripId),
       });
     }

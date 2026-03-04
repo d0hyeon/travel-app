@@ -17,6 +17,8 @@ export function useRoadPath(waypoints: Coordinate[] | undefined) {
     enabled: !!waypoints && waypoints.length >= 2,
     staleTime: Infinity, // 경로는 자주 변하지 않으므로 캐시 유지
     gcTime: 1000 * 60 * 30, // 30분간 캐시 유지
+    refetchInterval: false,
+    refetchOnMount: false,
   })
 
   // 데이터가 없으면 원래 waypoints 반환 (직선 fallback)
