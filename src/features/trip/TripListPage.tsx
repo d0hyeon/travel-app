@@ -11,6 +11,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ListItem } from '../../shared/components/ListItem'
 import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
+import { isOverseasByCoordinate } from '~shared/utils/geo'
 import { TripFormDialog } from './TripFormDialog'
 import { useTrips } from './useTrips'
 
@@ -76,7 +77,10 @@ export function TripListPage() {
       <TripFormDialog
         open={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
-        onSubmit={(data) => create(data, { onSuccess: () => setIsDialogOpen(false) })}
+        onSubmit={(data) => create(
+          { ...data, isOverseas: isOverseasByCoordinate(data.lat, data.lng) },
+          { onSuccess: () => setIsDialogOpen(false) }
+        )}
       />
     </Container>
   )

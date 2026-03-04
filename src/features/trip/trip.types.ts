@@ -8,4 +8,6 @@ export interface Trip {
   endDate: string
   shareLink: string
   createdAt: string
+  /** 해외 여행 여부 (true: 해외, false: 국내) */
+  isOverseas: boolean
 }
