@@ -1,8 +1,14 @@
 import { useCallback } from "react";
 import { useOverlay } from "../../../shared/hooks/useOverlay";
+import type { MapType } from "../../../shared/components/Map";
 import { PlaceSearchDialog, type PlaceSearchResult } from "./PlaceSearchDialog";
 
-export function usePlaceSearchDialog() {
+interface UsePlaceSearchDialogOptions {
+  mapType?: MapType
+}
+
+export function usePlaceSearchDialog(options: UsePlaceSearchDialogOptions = {}) {
+  const { mapType = 'kakao' } = options;
   const overlay = useOverlay();
 
   const searchPlace = useCallback(() => {
@@ -10,6 +16,7 @@ export function usePlaceSearchDialog() {
       overlay.open(({ close, isOpen }) => (
         <PlaceSearchDialog
           isOpen={isOpen}
+          mapType={mapType}
           onClose={() => {
             close();
             resolve(null)
@@ -21,7 +28,7 @@ export function usePlaceSearchDialog() {
         />
       ))
     })
-  }, [])
+  }, [mapType])
 
   return { searchPlace }
 }

@@ -4,10 +4,11 @@ import { useMemo, useRef, useState } from "react";
 import { BottomArea } from '~shared/components/BottomArea';
 import { useQueryParamState } from '~shared/hooks/useQueryParamState';
 import { BottomSheet } from "../../../shared/components/BottomSheet";
-import { KakaoMap, type KakaoMapRef } from "../../../shared/components/KakaoMap";
+import { Map, type MapRef } from "../../../shared/components/Map";
 import { usePlaceSearchBottomSheet } from '../../place/place-search/usePlaceSearchBottomSheet';
 import { PlaceCategoryColorCode, type Place } from "../../place/place.types";
 import { useTripRoutes } from "../trip-route/useTripRoutes";
+import { useTrip } from "../useTrip";
 import { TripPlaceItemButton } from './TripPlaceItemButton';
 import { useTripPlaces } from "./useTripPlaces";
 
@@ -20,11 +21,12 @@ const BOTTOM_SHEET_RATIOS = [0.25, 0.5, 0.8, 1] as const;
 const DEFAULT_BOTTOM_SHEET_RATIO = 0.5 satisfies typeof BOTTOM_SHEET_RATIOS[number];
 
 export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
+  const { data: trip } = useTrip(tripId)
   const { data: places, create } = useTripPlaces(tripId)
   const { data: { routes } } = useTripRoutes(tripId)
 
-
-  const mapRef = useRef<KakaoMapRef>(null);
+  const mapRef = useRef<MapRef>(null);
+  const mapType = trip.isOverseas ? 'google' : 'kakao'
   const handlePlaceClick = (place: Place) => {
     mapRef.current?.panTo(place.lat, place.lng)
   }
@@ -46,7 +48,7 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
   })
   const [sheetRatio, setSheetRatio] = useState(DEFAULT_BOTTOM_SHEET_RATIO);
 
-  const { searchPlace } = usePlaceSearchBottomSheet();
+  const { searchPlace } = usePlaceSearchBottomSheet({ mapType });
   const [focusedId, setFocusedId] = useState<string | null>(null)
 
   return (
@@ -65,7 +67,8 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
         </Stack>
         {/* Map (전체) */}
         <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `calc(${sheetRatio * 100}% - 10px)` }}>
-          <KakaoMap
+          <Map
+            type={mapType}
             ref={mapRef}
             defaultCenter={defaultCenter}
             height="100%"
@@ -73,7 +76,7 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
             clusterGridSize={50}
           >
             {places.map(place => (
-              <KakaoMap.Marker
+              <Map.Marker
                 key={place.id}
                 variant={confirmedPlaceIds.has(place.id) ? 'selected' : 'default'}
                 label={place.name}
@@ -83,7 +86,7 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
                 onClick={() => setFocusedId(place.id)}
               />
             ))}
-          </KakaoMap>
+          </Map>
         </Box>
 
         {/* Bottom Sheet */}

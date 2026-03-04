@@ -1,9 +1,15 @@
 import { useCallback } from "react";
 import { useOverlay } from "../../../shared/hooks/useOverlay";
+import type { MapType } from "../../../shared/components/Map";
 import { PlaceSearchBottomSheet } from "./PlaceSearchBottomSheet";
 import { type PlaceSearchResult } from "./PlaceSearchDialog";
 
-export function usePlaceSearchBottomSheet() {
+interface UsePlaceSearchBottomSheetOptions {
+  mapType?: MapType
+}
+
+export function usePlaceSearchBottomSheet(options: UsePlaceSearchBottomSheetOptions = {}) {
+  const { mapType = 'kakao' } = options;
   const overlay = useOverlay();
 
   const searchPlace = useCallback(() => {
@@ -11,6 +17,7 @@ export function usePlaceSearchBottomSheet() {
       overlay.open(({ close, isOpen }) => (
         <PlaceSearchBottomSheet
           isOpen={isOpen}
+          mapType={mapType}
           onClose={() => {
             close();
             resolve(null)
@@ -22,7 +29,7 @@ export function usePlaceSearchBottomSheet() {
         />
       ))
     })
-  }, [])
+  }, [mapType])
 
   return { searchPlace }
 }

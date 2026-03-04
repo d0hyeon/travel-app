@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import {
   TextField,
   List,
@@ -10,79 +10,34 @@ import {
   InputAdornment,
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
-import { loadKakaoMap } from '../../../shared/lib/kakao'
 import { BottomSheet } from '../../../shared/components/BottomSheet'
+import type { MapType } from '../../../shared/components/Map'
+import { usePlaceSearch } from '../../../shared/hooks/usePlaceSearch'
 import type { PlaceSearchResult } from './PlaceSearchDialog'
 
 interface Props {
   isOpen: boolean
   onClose: () => void
   onSelect: (place: PlaceSearchResult) => void
+  mapType?: MapType
 }
 
-export function PlaceSearchBottomSheet({ isOpen, onClose, onSelect }: Props) {
+export function PlaceSearchBottomSheet({ isOpen, onClose, onSelect, mapType = 'kakao' }: Props) {
   const [keyword, setKeyword] = useState('')
-  const [results, setResults] = useState<PlaceSearchResult[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const placesRef = useRef<kakao.maps.services.Places | null>(null)
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  useEffect(() => {
-    loadKakaoMap().then(() => {
-      placesRef.current = new kakao.maps.services.Places()
-    })
-  }, [])
+  const { results, isLoading, error, search, clear } = usePlaceSearch({ type: mapType })
 
   // Reset state when sheet opens
   useEffect(() => {
     if (isOpen) {
       setKeyword('')
-      setResults([])
-      setError(null)
+      clear()
     }
-  }, [isOpen])
-
-  const search = useCallback((query: string) => {
-    if (!placesRef.current || !query.trim()) {
-      setResults([])
-      return
-    }
-
-    setIsLoading(true)
-    setError(null)
-
-    placesRef.current.keywordSearch(query, (data, status) => {
-      setIsLoading(false)
-
-      if (status === kakao.maps.services.Status.OK) {
-        setResults(
-          data.map((item) => ({
-            id: item.id,
-            name: item.place_name,
-            address: item.road_address_name || item.address_name,
-            lat: parseFloat(item.y),
-            lng: parseFloat(item.x),
-          }))
-        )
-      } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
-        setResults([])
-      } else {
-        setError('검색 중 오류가 발생했습니다')
-      }
-    })
-  }, [])
+  }, [isOpen, clear])
 
   const handleKeywordChange = (value: string) => {
     setKeyword(value)
-
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current)
-    }
-
-    debounceRef.current = setTimeout(() => {
-      search(value)
-    }, 300)
+    search(value)
   }
 
   const handleSelect = (place: PlaceSearchResult) => {

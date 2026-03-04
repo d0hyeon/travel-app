@@ -2,8 +2,8 @@ import { Box, Button, Stack, Typography } from "@mui/material"
 import { styled } from '@mui/system'
 import { useRef, useState } from "react"
 import { IntersectionArea } from "../../../shared/components/IntersectionArea"
-import { KakaoMap, type KakaoMapRef } from "../../../shared/components/KakaoMap"
-import { useRoadPath } from "../../../shared/hooks/useRoadPath"
+import { Map, type MapRef } from "../../../shared/components/Map"
+import { useDirections } from "../../../shared/hooks/useDirections"
 import { formatDate } from "../../../shared/utils/formats"
 import { formatCurrency } from "../../expense/expense.utils"
 import { PlaceCategoryColorCode } from "../../place/place.types"
@@ -33,7 +33,7 @@ interface Props {
 }
 
 export function RouteExpenseViewMobile({ tripId }: Props) {
-  const mapRef = useRef<KakaoMapRef>(null)
+  const mapRef = useRef<MapRef>(null)
   const listContainerRef = useRef<HTMLDivElement>(null)
 
   const { data: { routes } } = useTripRoutes(tripId)
@@ -51,7 +51,8 @@ export function RouteExpenseViewMobile({ tripId }: Props) {
     create,
     update,
   } = useExpensesByPlace(tripId);
-  const { data: { lat, lng } } = useTrip(tripId)
+  const { data: trip } = useTrip(tripId)
+  const mapType = trip.isOverseas ? 'google' : 'kakao'
 
   const [activeDayIndex, setActiveDayIndex] = useState(0)
 
@@ -80,15 +81,16 @@ export function RouteExpenseViewMobile({ tripId }: Props) {
     <Container>
       {/* Top: Map */}
       <MapSection>
-        <KakaoMap
+        <Map
+          type={mapType}
           ref={mapRef}
-          defaultCenter={{ lat, lng }}
+          defaultCenter={{ lat: trip.lat, lng: trip.lng }}
           autoFocus="path"
           height="100%"
         >
           {placesByDay.flatMap((dayPlaces, dayIndex) =>
             dayPlaces.map((place) => (
-              <KakaoMap.Marker
+              <Map.Marker
                 key={`${place.routeId}-${place.id}`}
                 id={`${place.routeId}-${place.id}`}
                 lat={place.lat}
@@ -114,10 +116,11 @@ export function RouteExpenseViewMobile({ tripId }: Props) {
                 waypoints={routePlaces}
                 color={getRouteColor(dayIndex >= 0 ? dayIndex : index)}
                 isActive={activeDayIndex === dayIndex}
+                mapType={mapType}
               />
             )
           })}
-        </KakaoMap>
+        </Map>
       </MapSection>
 
       {/* Bottom: Place List */}
@@ -266,15 +269,16 @@ interface RoutePathProps {
   waypoints: { lat: number; lng: number }[] | undefined
   color: string
   isActive: boolean
+  mapType: 'kakao' | 'google'
 }
 
-function RoutePath({ waypoints, color, isActive }: RoutePathProps) {
-  const coordinates = useRoadPath(waypoints)
+function RoutePath({ waypoints, color, isActive, mapType }: RoutePathProps) {
+  const coordinates = useDirections({ type: mapType, waypoints })
 
   if (!coordinates || coordinates.length < 2) return null
 
   return (
-    <KakaoMap.Path
+    <Map.Path
       coordinates={coordinates}
       strokeColor={color}
       strokeWeight={isActive ? 5 : 3}
