@@ -1,5 +1,5 @@
 import { Box, Button, IconButton, Typography } from "@mui/material";
-import { useRef, useState, type ComponentProps } from "react";
+import { useEffect, useEffectEvent, useRef, useState, type ComponentProps } from "react";
 import { Swiper, SwiperSlide, type SwiperRef } from 'swiper/react';
 import type { Photo } from "~features/photo/photo.types";
 import { BottomSheet } from "~shared/components/BottomSheet";
@@ -8,6 +8,7 @@ import DownloadIcon from '@mui/icons-material/Downloading';
 // @ts-ignore
 import 'swiper/css';
 import { useConfirmDialog } from "~shared/modules/confirm-dialog/useConfirmDialog";
+import { ZoomArea } from "../ZoomArea";
 
 type SheetProps = {
   photos: Photo[];
@@ -44,6 +45,9 @@ export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, 
 
     }
   }
+
+  useGestureStart(() => swiperRef.current?.swiper.disable())
+
   return (
     <BottomSheet
       snapPoints={[0.95]}
@@ -75,13 +79,19 @@ export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, 
           >
             {photos.map((item, i) => (
               <SwiperSlide key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Box
-                  component="img"
-                  src={item.url}
-                  maxHeight="100%"
-                  sx={{ objectFit: 'contain' }}
-                  ref={index === i ? currentImageRef : undefined}
-                />
+                <ZoomArea
+                  height="100%"
+                  onZoomStart={() => swiperRef.current?.swiper.disable()}
+                  onZoomEnd={() => swiperRef.current?.swiper.enable()}
+                >
+                  <Box
+                    component="img"
+                    src={item.url}
+                    maxHeight="100%"
+                    sx={{ objectFit: 'contain' }}
+                    ref={index === i ? currentImageRef : undefined}
+                  />
+                </ZoomArea>
               </SwiperSlide>
             ))}
           </Swiper>
@@ -125,4 +135,20 @@ async function downloadRemoteSource(url: string) {
 
   document.body.removeChild(anchor);
   URL.revokeObjectURL(anchor.href);
+}
+
+function useGestureStart(callback: () => void) {
+  const preservedCallback = useEffectEvent(callback);
+
+  useEffect(() => {
+    const handler = (event: TouchEvent) => {
+      if (event.touches.length === 2) {
+        preservedCallback();
+      }
+    };
+
+    document.addEventListener('touchstart', handler);
+
+    return () => document.removeEventListener('touchstart', handler);
+  }, []);
 }
