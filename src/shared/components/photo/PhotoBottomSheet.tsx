@@ -1,8 +1,9 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, IconButton, Typography } from "@mui/material";
 import { useRef, useState, type ComponentProps } from "react";
 import { Swiper, SwiperSlide, type SwiperRef } from 'swiper/react';
 import type { Photo } from "~features/photo/photo.types";
 import { BottomSheet } from "~shared/components/BottomSheet";
+import DownloadIcon from '@mui/icons-material/Downloading';
 
 // @ts-ignore
 import 'swiper/css';
@@ -51,10 +52,16 @@ export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, 
       sx={{ backgroundColor: '#010101' }}
       {...props}
     >
-      <BottomSheet.Header alignItems="center" justifyContent="center" marginBottom={1}>
+      <BottomSheet.Header alignItems="center" justifyContent="center" position="relative" marginBottom={1}>
         <Typography variant="body2" color="#fff" fontWeight={800}>
           {index + 1} / {photos.length}
         </Typography>
+        <IconButton
+          onClick={() => downloadRemoteSource(photos[index].url)}
+          sx={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)' }}
+        >
+          <DownloadIcon sx={{ color: '#fff' }} />
+        </IconButton>
       </BottomSheet.Header>
       <BottomSheet.Body>
         <BottomSheet.Scrollable display="flex" alignItems="center" justifyContent="center" height="100%">
@@ -104,3 +111,18 @@ export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, 
   )
 }
 
+async function downloadRemoteSource(url: string) {
+  const response = await fetch(url);
+  const blob = await response.blob();
+
+  const anchor = document.createElement('a');
+  const [filename] = url.split('/').reverse();
+  anchor.download = filename;
+  anchor.href = URL.createObjectURL(blob);
+
+  document.body.append(anchor);
+  anchor.click()
+
+  document.body.removeChild(anchor);
+  URL.revokeObjectURL(anchor.href);
+}
