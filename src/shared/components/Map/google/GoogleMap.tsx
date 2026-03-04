@@ -133,6 +133,14 @@ export function GoogleMarker({
     return colors[variant];
   }, [variant, color]);
 
+
+  const handleClick = useEffectEvent(() => {
+    onClick?.({ lat, lng, label, variant });
+  });
+  const handleContextMenu = useEffectEvent(() => {
+    onContextMenu?.({ lat, lng, label, variant });
+  });
+
   useEffect(() => {
     if (!context?.map) return;
 
@@ -163,33 +171,17 @@ export function GoogleMarker({
       context.extendBound({ lat, lng });
     }
 
-    return () => {
-      marker.setMap(null);
-      markerRef.current = null;
-    };
-  }, [context, lat, lng, label, markerColor, opacity]);
-
-  // Click handler
-  const handleClick = useEffectEvent(() => {
-    onClick?.({ lat, lng, label, variant });
-  });
-
-  const handleContextMenu = useEffectEvent(() => {
-    onContextMenu?.({ lat, lng, label, variant });
-  });
-
-  useEffect(() => {
-    const marker = markerRef.current;
-    if (!marker) return;
-
     const clickListener = marker.addListener('click', handleClick);
     const contextMenuListener = marker.addListener('rightclick', handleContextMenu);
 
     return () => {
       google.maps.event.removeListener(clickListener);
       google.maps.event.removeListener(contextMenuListener);
+
+      marker.setMap(null);
+      markerRef.current = null;
     };
-  }, []);
+  }, [context, lat, lng, label, markerColor, opacity]);
 
   // Tooltip on hover (InfoWindow)
   useEffect(() => {
