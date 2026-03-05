@@ -8,12 +8,19 @@ interface Props extends Omit<StackProps, 'title'> {
   contents?: ReactNode | ReactNode[];
 }
 
-export function ListItem({ leftAddon, rightAddon, children, ...props }: Props) {
+export function ListItem({
+  leftAddon,
+  rightAddon,
+  children,
+  alignItems = 'center',
+  gap,
+  ...props
+}: Props) {
   const isMobile = useIsMobile();
   return (
     <Stack
-      gap={isMobile ? 0.5 : 1}
-      alignItems="center"
+      gap={gap ?? (isMobile ? 0.5 : 1)}
+      alignItems={alignItems}
       paddingX={1.5}
       paddingY={isMobile ? 1 : 1.5}
       border={1}
@@ -23,7 +30,7 @@ export function ListItem({ leftAddon, rightAddon, children, ...props }: Props) {
       direction="row"
       {...props}
     >
-      <Stack direction="row" gap={1} alignItems="center" width="100%">
+      <Stack direction="row" gap={gap ?? 1} alignItems={alignItems} width="100%">
         {leftAddon}
         <Stack gap={0.5} flex={1} minWidth={0} width="100%">
           {children}
@@ -81,7 +88,15 @@ ListItem.Title = ({ leftAddon, rightAddon, ...props }: TypographyProps & { leftA
   )
 }
 ListItem.Text = (props: TypographyProps) => {
-  return <Typography variant="caption" fontWeight={500} color="textSecondary" fontSize={12} {...props} />
+  return <Typography
+    variant="caption"
+    fontWeight={500}
+    color="textSecondary"
+    fontSize={12}
+    whiteSpace="pre-line"
+    sx={{ wordBreak: 'break-word' }}
+    {...props}
+  />
 }
 
 ListItem.Ordering = (props: BoxProps) => {

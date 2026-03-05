@@ -5,10 +5,9 @@ export const theme = createTheme({
     mode: 'light',
     primary: {
       main: '#4C84FF',
-      contrastText: '#ffffff',
     },
     warning: {
-      main: '#c9b458',
+      main: '#d68d06',
     },
     grey: {
       500: '#787c7e',
@@ -22,6 +21,41 @@ export const theme = createTheme({
     fontWeightLight: 600
   },
   components: {
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: 16
+        },
+      }
+    },
+    MuiCardHeader: {
+      styleOverrides: {
+        title: {
+          fontSize: 20
+        },
+      }
+    },
+    MuiTabs: {
+      styleOverrides: {
+        root: (props) => ({
+          [props.theme.breakpoints.down('md')]: {
+            minHeight: 24,
+            height: 40,
+          }
+        }),
+      }
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: (props) => ({
+          [props.theme.breakpoints.down('md')]: {
+            minHeight: 'auto',
+            fontSize: 12,
+          }
+        }),
+      }
+    },
+
     MuiButton: {
       variants: [
         {
@@ -127,9 +161,68 @@ export const theme = createTheme({
             fontSize: 12,
             // padding: 4
           }
-        })
+        }),
       },
-
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: props => ({
+            borderRadius: 8,
+            boxShadow: `0px 0px 6px ${props.theme.palette.divider}`
+        })
+      }
+    },
+    MuiList: {
+      styleOverrides: {
+        root: props => ({
+          [props.theme.breakpoints.down('md')]: {
+            paddingTop: 4,
+            paddingBottom: 4,
+          }
+        })
+      }
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: props => ({
+          fontSize: 14,
+          [props.theme.breakpoints.down('md')]: {
+            fontSize: 12,
+            minHeight: 30
+          }
+        })
+      }
+    },
+    MuiAutocomplete: {
+      styleOverrides: {
+        listbox: props => ({
+          [props.theme.breakpoints.down('md')]: {
+            paddingBlock: 4
+          }
+        }),
+        option: props => ({
+          [props.theme.breakpoints.down('md')]: {
+            fontSize: 13,
+            minHeight: 36
+          }
+        })
+      }
+    },
+    MuiFormControl: {
+      styleOverrides: {
+        root: props => ({
+          [props.theme.breakpoints.down('md')]: {
+            '.MuiPickersInputBase-root': {
+              fontSize: 12,
+              '.MuiInputAdornment-root .MuiSvgIcon-root': {
+                width: '1rem',
+                height: '1rem'
+              }
+            },
+            
+          }
+        })
+      }
     }
   },
 })

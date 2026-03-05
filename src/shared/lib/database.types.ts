@@ -85,6 +85,20 @@ export interface Database {
           created_at?: string
         }
         Update: Partial<Database['public']['Tables']['expenses']['Insert']>
+      },
+      checklist: {
+        Row: {
+          id: string;
+          trip_id: string;
+          title: string;
+          content: string | null;
+          created_at: string;
+          started_at: string | null;
+          ended_at: string | null;
+          is_completed: boolean;
+        };
+        Insert: Omit<Database['public']['Tables']['checklist']['Row'], 'id' | 'created_at' | 'is_completed'>,
+        Update: Omit<Database['public']['Tables']['checklist']['Row'], 'id' | 'trip_id' | 'created_at' | 'is_completed'>,
       }
     }
   }

@@ -2,13 +2,14 @@
 import { Button, Paper, Stack, Typography, useTheme } from '@mui/material';
 import { DateCalendar } from '@mui/x-date-pickers';
 import { type PickerValue } from '@mui/x-date-pickers/internals';
-import { differenceInDays, isBefore, isEqual, isSameDay, isToday, set, subMonths } from 'date-fns';
+import { differenceInDays, isBefore, isEqual, isSameDay, isToday, set, subMonths, addMonths } from 'date-fns';
 import { useState } from 'react';
 import { QuickDateOptions } from './constants';
 import { DateCalendarDay } from './DateCalendarDay';
 import { DateCalendarHeader } from './DateCalendarHeader';
 import Menu from './Menu';
 import { type DateRange } from './type';
+import { useIsMobile } from '~shared/hooks/useIsMobile';
 
 type Props = {
   defaultValue?: DateRange;
@@ -59,6 +60,7 @@ export const DateCalendarBoard = ({ defaultValue, onChange, onClose }: Props) =>
   };
 
   const isEmpty = startDate == null || endDate == null;
+  const isMobile = useIsMobile();
 
   return (
     <Paper
@@ -68,47 +70,63 @@ export const DateCalendarBoard = ({ defaultValue, onChange, onClose }: Props) =>
           '0px 3px 14px 2px rgba(0, 0, 0, 0.12), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 5px 5px -3px rgba(0, 0, 0, 0.20)',
       }}
     >
-      <Stack direction="row">
+      <Stack direction={isMobile ? 'column' : "row"}>
         <DateCalendar
-          value={subMonths(displayDate, 1)}
+          value={isMobile ? displayDate : subMonths(displayDate, 1)}
           slots={{
             day: (props) => <DateCalendarDay {...props} value={[startDate, endDate]} />,
-            calendarHeader: DateCalendarHeader.Readonly,
-          }}
-          slotProps={{ calendarHeader: { format: 'yyyy년 MM월' } }}
-          onChange={handleClickPicker}
-        />
-
-        <DateCalendar
-          value={displayDate}
-          sx={{ borderLeft: `1px solid ${palette.divider}` }}
-          slots={{
-            day: (props) => <DateCalendarDay {...props} value={[startDate, endDate]} />,
+            calendarHeader: isMobile ? undefined : DateCalendarHeader.Readonly,
           }}
           slotProps={{
             calendarHeader: { format: 'yyyy년 MM월' },
           }}
-          defaultValue={displayDate}
-          onMonthChange={(date) => setDisplayDate(date)}
+          sx={isMobile ? { height: 'auto', '.MuiPickersSlideTransition-root': { minHeight: 'auto !important' } } : {}}
           onChange={handleClickPicker}
+          onMonthChange={(date) => {
+            console.log(date)
+            if (isMobile) {
+              setDisplayDate(date);
+            }
+          }}
         />
 
-        <Menu title="빠른 선택">
-          {QuickDateOptions.map(({ days, label }) => (
-            <Menu.Item
-              key={days}
-              actived={!isEmpty && isEqual(differenceFromToday(startDate), days) && isToday(endDate)}
-              onClick={() => handleChangeQuickDateOption(days)}
-            >
-              <Typography variant="body2">{label}</Typography>
-            </Menu.Item>
-          ))}
-        </Menu>
+        <DateCalendar
+          value={isMobile ? addMonths(displayDate, 1) : displayDate}
+          slots={{
+            day: (props) => <DateCalendarDay {...props} value={[startDate, endDate]} />,
+            calendarHeader: isMobile ? DateCalendarHeader.Readonly : undefined
+          }}
+          slotProps={{
+            calendarHeader: { format: 'yyyy년 MM월', },
+          }}
+          defaultValue={displayDate}
+          onMonthChange={isMobile ? undefined : (date) => setDisplayDate(date)}
+          onChange={handleClickPicker}
+          sx={isMobile
+            ? { height: 'auto', '.MuiPickersSlideTransition-root': { minHeight: 'auto !important' } }
+            : { borderLeft: `1px solid ${palette.divider}` }}
+        />
+        {!isMobile && (
+          <Menu title="빠른 선택">
+            {QuickDateOptions.map(({ days, label }) => (
+              <Menu.Item
+                key={days}
+                actived={!isEmpty && isEqual(differenceFromToday(startDate), days) && isToday(endDate)}
+                onClick={() => handleChangeQuickDateOption(days)}
+              >
+                <Typography variant="body2">{label}</Typography>
+              </Menu.Item>
+            ))}
+          </Menu>
+        )}
       </Stack>
 
       <Stack direction="row"
+        position="sticky"
+        bottom={0}
         alignItems="flex-end"
         justifyContent="flex-end"
+        bgcolor={theme => theme.palette.background.paper}
         sx={{
           width: '100%',
           padding: '8px',
