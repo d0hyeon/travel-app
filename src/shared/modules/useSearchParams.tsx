@@ -14,6 +14,11 @@ export function SearchParamProvider({ children }: PropsWithChildren) {
   const [count, setCount] = useState(0);
 
   const [getSearchParams, requestUpdateSearchParams] = useVariation(searchParams);
+  useEffect(() => {
+    if (searchParams !== getSearchParams()) {
+      requestUpdateSearchParams(searchParams);
+    }
+  }, [searchParams])
   const [getOptions, setOptions] = useVariation<NavigateOptions | undefined>(undefined);
 
   const setSearchParams = useCallback((params: NextValue, options?: NavigateOptions) => {
@@ -41,6 +46,7 @@ export function SearchParamProvider({ children }: PropsWithChildren) {
 
     startTransition(() => updateSearchParams(params, options))
   }, [count])
+
 
   const value = useMemo(() => [searchParams, setSearchParams] as const, [searchParams])
 
