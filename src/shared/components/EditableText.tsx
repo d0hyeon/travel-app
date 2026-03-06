@@ -35,6 +35,7 @@ export type EditableTextProps<Value extends string | number> = {
   rules?: Partial<Rules>;
   actions?: (props: ActionProps<Value>) => ReactNode;
   endIcon?: ReactNode;
+  dismissible?: boolean;
 } & Omit<TypographyProps, 'onSubmit'>;
 
 export function EditableText<Value extends string | number, As extends string>({
@@ -48,6 +49,7 @@ export function EditableText<Value extends string | number, As extends string>({
   actions,
   valueAs = (value) => (typeof value === 'number' ? value.toString() : value),
   endIcon = <EditIcon fontSize="small" />,
+  dismissible = true,
   ...props
 }: EditableTextProps<Value>) {
   const value = _value ?? defaultValue ?? ('' as Value);
@@ -71,7 +73,7 @@ export function EditableText<Value extends string | number, As extends string>({
       if (reason === 'click-external' && submitOnBlur) return;
       setReadonly();
     },
-    { enabled: !isReadonly },
+    { enabled: !isReadonly && dismissible },
   );
 
   const formRef = useRef<HTMLFormElement>(null);

@@ -1,7 +1,7 @@
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import RefreshIcon from '@mui/icons-material/Refresh'
-import { Box, IconButton, Stack, Tab, Tabs, TextField, Typography } from "@mui/material"
+import { Box, IconButton, InputAdornment, Stack, Tab, Tabs, TextField, Typography } from "@mui/material"
 import { useState } from 'react'
 import { BottomArea } from '~shared/components/BottomArea'
 import { BottomNavigation } from '~shared/components/BottomNavigation'
@@ -9,20 +9,22 @@ import { useQueryParamState } from '~shared/hooks/useQueryParamState'
 import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
 import { EditableText } from '../../../shared/components/EditableText'
 import { ListItem } from '../../../shared/components/ListItem'
-import { formatDate } from '../../../shared/utils/formats'
+import { formatDate, formatDateISO } from '../../../shared/utils/formats'
 import { TripChecklist } from '../trip-checklist/TripChecklist'
 import { TripChecklistAddButton } from '../trip-checklist/TripChecklistAddButton'
 import { getRandomEmoji } from '../trip-member/tripMember.types'
 import { useTripMembers } from '../trip-member/useTripMembers'
 import { useTrip } from '../useTrip'
 import { TripDeadlineChecklist } from '../trip-checklist/TripDeadlineChecklist'
+import { DateRangePicker } from '~shared/components/date-range/DateRangePicker'
+import ClearIcon from '@mui/icons-material/Clear';
 
 interface Props {
   tripId: string
 }
 
 export function TripBasicInfoContent({ tripId }: Props) {
-  const { data: trip } = useTrip(tripId)
+  const { data: trip, update: updateTrip } = useTrip(tripId)
   const { data: members, create, update, remove } = useTripMembers(tripId)
   const confirm = useConfirmDialog()
 
@@ -68,7 +70,7 @@ export function TripBasicInfoContent({ tripId }: Props) {
       </Tabs>
       <Box position="relative" width="100%" sx={{ flex: 1, overflow: 'auto', p: 2 }}>
         {currentTab === 'default' && (
-          <Stack spacing={2}>
+          <Stack gap={4}>
             {/* 여행 정보 */}
             <Stack gap={1} border="1px solid #ddd" padding={2} borderRadius={4}>
               <Stack direction="row" justifyContent="space-between" alignItems="center">
@@ -81,13 +83,39 @@ export function TripBasicInfoContent({ tripId }: Props) {
                 <Typography variant="subtitle2" color="text.secondary">
                   여행 기간
                 </Typography>
-                <Typography variant="body1">
-                  {formatDate(trip.startDate)} ~ {formatDate(trip.endDate)}
-                </Typography>
+                <EditableText
+                  variant="body1"
+                  value={`${formatDate(trip.startDate)} ~ ${formatDate(trip.endDate)}`}
+                  dismissible={false}
+                  renderEditField={(props, control) => {
+                    const [start, end] = props.value.split(' ~ ').map(x => new Date(x));
+
+                    return (
+                      <DateRangePicker
+                        {...props}
+                        value={[start, end]}
+                        onChange={([start, end]) => {
+                          updateTrip.mutateAsync({
+                            startDate: formatDateISO(start),
+                            endDate: formatDateISO(end)
+                          })
+                          control.cancelEdit();
+                        }}
+                        endAdornment={(
+                          <InputAdornment position="end" onClick={control.cancelEdit}>
+                            <ClearIcon sx={{ width: 16 }} />
+                          </InputAdornment>
+                        )}
+                      />
+                    )
+                  }}
+                />
               </Stack>
             </Stack>
-            <Stack gap={1} border="1px solid #ddd" padding={2} borderRadius={4}>
-              <Typography variant='subtitle2' color="text.secondary">마감 임박</Typography>
+            <Stack gap={1} >
+              <Typography variant='subtitle2' color="text.secondary">
+                해야할 일
+              </Typography>
               <TripDeadlineChecklist
                 tripId={tripId}
                 gap={1}
@@ -95,7 +123,7 @@ export function TripBasicInfoContent({ tripId }: Props) {
             </Stack>
 
             {/* 인원 관리 */}
-            <Stack gap={1} border="1px solid #ddd" padding={2} borderRadius={4}>
+            <Stack gap={1} >
               <Stack direction="row" justifyContent="space-between" alignItems="center" marginTop={-1}>
                 <Typography variant="subtitle2" color="text.secondary">
                   인원 ({members.length}명)
