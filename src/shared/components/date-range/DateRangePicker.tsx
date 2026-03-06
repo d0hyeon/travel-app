@@ -88,7 +88,12 @@ export const DateRangePicker = ({
           onClose={() => setDatePickerAnchorEl(null)}
           fullWidth
           slotProps={{
-            paper: { sx: { width: '90vw !important' } }
+            paper: {
+              sx: {
+                width: '90vw !important',
+                height: '90dvh'
+              }
+            }
           }}
         >
           <DateCalendarBoard
