@@ -21,13 +21,10 @@ const config = {
       output: {
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router'],
-          'mui-vendor': ['@mui/material', '@mui/icons-material', '@emotion/react', '@emotion/styled'],
-          'map-vendor': ['@googlemaps/js-api-loader'],
-          'dnd-vendor': ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
-          'supabase-vendor': ['@supabase/supabase-js'],
-          'query-vendor': ['@tanstack/react-query'],
-          'date-vendor': ['date-fns', '@mui/x-date-pickers'],
-          'media-vendor': ['@fancyapps/ui', 'swiper', 'heic-to', 'react-image-file-resizer'],
+          'mui-vendor': ['@mui/material', '@mui/icons-material', '@emotion/react', '@emotion/styled', '@mui/x-date-pickers'],
+          'helper-vendor': ['@googlemaps/js-api-loader', '@supabase/supabase-js'],
+          // 'dnd-vendor': ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
+          // 'media-vendor': ['@fancyapps/ui', 'swiper', 'heic-to', 'react-image-file-resizer'],
         },
       },
     },
