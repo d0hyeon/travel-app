@@ -13,7 +13,6 @@ import {
 } from '@mui/material';
 import { Suspense } from 'react';
 import { useNavigate } from 'react-router';
-import 'scheduler-polyfill';
 import { BottomNavigation } from '~shared/components/BottomNavigation';
 import { SwitchCase } from '~shared/components/SwitchCase.tsx';
 import { useActivitySignalCallback } from '~shared/hooks/useActivitySignalCallback.ts';
