@@ -19,6 +19,7 @@ if (typeof window !== 'undefined') {
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e as BeforeInstallPromptEvent;
+    console.log('🔥 beforeinstallprompt captured!', { deferredPrompt, listenersCount: listeners.size });
     listeners.forEach((l) => l());
   });
 
@@ -29,6 +30,9 @@ if (typeof window !== 'undefined') {
 }
 
 function subscribe(callback: () => void) {
+  if (deferredPrompt) {
+    callback();
+  }
   listeners.add(callback);
   return () => listeners.delete(callback);
 }
@@ -61,8 +65,11 @@ export function useInstallPrompt() {
     return false;
   }, [prompt]);
 
+  const canInstall = !!prompt && !isInstalled;
+  console.log('🎯 useInstallPrompt:', { canInstall, prompt: !!prompt, isInstalled, deferredPrompt: !!deferredPrompt });
+
   return {
-    canInstall: !!prompt && !isInstalled,
+    canInstall,
     isInstalled,
     install,
   };
