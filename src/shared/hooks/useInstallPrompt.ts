@@ -30,9 +30,6 @@ if (typeof window !== 'undefined') {
 }
 
 function subscribe(callback: () => void) {
-  if (deferredPrompt) {
-    callback();
-  }
   listeners.add(callback);
   return () => listeners.delete(callback);
 }

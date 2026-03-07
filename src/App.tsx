@@ -112,7 +112,7 @@ function AppInstaller() {
         )
       })
     }
-  }, [])
+  }, [canInstall, isInstalled])
 
   return null;
 }
