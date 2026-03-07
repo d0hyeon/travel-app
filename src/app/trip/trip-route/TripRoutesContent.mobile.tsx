@@ -369,7 +369,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
           </BottomSheet.Body>
         </BottomSheet>
       </Box>
-      <BottomArea position="relative">
+      <BottomArea position="static">
         <Button
           size="large"
           variant="contained"

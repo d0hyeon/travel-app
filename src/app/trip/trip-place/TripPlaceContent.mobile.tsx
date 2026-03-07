@@ -127,7 +127,7 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
           </BottomSheet.Body>
         </BottomSheet>
       </Box>
-      <BottomArea position="relative">
+      <BottomArea position="static">
         <Button
           size="large"
           variant="contained"
