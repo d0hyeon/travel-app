@@ -65,6 +65,7 @@ export const DateCalendarBoard = ({ defaultValue, onChange, onClose }: Props) =>
   return (
     <Paper
       sx={{
+        overflowY: 'auto',
         backgroundColor: 'white',
         boxShadow:
           '0px 3px 14px 2px rgba(0, 0, 0, 0.12), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 5px 5px -3px rgba(0, 0, 0, 0.20)',
@@ -80,7 +81,7 @@ export const DateCalendarBoard = ({ defaultValue, onChange, onClose }: Props) =>
           slotProps={{
             calendarHeader: { format: 'yyyy년 MM월' },
           }}
-          sx={isMobile ? { height: 'auto', '.MuiPickersSlideTransition-root': { minHeight: 'auto !important' } } : {}}
+
           onChange={handleClickPicker}
           onMonthChange={(date) => {
             console.log(date)
@@ -103,7 +104,7 @@ export const DateCalendarBoard = ({ defaultValue, onChange, onClose }: Props) =>
           onMonthChange={isMobile ? undefined : (date) => setDisplayDate(date)}
           onChange={handleClickPicker}
           sx={isMobile
-            ? { height: 'auto', '.MuiPickersSlideTransition-root': { minHeight: 'auto !important' } }
+            ? {}
             : { borderLeft: `1px solid ${palette.divider}` }}
         />
         {!isMobile && (
