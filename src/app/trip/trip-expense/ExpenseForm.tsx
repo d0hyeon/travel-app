@@ -17,12 +17,13 @@ import {
   type ButtonProps
 } from "@mui/material"
 import { DatePicker } from '@mui/x-date-pickers'
-import { type ReactNode } from "react"
+import { Suspense, type ReactNode } from "react"
 import { Controller, FormProvider, useFieldArray, useForm, useFormContext, useWatch } from "react-hook-form"
 import { useTripMembers } from '~app/trip/trip-member/useTripMembers'
 import { useIsMobile } from '~shared/hooks/useIsMobile'
 import { formatDateISO } from "../../../shared/utils/formats"
 import { useTripPlaces } from '../trip-place/useTripPlaces'
+import type { Place } from '~app/place/place.types'
 
 export interface PaymentField {
   memberId: string
@@ -43,14 +44,20 @@ interface Props extends Omit<BoxProps<'form'>, 'defaultValues' | "onSubmit" | "a
   onSubmit: (data: ExpenseFormValues) => void
   action?: ReactNode;
 }
-
-export function ExpenseForm({
+export function ExpenseForm(props: Props) {
+  return (
+    <Suspense fallback={<ExpenseForm.Pending {...props} />}>
+      <ExpenseForm.Resolved {...props} />
+    </Suspense>
+  )
+}
+ExpenseForm.Resolved = ({
   tripId,
   defaultValues,
   action = <ExpenseForm.SubmitButton />,
   onSubmit,
   ...props
-}: Props) {
+}: Props) => {
   const { data: members } = useTripMembers(tripId);
   const { data: places } = useTripPlaces(tripId);
 
@@ -93,10 +100,7 @@ export function ExpenseForm({
   return (
     <FormProvider {...methods}>
       <Box component="form" onSubmit={handleFormSubmit} {...props}>
-
-
         <Stack spacing={2.5}>
-
           {/* 지불한 사람 */}
           <Box>
             <Stack direction="row" justifyContent="space-between" alignItems="center" marginBottom={isMobile ? 0.5 : 0}>
@@ -280,20 +284,165 @@ export function ExpenseForm({
   )
 }
 
+ExpenseForm.Pending = ({
+  defaultValues,
+  action = <ExpenseForm.SubmitButton />,
+  ...props
+}: Omit<Props, 'onSubmit'>) => {
+  const methods = useForm<ExpenseFormValues>({
+    mode: 'onChange',
+    defaultValues: defaultValues,
+  })
+  const { control, register } = methods;
+
+  const { fields } = useFieldArray({
+    control,
+    name: 'payments',
+  })
+
+  const isMobile = useIsMobile();
+
+  return (
+    <FormProvider {...methods}>
+      <Box component="form" {...props}>
+        <Stack spacing={2.5}>
+          {/* 지불한 사람 */}
+          <Box>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" marginBottom={isMobile ? 0.5 : 0}>
+              <Typography variant="subtitle2">누가 얼마 냈나요?</Typography>
+              <Button size="small" startIcon={<AddIcon />}>추가</Button>
+            </Stack>
+
+            <Stack spacing={1}>
+              {fields.map((field, index) => (
+                <Stack key={field.id} direction="row" spacing={1} alignItems="center">
+                  <Controller
+                    name={`payments.${index}.memberId`}
+                    control={control}
+                    render={({ field }) => (
+                      <FormControl size="small" sx={{ minWidth: 120 }}>
+                        <Select readOnly {...field}>
+
+                        </Select>
+                      </FormControl>
+                    )}
+                  />
+                  <Controller
+                    name={`payments.${index}.amount`}
+                    control={control}
+                    render={({ field: { value, onChange, ...field } }) => {
+                      return (
+                        <TextField
+                          {...field}
+
+                          value={value.toLocaleString()}
+                          onChange={({ target: { value } }) => {
+                            onChange(value === '' ? 0 : Number(value.replace(/[^0-9]/g, '')))
+                          }}
+                          size="small"
+
+                          placeholder="금액"
+                          slotProps={{
+                            input: {
+                              endAdornment: <InputAdornment position="end">원</InputAdornment>
+                            }
+                          }}
+                          sx={{ flex: 1 }}
+                          disabled
+                        />
+                      )
+                    }}
+                  />
+                  <IconButton size="small" disabled sx={{ opacity: 0.3 }}>
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </Stack>
+              ))}
+            </Stack>
+
+          </Box>
+
+          {/* 정산 대상자 */}
+          <Box>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" marginBottom={isMobile ? 0.5 : 0} >
+              <Typography variant="subtitle2">누구와 나눌까요?</Typography>
+              <Button size="small" disabled>전체 선택</Button>
+            </Stack>
+            <Controller
+              control={control}
+              name="splitAmong"
+              rules={{
+                validate: (value) => value.length === 0
+                  ? '대상자를 선택해주세요'
+                  : true
+              }}
+              render={({ field: { value, onChange: setValue, ...props } }) => (
+                <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
+                  <Chip component="button" sx={{ mb: 0.5 }} label="..." />
+                  <Chip component="button" sx={{ mb: 0.5 }} label="..." />
+                </Stack>
+              )}
+            />
+
+            <Typography variant="caption" color="text.secondary" mt={1} display="block">
+              1인당 ...원
+            </Typography>
+          </Box>
+          {/* 설명 (선택) */}
+          <TextField label="내용 (선택)" placeholder="점심 식사" fullWidth size="small" disabled {...register('description')} />
+          {/* 날짜 (선택) */}
+          <Controller
+            name="date"
+            control={control}
+            render={({ field: { value, onChange, ...field } }) => (
+              <DatePicker
+                {...field}
+                value={value ? new Date(value) : undefined}
+                onChange={(value) => onChange(formatDateISO(value as unknown as string))}
+                label="날짜 (선택)"
+                slotProps={{
+                  textField: { size: 'small' }
+                }}
+                disabled
+              />
+            )}
+          />
+
+          {/* 장소 연결 */}
+          <Controller
+            name="placeId"
+            control={control}
+            render={({ field: { onChange } }) => (
+              <Autocomplete
+                size="small"
+                options={[] satisfies Place[]}
+                renderInput={(params) => (
+                  <TextField {...params} label="장소 (선택)" placeholder="장소 검색..." />
+                )}
+                disabled
+                noOptionsText="검색 결과 없음"
+                clearText="초기화"
+              />
+            )}
+          />
+
+
+
+          {action}
+        </Stack>
+      </Box>
+    </FormProvider>
+  )
+}
+
 ExpenseForm.SubmitButton = (props: Omit<ButtonProps, 'type'>) => {
-  const { watch, formState: { isValid } } = useFormContext<ExpenseFormValues>();
-  const payments = watch('payments');
-
-  const totalAmount = payments.reduce((sum, p) => {
-    return sum + (p.amount ?? 0)
-  }, 0)
-
+  const { formState: { isValid } } = useFormContext<ExpenseFormValues>();
   return (
     <Button
       type="submit"
       variant="contained"
       fullWidth
-      disabled={totalAmount === 0 || !isValid}
+      disabled={!isValid}
       {...props}
     >
       {props.children ?? '저장'}
