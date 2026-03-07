@@ -1,3 +1,0 @@
-
-export const ERROR_DAYS_FROM_DEADLINE = 1;
-export const WARNING_DAYS_FROM_DEADLINE = 3;

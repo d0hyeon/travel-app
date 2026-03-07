@@ -1,16 +1,16 @@
 import { createContext, startTransition, use, useCallback, useEffect, useMemo, useState, type PropsWithChildren } from "react";
-import { useSearchParams as use병신SearchParams, type NavigateOptions as 병신Options } from "react-router-dom";
+import { useSearchParams as useRouterSearchParams, type NavigateOptions as RouterNavigateOptions } from "react-router";
 import { useVariation } from "~shared/hooks/useVariation";
 import { assert } from "~shared/lib/assert";
 
 type NextValue = URLSearchParams | ((curr: URLSearchParams) => URLSearchParams)
+export type NavigateOptions = RouterNavigateOptions;
 type Setter = (next: NextValue, options?: NavigateOptions) => void;
 
 const SearchParamsContext = createContext<readonly [URLSearchParams, Setter] | null>(null);
-export type NavigateOptions = 병신Options;
 
 export function SearchParamProvider({ children }: PropsWithChildren) {
-  const [searchParams, updateSearchParams] = use병신SearchParams();
+  const [searchParams, updateSearchParams] = useRouterSearchParams();
   const [count, setCount] = useState(0);
 
   const [getSearchParams, requestUpdateSearchParams] = useVariation(searchParams);

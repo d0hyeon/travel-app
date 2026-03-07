@@ -1,7 +1,7 @@
 import { Box, Button, IconButton, Typography } from "@mui/material";
 import { useEffect, useEffectEvent, useRef, useState, type ComponentProps } from "react";
 import { Swiper, SwiperSlide, type SwiperRef } from 'swiper/react';
-import type { Photo } from "~features/photo/photo.types";
+import type { Photo } from "~app/photo/photo.types";
 import { BottomSheet } from "~shared/components/BottomSheet";
 import DownloadIcon from '@mui/icons-material/Downloading';
 

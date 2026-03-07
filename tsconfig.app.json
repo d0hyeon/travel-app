@@ -24,8 +24,9 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
     "paths": {
-      "~*": ["./src/*"]
+      "~app/*": ["./src/app/*"],
+      "~shared/*": ["./src/shared/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src/app", "src/shared"]
 }

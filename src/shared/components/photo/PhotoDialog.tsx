@@ -2,7 +2,7 @@ import { Box, Dialog, IconButton, Stack } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useState, type ComponentProps } from "react";
-import type { Photo } from "~features/photo/photo.types";
+import type { Photo } from "~app/photo/photo.types";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { useConfirmDialog } from "../../modules/confirm-dialog/useConfirmDialog";
 

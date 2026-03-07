@@ -1,18 +1,42 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
+import { reactRouter } from '@react-router/dev/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 
+const isProd = process.env.NODE_ENV === 'production'
+
 // https://vite.dev/config/
-export default defineConfig({
+const config = {
   plugins: [
-    react({
-      babel: {
-        plugins: [['babel-plugin-react-compiler']],
+    reactRouter(),
+  ],
+  resolve: {
+    alias: [
+      { find: /^~app/, replacement: path.resolve(__dirname, 'src/app') },
+      { find: /^~shared/, replacement: path.resolve(__dirname, 'src/shared') },
+    ],
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router'],
+          'mui-vendor': ['@mui/material', '@mui/icons-material', '@emotion/react', '@emotion/styled'],
+          'map-vendor': ['@googlemaps/js-api-loader'],
+          'dnd-vendor': ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
+          'supabase-vendor': ['@supabase/supabase-js'],
+          'query-vendor': ['@tanstack/react-query'],
+          'date-vendor': ['date-fns', '@mui/x-date-pickers'],
+          'media-vendor': ['@fancyapps/ui', 'swiper', 'heic-to', 'react-image-file-resizer'],
+        },
       },
-    }),
-    tailwindcss(),
+    },
+  },
+}
+
+
+if (isProd) {
+  config.plugins.push(
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
@@ -78,28 +102,8 @@ export default defineConfig({
           },
         ],
       },
-    }),
-  ],
-  resolve: {
-    alias: [
-      { find: /^~/, replacement: path.resolve(__dirname, 'src') + '/' },
-    ],
-  },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'mui-vendor': ['@mui/material', '@mui/icons-material', '@emotion/react', '@emotion/styled'],
-          'map-vendor': ['@googlemaps/js-api-loader'],
-          'dnd-vendor': ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
-          'supabase-vendor': ['@supabase/supabase-js'],
-          'query-vendor': ['@tanstack/react-query'],
-          'date-vendor': ['date-fns', '@mui/x-date-pickers'],
-          'media-vendor': ['@fancyapps/ui', 'swiper', 'heic-to', 'react-image-file-resizer'],
-        },
-      },
-    },
-  },
-})
+    })
+  )
+}
 
+export default defineConfig(config);
