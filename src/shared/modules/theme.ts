@@ -223,6 +223,25 @@ export const theme = createTheme({
           }
         })
       }
+    },
+    MuiAlert: {
+      styleOverrides: {
+        root: {
+          borderRadius: 16
+        },
+        action: {
+          marginRight: 0
+        }
+      },
+    },
+    MuiAlertTitle: {
+      styleOverrides: {
+        root: props => ({
+          [props.theme.breakpoints.down('md')]: {
+            fontSize: 12
+          }
+        })
+      }
     }
   },
 })

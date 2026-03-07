@@ -1,11 +1,15 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import {
+  Alert,
+  AlertTitle,
   Box,
+  Button,
   CircularProgress,
   IconButton,
   Stack,
   Tab,
-  Tabs
+  Tabs,
+  Typography
 } from '@mui/material'
 import { Suspense } from 'react'
 import { useNavigate } from 'react-router'
@@ -18,6 +22,7 @@ import { useTrip } from './useTrip'
 import { useTripId } from './useTripId'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { lazy } from '~shared/lib/react'
+import { ErrorBoundary } from '~shared/components/ErrorBoundary.tsx'
 
 const TripPhotoContent = lazy(async () => {
   const module = await import('./trip-photo/TripPhotoContent.desktop.tsx')
@@ -98,18 +103,32 @@ export function TripDetailPageDesktop() {
         </Tabs>
       </Box>
       {/* Content */}
-      <Suspense fallback={<Box flex={1} display="flex" alignItems="center" justifyContent="center"><CircularProgress /></Box>}>
-        <SwitchCase
-          value={currentTab}
-          cases={{
-            Info: <TripBasicInfoContent tripId={tripId} />,
-            Place: () => <TripPlaceContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
-            Route: () => <TripRoutesContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
-            Expense: () => <TripExpenseContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
-            Photo: () => <TripPhotoContent tripId={tripId} />
-          }}
-        />
-      </Suspense>
+      <ErrorBoundary
+        fallback={({ error, resetError }) => (
+          <Alert
+            color="warning"
+            action={(<Button size="small" onClick={resetError}>재시도</Button>)}
+            sx={{ margin: 2, marginX: 1.5 }}
+          >
+            <AlertTitle>에러가 발생했어요!</AlertTitle>
+            <Typography variant="caption">{error.message}</Typography>
+          </Alert>
+        )}
+      >
+        <Suspense fallback={<Box flex={1} display="flex" alignItems="center" justifyContent="center"><CircularProgress /></Box>}>
+          <SwitchCase
+            value={currentTab}
+            cases={{
+              Info: <TripBasicInfoContent tripId={tripId} />,
+              Place: () => <TripPlaceContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
+              Route: () => <TripRoutesContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
+              Expense: () => <TripExpenseContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
+              Photo: () => <TripPhotoContent tripId={tripId} />
+            }}
+          />
+
+        </Suspense>
+      </ErrorBoundary>
     </Box>
   )
 }

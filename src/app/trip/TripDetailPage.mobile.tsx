@@ -5,7 +5,10 @@ import PhotoIcon from '@mui/icons-material/Photo';
 import PinDropIcon from '@mui/icons-material/PinDrop';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import {
+  Alert,
+  AlertTitle,
   Box,
+  Button,
   CircularProgress,
   IconButton,
   Stack,
@@ -21,6 +24,7 @@ import { useQueryParamState } from '../../shared/hooks/useQueryParamState';
 import { TripBasicInfoContent } from './trip-basic-info/TripBasicInfoContent.mobile';
 import { useTrip } from './useTrip';
 import { useTripId } from './useTripId';
+import { ErrorBoundary } from '~shared/components/ErrorBoundary.tsx';
 
 
 type TabType = 'Info' | 'Place' | 'Route' | 'Expense' | 'Photo';
@@ -104,18 +108,31 @@ export function TripDetailPageMobile() {
         height="100%"
         sx={{ overflowY: 'auto', overscrollBehaviorY: 'none' }}
       >
-        <Suspense fallback={<Box flex={1} display="flex" alignItems="center" justifyContent="center"><CircularProgress /></Box>}>
-          <SwitchCase
-            value={currentTab}
-            cases={{
-              Info: <TripBasicInfoContent tripId={tripId} />,
-              Place: () => <TripPlaceContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
-              Route: () => <TripRoutesContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
-              Expense: () => <TripExpenseContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
-              Photo: () => <TripPhotoContent tripId={tripId} />
-            }}
-          />
-        </Suspense>
+        <ErrorBoundary
+          fallback={({ error, resetError }) => (
+            <Alert
+              color="warning"
+              action={(<Button size="small" onClick={resetError}>재시도</Button>)}
+              sx={{ margin: 2, marginX: 1.5 }}
+            >
+              <AlertTitle>에러가 발생했어요!</AlertTitle>
+              <Typography variant="caption">{error.message}</Typography>
+            </Alert>
+          )}
+        >
+          <Suspense fallback={<Box flex={1} display="flex" alignItems="center" justifyContent="center"><CircularProgress /></Box>}>
+            <SwitchCase
+              value={currentTab}
+              cases={{
+                Info: <TripBasicInfoContent tripId={tripId} />,
+                Place: () => <TripPlaceContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
+                Route: () => <TripRoutesContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
+                Expense: () => <TripExpenseContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
+                Photo: () => <TripPhotoContent tripId={tripId} />
+              }}
+            />
+          </Suspense>
+        </ErrorBoundary>
       </Stack>
       <BottomNavigation>
         <BottomNavigation.Menu

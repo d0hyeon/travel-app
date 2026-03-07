@@ -1,4 +1,4 @@
-import { Box, CircularProgress, CssBaseline, ThemeProvider } from '@mui/material'
+import { Alert, AlertTitle, Box, Button, CircularProgress, CssBaseline, ThemeProvider, Typography } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -8,6 +8,7 @@ import { theme } from '~shared/modules/theme'
 import { SearchParamProvider } from '~shared/modules/useSearchParams'
 import { OverlayProvider } from '~shared/hooks/useOverlay'
 import '~shared/index.css'
+import { ErrorBoundary } from '~shared/components/ErrorBoundary'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -58,14 +59,27 @@ export default function Root() {
     <ThemeProvider theme={theme}>
       <QueryClientProvider client={queryClient}>
         <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <OverlayProvider>
-            <CssBaseline />
-            <SearchParamProvider>
-              <Suspense fallback={<Loading />}>
-                <Outlet />
-              </Suspense>
-            </SearchParamProvider>
-          </OverlayProvider>
+          <ErrorBoundary
+            fallback={({ error, resetError }) => (
+              <Alert
+                color="warning"
+                action={(<Button size="small" onClick={resetError}>재시도</Button>)}
+                sx={{ margin: 2, marginX: 1.5 }}
+              >
+                <AlertTitle>에러가 발생했어요!</AlertTitle>
+                <Typography variant="caption">{error.message}</Typography>
+              </Alert>
+            )}
+          >
+            <OverlayProvider>
+              <CssBaseline />
+              <SearchParamProvider>
+                <Suspense fallback={<Loading />}>
+                  <Outlet />
+                </Suspense>
+              </SearchParamProvider>
+            </OverlayProvider>
+          </ErrorBoundary>
         </LocalizationProvider>
       </QueryClientProvider>
     </ThemeProvider>
