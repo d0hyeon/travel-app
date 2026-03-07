@@ -98,7 +98,7 @@ export function useExpenseFormBottomSheet(tripId: string) {
                   close()
                 }}
                 action={renderActions?.({ close }) ?? defaultAction}
-                sx={{ paddingBottom: '60px' }}
+                sx={{ paddingBottom: '100px' }}
               />
             </BottomSheet.Body>
           </BottomSheet>
