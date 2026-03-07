@@ -76,7 +76,7 @@ export function ExpenseContent({ tripId, defaultCenter }: Props) {
   }
 
   return (
-    <Box sx={{ flex: 1, overflow: 'auto', p: 3, bgcolor: 'grey.50' }}>
+    <Box sx={{ flex: 1, p: 3, bgcolor: 'grey.50' }}>
       {/* 상단 요약 카드 */}
       <Stack direction="row" spacing={2} mb={3} flexWrap="wrap" useFlexGap>
         {/* 총 지출 */}
@@ -192,7 +192,7 @@ export function ExpenseContent({ tripId, defaultCenter }: Props) {
                 <Typography variant="body2">지출 추가 버튼을 눌러 첫 지출을 기록해보세요</Typography>
               </Box>
             ) : (
-              <Stack spacing={1.5} sx={{ maxHeight: 500, overflow: 'auto' }}>
+              <Stack spacing={1.5} sx={{ maxHeight: 450, overflow: 'auto' }}>
                 {expenses.map((expense) => (
                   <Card
                     key={expense.id}
@@ -200,6 +200,7 @@ export function ExpenseContent({ tripId, defaultCenter }: Props) {
                     sx={{
                       '&:hover': { borderColor: 'primary.main', bgcolor: 'primary.50' },
                       transition: 'all 0.2s',
+                      flex: '1 0 auto'
                     }}
                   >
                     <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>

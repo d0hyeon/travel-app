@@ -13,17 +13,38 @@ import {
 } from '@mui/material';
 import { Suspense } from 'react';
 import { useNavigate } from 'react-router';
+import 'scheduler-polyfill';
 import { BottomNavigation } from '~shared/components/BottomNavigation';
+import { SwitchCase } from '~shared/components/SwitchCase.tsx';
+import { useActivitySignalCallback } from '~shared/hooks/useActivitySignalCallback.ts';
+import { lazy } from '~shared/lib/react.ts';
 import { useQueryParamState } from '../../shared/hooks/useQueryParamState';
 import { TripBasicInfoContent } from './trip-basic-info/TripBasicInfoContent.mobile';
-import { ExpenseContent } from './trip-expense/ExpenseContent.mobile';
-import { TripPhotoContent } from './trip-photo/TripPhotoContent.mobile';
-import { TripPlaceContent } from './trip-place/TripPlaceContent.mobile';
-import { TripRoutesContent } from './trip-route/TripRoutesContent.mobile';
 import { useTrip } from './useTrip';
 import { useTripId } from './useTripId';
 
-type TabType = 'Info' | 'Place' | 'Route' | 'Expense' | 'Photo'
+
+type TabType = 'Info' | 'Place' | 'Route' | 'Expense' | 'Photo';
+
+const TripPhotoContent = lazy(async () => {
+  const module = await import('./trip-photo/TripPhotoContent.mobile.tsx')
+  return { default: module.TripPhotoContent }
+});
+
+const TripPlaceContent = lazy(async () => {
+  const module = await import('./trip-place/TripPlaceContent.mobile');
+  return { default: module.TripPlaceContent }
+});
+
+const TripRoutesContent = lazy(async () => {
+  const module = await import('./trip-route/TripRoutesContent.mobile');
+  return { default: module.TripRoutesContent }
+});
+
+const TripExpenseContent = lazy(async () => {
+  const module = await import('./trip-expense/ExpenseContent.mobile');
+  return { default: module.ExpenseContent }
+});
 
 const HEADER_HEIGHT = 50;
 
@@ -35,6 +56,13 @@ export function TripDetailPageMobile() {
   const [currentTab, setCurrentTab] = useQueryParamState<TabType>('content', {
     defaultValue: 'Info'
   })
+
+  useActivitySignalCallback(() => {
+    scheduler.postTask(TripRoutesContent.preload, { priority: 'background' })
+    scheduler.postTask(TripPhotoContent.preload, { priority: 'background' })
+    scheduler.postTask(TripExpenseContent.preload, { priority: 'background' })
+    scheduler.postTask(TripPhotoContent.preload, { priority: 'background' })
+  }, { sensitivity: 'high' })
 
   return (
     <Box sx={{ height: '100dvh', display: 'flex', flexDirection: 'column' }}>
@@ -78,11 +106,16 @@ export function TripDetailPageMobile() {
         sx={{ overflowY: 'auto', overscrollBehaviorY: 'none' }}
       >
         <Suspense fallback={<Box flex={1} display="flex" alignItems="center" justifyContent="center"><CircularProgress /></Box>}>
-          {currentTab === 'Info' && <TripBasicInfoContent tripId={tripId} />}
-          {currentTab === 'Place' && <TripPlaceContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />}
-          {currentTab === 'Route' && <TripRoutesContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />}
-          {currentTab === 'Expense' && <ExpenseContent tripId={tripId} />}
-          {currentTab === 'Photo' && <TripPhotoContent tripId={tripId} />}
+          <SwitchCase
+            value={currentTab}
+            cases={{
+              Info: <TripBasicInfoContent tripId={tripId} />,
+              Place: () => <TripPlaceContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
+              Route: () => <TripRoutesContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
+              Expense: () => <TripExpenseContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
+              Photo: () => <TripPhotoContent tripId={tripId} />
+            }}
+          />
         </Suspense>
       </Stack>
       <BottomNavigation>
@@ -125,3 +158,4 @@ export function TripDetailPageMobile() {
     </Box>
   )
 }
+
