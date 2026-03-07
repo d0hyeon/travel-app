@@ -230,7 +230,8 @@ export const theme = createTheme({
           borderRadius: 16
         },
         action: {
-          marginRight: 0
+          marginRight: 0,
+          flex: '0 0 auto'
         }
       },
     },
