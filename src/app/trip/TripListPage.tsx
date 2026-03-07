@@ -7,8 +7,8 @@ import {
   Stack,
   Typography
 } from '@mui/material'
-import { useState } from 'react'
-import { Link } from 'react-router'
+import { useEffect, useState } from 'react'
+import { Link, PrefetchPageLinks } from 'react-router'
 import { ListItem } from '../../shared/components/ListItem'
 import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
 import { isOverseasByCoordinate } from '~shared/utils/geo'
@@ -19,7 +19,8 @@ export default function TripListPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const confirm = useConfirmDialog()
 
-  const { data: trips, create, remove } = useTrips()
+  const { data: trips, create, remove } = useTrips();
+  const isMounted = useIsMounted();
 
   return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
@@ -47,6 +48,7 @@ export default function TripListPage() {
           {trips.map((trip, idx) => (
             <Stack key={trip.id} direction="row" alignItems="center" gap={1}>
               <Link to={`/trip/${trip.id}`} style={{ flex: 1 }}>
+
                 <ListItem
                   leftAddon={<ListItem.Ordering>{idx + 1}</ListItem.Ordering>}
                   rightAddon={(
@@ -82,6 +84,20 @@ export default function TripListPage() {
           { onSuccess: () => setIsDialogOpen(false) }
         )}
       />
+      {isMounted && <PrefetchPageLinks page={`/trip/:tripId`} />}
+
     </Container>
   )
+}
+
+function useIsMounted() {
+  const [is, setIs] = useState(false);
+
+  useEffect(() => {
+    const id = setTimeout(() => setIs(true));
+
+    return () => clearTimeout(id);
+  }, [])
+
+  return is;
 }
