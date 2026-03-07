@@ -7,6 +7,7 @@ const isProd = process.env.NODE_ENV === 'production'
 
 // https://vite.dev/config/
 const config = {
+  base: '/',
   plugins: [
     reactRouter(),
   ],
@@ -16,6 +17,9 @@ const config = {
       { find: /^~shared/, replacement: path.resolve(__dirname, 'src/shared') },
     ],
   },
+  build: {
+    outDir: 'dist/client'
+  }
 }
 
 
@@ -71,6 +75,7 @@ if (isProd) {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         cleanupOutdatedCaches: true, // 이전 빌드 파일(404 원인) 즉시 삭제
         clientsClaim: true,          // 즉시 앱 제어권 획득
+        skipWaiting: true,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\.kakaocdn\.net\/.*/i,
