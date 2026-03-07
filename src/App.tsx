@@ -2,7 +2,7 @@ import { Box, Button, CircularProgress, CssBaseline, Dialog, DialogActions, Dial
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { Suspense, useEffect, useTransition } from 'react'
+import { lazy, Suspense, useEffect, useTransition } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { BottomSheet } from '~shared/components/BottomSheet'
 import { useInstallPrompt } from '~shared/hooks/useInstallPrompt'
@@ -10,9 +10,11 @@ import { useIsMobile } from '~shared/hooks/useIsMobile'
 import { DialogTitle } from '~shared/modules/confirm-dialog/DialogTitle'
 import { theme } from '~shared/modules/theme'
 import { SearchParamProvider } from '~shared/modules/useSearchParams'
-import { TripDetailPage } from './features/trip/TripDetailPage'
-import { TripListPage } from './features/trip/TripListPage'
 import { OverlayProvider, useOverlay } from './shared/hooks/useOverlay'
+
+// Lazy load pages
+const TripListPage = lazy(() => import('./features/trip/TripListPage').then(m => ({ default: m.TripListPage })))
+const TripDetailPage = lazy(() => import('./features/trip/TripDetailPage').then(m => ({ default: m.TripDetailPage })))
 
 const queryClient = new QueryClient({
   defaultOptions: {

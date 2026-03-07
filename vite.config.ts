@@ -45,6 +45,7 @@ export default defineConfig({
         ],
       },
       workbox: {
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         runtimeCaching: [
           {
@@ -72,5 +73,19 @@ export default defineConfig({
       { find: /^~/, replacement: path.resolve(__dirname, 'src') + '/' },
     ],
   },
-  
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'mui-vendor': ['@mui/material', '@mui/icons-material', '@emotion/react', '@emotion/styled'],
+          'map-vendor': ['@googlemaps/js-api-loader'],
+          'dnd-vendor': ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
+          'supabase-vendor': ['@supabase/supabase-js'],
+          'query-vendor': ['@tanstack/react-query'],
+          'date-vendor': ['date-fns', '@mui/x-date-pickers'],
+        },
+      },
+    },
+  },
 })
