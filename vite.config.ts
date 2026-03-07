@@ -16,19 +16,6 @@ const config = {
       { find: /^~shared/, replacement: path.resolve(__dirname, 'src/shared') },
     ],
   },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router'],
-          'mui-vendor': ['@mui/material', '@mui/icons-material', '@emotion/react', '@emotion/styled', '@mui/x-date-pickers'],
-          'helper-vendor': ['@googlemaps/js-api-loader', '@supabase/supabase-js'],
-          // 'dnd-vendor': ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
-          // 'media-vendor': ['@fancyapps/ui', 'swiper', 'heic-to', 'react-image-file-resizer'],
-        },
-      },
-    },
-  },
 }
 
 
