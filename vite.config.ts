@@ -68,7 +68,6 @@ if (isProd) {
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         cleanupOutdatedCaches: true, // 이전 빌드 파일(404 원인) 즉시 삭제
-        skipWaiting: true,           // 업데이트 발견 시 즉시 교체
         clientsClaim: true,          // 즉시 앱 제어권 획득
         runtimeCaching: [
           {
