@@ -32,10 +32,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <html lang="ko">
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover" />
         <Meta />
+
         <script type="text/javascript" src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${import.meta.env.VITE_KAKAO_MAP_KEY}&autoload=false&libraries=services`} defer />
         <script src="https://unpkg.com/scheduler-polyfill" defer />
+
+        <link href="https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/static/woff2/SUIT.css" rel="stylesheet" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.png" />
+        <link rel="apple-touch-icon" href="/favicon.png" sizes="360x360" />
+        <link rel="shortcut icon" href="/favicon.png" />
         <Links />
       </head>
       <body>
