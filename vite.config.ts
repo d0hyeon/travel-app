@@ -24,6 +24,7 @@ if (isProd) {
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+      injectRegister: 'inline',
       manifest: {
         name: '여행 플래너',
         short_name: '여행',
