@@ -65,6 +65,7 @@ if (isProd) {
         ]
       },
       workbox: {
+        navigateFallback: '/index.html',
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         cleanupOutdatedCaches: true, // 이전 빌드 파일(404 원인) 즉시 삭제
