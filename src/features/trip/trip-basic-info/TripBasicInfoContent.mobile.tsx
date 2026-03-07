@@ -88,12 +88,10 @@ export function TripBasicInfoContent({ tripId }: Props) {
                   value={`${formatDate(trip.startDate)} ~ ${formatDate(trip.endDate)}`}
                   dismissible={false}
                   renderEditField={(props, control) => {
-                    const [start, end] = props.value.split(' ~ ').map(x => new Date(x));
-
                     return (
                       <DateRangePicker
                         {...props}
-                        value={[start, end]}
+                        value={[new Date(trip.startDate), new Date(trip.startDate)]}
                         onChange={([start, end]) => {
                           updateTrip.mutateAsync({
                             startDate: formatDateISO(start),
