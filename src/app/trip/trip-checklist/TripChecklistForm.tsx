@@ -36,7 +36,7 @@ export function TripChecklistForm({
     defaultValues
   });
 
-  const { data: { startDate, endDate } } = useTrip(tripId);
+  const { data: { endDate } } = useTrip(tripId);
   const { data: members } = useTripMembers(tripId);
   const isMobile = useIsMobile();
 
@@ -84,7 +84,6 @@ export function TripChecklistForm({
                 '.MuiPickersSectionList-root': { paddingY: 1.5 },
                 '.MuiFormLabel-root': { lineHeight: 1 }
               } : {}}
-              minDate={new Date(startDate)}
               maxDate={new Date(endDate)}
               ampm={false}
               disableFuture={false}
