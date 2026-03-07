@@ -1,9 +1,10 @@
-import { Stack, TextField, Typography, type StackProps } from "@mui/material";
+import { Chip, Stack, TextField, Typography, type StackProps } from "@mui/material";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import { formatDate } from "date-fns";
 import { Controller, useForm } from "react-hook-form";
 import { useIsMobile } from "~shared/hooks/useIsMobile";
-import { TripMemberAutocomplete } from "../trip-member/TripMemberAutocomplete";
+import { useTripMembers } from "../trip-member/useTripMembers";
+import { useTrip } from "../useTrip";
 
 export interface TripChecklistFormValue {
   title: string;
@@ -26,10 +27,17 @@ export function TripChecklistForm({
   onSubmit,
   ...stackProps
 }: Props) {
-  const { formState: { errors }, register, handleSubmit, control } = useForm<TripChecklistFormValue>({
+  const {
+    formState: { errors },
+    register,
+    handleSubmit,
+    control
+  } = useForm<TripChecklistFormValue>({
     defaultValues
   });
 
+  const { data: { startDate, endDate } } = useTrip(tripId);
+  const { data: members } = useTripMembers(tripId);
   const isMobile = useIsMobile();
 
   return (
@@ -67,17 +75,20 @@ export function TripChecklistForm({
         <Controller
           control={control}
           name="endedAt"
-          render={({ field: { value: _v, onChange, ...field } }) => (
-            // @ts-ignore
+          render={({ field: { value, onChange, ...field } }) => (
             <DateTimePicker
               label="종료"
-              value={_v ? new Date(_v) : undefined}
+              value={value ? new Date(value) : undefined}
               onChange={value => onChange(formatDate(value as Date, 'yyyy-MM-dd kk:mm'))}
               sx={isMobile ? {
                 '.MuiPickersSectionList-root': { paddingY: 1.5 },
                 '.MuiFormLabel-root': { lineHeight: 1 }
               } : {}}
+              minDate={new Date(startDate)}
+              maxDate={new Date(endDate)}
               ampm={false}
+              disableFuture={false}
+              views={['month', 'day', 'hours']}
               disableIgnoringDatePartForTimeValidation={false}
               {...field}
             />
@@ -87,12 +98,23 @@ export function TripChecklistForm({
       <Controller
         control={control}
         name="memberId"
-        render={({ field }) => (
-          <TripMemberAutocomplete
-            tripId={tripId}
-            renderInput={props => <TextField label="담당자" {...props} />}
-            {...field}
-          />
+        render={({ field: { value, onChange } }) => (
+          <Stack gap={1} marginTop={1} paddingX={0.5}>
+            <Typography variant="body2" color="textSecondary">담당자</Typography>
+            <Stack direction="row" gap={0.5} paddingX={0.5}>
+              {members.map(x => (
+                <Chip
+                  key={x.id}
+                  size="small"
+                  label={`${x.emoji} ${x.name}`}
+                  variant={value === x.id ? 'filled' : 'outlined'}
+                  color="primary"
+                  onClick={() => onChange(x.id)}
+                  sx={{ fontSize: 12 }}
+                />
+              ))}
+            </Stack>
+          </Stack>
         )}
       />
 

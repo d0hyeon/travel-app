@@ -4,7 +4,7 @@ import ErrorIcon from '@mui/icons-material/Error';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { alpha, Box, Checkbox, Chip, ClickAwayListener, Grow, IconButton, MenuItem, MenuList, Paper, Popper, Stack, Typography, type StackProps } from "@mui/material";
 import { differenceInDays, formatDate, isAfter, isBefore } from "date-fns";
-import { type ComponentProps, type MouseEvent } from "react";
+import { useMemo, type ComponentProps, type MouseEvent } from "react";
 import { match, P } from 'ts-pattern';
 import { ListItem } from "~shared/components/ListItem";
 import { SwitchCase } from "~shared/components/SwitchCase";
@@ -54,8 +54,16 @@ TripChecklist.Item = ({ tripId, id, ...props }: ItemProps) => {
 
   const { data: members } = useTripMembers(tripId);
 
+  const remainTimeText = useMemo(() => {
+    if (value.endedAt == null || value.isCompleted) return;
+    if (isAfter(value.endedAt, now)) {
+      return formatRemainTime(value.endedAt, '# 남음')
+    }
+    return '시간 초과';
+  }, [value])
+
   const startTimeText = !!value.startedAt ? `${formatDate(value.startedAt, 'MM/dd hh:mm')}` : undefined;
-  const endTimeText = !!value.endedAt ? `${formatDate(value.endedAt, 'MM/dd hh:mm')}${isAfter(value.endedAt, now) ? ` (${formatRemainTime(value.endedAt, '# 남음')})` : ' (시간 초과)'}` : undefined;
+  const endTimeText = !!value.endedAt ? formatDate(value.endedAt, 'MM/dd hh:mm') : undefined;
 
   const 담당자 = members.find(member => member.id === value.memberId);
   const remainDays = value.endedAt ? differenceInDays(value.endedAt, now) : undefined;
@@ -108,10 +116,14 @@ TripChecklist.Item = ({ tripId, id, ...props }: ItemProps) => {
         </Stack>
 
 
-        {!!startTimeText || endTimeText
-          ? <ListItem.Text color={!value.isCompleted ? status : undefined} sx={value.isCompleted ? { opacity: 0.5 } : {}}>{startTimeText} ~ {endTimeText}</ListItem.Text>
-          : null
-        }
+        {(!!startTimeText || !!endTimeText) && (
+          <ListItem.Text
+            color={!value.isCompleted ? status : undefined}
+            sx={value.isCompleted ? { opacity: 0.5 } : {}}
+          >
+            {startTimeText} ~ {endTimeText}{remainTimeText ? ` (${remainTimeText})` : ''}
+          </ListItem.Text>
+        )}
         <Stack direction="row" justifyContent="space-between" alignItems="center" gap={0.5}>
           {value.content && value.content.trim() !== '' && (
             <ListItem.Text sx={value.isCompleted ? { opacity: 0.5 } : {}}>
@@ -180,7 +192,7 @@ TripChecklist.ReadonlyItem = ({ id, tripId, ...props }: ItemProps) => {
     >
       <Stack direction="row" gap={0.5} justifyContent="space-between">
         <ListItem.Title>{value.title}</ListItem.Title>
-        {value.endedAt && (
+        {value.endedAt && value.isCompleted && (
           <ListItem.Text color={status}>
             {isBefore(value.endedAt, now)
               ? '시간 초과'

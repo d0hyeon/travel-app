@@ -91,7 +91,7 @@ export function TripBasicInfoContent({ tripId }: Props) {
                     return (
                       <DateRangePicker
                         {...props}
-                        value={[new Date(trip.startDate), new Date(trip.startDate)]}
+                        value={[new Date(trip.startDate), new Date(trip.endDate)]}
                         onChange={([start, end]) => {
                           updateTrip.mutateAsync({
                             startDate: formatDateISO(start),
@@ -99,11 +99,13 @@ export function TripBasicInfoContent({ tripId }: Props) {
                           })
                           control.cancelEdit();
                         }}
+                        onClosePicker={control.cancelEdit}
                         endAdornment={(
                           <InputAdornment position="end" onClick={control.cancelEdit}>
                             <ClearIcon sx={{ width: 16 }} />
                           </InputAdornment>
                         )}
+                        defaultOpen
                       />
                     )
                   }}

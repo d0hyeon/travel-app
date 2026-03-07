@@ -2,8 +2,9 @@ import ClearIcon from '@mui/icons-material/Clear';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import { Box, Dialog, InputAdornment, TextField, useTheme, type TextFieldProps } from '@mui/material';
 import { formatDate } from 'date-fns';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState, type DependencyList, type EffectCallback, type ReactNode } from 'react';
 import { useIsMobile } from '~shared/hooks/useIsMobile';
+import { useVariation } from '~shared/hooks/useVariation';
 import { DateCalendarBoard } from './DateCalendarBoard';
 import { Popover } from './Popover';
 import { type DateRange } from './type';
@@ -16,6 +17,8 @@ type Props = Omit<TextFieldProps, 'onChange' | 'value' | 'defaultValue'> & {
   format?: (date: Date) => string;
   width?: string | number;
   endAdornment?: ReactNode;
+  defaultOpen?: boolean;
+  onClosePicker?: () => void;
 };
 
 export const DateRangePicker = ({
@@ -27,6 +30,8 @@ export const DateRangePicker = ({
   fullWidth,
   width,
   endAdornment,
+  defaultOpen = false,
+  onClosePicker,
   ...props
 }: Props) => {
   const { palette } = useTheme();
@@ -47,10 +52,18 @@ export const DateRangePicker = ({
   }, [_value]);
   const isMobile = useIsMobile();
 
+  const [field, setField] = useState<HTMLDivElement | null>(null);
+
+  useEffectOnce(() => {
+    setDatePickerAnchorEl(field);
+  }, [field, open], { enabled: !!field && defaultOpen });
+
+
   return (
     <>
       <TextField
         {...props}
+        ref={setField}
         value={formattedValue}
         sx={fullWidth ? {} : { width }}
         InputProps={{
@@ -80,12 +93,15 @@ export const DateRangePicker = ({
           readOnly: true,
         }}
         fullWidth={fullWidth}
-        onClick={(event) => setDatePickerAnchorEl(event.currentTarget)}
+        onClick={() => setDatePickerAnchorEl(field)}
       />
       {isMobile ? (
         <Dialog
           open={!!datePickerAnchorEl}
-          onClose={() => setDatePickerAnchorEl(null)}
+          onClose={() => {
+            setDatePickerAnchorEl(null);
+            onClosePicker?.()
+          }}
           fullWidth
           slotProps={{
             paper: {
@@ -98,7 +114,10 @@ export const DateRangePicker = ({
         >
           <DateCalendarBoard
             defaultValue={value ?? defaultValue}
-            onClose={() => setDatePickerAnchorEl(null)}
+            onClose={() => {
+              setDatePickerAnchorEl(null);
+              onClosePicker?.()
+            }}
             onChange={handleChange}
           />
         </Dialog>
@@ -106,11 +125,17 @@ export const DateRangePicker = ({
         <Popover
           open={!!datePickerAnchorEl}
           anchorEl={datePickerAnchorEl}
-          onClose={() => setDatePickerAnchorEl(null)}
+          onClose={() => {
+            setDatePickerAnchorEl(null);
+            onClosePicker?.()
+          }}
         >
           <DateCalendarBoard
             defaultValue={value ?? defaultValue}
-            onClose={() => setDatePickerAnchorEl(null)}
+            onClose={() => {
+              setDatePickerAnchorEl(null);
+              onClosePicker?.()
+            }}
             onChange={handleChange}
           />
         </Popover>
@@ -120,3 +145,19 @@ export const DateRangePicker = ({
   );
 };
 
+
+
+function useEffectOnce(
+  callback: EffectCallback,
+  deps: DependencyList,
+  { enabled = true }: { enabled?: boolean } = {}
+) {
+  const [getIsExecuted, setIsExecuted] = useVariation(false);
+
+  useEffect(() => {
+    if (!enabled || getIsExecuted()) return;
+
+    callback();
+    setIsExecuted(true);
+  }, [...deps, enabled])
+}
