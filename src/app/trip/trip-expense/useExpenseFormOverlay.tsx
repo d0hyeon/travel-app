@@ -98,6 +98,7 @@ export function useExpenseFormBottomSheet(tripId: string) {
                   close()
                 }}
                 action={renderActions?.({ close }) ?? defaultAction}
+                sx={{ paddingBottom: '60px' }}
               />
             </BottomSheet.Body>
           </BottomSheet>
@@ -116,9 +117,9 @@ type ActionsProps = {
 export function ExpenseFormOverlayActions({ onCancel, secondary }: ActionsProps) {
   return (
     <Stack
-      // position="absolute"
-      // marginLeft="-16px !important"
-      // padding={2}
+      position="absolute"
+      width="100%"
+      bottom={0}
       direction="row"
       gap={1}
       marginTop="40px !important"
