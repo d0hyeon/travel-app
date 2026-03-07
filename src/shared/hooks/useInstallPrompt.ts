@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useSyncExternalStore } from 'react';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -11,34 +11,40 @@ declare global {
   }
 }
 
+// 전역에서 이벤트 캡처 (컴포넌트 마운트 전에 발생해도 잡힘)
+let deferredPrompt: BeforeInstallPromptEvent | null = null;
+let listeners = new Set<() => void>();
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e as BeforeInstallPromptEvent;
+    listeners.forEach((l) => l());
+  });
+
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    listeners.forEach((l) => l());
+  });
+}
+
+function subscribe(callback: () => void) {
+  listeners.add(callback);
+  return () => listeners.delete(callback);
+}
+
+function getSnapshot() {
+  return deferredPrompt;
+}
+
 export function useInstallPrompt() {
-  const [prompt, setPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const prompt = useSyncExternalStore(subscribe, getSnapshot, () => null);
   const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
-    // 이미 설치된 경우 체크 (standalone 모드)
     if (window.matchMedia('(display-mode: standalone)').matches) {
       setIsInstalled(true);
-      return;
     }
-
-    const handleBeforeInstall = (e: BeforeInstallPromptEvent) => {
-      e.preventDefault();
-      setPrompt(e);
-    };
-
-    const handleAppInstalled = () => {
-      setIsInstalled(true);
-      setPrompt(null);
-    };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
-    window.addEventListener('appinstalled', handleAppInstalled);
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
-      window.removeEventListener('appinstalled', handleAppInstalled);
-    };
   }, []);
 
   const install = useCallback(async () => {
@@ -48,7 +54,8 @@ export function useInstallPrompt() {
     const { outcome } = await prompt.userChoice;
 
     if (outcome === 'accepted') {
-      setPrompt(null);
+      deferredPrompt = null;
+      listeners.forEach((l) => l());
       return true;
     }
     return false;
