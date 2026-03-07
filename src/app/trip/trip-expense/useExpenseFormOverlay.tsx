@@ -91,14 +91,13 @@ export function useExpenseFormBottomSheet(tripId: string) {
             <BottomSheet.Body>
               <ExpenseForm
                 tripId={tripId}
-                paddingBottom={0}
+                paddingBottom="100px"
                 defaultValues={defaultValues}
                 onSubmit={(data) => {
                   resolve(data);
                   close()
                 }}
                 action={renderActions?.({ close }) ?? defaultAction}
-                sx={{ paddingBottom: '100px' }}
               />
             </BottomSheet.Body>
           </BottomSheet>
