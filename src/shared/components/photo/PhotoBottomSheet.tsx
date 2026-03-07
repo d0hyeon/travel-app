@@ -92,8 +92,8 @@ export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, 
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
-                  onZoomStart={() => swiperRef.current?.swiper.disable()}
-                  onZoomEnd={() => swiperRef.current?.swiper.enable()}
+                  onZoomStart={() => swiperRef.current?.swiper?.disable?.()}
+                  onZoomEnd={() => swiperRef.current?.swiper?.enable?.()}
                 >
                   <Box
                     component="img"
