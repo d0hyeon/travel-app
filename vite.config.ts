@@ -43,6 +43,18 @@ export default defineConfig({
             purpose: 'maskable',
           },
         ],
+        "screenshots": [
+          {
+            src: "screenshot-desktop2880x1564.png",
+            sizes: '2880x1564',
+            type: 'image/png'
+          },
+          {
+            src: "screenshot-mobile758x1230.png",
+            sizes: '758x1230',
+            type: 'image/png'
+          }
+        ]
       },
       workbox: {
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
@@ -84,8 +96,10 @@ export default defineConfig({
           'supabase-vendor': ['@supabase/supabase-js'],
           'query-vendor': ['@tanstack/react-query'],
           'date-vendor': ['date-fns', '@mui/x-date-pickers'],
+          'media-vendor': ['@fancyapps/ui', 'swiper', 'heic-to', 'react-image-file-resizer'],
         },
       },
     },
   },
 })
+
