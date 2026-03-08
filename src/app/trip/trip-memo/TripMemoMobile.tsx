@@ -247,6 +247,10 @@ function MemoItem({ tripId, id, onEdit, ...stackProps }: MemoItemProps) {
   const justOpenedRef = useRef(false);
 
   const handleLongPressStart = useCallback((e: TouchEvent | MouseEvent) => {
+    // iOS Safari에서 기본 제스처 방지
+    if ('touches' in e) {
+      e.preventDefault();
+    }
     longPressTimer.current = setTimeout(() => {
       justOpenedRef.current = true;
       setMenuAnchor(e.currentTarget as HTMLElement);
@@ -312,12 +316,12 @@ function MemoItem({ tripId, id, onEdit, ...stackProps }: MemoItemProps) {
             py: 0.5,
             pl: 2,
             pr: 0.5,
-            // bgcolor: memo.isPinned ? 'primary.50' : 'grey.100',
             borderColor: 'primary.main',
             cursor: 'pointer',
             userSelect: 'none',
             WebkitUserSelect: 'none',
             WebkitTouchCallout: 'none',
+            touchAction: 'none',
             borderRadius: '12px',
             boxShadow: '0px 2px 8px #ddd'
           },
