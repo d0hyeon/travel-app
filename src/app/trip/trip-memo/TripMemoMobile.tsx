@@ -20,7 +20,7 @@ import {
   Typography,
   type StackProps
 } from "@mui/material";
-import { useCallback, useEffect, useRef, useState, useTransition, type MouseEvent, type TouchEvent } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { ResizeObserverArea } from '~shared/components/ResizeObserverArea';
 import { useVariation } from '~shared/hooks/useVariation';
 import { useConfirmDialog } from "~shared/modules/confirm-dialog/useConfirmDialog";
@@ -242,27 +242,54 @@ function MemoItem({ tripId, id, onEdit, ...stackProps }: MemoItemProps) {
   const confirm = useConfirmDialog();
   const memo = memos.find((m) => m.id === id);
 
+  const elementRef = useRef<HTMLDivElement>(null);
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const justOpenedRef = useRef(false);
 
-  const handleLongPressStart = useCallback((e: TouchEvent | MouseEvent) => {
-    // iOS Safari에서 기본 제스처 방지
-    if ('touches' in e) {
-      e.preventDefault();
-    }
-    longPressTimer.current = setTimeout(() => {
-      justOpenedRef.current = true;
-      setMenuAnchor(e.currentTarget as HTMLElement);
-      navigator.vibrate?.([100]);
-    }, LONG_PRESS_DURATION);
-  }, []);
+  // iOS Safari 롱프레스 지원을 위해 네이티브 이벤트 리스너 사용
+  useEffect(() => {
+    const element = elementRef.current;
+    if (!element) return;
 
-  const handleLongPressEnd = useCallback(() => {
-    if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current);
-      longPressTimer.current = null;
-    }
+    const handleTouchStart = (e: globalThis.TouchEvent) => {
+      e.preventDefault(); // iOS 기본 제스처 방지
+      longPressTimer.current = setTimeout(() => {
+        justOpenedRef.current = true;
+        setMenuAnchor(element);
+        navigator.vibrate?.([100]);
+      }, LONG_PRESS_DURATION);
+    };
+
+    const handleTouchEnd = () => {
+      if (longPressTimer.current) {
+        clearTimeout(longPressTimer.current);
+        longPressTimer.current = null;
+      }
+    };
+
+    const handleTouchMove = () => {
+      // 터치 이동 시 롱프레스 취소
+      if (longPressTimer.current) {
+        clearTimeout(longPressTimer.current);
+        longPressTimer.current = null;
+      }
+    };
+
+    element.addEventListener('touchstart', handleTouchStart, { passive: false });
+    element.addEventListener('touchend', handleTouchEnd);
+    element.addEventListener('touchcancel', handleTouchEnd);
+    element.addEventListener('touchmove', handleTouchMove);
+
+    return () => {
+      element.removeEventListener('touchstart', handleTouchStart);
+      element.removeEventListener('touchend', handleTouchEnd);
+      element.removeEventListener('touchcancel', handleTouchEnd);
+      element.removeEventListener('touchmove', handleTouchMove);
+      if (longPressTimer.current) {
+        clearTimeout(longPressTimer.current);
+      }
+    };
   }, []);
 
   const handleCloseMenu = useCallback(() => {
@@ -297,16 +324,11 @@ function MemoItem({ tripId, id, onEdit, ...stackProps }: MemoItemProps) {
   return (
     <>
       <Stack
+        ref={elementRef}
         direction="row"
         gap={1}
         alignItems="center"
         justifyContent="space-between"
-        onTouchStart={handleLongPressStart}
-        onTouchEnd={handleLongPressEnd}
-        onTouchCancel={handleLongPressEnd}
-        onMouseDown={handleLongPressStart}
-        onMouseUp={handleLongPressEnd}
-        onMouseLeave={handleLongPressEnd}
         onContextMenu={(e) => {
           e.preventDefault();
           setMenuAnchor(e.currentTarget as HTMLElement);
@@ -321,7 +343,7 @@ function MemoItem({ tripId, id, onEdit, ...stackProps }: MemoItemProps) {
             userSelect: 'none',
             WebkitUserSelect: 'none',
             WebkitTouchCallout: 'none',
-            touchAction: 'none',
+            touchAction: 'manipulation',
             borderRadius: '12px',
             boxShadow: '0px 2px 8px #ddd'
           },
