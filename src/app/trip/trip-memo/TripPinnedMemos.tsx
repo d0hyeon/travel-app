@@ -30,14 +30,14 @@ function TripPinnedMemosContent({ tripId, ...props }: Props) {
         {pinnedMemos.map((memo) => (
           <ListItem
             key={memo.id}
-            leftAddon={<PushPinIcon fontSize="small" color="primary" />}
+            leftAddon={<PushPinIcon fontSize="small" color="primary" sx={{ width: 16 }} />}
             sx={{
-              borderColor: 'primary.main',
-              borderWidth: 2,
+              paddingY: 1,
+              boxShadow: '0px 2px 8px #ddd'
             }}
           >
             <Typography
-              variant="body2"
+              variant="caption"
               sx={{
                 whiteSpace: 'pre-wrap',
                 wordBreak: 'break-word',
