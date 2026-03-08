@@ -244,6 +244,7 @@ function MemoItem({ tripId, id, onEdit, ...stackProps }: MemoItemProps) {
   const memo = memos.find((m) => m.id === id);
 
   const elementRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const justOpenedRef = useRef(false);
@@ -263,6 +264,11 @@ function MemoItem({ tripId, id, onEdit, ...stackProps }: MemoItemProps) {
     if (!element) return;
 
     const handleTouchStart = (e: globalThis.TouchEvent) => {
+      // 메뉴 버튼 터치 시 롱프레스 무시 (클릭 이벤트 허용)
+      if (menuButtonRef.current?.contains(e.target as Node)) {
+        return;
+      }
+
       e.preventDefault(); // iOS 기본 제스처 방지
       longPressTimer.current = setTimeout(() => {
         justOpenedRef.current = true;
@@ -382,7 +388,7 @@ function MemoItem({ tripId, id, onEdit, ...stackProps }: MemoItemProps) {
             {memo.content}
           </Typography>
         </Stack>
-        <IconButton onClick={(event) => setMenuAnchor(event.currentTarget as HTMLElement)}>
+        <IconButton ref={menuButtonRef} onClick={(event) => setMenuAnchor(event.currentTarget as HTMLElement)}>
           <MoreVertIcon fontSize="small" />
         </IconButton>
 
