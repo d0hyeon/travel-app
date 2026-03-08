@@ -62,8 +62,8 @@ TripChecklist.Item = ({ tripId, id, ...props }: ItemProps) => {
     return '시간 초과';
   }, [value])
 
-  const startTimeText = !!value.startedAt ? `${formatDate(value.startedAt, 'MM/dd hh:mm')}` : undefined;
-  const endTimeText = !!value.endedAt ? formatDate(value.endedAt, 'MM/dd hh:mm') : undefined;
+  const startTimeText = !!value.startedAt ? `${formatDate(value.startedAt, 'MM/dd HH:mm')}` : undefined;
+  const endTimeText = !!value.endedAt ? formatDate(value.endedAt, 'MM/dd HH:mm') : undefined;
 
   const 담당자 = members.find(member => member.id === value.memberId);
   const remainDays = value.endedAt ? differenceInDays(value.endedAt, now) : undefined;
