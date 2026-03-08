@@ -1,28 +1,21 @@
+import type { DataRaw } from '~shared/lib/database-row.types'
+import type { Json } from '~shared/lib/database.types'
 import { supabase } from '../../shared/lib/supabase'
-import type { Expense, ExpensePayment } from './expense.types'
+import type { Expense } from './expense.types'
 
 export const expenseKey = 'expenses'
 
-function toExpense(row: {
-  id: string
-  trip_id: string
-  place_id: string | null
-  description: string
-  total_amount: number
-  payments: ExpensePayment[]
-  split_among: string[]
-  date: string
-  created_at: string
-}): Expense {
+function toExpense(row: DataRaw<'expenses'>): Expense {
   return {
     id: row.id,
     tripId: row.trip_id,
     placeId: row.place_id ?? undefined,
-    description: row.description,
+    description: row.description ?? '',
     totalAmount: row.total_amount,
+    // @ts-ignore
     payments: row.payments ?? [],
     splitAmong: row.split_among ?? [],
-    date: row.date,
+    date: row.date ?? undefined,
     createdAt: row.created_at,
   }
 }
@@ -46,15 +39,15 @@ export async function createExpense(data: Omit<Expense, 'id' | 'createdAt'>): Pr
       place_id: data.placeId || null,
       description: data.description,
       total_amount: data.totalAmount,
-      payments: data.payments,
+      payments: data.payments as unknown as Json,
       split_among: data.splitAmong,
       date: data.date,
-    } as never)
+    })
     .select()
     .single()
 
   if (error) throw error
-  return toExpense(created!)
+  return toExpense(created)
 }
 
 export async function updateExpense(

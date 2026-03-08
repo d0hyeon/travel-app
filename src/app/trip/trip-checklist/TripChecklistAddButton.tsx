@@ -38,6 +38,7 @@ export function TripChecklistAddButton({ tripId, ...props }: Props) {
                       tripId={tripId}
                       id={formId}
                       onSubmit={async (data) => {
+                        console.log(data)
                         await add(data);
                         handleClose();
                       }}
@@ -69,6 +70,7 @@ export function TripChecklistAddButton({ tripId, ...props }: Props) {
                     tripId={tripId}
                     id={formId}
                     onSubmit={async (data) => {
+                      console.log(data)
                       await add(data);
                       handleClose();
                     }}

@@ -1,3 +1,4 @@
+import type { DataRaw } from '~shared/lib/database-row.types';
 import { supabase } from '../../shared/lib/supabase'
 import type { Photo, PhotoUploadParams } from './photo.types'
 import { heicTo, isHeic } from 'heic-to'
@@ -6,14 +7,7 @@ import Resizer from 'react-image-file-resizer';
 export const photoKey = 'photos'
 const BUCKET_NAME = 'photos'
 
-function toPhoto(row: {
-  id: string
-  trip_id: string
-  place_id: string
-  url: string
-  storage_path: string
-  created_at: string
-}): Photo {
+function toPhoto(row: DataRaw<'photos'>): Photo {
   return {
     id: row.id,
     tripId: row.trip_id,
@@ -113,7 +107,7 @@ export async function uploadPhoto({ tripId, placeId, file: _file }: PhotoUploadP
       place_id: placeId,
       url: urlData.publicUrl,
       storage_path: storagePath,
-    } as never)
+    })
     .select()
     .single()
 

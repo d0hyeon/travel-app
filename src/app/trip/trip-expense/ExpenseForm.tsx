@@ -368,21 +368,10 @@ ExpenseForm.Pending = ({
               <Typography variant="subtitle2">누구와 나눌까요?</Typography>
               <Button size="small" disabled>전체 선택</Button>
             </Stack>
-            <Controller
-              control={control}
-              name="splitAmong"
-              rules={{
-                validate: (value) => value.length === 0
-                  ? '대상자를 선택해주세요'
-                  : true
-              }}
-              render={({ field: { value, onChange: setValue, ...props } }) => (
-                <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
-                  <Chip component="button" sx={{ mb: 0.5 }} label="..." />
-                  <Chip component="button" sx={{ mb: 0.5 }} label="..." />
-                </Stack>
-              )}
-            />
+            <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
+              <Chip component="button" sx={{ mb: 0.5 }} label="..." />
+              <Chip component="button" sx={{ mb: 0.5 }} label="..." />
+            </Stack>
 
             <Typography variant="caption" color="text.secondary" mt={1} display="block">
               1인당 ...원
@@ -412,8 +401,9 @@ ExpenseForm.Pending = ({
           <Controller
             name="placeId"
             control={control}
-            render={({ field: { onChange } }) => (
+            render={({ field }) => (
               <Autocomplete
+                {...field}
                 size="small"
                 options={[] satisfies Place[]}
                 renderInput={(params) => (

@@ -1,3 +1,5 @@
+import type { DataRaw } from '~shared/lib/database-row.types'
+import type { Json } from '~shared/lib/database.types'
 import { supabase } from '../../shared/lib/supabase'
 import type { Route } from './route.types'
 
@@ -5,9 +7,7 @@ export const routeKey = 'routes'
 
 // DB row -> App model 변환
 // 기존 string 형태를 string[] 형태로 마이그레이션 호환
-function normalizePlaceMemos(
-  memos: Record<string, string | string[]> | null
-): Record<string, string[]> {
+function normalizePlaceMemos(memos: Json): Record<string, string[]> {
   if (!memos) return {}
   const result: Record<string, string[]> = {}
   for (const [key, value] of Object.entries(memos)) {
@@ -21,17 +21,7 @@ function normalizePlaceMemos(
   return result
 }
 
-function toRoute(row: {
-  id: string
-  trip_id: string
-  name: string
-  place_ids: string[]
-  place_memos: Record<string, string | string[]> | null
-  is_main: boolean
-  scheduled_date: string | null
-  created_at: string
-  hidden_places: string[] | null;
-}): Route {
+function toRoute(row: DataRaw<'routes'>): Route {
   return {
     id: row.id,
     tripId: row.trip_id,
@@ -45,7 +35,7 @@ function toRoute(row: {
   }
 }
 
-export async function getAllRoutes(): Promise<Route[]> {
+export async function getAllRoutes() {
   const { data, error } = await supabase
     .from('routes')
     .select('*')

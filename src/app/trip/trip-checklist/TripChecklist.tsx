@@ -192,7 +192,7 @@ TripChecklist.ReadonlyItem = ({ id, tripId, ...props }: ItemProps) => {
     >
       <Stack direction="row" gap={0.5} justifyContent="space-between">
         <ListItem.Title>{value.title}</ListItem.Title>
-        {value.endedAt && (
+        {value.endedAt && value.isCompleted && (
           <ListItem.Text color={status}>
             {isBefore(value.endedAt, now)
               ? '시간 초과'
