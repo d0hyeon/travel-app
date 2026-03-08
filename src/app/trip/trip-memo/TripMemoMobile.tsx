@@ -25,6 +25,7 @@ import { ResizeObserverArea } from '~shared/components/ResizeObserverArea';
 import { useVariation } from '~shared/hooks/useVariation';
 import { useConfirmDialog } from "~shared/modules/confirm-dialog/useConfirmDialog";
 import { useTripMemo } from "./useTripMemo";
+import { useAnimation } from '~shared/hooks/useAnimation';
 
 const LONG_PRESS_DURATION = 500;
 
@@ -247,6 +248,15 @@ function MemoItem({ tripId, id, onEdit, ...stackProps }: MemoItemProps) {
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const justOpenedRef = useRef(false);
 
+  const animation = useAnimation({
+    frames: [
+      { transform: 'scale(1)', offset: 0, },
+      { transform: 'scale(1.1)', offset: 0.5, },
+      { transform: 'scale(1)', offset: 1, }
+    ],
+    duration: 300
+  })
+
   // iOS Safari 롱프레스 지원을 위해 네이티브 이벤트 리스너 사용
   useEffect(() => {
     const element = elementRef.current;
@@ -258,6 +268,7 @@ function MemoItem({ tripId, id, onEdit, ...stackProps }: MemoItemProps) {
         justOpenedRef.current = true;
         setMenuAnchor(element);
         navigator.vibrate?.([100]);
+        animation.play({ element });
       }, LONG_PRESS_DURATION);
     };
 
