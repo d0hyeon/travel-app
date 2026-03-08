@@ -1,16 +1,5 @@
 import { createContext, useContext, type ReactNode, type RefObject } from 'react';
-
-interface DragHandlers {
-  onDragStart: (clientY: number) => void;
-  onDragMove: (clientY: number) => void;
-  onDragEnd: () => void;
-}
-
-interface DragState {
-  isDragging: boolean;
-  startY: number;
-  startHeight: number;
-}
+import type { DragHandlers, DragState } from './useSheetDrag';
 
 interface BottomSheetContextValue {
   isModalMode: boolean;

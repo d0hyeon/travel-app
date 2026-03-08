@@ -1,11 +1,10 @@
 import { Box, Fade, Stack, type BoxProps } from '@mui/material';
-import { useCallback, useEffect, useImperativeHandle, useMemo, useState, type ReactNode, type Ref } from 'react';
+import { useCallback, useEffect, useImperativeHandle, useState, type ReactNode, type Ref } from 'react';
 import { BottomSheetProvider } from './BottomSheetContext';
 import { Body, BottomActions, Header, Scrollable } from './compounds';
 import { useContentHeight } from './useContentHeight';
-import { useDrag } from './useDrag';
+import { DRAG_HANDLE_HEIGHT, useSheetDrag } from './useSheetDrag';
 import { useSheetStatus } from './useSheetStatus';
-import { useSnapPoints } from './useSnapPoints';
 
 export type BottomSheetRef = {
   snap: number;
@@ -28,13 +27,10 @@ interface BottomSheetProps extends BoxProps {
   ref?: Ref<BottomSheetRef>;
 }
 
-const DEFAULT_SNAP_POINTS = [0.3, 0.5, 0.7, 0.9] as const;
-const DRAG_HANDLE_HEIGHT = 28;
-
 export function BottomSheet({
   children,
-  snapPoints: snapPointsProp,
-  defaultSnapIndex: defaultSnapIndexProp,
+  snapPoints: defaultSnapPoints,
+  defaultSnapIndex,
   minHeight = 100,
   isOpen,
   onClose,
@@ -45,13 +41,11 @@ export function BottomSheet({
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [content, setContent] = useState<HTMLDivElement | null>(null);
 
-  const getContainerHeight = useCallback(() => {
-    return container?.parentElement?.clientHeight ?? window.innerHeight;
-  }, [container]);
+  const containerHeight = container?.parentElement?.clientHeight ?? window.innerHeight;
 
   // 자동 높이 계산이 필요한지 판단
-  const needsAutoHeight = snapPointsProp === undefined;
-  const needsAutoSnapIndex = snapPointsProp !== undefined && defaultSnapIndexProp === undefined;
+  const needsAutoHeight = defaultSnapPoints === undefined;
+  const needsAutoSnapIndex = defaultSnapPoints !== undefined && defaultSnapIndex === undefined;
   const isAutoMode = needsAutoHeight || needsAutoSnapIndex;
 
   // 컨텐츠 높이 측정
@@ -60,73 +54,26 @@ export function BottomSheet({
     enabled: isAutoMode,
   });
 
-  // 실제 사용할 snapPoints와 defaultSnapIndex 계산
-  const { snapPoints, defaultSnapIndex } = useMemo(() => {
-    const containerHeight = getContainerHeight();
-
-    if (needsAutoHeight && contentHeight !== null) {
-      const contentRatio = Math.min(0.95, (contentHeight + DRAG_HANDLE_HEIGHT) / containerHeight);
-      return {
-        snapPoints: [contentRatio] as const,
-        defaultSnapIndex: 0,
-      };
-    }
-
-    if (needsAutoSnapIndex && contentHeight !== null && snapPointsProp) {
-      const contentRatio = (contentHeight + DRAG_HANDLE_HEIGHT) / containerHeight;
-      let nearestIndex = 0;
-      let minDiff = Math.abs(contentRatio - snapPointsProp[0]);
-
-      for (let i = 1; i < snapPointsProp.length; i++) {
-        const diff = Math.abs(contentRatio - snapPointsProp[i]);
-        if (diff < minDiff) {
-          minDiff = diff;
-          nearestIndex = i;
-        }
-      }
-
-      return {
-        snapPoints: snapPointsProp,
-        defaultSnapIndex: nearestIndex,
-      };
-    }
-
-    return {
-      snapPoints: snapPointsProp ?? DEFAULT_SNAP_POINTS,
-      defaultSnapIndex: defaultSnapIndexProp ?? 0,
-    };
-  }, [snapPointsProp, defaultSnapIndexProp, needsAutoHeight, needsAutoSnapIndex, contentHeight, getContainerHeight]);
-
-  const [snapIndex, setSnapIndex] = useState(defaultSnapIndex);
-
-  useEffect(() => {
-    setSnapIndex(defaultSnapIndex);
-  }, [defaultSnapIndex]);
-
-  // 모달 애니메이션
-  const { isModalMode, isVisible, isAnimating } = useSheetStatus({
-    isOpen,
-    defaultSnapIndex,
-    onResetSnapIndex: setSnapIndex,
-  });
-
-  // 스냅 포인트 계산
-  const { getHeightForSnap, findNearestSnapIndex } = useSnapPoints({
+  // 시트 드래그 (snap 계산 + 상태 + 드래그 핸들러 모두 포함)
+  const {
     snapPoints,
-    minHeight,
-    getContainerHeight,
-    isModalMode,
-  });
-
-  // 드래그 핸들링
-  const { isDragging, dragOffset, dragState, handlers } = useDrag({
     snapIndex,
-    getHeightForSnap,
-    getContainerHeight,
-    findNearestSnapIndex,
-    onSnapChange: setSnapIndex,
+    currentHeight: dragHeight,
+    isDragging,
+    dragState,
+    handlers,
+  } = useSheetDrag({
+    defaultSnapPoints,
+    defaultSnapIndex,
+    contentHeight,
+    containerHeight,
+    minHeight,
+    isOpen,
     onClose,
   });
+
+  // 모달 애니메이션 상태
+  const { isModalMode, isVisible, isAnimating } = useSheetStatus({ isOpen });
 
   // ref 노출
   useImperativeHandle(ref, () => ({
@@ -138,14 +85,8 @@ export function BottomSheet({
     onSnapChange?.(snapPoints[snapIndex]);
   }, [snapIndex, snapPoints, onSnapChange]);
 
-  // 높이 계산
-  const baseHeight = getHeightForSnap(snapIndex);
-  const containerHeight = getContainerHeight();
-  const currentHeight = isDragging
-    ? Math.max(0, Math.min(containerHeight, baseHeight + dragOffset))
-    : isModalMode && !isAnimating
-      ? 0
-      : baseHeight;
+  // 높이 계산 (모달 애니메이션 적용)
+  const currentHeight = isModalMode && !isAnimating ? 0 : dragHeight;
 
   // 렌더링 조건
   if (isModalMode && !isVisible && !isOpen) {
