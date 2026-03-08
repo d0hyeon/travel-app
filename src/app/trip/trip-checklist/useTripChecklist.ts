@@ -1,4 +1,4 @@
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { differenceInDays, getTime } from "date-fns";
 import { useMemo } from "react";
 import type { PickRequired } from "~shared/utils/types";
@@ -11,9 +11,14 @@ const now = Date.now();
 type Todo = PickRequired<TripChecklist, 'endedAt'>
 
 export function useTripChecklist(tripId: string) {
+  const client = useQueryClient();
+
   const { data, refetch, ...queries } = useSuspenseQuery({
     queryKey: useTripChecklist.key(tripId),
-    queryFn: () => getChecklist(tripId),
+    queryFn: async () => {
+      const data = await getChecklist(tripId)
+      return data.toSorted((_, item) => item.isCompleted ? -1 : 1)
+    },
   });
 
   const deadlines = useMemo(() => {
@@ -32,10 +37,20 @@ export function useTripChecklist(tripId: string) {
   })
 
   const { mutateAsync: update } = useMutation({
-    mutationFn: (params: Omit<UpdateChecklist, 'tripId'>) => {
-      return updateChecklist(params)
+    mutationFn: async (params: Omit<UpdateChecklist, 'tripId'>) => {
+      await updateChecklist(params);
+      
+      return { refetch };
     },
-    onSuccess: () => refetch(),
+    onSuccess: (_, params) => {
+      client.setQueryData<TripChecklist[]>(useTripChecklist.key(tripId), (curr) => {
+        if (curr == null) return;
+        return curr.map(x => (x.id === params.id
+          ? { ...x, ...params }
+          : x
+        ))
+      })
+    }
   })
 
   const { mutateAsync: remove } = useMutation({
