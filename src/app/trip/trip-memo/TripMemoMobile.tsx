@@ -57,6 +57,7 @@ export function TripMemoMobile({ tripId }: Props) {
         await add({ content });
       }
       setInputValue('');
+      inputRef.current?.blur();
     })
   };
 
