@@ -28,5 +28,5 @@
       "~shared/*": ["./src/shared/*"]
     }
   },
-  "include": ["src/app", "src/shared"]
+  "include": ["src/app", "src/shared", "./node_modules/@types/web/index.d.ts"]
 }
