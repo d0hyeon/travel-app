@@ -103,32 +103,34 @@ export function TripDetailPageDesktop() {
         </Tabs>
       </Box>
       {/* Content */}
-      <ErrorBoundary
-        fallback={({ error, resetError }) => (
-          <Alert
-            color="error"
-            action={(<Button size="small" variant='contained' onClick={resetError}>재시도</Button>)}
-            sx={{ margin: 2, marginX: 1.5 }}
-          >
-            <AlertTitle>에러가 발생했어요!</AlertTitle>
-            <Typography variant="caption">{error.message}</Typography>
-          </Alert>
-        )}
-      >
-        <Suspense fallback={<Box flex={1} display="flex" alignItems="center" justifyContent="center"><CircularProgress /></Box>}>
-          <SwitchCase
-            value={currentTab}
-            cases={{
-              Info: <TripBasicInfoContent tripId={tripId} />,
-              Place: () => <TripPlaceContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
-              Route: () => <TripRoutesContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
-              Expense: () => <TripExpenseContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
-              Photo: () => <TripPhotoContent tripId={tripId} />
-            }}
-          />
+      <Box>
+        <ErrorBoundary
+          fallback={({ error, resetError }) => (
+            <Alert
+              color="error"
+              action={(<Button size="small" variant='contained' onClick={resetError}>재시도</Button>)}
+              sx={{ margin: 2, marginX: 1.5 }}
+            >
+              <AlertTitle>에러가 발생했어요!</AlertTitle>
+              <Typography variant="caption">{error.message}</Typography>
+            </Alert>
+          )}
+        >
+          <Suspense fallback={<Box flex={1} display="flex" alignItems="center" justifyContent="center"><CircularProgress /></Box>}>
+            <SwitchCase
+              value={currentTab}
+              cases={{
+                Info: <TripBasicInfoContent tripId={tripId} />,
+                Place: () => <TripPlaceContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
+                Route: () => <TripRoutesContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
+                Expense: () => <TripExpenseContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
+                Photo: () => <TripPhotoContent tripId={tripId} />
+              }}
+            />
 
-        </Suspense>
-      </ErrorBoundary>
+          </Suspense>
+        </ErrorBoundary>
+      </Box>
     </Box>
   )
 }

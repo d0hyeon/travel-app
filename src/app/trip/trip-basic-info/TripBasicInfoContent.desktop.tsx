@@ -11,6 +11,8 @@ import { TripChecklist } from '../trip-checklist/TripChecklist'
 import { TripChecklistAddButton } from '../trip-checklist/TripChecklistAddButton'
 import { getRandomEmoji } from '../trip-member/tripMember.types'
 import { useTripMembers } from '../trip-member/useTripMembers'
+import { TripMemo } from '../trip-memo/TripMemo'
+import { TripMemoAddButton } from '../trip-memo/TripMemoAddButton'
 import { useTrip } from '../useTrip'
 
 interface Props {
@@ -55,9 +57,9 @@ export function TripBasicInfoContent({ tripId }: Props) {
   }
 
   return (
-    <Box paddingTop={2}>
+    <Box height="100%">
 
-      <Stack direction="row" gap={3} sx={{ flex: 1, overflow: 'auto', p: 3 }}>
+      <Stack direction="row" gap={3} height="100%" sx={{ flex: 1, overflow: 'auto', p: 3 }}>
         <Stack flex="1" spacing={3} >
           {/* 여행 정보 */}
           <Card variant="outlined">
@@ -80,6 +82,20 @@ export function TripBasicInfoContent({ tripId }: Props) {
                 </Box>
               </Stack>
             </CardContent>
+          </Card>
+
+          {/* 고정된 메모 */}
+          <Card variant="outlined">
+            <Stack direction="row" paddingY={1} marginTop={0.5} paddingX={2} alignItems="center" justifyContent="space-between">
+              <Typography variant="h6">메모</Typography>
+              <TripMemoAddButton tripId={tripId} size="small" />
+            </Stack>
+
+            <Suspense>
+              <CardContent>
+                <TripMemo tripId={tripId} />
+              </CardContent>
+            </Suspense>
           </Card>
 
           {/* 인원 관리 */}
@@ -187,19 +203,32 @@ export function TripBasicInfoContent({ tripId }: Props) {
             </CardContent>
           </Card>
         </Stack>
-        <Stack flex="1" spacing={3} >
-          <Card variant="outlined">
-            <Stack direction="row" paddingY={1} marginTop={0.5} paddingX={2} alignItems="center" justifyContent="space-between">
+        <Stack flex="0 0 500px" spacing={3} sx={{ position: 'relative' }}>
+          <Card
+            variant="outlined"
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              position: 'fixed',
+              top: 160,
+              bottom: 24,
+              right: 24,
+              width: 500,
+            }}
+          >
+            <Stack flex="0 0 auto" direction="row" paddingY={1} marginTop={0.5} paddingX={2} alignItems="center" justifyContent="space-between">
               <Typography variant="h6">체크리스트</Typography>
               <TripChecklistAddButton tripId={tripId} size="small" />
             </Stack>
 
             <Suspense>
-              <CardContent>
+              <CardContent sx={{ flex: '1 1 auto', overflowY: 'auto' }}>
                 <TripChecklist tripId={tripId} />
               </CardContent>
             </Suspense>
           </Card>
+
+
         </Stack>
       </Stack>
     </Box>

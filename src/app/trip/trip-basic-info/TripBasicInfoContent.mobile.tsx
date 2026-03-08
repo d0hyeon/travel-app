@@ -12,6 +12,8 @@ import { ListItem } from '../../../shared/components/ListItem'
 import { formatDate, formatDateISO } from '../../../shared/utils/formats'
 import { TripChecklist } from '../trip-checklist/TripChecklist'
 import { TripChecklistAddButton } from '../trip-checklist/TripChecklistAddButton'
+import { TripMemoMobile } from '../trip-memo/TripMemoMobile'
+import { TripPinnedMemos } from '../trip-memo/TripPinnedMemos'
 import { getRandomEmoji } from '../trip-member/tripMember.types'
 import { useTripMembers } from '../trip-member/useTripMembers'
 import { useTrip } from '../useTrip'
@@ -67,8 +69,12 @@ export function TripBasicInfoContent({ tripId }: Props) {
       <Tabs value={currentTab} onChange={(_, value) => setCurrentTab(value)}>
         <Tab value="default" label="기본정보" />
         <Tab value="checklist" label="체크리스트" />
+        <Tab value="memo" label="메모" />
       </Tabs>
-      <Box position="relative" width="100%" sx={{ flex: 1, overflow: 'auto', p: 2 }}>
+      <Box
+        position="relative"
+        width="100%"
+        sx={{ flex: 1, overflow: currentTab === 'memo' ? 'hidden' : 'auto', p: currentTab === 'memo' ? 0 : 2 }}>
         {currentTab === 'default' && (
           <Stack gap={4}>
             {/* 여행 정보 */}
@@ -121,6 +127,9 @@ export function TripBasicInfoContent({ tripId }: Props) {
                 gap={1}
               />
             </Stack>
+
+            {/* 고정된 메모 */}
+            <TripPinnedMemos tripId={tripId} />
 
             {/* 인원 관리 */}
             <Stack gap={1} >
@@ -236,6 +245,10 @@ export function TripBasicInfoContent({ tripId }: Props) {
               <TripChecklistAddButton tripId={tripId} size="large" fullWidth />
             </BottomArea>
           </>
+        )}
+
+        {currentTab === 'memo' && (
+          <TripMemoMobile tripId={tripId} />
         )}
 
       </Box>

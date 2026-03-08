@@ -109,6 +109,38 @@ export type Database = {
           },
         ]
       }
+      memos: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_pinned: boolean
+          trip_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_pinned?: boolean
+          trip_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_pinned?: boolean
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memos_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       photos: {
         Row: {
           created_at: string
