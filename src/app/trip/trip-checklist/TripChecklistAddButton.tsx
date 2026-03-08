@@ -33,6 +33,9 @@ export function TripChecklistAddButton({ tripId, ...props }: Props) {
             if (isMobile) {
               return (
                 <BottomSheet isOpen={isOpen} onClose={handleClose}>
+                  <BottomSheet.Header>
+                    체크리스트
+                  </BottomSheet.Header>
                   <BottomSheet.Body>
                     <TripChecklistForm
                       tripId={tripId}
