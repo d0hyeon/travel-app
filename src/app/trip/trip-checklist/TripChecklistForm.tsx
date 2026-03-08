@@ -58,7 +58,7 @@ export function TripChecklistForm({
             <DateTimePicker
               label="시작"
               value={value ? new Date(value) : undefined}
-              onChange={value => onChange(formatDate(value as Date, 'yyyy-MM-dd kk:mm'))}
+              onChange={value => onChange(formatDate(value as Date, 'yyyy-MM-dd HH:mm'))}
               sx={isMobile ? {
                 '.MuiPickersSectionList-root': { paddingY: 1.5 },
                 '.MuiFormLabel-root': { lineHeight: 1 }
@@ -79,7 +79,7 @@ export function TripChecklistForm({
             <DateTimePicker
               label="종료"
               value={value ? new Date(value) : undefined}
-              onChange={value => onChange(formatDate(value as Date, 'yyyy-MM-dd kk:mm'))}
+              onChange={value => onChange(formatDate(value as Date, 'yyyy-MM-dd HH:mm'))}
               sx={isMobile ? {
                 '.MuiPickersSectionList-root': { paddingY: 1.5 },
                 '.MuiFormLabel-root': { lineHeight: 1 }
