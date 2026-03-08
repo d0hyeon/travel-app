@@ -26,6 +26,7 @@ import { useVariation } from '~shared/hooks/useVariation';
 import { useConfirmDialog } from "~shared/modules/confirm-dialog/useConfirmDialog";
 import { useTripMemo } from "./useTripMemo";
 import { useAnimation } from '~shared/hooks/useAnimation';
+import { useQueryParamState } from '~shared/hooks/useQueryParamState';
 
 const LONG_PRESS_DURATION = 500;
 
@@ -82,7 +83,10 @@ export function TripMemoMobile({ tripId }: Props) {
   };
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [getContainerHeight, setContainerHeight] = useVariation(0);
-  const [isPinSummaryView, setIsPinSummaryView] = useState(true);
+  const [isPinSummaryView, setIsPinSummaryView] = useQueryParamState('is-pin-summary', {
+    defaultValue: true,
+    parse: x => x === 'true'
+  });
 
   useEffect(() => {
     if (container) {
