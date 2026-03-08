@@ -51,10 +51,11 @@ export async function createChecklist(data: CreateChecklist) {
       .insert({
         trip_id: data.tripId,
         title: data.title,
-        content: data.content,
-        started_at: data.startedAt,
-        ended_at: data.endedAt,
-      } as never)
+        content: data.content ?? null,
+        started_at: data.startedAt ?? null,
+        ended_at: data.endedAt ?? null,
+        member_id: data.memberId ?? null
+      })
       .select()
       .single()
   
