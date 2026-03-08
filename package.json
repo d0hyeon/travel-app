@@ -8,7 +8,8 @@
     "build": "react-router build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "ts-check": "tsc -b --noEmit"
+    "ts-check": "tsc -b --noEmit",
+    "gen-db-types": "supabase gen types typescript --project-id feubgswdgmxrbpbfbqje > src/shared/lib/database.types.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
