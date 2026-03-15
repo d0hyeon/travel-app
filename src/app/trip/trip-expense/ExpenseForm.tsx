@@ -126,65 +126,70 @@ ExpenseForm.Resolved = ({
   return (
     <FormProvider {...methods}>
       <Box component="form" onSubmit={handleFormSubmit} {...props}>
-        <Stack spacing={1.5}>
+        <Stack spacing={2}>
           <Box>
             <Controller
               control={control}
               name="totalAmount"
               render={({ field: { value, onChange, ...props } }) => (
-                <TextField
-                  label="총 금액"
-                  variant="standard"
-                  value={value === 0 ? '' : value.toLocaleString()}
-                  onChange={({ target: { value } }) => {
-                    const price = value === '' ? 0 : Number(value.replace(/[^0-9]/g, ''));
-                    const splitedPrices = Math.ceil(price / payments.length);
+                <Stack gap={0.5}>
+                  <Typography variant="subtitle2" fontSize="13px" color="textSecondary">
+                    <Box display="inline" color={theme.palette.primary.main}>*</Box>
+                    총 금액
+                  </Typography>
+                  <TextField
+                    variant="standard"
+                    value={value === 0 ? '' : value.toLocaleString()}
+                    onChange={({ target: { value } }) => {
+                      const price = value === '' ? 0 : Number(value.replace(/[^0-9]/g, ''));
+                      const splitedPrices = Math.ceil(price / payments.length);
 
-                    onChange(price);
-                    payments.forEach((_, i) => setValue(`payments.${i}.amount`, splitedPrices))
-                  }}
-                  onBlur={(event) => {
-                    props.onBlur();
-                    if (event.target.value !== '') {
-                      setVisibleSplit(true);
-                    }
-                  }}
-                  size="small"
-                  fullWidth
-                  placeholder="금액"
-                  slotProps={{
-                    inputLabel: {
-                      sx: {
-                        '&::before': {
-                          content: '"*"',
-                          color: theme.palette.primary.main
-                        }
+                      onChange(price);
+                      payments.forEach((_, i) => setValue(`payments.${i}.amount`, splitedPrices))
+                    }}
+                    onBlur={(event) => {
+                      props.onBlur();
+                      if (event.target.value !== '') {
+                        setVisibleSplit(true);
                       }
-                    },
-                    input: {
-                      endAdornment: (
-                        <InputAdornment
-                          position="end"
-                          onClick={toggleCurrency}
-                          sx={isOverseas ? {
-                            cursor: 'pointer',
-                            userSelect: 'none',
-                            color: 'primary.main',
-                            fontWeight: 'medium',
-                            '&:hover': { opacity: 0.7 },
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 0.25,
-                            paddingBottom: 0.5,
-                          } : undefined}
-                        >
-                          {currencyUnit}
-                          {isOverseas && <SwapHorizIcon sx={{ fontSize: 16 }} />}
-                        </InputAdornment>
-                      )
-                    }
-                  }}
-                />
+                    }}
+                    size="small"
+                    fullWidth
+                    placeholder="금액"
+                    slotProps={{
+                      inputLabel: {
+                        sx: {
+                          '&::before': {
+                            content: '"*"',
+                            color: theme.palette.primary.main
+                          }
+                        }
+                      },
+                      input: {
+                        endAdornment: (
+                          <InputAdornment
+                            position="end"
+                            onClick={toggleCurrency}
+                            sx={isOverseas ? {
+                              cursor: 'pointer',
+                              userSelect: 'none',
+                              color: 'primary.main',
+                              fontWeight: 'medium',
+                              '&:hover': { opacity: 0.7 },
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 0.25,
+                              paddingBottom: 0.5,
+                            } : undefined}
+                          >
+                            {currencyUnit}
+                            {isOverseas && <SwapHorizIcon sx={{ fontSize: 16 }} />}
+                          </InputAdornment>
+                        )
+                      }
+                    }}
+                  />
+                </Stack>
               )}
             />
 
@@ -280,7 +285,12 @@ ExpenseForm.Resolved = ({
             name="description"
             control={control}
             render={({ field }) => (
-              <TextField variant="standard" {...field} label="내용" placeholder="점심 식사" fullWidth size="small" />
+              <Stack gap={0.5}>
+                <Typography variant="subtitle2" fontSize="13px" color="textSecondary">
+                  내용
+                </Typography>
+                <TextField variant="standard" {...field} placeholder="점심 식사" fullWidth size="small" />
+              </Stack>
             )}
           />
           {/* 날짜 */}
@@ -288,22 +298,26 @@ ExpenseForm.Resolved = ({
             name="date"
             control={control}
             render={({ field: { value, onChange, ...field } }) => (
-              <DatePicker
-                {...field}
-                value={value ? new Date(value) : undefined}
-                onChange={(value) => onChange(formatDateISO(value as unknown as string))}
-                label="날짜"
-                slotProps={{
-                  textField: {
-                    size: 'small',
-                    variant: 'standard',
-                    sx: {
-                      '.MuiFormLabel-root': { fontSize: 13, },
-                      '.MuiPickersInputBase-root': { paddingBottom: 0.5 }
+              <Stack gap={0.5}>
+                <Typography variant="subtitle2" fontSize="13px" color="textSecondary">
+                  날짜
+                </Typography>
+                <DatePicker
+                  {...field}
+                  value={value ? new Date(value) : undefined}
+                  onChange={(value) => onChange(formatDateISO(value as unknown as string))}
+                  slotProps={{
+                    textField: {
+                      size: 'small',
+                      variant: 'standard',
+                      sx: {
+                        '.MuiFormLabel-root': { fontSize: 13, },
+                        '.MuiPickersInputBase-root': { paddingBottom: 0.5 }
+                      }
                     }
-                  }
-                }}
-              />
+                  }}
+                />
+              </Stack>
             )}
           />
 
@@ -312,26 +326,31 @@ ExpenseForm.Resolved = ({
             name="placeId"
             control={control}
             render={({ field: { value, onChange } }) => (
-              <Autocomplete
-                size="small"
-                options={places}
-                getOptionLabel={(option) => option.name}
-                value={places.find((p) => p.id === value) ?? null}
-                onChange={(_, newValue) => onChange(newValue?.id ?? '')}
-                renderInput={(params) => (
-                  <TextField {...params} variant="standard" label="장소" placeholder="장소 검색..." />
-                )}
-                filterOptions={(options, { inputValue }) => {
-                  const query = inputValue.toLowerCase()
-                  return options.filter(
-                    (option) =>
-                      option.name.toLowerCase().includes(query) ||
-                      option.address?.toLowerCase().includes(query)
-                  )
-                }}
-                noOptionsText="검색 결과 없음"
-                clearText="초기화"
-              />
+              <Stack gap={0.5}>
+                <Typography variant="subtitle2" fontSize="13px" color="textSecondary">
+                  장소
+                </Typography>
+                <Autocomplete
+                  size="small"
+                  options={places}
+                  getOptionLabel={(option) => option.name}
+                  value={places.find((p) => p.id === value) ?? null}
+                  onChange={(_, newValue) => onChange(newValue?.id ?? '')}
+                  renderInput={(params) => (
+                    <TextField {...params} variant="standard" placeholder="장소 검색..." />
+                  )}
+                  filterOptions={(options, { inputValue }) => {
+                    const query = inputValue.toLowerCase()
+                    return options.filter(
+                      (option) =>
+                        option.name.toLowerCase().includes(query) ||
+                        option.address?.toLowerCase().includes(query)
+                    )
+                  }}
+                  noOptionsText="검색 결과 없음"
+                  clearText="초기화"
+                />
+              </Stack>
             )}
           />
 
