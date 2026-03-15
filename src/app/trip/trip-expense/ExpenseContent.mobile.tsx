@@ -1,7 +1,7 @@
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
 import RouteIcon from '@mui/icons-material/Route'
-import { Box, Button, IconButton, Stack, Tab, Tabs, Typography } from "@mui/material"
+import { Box, Button, IconButton, InputAdornment, Stack, Tab, Tabs, TextField, Typography } from "@mui/material"
 import { Suspense, useMemo, useState } from "react"
 import type { Expense } from '~app/expense/expense.types'
 import { BottomSheet } from "../../../shared/components/BottomSheet"
@@ -23,6 +23,7 @@ import { ExpenseFormDeletationActions } from './ExpenseFormDeletationActions'
 import { RouteExpenseViewMobile } from "./RouteExpenseView.mobile"
 import { SettlementSummary } from "./SettlementSummary"
 import { useExpenseFormBottomSheet } from './useExpenseFormOverlay'
+import { SwitchCase } from '~shared/components/SwitchCase'
 
 interface Props {
   tripId: string
@@ -77,16 +78,60 @@ export function ExpenseContent({ tripId }: Props) {
     if (data) update({ expenseId: expense.id, data });
   }
 
+  const currency = getCurrencyByDestination(trip.destination)
+  const defaultRate = Math.round(1 / (EXCHANGE_RATES[currency.code] || 1))
 
   return (
     <Box sx={{ height: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}>
       {/* 총액 표시 (원화 환산) */}
-      <Box flex="0 0 auto" sx={{ px: 2, py: 1.5, bgcolor: 'primary.main', color: 'white' }}>
-        <Typography variant="caption">총 지출 (원화 환산)</Typography>
-        <Typography variant="h5" fontWeight="bold">
-          {formatCurrency(totalExpensesInKRW)}
-        </Typography>
-      </Box>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" flex="0 0 auto" sx={{ px: 2, py: 1.5, bgcolor: 'primary.main', color: 'white' }}>
+        <Box>
+          <Typography variant="caption">총 지출 (원화 환산)</Typography>
+          <Typography variant="h5" fontWeight="bold">
+            {formatCurrency(totalExpensesInKRW)}
+          </Typography>
+        </Box>
+        {trip.isOverseas && (
+          <EditableText
+            variant="body2"
+            fontWeight="medium"
+            value={exchangeRate ? exchangeRate : defaultRate}
+            format={value => `1${currency.name} = ${value.toLocaleString()}원`}
+            dismissible={false}
+            renderEditField={props => (
+              <Box>
+                <TextField
+                  variant='standard'
+                  size="small"
+                  slotProps={{
+                    htmlInput: { sx: { color: '#fff', textAlign: 'right', marginBottom: -0.5 } },
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <Typography variant="body2" color="#fff">
+                            원
+                          </Typography>
+                        </InputAdornment>
+                      ),
+                      sx: { '&::before': { borderColor: '#fff', zIndex: 999 } }
+                    },
+                  }}
+                  sx={{ width: 60 }}
+                  {...props}
+                />
+              </Box>
+            )}
+            onSubmit={(value) => {
+              const rate = Number(value.replace(/[^0-9.]/g, ''))
+              if (rate > 0) {
+                updateTrip.mutateAsync({ exchangeRate: rate })
+              }
+            }}
+            submitOnBlur
+          />
+        )}
+
+      </Stack>
 
       {/* 서브 탭 */}
       <Tabs
@@ -116,13 +161,10 @@ export function ExpenseContent({ tripId }: Props) {
         </Box>
       ) : (
         <Box sx={{ flex: 1, overflowY: 'auto', p: 2, height: '100%' }}>
-          {subTab === 'list' && (
-            <>
-              {expenses.length === 0 ? (
-                <Typography color="text.secondary" textAlign="center" py={4}>
-                  지출 내역이 없습니다
-                </Typography>
-              ) : (
+          <SwitchCase
+            value={subTab}
+            cases={{
+              list: () => (
                 <Stack spacing={1.5}>
                   {expenses.map((expense) => (
                     <ListItem
@@ -183,45 +225,18 @@ export function ExpenseContent({ tripId }: Props) {
                     </ListItem>
                   ))}
                 </Stack>
-              )}
-            </>
-          )}
 
-          {subTab === 'settlement' && (
-            <>
-              {/* 해외 여행일 때 환율 설정 */}
-              {trip.isOverseas && (() => {
-                const currency = getCurrencyByDestination(trip.destination)
-                const defaultRate = Math.round(1 / (EXCHANGE_RATES[currency.code] || 1))
-                return (
-                  <Box sx={{ mb: 2, p: 1.5, bgcolor: 'grey.100', borderRadius: 1 }}>
-                    <Stack direction="row" justifyContent="space-between" alignItems="center">
-                      <Typography variant="body2" color="text.secondary">
-                        환율 (1{currency.name})
-                      </Typography>
-                      <EditableText
-                        variant="body2"
-                        fontWeight="medium"
-                        value={exchangeRate ? `${exchangeRate.toLocaleString()}원` : `${defaultRate.toLocaleString()}원 (기본)`}
-                        onSubmit={(value) => {
-                          const rate = Number(value.replace(/[^0-9.]/g, ''))
-                          if (rate > 0) {
-                            updateTrip.mutateAsync({ exchangeRate: rate })
-                          }
-                        }}
-                        submitOnBlur
-                      />
-                    </Stack>
-                  </Box>
-                )
-              })()}
-              <SettlementSummary
-                members={members}
-                balances={balances}
-                settlements={settlements}
-              />
-            </>
-          )}
+              ),
+              settlement: (
+                <SettlementSummary
+                  members={members}
+                  balances={balances}
+                  settlements={settlements}
+                />
+              )
+            }}
+          />
+
         </Box>
       )}
 

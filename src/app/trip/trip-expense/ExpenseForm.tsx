@@ -119,14 +119,14 @@ ExpenseForm.Resolved = ({
     setValue('currency', newCurrency)
   }
 
-  const [visibleSplit, setVisibleSplit] = useState(false);
+  const [visibleSplit, setVisibleSplit] = useState(totalAmount > 0);
   const isMobile = useIsMobile();
   const theme = useTheme();
 
   return (
     <FormProvider {...methods}>
       <Box component="form" onSubmit={handleFormSubmit} {...props}>
-        <Stack spacing={1}>
+        <Stack spacing={1.5}>
           <Box>
             <Controller
               control={control}
