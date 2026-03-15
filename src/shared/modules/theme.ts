@@ -149,9 +149,9 @@ export const theme = createTheme({
         {
           props: { variant: 'standard' },
           style: props => ({
-            '.MuiInput-root': { paddingBottom: 4 },
             [props.theme.breakpoints.down('md')]: {
-              '.MuiFormLabel-root': { fontSize: 13 }
+              '.MuiFormLabel-root': { fontSize: 13 },
+              '.MuiInput-input': { paddingInline: 2 }
             }
           })
         }
