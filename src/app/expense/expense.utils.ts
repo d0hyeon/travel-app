@@ -1,5 +1,6 @@
 import type { TripMember } from '../trip/trip-member/tripMember.types'
 import type { Expense, SettlementBalance, SettlementTransaction } from './expense.types'
+import { convertToKRW } from './currency'
 
 /**
  * 각 멤버의 잔액 계산
@@ -85,4 +86,58 @@ export function formatCurrency(amount: number): string {
 
 export function getTotalExpenses(expenses: Expense[]): number {
   return expenses.reduce((sum, e) => sum + e.totalAmount, 0)
+}
+
+/**
+ * 모든 지출을 원화로 환산한 총액
+ * @param exchangeRate 수동 환율 (1 외화 = X원)
+ */
+export function getTotalExpensesInKRW(expenses: Expense[], exchangeRate?: number | null): number {
+  return expenses.reduce((sum, e) => {
+    const amountInKRW = convertToKRW(e.totalAmount, e.currency, exchangeRate)
+    return sum + amountInKRW
+  }, 0)
+}
+
+/**
+ * 원화 환산 기준으로 잔액 계산
+ * @param exchangeRate 수동 환율 (1 외화 = X원)
+ */
+export function calculateBalancesInKRW(
+  members: TripMember[],
+  expenses: Expense[],
+  exchangeRate?: number | null
+): SettlementBalance[] {
+  const balances: Record<string, number> = {}
+
+  members.forEach(m => {
+    balances[m.id] = 0
+  })
+
+  expenses.forEach(expense => {
+    const totalInKRW = convertToKRW(expense.totalAmount, expense.currency, exchangeRate)
+
+    // 1. 지불한 사람들에게 양수 (원화 환산)
+    expense.payments.forEach(payment => {
+      if (balances[payment.memberId] !== undefined) {
+        const paymentInKRW = convertToKRW(payment.amount, expense.currency, exchangeRate)
+        balances[payment.memberId] += paymentInKRW
+      }
+    })
+
+    // 2. 분담 대상자들에게 음수 (1/n)
+    if (expense.splitAmong.length > 0) {
+      const perPerson = totalInKRW / expense.splitAmong.length
+      expense.splitAmong.forEach(memberId => {
+        if (balances[memberId] !== undefined) {
+          balances[memberId] -= perPerson
+        }
+      })
+    }
+  })
+
+  return members.map(m => ({
+    memberId: m.id,
+    balance: Math.round(balances[m.id])
+  }))
 }

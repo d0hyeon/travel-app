@@ -79,10 +79,13 @@ export default function TripListPage() {
       <TripFormDialog
         open={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
-        onSubmit={(data) => create(
-          { ...data, isOverseas: isOverseasByCoordinate(data.lat, data.lng) },
-          { onSuccess: () => setIsDialogOpen(false) }
-        )}
+        onSubmit={(data) => {
+          create({
+            ...data,
+            isOverseas: isOverseasByCoordinate(data.lat, data.lng),
+            exchangeRate: null
+          }, { onSuccess: () => setIsDialogOpen(false) })
+        }}
       />
       {isMounted && <PrefetchPageLinks page={`/trip/:tripId`} />}
 

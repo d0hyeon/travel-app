@@ -8,9 +8,10 @@ interface Props {
   members: TripMember[]
   balances: SettlementBalance[]
   settlements: SettlementTransaction[]
+  formatAmount?: (amount: number) => string
 }
 
-export function SettlementSummary({ members, balances, settlements }: Props) {
+export function SettlementSummary({ members, balances, settlements, formatAmount = formatCurrency }: Props) {
   const memberMap = new Map(members.map(m => [m.id, m]))
 
   return (
@@ -38,7 +39,7 @@ export function SettlementSummary({ members, balances, settlements }: Props) {
                         variant="h6"
                         color={balance > 0 ? 'success.main' : balance < 0 ? 'error.main' : 'text.secondary'}
                       >
-                        {balance > 0 ? '+' : ''}{formatCurrency(balance)}
+                        {balance > 0 ? '+' : ''}{formatAmount(balance)}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
                         {balance > 0 ? '받을 돈' : balance < 0 ? '낼 돈' : '정산 완료'}
@@ -86,7 +87,7 @@ export function SettlementSummary({ members, balances, settlements }: Props) {
                         </Box>
                       </Stack>
                       <Typography variant="h6" color="primary">
-                        {formatCurrency(settlement.amount)}
+                        {formatAmount(settlement.amount)}
                       </Typography>
                     </Stack>
                   </CardContent>

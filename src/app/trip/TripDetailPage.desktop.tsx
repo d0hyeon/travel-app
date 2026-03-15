@@ -26,7 +26,7 @@ import { ErrorBoundary } from '~shared/components/ErrorBoundary.tsx'
 
 const TripPhotoContent = lazy(async () => {
   const module = await import('./trip-photo/TripPhotoContent.desktop.tsx')
-  return module
+  return { default: module.TripPhotoContent }
 });
 
 const TripPlaceContent = lazy(async () => {

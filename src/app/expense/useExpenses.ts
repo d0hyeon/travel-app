@@ -43,18 +43,7 @@ export function useExpenses(tripId: string) {
           : undefined
       })
     },
-    onSuccess: (updated) => {
-      if (updated == null) {
-        return refetch();
-      }
-      queryClient.setQueryData<Expense[]>(useExpenses.key(tripId), (curr) => {
-        if (curr == null) return;
-        return curr.map(x => x.id === updated.id
-          ? updated
-          : x
-        )
-      })
-    }
+    onSuccess: () => refetch()
   })
 
   const { mutate: remove } = useMutation({

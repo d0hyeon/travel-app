@@ -5,17 +5,20 @@ import { Box, Button, IconButton, Stack, Tab, Tabs, Typography } from "@mui/mate
 import { Suspense, useMemo, useState } from "react"
 import type { Expense } from '~app/expense/expense.types'
 import { BottomSheet } from "../../../shared/components/BottomSheet"
+import { EditableText } from "../../../shared/components/EditableText"
 import { ListItem } from "../../../shared/components/ListItem"
 import { useOverlay } from "../../../shared/hooks/useOverlay"
 import { formatDate } from "../../../shared/utils/formats"
 import {
-  calculateBalances,
+  calculateBalancesInKRW,
   calculateSettlements,
   formatCurrency,
-  getTotalExpenses
+  getTotalExpensesInKRW
 } from "../../expense/expense.utils"
+import { formatByCurrencyCode, getCurrencyByDestination, EXCHANGE_RATES } from "../../expense/currency"
 import { useExpenses } from "../../expense/useExpenses"
 import { useTripMembers } from "../trip-member/useTripMembers"
+import { useTrip } from "../useTrip"
 import { ExpenseFormDeletationActions } from './ExpenseFormDeletationActions'
 import { RouteExpenseViewMobile } from "./RouteExpenseView.mobile"
 import { SettlementSummary } from "./SettlementSummary"
@@ -28,6 +31,7 @@ interface Props {
 type SubTab = 'list' | 'settlement'
 
 export function ExpenseContent({ tripId }: Props) {
+  const { data: trip, update: updateTrip } = useTrip(tripId)
   const { data: expenses, create, update } = useExpenses(tripId)
   const { data: members } = useTripMembers(tripId);
 
@@ -49,9 +53,12 @@ export function ExpenseContent({ tripId }: Props) {
     ))
   }
 
-  const balances = useMemo(() => calculateBalances(members, expenses), [members, expenses])
+  const exchangeRate = trip.exchangeRate
+
+  // 원화 환산 기준 계산
+  const balances = useMemo(() => calculateBalancesInKRW(members, expenses, exchangeRate), [members, expenses, exchangeRate])
   const settlements = useMemo(() => calculateSettlements(balances), [balances])
-  const totalExpenses = useMemo(() => getTotalExpenses(expenses), [expenses])
+  const totalExpensesInKRW = useMemo(() => getTotalExpensesInKRW(expenses, exchangeRate), [expenses, exchangeRate])
 
   const memberMap = useMemo(() => new Map(members.map(m => [m.id, m])), [members])
 
@@ -73,11 +80,11 @@ export function ExpenseContent({ tripId }: Props) {
 
   return (
     <Box sx={{ height: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}>
-      {/* 총액 표시 */}
+      {/* 총액 표시 (원화 환산) */}
       <Box flex="0 0 auto" sx={{ px: 2, py: 1.5, bgcolor: 'primary.main', color: 'white' }}>
-        <Typography variant="caption">총 지출</Typography>
+        <Typography variant="caption">총 지출 (원화 환산)</Typography>
         <Typography variant="h5" fontWeight="bold">
-          {formatCurrency(totalExpenses)}
+          {formatCurrency(totalExpensesInKRW)}
         </Typography>
       </Box>
 
@@ -152,16 +159,16 @@ export function ExpenseContent({ tripId }: Props) {
                           <Stack>
                             {expense.payments.map(p => {
                               const member = memberMap.get(p.memberId);
-                              if (member == null) return;
+                              if (member == null) return null;
 
                               return (
-                                <Stack direction="row" gap={0.5} justifyContent="space-between" alignItems="center">
+                                <Stack key={p.memberId} direction="row" gap={0.5} justifyContent="space-between" alignItems="center">
                                   <ListItem.Text>
                                     {member.emoji} {member.name}
                                   </ListItem.Text>
                                   {p.amount !== expense.totalAmount && (
                                     <ListItem.Text>
-                                      {p.amount.toLocaleString()}원
+                                      {formatByCurrencyCode(p.amount, expense.currency)}
                                     </ListItem.Text>
                                   )}
                                 </Stack>
@@ -169,7 +176,7 @@ export function ExpenseContent({ tripId }: Props) {
                             })}
                           </Stack>
                           <Typography variant="body2" color="primary" ml={1}>
-                            {formatCurrency(expense.totalAmount)}
+                            {formatByCurrencyCode(expense.totalAmount, expense.currency)}
                           </Typography>
                         </Stack>
                       </Stack>
@@ -181,11 +188,39 @@ export function ExpenseContent({ tripId }: Props) {
           )}
 
           {subTab === 'settlement' && (
-            <SettlementSummary
-              members={members}
-              balances={balances}
-              settlements={settlements}
-            />
+            <>
+              {/* 해외 여행일 때 환율 설정 */}
+              {trip.isOverseas && (() => {
+                const currency = getCurrencyByDestination(trip.destination)
+                const defaultRate = Math.round(1 / (EXCHANGE_RATES[currency.code] || 1))
+                return (
+                  <Box sx={{ mb: 2, p: 1.5, bgcolor: 'grey.100', borderRadius: 1 }}>
+                    <Stack direction="row" justifyContent="space-between" alignItems="center">
+                      <Typography variant="body2" color="text.secondary">
+                        환율 (1{currency.name})
+                      </Typography>
+                      <EditableText
+                        variant="body2"
+                        fontWeight="medium"
+                        value={exchangeRate ? `${exchangeRate.toLocaleString()}원` : `${defaultRate.toLocaleString()}원 (기본)`}
+                        onSubmit={(value) => {
+                          const rate = Number(value.replace(/[^0-9.]/g, ''))
+                          if (rate > 0) {
+                            updateTrip.mutateAsync({ exchangeRate: rate })
+                          }
+                        }}
+                        submitOnBlur
+                      />
+                    </Stack>
+                  </Box>
+                )
+              })()}
+              <SettlementSummary
+                members={members}
+                balances={balances}
+                settlements={settlements}
+              />
+            </>
           )}
         </Box>
       )}

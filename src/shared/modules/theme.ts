@@ -144,6 +144,19 @@ export const theme = createTheme({
         })
       }
     },
+    MuiTextField: {
+      variants: [
+        {
+          props: { variant: 'standard' },
+          style: props => ({
+            '.MuiInput-root': { paddingBottom: 4 },
+            [props.theme.breakpoints.down('md')]: {
+              '.MuiFormLabel-root': { fontSize: 13 }
+            }
+          })
+        }
+      ],
+    },
     MuiInputBase: {
       variants: [
         {
@@ -153,7 +166,7 @@ export const theme = createTheme({
               fontSize: 12,
             }
           })
-        }
+        },
       ],
       styleOverrides: {
         root: (props) => ({

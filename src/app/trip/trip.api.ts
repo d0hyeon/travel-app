@@ -30,6 +30,7 @@ function toTrip(row: {
   share_link: string
   created_at: string
   is_overseas: boolean
+  exchange_rate: number | null
 }): Trip {
   return {
     id: row.id,
@@ -42,6 +43,7 @@ function toTrip(row: {
     shareLink: row.share_link,
     createdAt: row.created_at,
     isOverseas: row.is_overseas,
+    exchangeRate: row.exchange_rate,
   }
 }
 
@@ -131,6 +133,7 @@ export async function updateTrip(id: string, data: Partial<Omit<Trip, 'id' | 'cr
   if (data.endDate !== undefined) updateData.end_date = data.endDate
   if (data.shareLink !== undefined) updateData.share_link = data.shareLink
   if (data.isOverseas !== undefined) updateData.is_overseas = data.isOverseas
+  if (data.exchangeRate !== undefined) updateData.exchange_rate = data.exchangeRate
 
   const { data: updated, error } = await supabase
     .from('trips')

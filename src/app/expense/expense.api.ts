@@ -12,6 +12,7 @@ function toExpense(row: DataRaw<'expenses'>): Expense {
     placeId: row.place_id ?? undefined,
     description: row.description ?? '',
     totalAmount: row.total_amount,
+    currency: (row as { currency?: string }).currency ?? 'KRW',
     // @ts-ignore
     payments: row.payments ?? [],
     splitAmong: row.split_among ?? [],
@@ -39,6 +40,7 @@ export async function createExpense(data: Omit<Expense, 'id' | 'createdAt'>): Pr
       place_id: data.placeId || null,
       description: data.description,
       total_amount: data.totalAmount,
+      currency: data.currency,
       payments: data.payments as unknown as Json,
       split_among: data.splitAmong,
       date: data.date,
@@ -58,6 +60,7 @@ export async function updateExpense(
   if (data.placeId !== undefined) updateData.place_id = data.placeId || null
   if (data.description !== undefined) updateData.description = data.description
   if (data.totalAmount !== undefined) updateData.total_amount = data.totalAmount
+  if (data.currency !== undefined) updateData.currency = data.currency
   if (data.payments !== undefined) updateData.payments = data.payments
   if (data.splitAmong !== undefined) updateData.split_among = data.splitAmong
   if (data.date !== undefined) updateData.date = data.date

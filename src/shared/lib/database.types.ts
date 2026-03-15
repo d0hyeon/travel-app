@@ -61,6 +61,7 @@ export type Database = {
       expenses: {
         Row: {
           created_at: string
+          currency: string | null
           date: string | null
           description: string | null
           id: string
@@ -72,6 +73,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          currency?: string | null
           date?: string | null
           description?: string | null
           id?: string
@@ -83,6 +85,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          currency?: string | null
           date?: string | null
           description?: string | null
           id?: string
@@ -314,6 +317,7 @@ export type Database = {
           created_at: string
           destination: string
           end_date: string
+          exchange_rate: number | null
           id: string
           is_overseas: boolean
           lat: number
@@ -326,6 +330,7 @@ export type Database = {
           created_at?: string
           destination: string
           end_date: string
+          exchange_rate?: number | null
           id?: string
           is_overseas?: boolean
           lat: number
@@ -338,6 +343,7 @@ export type Database = {
           created_at?: string
           destination?: string
           end_date?: string
+          exchange_rate?: number | null
           id?: string
           is_overseas?: boolean
           lat?: number

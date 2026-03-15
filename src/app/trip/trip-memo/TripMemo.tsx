@@ -16,14 +16,16 @@ export function TripMemo({ tripId, ...props }: Props) {
   return (
     <Stack gap={1} {...props}>
       {memos.length > 0
-        ? memos.map((memo) => (
+        ? memos
+          .toSorted((item) => item.isPinned ? -1 : 1)
+          .map((memo) => (
             <TripMemo.Item key={memo.id} tripId={tripId} id={memo.id} />
           ))
         : (
-            <Typography variant="body2" color="textSecondary" paddingY={3}>
-              메모가 없어요
-            </Typography>
-          )}
+          <Typography variant="body2" color="textSecondary" paddingY={3}>
+            메모가 없어요
+          </Typography>
+        )}
     </Stack>
   );
 }

@@ -18,15 +18,18 @@ import {
 import { Suspense, useMemo } from "react"
 import { useQueryParamState } from '~shared/hooks/useQueryParamState'
 import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
+import { EditableText } from "../../../shared/components/EditableText"
 import { formatDate } from "../../../shared/utils/formats"
 import {
-  calculateBalances,
+  calculateBalancesInKRW,
   calculateSettlements,
   formatCurrency,
-  getTotalExpenses
+  getTotalExpensesInKRW
 } from "../../expense/expense.utils"
+import { convertToKRW, formatByCurrencyCode, getCurrencyByDestination, EXCHANGE_RATES } from "../../expense/currency"
 import { useExpenses } from "../../expense/useExpenses"
 import { useTripMembers } from "../trip-member/useTripMembers"
+import { useTrip } from "../useTrip"
 import { RouteExpenseView } from "./RouteExpenseView"
 import { useExpenseFormOverlay } from "./useExpenseFormOverlay"
 
@@ -42,14 +45,18 @@ export function ExpenseContent({ tripId, defaultCenter }: Props) {
     defaultValue: 'list'
   })
 
+  const { data: trip, update: updateTrip } = useTrip(tripId)
   const { data: expenses, create, update, remove } = useExpenses(tripId)
   const { data: members } = useTripMembers(tripId)
   const expenseFormOverlay = useExpenseFormOverlay(tripId)
   const confirm = useConfirmDialog()
 
-  const balances = useMemo(() => calculateBalances(members, expenses), [members, expenses])
+  const exchangeRate = trip.exchangeRate
+
+  // 원화 환산 기준 계산
+  const balances = useMemo(() => calculateBalancesInKRW(members, expenses, exchangeRate), [members, expenses, exchangeRate])
   const settlements = useMemo(() => calculateSettlements(balances), [balances])
-  const totalExpenses = useMemo(() => getTotalExpenses(expenses), [expenses])
+  const totalExpensesInKRW = useMemo(() => getTotalExpensesInKRW(expenses, exchangeRate), [expenses, exchangeRate])
 
   const memberMap = useMemo(() => new Map(members.map(m => [m.id, m])), [members])
 
@@ -79,7 +86,7 @@ export function ExpenseContent({ tripId, defaultCenter }: Props) {
     <Box sx={{ flex: 1, p: 3, bgcolor: 'grey.50' }}>
       {/* 상단 요약 카드 */}
       <Stack direction="row" spacing={2} mb={3} flexWrap="wrap" useFlexGap>
-        {/* 총 지출 */}
+        {/* 총 지출 (원화 환산) */}
         <Paper
           elevation={0}
           sx={theme => ({
@@ -88,14 +95,13 @@ export function ExpenseContent({ tripId, defaultCenter }: Props) {
             pb: 1,
             minWidth: 200,
             background: theme.palette.primary.main,
-            // background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             color: 'white',
             borderRadius: 3,
           })}
         >
-          <Typography variant="body2" sx={{ opacity: 0.9 }}>총 지출</Typography>
+          <Typography variant="body2" sx={{ opacity: 0.9 }}>총 지출 (원화 환산)</Typography>
           <Typography variant="h4" fontWeight="bold">
-            {formatCurrency(totalExpenses)}
+            {formatCurrency(totalExpensesInKRW)}
           </Typography>
           <Typography variant="caption" sx={{ opacity: 0.8 }}>
             {expenses.length}건의 지출
@@ -237,13 +243,13 @@ export function ExpenseContent({ tripId, defaultCenter }: Props) {
                                   key={p.memberId}
                                   size="small"
                                   variant="outlined"
-                                  label={`${member?.emoji} ${member?.name}${p.amount === expense.totalAmount ? '' : ` ${p.amount.toLocaleString()}원`}`}
+                                  label={`${member?.emoji} ${member?.name}${p.amount === expense.totalAmount ? '' : ` ${formatByCurrencyCode(p.amount, expense.currency)}`}`}
                                 />
                               )
                             })}
                           </Stack>
                           <Typography variant="h6" color="primary.main" fontWeight="bold">
-                            {formatCurrency(expense.totalAmount)}
+                            {formatByCurrencyCode(expense.totalAmount, expense.currency)}
                           </Typography>
                           <Button
                             size="small"
@@ -289,6 +295,33 @@ export function ExpenseContent({ tripId, defaultCenter }: Props) {
           sx={{ flex: 1, p: 3, borderRadius: 3, minWidth: 320 }}
         >
           <Typography variant="h6" fontWeight="bold" mb={2}>정산 현황</Typography>
+
+          {/* 해외 여행일 때 환율 설정 */}
+          {trip.isOverseas && (() => {
+            const currency = getCurrencyByDestination(trip.destination)
+            const defaultRate = Math.round(1 / (EXCHANGE_RATES[currency.code] || 1))
+            return (
+              <Box sx={{ mb: 2, p: 1.5, bgcolor: 'grey.100', borderRadius: 1 }}>
+                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                  <Typography variant="body2" color="text.secondary">
+                    환율 (1{currency.name})
+                  </Typography>
+                  <EditableText
+                    variant="body2"
+                    fontWeight="medium"
+                    value={exchangeRate ? `${exchangeRate.toLocaleString()}원` : `${defaultRate.toLocaleString()}원 (기본)`}
+                    onSubmit={(value) => {
+                      const rate = Number(value.replace(/[^0-9.]/g, ''))
+                      if (rate > 0) {
+                        updateTrip.mutateAsync({ exchangeRate: rate })
+                      }
+                    }}
+                    submitOnBlur
+                  />
+                </Stack>
+              </Box>
+            )
+          })()}
 
           {settlements.length === 0 ? (
             <Box
@@ -364,14 +397,17 @@ export function ExpenseContent({ tripId, defaultCenter }: Props) {
               const member = memberMap.get(memberId)
               if (!member) return null
 
-              const paid = expenses.reduce((sum, e) => {
+              // 원화 환산 기준 계산
+              const paidInKRW = expenses.reduce((sum, e) => {
                 const payment = e.payments.find(p => p.memberId === memberId)
-                return sum + (payment?.amount ?? 0)
+                if (!payment) return sum
+                return sum + convertToKRW(payment.amount, e.currency, exchangeRate)
               }, 0)
 
-              const owed = expenses.reduce((sum, e) => {
+              const owedInKRW = expenses.reduce((sum, e) => {
                 if (e.splitAmong.includes(memberId)) {
-                  return sum + (e.totalAmount / e.splitAmong.length)
+                  const totalInKRW = convertToKRW(e.totalAmount, e.currency, exchangeRate)
+                  return sum + (totalInKRW / e.splitAmong.length)
                 }
                 return sum
               }, 0)
@@ -391,7 +427,7 @@ export function ExpenseContent({ tripId, defaultCenter }: Props) {
                   </Stack>
                   <Stack direction="row" justifyContent="space-between">
                     <Typography variant="caption" color="text.secondary">
-                      지출: {formatCurrency(paid)} / 분담: {formatCurrency(Math.round(owed))}
+                      지출: {formatCurrency(paidInKRW)} / 분담: {formatCurrency(Math.round(owedInKRW))}
                     </Typography>
                   </Stack>
                 </Box>

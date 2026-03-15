@@ -9,6 +9,8 @@ export interface Expense {
   placeId?: string
   description: string
   totalAmount: number
+  /** 화폐 단위 코드 (KRW, JPY, USD 등) */
+  currency: string
   payments: ExpensePayment[]
   splitAmong: string[]
   date?: string
