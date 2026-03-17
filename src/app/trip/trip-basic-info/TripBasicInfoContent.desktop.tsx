@@ -14,6 +14,7 @@ import { useTripMembers } from '../trip-member/useTripMembers'
 import { TripMemo } from '../trip-memo/TripMemo'
 import { TripMemoAddButton } from '../trip-memo/TripMemoAddButton'
 import { useTrip } from '../useTrip'
+import { TripDDay } from './TripDDay'
 
 interface Props {
   tripId: string
@@ -61,6 +62,9 @@ export function TripBasicInfoContent({ tripId }: Props) {
 
       <Stack direction="row" gap={3} height="100%" sx={{ flex: 1, overflow: 'auto', p: 3 }}>
         <Stack flex="1" spacing={3} >
+          {/* D-Day */}
+          <TripDDay startDate={trip.startDate} endDate={trip.endDate} />
+
           {/* 여행 정보 */}
           <Card variant="outlined">
             <CardHeader title="여행 정보" />

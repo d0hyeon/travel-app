@@ -20,6 +20,7 @@ import { useTrip } from '../useTrip'
 import { TripDeadlineChecklist } from '../trip-checklist/TripDeadlineChecklist'
 import { DateRangePicker } from '~shared/components/date-range/DateRangePicker'
 import ClearIcon from '@mui/icons-material/Clear';
+import { TripDDay } from './TripDDay'
 
 interface Props {
   tripId: string
@@ -76,166 +77,172 @@ export function TripBasicInfoContent({ tripId }: Props) {
         width="100%"
         sx={{ flex: 1, overflow: currentTab === 'memo' ? 'hidden' : 'auto', p: currentTab === 'memo' ? 0 : 2 }}>
         {currentTab === 'default' && (
-          <Stack gap={4}>
-            {/* 여행 정보 */}
-            <Stack gap={1} border="1px solid #ddd" padding={2} borderRadius={4}>
-              <Stack direction="row" justifyContent="space-between" alignItems="center">
-                <Typography variant="subtitle2" color="text.secondary" mb={1}>
-                  목적지
-                </Typography>
-                <Typography variant="body1">{trip.destination}</Typography>
+          <>
+            <TripDDay startDate={trip.startDate} endDate={trip.endDate} marginBottom={2} />
+            <Stack gap={3} alignItems="start">
+              {/* D-Day */}
+
+
+              {/* 여행 정보 */}
+              <Stack gap={1} border="1px solid #ddd" padding={2} borderRadius={4} width="100%">
+                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                  <Typography variant="subtitle2" color="text.secondary" mb={1}>
+                    목적지
+                  </Typography>
+                  <Typography variant="body1">{trip.destination}</Typography>
+                </Stack>
+                <Stack direction="row" justifyContent="space-between" alignItems="center" width="100%">
+                  <Typography variant="subtitle2" color="text.secondary">
+                    여행 기간
+                  </Typography>
+                  <EditableText
+                    variant="body1"
+                    value={`${formatDate(trip.startDate)} ~ ${formatDate(trip.endDate)}`}
+                    dismissible={false}
+                    renderEditField={(props, control) => {
+                      return (
+                        <DateRangePicker
+                          {...props}
+                          value={[new Date(trip.startDate), new Date(trip.endDate)]}
+                          onChange={([start, end]) => {
+                            updateTrip.mutateAsync({
+                              startDate: formatDateISO(start),
+                              endDate: formatDateISO(end)
+                            })
+                            control.cancelEdit();
+                          }}
+                          onClosePicker={control.cancelEdit}
+                          endAdornment={(
+                            <InputAdornment position="end" onClick={control.cancelEdit}>
+                              <ClearIcon sx={{ width: 16 }} />
+                            </InputAdornment>
+                          )}
+                          defaultOpen
+                        />
+                      )
+                    }}
+                  />
+                </Stack>
               </Stack>
-              <Stack direction="row" justifyContent="space-between" alignItems="center">
-                <Typography variant="subtitle2" color="text.secondary">
-                  여행 기간
+              <Stack gap={1} width="100%">
+                <Typography variant='subtitle2' color="text.secondary">
+                  해야할 일
                 </Typography>
-                <EditableText
-                  variant="body1"
-                  value={`${formatDate(trip.startDate)} ~ ${formatDate(trip.endDate)}`}
-                  dismissible={false}
-                  renderEditField={(props, control) => {
-                    return (
-                      <DateRangePicker
-                        {...props}
-                        value={[new Date(trip.startDate), new Date(trip.endDate)]}
-                        onChange={([start, end]) => {
-                          updateTrip.mutateAsync({
-                            startDate: formatDateISO(start),
-                            endDate: formatDateISO(end)
-                          })
-                          control.cancelEdit();
-                        }}
-                        onClosePicker={control.cancelEdit}
-                        endAdornment={(
-                          <InputAdornment position="end" onClick={control.cancelEdit}>
-                            <ClearIcon sx={{ width: 16 }} />
-                          </InputAdornment>
-                        )}
-                        defaultOpen
-                      />
-                    )
-                  }}
+                <TripDeadlineChecklist
+                  tripId={tripId}
+                  gap={1}
                 />
               </Stack>
-            </Stack>
-            <Stack gap={1} >
-              <Typography variant='subtitle2' color="text.secondary">
-                해야할 일
-              </Typography>
-              <TripDeadlineChecklist
-                tripId={tripId}
-                gap={1}
-              />
-            </Stack>
 
-            {/* 고정된 메모 */}
-            <TripPinnedMemos tripId={tripId} />
+              {/* 고정된 메모 */}
+              <TripPinnedMemos tripId={tripId} />
 
-            {/* 인원 관리 */}
-            <Stack gap={1} >
-              <Stack direction="row" justifyContent="space-between" alignItems="center" marginTop={-1}>
-                <Typography variant="subtitle2" color="text.secondary">
-                  인원 ({members.length}명)
-                </Typography>
-                <IconButton size="small" onClick={handleStartAdd} color="primary" disabled={isAdding}>
-                  <AddIcon />
-                </IconButton>
-              </Stack>
-
-              <Stack spacing={1}>
-                {/* 새 인원 추가 입력 필드 */}
-                {isAdding && (
-                  <ListItem>
-                    <TextField
-                      autoFocus
-                      size="small"
-                      variant="standard"
-                      placeholder="이름 입력"
-                      value={newMemberName}
-                      onChange={(e) => setNewMemberName(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault()
-                          handleAddMember()
-                        } else if (e.key === 'Escape') {
-                          handleCancelAdd()
-                        }
-                      }}
-                      onBlur={() => {
-                        if (newMemberName.trim()) {
-                          handleAddMember()
-                        } else {
-                          handleCancelAdd()
-                        }
-                      }}
-                      fullWidth
-                    />
-                  </ListItem>
-                )}
-
-                {members.length === 0 && !isAdding ? (
-                  <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: 'center' }}>
-                    인원을 추가해주세요
+              {/* 인원 관리 */}
+              <Stack gap={1} width="100%">
+                <Stack direction="row" justifyContent="space-between" alignItems="center" marginTop={-1}>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    인원 ({members.length}명)
                   </Typography>
-                ) : (
-                  members.map((member) => (
-                    <ListItem
-                      key={member.id}
-                      leftAddon={
-                        <Box
-                          onClick={() => handleChangeEmoji(member.id)}
-                          sx={{
-                            cursor: 'pointer',
-                            fontSize: 20,
-                            width: 20,
-                            height: 20,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            borderRadius: '50%',
-                            bgcolor: 'grey.100',
-                            '&:hover': { bgcolor: 'grey.200' }
-                          }}
-                        >
-                          {member.emoji}
-                        </Box>
-                      }
-                      rightAddon={
-                        <Stack direction="row">
-                          <IconButton
-                            size="small"
-                            onClick={() => handleChangeEmoji(member.id)}
-                            title="이모지 변경"
-                          >
-                            <RefreshIcon fontSize="small" />
-                          </IconButton>
-                          <IconButton
-                            size="small"
-                            onClick={() => handleDeleteMember(member.id)}
-                            color="error"
-                          >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </Stack>
-                      }
-                    >
-                      <EditableText
-                        defaultValue={member.name}
-                        onSubmit={(name) => {
-                          if (name.trim()) {
-                            update({ memberId: member.id, data: { name: name.trim() } })
+                  <IconButton size="small" onClick={handleStartAdd} color="primary" disabled={isAdding}>
+                    <AddIcon />
+                  </IconButton>
+                </Stack>
+
+                <Stack spacing={1} width="100%">
+                  {/* 새 인원 추가 입력 필드 */}
+                  {isAdding && (
+                    <ListItem>
+                      <TextField
+                        autoFocus
+                        size="small"
+                        variant="standard"
+                        placeholder="이름 입력"
+                        value={newMemberName}
+                        onChange={(e) => setNewMemberName(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            handleAddMember()
+                          } else if (e.key === 'Escape') {
+                            handleCancelAdd()
                           }
                         }}
-                        variant="body2"
-                        submitOnBlur
-                        endIcon={null}
+                        onBlur={() => {
+                          if (newMemberName.trim()) {
+                            handleAddMember()
+                          } else {
+                            handleCancelAdd()
+                          }
+                        }}
+                        fullWidth
                       />
                     </ListItem>
-                  ))
-                )}
+                  )}
+
+                  {members.length === 0 && !isAdding ? (
+                    <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: 'center' }}>
+                      인원을 추가해주세요
+                    </Typography>
+                  ) : (
+                    members.map((member) => (
+                      <ListItem
+                        key={member.id}
+                        leftAddon={
+                          <Box
+                            onClick={() => handleChangeEmoji(member.id)}
+                            sx={{
+                              cursor: 'pointer',
+                              fontSize: 20,
+                              width: 20,
+                              height: 20,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              borderRadius: '50%',
+                              bgcolor: 'grey.100',
+                              '&:hover': { bgcolor: 'grey.200' }
+                            }}
+                          >
+                            {member.emoji}
+                          </Box>
+                        }
+                        rightAddon={
+                          <Stack direction="row">
+                            <IconButton
+                              size="small"
+                              onClick={() => handleChangeEmoji(member.id)}
+                              title="이모지 변경"
+                            >
+                              <RefreshIcon fontSize="small" />
+                            </IconButton>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleDeleteMember(member.id)}
+                              color="error"
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Stack>
+                        }
+                      >
+                        <EditableText
+                          defaultValue={member.name}
+                          onSubmit={(name) => {
+                            if (name.trim()) {
+                              update({ memberId: member.id, data: { name: name.trim() } })
+                            }
+                          }}
+                          variant="body2"
+                          submitOnBlur
+                          endIcon={null}
+                        />
+                      </ListItem>
+                    ))
+                  )}
+                </Stack>
               </Stack>
             </Stack>
-          </Stack>
+          </>
         )}
 
         {currentTab === 'checklist' && (
