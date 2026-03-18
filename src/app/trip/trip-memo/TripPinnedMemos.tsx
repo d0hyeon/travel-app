@@ -1,5 +1,5 @@
 import PushPinIcon from '@mui/icons-material/PushPin';
-import { Stack, Typography, type StackProps } from "@mui/material";
+import { Skeleton, Stack, Typography, type StackProps } from "@mui/material";
 import { Suspense } from "react";
 import { ListItem } from "~shared/components/ListItem";
 import { useTripMemo } from "./useTripMemo";
@@ -11,9 +11,18 @@ interface Props extends StackProps {
 
 export function TripPinnedMemos({ tripId, ...props }: Props) {
   return (
-    <Suspense fallback={null}>
-      <TripPinnedMemosContent tripId={tripId} {...props} />
-    </Suspense>
+    <Stack gap={1} {...props}>
+      <Typography variant="subtitle2" color="text.secondary">
+        고정된 메모
+      </Typography>
+      <Suspense fallback={(
+        <ListItem>
+          <Skeleton variant='text' />
+        </ListItem>
+      )}>
+        <TripPinnedMemosContent tripId={tripId} {...props} />
+      </Suspense>
+    </Stack>
   );
 }
 
@@ -26,32 +35,27 @@ function TripPinnedMemosContent({ tripId, throwOnEmpty, ...props }: Props) {
   }
 
   return (
-    <Stack gap={1} {...props}>
-      <Typography variant="subtitle2" color="text.secondary">
-        고정된 메모
-      </Typography>
-      <Stack gap={1}>
-        {pinnedMemos.map((memo) => (
-          <ListItem
-            key={memo.id}
-            leftAddon={<PushPinIcon fontSize="small" color="primary" sx={{ width: 16 }} />}
+    <Stack gap={1}>
+      {pinnedMemos.map((memo) => (
+        <ListItem
+          key={memo.id}
+          leftAddon={<PushPinIcon fontSize="small" color="primary" sx={{ width: 16 }} />}
+          sx={{
+            paddingY: 1,
+            boxShadow: '0px 2px 8px #ddd'
+          }}
+        >
+          <Typography
+            variant="caption"
             sx={{
-              paddingY: 1,
-              boxShadow: '0px 2px 8px #ddd'
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
             }}
           >
-            <Typography
-              variant="caption"
-              sx={{
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-word',
-              }}
-            >
-              {memo.content}
-            </Typography>
-          </ListItem>
-        ))}
-      </Stack>
+            {memo.content}
+          </Typography>
+        </ListItem>
+      ))}
     </Stack>
   );
 }
