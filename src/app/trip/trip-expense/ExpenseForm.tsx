@@ -193,9 +193,8 @@ ExpenseForm.Resolved = ({
               )}
             />
 
-            <Accordion sx={{ boxShadow: 'none', margin: '0 !important', '&::before': { display: 'none' } }}>
-              <AccordionSummary sx={theme => ({ height: visibleSplit ? 20 : 0, marginTop: visibleSplit ? 0.5 : 0, overflow: 'hidden', transition: 'height 300ms', fontSize: 12, padding: 0, paddingLeft: 0.5, boxShadow: 'none', minHeight: 'auto !important', color: theme.palette.text.secondary, '&.Mui-expanded': { color: theme.palette.primary.main } })} slotProps={{ content: { sx: { margin: '0 !important' } } }}>
-                분할 결제하셨나요?
+            <Accordion expanded={visibleSplit} sx={{ boxShadow: 'none', margin: '0 !important', '&::before': { display: 'none' } }}>
+              <AccordionSummary sx={theme => ({ height: 0, overflow: 'hidden', transition: 'height 300ms', fontSize: 12, padding: 0, paddingLeft: 0.5, boxShadow: 'none', minHeight: 'auto !important', color: theme.palette.text.secondary, '&.Mui-expanded': { color: theme.palette.primary.main } })} slotProps={{ content: { sx: { margin: '0 !important' } } }}>
               </AccordionSummary>
               <AccordionDetails sx={{ padding: 0, paddingX: 1, marginTop: 1 }}>
                 <Stack spacing={1}>
