@@ -2,9 +2,9 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import AlarmOnIcon from '@mui/icons-material/AlarmOn';
 import ErrorIcon from '@mui/icons-material/Error';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { alpha, Box, Checkbox, Chip, ClickAwayListener, Grow, IconButton, MenuItem, MenuList, Paper, Popper, Stack, Typography, type StackProps } from "@mui/material";
+import { alpha, Box, Checkbox, Chip, ClickAwayListener, Grow, IconButton, MenuItem, MenuList, Paper, Popper, Skeleton, Stack, Typography, type StackProps } from "@mui/material";
 import { differenceInDays, formatDate, isAfter, isBefore } from "date-fns";
-import { useMemo, type ComponentProps, type MouseEvent } from "react";
+import { Suspense, useMemo, type ComponentProps, type MouseEvent } from "react";
 import { match, P } from 'ts-pattern';
 import { ListItem } from "~shared/components/ListItem";
 import { SwitchCase } from "~shared/components/SwitchCase";
@@ -28,17 +28,32 @@ interface Props extends StackProps {
 }
 
 const now = Date.now()
-
-export function TripChecklist({ tripId, ...props }: Props) {
+export function TripChecklist(props: Props) {
+  return (
+    <Stack gap={1} {...props}>
+      <Suspense
+        fallback={(
+          <>
+            <ListItem><Skeleton /></ListItem>
+            <ListItem><Skeleton /></ListItem>
+          </>
+        )}
+      >
+        <Resolved {...props} />
+      </Suspense>
+    </Stack>
+  )
+}
+function Resolved({ tripId }: Props) {
   const { data: { checklist } } = useTripChecklist(tripId);
 
   return (
-    <Stack gap={1} {...props}>
+    <>
       {checklist.length > 0
         ? checklist.map(x => <TripChecklist.Item id={x.id} key={x.id} tripId={tripId} />)
         : <Typography variant="body2" color="textSecondary" paddingY={3}>체크리스트가 없어요</Typography>}
 
-    </Stack>
+    </>
   )
 }
 
@@ -152,6 +167,8 @@ TripChecklist.Item = ({ tripId, id, ...props }: ItemProps) => {
     </ListItem>
   )
 }
+
+
 
 TripChecklist.ReadonlyItem = ({ id, tripId, ...props }: ItemProps) => {
   const { data: { checklist } } = useTripChecklist(tripId);

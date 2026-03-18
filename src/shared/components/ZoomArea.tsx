@@ -1,4 +1,5 @@
 import { Panzoom } from '@fancyapps/ui';
+import type { WheelAction } from '@fancyapps/ui/types/Panzoom/types';
 import { Box, type BoxProps } from '@mui/material';
 
 import { useEffect, useState } from 'react';
@@ -14,7 +15,9 @@ type Props = PickedOption &
   BoxProps & {
     onZoomStart?: (instance: Panzoom) => void;
     onZoomEnd?: (instance: Panzoom) => void;
+    wheel?: WheelAction | (() => WheelAction);
   };
+
 
 export function ZoomArea({
   minScale = Panzoom.defaults.minScale,
@@ -25,11 +28,25 @@ export function ZoomArea({
   children,
   onZoomStart = () => { },
   onZoomEnd = () => { },
+  wheel = 'zoom',
   ...props
 }: Props) {
   const [element, setElement] = useState<HTMLElement | null>(null);
-  const preservedZoomStart = usePreservedCallback(onZoomStart);
-  const preservedZoomEnd = usePreservedCallback(onZoomEnd);
+
+  const preservedZoomStart = usePreservedCallback((instance: Panzoom) => {
+    setTimeout(() => {
+      if (instance.getMatrix().a > 1) {
+        onZoomStart?.(instance);
+      }
+    }, 1000 / 60)
+  });
+
+  const preservedZoomEnd = usePreservedCallback((instance: Panzoom) => {
+    if (instance.isScaling === false && instance.current.a === 1) {
+      onZoomEnd?.(instance);
+    }
+  });
+
 
   useEffect(() => {
     if (element) {
@@ -39,15 +56,17 @@ export function ZoomArea({
         click,
         dblClick: doubleClick,
         bounce,
+        wheel,
+        mouseMoveFactor: 1000,
         on: {
           startAnimation: () => preservedZoomStart(instance),
           endAnimation: () => preservedZoomEnd(instance),
         },
       });
-
       return () => instance.destroy();
     }
-  }, [element, minScale, maxScale, bounce, click, doubleClick]);
+  }, [element, minScale, maxScale, bounce, click, wheel, doubleClick]);
+
 
   return (
     <Box ref={setElement} {...props}>

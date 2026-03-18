@@ -42,13 +42,12 @@ function getRouteColor(index: number): string {
 
 interface RouteContentProps {
   tripId: string;
-  defaultCenter: { lat: number; lng: number }
 }
 
 const BOTTOM_SHEET_RATIOS = [0.25, 0.5, 0.8, 1] as const;
 const DEFAULT_BOTTOM_SHEET_RATIO = 0.5 satisfies typeof BOTTOM_SHEET_RATIOS[number];
 
-export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) {
+export function TripRoutesContent({ tripId }: RouteContentProps) {
 
   const { data: trip } = useTrip(tripId);
   const { data: places, update: updatePlace } = useTripPlaces(tripId)
@@ -135,7 +134,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: RouteContentProps) 
           <Map
             type={mapType}
             ref={mapRef}
-            defaultCenter={defaultCenter}
+            defaultCenter={{ lat: trip.lat, lng: trip.lng }}
             autoFocus="path"
             height="100%"
             clustering={cluastering}

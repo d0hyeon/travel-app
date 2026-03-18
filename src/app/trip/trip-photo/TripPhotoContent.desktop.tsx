@@ -1,4 +1,4 @@
-import { Box, Chip, ImageList, Stack } from '@mui/material';
+import { Box, Chip, Stack } from '@mui/material';
 import { useMemo, useState } from 'react';
 import { PhotoDialog } from '~shared/components/photo/PhotoDialog';
 import { PhotoUploader } from '~shared/components/photo/PhotoUploader';
@@ -58,34 +58,37 @@ export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
         ))}
       </Stack>
 
-      <Box maxWidth={900}>
-        <ImageList cols={8}>
+
+      <Stack direction="row" flexWrap="wrap">
+        <Box component="li" margin={0.5}>
           <PhotoUploader
             width="100%"
+            sx={{ width: 120, height: 120 }}
             onUpload={async (files) => {
               await upload({ files, placeId: selectedPlaceId ?? undefined })
             }}
             multiple
           />
-          {filteredPhotos.map((x, i) => (
-            <PhotoThunbnail
-              key={x.id}
-              src={x.url}
-              onClick={() => {
-                overlay.open(({ isOpen, close }) => (
-                  <PhotoDialog
-                    initialIndex={i}
-                    photos={filteredPhotos}
-                    open={isOpen}
-                    onClose={close}
-                    onDelete={remove}
-                  />
-                ))
-              }}
-            />
-          ))}
-        </ImageList>
-      </Box>
+        </Box>
+        {filteredPhotos.map((x, i) => (
+          <PhotoThunbnail
+            key={x.id}
+            src={x.url}
+            sx={{ width: 120, height: 120, margin: 0.5 }}
+            onClick={() => {
+              overlay.open(({ isOpen, close }) => (
+                <PhotoDialog
+                  initialIndex={i}
+                  photos={filteredPhotos}
+                  open={isOpen}
+                  onClose={close}
+                  onDelete={remove}
+                />
+              ))
+            }}
+          />
+        ))}
+      </Stack>
     </Stack>
   );
 }

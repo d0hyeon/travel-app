@@ -1,7 +1,7 @@
 import DeleteIcon from '@mui/icons-material/Delete';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
-import { IconButton, Stack, Typography, type StackProps } from "@mui/material";
+import { IconButton, Skeleton, Stack, Typography, type StackProps } from "@mui/material";
 import { ListItem } from "~shared/components/ListItem";
 import { useConfirmDialog } from "~shared/modules/confirm-dialog/useConfirmDialog";
 import { useTripMemo } from "./useTripMemo";
@@ -28,6 +28,34 @@ export function TripMemo({ tripId, ...props }: Props) {
         )}
     </Stack>
   );
+}
+
+TripMemo.Skeleton = (props: StackProps) => {
+  return (
+    <Stack gap={1} {...props}>
+      {Array.from({ length: 2 }).map((_, key) => (
+        <ListItem
+          key={key}
+          sx={{
+            boxShadow: '1px 2px 6px #ddd',
+            borderWidth: 1
+          }}
+          rightAddon={
+            <Stack direction="row">
+              <IconButton size="small" disabled>
+                <PushPinOutlinedIcon fontSize="small" />
+              </IconButton>
+              <IconButton size="small" color="error" disabled>
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </Stack>
+          }
+        >
+          <Skeleton variant="text" />
+        </ListItem>
+      ))}
+    </Stack>
+  )
 }
 
 interface ItemProps {

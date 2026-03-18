@@ -35,12 +35,11 @@ import { useExpenseFormOverlay } from "./useExpenseFormOverlay"
 
 interface Props {
   tripId: string
-  defaultCenter: { lat: number; lng: number }
 }
 
 type ViewMode = 'list' | 'route'
 
-export function ExpenseContent({ tripId, defaultCenter }: Props) {
+export function ExpenseContent({ tripId }: Props) {
   const [viewMode, setViewMode] = useQueryParamState<ViewMode>('espense-view', {
     defaultValue: 'list'
   })
@@ -283,7 +282,7 @@ export function ExpenseContent({ tripId, defaultCenter }: Props) {
             // 경로 뷰
             <Box sx={{ mx: -3, mb: -3, mt: -1 }}>
               <Suspense>
-                <RouteExpenseView tripId={tripId} defaultCenter={defaultCenter} />
+                <RouteExpenseView tripId={tripId} />
               </Suspense>
             </Box>
           )}

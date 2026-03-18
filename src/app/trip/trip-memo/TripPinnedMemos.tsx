@@ -6,6 +6,7 @@ import { useTripMemo } from "./useTripMemo";
 
 interface Props extends StackProps {
   tripId: string;
+  throwOnEmpty?: boolean;
 }
 
 export function TripPinnedMemos({ tripId, ...props }: Props) {
@@ -16,10 +17,13 @@ export function TripPinnedMemos({ tripId, ...props }: Props) {
   );
 }
 
-function TripPinnedMemosContent({ tripId, ...props }: Props) {
+function TripPinnedMemosContent({ tripId, throwOnEmpty, ...props }: Props) {
   const { data: { pinnedMemos } } = useTripMemo(tripId);
 
-  if (pinnedMemos.length === 0) return null;
+  if (pinnedMemos.length === 0) {
+    if (throwOnEmpty) throw new Error('메모가 없습니다.')
+    return null;
+  }
 
   return (
     <Stack gap={1} {...props}>

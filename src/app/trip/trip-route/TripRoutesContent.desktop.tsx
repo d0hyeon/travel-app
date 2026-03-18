@@ -50,10 +50,9 @@ function getRouteColor(index: number): string {
 
 interface TripRoutesContentProps {
   tripId: string
-  defaultCenter: { lat: number; lng: number }
 }
 
-export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentProps) {
+export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
   const overlay = useOverlay();
   const confirm = useConfirmDialog();
 
@@ -315,7 +314,7 @@ export function TripRoutesContent({ tripId, defaultCenter }: TripRoutesContentPr
         <Map
           type={mapType}
           ref={mapRef}
-          defaultCenter={defaultCenter}
+          defaultCenter={{ lat: trip.lat, lng: trip.lng }}
           autoFocus="path"
           height="100%"
           clustering={cluastering}

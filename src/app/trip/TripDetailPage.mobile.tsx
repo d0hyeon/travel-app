@@ -1,4 +1,3 @@
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import InfoIcon from '@mui/icons-material/Info';
 import NearMeIcon from '@mui/icons-material/NearMe';
 import PhotoIcon from '@mui/icons-material/Photo';
@@ -10,21 +9,20 @@ import {
   Box,
   Button,
   CircularProgress,
-  IconButton,
   Stack,
   Typography
 } from '@mui/material';
 import { Suspense } from 'react';
-import { useNavigate } from 'react-router';
 import { BottomNavigation } from '~shared/components/BottomNavigation';
+import { ErrorBoundary } from '~shared/components/ErrorBoundary.tsx';
+import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile.tsx';
 import { SwitchCase } from '~shared/components/SwitchCase.tsx';
 import { useActivitySignalCallback } from '~shared/hooks/useActivitySignalCallback.ts';
 import { lazy } from '~shared/lib/react.ts';
 import { useQueryParamState } from '../../shared/hooks/useQueryParamState';
 import { TripBasicInfoContent } from './trip-basic-info/TripBasicInfoContent.mobile';
-import { useTrip } from './useTrip';
+import { TripNameEditableText } from './TripNameEditableText.tsx';
 import { useTripId } from './useTripId';
-import { ErrorBoundary } from '~shared/components/ErrorBoundary.tsx';
 
 
 type TabType = 'Info' | 'Place' | 'Route' | 'Expense' | 'Photo';
@@ -49,61 +47,33 @@ const TripExpenseContent = lazy(async () => {
   return { default: module.ExpenseContent }
 });
 
-const HEADER_HEIGHT = 50;
 
 export function TripDetailPageMobile() {
   const tripId = useTripId()
-  const { data: trip } = useTrip(tripId)
-  const navigate = useNavigate()
 
   const [currentTab, setCurrentTab] = useQueryParamState<TabType>('content', {
     defaultValue: 'Info'
   })
 
   useActivitySignalCallback(() => {
-    scheduler.postTask(TripRoutesContent.preload, { priority: 'background' })
-    scheduler.postTask(TripPhotoContent.preload, { priority: 'background' })
-    scheduler.postTask(TripExpenseContent.preload, { priority: 'background' })
-    scheduler.postTask(TripPhotoContent.preload, { priority: 'background' })
+    TripRoutesContent.preload();
+    TripPhotoContent.preload();
+    TripExpenseContent.preload();
+    TripPhotoContent.preload();
   }, { sensitivity: 'high' })
 
   return (
     <Box sx={{ height: '100dvh', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
-      <Stack
-        height={HEADER_HEIGHT}
-        position="fixed"
-        top={0}
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        width="100%"
-        sx={{
-          p: 1,
-          bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider',
-          zIndex: 20,
-        }}
-      >
-        <Box display="flex" alignItems="center" gap={0.5}>
-          <IconButton onClick={() => navigate('/')} size="small">
-            <ArrowBackIcon fontSize="small" />
-          </IconButton>
-          <Box flex={1} minWidth={0}>
-            <Typography variant={'subtitle2'} fontWeight={600} noWrap>
-              {trip.name}
-            </Typography>
-          </Box>
-        </Box>
-        <Stack direction="row" alignItems="center">
+      <TopNavigation>
+        <TripNameEditableText variant="subtitle2" tripId={tripId} fontWeight={600} noWrap />
+      </TopNavigation>
 
-        </Stack>
-
-      </Stack>
 
       {/* Content */}
       <Stack
         position="relative"
-        paddingTop={`${HEADER_HEIGHT}px`}
+        paddingTop={`${TopNavigation.HEIGHT}px`}
         paddingBottom={`calc(${BottomNavigation.HEIGHT}px + env(safe-area-inset-bottom))`}
         height="100%"
         sx={{ overflowY: 'auto', overscrollBehaviorY: 'none' }}
@@ -125,9 +95,9 @@ export function TripDetailPageMobile() {
               value={currentTab}
               cases={{
                 Info: <TripBasicInfoContent tripId={tripId} />,
-                Place: () => <TripPlaceContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
-                Route: () => <TripRoutesContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
-                Expense: () => <TripExpenseContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
+                Place: () => <TripPlaceContent tripId={tripId} />,
+                Route: () => <TripRoutesContent tripId={tripId} />,
+                Expense: () => <TripExpenseContent tripId={tripId} />,
                 Photo: () => <TripPhotoContent tripId={tripId} />
               }}
             />

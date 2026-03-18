@@ -20,10 +20,9 @@ import { useTripPlaceDetailOverlay } from './useTripPlaceDetailOverlay'
 
 interface TripPlaceContentProps {
   tripId: string
-  defaultCenter: { lat: number; lng: number }
 }
 
-export function TripPlaceContent({ tripId, defaultCenter }: TripPlaceContentProps) {
+export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
   const { data: trip } = useTrip(tripId)
   const { data: places, create } = useTripPlaces(tripId)
   const { data: { routes } } = useTripRoutes(tripId)
@@ -61,7 +60,7 @@ export function TripPlaceContent({ tripId, defaultCenter }: TripPlaceContentProp
   const { openDialog: openDetailDialog } = useTripPlaceDetailOverlay()
 
   return (
-    <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+    <Box height="100%" sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
       {/* Left: List (30%) */}
       <Box sx={{ width: '30%', borderRight: 1, borderColor: 'divider', overflow: 'auto', p: 2, scrollBehavior: 'smooth', scrollMarginBottom: 40 }}>
         <Stack height="100%" sx={{ scrollBehavior: 'smooth' }}>
@@ -137,7 +136,7 @@ export function TripPlaceContent({ tripId, defaultCenter }: TripPlaceContentProp
         <Map
           type={mapType}
           ref={mapRef}
-          defaultCenter={defaultCenter}
+          defaultCenter={{ lat: trip.lat, lng: trip.lng }}
           height="100%"
           clustering={cluastering}
           clusterGridSize={60}

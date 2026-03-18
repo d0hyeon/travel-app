@@ -16,11 +16,12 @@ import {
   MenuList,
   Paper,
   Popper,
+  Skeleton,
   Stack,
   Typography,
   type StackProps
 } from "@mui/material";
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { ResizeObserverArea } from '~shared/components/ResizeObserverArea';
 import { useVariation } from '~shared/hooks/useVariation';
 import { useConfirmDialog } from "~shared/modules/confirm-dialog/useConfirmDialog";
@@ -34,7 +35,22 @@ interface Props {
   tripId: string;
 }
 
-export function TripMemoMobile({ tripId }: Props) {
+export function TripMemoMobile(props: Props) {
+  return (
+    <Suspense
+      fallback={(
+        <>
+          <MemoItem.Skeleton />
+          <MemoItem.Skeleton />
+        </>
+      )}
+    >
+      <Resolved {...props} />
+    </Suspense>
+  )
+}
+
+function Resolved({ tripId }: Props) {
   const { data: { memos, pinnedMemos }, add, update } = useTripMemo(tripId);
   const [inputValue, setInputValue] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -274,7 +290,8 @@ function MemoItem({ tripId, id, onEdit, ...stackProps }: MemoItemProps) {
         return;
       }
 
-      e.preventDefault(); // iOS 기본 제스처 방지
+      // preventDefault는 스크롤을 차단하므로 제거
+      // CSS로 기본 제스처 방지 (userSelect, WebkitTouchCallout)
       longPressTimer.current = setTimeout(() => {
         justOpenedRef.current = true;
         setMenuAnchor(element);
@@ -298,7 +315,7 @@ function MemoItem({ tripId, id, onEdit, ...stackProps }: MemoItemProps) {
       }
     };
 
-    element.addEventListener('touchstart', handleTouchStart, { passive: false });
+    element.addEventListener('touchstart', handleTouchStart, { passive: true });
     element.addEventListener('touchend', handleTouchEnd);
     element.addEventListener('touchcancel', handleTouchEnd);
     element.addEventListener('touchmove', handleTouchMove);
@@ -442,3 +459,36 @@ function MemoItem({ tripId, id, onEdit, ...stackProps }: MemoItemProps) {
     </>
   );
 }
+
+MemoItem.Skeleton = () => (
+  <Stack
+    direction="row"
+    gap={1}
+    alignItems="center"
+    justifyContent="space-between"
+    sx={[
+      {
+        py: 0.5,
+        pl: 2,
+        pr: 0.5,
+        borderColor: 'primary.main',
+        cursor: 'pointer',
+        userSelect: 'none',
+        WebkitUserSelect: 'none',
+        WebkitTouchCallout: 'none',
+        touchAction: 'manipulation',
+        borderRadius: '12px',
+        boxShadow: '0px 2px 8px #ddd'
+      },
+
+    ]}
+  >
+    <Stack direction="row" gap={2} alignItems="end" width="100%" justifyContent="space-between">
+      <Skeleton variant="text" />
+    </Stack>
+    <IconButton disabled>
+      <MoreVertIcon fontSize="small" />
+    </IconButton>
+
+  </Stack>
+)

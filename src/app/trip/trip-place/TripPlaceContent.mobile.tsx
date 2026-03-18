@@ -14,13 +14,12 @@ import { useTripPlaces } from "./useTripPlaces";
 
 interface PlaceContentProps {
   tripId: string
-  defaultCenter: { lat: number; lng: number }
 }
 
 const BOTTOM_SHEET_RATIOS = [0.25, 0.5, 0.8, 1] as const;
 const DEFAULT_BOTTOM_SHEET_RATIO = 0.5 satisfies typeof BOTTOM_SHEET_RATIOS[number];
 
-export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
+export function TripPlaceContent({ tripId }: PlaceContentProps) {
   const { data: trip } = useTrip(tripId)
   const { data: places, create } = useTripPlaces(tripId)
   const { data: { routes } } = useTripRoutes(tripId)
@@ -70,7 +69,7 @@ export function TripPlaceContent({ tripId, defaultCenter }: PlaceContentProps) {
           <Map
             type={mapType}
             ref={mapRef}
-            defaultCenter={defaultCenter}
+            defaultCenter={{ lat: trip.lat, lng: trip.lng }}
             height="100%"
             clustering={cluastering}
             clusterGridSize={50}

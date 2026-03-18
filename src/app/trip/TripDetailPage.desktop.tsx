@@ -1,28 +1,22 @@
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import {
   Alert,
   AlertTitle,
   Box,
   Button,
-  CircularProgress,
-  IconButton,
-  Stack,
   Tab,
   Tabs,
   Typography
 } from '@mui/material'
-import { Suspense } from 'react'
-import { useNavigate } from 'react-router'
-import { EditableText } from '../../shared/components/EditableText'
 import { useQueryParamState } from '../../shared/hooks/useQueryParamState'
 import { TripBasicInfoContent } from './trip-basic-info/TripBasicInfoContent.desktop'
 
 
-import { useTrip } from './useTrip'
-import { useTripId } from './useTripId'
+import { ErrorBoundary } from '~shared/components/ErrorBoundary.tsx'
+import { TopNavigation } from '~shared/components/layout/TopNavigation.desktop.tsx'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { lazy } from '~shared/lib/react'
-import { ErrorBoundary } from '~shared/components/ErrorBoundary.tsx'
+import { TripNameEditableText } from './TripNameEditableText.tsx'
+import { useTripId } from './useTripId'
 
 const TripPhotoContent = lazy(async () => {
   const module = await import('./trip-photo/TripPhotoContent.desktop.tsx')
@@ -48,8 +42,6 @@ type TabType = 'Info' | 'Place' | 'Route' | 'Expense' | 'Photo'
 
 export function TripDetailPageDesktop() {
   const tripId = useTripId()
-  const { data: trip, update } = useTrip(tripId)
-  const navigate = useNavigate()
 
   const [currentTab, setCurrentTab] = useQueryParamState<TabType>('content', {
     defaultValue: 'Info'
@@ -58,30 +50,10 @@ export function TripDetailPageDesktop() {
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
       {/* Header */}
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        position="sticky"
-        top={0}
-        zIndex={10}
-        sx={{ p: 2, borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper' }}
-      >
-        <Box display="flex" alignItems="center" gap={1}>
-          <IconButton onClick={() => navigate('/')}>
-            <ArrowBackIcon />
-          </IconButton>
-          <EditableText
-            defaultValue={trip.name}
-            variant="h6"
-            onSubmit={(name) => update.mutate({ name })}
-          />
-        </Box>
-        <Stack direction="row" alignItems="center">
+      <TopNavigation>
+        <TripNameEditableText tripId={tripId} variant="h6" />
+      </TopNavigation>
 
-        </Stack>
-
-      </Stack>
       <Box
         position="sticky"
         top={72}
@@ -103,34 +75,31 @@ export function TripDetailPageDesktop() {
         </Tabs>
       </Box>
       {/* Content */}
-      <Box>
-        <ErrorBoundary
-          fallback={({ error, resetError }) => (
-            <Alert
-              color="error"
-              action={(<Button size="small" variant='contained' onClick={resetError}>재시도</Button>)}
-              sx={{ margin: 2, marginX: 1.5 }}
-            >
-              <AlertTitle>에러가 발생했어요!</AlertTitle>
-              <Typography variant="caption">{error.message}</Typography>
-            </Alert>
-          )}
-        >
-          <Suspense fallback={<Box flex={1} display="flex" alignItems="center" justifyContent="center"><CircularProgress /></Box>}>
-            <SwitchCase
-              value={currentTab}
-              cases={{
-                Info: <TripBasicInfoContent tripId={tripId} />,
-                Place: () => <TripPlaceContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
-                Route: () => <TripRoutesContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
-                Expense: () => <TripExpenseContent tripId={tripId} defaultCenter={{ lat: trip.lat, lng: trip.lng }} />,
-                Photo: () => <TripPhotoContent tripId={tripId} />
-              }}
-            />
+      <ErrorBoundary
+        fallback={({ error, resetError }) => (
+          <Alert
+            color="error"
+            action={(<Button size="small" variant='contained' onClick={resetError}>재시도</Button>)}
+            sx={{ margin: 2, marginX: 1.5 }}
+          >
+            <AlertTitle>에러가 발생했어요!</AlertTitle>
+            <Typography variant="caption">{error.message}</Typography>
+          </Alert>
+        )}
+      >
 
-          </Suspense>
-        </ErrorBoundary>
-      </Box>
+        <SwitchCase
+          value={currentTab}
+          cases={{
+            Info: <TripBasicInfoContent tripId={tripId} />,
+            Place: () => <TripPlaceContent tripId={tripId} />,
+            Route: () => <TripRoutesContent tripId={tripId} />,
+            Expense: () => <TripExpenseContent tripId={tripId} />,
+            Photo: () => <TripPhotoContent tripId={tripId} />
+          }}
+        />
+
+      </ErrorBoundary>
     </Box>
   )
 }

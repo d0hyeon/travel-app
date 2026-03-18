@@ -1,12 +1,8 @@
-import { Box, Typography, type BoxProps } from '@mui/material'
+import { Box, Skeleton, Typography, type BoxProps } from '@mui/material'
 import { useEffect, useState } from 'react'
+import { useTrip } from '../useTrip'
 
-interface Props {
-  startDate: string
-  endDate: string
-  /** 숫자 카운팅 애니메이션 활성화 여부 (기본값: true) */
-  animationEnabled?: boolean
-}
+
 
 function getDaysDiff(targetDate: Date): number {
   const today = new Date()
@@ -77,7 +73,12 @@ function useCountAnimation(targetValue: number, enabled: boolean, duration = 800
   return displayValue
 }
 
-export function TripDDay({ startDate, endDate, animationEnabled = true, ...props }: Props & BoxProps) {
+interface Props {
+  tripId: string;
+}
+
+export function TripDDay({ tripId, ...props }: Props & BoxProps) {
+  const { data: { startDate, endDate } } = useTrip(tripId)
   const start = new Date(startDate)
   const end = new Date(endDate)
   const today = new Date()
@@ -88,18 +89,27 @@ export function TripDDay({ startDate, endDate, animationEnabled = true, ...props
 
   // 여행 전
   if (daysUntilStart > 0) {
-    return <BeforeTripDDay days={daysUntilStart} animationEnabled={animationEnabled} {...props} />
+    return <BeforeTripDDay days={daysUntilStart} animationEnabled {...props} />
   }
 
   // 여행 중
   if (daysUntilStart <= 0 && daysUntilEnd >= 0) {
-    return <DuringTripDDay day={Math.abs(daysUntilStart) + 1} animationEnabled={animationEnabled} {...props} />
+    return <DuringTripDDay day={Math.abs(daysUntilStart) + 1} animationEnabled {...props} />
   }
 
   // 여행 후
   const dateDiff = getDateDiff(end)
-  return <AfterTripDDay dateDiff={dateDiff} animationEnabled={animationEnabled} {...props} />
+  return <AfterTripDDay dateDiff={dateDiff} animationEnabled {...props} />
 }
+TripDDay.Skeleton = (props: BoxProps) => {
+  return (
+    <DDayBox {...props}>
+      <Skeleton variant='text' />
+    </DDayBox>
+  )
+}
+
+
 
 function DDayBox(props: BoxProps) {
   return (

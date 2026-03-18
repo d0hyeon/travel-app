@@ -1,14 +1,13 @@
-import { Alert, AlertTitle, Box, Button, CircularProgress, CssBaseline, ThemeProvider, Typography } from '@mui/material'
+import { Alert, AlertTitle, Button, CssBaseline, ThemeProvider, Typography } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { Suspense } from 'react'
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router'
-import { theme } from '~shared/modules/theme'
-import { SearchParamProvider } from '~shared/modules/useSearchParams'
+import { ErrorBoundary } from '~shared/components/ErrorBoundary'
 import { OverlayProvider } from '~shared/hooks/useOverlay'
 import '~shared/index.css'
-import { ErrorBoundary } from '~shared/components/ErrorBoundary'
+import { theme } from '~shared/modules/theme'
+import { SearchParamProvider } from '~shared/modules/useSearchParams'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,13 +19,7 @@ const queryClient = new QueryClient({
   }
 })
 
-function Loading() {
-  return (
-    <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
-      <CircularProgress />
-    </Box>
-  )
-}
+
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -74,9 +67,7 @@ export default function Root() {
             <OverlayProvider>
               <CssBaseline />
               <SearchParamProvider>
-                <Suspense fallback={<Loading />}>
-                  <Outlet />
-                </Suspense>
+                <Outlet />
               </SearchParamProvider>
             </OverlayProvider>
           </ErrorBoundary>

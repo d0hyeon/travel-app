@@ -31,10 +31,9 @@ function getRouteColor(index: number): string {
 
 interface Props {
   tripId: string
-  defaultCenter: { lat: number; lng: number }
 }
 
-export function RouteExpenseView({ tripId, defaultCenter }: Props) {
+export function RouteExpenseView({ tripId }: Props) {
   const mapRef = useRef<MapRef>(null)
   const listContainerRef = useRef<HTMLDivElement>(null)
 
@@ -193,7 +192,7 @@ export function RouteExpenseView({ tripId, defaultCenter }: Props) {
         <Map
           type={mapType}
           ref={mapRef}
-          defaultCenter={defaultCenter}
+          defaultCenter={{ lat: trip.lat, lng: trip.lng }}
           autoFocus="path"
           height="100%"
         >

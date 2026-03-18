@@ -1,5 +1,5 @@
 
-import { Stack, TextField, Typography, type TypographyProps } from '@mui/material';
+import { Box, Stack, TextField, Typography, type TypographyProps } from '@mui/material';
 import { type InputHTMLAttributes, type ReactNode, useEffect, useRef } from 'react';
 import { type ControllerFieldState, type ControllerRenderProps, type RegisterOptions, useController, useForm } from 'react-hook-form';
 import { useBooleanState } from '../hooks/useBooleanState';
@@ -48,7 +48,7 @@ export function EditableText<Value extends string | number, As extends string>({
   submitOnBlur = false,
   actions,
   valueAs = (value) => (typeof value === 'number' ? value.toString() : value),
-  endIcon = <EditIcon fontSize="small" />,
+  endIcon = <EditIcon sx={{ fontSize: 'inherit' }} />,
   dismissible = true,
   ...props
 }: EditableTextProps<Value>) {
@@ -86,14 +86,23 @@ export function EditableText<Value extends string | number, As extends string>({
 
   if (isReadonly) {
     return (
-      <Stack ref={registerDismissibleNode} direction="row" gap={0.5} alignItems="center" role="button" onClick={setEdit}>
-        {typeof displayValue === 'string' ? (
-          <Typography {...props}>{displayValue}</Typography>
-        ) : (
-          <span>{displayValue}</span>
-        )}
-        {endIcon}
-      </Stack>
+      <Typography
+        ref={registerDismissibleNode}
+        role="button"
+        onClick={setEdit}
+        sx={[
+          { display: 'inline-flex', alignItems: 'center', gap: 0.5 },
+          ...(Array.isArray(props.sx) ? props.sx : [props.sx])
+        ]}
+        {...props}
+      >
+        <span>
+          {displayValue}
+        </span>
+        <Box component="span" display="inline-flex">
+          {endIcon}
+        </Box>
+      </Typography>
     );
   }
   const control = {
