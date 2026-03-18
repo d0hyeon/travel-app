@@ -70,13 +70,22 @@ if (isProd) {
         ]
       },
       workbox: {
-        navigateFallback: '/index.html',
+        navigateFallback: null, // NetworkFirst로 대체
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        cleanupOutdatedCaches: true, // 이전 빌드 파일(404 원인) 즉시 삭제
-        clientsClaim: true,          // 즉시 앱 제어권 획득
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
         skipWaiting: true,
         runtimeCaching: [
+          {
+            // HTML 페이지는 네트워크 우선 (오프라인일 때만 캐시)
+            urlPattern: ({ request }) => request.mode === 'navigate',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'pages-cache',
+              networkTimeoutSeconds: 3,
+            },
+          },
           {
             urlPattern: /^https:\/\/.*\.kakaocdn\.net\/.*/i,
             handler: 'CacheFirst',
