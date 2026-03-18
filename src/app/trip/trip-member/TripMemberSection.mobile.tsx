@@ -1,13 +1,16 @@
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import { Box, IconButton, Skeleton, Stack, TextField, Typography } from "@mui/material"
 import { Suspense, useState } from 'react'
+import { EditableText } from '~shared/components/EditableText'
+import { ListItem } from '~shared/components/ListItem'
+import { PopMenu } from '~shared/components/PopMenu'
 import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
-import { EditableText } from '../../../shared/components/EditableText'
-import { ListItem } from '../../../shared/components/ListItem'
 import { getRandomEmoji } from '../trip-member/tripMember.types'
 import { useTripMembers } from '../trip-member/useTripMembers'
+
 
 interface Props {
   tripId: string
@@ -127,22 +130,10 @@ function Resolved({ tripId }: Props) {
                 </Box>
               }
               rightAddon={
-                <Stack direction="row">
-                  <IconButton
-                    size="small"
-                    onClick={() => handleChangeEmoji(member.id)}
-                    title="이모지 변경"
-                  >
-                    <RefreshIcon fontSize="small" />
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    onClick={() => handleDeleteMember(member.id)}
-                    color="error"
-                  >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                </Stack>
+                <MemberMenu
+                  onChangeEmoji={() => handleChangeEmoji(member.id)}
+                  onDelete={() => handleDeleteMember(member.id)}
+                />
               }
             >
               <EditableText
@@ -164,6 +155,28 @@ function Resolved({ tripId }: Props) {
   )
 }
 
+interface MemberMenuProps {
+  onChangeEmoji: () => void
+  onDelete: () => void
+}
+
+function MemberMenu({ onChangeEmoji, onDelete }: MemberMenuProps) {
+  return (
+    <PopMenu
+      items={(
+        <>
+          <PopMenu.Item onClick={onChangeEmoji} icon={<RefreshIcon fontSize="small" sx={{ mr: 1 }} />}>
+            이모지 변경
+          </PopMenu.Item>
+          <PopMenu.Item onClick={onDelete} icon={<DeleteIcon fontSize="small" sx={{ mr: 1 }} />} sx={{ color: 'error.main' }}>
+            삭제
+          </PopMenu.Item>
+        </>
+      )}
+    />
+  )
+}
+
 function Pending() {
   return (
     <Stack gap={1} width="100%">
@@ -180,22 +193,9 @@ function Pending() {
         <ListItem
           leftAddon={<Skeleton variant="circular" sx={{ width: 20 }} />}
           rightAddon={
-            <Stack direction="row">
-              <IconButton
-                size="small"
-                title="이모지 변경"
-                disabled
-              >
-                <RefreshIcon fontSize="small" />
-              </IconButton>
-              <IconButton
-                size="small"
-                color="error"
-                disabled
-              >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-            </Stack>
+            <IconButton size="small" disabled>
+              <MoreVertIcon fontSize="small" />
+            </IconButton>
           }
         >
           <Skeleton variant='text' />

@@ -13,6 +13,7 @@ import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialo
 import { BottomSheet } from "../../../shared/components/BottomSheet";
 import { Map, type MapRef } from "../../../shared/components/Map";
 import { ListItem } from "../../../shared/components/ListItem";
+import { PopMenu } from "../../../shared/components/PopMenu";
 import { SortableItem } from "../../../shared/components/dnd/SortableItem";
 import { SortableList } from "../../../shared/components/dnd/SortableList";
 import { useOverlay } from "../../../shared/hooks/useOverlay";
@@ -297,8 +298,8 @@ export function TripRoutesContent({ tripId }: RouteContentProps) {
                         </SortableItem.Handle>
                       )}
                       rightAddon={(
-                        <Box flexShrink={0}>
-                          <IconButton size="small" onClick={async () => {
+                        <PlaceMenu
+                          onEdit={async () => {
                             const updated = await getUpdatedPlace({ tripId, placeId: place.id, defaultValues: place });
                             if (updated) {
                               updatePlace({
@@ -307,22 +308,13 @@ export function TripRoutesContent({ tripId }: RouteContentProps) {
                                 category: updated.category || undefined, tags: updated.tags
                               })
                             }
-                          }}>
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                          <IconButton
-                            size="small"
-                            color="error"
-                            onClick={async (event) => {
-                              event.stopPropagation();
-                              if (!currentRoute || !(await confirm('정말로 삭제하시겠어요?'))) return
-                              const newPlaceIds = currentRoute.placeIds.filter((id) => id !== place.id)
-                              update({ routeId: currentRoute.id, placeIds: newPlaceIds })
-                            }}
-                          >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </Box>
+                          }}
+                          onDelete={async () => {
+                            if (!currentRoute || !(await confirm('정말로 삭제하시겠어요?'))) return
+                            const newPlaceIds = currentRoute.placeIds.filter((id) => id !== place.id)
+                            update({ routeId: currentRoute.id, placeIds: newPlaceIds })
+                          }}
+                        />
                       )}
                       onClick={() => mapRef.current?.panTo(place.lat, place.lng)}
                       focused={focusedId === place.id}
@@ -419,6 +411,28 @@ interface RoutePathProps {
   color: string
   isSelected: boolean;
   mapType: 'kakao' | 'google'
+}
+
+interface PlaceMenuProps {
+  onEdit: () => void
+  onDelete: () => void
+}
+
+function PlaceMenu({ onEdit, onDelete }: PlaceMenuProps) {
+  return (
+    <PopMenu
+      items={
+        <>
+          <PopMenu.Item onClick={onEdit} icon={<EditIcon fontSize="small" sx={{ mr: 1 }} />}>
+            수정
+          </PopMenu.Item>
+          <PopMenu.Item onClick={onDelete} icon={<DeleteIcon fontSize="small" sx={{ mr: 1 }} />} sx={{ color: 'error.main' }}>
+            삭제
+          </PopMenu.Item>
+        </>
+      }
+    />
+  )
 }
 
 function RoutePath({ waypoints, color, isSelected, mapType }: RoutePathProps) {

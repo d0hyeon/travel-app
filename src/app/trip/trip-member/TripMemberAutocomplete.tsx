@@ -20,7 +20,6 @@ export function TripMemberAutocomplete<Multiple extends boolean = false>({
 }: PickPartial<TripMemberAutocompleteProps<Multiple>, 'renderInput'>) {
   const { data: members } = useTripMembers(tripId);
 
-
   if (multiple) {
     const value = members.filter((member) => _value?.includes(member.id));
 

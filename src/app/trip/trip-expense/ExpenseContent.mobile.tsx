@@ -1,29 +1,32 @@
+import { Delete, Edit } from '@mui/icons-material'
 import AddIcon from '@mui/icons-material/Add'
-import EditIcon from '@mui/icons-material/Edit'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
 import RouteIcon from '@mui/icons-material/Route'
-import { Box, Button, IconButton, InputAdornment, Stack, Tab, Tabs, TextField, Typography } from "@mui/material"
+import { Box, Button, InputAdornment, Stack, Tab, Tabs, TextField, Typography } from "@mui/material"
 import { Suspense, useMemo, useState } from "react"
 import type { Expense } from '~app/expense/expense.types'
+import { PopMenu } from '~shared/components/PopMenu'
+import { SwitchCase } from '~shared/components/SwitchCase'
+import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
 import { BottomSheet } from "../../../shared/components/BottomSheet"
 import { EditableText } from "../../../shared/components/EditableText"
 import { ListItem } from "../../../shared/components/ListItem"
 import { useOverlay } from "../../../shared/hooks/useOverlay"
 import { formatDate } from "../../../shared/utils/formats"
+import { EXCHANGE_RATES, formatByCurrencyCode, getCurrencyByDestination } from "../../expense/currency"
 import {
   calculateBalancesInKRW,
   calculateSettlements,
   formatCurrency,
   getTotalExpensesInKRW
 } from "../../expense/expense.utils"
-import { formatByCurrencyCode, getCurrencyByDestination, EXCHANGE_RATES } from "../../expense/currency"
 import { useExpenses } from "../../expense/useExpenses"
 import { useTripMembers } from "../trip-member/useTripMembers"
 import { useTrip } from "../useTrip"
-import { ExpenseFormDeletationActions } from './ExpenseFormDeletationActions'
 import { RouteExpenseViewMobile } from "./RouteExpenseView.mobile"
 import { SettlementSummary } from "./SettlementSummary"
 import { useExpenseFormBottomSheet } from './useExpenseFormOverlay'
-import { SwitchCase } from '~shared/components/SwitchCase'
+
 
 interface Props {
   tripId: string
@@ -33,7 +36,7 @@ type SubTab = 'list' | 'settlement'
 
 export function ExpenseContent({ tripId }: Props) {
   const { data: trip, update: updateTrip } = useTrip(tripId)
-  const { data: expenses, create, update } = useExpenses(tripId)
+  const { data: expenses, create, update, remove } = useExpenses(tripId)
   const { data: members } = useTripMembers(tripId);
 
   const overlay = useOverlay()
@@ -71,13 +74,11 @@ export function ExpenseContent({ tripId }: Props) {
   const handleEditExpense = async (expense: Expense) => {
     const data = await formBottomSheet.open({
       defaultValues: expense,
-      renderActions: ({ close }) => (
-        <ExpenseFormDeletationActions tripId={tripId} expenseId={expense.id} onClose={close} />
-      )
     });
     if (data) update({ expenseId: expense.id, data });
   }
 
+  const confirm = useConfirmDialog();
   const currency = getCurrencyByDestination(trip.destination)
   const defaultRate = Math.round(1 / (EXCHANGE_RATES[currency.code] || 1))
 
@@ -170,14 +171,26 @@ export function ExpenseContent({ tripId }: Props) {
                     <ListItem
                       key={expense.id}
                       rightAddon={
-                        <Stack direction="row" >
-                          <IconButton
-                            size="small"
-                            onClick={() => handleEditExpense(expense)}
-                          >
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                        </Stack>
+                        <PopMenu
+                          items={[
+                            <PopMenu.Item icon={<Edit sx={{ fontSize: '1rem' }} />} onClick={() => handleEditExpense(expense)}>
+                              수정
+                            </PopMenu.Item>,
+                            <PopMenu.Item
+                              color="error"
+                              icon={<Delete fontSize="small" sx={{ fontSize: '1rem' }} />}
+                              onClick={async () => {
+                                if (await confirm('삭제하시겠어요?')) {
+                                  remove(expense.id);
+                                }
+                              }}
+                            >
+                              삭제
+                            </PopMenu.Item>
+                          ]}
+                        >
+                          <MoreVertIcon fontSize="small" />
+                        </PopMenu>
                       }
                     >
                       <Stack direction="row" justifyContent="space-between" alignItems="center" width="100%">

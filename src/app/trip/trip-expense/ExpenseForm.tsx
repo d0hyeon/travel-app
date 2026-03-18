@@ -349,6 +349,11 @@ ExpenseForm.Resolved = ({
                   }}
                   noOptionsText="검색 결과 없음"
                   clearText="초기화"
+                  slotProps={{
+                    popper: {
+                      placement: isMobile ? 'top' : 'auto'
+                    }
+                  }}
                 />
               </Stack>
             )}

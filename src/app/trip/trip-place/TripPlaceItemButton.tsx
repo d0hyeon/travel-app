@@ -1,14 +1,14 @@
-import { Box, Chip, IconButton, Stack } from "@mui/material";
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import { Box, Chip, Stack } from "@mui/material";
 import { type ComponentProps } from "react";
 import { PlaceCategoryColorCode, type Place } from "~app/place/place.types";
 import { ListItem } from "~shared/components/ListItem";
+import { PopMenu } from "~shared/components/PopMenu";
+import { useIsMobile } from "~shared/hooks/useIsMobile";
 import { useConfirmDialog } from "~shared/modules/confirm-dialog/useConfirmDialog";
 import { useTripPlaceDetailOverlay } from "./useTripPlaceDetailOverlay";
 import { useTripPlaces } from "./useTripPlaces";
-
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import { useIsMobile } from "~shared/hooks/useIsMobile";
 
 interface ItemProps extends ComponentProps<typeof ListItem.Button> {
   place: Place;
@@ -27,31 +27,19 @@ export function TripPlaceItemButton({ place, ...props }: ItemProps) {
     <ListItem.Button
       key={place.id}
       rightAddon={(
-        <Box flexShrink={0}>
-          <IconButton
-            size="small"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (isMobile) {
-                return openPlaceDetailSheet({ placeId: place.id, tripId: place.tripId });
-              }
-              openPlaceDetailDialog({ placeId: place.id, tripId: place.tripId });
-            }}
-          >
-            <EditIcon fontSize="small" />
-          </IconButton>
-          <IconButton
-            size="small"
-            onClick={async (e) => {
-              e.stopPropagation();
-              if (await confirm('삭제하시겠어요?')) {
-                remove(place.id)
-              }
-            }}
-          >
-            <DeleteIcon fontSize="small" />
-          </IconButton>
-        </Box>
+        <PlaceItemMenu
+          onEdit={() => {
+            if (isMobile) {
+              return openPlaceDetailSheet({ placeId: place.id, tripId: place.tripId });
+            }
+            openPlaceDetailDialog({ placeId: place.id, tripId: place.tripId });
+          }}
+          onDelete={async () => {
+            if (await confirm('삭제하시겠어요?')) {
+              remove(place.id)
+            }
+          }}
+        />
       )}
       {...props}
     >
@@ -86,5 +74,27 @@ export function TripPlaceItemButton({ place, ...props }: ItemProps) {
         </Stack>
       )}
     </ListItem.Button>
+  )
+}
+
+interface PlaceItemMenuProps {
+  onEdit: () => void
+  onDelete: () => void
+}
+
+function PlaceItemMenu({ onEdit, onDelete }: PlaceItemMenuProps) {
+  return (
+    <PopMenu
+      items={
+        <>
+          <PopMenu.Item onClick={onEdit} icon={<EditIcon fontSize="small" sx={{ mr: 1 }} />}>
+            수정
+          </PopMenu.Item>
+          <PopMenu.Item onClick={onDelete} icon={<DeleteIcon fontSize="small" sx={{ mr: 1 }} />} sx={{ color: 'error.main' }}>
+            삭제
+          </PopMenu.Item>
+        </>
+      }
+    />
   )
 }

@@ -11,6 +11,7 @@ import {
 } from '@mui/material'
 import { DateRangePicker } from '../../shared/components/date-range/DateRangePicker'
 import { formatDate } from 'date-fns'
+import { useIsMobile } from '~shared/hooks/useIsMobile'
 
 interface Destination {
   name: string
@@ -128,6 +129,7 @@ export function TripFormDialog({ open, onClose, onSubmit, initialData }: Props) 
   }
 
   const isValid = name && destination && startDate && endDate
+  const isMobile = useIsMobile();
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
@@ -151,6 +153,11 @@ export function TripFormDialog({ open, onClose, onSubmit, initialData }: Props) 
               <TextField {...params} label="목적지" placeholder="검색 또는 선택" />
             )}
             isOptionEqualToValue={(option, value) => option.name === value.name}
+            slotProps={{
+              popper: {
+                placement: isMobile ? 'top' : 'auto'
+              }
+            }}
           />
 
           <DateRangePicker

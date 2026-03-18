@@ -1,8 +1,10 @@
 import DeleteIcon from '@mui/icons-material/Delete';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import { IconButton, Skeleton, Stack, Typography, type StackProps } from "@mui/material";
 import { ListItem } from "~shared/components/ListItem";
+import { PopMenu } from "~shared/components/PopMenu";
 import { useConfirmDialog } from "~shared/modules/confirm-dialog/useConfirmDialog";
 import { useTripMemo } from "./useTripMemo";
 
@@ -41,14 +43,9 @@ TripMemo.Skeleton = (props: StackProps) => {
             borderWidth: 1
           }}
           rightAddon={
-            <Stack direction="row">
-              <IconButton size="small" disabled>
-                <PushPinOutlinedIcon fontSize="small" />
-              </IconButton>
-              <IconButton size="small" color="error" disabled>
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-            </Stack>
+            <IconButton size="small" disabled>
+              <MoreVertIcon fontSize="small" />
+            </IconButton>
           }
         >
           <Skeleton variant="text" />
@@ -84,18 +81,11 @@ TripMemo.Item = ({ tripId, id }: ItemProps) => {
         borderWidth: memo.isPinned ? 2 : 1,
       }}
       rightAddon={
-        <Stack direction="row">
-          <IconButton
-            size="small"
-            onClick={() => togglePin(id)}
-            color={memo.isPinned ? 'primary' : 'default'}
-          >
-            {memo.isPinned ? <PushPinIcon fontSize="small" /> : <PushPinOutlinedIcon fontSize="small" />}
-          </IconButton>
-          <IconButton size="small" onClick={handleDelete} color="error">
-            <DeleteIcon fontSize="small" />
-          </IconButton>
-        </Stack>
+        <MemoMenu
+          isPinned={memo.isPinned}
+          onTogglePin={() => togglePin(id)}
+          onDelete={handleDelete}
+        />
       }
     >
       <Typography
@@ -110,3 +100,24 @@ TripMemo.Item = ({ tripId, id }: ItemProps) => {
     </ListItem>
   );
 };
+
+interface MemoMenuProps {
+  isPinned: boolean
+  onTogglePin: () => void
+  onDelete: () => void
+}
+
+function MemoMenu({ isPinned, onTogglePin, onDelete }: MemoMenuProps) {
+  return (
+    <PopMenu
+      items={[
+        <PopMenu.Item onClick={onTogglePin} icon={isPinned ? <PushPinOutlinedIcon fontSize="small" sx={{ mr: 1 }} /> : <PushPinIcon fontSize="small" sx={{ mr: 1 }} />}>
+          {isPinned ? '고정 해제' : '고정'}
+        </PopMenu.Item>,
+        <PopMenu.Item onClick={onDelete} icon={<DeleteIcon fontSize="small" sx={{ mr: 1 }} />} sx={{ color: 'error.main' }}>
+          삭제
+        </PopMenu.Item>
+      ]}
+    />
+  )
+}
