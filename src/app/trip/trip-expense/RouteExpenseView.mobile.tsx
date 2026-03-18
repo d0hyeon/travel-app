@@ -1,10 +1,12 @@
-import { Box, Button, Stack, Typography } from "@mui/material"
-import { styled } from '@mui/system'
+import AddIcon from '@mui/icons-material/Add'
+import { Box, IconButton, Stack, Typography } from "@mui/material"
+import { alpha, styled } from '@mui/system'
 import { useRef, useState } from "react"
 import { IntersectionArea } from "../../../shared/components/IntersectionArea"
 import { Map, type MapRef } from "../../../shared/components/Map"
 import { useDirections } from "../../../shared/hooks/useDirections"
 import { formatDate } from "../../../shared/utils/formats"
+import { formatByCurrencyCode } from "../../expense/currency"
 import { formatCurrency } from "../../expense/expense.utils"
 import { PlaceCategoryColorCode } from "../../place/place.types"
 import { useTripMembers } from "../trip-member/useTripMembers"
@@ -42,9 +44,8 @@ export function RouteExpenseViewMobile({ tripId }: Props) {
   const {
     data: {
       amountByPlaceId,
-      payersByPlaceId,
       amongByPlaceId,
-      expenseByPlaceId,
+      expensesByPlaceId,
       placesByDay,
       tripDates,
     },
@@ -57,24 +58,41 @@ export function RouteExpenseViewMobile({ tripId }: Props) {
   const [activeDayIndex, setActiveDayIndex] = useState(0)
 
   const formBottomSheet = useExpenseFormBottomSheet(tripId);
-  const handleOpenExpenseForm = async (place: PlaceWithRoute) => {
-    const expense = expenseByPlaceId.get(place.id);
+
+  // 장소에 새 지출 추가
+  const handleAddExpense = async (place: PlaceWithRoute) => {
+    const data = await formBottomSheet.open({
+      defaultValues: {
+        placeId: place.id,
+        description: place.name,
+        splitAmong: amongByPlaceId.get(place.id),
+      },
+      renderActions: ({ close }) => <ExpenseFormOverlayActions onCancel={close} />
+    })
+    if (data == null) return;
+    create(data);
+  }
+
+  // 기존 지출 수정
+  const handleEditExpense = async (place: PlaceWithRoute, expenseId: string) => {
+    const expenses = expensesByPlaceId.get(place.id) ?? [];
+    const expense = expenses.find(e => e.id === expenseId);
+    if (!expense) return;
 
     const data = await formBottomSheet.open({
       defaultValues: {
-        ...place,
         placeId: place.id,
-        description: place.name,
-        payments: payersByPlaceId.get(place.id),
-        splitAmong: amongByPlaceId.get(place.id),
+        description: expense.description,
+        payments: expense.payments,
+        splitAmong: expense.splitAmong,
+        currency: expense.currency
       },
-      renderActions: ({ close }) => expense == null
-        ? <ExpenseFormOverlayActions onCancel={close} />
-        : <ExpenseFormDeletationActions tripId={tripId} expenseId={expense.id} onClose={close} />
+      renderActions: ({ close }) => (
+        <ExpenseFormDeletationActions tripId={tripId} expenseId={expenseId} onClose={close} />
+      )
     })
     if (data == null) return;
-    if (expense == null) return create(data);
-    update({ expenseId: expense.id, data })
+    update({ expenseId, data });
   }
 
   return (
@@ -99,7 +117,7 @@ export function RouteExpenseViewMobile({ tripId }: Props) {
                 variant={activeDayIndex === dayIndex ? 'selected' : 'disabled'}
                 color={place.category ? PlaceCategoryColorCode[place.category as keyof typeof PlaceCategoryColorCode] : getRouteColor(dayIndex)}
                 opacity={activeDayIndex === dayIndex ? 1 : 0.5}
-                onClick={() => handleOpenExpenseForm(place)}
+                onClick={() => handleAddExpense(place)}
               />
             ))
           )}
@@ -147,65 +165,68 @@ export function RouteExpenseViewMobile({ tripId }: Props) {
                 등록된 장소가 없습니다
               </Typography>
             ) : (
-              <Stack spacing={0.5}>
+              <Stack spacing={1}>
                 {placesByDay[dayIndex].map((place) => {
-                  const placeExpense = amountByPlaceId.get(place.id)
-                  const payers = payersByPlaceId.get(place.id)
-                  const amongs = amongByPlaceId
-                    .get(place.id)
-                    ?.map(id => members.find(x => x.id === id))
-                    ?.filter(x => x != null)
+                  const placeExpenses = expensesByPlaceId.get(place.id) ?? []
+                  const totalAmount = amountByPlaceId.get(place.id)
 
                   return (
                     <PlaceItem
                       key={`${place.routeId}-${place.id}`}
                       onClick={() => mapRef.current?.panTo(place.lat, place.lng)}
                     >
-                      <Dot sx={{ bgcolor: getRouteColor(dayIndex) }}>
-                        {place.orderInRoute + 1}
-                      </Dot>
-                      <Box flex={1} minWidth={0}>
-                        <Typography variant="body2" noWrap>
+                      {/* 장소 헤더 */}
+                      <Stack direction="row" alignItems="center" gap={1} width="100%">
+                        <Dot sx={{ bgcolor: getRouteColor(dayIndex) }}>
+                          {place.orderInRoute + 1}
+                        </Dot>
+                        <Typography variant="body2" fontWeight="medium" flex={1} noWrap>
                           {place.name}
                         </Typography>
-                        {amongs && amongs.length > 0 && (
-                          <Typography variant="caption" color="text.secondary" noWrap>
-                            {amongs.map(x => `${x.emoji} ${x.name}`).join(', ')}
+                        {totalAmount != null && totalAmount > 0 && (
+                          <Typography variant="body2" color="primary.main" fontWeight="medium" whiteSpace="nowrap">
+                            {formatCurrency(totalAmount)}
                           </Typography>
                         )}
-                      </Box>
-                      {payers && payers.length > 0 && (
-                        <Stack direction="column" alignItems="stretch">
-                          {payers.map(p => (
-                            <Stack direction="row" key={p.memberId} justifyContent="space-between" gap={0.25}>
-                              <Typography variant="caption" color="text.secondary" noWrap>
-                                {p.emoji} {p.name}
+                        <IconButton
+                          size="small"
+                          color="primary"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleAddExpense(place)
+                          }}
+                        >
+                          <AddIcon fontSize="small" />
+                        </IconButton>
+                      </Stack>
+
+                      {/* 지출 목록 */}
+                      {placeExpenses.length > 0 && (
+                        <Stack spacing={0.5} width="100%" pl={4}>
+                          {placeExpenses.map((expense) => (
+                            <ExpenseItem
+                              key={expense.id}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleEditExpense(place, expense.id)
+                              }}
+                            >
+                              <Typography variant="caption" flex={1} noWrap>
+                                {expense.description}
                               </Typography>
-                              {p.amount !== placeExpense && (
-                                <Typography variant="caption" color="text.secondary" noWrap>
-                                  {p.amount.toLocaleString()}원
-                                </Typography>
-                              )}
-                            </Stack>
+                              <Typography variant="caption" color="text.secondary">
+                                {expense.payments.map(p => {
+                                  const member = members.find(m => m.id === p.memberId)
+                                  return member ? `${member.emoji}` : ''
+                                }).join(' ')}
+                              </Typography>
+                              <Typography variant="caption" fontWeight="medium">
+                                {formatByCurrencyCode(expense.totalAmount, expense.currency)}
+                              </Typography>
+                            </ExpenseItem>
                           ))}
                         </Stack>
                       )}
-                      {placeExpense && (
-                        <Typography variant="body2" color="primary.main" fontWeight="medium" whiteSpace="nowrap" mr={1}>
-                          {formatCurrency(placeExpense)}
-                        </Typography>
-                      )}
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleOpenExpenseForm(place)
-                        }}
-                        sx={{ height: 28, px: 1.5, fontSize: 12 }}
-                      >
-                        작성
-                      </Button>
                     </PlaceItem>
                   )
                 })}
@@ -237,18 +258,17 @@ const ListSection = styled(Box)({
   paddingBottom: 'calc(env(safe-area-inset-bottom) + 24px)'
 })
 
-const PlaceItem = styled(Stack)(({ theme }) => ({
-  flexDirection: 'row',
-  alignItems: 'center',
+const PlaceItem = styled(Stack)(() => ({
+  flexDirection: 'column',
   padding: '10px 12px',
   cursor: 'pointer',
   border: '1px solid #ddd',
   borderRadius: 10,
   transition: 'background-color 0.2s',
   gap: 8,
-  '&:hover': {
-    backgroundColor: theme.palette.action.hover,
-  },
+  // '&:hover': {
+  //   backgroundColor: theme.palette.action.hover,
+  // },
 }))
 
 const Dot = styled(Box)(({ theme }) => ({
@@ -263,6 +283,19 @@ const Dot = styled(Box)(({ theme }) => ({
   fontSize: 11,
   fontWeight: 'bold',
   flexShrink: 0,
+}))
+
+const ExpenseItem = styled(Stack)(({ theme }) => ({
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 8,
+  padding: '6px 12px',
+  borderRadius: 16,
+  backgroundColor: theme.palette.grey[100],
+  border: `1px solid ${alpha(theme.palette.divider, 0.07)}`,
+  // boxShadow: '0px 2px 6px #ddd',
+  cursor: 'pointer',
+
 }))
 
 interface RoutePathProps {

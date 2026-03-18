@@ -35,7 +35,7 @@ function TripPinnedMemosContent({ tripId, throwOnEmpty, ...props }: Props) {
   }
 
   return (
-    <Stack gap={1}>
+    <Stack gap={1} {...props}>
       {pinnedMemos.map((memo) => (
         <ListItem
           key={memo.id}

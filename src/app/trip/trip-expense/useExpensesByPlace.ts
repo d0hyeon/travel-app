@@ -1,4 +1,5 @@
 import { useMemo } from "react"
+import { convertToKRW } from "../../expense/currency"
 import { useExpenses } from "../../expense/useExpenses"
 import { useTripMembers } from "../trip-member/useTripMembers"
 import { useTripPlaces } from "../trip-place/useTripPlaces"
@@ -70,15 +71,19 @@ export function useExpensesByPlace(tripId: string) {
     const amountByPlaceId = new Map<string, number>();
     const payersByPlaceId = new Map<string, Payer[]>();
     const amongByPlaceId = new Map<string, string[]>();
-    const expenseByPlaceId = new Map<string, Expense>();
+    const expensesByPlaceId = new Map<string, Expense[]>();
 
     expenses.forEach(expense => {
       if (!expense.placeId) return;
-      expenseByPlaceId.set(expense.placeId, expense);
 
-      // 금액 합산
+      // 지출 목록에 추가 (1:N)
+      const existingExpenses = expensesByPlaceId.get(expense.placeId) ?? [];
+      expensesByPlaceId.set(expense.placeId, [...existingExpenses, expense]);
+
+      // 금액 합산 (원화로 환산)
       const currentAmount = amountByPlaceId.get(expense.placeId) ?? 0
-      amountByPlaceId.set(expense.placeId, currentAmount + expense.totalAmount)
+      const amountInKRW = convertToKRW(expense.totalAmount, expense.currency)
+      amountByPlaceId.set(expense.placeId, currentAmount + amountInKRW)
 
       // 지불자 수집
       const payers = expense.payments.reduce<Payer[]>((acc, payment) => {
@@ -97,7 +102,7 @@ export function useExpensesByPlace(tripId: string) {
 
       const existingPayers = payersByPlaceId.get(expense.placeId) ?? [];
       const existingAmongs = amongByPlaceId.get(expense.placeId) ?? [];
-      
+
       const uniquePayers = [...existingPayers, ...payers].filter(
         (payer, index, self) => self.findIndex(p => p.name === payer.name) === index
       )
@@ -106,7 +111,7 @@ export function useExpensesByPlace(tripId: string) {
       amongByPlaceId.set(expense.placeId, uniqueAmongs);
     })
 
-    return { amountByPlaceId, payersByPlaceId, amongByPlaceId, expenseByPlaceId }
+    return { amountByPlaceId, payersByPlaceId, amongByPlaceId, expensesByPlaceId }
   }, [expenses, members]);
 
 
