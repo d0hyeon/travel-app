@@ -2,11 +2,66 @@
  * 목적지별 화폐 단위 매핑
  */
 
+
+/**
+ * 지원되는 통화 코드
+ */
+export const CurrencyCodes = [
+  'KRW',
+  'JPY',
+  'USD',
+  'EUR',
+  'GBP',
+  'CNY',
+  'TWD',
+  'HKD',
+  'THB',
+  'VND',
+  'SGD',
+  'IDR',
+  'PHP',
+  'MYR',
+  'MOP',
+  'CZK',
+  'CHF',
+  'MXN',
+ ] as const;
+// 화폐 코드 -> 이름 매핑
+export const CurrencyCodeLabel = {
+  KRW: '원',
+  JPY: '엔',
+  USD: '달러',
+  EUR: '유로',
+  GBP: '파운드',
+  CNY: '위안',
+  TWD: '대만 달러',
+  HKD: '홍콩 달러',
+  THB: '바트',
+  VND: '동',
+  SGD: '싱가포르 달러',
+  IDR: '루피아',
+  PHP: '페소',
+  MYR: '링깃',
+  MOP: '파타카',
+  CZK: '코루나',
+  CHF: '프랑',
+  MXN: '페소',
+} satisfies Record<CurrencyCode, string>;
+export type CurrencyCode = typeof CurrencyCodes[number];
+
 export interface CurrencyInfo {
-  code: string;
+  code: CurrencyCode;
   symbol: string;
   name: string;
   locale: string;
+}
+
+/**
+ * 통화별 환율 엔트리 (1 외화 = X원)
+ */
+export interface ExchangeRateEntry {
+  currencyCode: CurrencyCode;
+  rate: number;
 }
 
 export const KRW: CurrencyInfo = { code: 'KRW', symbol: '원', name: '원', locale: 'ko-KR' };
@@ -109,14 +164,15 @@ export function convertFromKRW(amountInKRW: number, currency: CurrencyInfo): num
  * 해당 화폐 금액을 원화로 변환
  * @param amount 외화 금액
  * @param currencyCode 화폐 코드
- * @param exchangeRate 수동 환율 (1 외화 = X원). 제공되면 이 값을 사용
+ * @param exchangeRates 통화별 환율 배열 (1 외화 = X원)
  */
-export function convertToKRW(amount: number, currencyCode: string, exchangeRate?: number | null): number {
+export function convertToKRW(amount: number, currencyCode: string, exchangeRates?: ExchangeRateEntry[] | null): number {
   if (currencyCode === 'KRW') return amount;
 
-  // 수동 환율이 있으면 사용
-  if (exchangeRate != null && exchangeRate > 0) {
-    return Math.round(amount * exchangeRate);
+  // 해당 통화의 커스텀 환율 조회
+  const customRate = exchangeRates?.find(r => r.currencyCode === currencyCode)?.rate;
+  if (customRate != null && customRate > 0) {
+    return Math.round(amount * customRate);
   }
 
   // 기본 환율 사용
@@ -145,39 +201,91 @@ export function formatConvertedAmount(amountInKRW: number, currency: CurrencyInf
   return `${formatted}${currency.name}`;
 }
 
-// 화폐 코드 -> 이름 매핑
-const CURRENCY_NAMES: Record<string, string> = {
-  KRW: '원',
-  JPY: '엔',
-  USD: '달러',
-  EUR: '유로',
-  GBP: '파운드',
-  CNY: '위안',
-  TWD: '대만 달러',
-  HKD: '홍콩 달러',
-  THB: '바트',
-  VND: '동',
-  SGD: '싱가포르 달러',
-  IDR: '루피아',
-  PHP: '페소',
-  MYR: '링깃',
-  MOP: '파타카',
-  CZK: '코루나',
-  CHF: '프랑',
-  MXN: '페소',
-};
 
 /**
  * 화폐 코드에 따른 이름 반환
  */
-export function getCurrencyName(code: string): string {
-  return CURRENCY_NAMES[code] ?? code;
+export function getCurrencyName(code: CurrencyCode): string {
+  return CurrencyCodeLabel[code] ?? code;
 }
 
 /**
  * 금액을 화폐 코드에 따라 포맷팅 (저장된 값 그대로 표시)
  */
-export function formatByCurrencyCode(amount: number, currencyCode: string): string {
+export function formatByCurrencyCode(amount: number, currencyCode: CurrencyCode): string {
   const formatted = new Intl.NumberFormat('ko-KR').format(amount);
   return `${formatted}${getCurrencyName(currencyCode)}`;
+}
+
+/**
+ * 통화별 환율 조회
+ */
+export function getExchangeRate(currencyCode: string, rates?: ExchangeRateEntry[] | null): number | null {
+  return rates?.find(r => r.currencyCode === currencyCode)?.rate ?? null;
+}
+
+/**
+ * 환율 설정/업데이트
+ */
+export function setExchangeRate(
+  rates: ExchangeRateEntry[] | null,
+  currencyCode: CurrencyCode,
+  rate: number
+): ExchangeRateEntry[] {
+  const newRates = rates ? [...rates] : [];
+  const index = newRates.findIndex(r => r.currencyCode === currencyCode);
+
+  if (index >= 0) {
+    newRates[index] = { currencyCode, rate };
+  } else {
+    newRates.push({ currencyCode, rate });
+  }
+
+  return newRates;
+}
+
+/**
+ * 지출에서 사용된 통화 목록 (KRW 제외)
+ */
+export function getUsedCurrencies(expenses: { currency: CurrencyCode }[]): CurrencyCode[] {
+  const currencies = new Set<CurrencyCode>(expenses.map(e => e.currency));
+  return Array.from(currencies).filter(c => c !== 'KRW');
+}
+
+// 통화 코드 -> CurrencyInfo 매핑
+const CURRENCY_INFO_MAP: Record<string, CurrencyInfo> = {
+  KRW: { code: 'KRW', symbol: '원', name: '원', locale: 'ko-KR' },
+  JPY: { code: 'JPY', symbol: '¥', name: '엔', locale: 'ja-JP' },
+  USD: { code: 'USD', symbol: '$', name: '달러', locale: 'en-US' },
+  EUR: { code: 'EUR', symbol: '€', name: '유로', locale: 'en-EU' },
+  GBP: { code: 'GBP', symbol: '£', name: '파운드', locale: 'en-GB' },
+  CNY: { code: 'CNY', symbol: '¥', name: '위안', locale: 'zh-CN' },
+  TWD: { code: 'TWD', symbol: 'NT$', name: '대만 달러', locale: 'zh-TW' },
+  HKD: { code: 'HKD', symbol: 'HK$', name: '홍콩 달러', locale: 'zh-HK' },
+  THB: { code: 'THB', symbol: '฿', name: '바트', locale: 'th-TH' },
+  VND: { code: 'VND', symbol: '₫', name: '동', locale: 'vi-VN' },
+  SGD: { code: 'SGD', symbol: 'S$', name: '싱가포르 달러', locale: 'en-SG' },
+  IDR: { code: 'IDR', symbol: 'Rp', name: '루피아', locale: 'id-ID' },
+  PHP: { code: 'PHP', symbol: '₱', name: '페소', locale: 'fil-PH' },
+  MYR: { code: 'MYR', symbol: 'RM', name: '링깃', locale: 'ms-MY' },
+  MOP: { code: 'MOP', symbol: 'MOP$', name: '파타카', locale: 'zh-MO' },
+  CZK: { code: 'CZK', symbol: 'Kč', name: '코루나', locale: 'cs-CZ' },
+  CHF: { code: 'CHF', symbol: 'CHF', name: '프랑', locale: 'de-CH' },
+  MXN: { code: 'MXN', symbol: 'MX$', name: '페소', locale: 'es-MX' },
+};
+
+/**
+ * 통화 코드로 CurrencyInfo 조회
+ */
+export function getCurrencyInfoByCode(code: string): CurrencyInfo | null {
+  return CURRENCY_INFO_MAP[code] ?? null;
+}
+
+/**
+ * 기본 환율 조회 (1 외화 = X원)
+ */
+export function getDefaultExchangeRate(currencyCode: string): number {
+  const rate = EXCHANGE_RATES[currencyCode];
+  if (!rate || rate === 0) return 1;
+  return Math.round(1 / rate);
 }

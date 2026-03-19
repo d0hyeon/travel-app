@@ -12,6 +12,9 @@ export const theme = createTheme({
     grey: {
       500: '#787c7e',
     },
+    info: {
+      main: '#333'
+    },
   },
   typography: {
     fontFamily: "'SUIT', sans-serif",

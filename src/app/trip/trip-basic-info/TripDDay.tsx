@@ -1,5 +1,5 @@
 import { Box, Skeleton, Typography, type BoxProps } from '@mui/material'
-import { useEffect, useState } from 'react'
+import { useCountAnimation } from '~shared/hooks/useCountdownAnimation'
 import { useTrip } from '../useTrip'
 
 
@@ -36,41 +36,6 @@ function getDateDiff(targetDate: Date): { years: number; months: number; days: n
   }
 
   return { years, months, days, totalDays }
-}
-
-function useCountAnimation(targetValue: number, enabled: boolean, duration = 800, delay = 0) {
-  const [displayValue, setDisplayValue] = useState(enabled ? 0 : targetValue)
-
-  useEffect(() => {
-    if (!enabled) {
-      setDisplayValue(targetValue)
-      return
-    }
-
-    const timeoutId = setTimeout(() => {
-      const startTime = Date.now()
-      const startValue = 0
-
-      const animate = () => {
-        const elapsed = Date.now() - startTime
-        const progress = Math.min(elapsed / duration, 1)
-        // easeOutQuart for smooth deceleration
-        const eased = 1 - Math.pow(1 - progress, 4)
-        const current = Math.round(startValue + (targetValue - startValue) * eased)
-        setDisplayValue(current)
-
-        if (progress < 1) {
-          requestAnimationFrame(animate)
-        }
-      }
-
-      requestAnimationFrame(animate)
-    }, delay)
-
-    return () => clearTimeout(timeoutId)
-  }, [targetValue, enabled, duration, delay])
-
-  return displayValue
 }
 
 interface Props {
@@ -131,7 +96,7 @@ interface BeforeTripDDayProps extends BoxProps {
 }
 
 function BeforeTripDDay({ days, animationEnabled, ...props }: BeforeTripDDayProps) {
-  const displayDays = useCountAnimation(days, animationEnabled)
+  const displayDays = useCountAnimation(days, { enabled: animationEnabled })
 
   return (
     <DDayBox {...props}>
@@ -158,7 +123,7 @@ interface DuringTripDDayProps extends BoxProps {
 }
 
 function DuringTripDDay({ day, animationEnabled, ...props }: DuringTripDDayProps) {
-  const displayDay = useCountAnimation(day, animationEnabled)
+  const displayDay = useCountAnimation(day, { enabled: animationEnabled })
 
   return (
     <DDayBox {...props}>
@@ -197,7 +162,10 @@ function AfterTripDDay({ dateDiff, animationEnabled, ...props }: AfterTripDDayPr
   const { years, months, days, totalDays } = dateDiff
 
   // totalDays를 기준으로 애니메이션하고, 각 프레임에서 년/월/일로 변환
-  const animatedTotalDays = useCountAnimation(totalDays, animationEnabled, 2500)
+  const animatedTotalDays = useCountAnimation(totalDays, {
+    enabled: animationEnabled,
+    duration: 2500
+  })
   const animated = totalDaysToYMD(animatedTotalDays)
 
   const isOnlyDays = years === 0 && months === 0

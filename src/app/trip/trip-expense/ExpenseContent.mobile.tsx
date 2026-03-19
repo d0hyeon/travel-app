@@ -1,6 +1,7 @@
 import { Delete, Edit } from '@mui/icons-material'
 import AddIcon from '@mui/icons-material/Add'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
+import PaymentIcon from '@mui/icons-material/Payment'
 import RouteIcon from '@mui/icons-material/Route'
 import { Box, Button, InputAdornment, Stack, Tab, Tabs, TextField, Typography } from "@mui/material"
 import { Suspense, useMemo, useState } from "react"
@@ -13,7 +14,7 @@ import { EditableText } from "../../../shared/components/EditableText"
 import { ListItem } from "../../../shared/components/ListItem"
 import { useOverlay } from "../../../shared/hooks/useOverlay"
 import { formatDate } from "../../../shared/utils/formats"
-import { EXCHANGE_RATES, formatByCurrencyCode, getCurrencyByDestination } from "../../expense/currency"
+import { formatByCurrencyCode, getDefaultExchangeRate, getExchangeRate, getUsedCurrencies, setExchangeRate, type CurrencyCode } from "../../expense/currency"
 import {
   calculateBalancesInKRW,
   calculateSettlements,
@@ -23,6 +24,7 @@ import {
 import { useExpenses } from "../../expense/useExpenses"
 import { useTripMembers } from "../trip-member/useTripMembers"
 import { useTrip } from "../useTrip"
+import { AnimatedCountText } from './AnimatedCountText'
 import { RouteExpenseViewMobile } from "./RouteExpenseView.mobile"
 import { SettlementSummary } from "./SettlementSummary"
 import { useExpenseFormBottomSheet } from './useExpenseFormOverlay'
@@ -57,12 +59,15 @@ export function ExpenseContent({ tripId }: Props) {
     ))
   }
 
-  const exchangeRate = trip.exchangeRate
+  const exchangeRates = trip.exchangeRates
 
   // 원화 환산 기준 계산
-  const balances = useMemo(() => calculateBalancesInKRW(members, expenses, exchangeRate), [members, expenses, exchangeRate])
+  const balances = useMemo(() => calculateBalancesInKRW(members, expenses, exchangeRates), [members, expenses, exchangeRates])
   const settlements = useMemo(() => calculateSettlements(balances), [balances])
-  const totalExpensesInKRW = useMemo(() => getTotalExpensesInKRW(expenses, exchangeRate), [expenses, exchangeRate])
+  const totalExpensesInKRW = useMemo(() => getTotalExpensesInKRW(expenses, exchangeRates), [expenses, exchangeRates])
+
+  // 지출에 사용된 통화 목록
+  const usedCurrencies = useMemo(() => getUsedCurrencies(expenses), [expenses])
 
   const memberMap = useMemo(() => new Map(members.map(m => [m.id, m])), [members])
 
@@ -79,59 +84,70 @@ export function ExpenseContent({ tripId }: Props) {
   }
 
   const confirm = useConfirmDialog();
-  const currency = getCurrencyByDestination(trip.destination)
-  const defaultRate = Math.round(1 / (EXCHANGE_RATES[currency.code] || 1))
 
   return (
     <Box sx={{ height: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}>
       {/* 총액 표시 (원화 환산) */}
-      <Stack direction="row" justifyContent="space-between" alignItems="center" flex="0 0 auto" sx={{ px: 2, py: 1.5, bgcolor: 'primary.main', color: 'white' }}>
-        <Box>
-          <Typography variant="caption">총 지출 (원화 환산)</Typography>
-          <Typography variant="h5" fontWeight="bold">
-            {formatCurrency(totalExpensesInKRW)}
-          </Typography>
-        </Box>
-        {trip.isOverseas && (
-          <EditableText
-            variant="body2"
-            fontWeight="medium"
-            value={exchangeRate ? exchangeRate : defaultRate}
-            format={value => `1${currency.name} = ${value.toLocaleString()}원`}
-            dismissible={false}
-            renderEditField={props => (
-              <Box>
-                <TextField
-                  variant='standard'
-                  size="small"
-                  slotProps={{
-                    htmlInput: { sx: { color: '#fff', textAlign: 'right', marginBottom: -0.5 } },
-                    input: {
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <Typography variant="body2" color="#fff">
-                            원
-                          </Typography>
-                        </InputAdornment>
-                      ),
-                      sx: { '&::before': { borderColor: '#fff', zIndex: 999 } }
-                    },
-                  }}
-                  sx={{ width: 60 }}
-                  {...props}
-                />
-              </Box>
-            )}
-            onSubmit={(value) => {
-              const rate = Number(value.replace(/[^0-9.]/g, ''))
-              if (rate > 0) {
-                updateTrip.mutateAsync({ exchangeRate: rate })
-              }
-            }}
-            submitOnBlur
-          />
-        )}
+      <Stack direction="row" gap={1} justifyContent="space-between" alignItems="end" flex="0 0 auto" sx={{ px: 2, py: 1.5, bgcolor: 'primary.main', color: 'white' }}>
+        <Box flex="1">
+          <Typography variant="caption">총 지출</Typography>
+          <AnimatedCountText value={totalExpensesInKRW} format={formatCurrency} variant="h5" fontWeight="bold" />
 
+        </Box>
+        {trip.isOverseas && usedCurrencies.length > 0 && (
+          <Stack direction="row" spacing={1} alignItems="end" justifyContent="end" >
+            {usedCurrencies.map(code => {
+              const currentRate = getExchangeRate(code, exchangeRates);
+              const defaultRate = getDefaultExchangeRate(code);
+
+              return (
+                <EditableText
+                  key={code}
+                  variant="caption"
+                  fontWeight="medium"
+                  value={currentRate ?? defaultRate}
+                  format={value => `${code} ${value.toLocaleString()}원`}
+                  dismissible={false}
+                  sx={{
+                    fontSize: 11,
+                    '.editable-text': { fontSize: 'inherit', textDecoration: 'underline' },
+                    '.editable-text-field': { fontSize: 'inherit' }
+                  }}
+                  endIcon={null}
+                  renderEditField={props => (
+                    <Box>
+                      <TextField
+                        variant='standard'
+                        size="small"
+                        slotProps={{
+                          htmlInput: { sx: { color: '#fff', textAlign: 'right', marginBottom: -0.5 } },
+                          input: {
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <Typography variant="caption" color="#fff">원</Typography>
+                              </InputAdornment>
+                            ),
+                            sx: { '&::before': { borderColor: '#fff', zIndex: 999 } }
+                          },
+                        }}
+                        sx={{ width: 60 }}
+                        {...props}
+                      />
+                    </Box>
+                  )}
+                  onSubmit={(value) => {
+                    const rate = Number(value.replace(/[^0-9.]/g, ''))
+                    if (rate > 0) {
+                      const newRates = setExchangeRate(exchangeRates, code as CurrencyCode, rate);
+                      updateTrip.mutateAsync({ exchangeRates: newRates })
+                    }
+                  }}
+                  submitOnBlur
+                />
+              );
+            })}
+          </Stack>
+        )}
       </Stack>
 
       {/* 서브 탭 */}
@@ -167,82 +183,98 @@ export function ExpenseContent({ tripId }: Props) {
             cases={{
               list: () => (
                 <Stack spacing={1.5}>
-                  {expenses.map((expense) => (
-                    <ListItem
-                      key={expense.id}
-                      rightAddon={
-                        <PopMenu
-                          items={[
-                            <PopMenu.Item icon={<Edit sx={{ fontSize: '1rem' }} />} onClick={() => handleEditExpense(expense)}>
-                              수정
-                            </PopMenu.Item>,
-                            <PopMenu.Item
-                              color="error"
-                              icon={<Delete fontSize="small" sx={{ fontSize: '1rem' }} />}
-                              onClick={async () => {
-                                if (await confirm('삭제하시겠어요?')) {
-                                  remove(expense.id);
-                                }
-                              }}
-                            >
-                              삭제
-                            </PopMenu.Item>
-                          ]}
-                        >
-                          <MoreVertIcon fontSize="small" />
-                        </PopMenu>
-                      }
-                    >
-                      <Stack direction="row" justifyContent="space-between" alignItems="center" width="100%">
-                        <Box flex={1}>
-                          <ListItem.Title>
-                            {expense.date && `[${formatDate(expense.date)}] `}
-                            {expense.description}
-                          </ListItem.Title>
-                          <Stack direction="row" spacing={0.5} mt={0.5} flexWrap="wrap" useFlexGap>
-                            {expense.splitAmong.map(id => {
-                              const member = memberMap.get(id);
-                              return (
-                                <ListItem.Text key={id} variant="caption">
-                                  {member?.emoji} {member?.name}
-                                </ListItem.Text>
-                              )
-                            })}
-                          </Stack>
-                        </Box>
-                        <Stack direction="row" alignItems="center">
-                          <Stack>
-                            {expense.payments.map(p => {
-                              const member = memberMap.get(p.memberId);
-                              if (member == null) return null;
+                  {expenses.map((expense) => {
+                    const splitedAmount = Math.ceil(expense.totalAmount / expense.splitAmong.length);
+                    const peopleAmount = expense.payments.reduce<Record<string, number>>((acc, item) => ({
+                      ...acc,
+                      [item.memberId]: (acc[item.memberId] ?? 0) + item.amount
+                    }), {});
 
-                              return (
-                                <Stack key={p.memberId} direction="row" gap={0.5} justifyContent="space-between" alignItems="center">
-                                  <ListItem.Text>
-                                    {member.emoji} {member.name}
+                    const is엔빵 = expense.splitAmong.every(memberId => {
+                      if (peopleAmount[memberId] == null) return false;
+                      return peopleAmount[memberId] === splitedAmount;
+                    })
+
+                    return (
+                      <ListItem
+                        key={expense.id}
+                        rightAddon={
+                          <PopMenu
+                            items={[
+                              <PopMenu.Item icon={<Edit sx={{ fontSize: '1rem' }} />} onClick={() => handleEditExpense(expense)}>
+                                수정
+                              </PopMenu.Item>,
+                              <PopMenu.Item
+                                color="error"
+                                icon={<Delete fontSize="small" sx={{ fontSize: '1rem' }} />}
+                                onClick={async () => {
+                                  if (await confirm('삭제하시겠어요?')) {
+                                    remove(expense.id);
+                                  }
+                                }}
+                              >
+                                삭제
+                              </PopMenu.Item>
+                            ]}
+                          >
+                            <MoreVertIcon fontSize="small" />
+                          </PopMenu>
+                        }
+                      >
+                        <Stack direction="row" justifyContent="space-between" alignItems="center" width="100%">
+                          <Box flex={1}>
+                            <ListItem.Title>
+                              {expense.date && `[${formatDate(expense.date)}] `}
+                              {expense.description}
+                            </ListItem.Title>
+                            <Stack direction="row" spacing={0.5} mt={0.5} flexWrap="wrap" useFlexGap>
+                              {expense.splitAmong.map(id => {
+                                const member = memberMap.get(id);
+                                return (
+                                  <ListItem.Text key={id} variant="caption">
+                                    {member?.emoji} {member?.name}
                                   </ListItem.Text>
-                                  {p.amount !== expense.totalAmount && (
-                                    <ListItem.Text>
-                                      {formatByCurrencyCode(p.amount, expense.currency)}
-                                    </ListItem.Text>
-                                  )}
+                                )
+                              })}
+                            </Stack>
+                          </Box>
+                          <Stack direction="row" alignItems="center">
+                            {!is엔빵 && (
+                              <Stack direction="row" gap={0.5} alignItems="center">
+                                <PaymentIcon sx={{ fontSize: 12 }} />
+                                <Stack>
+                                  {expense.payments.map(p => {
+                                    const member = memberMap.get(p.memberId);
+                                    if (member == null) return null;
+
+                                    return (
+                                      <Stack key={p.memberId} direction="row" gap={0.5} justifyContent="space-between" alignItems="center">
+                                        <ListItem.Text>{member.name}</ListItem.Text>
+                                        {p.amount !== expense.totalAmount && (
+                                          <ListItem.Text>
+                                            {formatByCurrencyCode(p.amount, expense.currency)}
+                                          </ListItem.Text>
+                                        )}
+                                      </Stack>
+                                    )
+                                  })}
                                 </Stack>
-                              )
-                            })}
+                              </Stack>
+                            )}
+                            <Typography variant="body2" color="primary" ml={1}>
+                              {formatByCurrencyCode(expense.totalAmount, expense.currency)}
+                            </Typography>
                           </Stack>
-                          <Typography variant="body2" color="primary" ml={1}>
-                            {formatByCurrencyCode(expense.totalAmount, expense.currency)}
-                          </Typography>
                         </Stack>
-                      </Stack>
-                    </ListItem>
-                  ))}
+                      </ListItem>
+                    )
+                  })}
                 </Stack>
 
               ),
               settlement: (
                 <SettlementSummary
-                  members={members}
+                  tripId={tripId}
                   balances={balances}
                   settlements={settlements}
                 />

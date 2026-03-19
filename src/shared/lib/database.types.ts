@@ -318,6 +318,7 @@ export type Database = {
           destination: string
           end_date: string
           exchange_rate: number | null
+          exchange_rates: Json | null
           id: string
           is_overseas: boolean
           lat: number
@@ -331,6 +332,7 @@ export type Database = {
           destination: string
           end_date: string
           exchange_rate?: number | null
+          exchange_rates?: Json | null
           id?: string
           is_overseas?: boolean
           lat: number
@@ -344,6 +346,7 @@ export type Database = {
           destination?: string
           end_date?: string
           exchange_rate?: number | null
+          exchange_rates?: Json | null
           id?: string
           is_overseas?: boolean
           lat?: number

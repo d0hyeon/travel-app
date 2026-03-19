@@ -1,12 +1,15 @@
-import AddIcon from '@mui/icons-material/Add'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import DeleteIcon from '@mui/icons-material/Delete'
+import SettingsIcon from '@mui/icons-material/Settings'
 import {
   Box,
   Button,
   Card,
   CardContent,
   Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
   Divider,
   IconButton,
   Paper,
@@ -15,23 +18,27 @@ import {
   ToggleButtonGroup,
   Typography
 } from "@mui/material"
-import { Suspense, useMemo } from "react"
+import { Suspense, useMemo, useState } from "react"
+import { ListItem } from '~shared/components/ListItem'
+import { useOverlay } from '~shared/hooks/useOverlay'
 import { useQueryParamState } from '~shared/hooks/useQueryParamState'
+import { DialogTitle } from '~shared/modules/confirm-dialog/DialogTitle'
 import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
 import { EditableText } from "../../../shared/components/EditableText"
 import { formatDate } from "../../../shared/utils/formats"
+import { convertToKRW, formatByCurrencyCode, getCurrencyName, getDefaultExchangeRate, getExchangeRate, getUsedCurrencies, setExchangeRate, type CurrencyCode } from "../../expense/currency"
 import {
   calculateBalancesInKRW,
   calculateSettlements,
   formatCurrency,
   getTotalExpensesInKRW
 } from "../../expense/expense.utils"
-import { convertToKRW, formatByCurrencyCode, getCurrencyByDestination, EXCHANGE_RATES } from "../../expense/currency"
 import { useExpenses } from "../../expense/useExpenses"
 import { useTripMembers } from "../trip-member/useTripMembers"
 import { useTrip } from "../useTrip"
 import { RouteExpenseView } from "./RouteExpenseView"
 import { useExpenseFormOverlay } from "./useExpenseFormOverlay"
+import { AnimatedCountText } from './AnimatedCountText'
 
 interface Props {
   tripId: string
@@ -50,12 +57,15 @@ export function ExpenseContent({ tripId }: Props) {
   const expenseFormOverlay = useExpenseFormOverlay(tripId)
   const confirm = useConfirmDialog()
 
-  const exchangeRate = trip.exchangeRate
+  const exchangeRates = trip.exchangeRates
 
   // 원화 환산 기준 계산
-  const balances = useMemo(() => calculateBalancesInKRW(members, expenses, exchangeRate), [members, expenses, exchangeRate])
+  const balances = useMemo(() => calculateBalancesInKRW(members, expenses, exchangeRates), [members, expenses, exchangeRates])
   const settlements = useMemo(() => calculateSettlements(balances), [balances])
-  const totalExpensesInKRW = useMemo(() => getTotalExpensesInKRW(expenses, exchangeRate), [expenses, exchangeRate])
+  const totalExpensesInKRW = useMemo(() => getTotalExpensesInKRW(expenses, exchangeRates), [expenses, exchangeRates])
+
+  // 지출에 사용된 통화 목록
+  const usedCurrencies = useMemo(() => getUsedCurrencies(expenses), [expenses])
 
   const memberMap = useMemo(() => new Map(members.map(m => [m.id, m])), [members])
 
@@ -69,6 +79,8 @@ export function ExpenseContent({ tripId }: Props) {
       remove(expenseId)
     }
   }
+  const overlay = useOverlay();
+  const [contentHeight, setContentHeight] = useState<number>();
 
   // 인원 없음
   if (members.length === 0) {
@@ -82,29 +94,39 @@ export function ExpenseContent({ tripId }: Props) {
   }
 
   return (
-    <Box sx={{ flex: 1, p: 3, bgcolor: 'grey.50' }}>
+    <Box
+      display="flex"
+      flexDirection="column"
+      sx={{ flex: 1, p: 3, bgcolor: 'grey.50', height: contentHeight }}
+      ref={(node: HTMLDivElement | null) => {
+        if (node) setContentHeight(window.innerHeight - node.getBoundingClientRect().top)
+      }}
+    >
       {/* 상단 요약 카드 */}
-      <Stack direction="row" spacing={2} mb={3} flexWrap="wrap" useFlexGap>
+      <Stack direction="row" flex={0} spacing={2} flexWrap="wrap" useFlexGap>
         {/* 총 지출 (원화 환산) */}
         <Paper
           elevation={0}
           sx={theme => ({
             p: 3,
             py: 2,
-            pb: 1,
-            minWidth: 200,
             background: theme.palette.primary.main,
             color: 'white',
             borderRadius: 3,
           })}
         >
-          <Typography variant="body2" sx={{ opacity: 0.9 }}>총 지출 (원화 환산)</Typography>
-          <Typography variant="h4" fontWeight="bold">
-            {formatCurrency(totalExpensesInKRW)}
-          </Typography>
-          <Typography variant="caption" sx={{ opacity: 0.8 }}>
-            {expenses.length}건의 지출
-          </Typography>
+          <Stack alignItems="start" gap={1} height="100%">
+            <Typography variant="body2" >
+              총 지출
+            </Typography>
+            <AnimatedCountText
+              value={totalExpensesInKRW}
+              format={x => formatCurrency(x).padStart(formatCurrency(totalExpensesInKRW).length, '\u2007')}
+              variant="h5"
+              fontWeight="bold"
+            />
+
+          </Stack>
         </Paper>
 
         {/* 멤버별 잔액 미니 카드 */}
@@ -117,6 +139,7 @@ export function ExpenseContent({ tripId }: Props) {
               elevation={0}
               sx={{
                 p: 2,
+                py: 2,
                 pb: 1,
                 minWidth: 140,
                 borderRadius: 2,
@@ -125,31 +148,84 @@ export function ExpenseContent({ tripId }: Props) {
                 bgcolor: 'background.paper',
               }}
             >
-              <Stack direction="row" spacing={1} alignItems="center" mb={0.5}>
-                <Typography fontSize={20}>{member.emoji}</Typography>
-                <Typography variant="body2" fontWeight="medium">{member.name}</Typography>
+              <Stack alignItems="start" gap={0.5}>
+                <Stack direction="row" spacing={0.5} alignItems="center" >
+                  <Typography variant="body2">{member.emoji}</Typography>
+                  <Typography variant="body2" fontWeight="medium">{member.name}</Typography>
+                </Stack>
+                <AnimatedCountText
+                  value={balance}
+                  format={x => `${balance > 0 ? '+' : ''}${formatCurrency(x).padStart(String(balance).length, ' ')}`}
+                  variant="h6"
+                  fontWeight="bold"
+                  color={balance > 0 ? 'success.main' : balance < 0 ? 'error.main' : 'text.secondary'}
+                />
+                <Typography variant="caption" color="text.secondary">
+                  {balance > 0 ? '받을 돈' : balance < 0 ? '낼 돈' : '정산 완료'}
+                </Typography>
               </Stack>
-              <Typography
-                variant="h6"
-                fontWeight="bold"
-                color={balance > 0 ? 'success.main' : balance < 0 ? 'error.main' : 'text.secondary'}
-              >
-                {balance > 0 ? '+' : ''}{formatCurrency(balance)}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                {balance > 0 ? '받을 돈' : balance < 0 ? '낼 돈' : '정산 완료'}
-              </Typography>
             </Paper>
           )
-        })}
+        })
+        }
+      </Stack >
+
+      <Stack direction="row" flex={0} padding={2}>
+        <Button
+          size="small"
+          color="info"
+          endIcon={<SettingsIcon />}
+          onClick={() => {
+            overlay.open(({ isOpen, close }) => (
+              <Dialog open={isOpen} onClose={close}>
+                <DialogTitle>환율 설정</DialogTitle>
+                <DialogContent>
+                  {usedCurrencies.map(code => {
+                    const currentRate = getExchangeRate(code, exchangeRates);
+                    const defaultRate = getDefaultExchangeRate(code);
+                    return (
+                      <ListItem key={code}>
+                        <Stack key={code} direction="row" justifyContent="space-between" alignItems="center">
+                          <Typography variant="body2" color="text.secondary">
+                            {getCurrencyName(code)}
+                          </Typography>
+                          <EditableText
+                            variant="body2"
+                            fontWeight="medium"
+                            value={currentRate ? `${currentRate.toLocaleString()}원` : `${defaultRate.toLocaleString()}원 (기본)`}
+                            sx={{ width: 200, textAlign: 'right', 'input': { textAlign: 'right' } }}
+                            onSubmit={(value) => {
+                              const rate = Number(value.replace(/[^0-9.]/g, ''))
+                              if (rate > 0) {
+                                const newRates = setExchangeRate(exchangeRates, code as CurrencyCode, rate);
+                                updateTrip.mutateAsync({ exchangeRates: newRates })
+                              }
+                            }}
+                            submitOnBlur
+                          />
+                        </Stack>
+                      </ListItem>
+                    );
+                  })}
+                </DialogContent>
+                <DialogActions>
+                  <Button variant="contained" onClick={close}>확인</Button>
+                </DialogActions>
+              </Dialog>
+            ))
+          }}
+        >
+          환율 설정
+        </Button>
       </Stack>
 
       {/* 메인 컨텐츠 */}
-      <Stack direction="row" spacing={3}>
+      < Stack direction="row" flex="1 1 100%" height="100px" spacing={3} >
         {/* 왼쪽: 지출 목록 */}
-        <Paper
+        < Paper
           elevation={0}
-          sx={{ flex: 2, p: 3, borderRadius: 3, minHeight: 400, display: 'flex', flexDirection: 'column' }}
+          sx={{ flex: 2, p: 3, borderRadius: 3, display: 'flex', flexDirection: 'column' }
+          }
         >
           <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
             <Stack direction="row" alignItems="center" spacing={2}>
@@ -172,7 +248,6 @@ export function ExpenseContent({ tripId }: Props) {
               <Button
                 variant="contained"
                 size="small"
-                startIcon={<AddIcon />}
                 onClick={handleAddExpense}
                 sx={{ borderRadius: 2 }}
               >
@@ -198,84 +273,99 @@ export function ExpenseContent({ tripId }: Props) {
               </Box>
             ) : (
               <Stack spacing={1.5} sx={{ maxHeight: 450, overflow: 'auto' }}>
-                {expenses.map((expense) => (
-                  <Card
-                    key={expense.id}
-                    variant="outlined"
-                    sx={{
-                      '&:hover': { borderColor: 'primary.main', bgcolor: 'primary.50' },
-                      transition: 'all 0.2s',
-                      flex: '1 0 auto'
-                    }}
-                  >
-                    <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
-                      <Stack direction="row" justifyContent="space-between" alignItems="center">
-                        <Box flex={1}>
+                {expenses.map((expense) => {
+                  const splitedAmount = Math.ceil(expense.totalAmount / members.length);
+                  const peopleAmount = expense.payments.reduce<Record<string, number>>((acc, item) => ({
+                    ...acc,
+                    [item.memberId]: (acc[item.memberId] ?? 0) + item.amount
+                  }), {});
+
+                  const is엔빵 = members.every(member => {
+                    if (peopleAmount[member.id] == null) return false;
+                    return peopleAmount[member.id] === splitedAmount;
+                  })
+
+                  return (
+                    <Card
+                      key={expense.id}
+                      variant="outlined"
+                      sx={{
+                        '&:hover': { borderColor: 'primary.main', bgcolor: 'primary.50' },
+                        transition: 'all 0.2s',
+                        flex: '1 0 auto'
+                      }}
+                    >
+                      <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
+                        <Stack direction="row" justifyContent="space-between" alignItems="center">
+                          <Box flex={1}>
+                            <Stack direction="row" alignItems="center" spacing={1}>
+                              <Typography fontWeight="medium">{expense.description}</Typography>
+                              {expense.date && (
+                                <Typography variant="caption" color="text.secondary">
+                                  {formatDate(expense.date)}
+                                </Typography>
+                              )}
+                            </Stack>
+                            <Stack direction="row" spacing={0.5} mt={0.5} flexWrap="wrap" useFlexGap>
+                              {expense.splitAmong.map(id => {
+                                const member = memberMap.get(id);
+                                return (
+                                  <Chip
+                                    key={id}
+                                    size="small"
+                                    variant="outlined"
+                                    label={`${member?.emoji} ${member?.name}`}
+                                  />
+                                )
+                              })}
+                            </Stack>
+                          </Box>
                           <Stack direction="row" alignItems="center" spacing={1}>
-                            <Typography fontWeight="medium">{expense.description}</Typography>
-                            {expense.date && (
-                              <Typography variant="caption" color="text.secondary">
-                                {formatDate(expense.date)}
-                              </Typography>
+                            {!is엔빵 && (
+                              <Stack direction="row" spacing={0.5} mt={0.5} flexWrap="wrap" useFlexGap>
+                                {expense.payments.map(p => {
+                                  const member = memberMap.get(p.memberId)
+                                  return (
+                                    <Chip
+                                      key={p.memberId}
+                                      size="small"
+                                      variant="outlined"
+                                      label={`${member?.emoji} ${member?.name}${p.amount === expense.totalAmount ? '' : ` ${formatByCurrencyCode(p.amount, expense.currency)}`}`}
+                                    />
+                                  )
+                                })}
+                              </Stack>
                             )}
+                            <Typography variant="h6" color="primary.main" fontWeight="bold">
+                              {formatByCurrencyCode(expense.totalAmount, expense.currency)}
+                            </Typography>
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              onClick={async () => {
+                                const data = await expenseFormOverlay.open({
+                                  title: '지출 수정',
+                                  defaultValues: expense
+                                });
+                                if (data) update({ expenseId: expense.id, data });
+                              }}
+                              sx={{ height: 30, paddingInline: 2 }}
+                            >
+                              수정
+                            </Button>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleDeleteExpense(expense.id)}
+                              sx={{ opacity: 0.5, '&:hover': { opacity: 1, color: 'error.main' } }}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
                           </Stack>
-                          <Stack direction="row" spacing={0.5} mt={0.5} flexWrap="wrap" useFlexGap>
-                            {expense.splitAmong.map(id => {
-                              const member = memberMap.get(id);
-                              return (
-                                <Chip
-                                  key={id}
-                                  size="small"
-                                  variant="outlined"
-                                  label={`${member?.emoji} ${member?.name}`}
-                                />
-                              )
-                            })}
-                          </Stack>
-                        </Box>
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                          <Stack direction="row" spacing={0.5} mt={0.5} flexWrap="wrap" useFlexGap>
-                            {expense.payments.map(p => {
-                              const member = memberMap.get(p.memberId)
-                              return (
-                                <Chip
-                                  key={p.memberId}
-                                  size="small"
-                                  variant="outlined"
-                                  label={`${member?.emoji} ${member?.name}${p.amount === expense.totalAmount ? '' : ` ${formatByCurrencyCode(p.amount, expense.currency)}`}`}
-                                />
-                              )
-                            })}
-                          </Stack>
-                          <Typography variant="h6" color="primary.main" fontWeight="bold">
-                            {formatByCurrencyCode(expense.totalAmount, expense.currency)}
-                          </Typography>
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            onClick={async () => {
-                              const data = await expenseFormOverlay.open({
-                                title: '지출 수정',
-                                defaultValues: expense
-                              });
-                              if (data) update({ expenseId: expense.id, data });
-                            }}
-                            sx={{ height: 30, paddingInline: 2 }}
-                          >
-                            수정
-                          </Button>
-                          <IconButton
-                            size="small"
-                            onClick={() => handleDeleteExpense(expense.id)}
-                            sx={{ opacity: 0.5, '&:hover': { opacity: 1, color: 'error.main' } }}
-                          >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
                         </Stack>
-                      </Stack>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  )
+                })}
               </Stack>
             )
           ) : (
@@ -285,42 +375,16 @@ export function ExpenseContent({ tripId }: Props) {
                 <RouteExpenseView tripId={tripId} />
               </Suspense>
             </Box>
-          )}
-        </Paper>
+          )
+          }
+        </Paper >
 
         {/* 오른쪽: 정산 현황 */}
-        <Paper
+        < Paper
           elevation={0}
           sx={{ flex: 1, p: 3, borderRadius: 3, minWidth: 320 }}
         >
           <Typography variant="h6" fontWeight="bold" mb={2}>정산 현황</Typography>
-
-          {/* 해외 여행일 때 환율 설정 */}
-          {trip.isOverseas && (() => {
-            const currency = getCurrencyByDestination(trip.destination)
-            const defaultRate = Math.round(1 / (EXCHANGE_RATES[currency.code] || 1))
-            return (
-              <Box sx={{ mb: 2, p: 1.5, bgcolor: 'grey.100', borderRadius: 1 }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
-                  <Typography variant="body2" color="text.secondary">
-                    환율 (1{currency.name})
-                  </Typography>
-                  <EditableText
-                    variant="body2"
-                    fontWeight="medium"
-                    value={exchangeRate ? `${exchangeRate.toLocaleString()}원` : `${defaultRate.toLocaleString()}원 (기본)`}
-                    onSubmit={(value) => {
-                      const rate = Number(value.replace(/[^0-9.]/g, ''))
-                      if (rate > 0) {
-                        updateTrip.mutateAsync({ exchangeRate: rate })
-                      }
-                    }}
-                    submitOnBlur
-                  />
-                </Stack>
-              </Box>
-            )
-          })()}
 
           {settlements.length === 0 ? (
             <Box
@@ -373,9 +437,9 @@ export function ExpenseContent({ tripId }: Props) {
                               </Typography>
                             </Box>
                           </Stack>
-                          <Typography variant="h6" color="primary.main" fontWeight="bold">
-                            {formatCurrency(settlement.amount)}
-                          </Typography>
+
+                          <AnimatedCountText value={settlement.amount} format={formatCurrency} variant="h6" color="primary.main" fontWeight="bold" />
+
                         </Stack>
                       </CardContent>
                     </Card>
@@ -383,7 +447,8 @@ export function ExpenseContent({ tripId }: Props) {
                 })}
               </Stack>
             </>
-          )}
+          )
+          }
 
           <Divider sx={{ my: 3 }} />
 
@@ -400,12 +465,12 @@ export function ExpenseContent({ tripId }: Props) {
               const paidInKRW = expenses.reduce((sum, e) => {
                 const payment = e.payments.find(p => p.memberId === memberId)
                 if (!payment) return sum
-                return sum + convertToKRW(payment.amount, e.currency, exchangeRate)
+                return sum + convertToKRW(payment.amount, e.currency, exchangeRates)
               }, 0)
 
               const owedInKRW = expenses.reduce((sum, e) => {
                 if (e.splitAmong.includes(memberId)) {
-                  const totalInKRW = convertToKRW(e.totalAmount, e.currency, exchangeRate)
+                  const totalInKRW = convertToKRW(e.totalAmount, e.currency, exchangeRates)
                   return sum + (totalInKRW / e.splitAmong.length)
                 }
                 return sum
@@ -433,8 +498,8 @@ export function ExpenseContent({ tripId }: Props) {
               )
             })}
           </Stack>
-        </Paper>
-      </Stack>
-    </Box>
+        </Paper >
+      </Stack >
+    </Box >
   )
 }

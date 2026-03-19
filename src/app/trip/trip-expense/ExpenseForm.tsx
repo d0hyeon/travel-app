@@ -24,13 +24,14 @@ import {
 import { DatePicker } from '@mui/x-date-pickers'
 import { Suspense, useState, type ReactNode } from "react"
 import { Controller, FormProvider, useFieldArray, useForm, useFormContext, useWatch } from "react-hook-form"
+import { CurrencyCodes, getCurrencyName, getUsedCurrencies, type CurrencyCode } from '~app/expense/currency'
+import { useExpenses } from '~app/expense/useExpenses'
+import type { Place } from '~app/place/place.types'
 import { useTripMembers } from '~app/trip/trip-member/useTripMembers'
+import { PopMenu } from '~shared/components/PopMenu'
 import { useIsMobile } from '~shared/hooks/useIsMobile'
 import { formatDateISO } from "../../../shared/utils/formats"
 import { useTripPlaces } from '../trip-place/useTripPlaces'
-import { useTrip } from '../useTrip'
-import { getCurrencyByDestination } from '~app/expense/currency'
-import type { Place } from '~app/place/place.types'
 
 export interface PaymentField {
   memberId: string
@@ -40,7 +41,7 @@ export interface PaymentField {
 export interface ExpenseFormValues {
   description: string
   date: string
-  currency: string
+  currency: CurrencyCode;
   payments: PaymentField[];
   placeId?: string;
   splitAmong: string[];
@@ -70,13 +71,13 @@ ExpenseForm.Resolved = ({
   onSubmit,
   ...props
 }: Props) => {
-  const { data: trip } = useTrip(tripId);
   const { data: members } = useTripMembers(tripId);
   const { data: places } = useTripPlaces(tripId);
+  const { data: expenses } = useExpenses(tripId);
 
-  // 해외 여행일 경우 화폐 정보
-  const isOverseas = trip.isOverseas;
-  const destinationCurrency = getCurrencyByDestination(trip.destination);
+  // 사용된 통화 목록 (KRW 제외)
+  const usedCurrencies = getUsedCurrencies(expenses);
+
 
   const methods = useForm<InternalExpenseFormValues>({
     mode: 'onChange',
@@ -97,7 +98,7 @@ ExpenseForm.Resolved = ({
 
   const payments = useWatch({ control, name: 'payments' })
   const selectedCurrency = useWatch({ control, name: 'currency' });
-  const currencyUnit = selectedCurrency === 'KRW' ? '원' : destinationCurrency.name;
+  const currencyUnit = getCurrencyName(selectedCurrency);
 
   const selectAllMembers = () => {
     setValue('splitAmong', members.map(m => m.id))
@@ -113,10 +114,8 @@ ExpenseForm.Resolved = ({
     onSubmit({ ...data, payments })
   })
 
-  const toggleCurrency = () => {
-    if (!isOverseas) return
-    const newCurrency = selectedCurrency === 'KRW' ? destinationCurrency.code : 'KRW'
-    setValue('currency', newCurrency)
+  const handleCurrencySelect = (code: CurrencyCode) => {
+    setValue('currency', code)
   }
 
   const [visibleSplit, setVisibleSplit] = useState(totalAmount > 0);
@@ -166,26 +165,45 @@ ExpenseForm.Resolved = ({
                         }
                       },
                       input: {
-                        endAdornment: (
-                          <InputAdornment
-                            position="end"
-                            onClick={toggleCurrency}
-                            sx={isOverseas ? {
-                              cursor: 'pointer',
-                              userSelect: 'none',
-                              color: 'primary.main',
-                              fontWeight: 'medium',
-                              '&:hover': { opacity: 0.7 },
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 0.25,
-                              paddingBottom: 0.5,
-                            } : undefined}
+                        endAdornment:
+                          <PopMenu
+                            items={
+                              CurrencyCodes
+                                .toSorted((a) => usedCurrencies.includes(a) ? -1 : 1)
+                                .map(code => (
+                                  <PopMenu.Item
+                                    key={code}
+                                    onClick={() => handleCurrencySelect(code)}
+                                    sx={{
+                                      fontWeight: code === selectedCurrency ? 'bold' : 'normal',
+                                      color: code === selectedCurrency ? 'primary.main' : 'inherit',
+                                    }}
+                                  >
+                                    {getCurrencyName(code)}
+                                    {usedCurrencies.includes(code) && (
+                                      <Chip size="small" label="사용됨" sx={{ ml: 1, height: 18, fontSize: 10 }} />
+                                    )}
+                                  </PopMenu.Item>
+                                ))}
                           >
-                            {currencyUnit}
-                            {isOverseas && <SwapHorizIcon sx={{ fontSize: 16 }} />}
-                          </InputAdornment>
-                        )
+                            <InputAdornment
+                              position="end"
+                              sx={{
+                                cursor: 'pointer',
+                                userSelect: 'none',
+                                color: 'primary.main',
+                                fontWeight: 'medium',
+                                '&:hover': { opacity: 0.7 },
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 0.25,
+                                paddingBottom: 0.5,
+                              }}
+                            >
+                              {currencyUnit}
+                              <SwapHorizIcon sx={{ fontSize: 16 }} />
+                            </InputAdornment>
+                          </PopMenu>
                       }
                     }}
                   />
@@ -245,9 +263,8 @@ ExpenseForm.Resolved = ({
                         onClick={() => {
                           remove(index);
                           const splitedPrice = Math.ceil(totalAmount / (payments.length - 1))
-                          payments.forEach((_, i) => {
-                            if (i === index) return;
-                            setValue(`payments.${i}.amount`, Math.max(0, splitedPrice))
+                          setTimeout(() => {
+                            payments.forEach((_, i) => setValue(`payments.${i}.amount`, Math.max(0, splitedPrice)))
                           })
                         }}
                         disabled={fields.length === 1}

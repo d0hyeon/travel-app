@@ -83,7 +83,8 @@ export default function TripListPage() {
           create({
             ...data,
             isOverseas: isOverseasByCoordinate(data.lat, data.lng),
-            exchangeRate: null
+            exchangeRate: null,
+            exchangeRates: null
           }, { onSuccess: () => setIsDialogOpen(false) })
         }}
       />

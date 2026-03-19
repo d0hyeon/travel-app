@@ -11,7 +11,7 @@ import {
   useTheme,
   Box
 } from "@mui/material";
-import { cloneElement, createContext, isValidElement, useContext, useState, type ReactElement, type ReactNode } from "react";
+import { cloneElement, createContext, isValidElement, useContext, useMemo, useState, type ReactElement, type ReactNode } from "react";
 
 interface MenuContextValue {
   close: () => void
@@ -46,15 +46,28 @@ export function PopMenu({ children, items }: MenuProps) {
       </IconButton>
     )
 
+  const maxHeight = useMemo(() => {
+    if (!anchorEl) return 300
+    const rect = anchorEl.getBoundingClientRect()
+    const spaceBelow = window.innerHeight - rect.bottom - 16
+    return Math.max(spaceBelow, 150)
+  }, [anchorEl])
+
   return (
     <>
       <span onClick={e => e.stopPropagation()} style={{ display: 'inline-flex' }}>
         {trigger}
       </span>
-      <Popper open={Boolean(anchorEl)} anchorEl={anchorEl} placement="bottom-end" sx={theme => ({ zIndex: theme.zIndex.tooltip })} transition>
+      <Popper
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
+        placement="bottom-end"
+        sx={theme => ({ zIndex: theme.zIndex.tooltip })}
+        transition
+      >
         {({ TransitionProps }) => (
           <Grow {...TransitionProps}>
-            <Paper elevation={8} >
+            <Paper elevation={8} sx={{ maxHeight, overflow: 'auto' }}>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList>
                   <MenuContext.Provider value={{ close: handleClose }}>

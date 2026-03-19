@@ -1,17 +1,23 @@
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import { Box, Card, CardContent, Divider, Stack, Typography } from "@mui/material"
-import type { TripMember } from "../trip-member/tripMember.types"
+import { useExpenses } from '~app/expense/useExpenses'
 import type { SettlementBalance, SettlementTransaction } from "../../expense/expense.types"
 import { formatCurrency } from "../../expense/expense.utils"
+import { useTripMembers } from '../trip-member/useTripMembers'
+import { convertToKRW } from '~app/expense/currency'
+import { useTrip } from '../useTrip'
 
 interface Props {
-  members: TripMember[]
+  tripId: string;
   balances: SettlementBalance[]
   settlements: SettlementTransaction[]
   formatAmount?: (amount: number) => string
 }
 
-export function SettlementSummary({ members, balances, settlements, formatAmount = formatCurrency }: Props) {
+export function SettlementSummary({ tripId, balances, settlements, formatAmount = formatCurrency }: Props) {
+  const { data: { exchangeRates } } = useTrip(tripId)
+  const { data: expenses } = useExpenses(tripId);
+  const { data: members } = useTripMembers(tripId)
   const memberMap = new Map(members.map(m => [m.id, m]))
 
   return (
@@ -22,28 +28,48 @@ export function SettlementSummary({ members, balances, settlements, formatAmount
           개인별 정산 현황
         </Typography>
         <Stack spacing={1}>
-          {balances.map(({ memberId, balance }) => {
+          {balances.map(({ memberId, balance, }) => {
             const member = memberMap.get(memberId)
-            if (!member) return null
+
+            if (!member) return null;
+            const paidInKRW = expenses.reduce((sum, e) => {
+              const payment = e.payments.find(p => p.memberId === memberId)
+              if (!payment) return sum
+              return sum + convertToKRW(payment.amount, e.currency, exchangeRates)
+            }, 0)
 
             return (
               <Card key={memberId} variant="outlined">
                 <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
                   <Stack direction="row" justifyContent="space-between" alignItems="center">
                     <Stack direction="row" spacing={1.5} alignItems="center">
-                      <Typography fontSize={24}>{member.emoji}</Typography>
-                      <Typography fontWeight="medium">{member.name}</Typography>
+                      <Typography >{member.emoji}</Typography>
+                      <Typography variant='body2' fontWeight="medium">{member.name}</Typography>
                     </Stack>
-                    <Box textAlign="right">
-                      <Typography
-                        variant="h6"
-                        color={balance > 0 ? 'success.main' : balance < 0 ? 'error.main' : 'text.secondary'}
-                      >
-                        {balance > 0 ? '+' : ''}{formatAmount(balance)}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {balance > 0 ? '받을 돈' : balance < 0 ? '낼 돈' : '정산 완료'}
-                      </Typography>
+                    <Box textAlign="left">
+                      <Stack gap={0.5} minWidth={150}>
+                        <Stack direction="row" gap={2} justifyContent="space-between">
+                          <Typography variant="caption" color="text.secondary">
+                            총 지출액
+                          </Typography>
+                          <Typography variant="body2">
+                            {formatCurrency(paidInKRW)}
+                          </Typography>
+
+                        </Stack>
+                        <Stack direction="row" gap={2} justifyContent="space-between">
+                          <Typography variant="caption" color="text.secondary">
+                            추가 정산
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            color={balance > 0 ? 'primary.main' : balance < 0 ? 'error.main' : 'text.secondary'}
+                          >
+                            {balance > 0 ? '+' : ''}{formatAmount(balance)}
+                          </Typography>
+
+                        </Stack>
+                      </Stack>
                     </Box>
                   </Stack>
                 </CardContent>
@@ -86,7 +112,7 @@ export function SettlementSummary({ members, balances, settlements, formatAmount
                           <Typography variant="caption">{to.name}</Typography>
                         </Box>
                       </Stack>
-                      <Typography variant="h6" color="primary">
+                      <Typography variant="body2" color="primary">
                         {formatAmount(settlement.amount)}
                       </Typography>
                     </Stack>

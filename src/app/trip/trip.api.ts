@@ -2,6 +2,8 @@ import { supabase } from '../../shared/lib/supabase'
 import type { Trip } from './trip.types'
 import { formatDate } from '../../shared/utils/formats';
 import { deletePhotosByTripId } from '~app/photo/photo.api';
+import { getCurrencyByDestination, type ExchangeRateEntry } from '../expense/currency';
+import type { DataRaw } from '~shared/lib/database-row.types';
 
 function getDatesBetween(startDate: string, endDate: string): string[] {
   const dates: string[] = []
@@ -19,19 +21,14 @@ function getDatesBetween(startDate: string, endDate: string): string[] {
 export const tripKey = 'trips'
 
 // DB row -> App model 변환
-function toTrip(row: {
-  id: string
-  name: string
-  destination: string
-  lat: number
-  lng: number
-  start_date: string
-  end_date: string
-  share_link: string
-  created_at: string
-  is_overseas: boolean
-  exchange_rate: number | null
-}): Trip {
+function toTrip(row: DataRaw<'trips'>): Trip {
+  // 기존 단일 환율 → 배열로 자동 마이그레이션
+  let exchangeRates: ExchangeRateEntry[] | null = (row.exchange_rates as ExchangeRateEntry[] | null) ?? null;
+  if (!exchangeRates && row.exchange_rate != null) {
+    const currency = getCurrencyByDestination(row.destination);
+    exchangeRates = [{ currencyCode: currency.code, rate: row.exchange_rate }];
+  }
+
   return {
     id: row.id,
     name: row.name,
@@ -44,6 +41,7 @@ function toTrip(row: {
     createdAt: row.created_at,
     isOverseas: row.is_overseas,
     exchangeRate: row.exchange_rate,
+    exchangeRates,
   }
 }
 
@@ -51,7 +49,8 @@ export async function getAllTrips(): Promise<Trip[]> {
   const { data, error } = await supabase
     .from('trips')
     .select('*')
-    .order('created_at', { ascending: false })
+    .order('start_date', { ascending: false })
+    .order('end_date', { ascending: false })
 
   if (error) throw error
   return (data ?? []).map(toTrip)
@@ -134,6 +133,7 @@ export async function updateTrip(id: string, data: Partial<Omit<Trip, 'id' | 'cr
   if (data.shareLink !== undefined) updateData.share_link = data.shareLink
   if (data.isOverseas !== undefined) updateData.is_overseas = data.isOverseas
   if (data.exchangeRate !== undefined) updateData.exchange_rate = data.exchangeRate
+  if (data.exchangeRates !== undefined) updateData.exchange_rates = data.exchangeRates
 
   const { data: updated, error } = await supabase
     .from('trips')

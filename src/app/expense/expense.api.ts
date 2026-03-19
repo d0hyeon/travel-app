@@ -2,6 +2,7 @@ import type { DataRaw } from '~shared/lib/database-row.types'
 import type { Json } from '~shared/lib/database.types'
 import { supabase } from '../../shared/lib/supabase'
 import type { Expense } from './expense.types'
+import type { CurrencyCode } from './currency'
 
 export const expenseKey = 'expenses'
 
@@ -12,7 +13,7 @@ function toExpense(row: DataRaw<'expenses'>): Expense {
     placeId: row.place_id ?? undefined,
     description: row.description ?? '',
     totalAmount: row.total_amount,
-    currency: (row as { currency?: string }).currency ?? 'KRW',
+    currency: (row as { currency?: CurrencyCode }).currency ?? 'KRW',
     // @ts-ignore
     payments: row.payments ?? [],
     splitAmong: row.split_among ?? [],

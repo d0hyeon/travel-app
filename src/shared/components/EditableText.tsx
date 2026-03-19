@@ -50,6 +50,7 @@ export function EditableText<Value extends string | number, As extends string>({
   valueAs = (value) => (typeof value === 'number' ? value.toString() : value),
   endIcon = <EditIcon sx={{ fontSize: 'inherit' }} />,
   dismissible = true,
+  sx,
   ...props
 }: EditableTextProps<Value>) {
   const value = _value ?? defaultValue ?? ('' as Value);
@@ -86,23 +87,25 @@ export function EditableText<Value extends string | number, As extends string>({
 
   if (isReadonly) {
     return (
-      <Typography
-        ref={registerDismissibleNode}
-        role="button"
-        onClick={setEdit}
-        sx={[
-          { display: 'inline-flex', alignItems: 'center', gap: 0.5 },
-          ...(Array.isArray(props.sx) ? props.sx : [props.sx])
-        ]}
-        {...props}
-      >
-        <span>
-          {displayValue}
-        </span>
-        <Box component="span" display="inline-flex">
-          {endIcon}
-        </Box>
-      </Typography>
+      <Box sx={sx}>
+        <Typography
+          ref={registerDismissibleNode}
+          role="button"
+          onClick={setEdit}
+          className="editable-text"
+          sx={[
+            { display: 'inline-flex', alignItems: 'center', gap: 0.5 },
+          ]}
+          {...props}
+        >
+          <span>
+            {displayValue}
+          </span>
+          <Box component="span" display="inline-flex">
+            {endIcon}
+          </Box>
+        </Typography>
+      </Box>
     );
   }
   const control = {
@@ -113,7 +116,7 @@ export function EditableText<Value extends string | number, As extends string>({
   };
 
   return (
-    <div ref={registerDismissibleNode}>
+    <Box sx={sx} ref={registerDismissibleNode}>
       <form
         ref={formRef}
         onSubmit={handleSubmit(async (data) => {
@@ -126,7 +129,12 @@ export function EditableText<Value extends string | number, As extends string>({
           }
         })}
       >
-        <Stack direction="row" gap={0.5} justifyContent="space-between" alignItems="center">
+        <Stack
+          direction="row"
+          gap={0.5}
+          justifyContent="space-between"
+          alignItems="center"
+        >
           {renderEditField(
             {
               fieldState,
@@ -142,7 +150,7 @@ export function EditableText<Value extends string | number, As extends string>({
           {actions?.(control)}
         </Stack>
       </form>
-    </div>
+    </Box>
   );
 }
 
@@ -160,6 +168,7 @@ EditableText.Field = ({ fieldState, ...field }: EditorProps) => {
       sx={{ flex: '1 1 auto' }}
       size="small"
       variant="standard"
+      className="editable-text-field"
       error={fieldState.error != null}
     />
   );

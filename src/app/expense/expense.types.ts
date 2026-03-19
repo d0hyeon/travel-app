@@ -1,3 +1,5 @@
+import type { CurrencyCode } from "./currency"
+
 export interface ExpensePayment {
   memberId: string
   amount: number
@@ -10,7 +12,7 @@ export interface Expense {
   description: string
   totalAmount: number
   /** 화폐 단위 코드 (KRW, JPY, USD 등) */
-  currency: string
+  currency: CurrencyCode;
   payments: ExpensePayment[]
   splitAmong: string[]
   date?: string
