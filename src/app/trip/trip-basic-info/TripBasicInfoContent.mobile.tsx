@@ -59,13 +59,14 @@ export function TripBasicInfoContent({ tripId }: Props) {
                   <TripDeadlineChecklist
                     tripId={tripId}
                     gap={1}
+                    throwOnEmpty
                   />
                 </Stack>
               </ErrorBoundary>
 
               {/* 고정된 메모 */}
               <ErrorBoundary>
-                <TripPinnedMemos tripId={tripId} />
+                <TripPinnedMemos tripId={tripId} throwOnEmpty />
               </ErrorBoundary>
 
               {/* 인원 관리 */}

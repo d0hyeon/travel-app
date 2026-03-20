@@ -6,7 +6,7 @@ import { Suspense } from "react";
 
 interface Props extends StackProps {
   tripId: string;
-  throwOnError?: boolean;
+  throwOnEmpty?: boolean;
 }
 
 
@@ -18,10 +18,10 @@ export function TripDeadlineChecklist(props: Props) {
   )
 }
 
-function Resolved({ tripId, throwOnError, ...props }: Props) {
+function Resolved({ tripId, throwOnEmpty, ...props }: Props) {
   const { data: { deadlines } } = useTripChecklist(tripId);
 
-  if (deadlines.length === 0 && throwOnError) {
+  if (deadlines.length === 0 && throwOnEmpty) {
     throw new Error('체크리스트가 없습니다.');
   }
 
