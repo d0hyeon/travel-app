@@ -16,7 +16,7 @@ export function TripPinnedMemos({ tripId, ...props }: Props) {
         고정된 메모
       </Typography>
       <Suspense fallback={(
-        <ListItem>
+        <ListItem width="100%">
           <Skeleton variant='text' />
         </ListItem>
       )}>
