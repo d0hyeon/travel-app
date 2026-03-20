@@ -89,11 +89,18 @@ export function ExpenseContent({ tripId }: Props) {
     <Box sx={{ height: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}>
       {/* 총액 표시 (원화 환산) */}
       <Stack direction="row" gap={1} justifyContent="space-between" alignItems="end" flex="0 0 auto" sx={{ px: 2, py: 1.5, bgcolor: 'primary.main', color: 'white' }}>
-        <Box flex="1">
+        <Stack direction="column" alignItems="start" flex="1">
           <Typography variant="caption">총 지출</Typography>
-          <AnimatedCountText value={totalExpensesInKRW} format={formatCurrency} variant="h5" fontWeight="bold" />
+          <AnimatedCountText
+            value={totalExpensesInKRW}
+            format={formatCurrency}
+            variant="h5"
+            delay={100}
+            duration={1000}
+            fontWeight="bold"
+          />
 
-        </Box>
+        </Stack>
         {trip.isOverseas && usedCurrencies.length > 0 && (
           <Stack direction="row" spacing={1} alignItems="end" justifyContent="end" >
             {usedCurrencies.map(code => {

@@ -1,15 +1,31 @@
 import { Typography, type TypographyProps } from "@mui/material";
 import { type ReactNode } from "react";
-import { useCountAnimation } from "~shared/hooks/useCountdownAnimation";
+import { useCountAnimation, type CountAnimationOptions } from "~shared/hooks/useCountdownAnimation";
 
 type Props = {
   value: number;
   format?: (value: number) => ReactNode;
-  duration?: number;
-} & TypographyProps
+  onAnimationEnd?: () => void;
+} & TypographyProps & Omit<CountAnimationOptions, 'onEnd'>
 
-export function AnimatedCountText({ value, duration, format = (v) => v.toLocaleString(), sx, ...props }: Props) {
-  const number = useCountAnimation(value, { duration });
+export function AnimatedCountText({
+  value,
+  format = (v) => v.toLocaleString(),
+  sx,
+  delay,
+  duration,
+  durationTarget,
+  enabled,
+  onAnimationEnd,
+  ...props
+}: Props) {
+  const number = useCountAnimation(value, {
+    duration,
+    durationTarget,
+    delay,
+    enabled,
+    onEnd: onAnimationEnd
+  });
 
   return (
     <Typography
