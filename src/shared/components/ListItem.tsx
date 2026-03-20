@@ -87,16 +87,22 @@ ListItem.Title = ({ leftAddon, rightAddon, ...props }: TypographyProps & { leftA
     </Stack>
   )
 }
-ListItem.Text = (props: TypographyProps) => {
-  return <Typography
-    variant="caption"
-    fontWeight={500}
-    color="textSecondary"
-    fontSize={12}
-    whiteSpace="pre-line"
-    sx={{ wordBreak: 'break-word' }}
-    {...props}
-  />
+ListItem.Text = ({ leftAddon, rightAddon, ...props }: TypographyProps & { leftAddon?: ReactNode; rightAddon?: ReactNode }) => {
+  return (
+    <Stack gap={0.25} direction="row" alignItems="center" >
+      {leftAddon}
+      <Typography
+        variant="caption"
+        fontWeight={500}
+        color="textSecondary"
+        fontSize={12}
+        whiteSpace="pre-line"
+        sx={{ wordBreak: 'break-word' }}
+        {...props}
+      />
+      {rightAddon}
+    </Stack>
+  )
 }
 
 ListItem.Ordering = (props: BoxProps) => {

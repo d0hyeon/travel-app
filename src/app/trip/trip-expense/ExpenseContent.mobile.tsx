@@ -28,7 +28,8 @@ import { AnimatedCountText } from './AnimatedCountText'
 import { RouteExpenseViewMobile } from "./RouteExpenseView.mobile"
 import { SettlementSummary } from "./SettlementSummary"
 import { useExpenseFormBottomSheet } from './useExpenseFormOverlay'
-
+import PlaceIcon from '@mui/icons-material/Place';
+import GroupIcon from '@mui/icons-material/Group';
 
 interface Props {
   tripId: string
@@ -230,16 +231,22 @@ export function ExpenseContent({ tripId }: Props) {
                       >
                         <Stack direction="row" justifyContent="space-between" alignItems="center" width="100%">
                           <Box flex={1}>
-                            <ListItem.Title>
+                            <ListItem.Title mb={0.5}>
                               {expense.date && `[${formatDate(expense.date)}] `}
                               {expense.description}
                             </ListItem.Title>
-                            <Stack direction="row" spacing={0.5} mt={0.5} flexWrap="wrap" useFlexGap>
+                            {expense.place && (
+                              <ListItem.Text leftAddon={<PlaceIcon sx={{ fontSize: 12, width: 14, }} />}>
+                                {expense.place.name}
+                              </ListItem.Text>
+                            )}
+                            <Stack direction="row" spacing={0.5} alignItems="center" flexWrap="wrap" useFlexGap>
+                              <GroupIcon sx={{ fontSize: 14 }} />
                               {expense.splitAmong.map(id => {
                                 const member = memberMap.get(id);
                                 return (
                                   <ListItem.Text key={id} variant="caption">
-                                    {member?.emoji} {member?.name}
+                                    {member?.name}
                                   </ListItem.Text>
                                 )
                               })}

@@ -8,12 +8,20 @@ import {
   updateExpense
 } from "./expense.api"
 import type { Expense } from "./expense.types"
+import { useTripPlaces } from "~app/trip/trip-place/useTripPlaces";
 
 export function useExpenses(tripId: string) {
   const queryClient = useQueryClient();
+  const { data: places } = useTripPlaces(tripId);
   const { data, refetch, ...queries } = useSuspenseQuery({
     queryKey: useExpenses.key(tripId),
-    queryFn: () => getExpensesByTripId(tripId)
+    queryFn: () => getExpensesByTripId(tripId),
+    select: (expenses) => {
+      return expenses.map(x => ({
+        ...x,
+        place: x.placeId ? places.find(place => place.id === x.placeId) : undefined,
+      }))
+    }
   })
 
   const { mutate: create } = useMutation({
