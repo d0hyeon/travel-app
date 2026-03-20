@@ -14,6 +14,7 @@ import {
   InputAdornment,
   MenuItem,
   Select,
+  Skeleton,
   Stack,
   TextField,
   Typography,
@@ -431,134 +432,148 @@ ExpenseForm.Pending = ({
   action = <ExpenseForm.SubmitButton />,
   ...props
 }: Omit<Props, 'onSubmit'>) => {
-  const methods = useForm<ExpenseFormValues>({
+  const methods = useForm<InternalExpenseFormValues>({
     mode: 'onChange',
     defaultValues: defaultValues,
   })
-  const { control, register } = methods;
-
-  const { fields } = useFieldArray({
-    control,
-    name: 'payments',
-  })
+  const { control } = methods;
 
   const isMobile = useIsMobile();
+  const theme = useTheme();
 
   return (
     <FormProvider {...methods}>
       <Box component="form" {...props}>
-        <Stack spacing={2.5}>
-          {/* 지불한 사람 */}
+        <Stack spacing={2}>
           <Box>
-            <Stack direction="row" justifyContent="space-between" alignItems="center" marginBottom={isMobile ? 0.5 : 0}>
-              <Typography variant="subtitle2">누가 얼마 냈나요?</Typography>
-              <Button size="small" startIcon={<AddIcon />}>추가</Button>
-            </Stack>
-
-            <Stack spacing={1}>
-              {fields.map((field, index) => (
-                <Stack key={field.id} direction="row" spacing={1} alignItems="center">
-                  <Controller
-                    name={`payments.${index}.memberId`}
-                    control={control}
-                    render={({ field }) => (
-                      <FormControl size="small" sx={{ minWidth: 120 }}>
-                        <Select readOnly {...field}>
-
-                        </Select>
-                      </FormControl>
-                    )}
-                  />
-                  <Controller
-                    name={`payments.${index}.amount`}
-                    control={control}
-                    render={({ field: { value, onChange, ...field } }) => {
-                      return (
-                        <TextField
-                          {...field}
-
-                          value={value.toLocaleString()}
-                          onChange={({ target: { value } }) => {
-                            onChange(value === '' ? 0 : Number(value.replace(/[^0-9]/g, '')))
-                          }}
-                          size="small"
-
-                          placeholder="금액"
-                          slotProps={{
-                            input: {
-                              endAdornment: <InputAdornment position="end">원</InputAdornment>
-                            }
-                          }}
-                          sx={{ flex: 1 }}
-                          disabled
-                        />
-                      )
+            <Controller
+              control={control}
+              name="totalAmount"
+              render={({ field: { value, onChange } }) => (
+                <Stack gap={0.5}>
+                  <Typography variant="subtitle2" fontSize="13px" color="textSecondary">
+                    <Box display="inline" color={theme.palette.primary.main}>*</Box>
+                    총 금액
+                  </Typography>
+                  <TextField
+                    variant="standard"
+                    value={value === 0 ? '' : value.toLocaleString()}
+                    size="small"
+                    fullWidth
+                    placeholder="금액"
+                    disabled
+                    slotProps={{
+                      inputLabel: {
+                        sx: {
+                          '&::before': {
+                            content: '"*"',
+                            color: theme.palette.primary.main
+                          }
+                        }
+                      },
+                      input: {
+                        endAdornment:
+                          <PopMenu items={[]}>
+                            <InputAdornment
+                              position="end"
+                              sx={{
+                                cursor: 'pointer',
+                                userSelect: 'none',
+                                color: 'primary.main',
+                                fontWeight: 'medium',
+                                '&:hover': { opacity: 0.7 },
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 0.25,
+                                paddingBottom: 0.5,
+                              }}
+                            >
+                              원
+                              <SwapHorizIcon sx={{ fontSize: 16 }} />
+                            </InputAdornment>
+                          </PopMenu>
+                      }
                     }}
                   />
-                  <IconButton size="small" disabled sx={{ opacity: 0.3 }}>
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
                 </Stack>
-              ))}
-            </Stack>
+              )}
+            />
 
           </Box>
 
-          {/* 정산 대상자 */}
-          <Box>
-            <Stack direction="row" justifyContent="space-between" alignItems="center" marginBottom={isMobile ? 0.5 : 0} >
-              <Typography variant="subtitle2" color="textSecondary">누구와 나눌까요?</Typography>
-              <Button size="small" disabled>전체 선택</Button>
-            </Stack>
-            <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
-              <Chip component="button" sx={{ mb: 0.5 }} label="..." />
-              <Chip component="button" sx={{ mb: 0.5 }} label="..." />
-            </Stack>
-
-            <Typography variant="caption" color="text.secondary" mt={1} display="block">
-              1인당 ...원
-            </Typography>
-          </Box>
           {/* 설명 */}
-          <TextField label="내용" placeholder="점심 식사" fullWidth size="small" disabled {...register('description')} />
+          <Controller
+            name="description"
+            control={control}
+            render={({ field }) => (
+              <Stack gap={0.5}>
+                <Typography variant="subtitle2" fontSize="13px" color="textSecondary">
+                  내용
+                </Typography>
+                <TextField variant="standard" {...field} placeholder="점심 식사" fullWidth size="small" />
+              </Stack>
+            )}
+          />
           {/* 날짜 */}
           <Controller
             name="date"
             control={control}
             render={({ field: { value, onChange, ...field } }) => (
-              <DatePicker
-                {...field}
-                value={value ? new Date(value) : undefined}
-                onChange={(value) => onChange(formatDateISO(value as unknown as string))}
-                label="날짜"
-                slotProps={{
-                  textField: { size: 'small' }
-                }}
-                disabled
-              />
+              <Stack gap={0.5}>
+                <Typography variant="subtitle2" fontSize="13px" color="textSecondary">
+                  날짜
+                </Typography>
+                <DatePicker
+                  {...field}
+                  value={value ? new Date(value) : undefined}
+                  onChange={(value) => onChange(formatDateISO(value as unknown as string))}
+                  slotProps={{
+                    textField: {
+                      size: 'small',
+                      variant: 'standard',
+                      sx: {
+                        '.MuiFormLabel-root': { fontSize: 13, },
+                        '.MuiPickersInputBase-root': { paddingBottom: 0.5 }
+                      }
+                    }
+                  }}
+                />
+              </Stack>
             )}
           />
 
           {/* 장소 연결 */}
-          <Controller
-            name="placeId"
-            control={control}
-            render={({ field }) => (
-              <Autocomplete
-                {...field}
-                size="small"
-                options={[] satisfies Place[]}
-                renderInput={(params) => (
-                  <TextField {...params} label="장소" placeholder="장소 검색..." />
-                )}
-                disabled
-                noOptionsText="검색 결과 없음"
-                clearText="초기화"
-              />
-            )}
-          />
+          <Stack gap={0.5}>
+            <Typography variant="subtitle2" fontSize="13px" color="textSecondary">
+              장소
+            </Typography>
+            <Autocomplete
+              size="small"
+              options={[]}
+              value=""
+              renderValue={() => <Skeleton />}
+              renderInput={(params) => (
+                <TextField {...params} variant="standard" placeholder="장소 검색..." />
+              )}
+              clearText="초기화"
+              disabled
+            />
+          </Stack>
 
 
+          {/* 정산 대상자 */}
+          <Box>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" marginBottom={isMobile ? 0.5 : 0} marginTop={1.5}>
+              <Typography variant="body2" color="textSecondary">누구와 나눌까요?</Typography>
+              <Button size="small">전체 선택</Button>
+            </Stack>
+
+            <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
+              <Skeleton variant="rounded" />
+              <Skeleton variant="rounded" />
+            </Stack>
+
+          </Box>
 
           {action}
         </Stack>
