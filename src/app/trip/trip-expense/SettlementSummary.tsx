@@ -50,7 +50,7 @@ export function SettlementSummary({ tripId, balances, settlements, formatAmount 
                       <Stack gap={0.5} minWidth={150}>
                         <Stack direction="row" gap={2} justifyContent="space-between">
                           <Typography variant="caption" color="text.secondary">
-                            총 지출액
+                            지출금
                           </Typography>
                           <Typography variant="body2">
                             {formatCurrency(paidInKRW)}
@@ -59,7 +59,7 @@ export function SettlementSummary({ tripId, balances, settlements, formatAmount 
                         </Stack>
                         <Stack direction="row" gap={2} justifyContent="space-between">
                           <Typography variant="caption" color="text.secondary">
-                            추가 정산
+                            정산금
                           </Typography>
                           <Typography
                             variant="body2"
