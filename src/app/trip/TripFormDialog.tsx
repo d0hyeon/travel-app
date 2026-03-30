@@ -32,6 +32,7 @@ const DESTINATIONS: Destination[] = [
   { name: '여수', lat: 34.7604, lng: 127.6622, isOverseas: false, group: '국내' },
   { name: '전주', lat: 35.8242, lng: 127.148, isOverseas: false, group: '국내' },
   { name: '속초', lat: 38.207, lng: 128.5918, isOverseas: false, group: '국내' },
+  { name: '삼척', lat: 37.4499, lng: 129.1652, isOverseas: false, group: '국내' },
   { name: '인천', lat: 37.4563, lng: 126.7052, isOverseas: false, group: '국내' },
   { name: '대구', lat: 35.8714, lng: 128.6014, isOverseas: false, group: '국내' },
   { name: '대전', lat: 36.3504, lng: 127.3845, isOverseas: false, group: '국내' },
