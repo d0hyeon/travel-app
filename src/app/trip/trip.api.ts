@@ -4,6 +4,7 @@ import { formatDate } from '../../shared/utils/formats';
 import { deletePhotosByTripId } from '~app/photo/photo.api';
 import { getCurrencyByDestination, type ExchangeRateEntry } from '../expense/currency';
 import type { DataRaw } from '~shared/lib/database-row.types';
+import { getRandomEmoji } from './trip-member/tripMember.types';
 
 function getDatesBetween(startDate: string, endDate: string): string[] {
   const dates: string[] = []
@@ -84,7 +85,10 @@ export async function getTripByShareLink(shareLink: string): Promise<Trip | unde
   return data ? toTrip(data) : undefined
 }
 
-export async function createTrip(data: Omit<Trip, 'id' | 'shareLink' | 'createdAt'>): Promise<Trip> {
+export async function createTrip(
+  data: Omit<Trip, 'id' | 'shareLink' | 'createdAt'>,
+  memberNames: string[] = []
+): Promise<Trip> {
   const { data: created, error } = await supabase
     .from('trips')
     .insert({
@@ -117,6 +121,16 @@ export async function createTrip(data: Omit<Trip, 'id' | 'shareLink' | 'createdA
 
   if (routes.length > 0) {
     await supabase.from('routes').insert(routes as never)
+  }
+
+  // 멤버 일괄 생성
+  if (memberNames.length > 0) {
+    const members = memberNames.map((name) => ({
+      trip_id: trip.id,
+      name,
+      emoji: getRandomEmoji(),
+    }))
+    await supabase.from('trip_members').insert(members as never)
   }
 
   return trip
