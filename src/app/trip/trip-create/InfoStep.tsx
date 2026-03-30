@@ -3,10 +3,10 @@ import { Box, Button, Chip, Stack, TextField, Typography } from '@mui/material'
 
 interface Props {
   destination: string
-  onSubmit: (name: string, memberNames: string[]) => void
+  onNext: (name: string, memberNames: string[]) => void
 }
 
-export function InfoStep({ destination, onSubmit }: Props) {
+export function InfoStep({ destination, onNext }: Props) {
   const [name, setName] = useState('')
   const [memberInput, setMemberInput] = useState('')
   const [memberNames, setMemberNames] = useState<string[]>([])
@@ -63,7 +63,7 @@ export function InfoStep({ destination, onSubmit }: Props) {
         variant="contained"
         fullWidth
         size="large"
-        onClick={() => onSubmit(name, memberNames)}
+        onClick={() => onNext(name, memberNames)}
       >
         완료
       </Button>

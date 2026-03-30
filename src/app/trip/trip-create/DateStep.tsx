@@ -5,10 +5,9 @@ import type { DateRange } from '~shared/components/date-range/type'
 interface Props {
   defaultValue: [string, string] | null
   onNext: (startDate: string, endDate: string) => void
-  onBack: () => void
 }
 
-export function DateStep({ defaultValue, onNext, onBack }: Props) {
+export function DateStep({ defaultValue, onNext }: Props) {
   const defaultDateRange: DateRange | undefined = defaultValue
     ? [new Date(defaultValue[0]), new Date(defaultValue[1])]
     : undefined
@@ -22,7 +21,6 @@ export function DateStep({ defaultValue, onNext, onBack }: Props) {
           formatDate(end, 'yyyy-MM-dd')
         )
       }}
-      onClose={onBack}
     />
   )
 }
