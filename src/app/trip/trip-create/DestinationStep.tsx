@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Box, Button, Chip, Stack, Typography } from '@mui/material'
+import { BottomArea } from '~shared/components/BottomArea'
 
 export interface Destination {
   name: string
@@ -91,6 +92,8 @@ const DESTINATION_GROUPS: { label: Destination['group']; destinations: Destinati
   },
 ]
 
+const BOTTOM_AREA_HEIGHT = 64
+
 interface Props {
   defaultValue: Destination | null
   onNext: (destination: Destination) => void
@@ -100,8 +103,8 @@ export function DestinationStep({ defaultValue, onNext }: Props) {
   const [selected, setSelected] = useState<Destination | null>(defaultValue)
 
   return (
-    <Stack spacing={0} px={3} pb={3}>
-      <Stack spacing={2.5} mb={3}>
+    <>
+      <Stack spacing={2.5} px={3} pb={`${BOTTOM_AREA_HEIGHT + 16}px`}>
         {DESTINATION_GROUPS.map((group) => (
           <Box key={group.label}>
             <Typography variant="caption" color="text.secondary" fontWeight="bold" display="block" mb={1}>
@@ -126,15 +129,17 @@ export function DestinationStep({ defaultValue, onNext }: Props) {
         ))}
       </Stack>
 
-      <Button
-        variant="contained"
-        fullWidth
-        size="large"
-        disabled={!selected}
-        onClick={() => selected && onNext(selected)}
-      >
-        다음
-      </Button>
-    </Stack>
+      <BottomArea>
+        <Button
+          variant="contained"
+          fullWidth
+          size="large"
+          disabled={!selected}
+          onClick={() => selected && onNext(selected)}
+        >
+          다음
+        </Button>
+      </BottomArea>
+    </>
   )
 }

@@ -1,5 +1,7 @@
+import { Button } from '@mui/material'
 import { formatDate } from 'date-fns'
 import { DateCalendarBoard } from '~shared/components/date-range/DateCalendarBoard'
+import { BottomArea } from '~shared/components/BottomArea'
 import type { DateRange } from '~shared/components/date-range/type'
 
 interface Props {
@@ -21,6 +23,19 @@ export function DateStep({ defaultValue, onNext }: Props) {
           formatDate(end, 'yyyy-MM-dd')
         )
       }}
+      renderActions={({ isEmpty, onConfirm }) => (
+        <BottomArea>
+          <Button
+            variant="contained"
+            fullWidth
+            size="large"
+            disabled={isEmpty}
+            onClick={onConfirm}
+          >
+            다음
+          </Button>
+        </BottomArea>
+      )}
     />
   )
 }
