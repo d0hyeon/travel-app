@@ -17,7 +17,7 @@ import { PopMenu } from "../../../shared/components/PopMenu";
 import { SortableItem } from "../../../shared/components/dnd/SortableItem";
 import { SortableList } from "../../../shared/components/dnd/SortableList";
 import { useOverlay } from "../../../shared/hooks/useOverlay";
-import { useDirections } from "../../../shared/hooks/useDirections";
+import { useRoadPath } from "../../route/road-path/useRoadPath";
 import { formatDate, formatDateISO } from "../../../shared/utils/formats";
 import { PlaceCategoryColorCode } from "../../place/place.types";
 import { useTripPlaces } from "../trip-place/useTripPlaces";
@@ -195,7 +195,6 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                 waypoints={route.places.filter(x => !route.hiddenPlaces.includes(x.id))}
                 color={getRouteColor(index)}
                 isSelected={route.id === currentRoute?.id}
-                mapType={mapType}
               />
             ))}
           </Map>
@@ -407,10 +406,9 @@ const Dot = styled(Box)(({ theme }) => ({
 
 
 interface RoutePathProps {
-  waypoints: { lat: number; lng: number }[] | undefined
+  waypoints: { lat: number; lng: number }[]
   color: string
   isSelected: boolean;
-  mapType: 'kakao' | 'google'
 }
 
 interface PlaceMenuProps {
@@ -435,8 +433,8 @@ function PlaceMenu({ onEdit, onDelete }: PlaceMenuProps) {
   )
 }
 
-function RoutePath({ waypoints, color, isSelected, mapType }: RoutePathProps) {
-  const coordinates = useDirections({ type: mapType, waypoints })
+function RoutePath({ waypoints, color, isSelected }: RoutePathProps) {
+  const coordinates = useRoadPath({ waypoints })
 
   if (!coordinates || coordinates.length < 2) return null
 

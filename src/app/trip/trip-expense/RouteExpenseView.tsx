@@ -5,7 +5,7 @@ import { useRef, useState } from "react"
 import { useTripMembers } from "~app/trip/trip-member/useTripMembers"
 import { IntersectionArea } from "../../../shared/components/IntersectionArea"
 import { Map, type MapRef } from "../../../shared/components/Map"
-import { useDirections } from "../../../shared/hooks/useDirections"
+import { useRoadPath } from "../../route/road-path/useRoadPath"
 import { ResizeHandleHorizontal, useResizableSplit } from "../../../shared/hooks/useResizableSplit"
 import { formatDate } from "../../../shared/utils/formats"
 import { formatByCurrencyCode } from "../../expense/currency"
@@ -241,7 +241,6 @@ export function RouteExpenseView({ tripId }: Props) {
                 waypoints={routePlaces}
                 color={getRouteColor(dayIndex >= 0 ? dayIndex : index)}
                 isActive={activeDayIndex === dayIndex}
-                mapType={mapType}
               />
             )
           })}
@@ -316,14 +315,13 @@ const Dot = styled(Box)(({ theme }) => ({
 
 
 interface RoutePathProps {
-  waypoints: { lat: number; lng: number }[] | undefined
+  waypoints: { lat: number; lng: number }[]
   color: string
   isActive: boolean
-  mapType: 'kakao' | 'google'
 }
 
-function RoutePath({ waypoints, color, isActive, mapType }: RoutePathProps) {
-  const coordinates = useDirections({ type: mapType, waypoints });
+function RoutePath({ waypoints, color, isActive }: RoutePathProps) {
+  const coordinates = useRoadPath({ waypoints });
 
   if (!coordinates || coordinates.length < 2) return null;
 

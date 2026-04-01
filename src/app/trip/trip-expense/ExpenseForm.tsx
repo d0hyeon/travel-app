@@ -27,7 +27,6 @@ import { Suspense, useState, type ReactNode } from "react"
 import { Controller, FormProvider, useFieldArray, useForm, useFormContext, useWatch } from "react-hook-form"
 import { CurrencyCodes, getCurrencyName, getUsedCurrencies, type CurrencyCode } from '~app/expense/currency'
 import { useExpenses } from '~app/expense/useExpenses'
-import type { Place } from '~app/place/place.types'
 import { useTripMembers } from '~app/trip/trip-member/useTripMembers'
 import { PopMenu } from '~shared/components/PopMenu'
 import { useIsMobile } from '~shared/hooks/useIsMobile'
@@ -449,7 +448,7 @@ ExpenseForm.Pending = ({
             <Controller
               control={control}
               name="totalAmount"
-              render={({ field: { value, onChange } }) => (
+              render={({ field: { value } }) => (
                 <Stack gap={0.5}>
                   <Typography variant="subtitle2" fontSize="13px" color="textSecondary">
                     <Box display="inline" color={theme.palette.primary.main}>*</Box>

@@ -4,7 +4,7 @@ import { alpha, styled } from '@mui/system'
 import { useRef, useState } from "react"
 import { IntersectionArea } from "../../../shared/components/IntersectionArea"
 import { Map, type MapRef } from "../../../shared/components/Map"
-import { useDirections } from "../../../shared/hooks/useDirections"
+import { useRoadPath } from "../../route/road-path/useRoadPath"
 import { formatDate } from "../../../shared/utils/formats"
 import { formatByCurrencyCode } from "../../expense/currency"
 import { formatCurrency } from "../../expense/expense.utils"
@@ -134,7 +134,6 @@ export function RouteExpenseViewMobile({ tripId }: Props) {
                 waypoints={routePlaces}
                 color={getRouteColor(dayIndex >= 0 ? dayIndex : index)}
                 isActive={activeDayIndex === dayIndex}
-                mapType={mapType}
               />
             )
           })}
@@ -299,14 +298,13 @@ const ExpenseItem = styled(Stack)(({ theme }) => ({
 }))
 
 interface RoutePathProps {
-  waypoints: { lat: number; lng: number }[] | undefined
+  waypoints: { lat: number; lng: number }[];
   color: string
   isActive: boolean
-  mapType: 'kakao' | 'google'
 }
 
-function RoutePath({ waypoints, color, isActive, mapType }: RoutePathProps) {
-  const coordinates = useDirections({ type: mapType, waypoints })
+function RoutePath({ waypoints, color, isActive }: RoutePathProps) {
+  const coordinates = useRoadPath({ waypoints })
 
   if (!coordinates || coordinates.length < 2) return null
 

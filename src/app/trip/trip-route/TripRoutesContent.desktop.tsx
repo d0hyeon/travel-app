@@ -22,7 +22,7 @@ import { Map, type MapRef } from '../../../shared/components/Map'
 import { ListItem } from '../../../shared/components/ListItem'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
-import { useDirections } from '../../../shared/hooks/useDirections'
+import { useRoadPath } from '../../route/road-path/useRoadPath'
 import { formatDate, formatDateISO } from '../../../shared/utils/formats'
 import { PlaceSearchDialog, type PlaceSearchResult } from '../../place/place-search/PlaceSearchDialog'
 import { PlaceCategoryColorCode } from '../../place/place.types'
@@ -372,7 +372,6 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
               waypoints={route.places.filter(x => !route.hiddenPlaces.includes(x.id))}
               color={getRouteColor(index)}
               isSelected={route.id === currentRoute?.id}
-              mapType={mapType}
             />
           ))}
         </Map>
@@ -417,14 +416,13 @@ function DragIcon() {
 }
 
 interface RoutePathProps {
-  waypoints: { lat: number; lng: number }[] | undefined
+  waypoints: { lat: number; lng: number }[]
   color: string
   isSelected: boolean
-  mapType: 'kakao' | 'google'
 }
 
-function RoutePath({ waypoints, color, isSelected, mapType }: RoutePathProps) {
-  const coordinates = useDirections({ type: mapType, waypoints })
+function RoutePath({ waypoints, color, isSelected }: RoutePathProps) {
+  const coordinates = useRoadPath({ waypoints })
 
   if (!coordinates || coordinates.length < 2) return null
 
