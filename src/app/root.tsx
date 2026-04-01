@@ -6,18 +6,9 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router'
 import { ErrorBoundary } from '~shared/components/ErrorBoundary'
 import { OverlayProvider } from '~shared/hooks/useOverlay'
 import '~shared/index.css'
+import { queryClient } from '~shared/lib/query-client'
 import { theme } from '~shared/modules/theme'
 import { SearchParamProvider } from '~shared/modules/useSearchParams'
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchInterval: false,
-      refetchIntervalInBackground: false,
-      refetchOnWindowFocus: false
-    }
-  }
-})
 
 
 
