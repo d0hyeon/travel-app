@@ -17,9 +17,7 @@ export function useRoadPath({ waypoints }: UseDirectionsOptions) {
 
   const { data } = useSuspenseQuery({
     queryKey: ['directions', serialized],
-    queryFn: async () => {
-      if (waypoints.length < 2) return waypoints;
-      
+    queryFn: async () => {      
       const localData = await database.roadPaths.get(serialized!);
       const isOverseas = waypoints?.some(x => isOverseasByCoordinate(x.lat, x.lng));
 
