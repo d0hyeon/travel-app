@@ -20,7 +20,7 @@ type PresetOptions = {
 const PRESETS: Record<SensitivityPreset, { sensitivity: number; duration: number }> = {
   low: { sensitivity: 6, duration: 10000 },
   medium: { sensitivity: 4, duration: 8000 },
-  high: { sensitivity: 2, duration: 5000 }
+  high: { sensitivity: 1, duration: 5000 }
 }
 
 export function useActivationSignal(
