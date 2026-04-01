@@ -245,7 +245,7 @@ export default function ExpenseContent({ tripId }: Props) {
                                 {expense.place.name}
                               </ListItem.Text>
                             )}
-                            {/* <Stack direction="row" spacing={0.5} alignItems="center" flexWrap="wrap" useFlexGap>
+                            <Stack direction="row" spacing={0.5} alignItems="center" flexWrap="wrap" useFlexGap>
                               <GroupIcon sx={{ fontSize: 14 }} />
                               {expense.splitAmong.map(id => {
                                 const member = memberMap.get(id);
@@ -255,12 +255,12 @@ export default function ExpenseContent({ tripId }: Props) {
                                   </ListItem.Text>
                                 )
                               })}
-                            </Stack> */}
+                            </Stack>
                           </Box>
                           <Stack direction="row" alignItems="center">
                             {!is엔빵 && (
                               <Stack direction="row" gap={0.5} alignItems="center">
-                                {/* <PaymentIcon sx={{ fontSize: 12 }} />
+                                <PaymentIcon sx={{ fontSize: 12 }} />
                                 <Stack>
                                   {expense.payments.map(p => {
                                     const member = memberMap.get(p.memberId);
@@ -277,7 +277,7 @@ export default function ExpenseContent({ tripId }: Props) {
                                       </Stack>
                                     )
                                   })}
-                                </Stack> */}
+                                </Stack>
                               </Stack>
                             )}
                             <Typography variant="body2" color="primary" ml={1}>
