@@ -1,4 +1,4 @@
-import { useCallback, useMemo, type Dispatch } from "react";
+import { useCallback, useMemo } from "react";
 import { useSearchParams, type NavigateOptions } from "~shared/modules/useSearchParams";
 
 interface OptionWithDefault<T> {
@@ -11,6 +11,7 @@ interface Options<T> {
   defaultValue?: T | (() => T);
 }
 
+type Dispatch<A> = (value: A, options?: NavigateOptions) => void;
 
 
 export function useQueryParamState<T>(key: string, options: OptionWithDefault<T>): [T, Dispatch<T>];
@@ -33,7 +34,6 @@ export function useQueryParamState<T>(key: string, { defaultValue, parse }: Opti
 
   const setValue = useCallback((value: T, options?: NavigateOptions) => {
     setParams((searchParams) => { 
-      console.log(Object.fromEntries(Array.from(searchParams.entries())));
       if (value == null) {
         if(searchParams.has(key)) searchParams.delete(key);
       } else {
@@ -41,7 +41,7 @@ export function useQueryParamState<T>(key: string, { defaultValue, parse }: Opti
       }
       return searchParams;
     }, { replace: true, ...options });
-  }, [value, setParams]);
+  }, [setParams]);
 
   return [value, setValue] as const;
 }
