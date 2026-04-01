@@ -3,6 +3,7 @@ import type { PickPartial } from "../../../shared/utils/types";
 import { createPlace, deletePlace, getPlacesByTripId, placeKey, updatePlace } from "../../place/place.api";
 import type { Place } from "../../place/place.types";
 import { tripKey } from "../trip.api";
+import { queryClient } from "~shared/lib/query-client";
 
 export function useTripPlaces(tripId: string) {
 
@@ -40,3 +41,10 @@ export function useTripPlaces(tripId: string) {
 }
 
 useTripPlaces.key = (id: string) => [tripKey, placeKey, id];
+
+useTripPlaces.prefetch = (id: string) => {
+  queryClient.prefetchQuery({
+    queryKey: useTripPlaces.key(id),
+    queryFn: () => getPlacesByTripId(id)
+  })
+}

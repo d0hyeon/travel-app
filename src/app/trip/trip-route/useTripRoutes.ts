@@ -6,6 +6,7 @@ import { mergeQueriesStatus } from "../../../shared/utils/merges";
 import { useMemo } from "react";
 import { addDays, differenceInDays } from "date-fns";
 import { formatDateISO } from "../../../shared/utils/formats";
+import { queryClient } from "~shared/lib/query-client";
 
 export function useTripRoutes(id: string) {
   const queryClient = useQueryClient();
@@ -84,5 +85,12 @@ export function useTripRoutes(id: string) {
 }
 
 useTripRoutes.key = (id: string) => [routeKey, id];
+
+useTripRoutes.prefetch = (id: string) => {
+  queryClient.prefetchQuery({
+    queryKey: useTripRoutes.key(id),
+    queryFn: () => getRoutesByTripId(id)
+  })
+}
 
 type OmitPartial<T, Key extends keyof T> = Partial<Omit<T, Key>> & Pick<T, Key>;
