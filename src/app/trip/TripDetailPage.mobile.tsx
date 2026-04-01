@@ -42,10 +42,10 @@ export function TripDetailPageMobile() {
 
   useActivationSignal(() => {
     TripRoutesContent.preload();
-    TripExpenseContent.preload();
+    TripExpenseContent.preload(tripId);
     TripPhotoContent.preload(tripId);
     TripPlaceContent.preload(tripId);
-  }, { sensitivity: 'high' })
+  }, { sensitivity: 'high', once: true })
 
   return (
     <Box sx={{ height: '100dvh', display: 'flex', flexDirection: 'column' }}>

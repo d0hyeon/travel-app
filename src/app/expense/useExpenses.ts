@@ -9,6 +9,7 @@ import {
 } from "./expense.api"
 import type { Expense } from "./expense.types"
 import { useTripPlaces } from "~app/trip/trip-place/useTripPlaces";
+import { queryClient } from "~shared/lib/query-client";
 
 export function useExpenses(tripId: string) {
   const queryClient = useQueryClient();
@@ -68,3 +69,9 @@ export function useExpenses(tripId: string) {
 }
 
 useExpenses.key = (tripId: string) => [tripKey, expenseKey, tripId]
+useExpenses.prefetch = (tripId: string) => {
+  queryClient.prefetchQuery({
+    queryKey: useExpenses.key(tripId),
+    queryFn: () => getExpensesByTripId(tripId)
+  })
+}

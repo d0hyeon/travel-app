@@ -1,11 +1,12 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query"
+import { queryClient } from "~shared/lib/query-client"
 import { tripKey } from "../trip.api"
 import {
+  createTripMember,
+  deleteTripMember,
   getTripMembersByTripId,
   tripMemberKey,
-  createTripMember,
-  updateTripMember,
-  deleteTripMember
+  updateTripMember
 } from "./tripMember.api"
 import type { TripMember } from "./tripMember.types"
 import { getRandomEmoji } from "./tripMember.types"
@@ -51,3 +52,9 @@ export function useTripMembers(tripId: string) {
 }
 
 useTripMembers.key = (tripId: string) => [tripKey, tripMemberKey, tripId]
+useTripMembers.prefetch = (tripId: string) => {
+  queryClient.prefetchQuery({
+    queryKey: useTripMembers.key(tripId),
+    queryFn: () => getTripMembersByTripId(tripId)
+  })
+}
