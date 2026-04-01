@@ -8,7 +8,7 @@ export function useTrips() {
     queryFn: getAllTrips,
   });
 
-  const { mutate: create } = useMutation({
+  const { mutateAsync: create } = useMutation({
     mutationFn: createTrip,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: useTrips.key() });
