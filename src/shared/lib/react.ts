@@ -16,8 +16,6 @@ export function lazy<
     preload: async(...params: Preload extends (...args: infer P) => any ? P : []) => {
       const module = await loader();
       if (module.preload instanceof Function) module.preload(...params);
-      
-      return module;
     }
   })
 }
