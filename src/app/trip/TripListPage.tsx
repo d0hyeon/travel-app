@@ -16,6 +16,7 @@ import { useOverlay } from '~shared/hooks/useOverlay'
 import { useIsMobile } from '~shared/hooks/useIsMobile'
 import { TripFormDialog } from './TripFormDialog'
 import { isOverseasByCoordinate } from '~shared/utils/geo'
+import { AppRoute } from '~app/routes'
 
 export default function TripListPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -36,7 +37,7 @@ export default function TripListPage() {
           variant="contained"
           onClick={() => {
             if (isMobile) {
-              return navigate('/trip/new');
+              return navigate(AppRoute.여행_생성);
             }
 
             overlay.open(({ isOpen, close }) => (
