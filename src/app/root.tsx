@@ -1,7 +1,7 @@
 import { Alert, AlertTitle, Button, CssBaseline, ThemeProvider, Typography } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router'
 import { ErrorBoundary } from '~shared/components/ErrorBoundary'
 import { OverlayProvider } from '~shared/hooks/useOverlay'
@@ -57,6 +57,7 @@ export default function Root() {
           >
             <OverlayProvider>
               <CssBaseline />
+              {/* <TouchRippleOverlay /> */}
               <SearchParamProvider>
                 <Outlet />
               </SearchParamProvider>
