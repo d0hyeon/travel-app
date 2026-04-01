@@ -40,6 +40,7 @@ export function DateStep({ defaultValue, onNext }: Props) {
         border: 0, boxShadow: 'none', paddingBottom: 10,
         '.MuiDateCalendar-root': {
           border: '1px solid #ddd',
+          width: '100%',
           '&:last-child': { borderTop: 0 },
         }
       }}

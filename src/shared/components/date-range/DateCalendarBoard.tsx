@@ -138,24 +138,28 @@ export const DateCalendarBoard = ({
           </Menu>
         )}
       </Stack>
+      {renderActions ? (
+        renderActions({ isEmpty, onConfirm: handleClickUpdate })
+      ) : (
+        <Stack direction="row"
+          position="sticky"
+          bottom={0}
+          alignItems="flex-end"
+          justifyContent="flex-end"
+          bgcolor={theme => theme.palette.background.paper}
+          sx={{
+            width: '100%',
+            padding: '8px',
+            borderTop: `1px solid ${palette.divider}`,
+          }}
+        >
+          <Button onClick={onClose}>취소</Button>
+          <Button variant="contained" onClick={handleClickUpdate} disabled={startDate == null || endDate == null}>
+            확인
+          </Button>
+        </Stack>
+      )}
 
-      <Stack direction="row"
-        position="sticky"
-        bottom={0}
-        alignItems="flex-end"
-        justifyContent="flex-end"
-        bgcolor={theme => theme.palette.background.paper}
-        sx={{
-          width: '100%',
-          padding: '8px',
-          borderTop: `1px solid ${palette.divider}`,
-        }}
-      >
-        <Button onClick={onClose}>취소</Button>
-        <Button variant="contained" onClick={handleClickUpdate} disabled={startDate == null || endDate == null}>
-          확인
-        </Button>
-      </Stack>
     </Paper>
   );
 };
