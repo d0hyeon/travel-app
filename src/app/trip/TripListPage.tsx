@@ -8,18 +8,24 @@ import {
   Typography
 } from '@mui/material'
 import { useState } from 'react'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { ListItem } from '../../shared/components/ListItem'
 import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
-import { isOverseasByCoordinate } from '~shared/utils/geo'
-import { TripFormDialog } from './TripFormDialog'
 import { useTrips } from './useTrips'
+import { useOverlay } from '~shared/hooks/useOverlay'
+import { useIsMobile } from '~shared/hooks/useIsMobile'
+import { TripFormDialog } from './TripFormDialog'
+import { isOverseasByCoordinate } from '~shared/utils/geo'
+import { AppRoute } from '~app/routes'
 
 export default function TripListPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const confirm = useConfirmDialog()
 
   const { data: trips, create, remove } = useTrips();
+  const overlay = useOverlay();
+  const isMobile = useIsMobile();
+  const navigate = useNavigate();
 
   return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
@@ -29,8 +35,27 @@ export default function TripListPage() {
         </Typography>
         <Button
           variant="contained"
-          onClick={() => setIsDialogOpen(true)}
+          onClick={() => {
+            if (isMobile) {
+              return navigate(AppRoute.여행_생성);
+            }
 
+            overlay.open(({ isOpen, close }) => (
+              <TripFormDialog
+                open={isOpen}
+                onClose={close}
+                onSubmit={async (data) => {
+                  const trip = await create({
+                    ...data,
+                    isOverseas: isOverseasByCoordinate(data.lat, data.lng),
+                    exchangeRate: null,
+                    exchangeRates: null
+                  })
+                  navigate(`/trip/${trip.id}`)
+                }}
+              />
+            ))
+          }}
         >
           새 여행
         </Button>

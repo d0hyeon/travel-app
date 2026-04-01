@@ -53,8 +53,17 @@ TopNavigation.HEIGHT = 50
 TopNavigation.BackButton = (props: IconButtonProps) => {
   const navigate = useNavigate();
 
+
   return (
-    <IconButton {...props} onClick={() => navigate('/')}>
+    <IconButton
+      onClick={() => {
+        if (window.history.length === 0) {
+          return navigate('/');
+        }
+        navigate(-1);
+      }}
+      {...props}
+    >
       <ArrowBackIcon />
     </IconButton>
   )
