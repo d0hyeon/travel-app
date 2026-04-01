@@ -2,6 +2,7 @@ import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-q
 import { deletePhoto, getPhotosByTripId, photoKey, uploadPhoto } from "~app/photo/photo.api";
 import type { Photo } from "~app/photo/photo.types";
 import { tripKey } from "../trip.api";
+import { queryClient } from "~shared/lib/query-client";
 
 type FileUploadParams =
   | { files?: never; file: File; placeId?: string }
@@ -40,3 +41,9 @@ export function useTripPhotos(tripId: string) {
 }
 
 useTripPhotos.key = (tripId: string) => [tripKey, photoKey, tripId];
+useTripPhotos.prefetch = (tripId: string) => {
+  queryClient.prefetchQuery({
+    queryKey: useTripPhotos.key(tripId),
+    queryFn: () => getPhotosByTripId(tripId)
+  })
+}

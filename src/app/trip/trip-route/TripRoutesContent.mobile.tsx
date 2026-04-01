@@ -48,7 +48,7 @@ interface RouteContentProps {
 const BOTTOM_SHEET_RATIOS = [0.25, 0.5, 0.8, 1] as const;
 const DEFAULT_BOTTOM_SHEET_RATIO = 0.5 satisfies typeof BOTTOM_SHEET_RATIOS[number];
 
-export function TripRoutesContent({ tripId }: RouteContentProps) {
+export default function TripRoutesContent({ tripId }: RouteContentProps) {
 
   const { data: trip } = useTrip(tripId);
   const { data: places, update: updatePlace } = useTripPlaces(tripId)

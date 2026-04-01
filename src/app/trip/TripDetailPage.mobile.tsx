@@ -27,22 +27,10 @@ import { useTripId } from './useTripId';
 
 type TabType = 'Info' | 'Place' | 'Route' | 'Expense' | 'Photo';
 
-const TripPhotoContent = lazy(async () => {
-  const module = await import('./trip-photo/TripPhotoContent.mobile.tsx')
-  return { default: module.TripPhotoContent }
-});
-
+const TripPhotoContent = lazy(() => import('./trip-photo/TripPhotoContent.mobile.tsx'));
 const TripPlaceContent = lazy(() => import('./trip-place/TripPlaceContent.mobile'));
-
-const TripRoutesContent = lazy(async () => {
-  const module = await import('./trip-route/TripRoutesContent.mobile');
-  return { default: module.TripRoutesContent }
-});
-
-const TripExpenseContent = lazy(async () => {
-  const module = await import('./trip-expense/ExpenseContent.mobile');
-  return { default: module.ExpenseContent }
-});
+const TripRoutesContent = lazy(() => import('./trip-route/TripRoutesContent.mobile'));
+const TripExpenseContent = lazy(() => import('./trip-expense/ExpenseContent.mobile'));
 
 
 export function TripDetailPageMobile() {
@@ -54,8 +42,8 @@ export function TripDetailPageMobile() {
 
   useActivationSignal(() => {
     TripRoutesContent.preload();
-    TripPhotoContent.preload();
     TripExpenseContent.preload();
+    TripPhotoContent.preload(tripId);
     TripPlaceContent.preload(tripId);
   }, { sensitivity: 'high' })
 

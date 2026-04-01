@@ -37,7 +37,7 @@ interface Props {
 
 type SubTab = 'list' | 'settlement'
 
-export function ExpenseContent({ tripId }: Props) {
+export default function ExpenseContent({ tripId }: Props) {
   const { data: trip, update: updateTrip } = useTrip(tripId)
   const { data: expenses, create, update, remove } = useExpenses(tripId)
   const { data: members } = useTripMembers(tripId);

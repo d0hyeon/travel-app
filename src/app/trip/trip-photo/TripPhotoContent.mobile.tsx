@@ -12,7 +12,11 @@ interface TripPhotoContentProps {
   tripId: string
 }
 
-export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
+export function preload(tripId: string) {
+  useTripPhotos.prefetch(tripId);
+}
+
+export default function TripPhotoContent({ tripId }: TripPhotoContentProps) {
   const { data: photos, upload, remove } = useTripPhotos(tripId)
 
   const { data: places } = useTripPlaces(tripId);
