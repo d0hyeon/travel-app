@@ -23,7 +23,7 @@ const PRESETS: Record<SensitivityPreset, { sensitivity: number; duration: number
   high: { sensitivity: 2, duration: 5000 }
 }
 
-export function useActivitySignalCallback(
+export function useActivationSignal(
   callback: () => void,
   options: Options | PresetOptions = { once: false, sensitivity: 'medium' }
 ) {

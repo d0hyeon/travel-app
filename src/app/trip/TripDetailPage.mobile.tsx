@@ -17,7 +17,7 @@ import { BottomNavigation } from '~shared/components/BottomNavigation';
 import { ErrorBoundary } from '~shared/components/ErrorBoundary.tsx';
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile.tsx';
 import { SwitchCase } from '~shared/components/SwitchCase.tsx';
-import { useActivitySignalCallback } from '~shared/hooks/useActivitySignalCallback.ts';
+import { useActivationSignal } from '~shared/hooks/useActivationSignal.ts';
 import { lazy } from '~shared/lib/react.ts';
 import { useQueryParamState } from '../../shared/hooks/useQueryParamState';
 import { TripBasicInfoContent } from './trip-basic-info/TripBasicInfoContent.mobile';
@@ -32,10 +32,7 @@ const TripPhotoContent = lazy(async () => {
   return { default: module.TripPhotoContent }
 });
 
-const TripPlaceContent = lazy(async () => {
-  const module = await import('./trip-place/TripPlaceContent.mobile');
-  return { default: module.TripPlaceContent }
-});
+const TripPlaceContent = lazy(() => import('./trip-place/TripPlaceContent.mobile'));
 
 const TripRoutesContent = lazy(async () => {
   const module = await import('./trip-route/TripRoutesContent.mobile');
@@ -55,11 +52,11 @@ export function TripDetailPageMobile() {
     defaultValue: 'Info'
   })
 
-  useActivitySignalCallback(() => {
+  useActivationSignal(() => {
     TripRoutesContent.preload();
     TripPhotoContent.preload();
     TripExpenseContent.preload();
-    TripPhotoContent.preload();
+    TripPlaceContent.preload(tripId);
   }, { sensitivity: 'high' })
 
   return (

@@ -19,7 +19,11 @@ interface PlaceContentProps {
 const BOTTOM_SHEET_RATIOS = [0.25, 0.5, 0.8, 1] as const;
 const DEFAULT_BOTTOM_SHEET_RATIO = 0.5 satisfies typeof BOTTOM_SHEET_RATIOS[number];
 
-export function TripPlaceContent({ tripId }: PlaceContentProps) {
+export function preload(id: string) {
+
+}
+
+export default function TripPlaceContent({ tripId }: PlaceContentProps) {
   const { data: trip } = useTrip(tripId)
   const { data: places, create } = useTripPlaces(tripId)
   const { data: { routes } } = useTripRoutes(tripId)
