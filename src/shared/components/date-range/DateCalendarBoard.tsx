@@ -1,5 +1,6 @@
 
-import { Button, Paper, Stack, Typography, useTheme } from '@mui/material';
+import { Button, Paper, Stack, Typography, useTheme, type PaperProps } from '@mui/material';
+import type { ReactNode } from 'react';
 import { DateCalendar } from '@mui/x-date-pickers';
 import { type PickerValue } from '@mui/x-date-pickers/internals';
 import { differenceInDays, isBefore, isEqual, isSameDay, isToday, set, subMonths, addMonths } from 'date-fns';
@@ -15,13 +16,26 @@ type Props = {
   defaultValue?: DateRange;
   onClose?: () => void;
   onChange?: (value: DateRange) => void;
+  renderActions?: (params: RenderActionsParams) => ReactNode;
+} & Omit<PaperProps, 'defaultValue' | 'onChange'>;
+
+type RenderActionsParams = {
+  isEmpty: boolean;
+  onConfirm: () => void;
 };
 
 const today = set(Date.now(), { hours: 0, minutes: 0, seconds: 0, milliseconds: 0 });
 const differenceFromToday = (date: Date | string | number) => differenceInDays(today, date);
 const setEndTime = (date: Date) => set(date, { hours: 23, minutes: 59, seconds: 59, milliseconds: 999 });
 
-export const DateCalendarBoard = ({ defaultValue, onChange, onClose }: Props) => {
+export const DateCalendarBoard = ({
+  defaultValue,
+  onChange,
+  onClose,
+  renderActions,
+  sx,
+  ...props
+}: Props) => {
   const { palette } = useTheme();
   const [defaultStartDate, defaultEndDate] = defaultValue ?? [];
   const [startDate, setStartDate] = useState<Date | null>(defaultStartDate ?? null);
@@ -64,12 +78,15 @@ export const DateCalendarBoard = ({ defaultValue, onChange, onClose }: Props) =>
 
   return (
     <Paper
-      sx={{
+      sx={[{
         overflowY: 'auto',
         backgroundColor: 'white',
         boxShadow:
           '0px 3px 14px 2px rgba(0, 0, 0, 0.12), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 5px 5px -3px rgba(0, 0, 0, 0.20)',
-      }}
+      },
+      ...(Array.isArray(sx) ? sx : [sx])
+      ]}
+      {...props}
     >
       <Stack direction={isMobile ? 'column' : "row"}>
         <DateCalendar
