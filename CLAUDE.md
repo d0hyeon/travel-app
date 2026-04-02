@@ -21,12 +21,14 @@
 
 ## 라우팅
 
+<!-- ROUTES:START -->
 ```
-/                   → TripListPage          (여행 목록)
-/trip/new           → TripCreatePage        (여행 생성 마법사)
-/trip/:tripId       → TripDetailPage        (여행 상세)
-*                   → NotFound
+/               → TripListPage
+/trip/:tripId   → TripDetailPage
+/trip/new       → TripCreatePage
+*               → NotFound
 ```
+<!-- ROUTES:END -->
 
 **파일 위치:** `src/app/routes.ts`
 
