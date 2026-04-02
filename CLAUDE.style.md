@@ -89,6 +89,21 @@ interface Props extends BoxProps {
 
 ---
 
+## 캡슐화
+
+내부에서 해결할 수 있는 것은 인터페이스로 드러내지 않는다.
+호출부가 알 필요 없는 정보는 모듈 스스로 결정한다.
+
+```ts
+// ✗ — 호출부가 알 필요 없는 값을 요구
+function createUser(createdAt: Date) { ... }
+
+// ✓ — 내부에서 직접 결정
+function createUser() { const createdAt = new Date(); ... }
+```
+
+---
+
 ## 코드 작성 원칙
 
 - 요청을 구현하기 전, 설계 원칙·확장성·인터페이스 적절성을 스스로 검토한다
