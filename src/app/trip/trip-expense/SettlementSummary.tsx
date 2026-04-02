@@ -30,8 +30,6 @@ export function SettlementSummary({ tripId, balances, settlements, formatAmount 
       return [memberId, paidInKRW]
     })
   )
-  const totalPaid = Array.from(memberPaidMap.values()).reduce((sum, v) => sum + v, 0)
-  const totalBalance = balances.reduce((sum, { balance }) => sum + balance, 0)
 
   return (
     <Stack spacing={3}>
@@ -46,6 +44,8 @@ export function SettlementSummary({ tripId, balances, settlements, formatAmount 
 
             if (!member) return null;
             const paidInKRW = memberPaidMap.get(memberId) ?? 0
+
+            const total = paidInKRW + balance
 
             return (
               <Card key={memberId} variant="outlined">
@@ -64,7 +64,6 @@ export function SettlementSummary({ tripId, balances, settlements, formatAmount 
                           <Typography variant="body2">
                             {formatCurrency(paidInKRW)}
                           </Typography>
-
                         </Stack>
                         <Stack direction="row" gap={2} justifyContent="space-between">
                           <Typography variant="caption" color="text.secondary">
@@ -76,7 +75,15 @@ export function SettlementSummary({ tripId, balances, settlements, formatAmount 
                           >
                             {balance > 0 ? '+' : ''}{formatAmount(balance)}
                           </Typography>
-
+                        </Stack>
+                        <Divider />
+                        <Stack direction="row" gap={2} justifyContent="space-between">
+                          <Typography variant="caption" color="text.secondary" fontWeight="medium">
+                            합계
+                          </Typography>
+                          <Typography variant="body2" fontWeight="bold">
+                            {formatCurrency(total)}
+                          </Typography>
                         </Stack>
                       </Stack>
                     </Box>
@@ -85,33 +92,6 @@ export function SettlementSummary({ tripId, balances, settlements, formatAmount 
               </Card>
             )
           })}
-          {/* 합계 */}
-          <Box px={1.5} pt={0.5}>
-            <Stack direction="row" justifyContent="flex-end">
-              <Stack gap={0.5} minWidth={150}>
-                <Stack direction="row" gap={2} justifyContent="space-between">
-                  <Typography variant="caption" color="text.secondary" fontWeight="medium">
-                    총 지출금
-                  </Typography>
-                  <Typography variant="body2" fontWeight="bold">
-                    {formatCurrency(totalPaid)}
-                  </Typography>
-                </Stack>
-                <Stack direction="row" gap={2} justifyContent="space-between">
-                  <Typography variant="caption" color="text.secondary" fontWeight="medium">
-                    총 정산금
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    fontWeight="bold"
-                    color={totalBalance > 0 ? 'primary.main' : totalBalance < 0 ? 'error.main' : 'text.secondary'}
-                  >
-                    {totalBalance > 0 ? '+' : ''}{formatAmount(totalBalance)}
-                  </Typography>
-                </Stack>
-              </Stack>
-            </Stack>
-          </Box>
         </Stack>
       </Box>
 
