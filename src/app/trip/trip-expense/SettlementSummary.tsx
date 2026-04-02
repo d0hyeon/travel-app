@@ -20,6 +20,17 @@ export function SettlementSummary({ tripId, balances, settlements, formatAmount 
   const { data: members } = useTripMembers(tripId)
   const memberMap = new Map(members.map(m => [m.id, m]))
 
+  const memberPaidMap = new Map(
+    balances.map(({ memberId }) => {
+      const paidInKRW = expenses.reduce((sum, e) => {
+        const payment = e.payments.find(p => p.memberId === memberId)
+        if (!payment) return sum
+        return sum + convertToKRW(payment.amount, e.currency, exchangeRates)
+      }, 0)
+      return [memberId, paidInKRW]
+    })
+  )
+
   return (
     <Stack spacing={3}>
       {/* 개인별 잔액 */}
@@ -32,11 +43,9 @@ export function SettlementSummary({ tripId, balances, settlements, formatAmount 
             const member = memberMap.get(memberId)
 
             if (!member) return null;
-            const paidInKRW = expenses.reduce((sum, e) => {
-              const payment = e.payments.find(p => p.memberId === memberId)
-              if (!payment) return sum
-              return sum + convertToKRW(payment.amount, e.currency, exchangeRates)
-            }, 0)
+            const paidInKRW = memberPaidMap.get(memberId) ?? 0
+
+            const total = paidInKRW + balance
 
             return (
               <Card key={memberId} variant="outlined">
@@ -55,7 +64,6 @@ export function SettlementSummary({ tripId, balances, settlements, formatAmount 
                           <Typography variant="body2">
                             {formatCurrency(paidInKRW)}
                           </Typography>
-
                         </Stack>
                         <Stack direction="row" gap={2} justifyContent="space-between">
                           <Typography variant="caption" color="text.secondary">
@@ -67,7 +75,15 @@ export function SettlementSummary({ tripId, balances, settlements, formatAmount 
                           >
                             {balance > 0 ? '+' : ''}{formatAmount(balance)}
                           </Typography>
-
+                        </Stack>
+                        <Divider />
+                        <Stack direction="row" gap={2} justifyContent="space-between">
+                          <Typography variant="caption" color="text.secondary" fontWeight="medium">
+                            합계
+                          </Typography>
+                          <Typography variant="body2" fontWeight="bold">
+                            {formatCurrency(total)}
+                          </Typography>
                         </Stack>
                       </Stack>
                     </Box>
