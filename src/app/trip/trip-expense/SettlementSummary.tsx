@@ -20,6 +20,19 @@ export function SettlementSummary({ tripId, balances, settlements, formatAmount 
   const { data: members } = useTripMembers(tripId)
   const memberMap = new Map(members.map(m => [m.id, m]))
 
+  const memberPaidMap = new Map(
+    balances.map(({ memberId }) => {
+      const paidInKRW = expenses.reduce((sum, e) => {
+        const payment = e.payments.find(p => p.memberId === memberId)
+        if (!payment) return sum
+        return sum + convertToKRW(payment.amount, e.currency, exchangeRates)
+      }, 0)
+      return [memberId, paidInKRW]
+    })
+  )
+  const totalPaid = Array.from(memberPaidMap.values()).reduce((sum, v) => sum + v, 0)
+  const totalBalance = balances.reduce((sum, { balance }) => sum + balance, 0)
+
   return (
     <Stack spacing={3}>
       {/* 개인별 잔액 */}
@@ -32,11 +45,7 @@ export function SettlementSummary({ tripId, balances, settlements, formatAmount 
             const member = memberMap.get(memberId)
 
             if (!member) return null;
-            const paidInKRW = expenses.reduce((sum, e) => {
-              const payment = e.payments.find(p => p.memberId === memberId)
-              if (!payment) return sum
-              return sum + convertToKRW(payment.amount, e.currency, exchangeRates)
-            }, 0)
+            const paidInKRW = memberPaidMap.get(memberId) ?? 0
 
             return (
               <Card key={memberId} variant="outlined">
@@ -76,6 +85,33 @@ export function SettlementSummary({ tripId, balances, settlements, formatAmount 
               </Card>
             )
           })}
+          {/* 합계 */}
+          <Box px={1.5} pt={0.5}>
+            <Stack direction="row" justifyContent="flex-end">
+              <Stack gap={0.5} minWidth={150}>
+                <Stack direction="row" gap={2} justifyContent="space-between">
+                  <Typography variant="caption" color="text.secondary" fontWeight="medium">
+                    총 지출금
+                  </Typography>
+                  <Typography variant="body2" fontWeight="bold">
+                    {formatCurrency(totalPaid)}
+                  </Typography>
+                </Stack>
+                <Stack direction="row" gap={2} justifyContent="space-between">
+                  <Typography variant="caption" color="text.secondary" fontWeight="medium">
+                    총 정산금
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    fontWeight="bold"
+                    color={totalBalance > 0 ? 'primary.main' : totalBalance < 0 ? 'error.main' : 'text.secondary'}
+                  >
+                    {totalBalance > 0 ? '+' : ''}{formatAmount(totalBalance)}
+                  </Typography>
+                </Stack>
+              </Stack>
+            </Stack>
+          </Box>
         </Stack>
       </Box>
 
