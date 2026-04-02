@@ -51,11 +51,12 @@ const { initialSnap, height } = getInitialState({ maxHeight: window.height, ... 
 ```
 ```tsx
 // X
+type UseInputValue = { meassge?: string; onChange: (e: InputEvent) => void } 
 function useInput(rules: Rules): UseInputValue
-function Input(props: UseInput) { ... }
+function Field(props: UseInputValue) { ... }
 
 // O
-function Input(props: InputProps & Rules) { ... }
+function Field(props: InputProps & Rules) { ... }
 ```
 ---
 
