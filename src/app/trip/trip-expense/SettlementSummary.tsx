@@ -27,7 +27,11 @@ export function SettlementSummary({ tripId, balances, settlements, formatAmount 
         if (!payment) return sum
         return sum + convertToKRW(payment.amount, e.currency, exchangeRates)
       }, 0)
-      return [memberId, paidInKRW]
+      const fairShare = expenses.reduce((sum, e) => {
+        if (!e.splitAmong.includes(memberId)) return sum
+        return sum + convertToKRW(e.totalAmount, e.currency, exchangeRates) / e.splitAmong.length
+      }, 0)
+      return [memberId, { paidInKRW, fairShare }]
     })
   )
 
@@ -43,9 +47,7 @@ export function SettlementSummary({ tripId, balances, settlements, formatAmount 
             const member = memberMap.get(memberId)
 
             if (!member) return null;
-            const paidInKRW = memberPaidMap.get(memberId) ?? 0
-
-            const total = paidInKRW - balance
+            const { paidInKRW, fairShare } = memberPaidMap.get(memberId) ?? { paidInKRW: 0, fairShare: 0 }
 
             return (
               <Card key={memberId} variant="outlined">
@@ -82,7 +84,7 @@ export function SettlementSummary({ tripId, balances, settlements, formatAmount 
                             총 지출금
                           </Typography>
                           <Typography variant="body2">
-                            {formatCurrency(total)}
+                            {formatCurrency(Math.round(fairShare))}
                           </Typography>
                         </Stack>
                       </Stack>
