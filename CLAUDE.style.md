@@ -37,7 +37,9 @@ const members = rows.map(toMember)
 - 각 모듈은 하나의 명확한 책임만 가진다
 - 인터페이스가 어색하게 느껴지면 책임 과중 신호 → 분리 검토
 - 모듈 이름만으로 역할이 예측 가능해야 한다
-- 단일 책임으로 분리된 모듈 중, 그저 구조화된 리소스를 만드는 모듈과 그 리소스를 입력 받아 최종 결과를 만들어내는 모듈이 협력하는 구조라면 강한 결합이 형성되어 변경을 어렵게 만드며 분리의 목적이 없다. 재사용하는게 아니라면 책임 재정의를 검토한다.
+- 그저 구조화된 리소스를 만드는 모듈과 그 리소스로 최종 결과를 만들어내는 모듈이 분리되어 결합하는 구조라면 
+강한 결합이 형성되어 변경을 어렵게 만든다.
+재사용 여지가 없거나 DI가 아니라면 분리의 목적이 없으므로 책임 재정의를 검토한다.
 
 ```ts
 // X
@@ -47,7 +49,14 @@ const { initialSnap, height } = getInitialState({ calculateSize, ... }) // calcu
 // O
 const { initialSnap, height } = getInitialState({ maxHeight: window.height, ... }) // calculateSize를 내부로 흡수
 ```
+```tsx
+// X
+function useInput(rules: Rules): UseInputValue
+function Input(props: UseInput) { ... }
 
+// O
+function Input(props: InputProps & Rules) { ... }
+```
 ---
 
 ## 컴포넌트 인터페이스
