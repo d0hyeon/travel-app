@@ -45,7 +45,7 @@ export function SettlementSummary({ tripId, balances, settlements, formatAmount 
             if (!member) return null;
             const paidInKRW = memberPaidMap.get(memberId) ?? 0
 
-            const total = paidInKRW + balance
+            const total = paidInKRW - balance
 
             return (
               <Card key={memberId} variant="outlined">
