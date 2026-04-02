@@ -79,9 +79,9 @@ export function SettlementSummary({ tripId, balances, settlements, formatAmount 
                         <Divider />
                         <Stack direction="row" gap={2} justifyContent="space-between">
                           <Typography variant="caption" color="text.secondary" fontWeight="medium">
-                            합계
+                            총 지출금
                           </Typography>
-                          <Typography variant="body2" fontWeight="bold">
+                          <Typography variant="body2">
                             {formatCurrency(total)}
                           </Typography>
                         </Stack>
