@@ -306,19 +306,21 @@ export function ExpenseContent({ tripId }: Props) {
                                 </Typography>
                               )}
                             </Stack>
-                            <Stack direction="row" spacing={0.5} mt={0.5} flexWrap="wrap" useFlexGap>
-                              {expense.splitAmong.map(id => {
-                                const member = memberMap.get(id);
-                                return (
-                                  <Chip
-                                    key={id}
-                                    size="small"
-                                    variant="outlined"
-                                    label={`${member?.emoji} ${member?.name}`}
-                                  />
-                                )
-                              })}
-                            </Stack>
+                            {expense.splitAmong.length < members.length && (
+                              <Stack direction="row" spacing={0.5} mt={0.5} flexWrap="wrap" useFlexGap>
+                                {expense.splitAmong.map(id => {
+                                  const member = memberMap.get(id);
+                                  return (
+                                    <Chip
+                                      key={id}
+                                      size="small"
+                                      variant="outlined"
+                                      label={`${member?.emoji} ${member?.name}`}
+                                    />
+                                  )
+                                })}
+                              </Stack>
+                            )}
                           </Box>
                           <Stack direction="row" alignItems="center" spacing={1}>
                             {!is엔빵 && (

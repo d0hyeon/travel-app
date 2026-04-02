@@ -245,17 +245,19 @@ export default function ExpenseContent({ tripId }: Props) {
                                 {expense.place.name}
                               </ListItem.Text>
                             )}
-                            <Stack direction="row" spacing={0.5} alignItems="center" flexWrap="wrap" useFlexGap>
-                              <GroupIcon sx={{ fontSize: 14 }} />
-                              {expense.splitAmong.map(id => {
-                                const member = memberMap.get(id);
-                                return (
-                                  <ListItem.Text key={id} variant="caption">
-                                    {member?.name}
-                                  </ListItem.Text>
-                                )
-                              })}
-                            </Stack>
+                            {expense.splitAmong.length < members.length && (
+                              <Stack direction="row" spacing={0.5} alignItems="center" flexWrap="wrap" useFlexGap>
+                                <GroupIcon sx={{ fontSize: 14 }} />
+                                {expense.splitAmong.map(id => {
+                                  const member = memberMap.get(id);
+                                  return (
+                                    <ListItem.Text key={id} variant="caption">
+                                      {member?.name}
+                                    </ListItem.Text>
+                                  )
+                                })}
+                              </Stack>
+                            )}
                           </Box>
                           <Stack direction="row" alignItems="center">
                             {!is엔빵 && (
