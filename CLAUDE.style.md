@@ -37,6 +37,16 @@ const members = rows.map(toMember)
 - 각 모듈은 하나의 명확한 책임만 가진다
 - 인터페이스가 어색하게 느껴지면 책임 과중 신호 → 분리 검토
 - 모듈 이름만으로 역할이 예측 가능해야 한다
+- 단일 책임으로 분리된 모듈 중, 그저 구조화된 리소스를 만드는 모듈과 그 리소스를 입력 받아 최종 결과를 만들어내는 모듈이 협력하는 구조라면 강한 결합이 형성되어 변경을 어렵게 만드며 분리의 목적이 없다. 재사용하는게 아니라면 책임 재정의를 검토한다.
+
+```ts
+// X
+const calculateSize = createBoxSizeCalculator(window.innerHeight)
+const { initialSnap, height } = getInitialState({ calculateSize, ... }) // calculateSize는 결국 getInitialState에서만 쓰인다
+
+// O
+const { initialSnap, height } = getInitialState({ maxHeight: window.height, ... }) // calculateSize를 내부로 흡수
+```
 
 ---
 
@@ -119,6 +129,7 @@ createUser.isDefinedError = (error: unknown): error is CreateUserErrorType => {
 
 ```
 
+
 ---
 
 ## 의존성 노출
@@ -135,6 +146,13 @@ function createUser() { const createdAt = new Date(); ... }
 ```ts
 // 날짜 범위는 호출부가 결정해야 할 값
 function fetchExpenses(startDate: Date, endDate: Date) { ... }
+
+// 호출부에 따라 결과가 달라질수 있다 (폴더링, 네이밍을 통한 표현)
+// something/DateField → something/something-form/SomethingDateField
+function DateField() { // → SomethingDateField
+  const { control } = useFormContext()
+  const conttoller = useController({ control });
+}
 ```
 
 판단이 어렵다면 두 가지를 확인한다:
@@ -150,3 +168,5 @@ function fetchExpenses(startDate: Date, endDate: Date) { ... }
 - 요청을 구현하기 전, 설계 원칙·확장성·인터페이스 적절성을 스스로 검토한다
 - 더 나은 방안이 있거나 트레이드오프가 있으면 구현 전에 피드백한다
 - 불필요한 추상화·미래 대비 코드는 작성하지 않는다
+- 암묵적인 결합이나 의존이 없도록 한다.
+
