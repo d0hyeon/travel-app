@@ -102,6 +102,21 @@ function createUser(createdAt: Date) { ... }
 function createUser() { const createdAt = new Date(); ... }
 ```
 
+외부에서 알필요가 있는 정보는 열려 있어야 한다.
+```ts
+export const ErrorCases = {
+  유효성: 0001
+  중복: 0002
+} as const;
+
+/** thorws {ErrorCases} - 도메인 규칙에 의거한 에러 **/
+export function createUser() 
+createUser.isDefinedError = (error: unknown): error is ErrorCases => {
+  ...
+}
+
+```
+
 ---
 
 ## 의존성 노출
