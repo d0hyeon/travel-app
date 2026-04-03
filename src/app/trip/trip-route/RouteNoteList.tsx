@@ -2,8 +2,8 @@ import { Button, Stack, TextField, Typography, type StackProps } from "@mui/mate
 import { useCallback, useState } from "react"
 import { EditableText } from "~shared/components/EditableText"
 import CloseIcon from '@mui/icons-material/Close';
-import { usePromptDialog } from "~shared/modules/confirm-dialog/usePromptDialog";
-import { DialogTitle } from "~shared/modules/confirm-dialog/DialogTitle";
+import { usePromptDialog } from "~shared/components/confirm-dialog/usePromptDialog";
+import { DialogTitle } from "~shared/components/confirm-dialog/DialogTitle";
 
 type Action = 'immediately' | 'dialog'
 

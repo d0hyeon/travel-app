@@ -3,9 +3,9 @@ import { useCallback, useId, type ReactNode } from "react";
 import { PlaceForm, type PlaceFormValues } from "~app/place/PlaceForm";
 import { BottomSheet } from "~shared/components/BottomSheet";
 import { useOverlay } from "~shared/hooks/useOverlay";
-import { DialogTitle } from "~shared/modules/confirm-dialog/DialogTitle";
+import { DialogTitle } from "~shared/components/confirm-dialog/DialogTitle";
 import { useTripPlaces } from "../trip-place/useTripPlaces";
-import { assert } from "~shared/lib/assert";
+import { assert } from "~shared/utils/assert";
 import { PlacePhotoSection } from "~app/trip/trip-place/PlacePhotoSection";
 
 interface PlaceFormOverlayProps {

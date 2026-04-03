@@ -5,7 +5,7 @@ import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import { IconButton, Skeleton, Stack, Typography, type StackProps } from "@mui/material";
 import { ListItem } from "~shared/components/ListItem";
 import { PopMenu } from "~shared/components/PopMenu";
-import { useConfirmDialog } from "~shared/modules/confirm-dialog/useConfirmDialog";
+import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
 import { useTripMemo } from "./useTripMemo";
 
 interface Props extends StackProps {

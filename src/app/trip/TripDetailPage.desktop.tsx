@@ -14,7 +14,7 @@ import { TripBasicInfoContent } from './trip-basic-info/TripBasicInfoContent.des
 import { ErrorBoundary } from '~shared/components/ErrorBoundary.tsx'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.desktop.tsx'
 import { SwitchCase } from '~shared/components/SwitchCase'
-import { lazy } from '~shared/lib/react'
+import { lazy } from '~shared/utils/react'
 import { TripNameEditableText } from './TripNameEditableText.tsx'
 import { useTripId } from './useTripId'
 

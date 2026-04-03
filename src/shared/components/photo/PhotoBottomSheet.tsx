@@ -10,7 +10,7 @@ import 'swiper/css';
 // @ts-ignore
 import 'swiper/css/virtual';
 
-import { useConfirmDialog } from "~shared/modules/confirm-dialog/useConfirmDialog";
+import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
 import { ZoomArea } from "../ZoomArea";
 import { Virtual } from 'swiper/modules';
 

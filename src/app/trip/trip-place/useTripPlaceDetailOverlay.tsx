@@ -7,7 +7,7 @@ import { useCallback } from 'react';
 import { useOverlay } from '../../../shared/hooks/useOverlay';
 import { useTripPlaces } from './useTripPlaces';
 import { assert } from '../../../shared/lib/assert';
-import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog';
+import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog';
 import { PlacePhotoSection } from './PlacePhotoSection';
 
 interface PlaceDetailOverlayProps {

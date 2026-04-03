@@ -18,7 +18,7 @@ import { ErrorBoundary } from '~shared/components/ErrorBoundary.tsx';
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile.tsx';
 import { SwitchCase } from '~shared/components/SwitchCase.tsx';
 import { useActivationSignal } from '~shared/hooks/useActivationSignal.ts';
-import { lazy } from '~shared/lib/react.ts';
+import { lazy } from '~shared/utils/react.ts';
 import { useQueryParamState } from '../../shared/hooks/useQueryParamState';
 import { TripBasicInfoContent } from './trip-basic-info/TripBasicInfoContent.mobile';
 import { TripNameEditableText } from './TripNameEditableText.tsx';

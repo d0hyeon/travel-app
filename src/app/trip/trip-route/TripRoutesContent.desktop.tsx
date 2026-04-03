@@ -15,7 +15,7 @@ import {
   Typography
 } from '@mui/material'
 import { useMemo, useRef, useState } from 'react'
-import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
+import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { SortableItem } from '../../../shared/components/dnd/SortableItem'
 import { SortableList } from '../../../shared/components/dnd/SortableList'
 import { Map, type MapRef } from '../../../shared/components/Map'

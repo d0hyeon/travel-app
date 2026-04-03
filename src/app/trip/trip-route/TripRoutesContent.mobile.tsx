@@ -9,7 +9,7 @@ import { Box, Button, Chip, IconButton, Stack, styled, Tab, Tabs, ToggleButton, 
 import { useMemo, useRef, useState } from "react";
 import { BottomArea } from '~shared/components/BottomArea';
 import { useQueryParamState } from '~shared/hooks/useQueryParamState';
-import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog';
+import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog';
 import { BottomSheet } from "../../../shared/components/BottomSheet";
 import { Map, type MapRef } from "../../../shared/components/Map";
 import { ListItem } from "../../../shared/components/ListItem";

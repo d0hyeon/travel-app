@@ -113,6 +113,7 @@ src/
     │   │   ├── index.tsx
     │   │   ├── kakao/
     │   │   └── google/
+    │   ├── confirm-dialog/     # 확인 다이얼로그 시스템
     │   ├── date-range/         # 날짜 범위 선택기
     │   ├── dnd/                # 드래그 앤 드롭 (@dnd-kit)
     │   ├── layout/             # TopNavigation (mobile / desktop)
@@ -121,24 +122,25 @@ src/
     │   ├── PopMenu.tsx
     │   └── EditableText.tsx
     │
+    ├── config/
+    │   └── theme.ts            # MUI 테마
+    │
     ├── hooks/
     │   ├── useIsMobile.ts      # 반응형 분기
     │   ├── useOverlay.tsx      # 오버레이/모달 시스템
     │   ├── useQueryParam.ts    # URL 쿼리 파라미터
+    │   ├── useSearchParams.tsx # SearchParam 컨텍스트
     │   └── usePlaceSearch.ts   # 장소 검색
     │
-    ├── lib/
+    ├── lib/                    # 외부 라이브러리 어댑터
     │   ├── supabase.ts         # Supabase 클라이언트
     │   ├── query-client.ts     # React Query 설정
     │   ├── database.types.ts   # Supabase 자동 생성 타입 (yarn gen-types)
-    │   ├── kakao.ts
-    │   └── kakaoMobility.ts
-    │
-    ├── modules/
-    │   ├── theme.ts            # MUI 테마
-    │   └── confirm-dialog/     # 확인 다이얼로그 시스템
+    │   ├── kakao.ts            # Kakao Maps SDK 어댑터
+    │   └── kakaoMobility.ts    # Kakao Mobility API 어댑터
     │
     └── utils/
+        ├── assert.ts           # 단언 유틸
         ├── formats.ts          # 날짜/숫자 포맷
         ├── geo.ts              # 위치 유틸
         └── common.ts

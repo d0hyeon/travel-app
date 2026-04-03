@@ -2,7 +2,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import { Box, Button, Card, CardContent, CardHeader, IconButton, Skeleton, Stack, TextField, Typography } from "@mui/material"
 import { Suspense, useState } from 'react'
-import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
+import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { EditableText } from '../../../shared/components/EditableText'
 import { ListItem } from '../../../shared/components/ListItem'
 import { getRandomEmoji } from './tripMember.types'

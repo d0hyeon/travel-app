@@ -1,6 +1,6 @@
 import { Button } from "@mui/material";
 import { ExpenseFormOverlayActions } from "./useExpenseFormOverlay";
-import { useConfirmDialog } from "~shared/modules/confirm-dialog/useConfirmDialog";
+import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
 import { useExpenses } from "~app/expense/useExpenses";
 
 type Props = {
