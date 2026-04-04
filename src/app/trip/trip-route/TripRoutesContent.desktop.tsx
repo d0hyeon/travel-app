@@ -22,7 +22,7 @@ import { Map, type MapRef } from '../../../shared/components/Map'
 import { ListItem } from '../../../shared/components/ListItem'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
-import { useRoadPath } from '../../route/road-path/useRoadPath'
+import { useRoadRoute } from '../../route/road-route/useRoadRoute'
 import { formatDate, formatDateISO } from '../../../shared/utils/formats'
 import { PlaceSearchDialog, type PlaceSearchResult } from '../../place/place-search/PlaceSearchDialog'
 import { PlaceCategoryColorCode } from '../../place/place.types'
@@ -422,7 +422,7 @@ interface RoutePathProps {
 }
 
 function RoutePath({ waypoints, color, isSelected }: RoutePathProps) {
-  const coordinates = useRoadPath({ waypoints })
+  const coordinates = useRoadRoute({ waypoints })
 
   if (!coordinates || coordinates.length < 2) return null
 

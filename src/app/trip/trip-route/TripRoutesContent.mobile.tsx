@@ -17,7 +17,7 @@ import { PopMenu } from "../../../shared/components/PopMenu";
 import { SortableItem } from "../../../shared/components/dnd/SortableItem";
 import { SortableList } from "../../../shared/components/dnd/SortableList";
 import { useOverlay } from "../../../shared/hooks/useOverlay";
-import { useRoadPath } from "../../route/road-path/useRoadPath";
+import { useRoadRoute } from "../../route/road-route/useRoadRoute";
 import { formatDate, formatDateISO } from "../../../shared/utils/formats";
 import { PlaceCategoryColorCode } from "../../place/place.types";
 import { useTripPlaces } from "../trip-place/useTripPlaces";
@@ -434,7 +434,7 @@ function PlaceMenu({ onEdit, onDelete }: PlaceMenuProps) {
 }
 
 function RoutePath({ waypoints, color, isSelected }: RoutePathProps) {
-  const coordinates = useRoadPath({ waypoints })
+  const coordinates = useRoadRoute({ waypoints })
 
   if (!coordinates || coordinates.length < 2) return null
 

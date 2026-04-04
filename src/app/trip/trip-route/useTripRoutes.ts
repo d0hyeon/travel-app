@@ -1,12 +1,12 @@
 import { useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getRoutesByTripId, routeKey, createRoute, updateRoute, deleteRoute } from "../../route/route.api";
-import { assert } from "../../../shared/lib/assert";
+import { assert } from '~shared/utils/assert';
 import { useTrip } from "../useTrip";
 import { mergeQueriesStatus } from "../../../shared/utils/merges";
 import { useMemo } from "react";
 import { addDays, differenceInDays } from "date-fns";
 import { formatDateISO } from "../../../shared/utils/formats";
-import { queryClient } from "~shared/lib/query-client";
+import { queryClient } from "~app/lib/query-client";
 
 export function useTripRoutes(id: string) {
   const queryClient = useQueryClient();

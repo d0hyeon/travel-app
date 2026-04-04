@@ -1,9 +1,9 @@
-import { supabase } from '../../shared/lib/supabase'
+import { supabase } from '~app/lib/supabase'
 import type { Trip } from './trip.types'
 import { formatDate } from '../../shared/utils/formats';
 import { deletePhotosByTripId } from '~app/photo/photo.api';
 import { getCurrencyByDestination, type ExchangeRateEntry } from '../expense/currency';
-import type { DataRaw } from '~shared/lib/database-row.types';
+import type { DataRaw } from '~app/lib/database-row.types';
 import { getRandomEmoji } from './trip-member/tripMember.types';
 
 function getDatesBetween(startDate: string, endDate: string): string[] {

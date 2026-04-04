@@ -2,7 +2,7 @@ import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-q
 import { deletePhoto, getPhotosByTripId, photoKey, uploadPhoto } from "~app/photo/photo.api";
 import type { Photo } from "~app/photo/photo.types";
 import { tripKey } from "../trip.api";
-import { queryClient } from "~shared/lib/query-client";
+import { queryClient } from "~app/lib/query-client";
 
 type FileUploadParams =
   | { files?: never; file: File; placeId?: string }

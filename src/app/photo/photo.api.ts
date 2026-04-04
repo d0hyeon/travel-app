@@ -1,5 +1,5 @@
-import type { DataRaw } from '~shared/lib/database-row.types';
-import { supabase } from '../../shared/lib/supabase'
+import type { DataRaw } from '~app/lib/database-row.types';
+import { supabase } from '~app/lib/supabase'
 import type { Photo, PhotoUploadParams } from './photo.types'
 import { heicTo, isHeic } from 'heic-to'
 import Resizer from 'react-image-file-resizer';

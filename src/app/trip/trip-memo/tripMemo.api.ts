@@ -1,6 +1,6 @@
-import { supabase } from "~shared/lib/supabase";
+import { supabase } from "~app/lib/supabase";
 import type { TripMemo } from "./tripMemo.type";
-import type { DataRaw } from "~shared/lib/database-row.types";
+import type { DataRaw } from "~app/lib/database-row.types";
 
 
 function toData(row: DataRaw<'memos'>): TripMemo {

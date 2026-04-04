@@ -43,7 +43,13 @@ src/
 ├── app/                        # 기능별 모듈
 │   ├── routes.ts               # 라우트 정의
 │   ├── root.tsx                # 루트 레이아웃 & 전역 Provider
-│   ├── database.ts             # IndexedDB 초기화
+│   ├── client-database.ts      # IndexedDB 초기화
+│   │
+│   ├── lib/                    # 외부 라이브러리 어댑터
+│   │   ├── supabase.ts         # Supabase 클라이언트
+│   │   ├── query-client.ts     # React Query 설정
+│   │   ├── database.types.ts   # Supabase 자동 생성 타입 (yarn gen-types)
+│   │   └── database-row.types.ts
 │   │
 │   ├── expense/                # 지출 도메인 (공통 로직)
 │   │   ├── expense.api.ts      # Supabase CRUD
@@ -66,9 +72,10 @@ src/
 │   ├── route/                  # 경로 도메인
 │   │   ├── route.api.ts
 │   │   ├── route.types.ts
-│   │   └── road-path/          # 실제 도로 경로 (Google Maps Directions)
-│   │       ├── roadPath.api.ts
-│   │       └── useRoadPath.ts
+│   │   └── road-route/         # 실제 도로 경로 (Google Maps Directions)
+│   │       ├── roadRoute.api.ts
+│   │       ├── roadRoute.schema.ts
+│   │       └── useRoadRoute.ts
 │   │
 │   └── trip/                   # 여행 도메인 (메인 기능)
 │       ├── trip.api.ts
@@ -132,13 +139,6 @@ src/
     │   ├── useSearchParams.tsx # SearchParam 컨텍스트
     │   └── usePlaceSearch.ts   # 장소 검색
     │
-    ├── lib/                    # 외부 라이브러리 어댑터
-    │   ├── supabase.ts         # Supabase 클라이언트
-    │   ├── query-client.ts     # React Query 설정
-    │   ├── database.types.ts   # Supabase 자동 생성 타입 (yarn gen-types)
-    │   ├── kakao.ts            # Kakao Maps SDK 어댑터
-    │   └── kakaoMobility.ts    # Kakao Mobility API 어댑터
-    │
     └── utils/
         ├── assert.ts           # 단언 유틸
         ├── formats.ts          # 날짜/숫자 포맷
@@ -163,7 +163,7 @@ TripDetailPage.desktop.tsx  ← 데스크탑 구현
 ### API / 훅 패턴
 - `*.api.ts` — Supabase 직접 호출, DB row → 도메인 모델 변환
 - `use*.ts` — React Query 훅으로 감싸서 컴포넌트에 제공
-- DB 타입은 `shared/lib/database.types.ts` (자동 생성, 직접 수정 금지)
+- DB 타입은 `app/lib/database.types.ts` (자동 생성, 직접 수정 금지)
 
 ### 오버레이 시스템
 모달/바텀시트는 `useOverlay` 훅 또는 `@toss/use-overlay`를 통해 명령형으로 열고 닫습니다.
