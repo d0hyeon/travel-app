@@ -4,7 +4,7 @@ import { alpha, styled } from '@mui/system'
 import { useRef, useState } from "react"
 import { IntersectionArea } from "../../../shared/components/IntersectionArea"
 import { Map, type MapRef } from "../../../shared/components/Map"
-import { useRoadPath } from "../../route/road-path/useRoadPath"
+import { useRoadRoute } from "../../route/road-route/useRoadRoute"
 import { formatDate } from "../../../shared/utils/formats"
 import { formatByCurrencyCode } from "../../expense/currency"
 import { formatCurrency } from "../../expense/expense.utils"
@@ -304,7 +304,7 @@ interface RoutePathProps {
 }
 
 function RoutePath({ waypoints, color, isActive }: RoutePathProps) {
-  const coordinates = useRoadPath({ waypoints })
+  const coordinates = useRoadRoute({ waypoints })
 
   if (!coordinates || coordinates.length < 2) return null
 

@@ -2,7 +2,7 @@ import { Button, Dialog, DialogActions, DialogContent, IconButton, Typography, t
 import { useTripChecklist } from "./useTripChecklist";
 import { useOverlay } from "~shared/hooks/useOverlay";
 import { useId } from "react";
-import { DialogTitle } from "~shared/modules/confirm-dialog/DialogTitle";
+import { DialogTitle } from "~shared/components/confirm-dialog/DialogTitle";
 import { TripChecklistForm } from "./TripChecklistForm";
 import { BottomSheet } from "~shared/components/BottomSheet";
 import { useIsMobile } from "~shared/hooks/useIsMobile";

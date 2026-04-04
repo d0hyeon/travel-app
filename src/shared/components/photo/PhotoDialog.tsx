@@ -5,7 +5,7 @@ import { forwardRef, useRef, useState, type ComponentProps } from "react";
 import { Mousewheel } from 'swiper/modules';
 import { Swiper, SwiperSlide, type SwiperRef } from "swiper/react";
 import type { Photo } from "~app/photo/photo.types";
-import { useConfirmDialog } from "../../modules/confirm-dialog/useConfirmDialog";
+import { useConfirmDialog } from "../../components/confirm-dialog/useConfirmDialog";
 
 // @ts-ignore
 import 'swiper/css';

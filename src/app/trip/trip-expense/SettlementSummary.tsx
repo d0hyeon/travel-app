@@ -1,24 +1,25 @@
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import { Box, Card, CardContent, Divider, Stack, Typography } from "@mui/material"
+import { useMemo } from 'react'
 import { useExpenses } from '~app/expense/useExpenses'
-import type { SettlementBalance, SettlementTransaction } from "../../expense/expense.types"
-import { formatCurrency } from "../../expense/expense.utils"
+import type { SettlementTransaction } from "../../expense/expense.types"
+import { calculateBalancesInKRW, calculateSettlements, formatCurrency } from "../../expense/expense.utils"
 import { useTripMembers } from '../trip-member/useTripMembers'
 import { convertToKRW } from '~app/expense/currency'
 import { useTrip } from '../useTrip'
 
 interface Props {
   tripId: string;
-  balances: SettlementBalance[]
-  settlements: SettlementTransaction[]
   formatAmount?: (amount: number) => string
 }
 
-export function SettlementSummary({ tripId, balances, settlements, formatAmount = formatCurrency }: Props) {
+export function SettlementSummary({ tripId, formatAmount = formatCurrency }: Props) {
   const { data: { exchangeRates } } = useTrip(tripId)
   const { data: expenses } = useExpenses(tripId);
   const { data: members } = useTripMembers(tripId)
   const memberMap = new Map(members.map(m => [m.id, m]))
+  const balances = useMemo(() => calculateBalancesInKRW(members, expenses, exchangeRates), [members, expenses, exchangeRates])
+  const settlements = useMemo(() => calculateSettlements(balances), [balances])
 
   const memberPaidMap = new Map(
     balances.map(({ memberId }) => {

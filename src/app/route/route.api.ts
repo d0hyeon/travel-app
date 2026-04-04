@@ -1,6 +1,6 @@
-import type { DataRaw } from '~shared/lib/database-row.types'
-import type { Json } from '~shared/lib/database.types'
-import { supabase } from '../../shared/lib/supabase'
+import type { DataRaw } from '~app/lib/database-row.types'
+import type { Json } from '~app/lib/database.types'
+import { supabase } from '~app/lib/supabase'
 import type { Route } from './route.types'
 
 export const routeKey = 'routes'

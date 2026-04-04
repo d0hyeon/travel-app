@@ -6,7 +6,7 @@ import { PlaceCategoryColorCode, type Place } from "~app/place/place.types";
 import { ListItem } from "~shared/components/ListItem";
 import { PopMenu } from "~shared/components/PopMenu";
 import { useIsMobile } from "~shared/hooks/useIsMobile";
-import { useConfirmDialog } from "~shared/modules/confirm-dialog/useConfirmDialog";
+import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
 import { useTripPlaceDetailOverlay } from "./useTripPlaceDetailOverlay";
 import { useTripPlaces } from "./useTripPlaces";
 

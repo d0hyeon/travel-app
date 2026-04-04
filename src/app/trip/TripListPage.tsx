@@ -10,7 +10,7 @@ import {
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { ListItem } from '../../shared/components/ListItem'
-import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
+import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { useTrips } from './useTrips'
 import { useOverlay } from '~shared/hooks/useOverlay'
 import { useIsMobile } from '~shared/hooks/useIsMobile'

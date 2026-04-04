@@ -1,5 +1,5 @@
 import { loadGoogleMaps } from "~shared/components/Map/google/loader";
-import { supabase } from "~shared/lib/supabase"
+import { supabase } from "~app/lib/supabase"
 
 
 interface Coordinate {

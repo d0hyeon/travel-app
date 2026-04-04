@@ -7,7 +7,7 @@ import { Suspense, useState } from 'react'
 import { EditableText } from '~shared/components/EditableText'
 import { ListItem } from '~shared/components/ListItem'
 import { PopMenu } from '~shared/components/PopMenu'
-import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
+import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { getRandomEmoji } from '../trip-member/tripMember.types'
 import { useTripMembers } from '../trip-member/useTripMembers'
 

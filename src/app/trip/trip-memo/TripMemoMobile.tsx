@@ -24,7 +24,7 @@ import {
 import { Suspense, useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { ResizeObserverArea } from '~shared/components/ResizeObserverArea';
 import { useVariation } from '~shared/hooks/useVariation';
-import { useConfirmDialog } from "~shared/modules/confirm-dialog/useConfirmDialog";
+import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
 import { useTripMemo } from "./useTripMemo";
 import { useAnimation } from '~shared/hooks/useAnimation';
 import { useQueryParamState } from '~shared/hooks/useQueryParamState';

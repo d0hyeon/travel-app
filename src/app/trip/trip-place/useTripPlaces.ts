@@ -3,7 +3,7 @@ import type { PickPartial } from "../../../shared/utils/types";
 import { createPlace, deletePlace, getPlacesByTripId, placeKey, updatePlace } from "../../place/place.api";
 import type { Place } from "../../place/place.types";
 import { tripKey } from "../trip.api";
-import { queryClient } from "~shared/lib/query-client";
+import { queryClient } from "~app/lib/query-client";
 
 export function useTripPlaces(tripId: string) {
 

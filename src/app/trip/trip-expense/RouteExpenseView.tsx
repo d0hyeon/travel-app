@@ -5,7 +5,7 @@ import { useRef, useState } from "react"
 import { useTripMembers } from "~app/trip/trip-member/useTripMembers"
 import { IntersectionArea } from "../../../shared/components/IntersectionArea"
 import { Map, type MapRef } from "../../../shared/components/Map"
-import { useRoadPath } from "../../route/road-path/useRoadPath"
+import { useRoadRoute } from "../../route/road-route/useRoadRoute"
 import { ResizeHandleHorizontal, useResizableSplit } from "../../../shared/hooks/useResizableSplit"
 import { formatDate } from "../../../shared/utils/formats"
 import { formatByCurrencyCode } from "../../expense/currency"
@@ -321,7 +321,7 @@ interface RoutePathProps {
 }
 
 function RoutePath({ waypoints, color, isActive }: RoutePathProps) {
-  const coordinates = useRoadPath({ waypoints });
+  const coordinates = useRoadRoute({ waypoints });
 
   if (!coordinates || coordinates.length < 2) return null;
 

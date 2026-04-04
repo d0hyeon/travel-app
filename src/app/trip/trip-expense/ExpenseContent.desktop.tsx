@@ -22,8 +22,8 @@ import { Suspense, useMemo, useState } from "react"
 import { ListItem } from '~shared/components/ListItem'
 import { useOverlay } from '~shared/hooks/useOverlay'
 import { useQueryParamState } from '~shared/hooks/useQueryParamState'
-import { DialogTitle } from '~shared/modules/confirm-dialog/DialogTitle'
-import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
+import { DialogTitle } from '~shared/components/confirm-dialog/DialogTitle'
+import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { EditableText } from "../../../shared/components/EditableText"
 import { formatDate } from "../../../shared/utils/formats"
 import { convertToKRW, formatByCurrencyCode, getCurrencyName, getDefaultExchangeRate, getExchangeRate, getUsedCurrencies, setExchangeRate, type CurrencyCode } from "../../expense/currency"

@@ -8,7 +8,7 @@ import { Suspense, useMemo, useState } from "react"
 import type { Expense } from '~app/expense/expense.types'
 import { PopMenu } from '~shared/components/PopMenu'
 import { SwitchCase } from '~shared/components/SwitchCase'
-import { useConfirmDialog } from '~shared/modules/confirm-dialog/useConfirmDialog'
+import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { BottomSheet } from "../../../shared/components/BottomSheet"
 import { EditableText } from "../../../shared/components/EditableText"
 import { ListItem } from "../../../shared/components/ListItem"
@@ -294,11 +294,7 @@ export default function ExpenseContent({ tripId }: Props) {
 
               ),
               settlement: (
-                <SettlementSummary
-                  tripId={tripId}
-                  balances={balances}
-                  settlements={settlements}
-                />
+                <SettlementSummary tripId={tripId} />
               )
             }}
           />

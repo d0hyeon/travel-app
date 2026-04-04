@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import type { AnimationApi } from "./useAnimation"
 import { useVariation } from "./useVariation"
-import { assert } from "~shared/lib/assert"
+import { assert } from "~shared/utils/assert"
 import { throttle } from "~shared/utils/throttle";
 
 export type DefaultDriverState = { progress: number };

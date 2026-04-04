@@ -9,7 +9,7 @@ import {
 } from "./expense.api"
 import type { Expense } from "./expense.types"
 import { useTripPlaces } from "~app/trip/trip-place/useTripPlaces";
-import { queryClient } from "~shared/lib/query-client";
+import { queryClient } from "~app/lib/query-client";
 
 export function useExpenses(tripId: string) {
   const queryClient = useQueryClient();

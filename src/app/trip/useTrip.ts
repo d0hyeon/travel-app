@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { getTripById, tripKey, updateTrip } from "./trip.api";
-import { assert } from "../../shared/lib/assert";
+import { assert } from '~shared/utils/assert';
 import type { Trip } from "./trip.types";
 
 export function useTrip(id: string) {
