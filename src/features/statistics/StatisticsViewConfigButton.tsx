@@ -84,6 +84,8 @@ export function StatisticsViewConfigButton({
           slotProps={{
             paper: {
               sx: {
+                paddingY: 1,
+                paddingX: 1.5,
                 mt: 1,
                 borderRadius: 3,
                 border: '1px solid #ececec',

@@ -318,7 +318,7 @@ export function StatisticsRankingSection({ summary }: StatisticsRankingSectionPr
                 <StatisticsBarChart
                   key={`${summaryItem.trip.id}-activity`}
                   label={`${index + 1}. ${summaryItem.trip.name}`}
-                  value={`${summaryItem.placeCount}곳 / 일 평균 ${Number((summaryItem.placeCount / getTripDays(summaryItem.trip.startDate, summaryItem.trip.endDate)).toFixed(1)).toLocaleString()}`}
+                  value={`${summaryItem.placeCount}곳 / 일 평균 ${Number((summaryItem.placeCount / getTripDays(summaryItem.trip.startDate, summaryItem.trip.endDate)).toFixed(1)).toLocaleString()}곳`}
                   ratio={
                     activityTripSummaries[0]?.placeCount
                       ? summaryItem.placeCount / activityTripSummaries[0].placeCount
@@ -336,7 +336,7 @@ export function StatisticsRankingSection({ summary }: StatisticsRankingSectionPr
                 value: summaryItem.placeCount,
                 helper: `일 평균 ${Number(
                   (summaryItem.placeCount / getTripDays(summaryItem.trip.startDate, summaryItem.trip.endDate)).toFixed(1),
-                ).toLocaleString()}`,
+                ).toLocaleString()}곳`,
               }))}
               formatValue={(value) => `${value}곳`}
               centerLabel="가장 활동적"
@@ -350,7 +350,7 @@ export function StatisticsRankingSection({ summary }: StatisticsRankingSectionPr
                 value: summaryItem.placeCount,
                 helper: `일 평균 ${Number(
                   (summaryItem.placeCount / getTripDays(summaryItem.trip.startDate, summaryItem.trip.endDate)).toFixed(1),
-                ).toLocaleString()}`,
+                ).toLocaleString()}곳`,
               }))}
               formatValue={(value) => `${value}곳`}
               colors={['#4C84FF', '#709dff', '#95b8ff', '#bed3ff', '#dce8ff', '#edf3ff']}
