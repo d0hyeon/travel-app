@@ -3,7 +3,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn'
 import {
   Box,
   CircularProgress,
-  Divider,
+  Drawer,
   IconButton,
   ImageList,
   ImageListItem,
@@ -12,82 +12,71 @@ import {
 } from '@mui/material'
 import { Suspense } from 'react'
 import type { Place } from '../place/place.types'
-import type { Trip } from '../trip/trip.types'
 import { usePlacePhotos } from './usePlacePhotos'
+import { useOverlay } from '~shared/hooks/useOverlay'
+import { PhotoBottomSheet } from '~shared/components/photo/PhotoBottomSheet'
 
 interface Props {
   place: Place
-  trip: Trip | undefined
-  color: string
+  isOpen?: boolean
   onClose: () => void
 }
 
-export function PlaceDetailSidePanel({ place, trip, color, onClose }: Props) {
+export function PlaceDetailSidePanel({ place, isOpen = true, onClose }: Props) {
   return (
-    <Box
-      sx={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        bottom: 0,
-        width: 320,
-        bgcolor: 'background.paper',
-        boxShadow: 4,
-        zIndex: 10,
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
+    <Drawer
+      anchor="left"
+      open={isOpen}
+      onClose={onClose}
+      hideBackdrop
+      sx={{ zIndex: 10 }}
+      PaperProps={{
+        sx: {
+          left: 72,
+          width: 360,
+          maxWidth: 'calc(100% - 72px)',
+          zIndex: 1,
+        },
       }}
     >
-      {/* 헤더 */}
-      <Stack direction="row" alignItems="flex-start" justifyContent="space-between" p={2} pb={1.5}>
-        <Box flex={1}>
-          <Stack direction="row" alignItems="center" gap={0.5} mb={0.25}>
-            <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: color, flexShrink: 0 }} />
-            <Typography variant="caption" color="text.secondary">{trip?.name}</Typography>
-          </Stack>
-          <Typography variant="subtitle1" fontWeight={700}>{place.name}</Typography>
+      <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <Stack direction="row" alignItems="flex-start" justifyContent="space-between" p={2} pb={1}>
+          <Box flex={1}>
+            <Typography variant="subtitle1" fontWeight={700}>{place.name}</Typography>
+          </Box>
+          <IconButton size="small" onClick={onClose}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </Stack>
+
+        <Box px={2} pb={2} overflow="auto" flex={1}>
           {place.address && (
-            <Stack direction="row" alignItems="center" gap={0.25} mt={0.25}>
+            <Stack direction="row" alignItems="center" gap={0.25}>
               <LocationOnIcon sx={{ fontSize: 13, color: 'text.disabled' }} />
               <Typography variant="caption" color="text.secondary">{place.address}</Typography>
             </Stack>
           )}
-          {place.scheduledDate && (
-            <Typography variant="caption" color="text.secondary" display="block" mt={0.25}>
-              {place.scheduledDate}
+
+          {place.memo && (
+            <Typography variant="body2" color="text.secondary" mt={1}>
+              {place.memo}
             </Typography>
           )}
+
+          <Box mt={1.5}>
+            <Suspense fallback={<Box display="flex" justifyContent="center"><CircularProgress size={20} /></Box>}>
+              <PlacePhotos placeId={place.id} />
+            </Suspense>
+          </Box>
         </Box>
-        <IconButton size="small" onClick={onClose}>
-          <CloseIcon fontSize="small" />
-        </IconButton>
-      </Stack>
-
-      {/* 메모 */}
-      {place.memo && (
-        <>
-          <Divider />
-          <Typography variant="body2" color="text.secondary" px={2} py={1.5}>
-            {place.memo}
-          </Typography>
-        </>
-      )}
-
-      <Divider />
-
-      {/* 사진 */}
-      <Box flex={1} overflow="auto" p={2}>
-        <Suspense fallback={<Box display="flex" justifyContent="center"><CircularProgress size={20} /></Box>}>
-          <PlacePhotos placeId={place.id} />
-        </Suspense>
       </Box>
-    </Box>
+    </Drawer>
   )
 }
 
 function PlacePhotos({ placeId }: { placeId: string }) {
   const { data: photos } = usePlacePhotos(placeId)
+  const overlay = useOverlay()
 
   if (photos.length === 0) {
     return (
@@ -97,8 +86,21 @@ function PlacePhotos({ placeId }: { placeId: string }) {
 
   return (
     <ImageList cols={2} gap={6} sx={{ m: 0 }}>
-      {photos.map(photo => (
-        <ImageListItem key={photo.id} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+      {photos.map((photo, idx) => (
+        <ImageListItem
+          key={photo.id}
+          sx={{ borderRadius: 2, overflow: 'hidden', cursor: 'pointer' }}
+          onClick={() => {
+            overlay.open(({ isOpen, close }) => (
+              <PhotoBottomSheet
+                isOpen={isOpen}
+                onClose={close}
+                photos={photos}
+                initialIndex={idx}
+              />
+            ))
+          }}
+        >
           <img src={photo.url} alt="" loading="lazy" style={{ aspectRatio: '1', objectFit: 'cover', width: '100%' }} />
         </ImageListItem>
       ))}

@@ -9,19 +9,20 @@ import { useIsMobile } from '~shared/hooks/useIsMobile'
 import { useAllPlaces } from './useAllPlaces'
 import { PlaceDetailBottomSheet } from './PlaceDetailBottomSheet'
 import { PlaceDetailSidePanel } from './PlaceDetailSidePanel'
+import { useOverlay } from '~shared/hooks/useOverlay'
 
 // 파스텔 배경색 / 진한 텍스트(마커)용 쌍
 type TripColor = { bg: string; text: string; marker: string }
 
 const TRIP_COLORS: TripColor[] = [
-  { bg: '#fce8e8', text: '#c07070', marker: '#e89090' },
-  { bg: '#e8f0fc', text: '#6080c0', marker: '#80a0e0' },
-  { bg: '#e8f7ee', text: '#608070', marker: '#80b090' },
-  { bg: '#fdf0e0', text: '#c09060', marker: '#e0b070' },
-  { bg: '#f0e8fc', text: '#9070c0', marker: '#b090d8' },
-  { bg: '#e4f5f7', text: '#508090', marker: '#70b0c0' },
-  { bg: '#fce8f3', text: '#c070a0', marker: '#e090b8' },
-  { bg: '#eef7e4', text: '#708060', marker: '#98ba78' },
+  { bg: '#fce8e8', text: '#b85f5f', marker: '#de6b6b' },
+  { bg: '#e8f0fc', text: '#4f76c7', marker: '#5e8ff0' },
+  { bg: '#e8f7ee', text: '#4c8a63', marker: '#59b47c' },
+  { bg: '#fdf0e0', text: '#bc7c37', marker: '#e29a42' },
+  { bg: '#f0e8fc', text: '#855dcb', marker: '#9c72e8' },
+  { bg: '#e4f5f7', text: '#3f8a9d', marker: '#4cb9cf' },
+  { bg: '#fce8f3', text: '#bc5f92', marker: '#df78af' },
+  { bg: '#eef7e4', text: '#6f9850', marker: '#88bf5c' },
 ]
 
 export default function MapPage() {
@@ -42,7 +43,6 @@ function MapPageResolved() {
   const isMobile = useIsMobile()
 
   const [selectedTripIds, setSelectedTripIds] = useState<string[]>([])
-  const [selectedPlace, setSelectedPlace] = useState<Place | null>(null)
 
   const tripColorMap: Record<string, TripColor> = Object.fromEntries(
     trips.map((trip, i) => [trip.id, TRIP_COLORS[i % TRIP_COLORS.length]])
@@ -59,6 +59,8 @@ function MapPageResolved() {
       prev.includes(tripId) ? prev.filter(id => id !== tripId) : [...prev, tripId]
     )
   }
+
+  const overlay = useOverlay();
 
   return (
     <Box sx={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
@@ -77,6 +79,7 @@ function MapPageResolved() {
           pb: 0.5,
           '&::-webkit-scrollbar': { display: 'none' },
         }}
+        zIndex={1}
       >
         {trips.map(trip => {
           const isSelected = selectedTripIds.includes(trip.id)
@@ -88,6 +91,7 @@ function MapPageResolved() {
               onClick={() => toggleTrip(trip.id)}
               sx={{
                 flexShrink: 0,
+                fontSize: 12,
                 backgroundColor: getTripColor(trip.id).bg,
                 color: getTripColor(trip.id).text,
                 border: 'none',
@@ -114,28 +118,33 @@ function MapPageResolved() {
             key={place.id}
             place={place}
             color={getTripColor(place.tripId).marker}
-            isSelected={selectedPlace?.id === place.id}
-            onClick={() => setSelectedPlace(place)}
+            isSelected={false}
+            onClick={() => {
+              overlay.open(({ isOpen, close }) => {
+                if (isMobile) {
+                  return (
+                    <PlaceDetailBottomSheet
+                      isOpen={isOpen}
+                      place={place}
+                      onClose={close}
+                    />
+                  )
+                }
+                return (
+                  <PlaceDetailSidePanel
+                    isOpen={isOpen}
+                    place={place}
+                    onClose={close}
+                  />
+                )
+              })
+
+            }}
           />
         ))}
       </Map>
 
-      {/* 장소 상세 */}
-      {selectedPlace && (
-        isMobile
-          ? <PlaceDetailBottomSheet
-              place={selectedPlace}
-              trip={trips.find(t => t.id === selectedPlace.tripId)}
-              color={getTripColor(selectedPlace.tripId).marker}
-              onClose={() => setSelectedPlace(null)}
-            />
-          : <PlaceDetailSidePanel
-              place={selectedPlace}
-              trip={trips.find(t => t.id === selectedPlace.tripId)}
-              color={getTripColor(selectedPlace.tripId).marker}
-              onClose={() => setSelectedPlace(null)}
-            />
-      )}
+
     </Box>
   )
 }
