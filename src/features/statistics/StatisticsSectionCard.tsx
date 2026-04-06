@@ -1,16 +1,18 @@
 import { Box, type BoxProps, Typography } from '@mui/material'
 import type { ReactNode } from 'react'
-import { statisticsToneStyles, type StatisticsTone } from './statistics.constants'
+import { statisticsToneStyles, type StatisticsTone } from '~shared/components/statistics/statistics.constants'
 
 interface StatisticsSectionCardProps extends BoxProps {
   title: string
   tone?: StatisticsTone
+  action?: ReactNode
   children: ReactNode
 }
 
 export function StatisticsSectionCard({
   title,
   tone = 'blue',
+  action,
   children,
   sx,
   ...boxProps
@@ -29,9 +31,12 @@ export function StatisticsSectionCard({
       }}
       {...boxProps}
     >
-      <Typography mb={2} fontSize={14} fontWeight={800}>
-        {title}
-      </Typography>
+      <Box mb={2} display="flex" alignItems="center" justifyContent="space-between" gap={2}>
+        <Typography fontSize={14} fontWeight={800}>
+          {title}
+        </Typography>
+        {action}
+      </Box>
       {children}
     </Box>
   )

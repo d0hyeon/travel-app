@@ -1,14 +1,15 @@
 import { useMemo } from 'react'
 import { useSuspenseQueries, useSuspenseQuery } from '@tanstack/react-query'
+import { convertToKRW, type CurrencyCode } from '~features/expense/currency'
+import { expenseKey, getExpensesByTripId } from '~features/expense/expense.api'
+import type { Expense } from '~features/expense/expense.types'
+import { getTotalExpensesInKRW } from '~features/expense/expense.utils'
 import { getAllPlaces, placeKey } from '~features/place/place.api'
+import { getAllRoutes, routeKey } from '~features/route/route.api'
 import { getTripMembersByTripId, tripMemberKey } from '~features/trip/trip-member/tripMember.api'
 import { tripKey } from '~features/trip/trip.api'
 import type { Trip } from '~features/trip/trip.types'
 import { useTrips } from '~features/trip/useTrips'
-import { convertToKRW, type CurrencyCode } from './currency'
-import { expenseKey, getExpensesByTripId } from './expense.api'
-import type { Expense } from './expense.types'
-import { getTotalExpensesInKRW } from './expense.utils'
 
 export interface TripExpenseSummary {
   trip: Trip
@@ -56,7 +57,15 @@ export interface CityVisitSummary {
   share: number
 }
 
-export interface AllExpenseSummary {
+export interface ExpenseTrendPoint {
+  tripId: string
+  tripName: string
+  label: string
+  amountInKRW: number
+  cumulativeAmountInKRW: number
+}
+
+export interface StatisticsSummary {
   totalAmountInKRW: number
   totalTripsCount: number
   totalPlacesCount: number
@@ -68,6 +77,7 @@ export interface AllExpenseSummary {
   regionVisitSummaries: RegionVisitSummary[]
   cityVisitSummaries: CityVisitSummary[]
   activityTripSummaries: TripActivitySummary[]
+  expenseTrend: ExpenseTrendPoint[]
 }
 
 const REGION_BY_DESTINATION: Record<string, string> = {
@@ -131,11 +141,15 @@ function getRegionName(destination: string) {
   return REGION_BY_DESTINATION[destination] ?? destination
 }
 
-export function useAllExpenseSummary(): AllExpenseSummary {
+export function useStatisticsSummary(): StatisticsSummary {
   const { data: trips } = useTrips()
   const { data: places } = useSuspenseQuery({
     queryKey: [placeKey, 'all'],
     queryFn: getAllPlaces,
+  })
+  const { data: routes } = useSuspenseQuery({
+    queryKey: [routeKey, 'all'],
+    queryFn: getAllRoutes,
   })
 
   const expensesByTrip = useSuspenseQueries({
@@ -155,9 +169,12 @@ export function useAllExpenseSummary(): AllExpenseSummary {
   })
 
   return useMemo(() => {
+    const confirmedPlaceIds = new Set(routes.flatMap((route) => route.placeIds))
+    const confirmedPlaces = places.filter((place) => confirmedPlaceIds.has(place.id))
+
     const tripExpenseSummaries = trips.map((trip, index) => {
       const expenses = expensesByTrip[index]
-      const placeCount = places.filter((place) => place.tripId === trip.id).length
+      const placeCount = confirmedPlaces.filter((place) => place.tripId === trip.id).length
 
       return {
         trip,
@@ -170,7 +187,7 @@ export function useAllExpenseSummary(): AllExpenseSummary {
 
     const totalAmountInKRW = tripExpenseSummaries.reduce((sum, summary) => sum + summary.totalAmountInKRW, 0)
     const totalTripsCount = trips.length
-    const totalPlacesCount = places.length
+    const totalPlacesCount = confirmedPlaces.length
 
     const travelSummaries: TripExpenseSummary[] = tripExpenseSummaries
       .filter((summary) => summary.totalAmountInKRW > 0)
@@ -283,6 +300,24 @@ export function useAllExpenseSummary(): AllExpenseSummary {
         return b.totalAmountInKRW - a.totalAmountInKRW
       })
 
+    let cumulativeAmountInKRW = 0
+    const expenseTrend: ExpenseTrendPoint[] = [...tripExpenseSummaries]
+      .sort((a, b) => {
+        const dateA = a.trip.endDate || a.trip.startDate || a.trip.createdAt
+        const dateB = b.trip.endDate || b.trip.startDate || b.trip.createdAt
+        return dateA.localeCompare(dateB)
+      })
+      .map((summary) => {
+        cumulativeAmountInKRW += summary.totalAmountInKRW
+        return {
+          tripId: summary.trip.id,
+          tripName: summary.trip.name,
+          label: summary.trip.endDate.slice(5),
+          amountInKRW: summary.totalAmountInKRW,
+          cumulativeAmountInKRW,
+        }
+      })
+
     return {
       totalAmountInKRW,
       totalTripsCount,
@@ -296,6 +331,7 @@ export function useAllExpenseSummary(): AllExpenseSummary {
       regionVisitSummaries,
       cityVisitSummaries,
       activityTripSummaries,
+      expenseTrend,
     }
-  }, [trips, places, expensesByTrip, membersByTrip])
+  }, [trips, places, routes, expensesByTrip, membersByTrip])
 }

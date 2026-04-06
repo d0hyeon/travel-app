@@ -1,6 +1,6 @@
 import { Box, type BoxProps, Stack, Typography } from '@mui/material'
 import type { ReactNode } from 'react'
-import { statisticsToneStyles, type StatisticsTone } from './statistics.constants'
+import { statisticsToneStyles, type StatisticsTone } from '~shared/components/statistics/statistics.constants'
 
 interface StatisticsSummaryCardProps extends BoxProps {
   label: string

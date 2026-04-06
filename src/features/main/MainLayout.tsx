@@ -60,6 +60,7 @@ export default function MainLayout() {
           alignItems: 'center',
           py: 2,
           gap: 0.5,
+          zIndex: 100
         }}
       >
         {TABS.map(({ id, label, path, Icon }) => {

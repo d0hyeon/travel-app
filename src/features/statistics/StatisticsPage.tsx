@@ -1,22 +1,30 @@
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
-import { Box, Container, Stack, Tab, Tabs, Typography } from '@mui/material'
+import { Box, Stack, Tab, Tabs, Typography } from '@mui/material'
 import { useQueryParamState } from '~shared/hooks/useQueryParamState'
 import { StatisticsCurrencySection } from './StatisticsCurrencySection'
 import { StatisticsOverviewSection } from './StatisticsOverviewSection'
 import { StatisticsRankingSection } from './StatisticsRankingSection'
-import { useAllExpenseSummary } from './useAllExpenseSummary'
+import { useStatisticsSummary } from './statistics-expense/useStatisticsSummary'
 
 type StatisticsTab = 'overview' | 'ranking' | 'currency'
 
-export default function AllExpensesPage() {
-  const summary = useAllExpenseSummary()
+export default function StatisticsPage() {
+  const summary = useStatisticsSummary()
   const [currentTab, setCurrentTab] = useQueryParamState<StatisticsTab>('stats-tab', {
     defaultValue: 'overview',
   })
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Stack gap={3}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <Box
+        position="sticky"
+        top={0}
+        px={2}
+        py={1}
+        width="100%"
+        bgcolor="background.paper"
+        zIndex={10}
+      >
         <Stack gap={1.25}>
           <Stack direction="row" alignItems="center" gap={1}>
             <ReceiptLongIcon color="primary" fontSize="small" />
@@ -31,13 +39,7 @@ export default function AllExpensesPage() {
             variant="scrollable"
             allowScrollButtonsMobile
             sx={{
-              '& .MuiTab-root': {
-                minHeight: 40,
-                borderRadius: 999,
-                mr: 1,
-                px: 1.75,
-              },
-              '& .MuiTabs-indicator': { display: 'none' },
+              borderBottom: '1px solid #ddd',
             }}
           >
             <Tab value="overview" label="개요" />
@@ -45,7 +47,10 @@ export default function AllExpensesPage() {
             <Tab value="currency" label="통화" />
           </Tabs>
         </Stack>
+      </Box>
 
+      <Box px={2} py={2} flex={1} overflow="auto">
+        <Stack gap={3}>
         {summary.travelSummaries.length === 0 ? (
           <Box textAlign="center" py={8}>
             <Typography variant="body1" color="text.secondary">
@@ -65,7 +70,8 @@ export default function AllExpensesPage() {
         {summary.travelSummaries.length > 0 && currentTab === 'currency' ? (
           <StatisticsCurrencySection summary={summary} />
         ) : null}
-      </Stack>
-    </Container>
+        </Stack>
+      </Box>
+    </Box>
   )
 }

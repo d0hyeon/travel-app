@@ -1,14 +1,14 @@
 import PublicRoundedIcon from '@mui/icons-material/PublicRounded'
 import { Box, Chip, Stack } from '@mui/material'
-import { formatCurrency } from './expense.utils'
-import { StatisticsBarChart } from './StatisticsBarChart'
+import { formatCurrency } from '~features/expense/expense.utils'
+import { StatisticsBarChart } from '~shared/components/statistics/StatisticsBarChart'
 import { StatisticsSectionCard } from './StatisticsSectionCard'
 import { StatisticsSummaryCard } from './StatisticsSummaryCard'
-import { statisticsToneStyles } from './statistics.constants'
-import type { AllExpenseSummary } from './useAllExpenseSummary'
+import { statisticsToneStyles } from '~shared/components/statistics/statistics.constants'
+import type { StatisticsSummary } from './statistics-expense/useStatisticsSummary'
 
 interface StatisticsCurrencySectionProps {
-  summary: AllExpenseSummary
+  summary: StatisticsSummary
 }
 
 export function StatisticsCurrencySection({ summary }: StatisticsCurrencySectionProps) {

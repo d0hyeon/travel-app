@@ -1,6 +1,5 @@
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
 import { Box, type BoxProps, Stack, Typography } from '@mui/material'
-import { statisticsToneStyles } from './statistics.constants'
 
 interface StatisticsHeroPanelProps extends BoxProps {
   totalAmount: string
@@ -17,7 +16,7 @@ export function StatisticsHeroPanel({
         p: { xs: 2.5, md: 3.5 },
         borderRadius: 5,
         border: '1px solid',
-        borderColor: statisticsToneStyles.blue.border,
+        borderColor: '#e6e6e6',
         backgroundColor: '#fff',
         ...sx,
       }}
