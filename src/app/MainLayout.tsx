@@ -5,9 +5,8 @@ import { Box, Stack, Tooltip, Typography } from '@mui/material'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
 import { BottomNavigation } from '~shared/components/BottomNavigation'
-import { useIsMobile } from '~shared/hooks/useIsMobile'
+import { isMobile } from 'react-device-detect';
 
-type Tab = 'trips' | 'map' | 'expenses'
 
 const TABS = [
   { label: '여행', path: AppRoute.메인, Icon: LuggageIcon },
@@ -18,7 +17,6 @@ const TABS = [
 export default function MainLayout() {
   const location = useLocation()
   const navigate = useNavigate()
-  const isMobile = useIsMobile()
 
 
 
