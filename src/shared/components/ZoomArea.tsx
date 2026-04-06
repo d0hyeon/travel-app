@@ -1,11 +1,14 @@
-import { Panzoom } from '@fancyapps/ui';
+import * as FancyappsUI from '@fancyapps/ui';
 import type { WheelAction } from '@fancyapps/ui/types/Panzoom/types';
 import { Box, type BoxProps } from '@mui/material';
 
 import { useEffect, useState } from 'react';
 import { usePreservedCallback } from '~shared/hooks/usePreservedCallback';
 
+const { Panzoom } = FancyappsUI;
+
 type PanzoomOption = Exclude<ConstructorParameters<typeof Panzoom>[1], undefined>;
+type PanzoomInstance = InstanceType<typeof Panzoom>;
 type PickedOption = Pick<PanzoomOption, 'minScale' | 'maxScale' | 'bounce' | 'minScale' | 'maxScale'> & {
   click?: Exclude<PanzoomOption['click'], Function>;
   doubleClick?: Exclude<PanzoomOption['dblClick'], Function>;
@@ -13,8 +16,8 @@ type PickedOption = Pick<PanzoomOption, 'minScale' | 'maxScale' | 'bounce' | 'mi
 
 type Props = PickedOption &
   BoxProps & {
-    onZoomStart?: (instance: Panzoom) => void;
-    onZoomEnd?: (instance: Panzoom) => void;
+    onZoomStart?: (instance: PanzoomInstance) => void;
+    onZoomEnd?: (instance: PanzoomInstance) => void;
     wheel?: WheelAction | (() => WheelAction);
   };
 
@@ -33,7 +36,7 @@ export function ZoomArea({
 }: Props) {
   const [element, setElement] = useState<HTMLElement | null>(null);
 
-  const preservedZoomStart = usePreservedCallback((instance: Panzoom) => {
+  const preservedZoomStart = usePreservedCallback((instance: PanzoomInstance) => {
     setTimeout(() => {
       if (instance.getMatrix().a > 1) {
         onZoomStart?.(instance);
@@ -41,7 +44,7 @@ export function ZoomArea({
     }, 1000 / 60)
   });
 
-  const preservedZoomEnd = usePreservedCallback((instance: Panzoom) => {
+  const preservedZoomEnd = usePreservedCallback((instance: PanzoomInstance) => {
     if (instance.isScaling === false && instance.current.a === 1) {
       onZoomEnd?.(instance);
     }
