@@ -14,12 +14,13 @@ import {
   ToggleButtonGroup,
   Typography
 } from '@mui/material'
-import { useMemo, useRef, useState } from 'react'
+import { Suspense, useMemo, useRef, useState } from 'react'
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { SortableItem } from '../../../shared/components/dnd/SortableItem'
 import { SortableList } from '../../../shared/components/dnd/SortableList'
 import { Map, type MapRef } from '../../../shared/components/Map'
 import { ListItem } from '../../../shared/components/ListItem'
+import { useCurrentLocation } from '../../../shared/hooks/useCurrentLocation'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
 import { useRoadRoute } from '../../route/road-route/useRoadRoute'
@@ -99,6 +100,10 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
   })
   const mapRef = useRef<MapRef>(null)
   const mapType = trip.isOverseas ? 'google' : 'kakao'
+  const today = formatDateISO(new Date())
+  const isOngoingTrip = trip.startDate <= today && today <= trip.endDate
+  const currentLocation = useCurrentLocation()
+  const mapCenter = isOngoingTrip ? (currentLocation ?? { lat: trip.lat, lng: trip.lng }) : { lat: trip.lat, lng: trip.lng }
 
   return (
     <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
@@ -314,11 +319,12 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
         <Map
           type={mapType}
           ref={mapRef}
-          defaultCenter={{ lat: trip.lat, lng: trip.lng }}
+          defaultCenter={mapCenter}
           autoFocus="path"
           height="100%"
           clustering={cluastering}
           clusterGridSize={60}
+          showMyLocation={isOngoingTrip}
         >
           {places.map((place) => {
             if (currentRoute.hiddenPlaces.includes(place.id)) {
@@ -366,14 +372,23 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
               />
             )
           })}
-          {routes.map((route, index) => (
-            <RoutePath
-              key={route.id}
-              waypoints={route.places.filter(x => !route.hiddenPlaces.includes(x.id))}
-              color={getRouteColor(index)}
-              isSelected={route.id === currentRoute?.id}
-            />
-          ))}
+          <Suspense
+            fallback={routes.map(route => (
+              <Map.Path
+                key={route.id}
+                coordinates={route.places.filter(x => !route.hiddenPlaces.includes(x.id))}
+              />
+            ))}
+          >
+            {routes.map((route, index) => (
+              <RoutePath
+                key={route.id}
+                waypoints={route.places.filter(x => !route.hiddenPlaces.includes(x.id))}
+                color={getRouteColor(index)}
+                isSelected={route.id === currentRoute?.id}
+              />
+            ))}
+          </Suspense>
         </Map>
       </Box>
     </Box>

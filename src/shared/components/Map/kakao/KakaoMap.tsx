@@ -9,10 +9,13 @@ interface MarkerData {
   id: string;
   position: kakao.maps.LatLng;
   label?: string;
+  tooltip?: string | string[];
   variant?: 'default' | 'selected' | 'disabled';
   color?: string;
   opacity?: number;
+  thumbnailUrl?: string;
   onClick?: () => void;
+  onContextMenu?: () => void;
 }
 
 interface MapContextValue {
@@ -31,6 +34,7 @@ export interface KakaoMapImplProps extends Omit<BoxProps, 'ref' | "autoFocus"> {
   autoFocus?: AutoFocus;
   clustering?: boolean;
   clusterGridSize?: number;
+  showMyLocation?: boolean;
 }
 
 const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 }
@@ -49,6 +53,7 @@ function Resolved({
   autoFocus = 'marker',
   clustering = false,
   clusterGridSize = 60,
+  showMyLocation = false,
   children,
   ...boxProps
 }: KakaoMapImplProps) {
@@ -162,11 +167,58 @@ function Resolved({
           onClusterClick={handleClusterClick}
         />
       )}
+      {showMyLocation && map && <MyLocationOverlay map={map} />}
     </KakaoMapContext.Provider>
   )
 }
 
-export function KakaoMarker({ id, lat, lng, label, tooltip, variant, color, opacity = 1, onClick = () => { }, onContextMenu }: MarkerProps) {
+function createMyLocationContent() {
+  const el = document.createElement('div');
+  el.style.cssText = `
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #4285f4; border: 3px solid #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    transform: translate(-50%, -50%);
+  `;
+  return el;
+}
+
+function MyLocationOverlay({ map }: { map: kakao.maps.Map }) {
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+
+    let overlay: kakao.maps.CustomOverlay | null = null;
+    let watchId: number;
+
+    const updatePosition = (pos: GeolocationPosition) => {
+      const latLng = new kakao.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+      if (overlay) overlay.setMap(null);
+      overlay = new kakao.maps.CustomOverlay({
+        position: latLng,
+        content: createMyLocationContent(),
+      });
+      overlay.setMap(map);
+    };
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        updatePosition(pos);
+        watchId = navigator.geolocation.watchPosition(updatePosition, undefined, { enableHighAccuracy: true });
+      },
+      () => { /* 위치 권한 거부 시 무시 */ },
+      { enableHighAccuracy: true }
+    );
+
+    return () => {
+      overlay?.setMap(null);
+      if (watchId != null) navigator.geolocation.clearWatch(watchId);
+    };
+  }, [map]);
+
+  return null;
+}
+
+export function KakaoMarker({ id, lat, lng, label, tooltip, variant, color, opacity = 1, thumbnailUrl, onClick = () => { }, onContextMenu }: MarkerProps) {
   const context = use(KakaoMapContext);
   const position = useMemo(() => new kakao.maps.LatLng(lat, lng), [lat, lng]);
   const markerId = useMemo(() => id ?? `${lat}_${lng}`, [id, lat, lng]);
@@ -174,6 +226,7 @@ export function KakaoMarker({ id, lat, lng, label, tooltip, variant, color, opac
   const [zoom, setZoom] = useState<number | undefined>(context?.map?.getLevel());
 
   const handleMarkerClick = useEffectEvent(() => onClick({ lat, lng, label, variant }));
+  const handleMarkerContextMenu = useEffectEvent(() => onContextMenu?.({ lat, lng, label, variant }));
 
   useEffect(() => {
     if (!context?.config.clustering) return;
@@ -182,14 +235,17 @@ export function KakaoMarker({ id, lat, lng, label, tooltip, variant, color, opac
       id: markerId,
       position,
       label,
+      tooltip,
       variant,
       color,
       opacity,
+      thumbnailUrl,
       onClick: handleMarkerClick,
+      onContextMenu: handleMarkerContextMenu,
     });
 
     return () => context.unregisterMarker(markerId);
-  }, [context, markerId, position, label, variant, color, opacity]);
+  }, [context, markerId, position, label, variant, color, opacity, thumbnailUrl]);
 
   const shouldRender = useMemo(() => {
     if (!context?.config.clustering) return true;
@@ -211,16 +267,17 @@ export function KakaoMarker({ id, lat, lng, label, tooltip, variant, color, opac
   }, [context?.map])
 
   const marker = useMemo(() => {
+    if (thumbnailUrl) return null; // thumbnail은 CustomOverlay로 렌더링
     const markerImage = getMarkerImage(variant, color, opacity, zoom);
 
     return new kakao.maps.Marker({
       position,
       image: markerImage,
     })
-  }, [position, variant, color, zoom]);
+  }, [position, variant, color, zoom, thumbnailUrl]);
 
   useEffect(function renderLabel() {
-    if (context?.map == null || label == null || !shouldRender) return;
+    if (context?.map == null || label == null || !shouldRender || thumbnailUrl) return;
 
     const { map } = context;
     const scale = getZoomScale(zoom);
@@ -233,7 +290,7 @@ export function KakaoMarker({ id, lat, lng, label, tooltip, variant, color, opac
 
     overlay.setMap(map);
     return () => overlay.setMap(null);
-  }, [context, label, color, opacity, zoom, shouldRender]);
+  }, [context, label, color, opacity, zoom, shouldRender, thumbnailUrl]);
 
   useEffect(function renderMarker() {
     if (marker == null || context?.map == null || !shouldRender) return;
@@ -244,6 +301,32 @@ export function KakaoMarker({ id, lat, lng, label, tooltip, variant, color, opac
     }
     return () => marker.setMap(null);
   }, [marker, position, context, shouldRender])
+
+  useEffect(function renderThumbnailOverlay() {
+    if (!thumbnailUrl || context?.map == null || !shouldRender) return;
+
+    if (context.config.autoFocus === 'marker') {
+      context.extendBound(position);
+    }
+
+    const el = document.createElement('div');
+    el.innerHTML = createThumbnailContent(thumbnailUrl, color);
+    el.style.cursor = 'pointer';
+    el.addEventListener('click', () => onClick({ lat, lng, label, variant }));
+    if (onContextMenu) {
+      el.addEventListener('contextmenu', () => onContextMenu({ lat, lng, label, variant }));
+    }
+
+    const overlay = new kakao.maps.CustomOverlay({
+      position,
+      content: el,
+      yAnchor: 1.08,
+      xAnchor: 0.5,
+    });
+
+    overlay.setMap(context.map);
+    return () => overlay.setMap(null);
+  }, [thumbnailUrl, context, position, color, shouldRender]);
 
   const clickHandler = useEffectEvent(() => onClick({ lat, lng, label, variant }));
   const contextMenuHandler = useEffectEvent(() => onContextMenu?.({ lat, lng, label, variant }))
@@ -313,6 +396,36 @@ export function KakaoPath({ coordinates, strokeColor, strokeWeight, strokeOpacit
 }
 
 // ============ Helper functions ============
+
+function createThumbnailContent(thumbnailUrl: string, color?: string): string {
+  const borderColor = color ?? '#ef5350';
+  return `
+    <div style="
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      filter: drop-shadow(0 3px 8px rgba(0,0,0,0.25));
+    ">
+      <div style="
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        border: 3px solid ${borderColor};
+        overflow: hidden;
+        background: #eee;
+      ">
+        <img src="${thumbnailUrl}" style="width:100%;height:100%;object-fit:cover;" />
+      </div>
+      <div style="
+        width: 0; height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 6px solid ${borderColor};
+        margin-top: -1px;
+      "></div>
+    </div>
+  `
+}
 
 function getMarkerImage(
   variant?: MarkerProps['variant'],
@@ -518,40 +631,61 @@ function ClusterOverlays({ map, clusters, zoom, onClusterClick }: ClusterOverlay
     clusters.forEach(cluster => {
       if (cluster.markers.length === 1) {
         const markerData = cluster.markers[0];
-        const markerImage = getMarkerImage(
-          markerData.variant,
-          markerData.color,
-          markerData.opacity,
-          zoom
-        );
 
-        const marker = new kakao.maps.Marker({
-          position: markerData.position,
-          image: markerImage,
-        });
-        marker.setMap(map);
-        markersRef.current.push(marker);
+        if (markerData.thumbnailUrl) {
+          const el = document.createElement('div');
+          el.innerHTML = createThumbnailContent(markerData.thumbnailUrl, markerData.color);
+          el.style.cursor = 'pointer';
+          if (markerData.onClick) el.addEventListener('click', markerData.onClick);
+          if (markerData.onContextMenu) el.addEventListener('contextmenu', markerData.onContextMenu);
 
-        if (markerData.onClick) {
-          kakao.maps.event.addListener(marker, 'click', markerData.onClick);
-        }
-
-        if (markerData.label) {
-          const scale = getZoomScale(zoom);
-          const yAnchor = 1 + (36 * scale + 4) / 20;
-          const labelOverlay = new kakao.maps.CustomOverlay({
+          const overlay = new kakao.maps.CustomOverlay({
             position: markerData.position,
-            content: createLabelContent(
-              markerData.label,
-              markerData.variant,
-              markerData.color,
-              markerData.opacity,
-              zoom
-            ),
-            yAnchor,
+            content: el,
+            yAnchor: 1.08,
+            xAnchor: 0.5,
           });
-          labelOverlay.setMap(map);
-          overlaysRef.current.push(labelOverlay);
+          overlay.setMap(map);
+          overlaysRef.current.push(overlay);
+        } else {
+          const markerImage = getMarkerImage(
+            markerData.variant,
+            markerData.color,
+            markerData.opacity,
+            zoom
+          );
+
+          const marker = new kakao.maps.Marker({
+            position: markerData.position,
+            image: markerImage,
+          });
+          marker.setMap(map);
+          markersRef.current.push(marker);
+
+          if (markerData.onClick) {
+            kakao.maps.event.addListener(marker, 'click', markerData.onClick);
+          }
+          if (markerData.onContextMenu) {
+            kakao.maps.event.addListener(marker, 'rightclick', markerData.onContextMenu);
+          }
+
+          if (markerData.label) {
+            const scale = getZoomScale(zoom);
+            const yAnchor = 1 + (36 * scale + 4) / 20;
+            const labelOverlay = new kakao.maps.CustomOverlay({
+              position: markerData.position,
+              content: createLabelContent(
+                markerData.label,
+                markerData.variant,
+                markerData.color,
+                markerData.opacity,
+                zoom
+              ),
+              yAnchor,
+            });
+            labelOverlay.setMap(map);
+            overlaysRef.current.push(labelOverlay);
+          }
         }
       } else {
         const content = document.createElement('div');

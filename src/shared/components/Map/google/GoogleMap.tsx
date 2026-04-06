@@ -3,10 +3,25 @@ import { Suspense, createContext, use, useCallback, useEffect, useEffectEvent, u
 import { loadGoogleMaps } from './loader';
 import type { AutoFocus, MapRef, MarkerProps, PathProps, Coordinate } from '../types';
 
+interface MarkerData {
+  id: string;
+  position: Coordinate;
+  label?: string;
+  tooltip?: string | string[];
+  variant?: 'default' | 'selected' | 'disabled';
+  color?: string;
+  opacity?: number;
+  thumbnailUrl?: string;
+  onClick?: () => void;
+  onContextMenu?: () => void;
+}
+
 interface MapContextValue {
   map: google.maps.Map | null;
   extendBound: (coord: Coordinate) => void;
-  config: { autoFocus: AutoFocus };
+  registerMarker: (data: MarkerData) => void;
+  unregisterMarker: (id: string) => void;
+  config: { autoFocus: AutoFocus; clustering: boolean; clusterGridSize: number };
 }
 
 const GoogleMapContext = createContext<MapContextValue | null>(null);
@@ -16,12 +31,36 @@ export interface GoogleMapImplProps extends Omit<BoxProps, 'ref' | 'autoFocus'> 
   ref?: Ref<MapRef>;
   children?: ReactNode;
   autoFocus?: AutoFocus;
-  // 클러스터링은 추후 구현
   clustering?: boolean;
   clusterGridSize?: number;
+  showMyLocation?: boolean;
 }
 
 const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 };
+
+const PASTEL_MAP_STYLES: google.maps.MapTypeStyle[] = [
+  { elementType: 'geometry', stylers: [{ color: '#f5f0eb' }] },
+  { elementType: 'labels.text.fill', stylers: [{ color: '#7b6f6a' }] },
+  { elementType: 'labels.text.stroke', stylers: [{ color: '#f5f0eb' }] },
+  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#c9e8f0' }] },
+  { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#7aa8b5' }] },
+  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#ffffff' }] },
+  { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#e8ddd5' }] },
+  { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#f7e6c8' }] },
+  { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#e8c89a' }] },
+  { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#b07c4a' }] },
+  { featureType: 'road.arterial', elementType: 'labels.text.fill', stylers: [{ color: '#a09080' }] },
+  { featureType: 'road.local', elementType: 'labels.text.fill', stylers: [{ color: '#b0a090' }] },
+  { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#e8f0d8' }] },
+  { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#7a9060' }] },
+  { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#d4e8c0' }] },
+  { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#6a9050' }] },
+  { featureType: 'transit', elementType: 'geometry', stylers: [{ color: '#e8d8f0' }] },
+  { featureType: 'transit.station', elementType: 'labels.text.fill', stylers: [{ color: '#8070a0' }] },
+  { featureType: 'administrative', elementType: 'geometry.stroke', stylers: [{ color: '#d0c0b0' }] },
+  { featureType: 'administrative.land_parcel', elementType: 'labels.text.fill', stylers: [{ color: '#a09080' }] },
+  { featureType: 'landscape.natural', elementType: 'geometry', stylers: [{ color: '#ede8e0' }] },
+];
 
 export function GoogleMapImpl(props: GoogleMapImplProps) {
   return (
@@ -37,6 +76,7 @@ function Resolved({
   autoFocus = 'marker',
   clustering = false,
   clusterGridSize = 60,
+  showMyLocation = false,
   children,
   ...boxProps
 }: GoogleMapImplProps) {
@@ -44,25 +84,28 @@ function Resolved({
 
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [zoom, setZoom] = useState(10);
   const boundsRef = useRef<google.maps.LatLngBounds | null>(null);
   const isInitializedRef = useRef(false);
 
   useEffect(() => {
     if (!container) return;
-
     const mapInstance = new google.maps.Map(container, {
       center: { lat: defaultCenter.lat, lng: defaultCenter.lng },
       zoom: 10,
-      mapId: 'DEMO_MAP_ID', // Advanced Markers 사용시 필요
-      disableDefaultUI: true
-
+      disableDefaultUI: true,
+      styles: PASTEL_MAP_STYLES,
     });
+
+    mapInstance.addListener('zoom_changed', () => {
+      setZoom(mapInstance.getZoom() ?? 10);
+    });
+
     setMap(mapInstance);
   }, [container]);
 
   const extendBound = useCallback((coord: Coordinate) => {
     if (!map) return;
-
     if (!boundsRef.current) {
       boundsRef.current = new google.maps.LatLngBounds();
     }
@@ -72,18 +115,35 @@ function Resolved({
       requestAnimationFrame(() => {
         if (isInitializedRef.current) return;
         isInitializedRef.current = true;
-        if (boundsRef.current) {
-          map.fitBounds(boundsRef.current);
-        }
+        if (boundsRef.current) map.fitBounds(boundsRef.current);
       });
     }
   }, [map]);
 
+  const markerRegistryRef = useRef<Map<string, MarkerData>>(new Map());
+  const [markerVersion, setMarkerVersion] = useState(0);
+
+  const registerMarker = useCallback((data: MarkerData) => {
+    markerRegistryRef.current.set(data.id, data);
+    setMarkerVersion(v => v + 1);
+  }, []);
+
+  const unregisterMarker = useCallback((id: string) => {
+    markerRegistryRef.current.delete(id);
+    setMarkerVersion(v => v + 1);
+  }, []);
+
+  const clusters = useMemo(() => {
+    if (!clustering || !map) return null;
+    const markers = Array.from(markerRegistryRef.current.values());
+    return calculateClusters(markers, map, zoom, clusterGridSize);
+  }, [clustering, map, clusterGridSize, markerVersion, zoom]);
+
   useImperativeHandle(ref, () => ({
-    panTo: (lat: number, lng: number, zoom?: number) => {
+    panTo: (lat: number, lng: number, z?: number) => {
       if (!map) return;
       map.panTo({ lat, lng });
-      if (zoom != null) map.setZoom(zoom);
+      if (z != null) map.setZoom(z);
     },
     relayout: () => {
       if (!map) return;
@@ -98,18 +158,93 @@ function Resolved({
   const contextValue = useMemo(() => ({
     map,
     extendBound,
-    config: { autoFocus },
-  }), [map, extendBound, autoFocus]);
+    registerMarker,
+    unregisterMarker,
+    config: { autoFocus, clustering, clusterGridSize },
+  }), [map, extendBound, registerMarker, unregisterMarker, autoFocus, clustering, clusterGridSize]);
 
   return (
     <GoogleMapContext.Provider value={contextValue}>
       <Box ref={setContainer} position="relative" {...boxProps} />
       {children}
+      {clusters && map && (
+        <ClusterOverlays map={map} clusters={clusters} zoom={zoom} onClusterClick={(cluster) => {
+          const bounds = new google.maps.LatLngBounds();
+          cluster.markers.forEach(m => bounds.extend({ lat: m.position.lat, lng: m.position.lng }));
+          map.fitBounds(bounds);
+        }} />
+      )}
+      {showMyLocation && map && <GoogleMyLocationOverlay map={map} />}
     </GoogleMapContext.Provider>
   );
 }
 
+function GoogleMyLocationOverlay({ map }: { map: google.maps.Map }) {
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+
+    let overlay: google.maps.OverlayView | null = null;
+    let watchId: number;
+
+    const createOverlay = (lat: number, lng: number) => {
+      if (overlay) overlay.setMap(null);
+
+      class MyLocationOverlayView extends google.maps.OverlayView {
+        private el: HTMLDivElement;
+        private position: google.maps.LatLng;
+
+        constructor(position: google.maps.LatLng) {
+          super();
+          this.position = position;
+          this.el = document.createElement('div');
+          this.el.style.cssText = `
+            width: 16px; height: 16px; border-radius: 50%;
+            background: #4285f4; border: 3px solid #fff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            position: absolute; transform: translate(-50%, -50%);
+          `;
+        }
+
+        onAdd() { this.getPanes()!.overlayMouseTarget.appendChild(this.el); }
+        draw() {
+          const proj = this.getProjection();
+          const point = proj.fromLatLngToDivPixel(this.position);
+          if (point) {
+            this.el.style.left = `${point.x}px`;
+            this.el.style.top = `${point.y}px`;
+          }
+        }
+        onRemove() { this.el.parentNode?.removeChild(this.el); }
+      }
+
+      overlay = new MyLocationOverlayView(new google.maps.LatLng(lat, lng));
+      overlay.setMap(map);
+    };
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        createOverlay(pos.coords.latitude, pos.coords.longitude);
+        watchId = navigator.geolocation.watchPosition(
+          (pos) => createOverlay(pos.coords.latitude, pos.coords.longitude),
+          undefined,
+          { enableHighAccuracy: true }
+        );
+      },
+      () => { /* 위치 권한 거부 시 무시 */ },
+      { enableHighAccuracy: true }
+    );
+
+    return () => {
+      overlay?.setMap(null);
+      if (watchId != null) navigator.geolocation.clearWatch(watchId);
+    };
+  }, [map]);
+
+  return null;
+}
+
 export function GoogleMarker({
+  id,
   lat,
   lng,
   label,
@@ -117,184 +252,150 @@ export function GoogleMarker({
   variant = 'default',
   color,
   opacity = 1,
+  thumbnailUrl,
   onClick,
   onContextMenu,
 }: MarkerProps) {
   const context = use(GoogleMapContext);
-  const markerRef = useRef<google.maps.Marker | null>(null);
+  const markerId = useMemo(() => id ?? `${lat}_${lng}`, [id, lat, lng]);
 
   const markerColor = useMemo(() => {
     if (color) return color;
-    const colors = {
-      default: '#ef5350',
-      selected: '#1976d2',
-      disabled: '#9e9e9e',
-    };
-    return colors[variant];
+    return { default: '#ef5350', selected: '#1976d2', disabled: '#9e9e9e' }[variant];
   }, [variant, color]);
 
+  const handleClick = useEffectEvent(() => onClick?.({ lat, lng, label, variant }));
+  const handleContextMenu = useEffectEvent(() => onContextMenu?.({ lat, lng, label, variant }));
 
-  const handleClick = useEffectEvent(() => {
-    onClick?.({ lat, lng, label, variant });
-  });
-  const handleContextMenu = useEffectEvent(() => {
-    onContextMenu?.({ lat, lng, label, variant });
-  });
-
+  // 클러스터링 모드: 레지스트리에 등록
   useEffect(() => {
-    if (!context?.map) return;
+    if (!context?.config.clustering) return;
 
-    // SVG 마커 with 흰색 내부 원
+    context.registerMarker({
+      id: markerId,
+      position: { lat, lng },
+      label,
+      tooltip,
+      variant,
+      color: markerColor,
+      opacity,
+      thumbnailUrl,
+      onClick: handleClick,
+      onContextMenu: handleContextMenu,
+    });
+
+    return () => context.unregisterMarker(markerId);
+  }, [context, markerId, lat, lng, label, variant, markerColor, opacity, thumbnailUrl]);
+
+  const shouldRender = !context?.config.clustering;
+
+  // 일반 마커 (클러스터링 off)
+  useEffect(() => {
+    if (!shouldRender || !context?.map) return;
+
+    if (thumbnailUrl) {
+      // thumbnail은 아래 별도 effect에서 처리
+      return;
+    }
+
     const svg = `
       <svg xmlns="http://www.w3.org/2000/svg" width="28" height="40" viewBox="0 0 24 36">
         <path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 24 12 24s12-15 12-24c0-6.6-5.4-12-12-12z" fill="${markerColor}" fill-opacity="${opacity}"/>
         <circle cx="12" cy="11" r="4" fill="white"/>
       </svg>
     `;
-    const svgUrl = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
-
     const marker = new google.maps.Marker({
       position: { lat, lng },
       map: context.map,
       title: label,
       icon: {
-        url: svgUrl,
+        url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
         scaledSize: new google.maps.Size(28, 40),
         anchor: new google.maps.Point(14, 40),
       },
       opacity,
     });
 
-    markerRef.current = marker;
+    if (context.config.autoFocus === 'marker') context.extendBound({ lat, lng });
 
-    if (context.config.autoFocus === 'marker') {
-      context.extendBound({ lat, lng });
+    const clickL = marker.addListener('click', handleClick);
+    const rmenuL = marker.addListener('rightclick', handleContextMenu);
+
+    return () => {
+      google.maps.event.removeListener(clickL);
+      google.maps.event.removeListener(rmenuL);
+      marker.setMap(null);
+    };
+  }, [shouldRender, context, lat, lng, markerColor, opacity, thumbnailUrl]);
+
+  // 썸네일 오버레이 (클러스터링 off)
+  useEffect(() => {
+    if (!shouldRender || !context?.map || !thumbnailUrl) return;
+
+    if (context.config.autoFocus === 'marker') context.extendBound({ lat, lng });
+
+    const el = document.createElement('div');
+    el.innerHTML = createThumbnailContent(thumbnailUrl, markerColor);
+    el.style.cssText = 'position:absolute; transform:translate(-50%, -100%); cursor:pointer;';
+    el.addEventListener('click', handleClick);
+
+    class ThumbnailOverlay extends google.maps.OverlayView {
+      onAdd() {
+        this.getPanes()?.overlayMouseTarget.appendChild(el);
+      }
+      draw() {
+        const pos = this.getProjection().fromLatLngToDivPixel(new google.maps.LatLng(lat, lng));
+        if (pos) {
+          el.style.left = `${pos.x}px`;
+          el.style.top = `${pos.y - 8}px`;
+        }
+      }
+      onRemove() { el.parentNode?.removeChild(el); }
     }
 
-    const clickListener = marker.addListener('click', handleClick);
-    const contextMenuListener = marker.addListener('rightclick', handleContextMenu);
+    const overlay = new ThumbnailOverlay();
+    overlay.setMap(context.map);
+    return () => overlay.setMap(null);
+  }, [shouldRender, context, lat, lng, thumbnailUrl, markerColor]);
 
-    return () => {
-      google.maps.event.removeListener(clickListener);
-      google.maps.event.removeListener(contextMenuListener);
-
-      marker.setMap(null);
-      markerRef.current = null;
-    };
-  }, [context, lat, lng, label, markerColor, opacity]);
-
-  // Tooltip on hover (InfoWindow)
+  // 라벨 (클러스터링 off, thumbnail 없을 때)
   useEffect(() => {
-    const marker = markerRef.current;
-    if (!marker || !context?.map || !tooltip) return;
+    if (!shouldRender || !context?.map || !label || thumbnailUrl) return;
 
-    const infoWindow = new google.maps.InfoWindow({
-      content: `
-        <style>.gm-ui-hover-effect { display: none !important; }</style>
-        <div style="padding: 4px 8px; font-size: 12px; max-width: 200px;">${tooltip}</div>
-      `,
-      disableAutoPan: true,
-    });
-
-    const mouseoverListener = marker.addListener('mouseover', () => {
-      infoWindow.open(context.map, marker);
-    });
-
-    const mouseoutListener = marker.addListener('mouseout', () => {
-      infoWindow.close();
-    });
-
-    return () => {
-      google.maps.event.removeListener(mouseoverListener);
-      google.maps.event.removeListener(mouseoutListener);
-      infoWindow.close();
-    };
-  }, [context?.map, tooltip]);
-
-  // Label as custom overlay (always visible, no close button)
-  useEffect(() => {
-    if (!context?.map || !label) return;
-
-    // 동적으로 클래스 생성 (SDK 로드 후에만 실행)
     class LabelOverlay extends google.maps.OverlayView {
       private div: HTMLDivElement | null = null;
-      private position: google.maps.LatLng;
-      private text: string;
-      private bgColor: string;
-
-      constructor(position: google.maps.LatLng, text: string, bgColor: string) {
-        super();
-        this.position = position;
-        this.text = text;
-        this.bgColor = bgColor;
-      }
-
       onAdd() {
         this.div = document.createElement('div');
-        this.div.style.cssText = `
-          position: absolute;
-          background: ${this.bgColor};
-          color: white;
-          padding: 2px 6px;
-          border-radius: 10px;
-          font-size: 11px;
-          font-weight: bold;
-          white-space: nowrap;
-          pointer-events: none;
-          transform: translate(-50%, -100%);
-          margin-top: -40px;
-        `;
-        this.div.textContent = this.text;
-        const panes = this.getPanes();
-        panes?.overlayLayer.appendChild(this.div);
+        this.div.style.cssText = `position:absolute; background:${markerColor}; color:white; padding:2px 6px; border-radius:10px; font-size:11px; font-weight:bold; white-space:nowrap; pointer-events:none; transform:translate(-50%,-100%); margin-top:-44px;`;
+        this.div.textContent = label!;
+        this.getPanes()?.overlayLayer.appendChild(this.div);
       }
-
       draw() {
         if (!this.div) return;
-        const projection = this.getProjection();
-        const pos = projection.fromLatLngToDivPixel(this.position);
-        if (pos) {
-          this.div.style.left = `${pos.x}px`;
-          this.div.style.top = `${pos.y}px`;
-        }
+        const pos = this.getProjection().fromLatLngToDivPixel(new google.maps.LatLng(lat, lng));
+        if (pos) { this.div.style.left = `${pos.x}px`; this.div.style.top = `${pos.y}px`; }
       }
-
       onRemove() {
-        if (this.div?.parentNode) {
-          this.div.parentNode.removeChild(this.div);
-          this.div = null;
-        }
+        if (this.div?.parentNode) { this.div.parentNode.removeChild(this.div); this.div = null; }
       }
     }
 
-    const overlay = new LabelOverlay(
-      new google.maps.LatLng(lat, lng),
-      label,
-      markerColor
-    );
+    const overlay = new LabelOverlay();
     overlay.setMap(context.map);
-
     return () => overlay.setMap(null);
-  }, [context?.map, lat, lng, label, markerColor]);
+  }, [shouldRender, context, lat, lng, label, markerColor, thumbnailUrl]);
 
   return null;
 }
 
-export function GooglePath({
-  coordinates,
-  strokeColor = '#1976d2',
-  strokeWeight = 4,
-  strokeOpacity = 0.8,
-}: PathProps) {
+export function GooglePath({ coordinates, strokeColor = '#1976d2', strokeWeight = 4, strokeOpacity = 0.8 }: PathProps) {
   const context = use(GoogleMapContext);
 
   useEffect(() => {
     if (!context?.map || coordinates.length < 2) return;
 
-    const path = coordinates.map(c => ({ lat: c.lat, lng: c.lng }));
-
     const polyline = new google.maps.Polyline({
-      path,
+      path: coordinates.map(c => ({ lat: c.lat, lng: c.lng })),
       strokeColor,
       strokeWeight,
       strokeOpacity,
@@ -311,3 +412,174 @@ export function GooglePath({
   return null;
 }
 
+// ============ Helpers ============
+
+function createThumbnailContent(thumbnailUrl: string, color: string): string {
+  return `
+    <div style="display:flex; flex-direction:column; align-items:center; filter:drop-shadow(0 3px 8px rgba(0,0,0,0.25));">
+      <div style="width:48px; height:48px; border-radius:50%; border:3px solid ${color}; overflow:hidden; background:#eee;">
+        <img src="${thumbnailUrl}" style="width:100%;height:100%;object-fit:cover;" />
+      </div>
+      <div style="width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:6px solid ${color}; margin-top:-1px;"></div>
+    </div>
+  `;
+}
+
+// ============ Clustering ============
+
+interface Cluster {
+  id: string;
+  center: Coordinate;
+  markers: MarkerData[];
+}
+
+function latLngToPixel(lat: number, lng: number, zoom: number): { x: number; y: number } {
+  const scale = Math.pow(2, zoom);
+  const x = (lng + 180) / 360 * scale * 256;
+  const sinLat = Math.sin(lat * Math.PI / 180);
+  const y = (0.5 - Math.log((1 + sinLat) / (1 - sinLat)) / (4 * Math.PI)) * scale * 256;
+  return { x, y };
+}
+
+function calculateClusters(markers: MarkerData[], _map: google.maps.Map, zoom: number, gridSize: number): Cluster[] {
+  if (markers.length === 0) return [];
+
+  const markerPixels = markers.map(m => ({
+    marker: m,
+    pixel: latLngToPixel(m.position.lat, m.position.lng, zoom),
+  }));
+
+  const processed = new Set<string>();
+  const clusters: Cluster[] = [];
+
+  markerPixels.forEach(({ marker, pixel }) => {
+    if (processed.has(marker.id)) return;
+
+    const nearby: MarkerData[] = [marker];
+    processed.add(marker.id);
+
+    markerPixels.forEach(({ marker: other, pixel: op }) => {
+      if (processed.has(other.id)) return;
+      const dx = pixel.x - op.x, dy = pixel.y - op.y;
+      if (Math.sqrt(dx * dx + dy * dy) <= gridSize) {
+        nearby.push(other);
+        processed.add(other.id);
+      }
+    });
+
+    if (nearby.length >= 2) {
+      const centerLat = nearby.reduce((s, m) => s + m.position.lat, 0) / nearby.length;
+      const centerLng = nearby.reduce((s, m) => s + m.position.lng, 0) / nearby.length;
+      clusters.push({ id: `cluster_${marker.id}`, center: { lat: centerLat, lng: centerLng }, markers: nearby });
+    } else {
+      clusters.push({ id: `single_${marker.id}`, center: marker.position, markers: [marker] });
+    }
+  });
+
+  return clusters;
+}
+
+interface ClusterOverlaysProps {
+  map: google.maps.Map;
+  clusters: Cluster[];
+  zoom: number;
+  onClusterClick: (cluster: Cluster) => void;
+}
+
+function ClusterOverlays({ map, clusters, zoom, onClusterClick }: ClusterOverlaysProps) {
+  const overlaysRef = useRef<google.maps.OverlayView[]>([]);
+  const markersRef = useRef<google.maps.Marker[]>([]);
+
+  useEffect(() => {
+    overlaysRef.current.forEach(o => o.setMap(null));
+    overlaysRef.current = [];
+    markersRef.current.forEach(m => m.setMap(null));
+    markersRef.current = [];
+
+    clusters.forEach(cluster => {
+      if (cluster.markers.length === 1) {
+        const md = cluster.markers[0];
+
+        if (md.thumbnailUrl) {
+          const el = document.createElement('div');
+          el.innerHTML = createThumbnailContent(md.thumbnailUrl, md.color ?? '#ef5350');
+          el.style.cssText = 'position:absolute; transform:translate(-50%, -100%); cursor:pointer;';
+          if (md.onContextMenu) el.addEventListener('contextmenu', md.onContextMenu);
+          if (md.onClick) el.addEventListener('click', md.onClick);
+
+          class TOverlay extends google.maps.OverlayView {
+            onAdd() { this.getPanes()?.overlayMouseTarget.appendChild(el); }
+            draw() {
+              const pos = this.getProjection().fromLatLngToDivPixel(new google.maps.LatLng(md.position.lat, md.position.lng));
+              if (pos) { el.style.left = `${pos.x}px`; el.style.top = `${pos.y - 8}px`; }
+            }
+            onRemove() { el.parentNode?.removeChild(el); }
+          }
+          const overlay = new TOverlay();
+          overlay.setMap(map);
+          overlaysRef.current.push(overlay);
+        } else {
+          const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="40" viewBox="0 0 24 36"><path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 24 12 24s12-15 12-24c0-6.6-5.4-12-12-12z" fill="${md.color ?? '#ef5350'}" fill-opacity="${md.opacity ?? 1}"/><circle cx="12" cy="11" r="4" fill="white"/></svg>`;
+          const tooltipText = Array.isArray(md.tooltip) ? md.tooltip.join('\n') : md.tooltip;
+          const marker = new google.maps.Marker({
+            position: { lat: md.position.lat, lng: md.position.lng },
+            map,
+            title: tooltipText,
+            icon: { url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`, scaledSize: new google.maps.Size(28, 40), anchor: new google.maps.Point(14, 40) },
+            opacity: md.opacity ?? 1,
+          });
+          if (md.onClick) marker.addListener('click', md.onClick);
+          if (md.onContextMenu) marker.addListener('rightclick', md.onContextMenu);
+          markersRef.current.push(marker);
+
+          if (md.label) {
+            class LOverlay extends google.maps.OverlayView {
+              private div: HTMLDivElement | null = null;
+              onAdd() {
+                this.div = document.createElement('div');
+                this.div.style.cssText = `position:absolute; background:${md.color ?? '#ef5350'}; color:white; padding:2px 6px; border-radius:10px; font-size:11px; font-weight:bold; white-space:nowrap; pointer-events:none; transform:translate(-50%,-100%); margin-top:-44px;`;
+                this.div.textContent = md.label!;
+                this.getPanes()?.overlayLayer.appendChild(this.div);
+              }
+              draw() {
+                if (!this.div) return;
+                const pos = this.getProjection().fromLatLngToDivPixel(new google.maps.LatLng(md.position.lat, md.position.lng));
+                if (pos) { this.div.style.left = `${pos.x}px`; this.div.style.top = `${pos.y}px`; }
+              }
+              onRemove() { if (this.div?.parentNode) { this.div.parentNode.removeChild(this.div); this.div = null; } }
+            }
+            const lo = new LOverlay();
+            lo.setMap(map);
+            overlaysRef.current.push(lo);
+          }
+        }
+      } else {
+        const el = document.createElement('div');
+        el.innerHTML = `<div style="width:38px;height:38px;background:white;border:2px solid #bdbdbd;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#555;font-size:13px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.15);cursor:pointer;">${cluster.markers.length}</div>`;
+        el.style.cssText = 'position:absolute; transform:translate(-50%,-50%);';
+        el.addEventListener('click', () => onClusterClick(cluster));
+
+        class COverlay extends google.maps.OverlayView {
+          onAdd() { this.getPanes()?.overlayMouseTarget.appendChild(el); }
+          draw() {
+            const pos = this.getProjection().fromLatLngToDivPixel(new google.maps.LatLng(cluster.center.lat, cluster.center.lng));
+            if (pos) { el.style.left = `${pos.x}px`; el.style.top = `${pos.y}px`; }
+          }
+          onRemove() { el.parentNode?.removeChild(el); }
+        }
+        const overlay = new COverlay();
+        overlay.setMap(map);
+        overlaysRef.current.push(overlay);
+      }
+    });
+
+    return () => {
+      overlaysRef.current.forEach(o => o.setMap(null));
+      overlaysRef.current = [];
+      markersRef.current.forEach(m => m.setMap(null));
+      markersRef.current = [];
+    };
+  }, [map, clusters, zoom, onClusterClick]);
+
+  return null;
+}

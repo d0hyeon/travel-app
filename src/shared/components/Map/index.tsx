@@ -14,6 +14,7 @@ export function Map({ type, children, ...props }: MapProps) {
   );
 }
 
+
 function Marker(props: MarkerProps) {
   const type = use(MapTypeContext);
   return type === 'kakao' ? <KakaoMarker {...props} /> : <GoogleMarker {...props} />;

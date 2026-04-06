@@ -16,6 +16,7 @@ import { ListItem } from "../../../shared/components/ListItem";
 import { PopMenu } from "../../../shared/components/PopMenu";
 import { SortableItem } from "../../../shared/components/dnd/SortableItem";
 import { SortableList } from "../../../shared/components/dnd/SortableList";
+import { useCurrentLocation } from "../../../shared/hooks/useCurrentLocation";
 import { useOverlay } from "../../../shared/hooks/useOverlay";
 import { useRoadRoute } from "../../route/road-route/useRoadRoute";
 import { formatDate, formatDateISO } from "../../../shared/utils/formats";
@@ -96,6 +97,10 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
 
   const mapRef = useRef<MapRef>(null)
   const mapType = trip.isOverseas ? 'google' : 'kakao'
+  const today = formatDateISO(new Date())
+  const isOngoingTrip = trip.startDate <= today && today <= trip.endDate
+  const currentLocation = useCurrentLocation()
+  const mapCenter = isOngoingTrip ? (currentLocation ?? { lat: trip.lat, lng: trip.lng }) : { lat: trip.lat, lng: trip.lng }
   const overlay = useOverlay()
   const confirm = useConfirmDialog();
 
@@ -135,11 +140,12 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
           <Map
             type={mapType}
             ref={mapRef}
-            defaultCenter={{ lat: trip.lat, lng: trip.lng }}
+            defaultCenter={mapCenter}
             autoFocus="path"
             height="100%"
             clustering={cluastering}
             clusterGridSize={50}
+            showMyLocation={isOngoingTrip}
           >
             {places.map((place) => {
               const isInCurrentRoute = currentRoute?.placeIds.includes(place.id) ?? false;

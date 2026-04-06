@@ -24,6 +24,7 @@ export interface MapProps extends Omit<BoxProps, 'ref' | 'autoFocus'> {
   ref?: Ref<MapRef>;
   clustering?: boolean;
   clusterGridSize?: number;
+  showMyLocation?: boolean;
 }
 
 export interface MarkerProps {
@@ -35,6 +36,7 @@ export interface MarkerProps {
   variant?: 'default' | 'selected' | 'disabled';
   color?: string;
   opacity?: number;
+  thumbnailUrl?: string;
   onClick?: (marker: MarkerCallbackData) => void;
   onContextMenu?: (marker: MarkerCallbackData) => void;
 }
