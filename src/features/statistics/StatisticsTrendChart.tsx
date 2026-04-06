@@ -83,7 +83,6 @@ export function StatisticsTrendChart({ data, mode, viewMode = 'line' }: Statisti
                 return (
                   <g transform={`translate(${Number(x)},${Number(y)})`}>
                     <text textAnchor="middle" fill={theme.palette.text.secondary} fontSize="11">
-                      <tspan x="0" dy="0">{point.label}</tspan>
                       <tspan x="0" dy="16">{point.tripName}</tspan>
                     </text>
                   </g>
@@ -93,7 +92,6 @@ export function StatisticsTrendChart({ data, mode, viewMode = 'line' }: Statisti
             <YAxis
               tickLine={false}
               axisLine={false}
-              width={88}
               tick={{ fill: theme.palette.text.secondary, fontSize: 12 }}
               tickFormatter={(value: number) => `${Math.round(value / 10000)}만`}
             />
