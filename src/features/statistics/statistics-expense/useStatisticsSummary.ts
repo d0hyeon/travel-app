@@ -10,6 +10,7 @@ import { getTripMembersByTripId, tripMemberKey } from '~features/trip/trip-membe
 import { tripKey } from '~features/trip/trip.api'
 import type { Trip } from '~features/trip/trip.types'
 import { useTrips } from '~features/trip/useTrips'
+import { formatDate } from 'date-fns'
 
 export interface TripExpenseSummary {
   trip: Trip
@@ -312,7 +313,11 @@ export function useStatisticsSummary(): StatisticsSummary {
         return {
           tripId: summary.trip.id,
           tripName: summary.trip.name,
-          label: summary.trip.endDate.slice(5),
+          /** @TODO 
+           * label은 UI 책임, UI의 변경이 이쪽까지 노출되어 있음.
+           * 추후 리팩토링 필요
+           */
+          label: formatDate(summary.trip.endDate, 'yyyy.MM.dd'),
           amountInKRW: summary.totalAmountInKRW,
           cumulativeAmountInKRW,
         }
