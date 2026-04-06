@@ -317,7 +317,7 @@ export function useStatisticsSummary(): StatisticsSummary {
            * label은 UI 책임, UI의 변경이 이쪽까지 노출되어 있음.
            * 추후 리팩토링 필요
            */
-          label: formatDate(summary.trip.endDate, 'yyyy.MM.dd'),
+          label: `${formatDate(summary.trip.startDate, 'yyyy.MM.dd')} ~ ${formatDate(summary.trip.endDate, 'MM.dd')}`,
           amountInKRW: summary.totalAmountInKRW,
           cumulativeAmountInKRW,
         }

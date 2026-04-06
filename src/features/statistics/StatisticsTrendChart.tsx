@@ -15,6 +15,7 @@ import type { TooltipContentProps } from 'recharts'
 import { formatCurrency } from '~features/expense/expense.utils'
 import type { StatisticsChartViewMode } from './StatisticsViewConfigButton'
 import type { ExpenseTrendPoint } from './statistics-expense/useStatisticsSummary'
+import { useIsMobile } from '~shared/hooks/useIsMobile'
 
 interface StatisticsTrendChartProps {
   data: ExpenseTrendPoint[]
@@ -46,6 +47,9 @@ export function StatisticsTrendChart({ data, mode, viewMode = 'line' }: Statisti
         <Typography fontSize={13} fontWeight={700}>
           {point.tripName}
         </Typography>
+        <Typography fontSize={12}>
+          {point.label}
+        </Typography>
         <Typography variant="caption" color="text.secondary">
           이번 여행 {formatCurrency(point.amountInKRW)}
         </Typography>
@@ -55,6 +59,8 @@ export function StatisticsTrendChart({ data, mode, viewMode = 'line' }: Statisti
       </Stack>
     )
   }
+
+  const isMobile = useIsMobile();
 
   return (
     <Box sx={{ width: '100%', height: 300 }}>
@@ -95,47 +101,51 @@ export function StatisticsTrendChart({ data, mode, viewMode = 'line' }: Statisti
             <Bar dataKey={dataKey} fill={lineColor} radius={[8, 8, 0, 0]} maxBarSize={36} />
           </BarChart>
         ) : (
-        <LineChart data={data} margin={{ top: 12, right: 20, left: 8, bottom: 12 }}>
-          <CartesianGrid stroke="#f1f1f1" vertical={false} />
-          <XAxis
-            dataKey="label"
-            tickLine={false}
-            axisLine={false}
-            interval={0}
-            height={68}
-            tick={(props: { x?: number | string; y?: number | string; payload?: { value?: string } }) => {
-              const { x, y, payload } = props
-              const point = data.find((item) => item.label === payload?.value)
+          <LineChart data={data} margin={{ top: 12, right: 20, left: 8, bottom: 12 }}>
+            <CartesianGrid stroke="#f1f1f1" vertical={false} />
+            <XAxis
+              dataKey="label"
+              tickLine={false}
+              axisLine={false}
+              interval={0}
+              height={68}
+              tick={(props: { x?: number | string; y?: number | string; payload?: { value?: string } }) => {
+                const { x, y, payload } = props
+                const point = data.find((item) => item.label === payload?.value)
 
-              if (x == null || y == null || !point) return null
+                if (x == null || y == null || !point) return null
 
-              return (
-                <g transform={`translate(${Number(x)},${Number(y)})`}>
-                  <text textAnchor="middle" fill={theme.palette.text.secondary} fontSize="11">
-                    <tspan x="0" dy="0">{point.label}</tspan>
-                    <tspan x="0" dy="16">{point.tripName}</tspan>
-                  </text>
-                </g>
-              )
-            }}
-          />
-          <YAxis
-            tickLine={false}
-            axisLine={false}
-            width={88}
-            tick={{ fill: theme.palette.text.secondary, fontSize: 12 }}
-            tickFormatter={(value: number) => `${Math.round(value / 10000)}만`}
-          />
-          <Tooltip cursor={{ stroke: '#d9e7ff', strokeWidth: 1 }} content={tooltipContent} />
-          <Line
-            type="monotone"
-            dataKey={dataKey}
-            stroke={lineColor}
-            strokeWidth={3}
-            dot={{ r: 4, fill: lineColor, stroke: '#fff', strokeWidth: 2 }}
-            activeDot={{ r: 5 }}
-          />
-        </LineChart>
+                return (
+                  <g transform={`translate(${Number(x)},${Number(y)})`}>
+                    <text textAnchor="middle" fill={theme.palette.text.secondary} fontSize="11">
+                      <tspan x="0" dy="16">{point.tripName}</tspan>
+                    </text>
+                  </g>
+                )
+              }}
+            />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              // width={50}
+
+              tick={{ fill: theme.palette.text.secondary, fontSize: 12 }}
+              tickFormatter={(value: number) => `${Math.round(value / 10000)}만`}
+            />
+            <Tooltip
+              cursor={{ stroke: '#d9e7ff', strokeWidth: 1 }}
+              content={tooltipContent}
+              trigger={isMobile ? 'click' : 'hover'}
+            />
+            <Line
+              type="monotone"
+              dataKey={dataKey}
+              stroke={lineColor}
+              strokeWidth={3}
+              dot={{ r: 4, fill: lineColor, stroke: '#fff', strokeWidth: 2 }}
+              activeDot={{ r: 5 }}
+            />
+          </LineChart>
         )}
       </ResponsiveContainer>
     </Box>
