@@ -6,7 +6,7 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router'
 import { ErrorBoundary } from '~shared/components/ErrorBoundary'
 import { OverlayProvider } from '~shared/hooks/useOverlay'
 import '~shared/index.css'
-import { queryClient } from '~app/lib/query-client'
+import { queryClient } from '~app/query-client'
 import { theme } from '~shared/config/theme'
 import { SearchParamProvider } from '~shared/hooks/useSearchParams'
 

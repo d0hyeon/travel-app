@@ -25,8 +25,10 @@
     "noUncheckedSideEffectImports": true,
     "paths": {
       "~app/*": ["./src/app/*"],
+      "~api/*": ["./src/api/*"],
+      "~features/*": ["./src/features/*"],
       "~shared/*": ["./src/shared/*"]
     }
   },
-  "include": ["src/app", "src/shared", "./node_modules/@types/web/index.d.ts"]
+  "include": ["src/app", "src/api", "src/features", "src/shared", "./node_modules/@types/web/index.d.ts"]
 }

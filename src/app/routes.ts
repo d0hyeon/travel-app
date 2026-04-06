@@ -7,8 +7,8 @@ export const AppRoute = {
 } as const;
 
 export default [
-  index("trip/TripListPage.tsx"),
-  route(AppRoute.여행_상세, "trip/TripDetailPage.tsx"),
-  route(AppRoute.여행_생성, "trip/trip-create/TripCreatePage.tsx"),
+  index("../features/trip/TripListPage.tsx"),
+  route(AppRoute.여행_상세, "../features/trip/TripDetailPage.tsx"),
+  route(AppRoute.여행_생성, "../features/trip/trip-create/TripCreatePage.tsx"),
   route("*", "NotFound.tsx"),
 ] satisfies RouteConfig;

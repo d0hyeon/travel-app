@@ -14,6 +14,8 @@ const config = {
   resolve: {
     alias: [
       { find: /^~app/, replacement: path.resolve(__dirname, 'src/app') },
+      { find: /^~api/, replacement: path.resolve(__dirname, 'src/api') },
+      { find: /^~features/, replacement: path.resolve(__dirname, 'src/features') },
       { find: /^~shared/, replacement: path.resolve(__dirname, 'src/shared') },
     ],
   },

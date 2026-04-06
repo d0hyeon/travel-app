@@ -4,7 +4,7 @@ import { Box, Dialog, IconButton, Slide, Stack } from "@mui/material";
 import { forwardRef, useRef, useState, type ComponentProps } from "react";
 import { Mousewheel } from 'swiper/modules';
 import { Swiper, SwiperSlide, type SwiperRef } from "swiper/react";
-import type { Photo } from "~app/photo/photo.types";
+import type { Photo } from "~features/photo/photo.types";
 import { useConfirmDialog } from "../../components/confirm-dialog/useConfirmDialog";
 
 // @ts-ignore

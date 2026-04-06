@@ -1,0 +1,117 @@
+import DeleteIcon from '@mui/icons-material/Delete'
+import {
+  Box,
+  Button,
+  Container,
+  IconButton,
+  Stack,
+  Typography
+} from '@mui/material'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router'
+import { ListItem } from '../../shared/components/ListItem'
+import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
+import { useTrips } from './useTrips'
+import { useOverlay } from '~shared/hooks/useOverlay'
+import { useIsMobile } from '~shared/hooks/useIsMobile'
+import { TripFormDialog } from './TripFormDialog'
+import { isOverseasByCoordinate } from '~shared/utils/geo'
+import { AppRoute } from '~app/routes'
+
+export default function TripListPage() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const confirm = useConfirmDialog()
+
+  const { data: trips, create, remove } = useTrips();
+  const overlay = useOverlay();
+  const isMobile = useIsMobile();
+  const navigate = useNavigate();
+
+  return (
+    <Container maxWidth="sm" sx={{ py: 4 }}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
+        <Typography variant="h6" fontWeight="bold">
+          내 여행
+        </Typography>
+        <Button
+          variant="contained"
+          onClick={() => {
+            if (isMobile) {
+              return navigate(AppRoute.여행_생성);
+            }
+
+            overlay.open(({ isOpen, close }) => (
+              <TripFormDialog
+                open={isOpen}
+                onClose={close}
+                onSubmit={async (data) => {
+                  const trip = await create({
+                    ...data,
+                    isOverseas: isOverseasByCoordinate(data.lat, data.lng),
+                    exchangeRate: null,
+                    exchangeRates: null
+                  })
+                  navigate(`/trip/${trip.id}`)
+                }}
+              />
+            ))
+          }}
+        >
+          새 여행
+        </Button>
+      </Stack>
+
+      {trips.length === 0 ? (
+        <Box textAlign="center" py={8}>
+          <Typography variant="body1" color="text.secondary">
+            아직 여행이 없어요. 새 여행을 만들어보세요!
+          </Typography>
+        </Box>
+      ) : (
+        <Stack spacing={2}>
+          {trips.map((trip, idx) => (
+            <Stack key={trip.id} direction="row" alignItems="center" gap={1}>
+              <Link to={`/trip/${trip.id}`} style={{ flex: 1 }}>
+
+                <ListItem
+                  leftAddon={<ListItem.Ordering>{idx + 1}</ListItem.Ordering>}
+                  rightAddon={(
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={async (e) => {
+                        e.preventDefault()
+                        if (await confirm(`"${trip.name}" 여행을 삭제하시겠습니까?`)) {
+                          await remove(trip.id)
+                        }
+                      }}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  )}
+                >
+                  <ListItem.Title>{trip.name}</ListItem.Title>
+                  <ListItem.Text>{trip.startDate} ~ {trip.endDate}</ListItem.Text>
+                </ListItem>
+              </Link>
+
+            </Stack>
+          ))}
+        </Stack>
+      )}
+
+      <TripFormDialog
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onSubmit={(data) => {
+          create({
+            ...data,
+            isOverseas: isOverseasByCoordinate(data.lat, data.lng),
+            exchangeRate: null,
+            exchangeRates: null
+          }, { onSuccess: () => setIsDialogOpen(false) })
+        }}
+      />
+    </Container>
+  )
+}
