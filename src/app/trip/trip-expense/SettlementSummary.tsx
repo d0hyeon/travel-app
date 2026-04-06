@@ -1,11 +1,10 @@
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import { Box, Card, CardContent, Divider, Stack, Typography } from "@mui/material"
 import { useMemo } from 'react'
+import { convertToKRW } from '~app/expense/currency'
 import { useExpenses } from '~app/expense/useExpenses'
-import type { SettlementTransaction } from "../../expense/expense.types"
 import { calculateBalancesInKRW, calculateSettlements, formatCurrency } from "../../expense/expense.utils"
 import { useTripMembers } from '../trip-member/useTripMembers'
-import { convertToKRW } from '~app/expense/currency'
 import { useTrip } from '../useTrip'
 
 interface Props {

@@ -1,7 +1,9 @@
 import { Delete, Edit } from '@mui/icons-material'
 import AddIcon from '@mui/icons-material/Add'
+import GroupIcon from '@mui/icons-material/Group'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import PaymentIcon from '@mui/icons-material/Payment'
+import PlaceIcon from '@mui/icons-material/Place'
 import RouteIcon from '@mui/icons-material/Route'
 import { Box, Button, InputAdornment, Stack, Tab, Tabs, TextField, Typography } from "@mui/material"
 import { Suspense, useMemo, useState } from "react"
@@ -16,8 +18,6 @@ import { useOverlay } from "../../../shared/hooks/useOverlay"
 import { formatDate } from "../../../shared/utils/formats"
 import { formatByCurrencyCode, getDefaultExchangeRate, getExchangeRate, getUsedCurrencies, setExchangeRate, type CurrencyCode } from "../../expense/currency"
 import {
-  calculateBalancesInKRW,
-  calculateSettlements,
   formatCurrency,
   getTotalExpensesInKRW
 } from "../../expense/expense.utils"
@@ -28,8 +28,6 @@ import { AnimatedCountText } from './AnimatedCountText'
 import { RouteExpenseViewMobile } from "./RouteExpenseView.mobile"
 import { SettlementSummary } from "./SettlementSummary"
 import { useExpenseFormBottomSheet } from './useExpenseFormOverlay'
-import PlaceIcon from '@mui/icons-material/Place';
-import GroupIcon from '@mui/icons-material/Group';
 
 interface Props {
   tripId: string
@@ -68,8 +66,6 @@ export default function ExpenseContent({ tripId }: Props) {
   const exchangeRates = trip.exchangeRates
 
   // 원화 환산 기준 계산
-  const balances = useMemo(() => calculateBalancesInKRW(members, expenses, exchangeRates), [members, expenses, exchangeRates])
-  const settlements = useMemo(() => calculateSettlements(balances), [balances])
   const totalExpensesInKRW = useMemo(() => getTotalExpensesInKRW(expenses, exchangeRates), [expenses, exchangeRates])
 
   // 지출에 사용된 통화 목록
