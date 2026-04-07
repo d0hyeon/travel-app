@@ -5,7 +5,7 @@ import { Box, Stack, Tooltip, Typography } from '@mui/material'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
 import { BottomNavigation } from '~shared/components/BottomNavigation'
-import { isMobile } from 'react-device-detect';
+import { useIsMobile } from '~shared/hooks/useIsMobile'
 
 
 const TABS = [
@@ -17,7 +17,7 @@ const TABS = [
 export default function MainLayout() {
   const location = useLocation()
   const navigate = useNavigate()
-
+  const isMobile = useIsMobile();
 
 
   if (isMobile) {
