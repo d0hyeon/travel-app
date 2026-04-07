@@ -12,5 +12,5 @@ export function useIsMobile() {
   }, [])
   
 
-  return isMobile && useMediaQuery(theme.breakpoints.down('md'))
+  return isMobile && useMediaQuery(theme.breakpoints.down('md'), { noSsr: true })
 }
