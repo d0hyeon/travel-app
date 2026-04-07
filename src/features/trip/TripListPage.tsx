@@ -30,7 +30,7 @@ export default function TripListPage() {
   return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h6" fontWeight="bold">
+        <Typography variant="h6" >
           내 여행
         </Typography>
         <Button

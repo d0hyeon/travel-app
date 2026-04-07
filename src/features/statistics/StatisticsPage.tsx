@@ -16,11 +16,13 @@ export default function StatisticsPage() {
 
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+
       <Box
         position="sticky"
         top={0}
         px={2}
         py={1}
+        pb={0}
         width="100%"
         bgcolor="background.paper"
         zIndex={10}
@@ -51,25 +53,25 @@ export default function StatisticsPage() {
 
       <Box px={2} py={2} flex={1} overflow="auto">
         <Stack gap={3}>
-        {summary.travelSummaries.length === 0 ? (
-          <Box textAlign="center" py={8}>
-            <Typography variant="body1" color="text.secondary">
-              아직 기록된 지출이 없어요.
-            </Typography>
-          </Box>
-        ) : null}
+          {summary.travelSummaries.length === 0 ? (
+            <Box textAlign="center" py={8}>
+              <Typography variant="body1" color="text.secondary">
+                아직 기록된 지출이 없어요.
+              </Typography>
+            </Box>
+          ) : null}
 
-        {summary.travelSummaries.length > 0 && currentTab === 'overview' ? (
-          <StatisticsOverviewSection summary={summary} />
-        ) : null}
+          {summary.travelSummaries.length > 0 && currentTab === 'overview' ? (
+            <StatisticsOverviewSection summary={summary} />
+          ) : null}
 
-        {summary.travelSummaries.length > 0 && currentTab === 'ranking' ? (
-          <StatisticsRankingSection summary={summary} />
-        ) : null}
+          {summary.travelSummaries.length > 0 && currentTab === 'ranking' ? (
+            <StatisticsRankingSection summary={summary} />
+          ) : null}
 
-        {summary.travelSummaries.length > 0 && currentTab === 'currency' ? (
-          <StatisticsCurrencySection summary={summary} />
-        ) : null}
+          {summary.travelSummaries.length > 0 && currentTab === 'currency' ? (
+            <StatisticsCurrencySection summary={summary} />
+          ) : null}
         </Stack>
       </Box>
     </Box>
