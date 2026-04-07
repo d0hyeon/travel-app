@@ -7,19 +7,17 @@ import {
   Stack,
   Typography
 } from '@mui/material'
-import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { ListItem } from '../../shared/components/ListItem'
-import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
-import { useTrips } from './useTrips'
-import { useOverlay } from '~shared/hooks/useOverlay'
-import { useIsMobile } from '~shared/hooks/useIsMobile'
-import { TripFormDialog } from './TripFormDialog'
-import { isOverseasByCoordinate } from '~shared/utils/geo'
 import { AppRoute } from '~app/routes'
+import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
+import { useIsMobile } from '~shared/hooks/useIsMobile'
+import { useOverlay } from '~shared/hooks/useOverlay'
+import { isOverseasByCoordinate } from '~shared/utils/geo'
+import { ListItem } from '../../shared/components/ListItem'
+import { TripFormDialog } from './TripFormDialog'
+import { useTrips } from './useTrips'
 
 export default function TripListPage() {
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
   const confirm = useConfirmDialog()
 
   const { data: trips, create, remove } = useTrips();
@@ -99,19 +97,6 @@ export default function TripListPage() {
           ))}
         </Stack>
       )}
-
-      <TripFormDialog
-        open={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-        onSubmit={(data) => {
-          create({
-            ...data,
-            isOverseas: isOverseasByCoordinate(data.lat, data.lng),
-            exchangeRate: null,
-            exchangeRates: null
-          }, { onSuccess: () => setIsDialogOpen(false) })
-        }}
-      />
     </Container>
   )
 }
