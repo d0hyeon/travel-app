@@ -1,8 +1,6 @@
 import { getCoordinateByLocation, Locations, type Location } from "~features/location";
 
-export const DestinationGroups = ['국내', '일본', '동남아', '중화권', '유럽', '미주'] as const
-export type DestinationGroup = typeof DestinationGroups[number]
-
+export const LocationGroups = ['국내', '일본', '동남아', '중화권', '유럽', '미주'] as const
 export const LocationGroup = {
   서울: '국내',
   부산: '국내',
@@ -53,9 +51,9 @@ export const LocationGroup = {
   샌프란시스코: '미주',
   라스베이거스: '미주',
   칸쿤: '미주',
-} as const satisfies Record<Location, DestinationGroup>;
+} as const satisfies Record<Location, typeof LocationGroups[number]>;
 
-export const DestinationOptions = Locations.map((location) => {
+export const LocationOptions = Locations.map((location) => {
   const coordinate = getCoordinateByLocation(location)
 
   return {
@@ -65,4 +63,4 @@ export const DestinationOptions = Locations.map((location) => {
     group: LocationGroup[location],
   }
 })
-export type DestinationOption = typeof DestinationOptions[number]
+export type LocationOption = typeof LocationOptions[number]

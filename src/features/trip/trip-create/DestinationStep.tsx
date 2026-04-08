@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { Box, Button, Chip, Stack, Typography } from '@mui/material'
 import { BottomActions } from '~shared/components/BottomSheet/compounds'
-import { DestinationGroups, DestinationOptions, type DestinationOption } from '../trip.constants';
+import { LocationGroups, LocationOptions, type LocationOption } from '../trip.constants';
 
-export type Destination = DestinationOption;
+export type Destination = LocationOption;
 
-const DestinationGroupOptions = DestinationGroups.map((group) => ({
+const DestinationGroupOptions = LocationGroups.map((group) => ({
   label: group,
-  destinations: DestinationOptions.filter((destination) => destination.group === group),
+  destinations: LocationOptions.filter((destination) => destination.group === group),
 }))
 
 interface Props {
