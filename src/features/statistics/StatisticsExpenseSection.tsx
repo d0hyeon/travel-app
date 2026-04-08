@@ -1,9 +1,15 @@
-import { Box, Stack, Typography } from '@mui/material'
+import { Box, Chip, Stack, Typography } from '@mui/material'
 import { formatCurrency } from '~features/expense/expense.utils'
 import { StatisticsBarChart } from '~shared/components/statistics/StatisticsBarChart'
 import { StatisticsColumnChart } from '~shared/components/statistics/StatisticsColumnChart'
 import { StatisticsDonutChart } from '~shared/components/statistics/StatisticsDonutChart'
+import { StatisticsHeroPanel } from './StatisticsHeroPanel'
 import { StatisticsSectionCard } from './StatisticsSectionCard'
+import {
+  StatisticsTrendChart,
+  StatisticsTrendModeToggle,
+  useStatisticsTrendMode,
+} from './StatisticsTrendChart'
 import {
   StatisticsViewConfigButton,
   useStatisticsChartViewMode,
@@ -15,19 +21,54 @@ interface StatisticsExpenseSectionProps {
 }
 
 export function StatisticsExpenseSection({ summary }: StatisticsExpenseSectionProps) {
+  const [trendMode, setTrendMode] = useStatisticsTrendMode()
+  const [trendViewMode, setTrendViewMode] = useStatisticsChartViewMode('trend', 'line')
   const [travelViewMode, setTravelViewMode] = useStatisticsChartViewMode('travel-spend', 'horizontal-bar')
   const [payerViewMode, setPayerViewMode] = useStatisticsChartViewMode('payer-ranking', 'donut')
   const [categoryExpenseViewMode, setCategoryExpenseViewMode] = useStatisticsChartViewMode('category-expense', 'donut')
   const {
+    totalAmountInKRW,
+    currencySummaries,
     travelSummaries,
     payerSummaries,
     categoryExpenseSummaries,
+    expenseTrend,
   } = summary
 
   const topTravelAmount = travelSummaries[0]?.totalAmountInKRW ?? 0
 
   return (
     <Stack gap={3}>
+      <StatisticsHeroPanel totalAmount={formatCurrency(totalAmountInKRW)} />
+
+      <Stack direction="row" gap={0.75} flexWrap="wrap">
+        <Chip size="small" variant="outlined" label={`대표 통화 ${currencySummaries[0]?.currency ?? '-'}`} />
+        {currencySummaries[0] && (
+          <Chip size="small" variant="outlined" label={`${currencySummaries[0].expenseCount}건`} />
+        )}
+      </Stack>
+
+      <StatisticsSectionCard
+        title="지출 추이"
+        tone="blue"
+        action={
+          <Stack direction="row" gap={0.75} alignItems="center">
+            <StatisticsTrendModeToggle value={trendMode} onChange={setTrendMode} />
+            <StatisticsViewConfigButton
+              title="지출 추이"
+              options={[
+                { value: 'line', label: '라인형', caption: '흐름 변화를 부드럽게 봐요' },
+                { value: 'bar', label: '막대형', caption: '여행별 값 차이를 또렷하게 봐요' },
+              ]}
+              value={trendViewMode}
+              onChange={setTrendViewMode}
+            />
+          </Stack>
+        }
+      >
+        <StatisticsTrendChart data={expenseTrend} mode={trendMode} viewMode={trendViewMode} />
+      </StatisticsSectionCard>
+
       <Stack gap={1}>
         <Typography variant="overline" color="text.secondary">
           여행별
