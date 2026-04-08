@@ -1,6 +1,7 @@
 /**
  * 목적지별 화폐 단위 매핑
  */
+import { getCurrencyCodeByLocation } from '~features/location'
 
 
 /**
@@ -66,57 +67,13 @@ export interface ExchangeRateEntry {
 
 export const KRW: CurrencyInfo = { code: 'KRW', symbol: '원', name: '원', locale: 'ko-KR' };
 
-// 목적지 -> 화폐 매핑
-const DESTINATION_CURRENCY_MAP: Record<string, CurrencyInfo> = {
-  // 일본
-  '도쿄': { code: 'JPY', symbol: '¥', name: '엔', locale: 'ja-JP' },
-  '오사카': { code: 'JPY', symbol: '¥', name: '엔', locale: 'ja-JP' },
-  '교토': { code: 'JPY', symbol: '¥', name: '엔', locale: 'ja-JP' },
-  '후쿠오카': { code: 'JPY', symbol: '¥', name: '엔', locale: 'ja-JP' },
-  '삿포로': { code: 'JPY', symbol: '¥', name: '엔', locale: 'ja-JP' },
-  '오키나와': { code: 'JPY', symbol: '¥', name: '엔', locale: 'ja-JP' },
-
-  // 동남아
-  '방콕': { code: 'THB', symbol: '฿', name: '바트', locale: 'th-TH' },
-  '푸켓': { code: 'THB', symbol: '฿', name: '바트', locale: 'th-TH' },
-  '싱가포르': { code: 'SGD', symbol: 'S$', name: '싱가포르 달러', locale: 'en-SG' },
-  '베트남 다낭': { code: 'VND', symbol: '₫', name: '동', locale: 'vi-VN' },
-  '베트남 호치민': { code: 'VND', symbol: '₫', name: '동', locale: 'vi-VN' },
-  '베트남 하노이': { code: 'VND', symbol: '₫', name: '동', locale: 'vi-VN' },
-  '발리': { code: 'IDR', symbol: 'Rp', name: '루피아', locale: 'id-ID' },
-  '세부': { code: 'PHP', symbol: '₱', name: '페소', locale: 'fil-PH' },
-  '코타키나발루': { code: 'MYR', symbol: 'RM', name: '링깃', locale: 'ms-MY' },
-
-  // 중화권
-  '홍콩': { code: 'HKD', symbol: 'HK$', name: '홍콩 달러', locale: 'zh-HK' },
-  '마카오': { code: 'MOP', symbol: 'MOP$', name: '파타카', locale: 'zh-MO' },
-  '타이베이': { code: 'TWD', symbol: 'NT$', name: '대만 달러', locale: 'zh-TW' },
-  '상하이': { code: 'CNY', symbol: '¥', name: '위안', locale: 'zh-CN' },
-
-  // 유럽
-  '파리': { code: 'EUR', symbol: '€', name: '유로', locale: 'fr-FR' },
-  '로마': { code: 'EUR', symbol: '€', name: '유로', locale: 'it-IT' },
-  '바르셀로나': { code: 'EUR', symbol: '€', name: '유로', locale: 'es-ES' },
-  '암스테르담': { code: 'EUR', symbol: '€', name: '유로', locale: 'nl-NL' },
-  '런던': { code: 'GBP', symbol: '£', name: '파운드', locale: 'en-GB' },
-  '프라하': { code: 'CZK', symbol: 'Kč', name: '코루나', locale: 'cs-CZ' },
-  '스위스 취리히': { code: 'CHF', symbol: 'CHF', name: '프랑', locale: 'de-CH' },
-
-  // 미주
-  '뉴욕': { code: 'USD', symbol: '$', name: '달러', locale: 'en-US' },
-  '로스앤젤레스': { code: 'USD', symbol: '$', name: '달러', locale: 'en-US' },
-  '하와이 호놀룰루': { code: 'USD', symbol: '$', name: '달러', locale: 'en-US' },
-  '샌프란시스코': { code: 'USD', symbol: '$', name: '달러', locale: 'en-US' },
-  '라스베이거스': { code: 'USD', symbol: '$', name: '달러', locale: 'en-US' },
-  '칸쿤': { code: 'MXN', symbol: 'MX$', name: '페소', locale: 'es-MX' },
-};
-
 /**
  * 목적지에 해당하는 화폐 정보 반환
  * 매핑되지 않은 목적지는 USD 반환
  */
 export function getCurrencyByDestination(destination: string): CurrencyInfo {
-  return DESTINATION_CURRENCY_MAP[destination] ?? { code: 'USD', symbol: '$', name: '달러', locale: 'en-US' };
+  const currencyCode = getCurrencyCodeByLocation(destination)
+  return (currencyCode && CURRENCY_INFO_MAP[currencyCode]) ?? { code: 'USD', symbol: '$', name: '달러', locale: 'en-US' };
 }
 
 /**

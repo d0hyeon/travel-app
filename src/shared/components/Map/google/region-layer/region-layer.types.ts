@@ -1,4 +1,4 @@
-import type { CountryName } from '~shared/utils/location'
+import type { Country } from '~features/location'
 
 export type GeoJsonGeometry = {
   type: 'Polygon' | 'MultiPolygon'
@@ -24,7 +24,7 @@ export interface RegionStyleDefinition {
 
 export interface CountryFeatureProperties extends RegionStyleDefinition {
   layerType: 'country'
-  country: CountryName
+  country: Country
 }
 
 export interface RegionFeatureProperties extends RegionStyleDefinition {

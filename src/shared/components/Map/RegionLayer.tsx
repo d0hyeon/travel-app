@@ -44,7 +44,7 @@ function collectRegionDefinitions(children: ReactNode): RegionDefinition[] {
 
     regions.push({
       type: 'region',
-      region: props.region,
+      location: props.location,
       lat: props.lat,
       lng: props.lng,
       color: props.color,

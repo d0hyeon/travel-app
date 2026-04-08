@@ -1,5 +1,4 @@
-import { COUNTRY_TO_ISO3 } from '~shared/utils/location'
-import type { CountryName } from '~shared/utils/location'
+import { CountryCode, type Country } from '~features/location'
 import type { GeoJsonFeatureCollection } from './region-layer.types'
 
 const WORLD_BOUNDARY_URL = '/visit-layer/world.geojson'
@@ -24,8 +23,8 @@ export function fetchWorldBoundaries() {
   return request
 }
 
-export function fetchCountryRegionBoundaries(country: CountryName) {
-  const iso3 = COUNTRY_TO_ISO3[country]
+export function fetchCountryRegionBoundaries(country: Country) {
+  const iso3 = CountryCode[country]
   const cached = regionBoundaryCache.get(iso3)
   if (cached) return cached
 

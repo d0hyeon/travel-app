@@ -1,12 +1,9 @@
 import type { BoxProps } from '@mui/material';
 import type { ReactNode, Ref } from 'react';
+import type { Coordinate } from '~shared/model/coordinate.model';
+export type { Coordinate } from '~shared/model/coordinate.model';
 
 export type MapType = 'kakao' | 'google';
-
-export interface Coordinate {
-  lat: number;
-  lng: number;
-}
 
 export type AutoFocus = 'marker' | 'path' | false;
 

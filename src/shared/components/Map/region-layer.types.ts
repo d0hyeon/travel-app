@@ -1,21 +1,21 @@
 import type { ReactElement, ReactNode } from 'react'
-import type { CountryName, DestinationName } from '~shared/utils/location'
+import type { Country, Location } from '~features/location'
 
 interface BaseRegionProps {
-  color: string
+      color: string
   opacity?: number
   strokeColor?: string
 }
 
 export type MapRegionProps =
   | (BaseRegionProps & {
-      country: CountryName
-      region?: never
+      country: Country
+      location?: never
       lat?: never
       lng?: never
     })
   | (BaseRegionProps & {
-      region: DestinationName
+      location: Location
       country?: never
       lat: number
       lng: number
@@ -29,15 +29,15 @@ export type RegionElement = ReactElement<MapRegionProps>
 
 export interface CountryRegionDefinition {
   type: 'country'
-  country: CountryName
+  country: Country
   color: string
   opacity?: number
   strokeColor?: string
 }
 
-export interface DestinationRegionDefinition {
+export interface LocationRegionDefinition {
   type: 'region'
-  region: DestinationName
+  location: Location
   lat: number
   lng: number
   color: string
@@ -45,4 +45,4 @@ export interface DestinationRegionDefinition {
   strokeColor?: string
 }
 
-export type RegionDefinition = CountryRegionDefinition | DestinationRegionDefinition
+export type RegionDefinition = CountryRegionDefinition | LocationRegionDefinition

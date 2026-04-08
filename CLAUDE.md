@@ -150,6 +150,24 @@ src/
 
 ## 주요 패턴
 
+### 위치 모델링
+- `features/location/`은 지리 vocabulary를 담당합니다.
+- `Location`은 실제로 선택/표시/집계하는 구체 지명 단위입니다. 예: `서울`, `도쿄`, `오사카`
+- `Region`은 `Location`의 상위 지역입니다. 예: `강원도`, `간사이`, `홋카이도`
+- `Country`는 `Location`의 국가 메타입니다. 예: `South Korea`, `Japan`
+- `Destination`은 별도 베이스 모델이 아니라, 여행 생성 UI에서 선택 가능한 `Location` 집합입니다.
+- 공용 위치 vocabulary는 `src/features/location/location.model.ts`와 `src/features/location/location.utils.ts`에서 관리합니다.
+- 관계형 상수는 `LocationCountry`, `LocationRegion`, `LocationCoordinate`, `LocationCurrency`, `CountryCode`처럼 `ByX`보다 목적어 중심 이름을 우선합니다.
+
+### 공용 좌표 모델
+- `Coordinate`는 지도 컴포넌트 타입이 아니라 공용 값 모델입니다.
+- 원천 타입은 `src/shared/model/coordinate.model.ts`에 두고, 지도/위치/훅이 함께 참조합니다.
+- `shared/components/Map/types.ts`는 이를 다시 export만 합니다.
+
+### 여행지 선택 UI 모델
+- 여행 생성/수정 화면에서 쓰는 선택지 모델은 `src/features/trip/destination-options/`에 둡니다.
+- `DestinationOption`, `DestinationGroupOptions`, `Destinations`는 UI 소비를 위한 모델이며, 공용 위치 vocabulary와 분리합니다.
+
 ### 반응형 컴포넌트
 모바일/데스크탑 파일을 분리하고 래퍼에서 `useIsMobile()`로 분기합니다.
 수정 시 `.mobile.tsx`와 `.desktop.tsx` 양쪽 모두 확인할 것.
@@ -175,6 +193,7 @@ TripDetailPage.desktop.tsx  ← 데스크탑 구현
 | 기능 | 핵심 파일 |
 |------|-----------|
 | 여행 목록/생성 | `trip/TripListPage.tsx`, `trip/trip-create/` |
+| 위치 vocabulary | `features/location/location.model.ts`, `features/location/location.utils.ts` |
 | 여행 상세 레이아웃 | `trip/TripDetailPage.*.tsx` |
 | 지출 내역 UI | `trip/trip-expense/ExpenseContent.*.tsx` |
 | 정산 계산 로직 | `expense/expense.utils.ts` |

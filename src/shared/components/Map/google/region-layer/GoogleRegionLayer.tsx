@@ -1,5 +1,5 @@
 import { use, useEffect, useEffectEvent, useMemo, useRef } from 'react'
-import { getCountryByDestination, type CountryName } from '~shared/utils/location'
+import { getCountryByLocation, type Country } from '~features/location'
 import { GoogleMapContext } from '../GoogleMap'
 import type { RegionDefinition } from '../../region-layer.types'
 import { fetchCountryRegionBoundaries, fetchWorldBoundaries } from './region-layer.data'
@@ -21,7 +21,7 @@ export function GoogleRegionLayer({ regions }: GoogleRegionLayerProps) {
     [regions]
   )
 
-  const destinationRegions = useMemo(
+  const locationRegions = useMemo(
     () => regions.filter((region) => region.type === 'region'),
     [regions]
   )
@@ -82,10 +82,10 @@ export function GoogleRegionLayer({ regions }: GoogleRegionLayerProps) {
     if (!context?.map) return
 
     const map = context.map
-    const regionsByCountry = new globalThis.Map<CountryName, typeof destinationRegions>()
+    const regionsByCountry = new globalThis.Map<Country, typeof locationRegions>()
 
-    destinationRegions.forEach((region) => {
-      const country = getCountryByDestination(region.region)
+    locationRegions.forEach((region) => {
+      const country = getCountryByLocation(region.location)
       if (!country) return
 
       const bucket = regionsByCountry.get(country) ?? []
@@ -120,11 +120,11 @@ export function GoogleRegionLayer({ regions }: GoogleRegionLayerProps) {
     return () => {
       cancelled = true
     }
-  }, [context?.map, destinationRegions])
+  }, [context?.map, locationRegions])
 
   useEffect(() => {
     applyStyle()
-  }, [countriesByName, destinationRegions])
+  }, [countriesByName, locationRegions])
 
   return null
 }

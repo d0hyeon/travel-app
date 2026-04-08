@@ -1,5 +1,5 @@
 import type { GeoJsonFeature, GeoJsonFeatureCollection, GeoJsonGeometry } from './region-layer.types'
-import type { DestinationRegionDefinition } from '../../region-layer.types'
+import type { LocationRegionDefinition } from '../../region-layer.types'
 
 interface Point {
   lat: number
@@ -88,9 +88,9 @@ function getDistanceScore(a: Point, b: Point) {
 
 export function buildRegionFeatureCollection(
   geoJson: GeoJsonFeatureCollection,
-  regions: DestinationRegionDefinition[]
+  regions: LocationRegionDefinition[]
 ): GeoJsonFeatureCollection {
-  const stylesByShapeId = new Map<string, DestinationRegionDefinition>()
+  const stylesByShapeId = new Map<string, LocationRegionDefinition>()
   const centersByShapeId = new Map<string, Point>()
 
   geoJson.features.forEach((feature) => {
@@ -118,7 +118,7 @@ export function buildRegionFeatureCollection(
 
     if (!resolvedFeature) return
 
-    const shapeId = String(resolvedFeature.properties.shapeID ?? resolvedFeature.properties.shapeName ?? region.region)
+    const shapeId = String(resolvedFeature.properties.shapeID ?? resolvedFeature.properties.shapeName ?? region.location)
     stylesByShapeId.set(shapeId, region)
   })
 
@@ -135,7 +135,7 @@ export function buildRegionFeatureCollection(
         properties: {
           ...feature.properties,
           layerType: 'region',
-          region: region.region,
+          region: region.location,
           color: region.color,
           opacity: region.opacity,
           strokeColor: region.strokeColor,

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { Coordinate } from '~shared/components/Map'
+import type { Coordinate } from '~shared/model/coordinate.model'
 
 export function useCurrentLocation(): Coordinate | null {
   const [location, setLocation] = useState<Coordinate | null>(null)

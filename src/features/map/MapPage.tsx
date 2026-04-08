@@ -12,7 +12,7 @@ import { useAllPlaces } from './useAllPlaces'
 import { PlaceDetailBottomSheet } from './PlaceDetailBottomSheet'
 import { PlaceDetailSidePanel } from './PlaceDetailSidePanel'
 import { useOverlay } from '~shared/hooks/useOverlay'
-import { getCountryByDestination, isDestinationName, type CountryName, type DestinationName } from '~shared/utils/location'
+import { getCountryByLocation, isLocation, type Country, type Location } from '~features/location'
 
 // 파스텔 배경색 / 진한 텍스트(마커)용 쌍
 type TripColor = { bg: string; text: string; marker: string }
@@ -58,9 +58,9 @@ function MapPageResolved() {
   )
 
   const countryVisitData = useMemo(() => {
-    const countMap: Partial<Record<CountryName, number>> = {}
+    const countMap: Partial<Record<Country, number>> = {}
     filteredTrips.forEach((trip) => {
-      const country = getCountryByDestination(trip.destination)
+      const country = getCountryByLocation(trip.destination)
       if (!country) return
       countMap[country] = (countMap[country] ?? 0) + 1
     })
@@ -70,14 +70,14 @@ function MapPageResolved() {
   const regionVisitPoints = useMemo(() => {
     const regionMap = new globalThis.Map<string, {
       id: string
-      region: DestinationName
+      location: Location
       lat: number
       lng: number
       count: number
     }>()
 
     filteredTrips.forEach((trip) => {
-      if (!isDestinationName(trip.destination)) return
+      if (!isLocation(trip.destination)) return
 
       const key = `${trip.destination}:${trip.lat}:${trip.lng}`
       const current = regionMap.get(key)
@@ -89,7 +89,7 @@ function MapPageResolved() {
 
       regionMap.set(key, {
         id: key,
-        region: trip.destination,
+        location: trip.destination,
         lat: trip.lat,
         lng: trip.lng,
         count: 1,
@@ -215,7 +215,7 @@ function MapPageResolved() {
             {Object.entries(countryVisitData).map(([country, count]) => (
               <Map.Region
                 key={country}
-                country={country as CountryName}
+                country={country as Country}
                 color={getVisitColor(count ?? 0)}
                 opacity={getCountryOpacity(count ?? 0)}
               />
@@ -223,7 +223,7 @@ function MapPageResolved() {
             {regionVisitPoints.map((regionItem) => (
               <Map.Region
                 key={regionItem.id}
-                region={regionItem.region}
+                location={regionItem.location}
                 lat={regionItem.lat}
                 lng={regionItem.lng}
                 color={getVisitColor(regionItem.count)}

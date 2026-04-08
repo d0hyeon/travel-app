@@ -9,7 +9,7 @@ import { PlaceCategoryColorCode, PlaceCategoryTypeLabel, PlaceCategoryType } fro
 import { getAllRoutes, routeKey } from '~features/route/route.api'
 import { getTripMembersByTripId, tripMemberKey } from '~features/trip/trip-member/tripMember.api'
 import { tripKey } from '~features/trip/trip.api'
-import { getRegionByDestination } from '~shared/utils/location'
+import { getRegionByLocation } from '~features/location'
 import type { Trip } from '~features/trip/trip.types'
 import { useTrips } from '~features/trip/useTrips'
 
@@ -170,7 +170,7 @@ export function useStatisticsSummary(): StatisticsSummary {
       const expenses = expensesByTrip[index]
       const members = membersByTrip[index]
       const memberMap = new Map(members.map((member) => [member.id, member]))
-      const regionName = getRegionByDestination(trip.destination)
+      const regionName = getRegionByLocation(trip.destination)
 
       const currentRegion = regionVisitMap.get(regionName) ?? {
         region: regionName,
