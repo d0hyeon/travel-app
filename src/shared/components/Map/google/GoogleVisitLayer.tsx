@@ -1,19 +1,32 @@
 import { use, useEffect, useEffectEvent } from 'react'
 import { GoogleMapContext } from './GoogleMap'
 
+// Natural Earth 110m 국가 경계 (ISO_A3 속성 포함, ~1MB)
 const GEOJSON_URL =
-  'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson'
+  'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json'
+
+// world-atlas는 TopoJSON이라 직접 쓸 수 없으므로 GeoJSON 소스를 사용
+const GEOJSON_FALLBACK_URL =
+  'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson'
 
 let geoJsonCache: object | null = null
 
-async function fetchCountryGeoJson() {
+async function fetchCountryGeoJson(): Promise<object> {
   if (geoJsonCache) return geoJsonCache
-  const res = await fetch(GEOJSON_URL)
-  geoJsonCache = await res.json()
-  return geoJsonCache!
+  try {
+    const res = await fetch(
+      'https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson'
+    )
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    geoJsonCache = await res.json()
+    return geoJsonCache!
+  } catch (e) {
+    console.warn('[VisitLayer] GeoJSON 로드 실패:', e)
+    throw e
+  }
 }
 
-/** ISO_A3 코드 → 방문 횟수 */
+/** 국가명(GeoJSON name 속성) → 방문 횟수 */
 export interface GoogleVisitLayerProps {
   data: Record<string, number>
 }
@@ -42,11 +55,8 @@ export function GoogleVisitLayer({ data }: GoogleVisitLayerProps) {
     const zoomFactor = zoom > 8 ? 0.2 : zoom > 6 ? 0.5 : zoom > 4 ? 0.75 : 1.0
 
     context.map.data.setStyle((feature) => {
-      const iso = feature.getProperty('ISO_A3') as string
-      // 일부 데이터셋에서 미인정 지역은 ISO_A3 = '-99'
-      // Taiwan(TWN)은 ISO_A3_EH 속성에 있는 경우도 있어 fallback 처리
-      const isoFallback = (feature.getProperty('ISO_A3_EH') as string | undefined) ?? iso
-      const count = data[iso] ?? data[isoFallback] ?? 0
+      const name = feature.getProperty('name') as string
+      const count = data[name] ?? 0
 
       if (count === 0) return { visible: false }
 

@@ -11,7 +11,7 @@ import { useAllPlaces } from './useAllPlaces'
 import { PlaceDetailBottomSheet } from './PlaceDetailBottomSheet'
 import { PlaceDetailSidePanel } from './PlaceDetailSidePanel'
 import { useOverlay } from '~shared/hooks/useOverlay'
-import { DESTINATION_TO_ISO3 } from './visitLayer/destinationToCountry'
+import { DESTINATION_TO_COUNTRY } from './visitLayer/destinationToCountry'
 
 // 파스텔 배경색 / 진한 텍스트(마커)용 쌍
 type TripColor = { bg: string; text: string; marker: string }
@@ -50,9 +50,9 @@ function MapPageResolved() {
   const countryVisitData = useMemo(() => {
     const countMap: Record<string, number> = {}
     trips.forEach((trip) => {
-      const iso = DESTINATION_TO_ISO3[trip.destination]
-      if (!iso) return
-      countMap[iso] = (countMap[iso] ?? 0) + 1
+      const country = DESTINATION_TO_COUNTRY[trip.destination]
+      if (!country) return
+      countMap[country] = (countMap[country] ?? 0) + 1
     })
     return countMap
   }, [trips])
@@ -126,7 +126,7 @@ function MapPageResolved() {
             position: 'absolute',
             bottom: 16,
             right: 16,
-            zIndex: 10,
+            zIndex: 2000,
             bgcolor: showVisitLayer ? 'primary.main' : 'background.paper',
             color: showVisitLayer ? 'primary.contrastText' : 'text.secondary',
             boxShadow: 2,
