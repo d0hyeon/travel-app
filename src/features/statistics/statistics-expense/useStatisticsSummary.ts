@@ -5,6 +5,7 @@ import { expenseKey, getExpensesByTripId } from '~features/expense/expense.api'
 import type { Expense } from '~features/expense/expense.types'
 import { getTotalExpensesInKRW } from '~features/expense/expense.utils'
 import { getAllPlaces, placeKey } from '~features/place/place.api'
+import { PlaceCategoryColorCode, PlaceCategoryTypeLabel, PlaceCategoryType } from '~features/place/place.types'
 import { getAllRoutes, routeKey } from '~features/route/route.api'
 import { getTripMembersByTripId, tripMemberKey } from '~features/trip/trip-member/tripMember.api'
 import { tripKey } from '~features/trip/trip.api'
@@ -58,6 +59,23 @@ export interface CityVisitSummary {
   share: number
 }
 
+export interface CategoryExpenseSummary {
+  category: PlaceCategoryType
+  label: string
+  color: string
+  totalAmountInKRW: number
+  expenseCount: number
+  share: number
+}
+
+export interface CategoryVisitSummary {
+  category: PlaceCategoryType
+  label: string
+  color: string
+  placeCount: number
+  share: number
+}
+
 export interface ExpenseTrendPoint {
   tripId: string
   tripName: string
@@ -78,6 +96,8 @@ export interface StatisticsSummary {
   regionVisitSummaries: RegionVisitSummary[]
   cityVisitSummaries: CityVisitSummary[]
   activityTripSummaries: TripActivitySummary[]
+  categoryExpenseSummaries: CategoryExpenseSummary[]
+  categoryVisitSummaries: CategoryVisitSummary[]
   expenseTrend: ExpenseTrendPoint[]
 }
 
@@ -199,10 +219,12 @@ export function useStatisticsSummary(): StatisticsSummary {
       .sort((a, b) => b.totalAmountInKRW - a.totalAmountInKRW)
 
     const expenseTripCount = travelSummaries.length
+    const placeById = new Map(places.map((place) => [place.id, place]))
     const payerMap = new Map<string, Omit<PayerSummary, 'share'>>()
     const currencyMap = new Map<CurrencyCode, Omit<CurrencySummary, 'share'>>()
     const regionVisitMap = new Map<string, Omit<RegionVisitSummary, 'share'>>()
     const cityMap = new Map<string, Omit<CityVisitSummary, 'share'>>()
+    const categoryExpenseMap = new Map<PlaceCategoryType, Omit<CategoryExpenseSummary, 'share'>>()
 
     trips.forEach((trip, index) => {
       const expenses = expensesByTrip[index]
@@ -235,6 +257,19 @@ export function useStatisticsSummary(): StatisticsSummary {
         currentCurrency.totalAmountInKRW += totalInKRW
         currentCurrency.expenseCount += 1
         currencyMap.set(expense.currency, currentCurrency)
+
+        const place = expense.placeId ? placeById.get(expense.placeId) : undefined
+        const expenseCategory = place?.category ?? PlaceCategoryType['기타']
+        const currentCategoryExpense = categoryExpenseMap.get(expenseCategory) ?? {
+          category: expenseCategory,
+          label: PlaceCategoryTypeLabel[expenseCategory],
+          color: PlaceCategoryColorCode[expenseCategory],
+          totalAmountInKRW: 0,
+          expenseCount: 0,
+        }
+        currentCategoryExpense.totalAmountInKRW += totalInKRW
+        currentCategoryExpense.expenseCount += 1
+        categoryExpenseMap.set(expenseCategory, currentCategoryExpense)
 
         expense.payments.forEach((payment) => {
           const member = memberMap.get(payment.memberId)
@@ -294,6 +329,33 @@ export function useStatisticsSummary(): StatisticsSummary {
       }))
       .sort((a, b) => b.tripCount - a.tripCount)
 
+    const categoryExpenseSummaries: CategoryExpenseSummary[] = [...categoryExpenseMap.values()]
+      .map((summary) => ({
+        ...summary,
+        share: totalAmountInKRW > 0 ? summary.totalAmountInKRW / totalAmountInKRW : 0,
+      }))
+      .sort((a, b) => b.totalAmountInKRW - a.totalAmountInKRW)
+
+    const categoryVisitMap = new Map<PlaceCategoryType, Omit<CategoryVisitSummary, 'share'>>()
+    confirmedPlaces.forEach((place) => {
+      const visitCategory = place.category ?? PlaceCategoryType['기타']
+      const current = categoryVisitMap.get(visitCategory) ?? {
+        category: visitCategory,
+        label: PlaceCategoryTypeLabel[visitCategory],
+        color: PlaceCategoryColorCode[visitCategory],
+        placeCount: 0,
+      }
+      current.placeCount += 1
+      categoryVisitMap.set(visitCategory, current)
+    })
+
+    const categoryVisitSummaries: CategoryVisitSummary[] = [...categoryVisitMap.values()]
+      .map((summary) => ({
+        ...summary,
+        share: totalPlacesCount > 0 ? summary.placeCount / totalPlacesCount : 0,
+      }))
+      .sort((a, b) => b.placeCount - a.placeCount)
+
     const activityTripSummaries = [...tripExpenseSummaries]
       .filter((summary) => summary.placeCount > 0)
       .sort((a, b) => {
@@ -336,6 +398,8 @@ export function useStatisticsSummary(): StatisticsSummary {
       regionVisitSummaries,
       cityVisitSummaries,
       activityTripSummaries,
+      categoryExpenseSummaries,
+      categoryVisitSummaries,
       expenseTrend,
     }
   }, [trips, places, routes, expensesByTrip, membersByTrip])

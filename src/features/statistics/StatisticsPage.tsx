@@ -2,11 +2,11 @@ import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
 import { Box, Stack, Tab, Tabs, Typography } from '@mui/material'
 import { useQueryParamState } from '~shared/hooks/useQueryParamState'
 import { StatisticsCurrencySection } from './StatisticsCurrencySection'
+import { StatisticsExpenseSection } from './StatisticsExpenseSection'
 import { StatisticsOverviewSection } from './StatisticsOverviewSection'
-import { StatisticsRankingSection } from './StatisticsRankingSection'
 import { useStatisticsSummary } from './statistics-expense/useStatisticsSummary'
 
-type StatisticsTab = 'overview' | 'ranking' | 'currency'
+type StatisticsTab = 'overview' | 'expense' | 'currency'
 
 export default function StatisticsPage() {
   const summary = useStatisticsSummary()
@@ -45,7 +45,7 @@ export default function StatisticsPage() {
             }}
           >
             <Tab value="overview" label="개요" />
-            <Tab value="ranking" label="랭킹" />
+            <Tab value="expense" label="지출" />
             <Tab value="currency" label="통화" />
           </Tabs>
         </Stack>
@@ -65,8 +65,8 @@ export default function StatisticsPage() {
             <StatisticsOverviewSection summary={summary} />
           ) : null}
 
-          {summary.travelSummaries.length > 0 && currentTab === 'ranking' ? (
-            <StatisticsRankingSection summary={summary} />
+          {summary.travelSummaries.length > 0 && currentTab === 'expense' ? (
+            <StatisticsExpenseSection summary={summary} />
           ) : null}
 
           {summary.travelSummaries.length > 0 && currentTab === 'currency' ? (
