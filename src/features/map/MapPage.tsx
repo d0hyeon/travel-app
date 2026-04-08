@@ -1,6 +1,7 @@
-import { Box, Chip, CircularProgress, Stack } from '@mui/material'
+import PublicIcon from '@mui/icons-material/Public'
+import { Box, Chip, CircularProgress, Stack, Tooltip, IconButton } from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
-import { Suspense, useState } from 'react'
+import { Suspense, useMemo, useState } from 'react'
 import { getPhotosByPlaceId, photoKey } from '../photo/photo.api'
 import type { Place } from '../place/place.types'
 import { useTrips } from '../trip/useTrips'
@@ -10,6 +11,7 @@ import { useAllPlaces } from './useAllPlaces'
 import { PlaceDetailBottomSheet } from './PlaceDetailBottomSheet'
 import { PlaceDetailSidePanel } from './PlaceDetailSidePanel'
 import { useOverlay } from '~shared/hooks/useOverlay'
+import { DESTINATION_TO_ISO3 } from './visitLayer/destinationToCountry'
 
 // 파스텔 배경색 / 진한 텍스트(마커)용 쌍
 type TripColor = { bg: string; text: string; marker: string }
@@ -43,6 +45,17 @@ function MapPageResolved() {
   const isMobile = useIsMobile()
 
   const [selectedTripIds, setSelectedTripIds] = useState<string[]>([])
+  const [showVisitLayer, setShowVisitLayer] = useState(false)
+
+  const countryVisitData = useMemo(() => {
+    const countMap: Record<string, number> = {}
+    trips.forEach((trip) => {
+      const iso = DESTINATION_TO_ISO3[trip.destination]
+      if (!iso) return
+      countMap[iso] = (countMap[iso] ?? 0) + 1
+    })
+    return countMap
+  }, [trips])
 
   const tripColorMap: Record<string, TripColor> = Object.fromEntries(
     trips.map((trip, i) => [trip.id, TRIP_COLORS[i % TRIP_COLORS.length]])
@@ -105,6 +118,27 @@ function MapPageResolved() {
         })}
       </Stack>
 
+      {/* 방문 국가 레이어 토글 */}
+      <Tooltip title={showVisitLayer ? '방문 국가 숨기기' : '방문 국가 표시'} placement="left">
+        <IconButton
+          onClick={() => setShowVisitLayer((v) => !v)}
+          sx={{
+            position: 'absolute',
+            bottom: 16,
+            right: 16,
+            zIndex: 10,
+            bgcolor: showVisitLayer ? 'primary.main' : 'background.paper',
+            color: showVisitLayer ? 'primary.contrastText' : 'text.secondary',
+            boxShadow: 2,
+            '&:hover': {
+              bgcolor: showVisitLayer ? 'primary.dark' : 'grey.100',
+            },
+          }}
+        >
+          <PublicIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
+
       {/* 지도 */}
       <Map
         type="google"
@@ -113,6 +147,7 @@ function MapPageResolved() {
         clustering
         clusterGridSize={60}
       >
+        {showVisitLayer && <Map.VisitLayer data={countryVisitData} />}
         {filteredPlaces.map(place => (
           <PlaceMarker
             key={place.id}

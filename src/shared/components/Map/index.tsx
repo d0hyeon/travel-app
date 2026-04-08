@@ -1,6 +1,7 @@
 import { use } from 'react';
 import { MapTypeContext } from './MapTypeContext';
 import { GoogleMapImpl, GoogleMarker, GooglePath } from './google/GoogleMap';
+import { GoogleVisitLayer, type GoogleVisitLayerProps } from './google/GoogleVisitLayer';
 import { KakaoMapImpl, KakaoMarker, KakaoPath } from './kakao/KakaoMap';
 import type { MapProps, MarkerProps, PathProps } from './types';
 
@@ -25,8 +26,15 @@ function Path(props: PathProps) {
   return type === 'kakao' ? <KakaoPath {...props} /> : <GooglePath {...props} />;
 }
 
+function VisitLayer(props: GoogleVisitLayerProps) {
+  const type = use(MapTypeContext);
+  // Kakao Maps는 Data Layer 미지원
+  return type === 'google' ? <GoogleVisitLayer {...props} /> : null;
+}
+
 Map.Marker = Marker;
 Map.Path = Path;
+Map.VisitLayer = VisitLayer;
 
 // Re-export types
 export type { AutoFocus, Coordinate, MapProps, MapRef, MapType, MarkerProps, PathProps } from './types';

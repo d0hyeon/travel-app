@@ -24,7 +24,7 @@ interface MapContextValue {
   config: { autoFocus: AutoFocus; clustering: boolean; clusterGridSize: number };
 }
 
-const GoogleMapContext = createContext<MapContextValue | null>(null);
+export const GoogleMapContext = createContext<MapContextValue | null>(null);
 
 export interface GoogleMapImplProps extends Omit<BoxProps, 'ref' | 'autoFocus'> {
   defaultCenter?: Coordinate;
