@@ -9,9 +9,9 @@ import { PlaceCategoryColorCode, PlaceCategoryTypeLabel, PlaceCategoryType } fro
 import { getAllRoutes, routeKey } from '~features/route/route.api'
 import { getTripMembersByTripId, tripMemberKey } from '~features/trip/trip-member/tripMember.api'
 import { tripKey } from '~features/trip/trip.api'
+import { getRegionByDestination } from '~shared/utils/location'
 import type { Trip } from '~features/trip/trip.types'
 import { useTrips } from '~features/trip/useTrips'
-import { formatDate } from 'date-fns'
 
 export interface TripExpenseSummary {
   trip: Trip
@@ -79,7 +79,8 @@ export interface CategoryVisitSummary {
 export interface ExpenseTrendPoint {
   tripId: string
   tripName: string
-  label: string
+  startDate: string
+  endDate: string
   amountInKRW: number
   cumulativeAmountInKRW: number
 }
@@ -99,67 +100,6 @@ export interface StatisticsSummary {
   categoryExpenseSummaries: CategoryExpenseSummary[]
   categoryVisitSummaries: CategoryVisitSummary[]
   expenseTrend: ExpenseTrendPoint[]
-}
-
-const REGION_BY_DESTINATION: Record<string, string> = {
-  서울: '서울',
-  부산: '부산',
-  제주: '제주',
-  강릉: '강원도',
-  경주: '경상북도',
-  여수: '전라남도',
-  전주: '전라북도',
-  속초: '강원도',
-  삼척: '강원도',
-  인천: '인천',
-  대구: '대구',
-  대전: '대전',
-  광주: '광주',
-  단양: '충청북도',
-  평창: '강원도',
-  포천: '경기도',
-  진안: '전라북도',
-  도쿄: '간토',
-  오사카: '간사이',
-  교토: '간사이',
-  후쿠오카: '규슈',
-  삿포로: '홋카이도',
-  오키나와: '오키나와',
-  방콕: '태국',
-  싱가포르: '싱가포르',
-  '베트남 다낭': '베트남',
-  '베트남 호치민': '베트남',
-  '베트남 하노이': '베트남',
-  발리: '인도네시아',
-  세부: '필리핀',
-  푸켓: '태국',
-  코타키나발루: '말레이시아',
-  홍콩: '홍콩',
-  마카오: '마카오',
-  타이베이: '대만',
-  상하이: '중국',
-  파리: '프랑스',
-  런던: '영국',
-  로마: '이탈리아',
-  바르셀로나: '스페인',
-  프라하: '체코',
-  암스테르담: '네덜란드',
-  '스위스 취리히': '스위스',
-  뉴욕: '미국',
-  로스앤젤레스: '미국',
-  '하와이 호놀룰루': '미국',
-  샌프란시스코: '미국',
-  라스베이거스: '미국',
-  칸쿤: '멕시코',
-}
-
-function getRegionName(destination: string) {
-  // NOTE:
-  // 지금은 여행 생성에서 사용하는 제한된 목적지 목록을 기준으로 지역을 하드코딩 매핑한다.
-  // 장기적으로 목적지가 자유 입력/외부 장소 데이터로 확장되면 이 방식은 유지보수가 어렵다.
-  // 그때는 destination 문자열 파싱 대신 country/region/city 같은 구조화 위치 정보를
-  // 저장하거나 장소 provider의 표준화된 location metadata를 함께 저장하는 쪽으로 전환해야 한다.
-  return REGION_BY_DESTINATION[destination] ?? destination
 }
 
 export function useStatisticsSummary(): StatisticsSummary {
@@ -230,7 +170,7 @@ export function useStatisticsSummary(): StatisticsSummary {
       const expenses = expensesByTrip[index]
       const members = membersByTrip[index]
       const memberMap = new Map(members.map((member) => [member.id, member]))
-      const regionName = getRegionName(trip.destination)
+      const regionName = getRegionByDestination(trip.destination)
 
       const currentRegion = regionVisitMap.get(regionName) ?? {
         region: regionName,
@@ -375,11 +315,8 @@ export function useStatisticsSummary(): StatisticsSummary {
         return {
           tripId: summary.trip.id,
           tripName: summary.trip.name,
-          /** @TODO 
-           * label은 UI 책임, UI의 변경이 이쪽까지 노출되어 있음.
-           * 추후 리팩토링 필요
-           */
-          label: `${formatDate(summary.trip.startDate, 'yyyy.MM.dd')} ~ ${formatDate(summary.trip.endDate, 'MM.dd')}`,
+          startDate: summary.trip.startDate,
+          endDate: summary.trip.endDate,
           amountInKRW: summary.totalAmountInKRW,
           cumulativeAmountInKRW,
         }

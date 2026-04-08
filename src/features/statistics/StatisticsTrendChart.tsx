@@ -1,5 +1,4 @@
 import { Box, Stack, ToggleButton, ToggleButtonGroup, Typography, useTheme } from '@mui/material'
-import { useState } from 'react'
 import {
   Bar,
   BarChart,
@@ -12,6 +11,7 @@ import {
   YAxis,
 } from 'recharts'
 import type { TooltipContentProps } from 'recharts'
+import { formatDate } from 'date-fns'
 import { formatCurrency } from '~features/expense/expense.utils'
 import type { StatisticsChartViewMode } from './StatisticsViewConfigButton'
 import type { ExpenseTrendPoint } from './statistics-expense/useStatisticsSummary'
@@ -30,6 +30,13 @@ export function StatisticsTrendChart({ data, mode, viewMode = 'line' }: Statisti
   const theme = useTheme()
   const dataKey = mode === 'cumulative' ? 'cumulativeAmountInKRW' : 'amountInKRW'
   const lineColor = mode === 'cumulative' ? theme.palette.primary.main : theme.palette.success.main
+  const chartData = data.map((point) => ({
+    ...point,
+    axisId: point.tripId,
+  }))
+  const getDateRangeLabel = (startDate: string, endDate: string) =>
+    `${formatDate(startDate, 'yyyy.MM.dd')} ~ ${formatDate(endDate, 'MM.dd')}`
+
   const tooltipContent = ({ active, payload }: TooltipContentProps<any, any>) => {
     if (!active || !payload?.length) return null
     const point = payload[0]?.payload as ExpenseTrendPoint
@@ -49,7 +56,7 @@ export function StatisticsTrendChart({ data, mode, viewMode = 'line' }: Statisti
           {point.tripName}
         </Typography>
         <Typography fontSize={12}>
-          {point.label}
+          {getDateRangeLabel(point.startDate, point.endDate)}
         </Typography>
         <Typography variant="caption" color="text.secondary">
           이번 여행 {formatCurrency(point.amountInKRW)}
@@ -67,17 +74,17 @@ export function StatisticsTrendChart({ data, mode, viewMode = 'line' }: Statisti
     <Box sx={{ width: '100%', height: 300 }}>
       <ResponsiveContainer>
         {viewMode === 'bar' ? (
-          <BarChart data={data} margin={{ top: 12, right: 20, left: 8, bottom: 12 }} barCategoryGap={18}>
+          <BarChart data={chartData} margin={{ top: 12, right: 20, left: 8, bottom: 12 }} barCategoryGap={18}>
             <CartesianGrid stroke="#f1f1f1" vertical={false} />
             <XAxis
-              dataKey="label"
+              dataKey="axisId"
               tickLine={false}
               axisLine={false}
               interval={0}
               height={68}
               tick={(props: { x?: number | string; y?: number | string; payload?: { value?: string } }) => {
                 const { x, y, payload } = props
-                const point = data.find((item) => item.label === payload?.value)
+                const point = data.find((item) => item.tripId === payload?.value)
 
                 if (x == null || y == null || !point) return null
 
@@ -100,17 +107,17 @@ export function StatisticsTrendChart({ data, mode, viewMode = 'line' }: Statisti
             <Bar dataKey={dataKey} fill={lineColor} radius={[8, 8, 0, 0]} maxBarSize={36} />
           </BarChart>
         ) : (
-          <LineChart data={data} margin={{ top: 12, right: 20, left: 8, bottom: 12 }}>
+          <LineChart data={chartData} margin={{ top: 12, right: 20, left: 8, bottom: 12 }}>
             <CartesianGrid stroke="#f1f1f1" vertical={false} />
             <XAxis
-              dataKey="label"
+              dataKey="axisId"
               tickLine={false}
               axisLine={false}
               interval={0}
               height={68}
               tick={(props: { x?: number | string; y?: number | string; payload?: { value?: string } }) => {
                 const { x, y, payload } = props
-                const point = data.find((item) => item.label === payload?.value)
+                const point = data.find((item) => item.tripId === payload?.value)
 
                 if (x == null || y == null || !point) return null
 
