@@ -7,6 +7,7 @@ import type { Place } from '../place/place.types'
 import { useTrips } from '../trip/useTrips'
 import { Map } from '~shared/components/Map'
 import { useIsMobile } from '~shared/hooks/useIsMobile'
+import { BottomNavigation } from '~shared/components/BottomNavigation'
 import { useAllPlaces } from './useAllPlaces'
 import { PlaceDetailBottomSheet } from './PlaceDetailBottomSheet'
 import { PlaceDetailSidePanel } from './PlaceDetailSidePanel'
@@ -124,7 +125,7 @@ function MapPageResolved() {
           onClick={() => setShowVisitLayer((v) => !v)}
           sx={{
             position: 'absolute',
-            bottom: 16,
+            bottom: isMobile ? BottomNavigation.HEIGHT + 16 : 16,
             right: 16,
             zIndex: 2000,
             bgcolor: showVisitLayer ? 'primary.main' : 'background.paper',
