@@ -12,7 +12,7 @@ import { useAllPlaces } from './useAllPlaces'
 import { PlaceDetailBottomSheet } from './PlaceDetailBottomSheet'
 import { PlaceDetailSidePanel } from './PlaceDetailSidePanel'
 import { useOverlay } from '~shared/hooks/useOverlay'
-import { DESTINATION_TO_COUNTRY } from './visitLayer/destinationToCountry'
+import { getCountryByDestination, isDestinationName, type CountryName, type DestinationName } from '~shared/utils/location'
 
 // 파스텔 배경색 / 진한 텍스트(마커)용 쌍
 type TripColor = { bg: string; text: string; marker: string }
@@ -46,17 +46,58 @@ function MapPageResolved() {
   const isMobile = useIsMobile()
 
   const [selectedTripIds, setSelectedTripIds] = useState<string[]>([])
-  const [showVisitLayer, setShowVisitLayer] = useState(false)
+  const [showVisitLayer, setShowVisitLayer] = useState(true)
+
+  const filteredTrips = useMemo(
+    () => (
+      selectedTripIds.length === 0
+        ? trips
+        : trips.filter((trip) => selectedTripIds.includes(trip.id))
+    ),
+    [selectedTripIds, trips]
+  )
 
   const countryVisitData = useMemo(() => {
-    const countMap: Record<string, number> = {}
-    trips.forEach((trip) => {
-      const country = DESTINATION_TO_COUNTRY[trip.destination]
+    const countMap: Partial<Record<CountryName, number>> = {}
+    filteredTrips.forEach((trip) => {
+      const country = getCountryByDestination(trip.destination)
       if (!country) return
       countMap[country] = (countMap[country] ?? 0) + 1
     })
     return countMap
-  }, [trips])
+  }, [filteredTrips])
+
+  const regionVisitPoints = useMemo(() => {
+    const regionMap = new globalThis.Map<string, {
+      id: string
+      region: DestinationName
+      lat: number
+      lng: number
+      count: number
+    }>()
+
+    filteredTrips.forEach((trip) => {
+      if (!isDestinationName(trip.destination)) return
+
+      const key = `${trip.destination}:${trip.lat}:${trip.lng}`
+      const current = regionMap.get(key)
+
+      if (current) {
+        current.count += 1
+        return
+      }
+
+      regionMap.set(key, {
+        id: key,
+        region: trip.destination,
+        lat: trip.lat,
+        lng: trip.lng,
+        count: 1,
+      })
+    })
+
+    return [...regionMap.values()]
+  }, [filteredTrips])
 
   const tripColorMap: Record<string, TripColor> = Object.fromEntries(
     trips.map((trip, i) => [trip.id, TRIP_COLORS[i % TRIP_COLORS.length]])
@@ -75,6 +116,27 @@ function MapPageResolved() {
   }
 
   const overlay = useOverlay();
+
+  const getVisitColor = (count: number) => {
+    if (count >= 5) return '#1a7a57'
+    if (count >= 3) return '#2a9d6f'
+    if (count >= 2) return '#52b78a'
+    return '#82d2ae'
+  }
+
+  const getCountryOpacity = (count: number) => {
+    if (count >= 5) return 0.34
+    if (count >= 3) return 0.27
+    if (count >= 2) return 0.21
+    return 0.19
+  }
+
+  const getRegionOpacity = (count: number) => {
+    if (count >= 5) return 0.14
+    if (count >= 3) return 0.12
+    if (count >= 2) return 0.1
+    return 0.1
+  }
 
   return (
     <Box sx={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
@@ -148,7 +210,28 @@ function MapPageResolved() {
         clustering
         clusterGridSize={60}
       >
-        {showVisitLayer && <Map.VisitLayer data={countryVisitData} />}
+        {showVisitLayer && (
+          <Map.RegionLayer>
+            {Object.entries(countryVisitData).map(([country, count]) => (
+              <Map.Region
+                key={country}
+                country={country as CountryName}
+                color={getVisitColor(count ?? 0)}
+                opacity={getCountryOpacity(count ?? 0)}
+              />
+            ))}
+            {regionVisitPoints.map((regionItem) => (
+              <Map.Region
+                key={regionItem.id}
+                region={regionItem.region}
+                lat={regionItem.lat}
+                lng={regionItem.lng}
+                color={getVisitColor(regionItem.count)}
+                opacity={getRegionOpacity(regionItem.count)}
+              />
+            ))}
+          </Map.RegionLayer>
+        )}
         {filteredPlaces.map(place => (
           <PlaceMarker
             key={place.id}
