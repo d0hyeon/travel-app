@@ -1,54 +1,58 @@
 /**
  * 목적지별 화폐 단위 매핑
  */
-import { getCurrencyCodeByLocation } from '~features/location'
+import { getCountryByLocation } from '~features/location';
+import { Country } from '~features/location/country.model';
+import { reverseKeyValue } from '~shared/utils/common';
+import type { ValueOf } from '~shared/utils/types';
 
 
-/**
- * 지원되는 통화 코드
- */
-export const CurrencyCodes = [
-  'KRW',
-  'JPY',
-  'USD',
-  'EUR',
-  'GBP',
-  'CNY',
-  'TWD',
-  'HKD',
-  'THB',
-  'VND',
-  'SGD',
-  'IDR',
-  'PHP',
-  'MYR',
-  'MOP',
-  'CZK',
-  'CHF',
-  'MXN',
- ] as const;
 // 화폐 코드 -> 이름 매핑
-export const CurrencyCodeLabel = {
-  KRW: '원',
-  JPY: '엔',
-  USD: '달러',
-  EUR: '유로',
-  GBP: '파운드',
-  CNY: '위안',
-  TWD: '대만 달러',
-  HKD: '홍콩 달러',
-  THB: '바트',
-  VND: '동',
-  SGD: '싱가포르 달러',
-  IDR: '루피아',
-  PHP: '페소',
-  MYR: '링깃',
-  MOP: '파타카',
-  CZK: '코루나',
-  CHF: '프랑',
-  MXN: '페소',
-} satisfies Record<CurrencyCode, string>;
-export type CurrencyCode = typeof CurrencyCodes[number];
+export const CurrencyCode = {
+  원: 'KRW',
+  엔: 'JPY',
+  달러: 'USD',
+  유로: 'EUR',
+  파운드: 'GBP',
+  위안: 'CNY',
+  '대만 달러': 'TWD',
+  '홍콩 달러': 'HKD',
+  바트: 'THB',
+  동: 'VND',
+  '싱가포르 달러': 'SGD',
+  루피아: 'IDR',
+  '필리핀 페소': 'PHP',
+  링깃: 'MYR',
+  파타카: 'MOP',
+  코루나: 'CZK',
+  프랑: 'CHF',
+  '멕시코 페소': 'MXN',
+} as const
+export type CurrencyCode = ValueOf<typeof CurrencyCode>;
+export const CurrencyCodes = Object.keys(CurrencyCode) as CurrencyCode[];
+export const CurrencyCodeLabel = reverseKeyValue(CurrencyCode);
+
+export const CountryCurrencyCode = {
+  [Country.한국]: CurrencyCode.원,
+  [Country.일본]: CurrencyCode.엔,
+  [Country.태국]: CurrencyCode.바트,
+  [Country.싱가포르]: CurrencyCode['싱가포르 달러'],
+  [Country.베트남]: CurrencyCode.동,
+  [Country.인도네시아]: CurrencyCode.루피아,
+  [Country.필리핀]: CurrencyCode['필리핀 페소'],
+  [Country.말레이시아]: CurrencyCode.링깃,
+  [Country.중국]: CurrencyCode.위안,
+  [Country.대만]: CurrencyCode['대만 달러'],
+  [Country.프랑스]: CurrencyCode.유로,
+  [Country.영국]: CurrencyCode.파운드,
+  [Country.이탈리아]: CurrencyCode.유로,
+  [Country.스페인]: CurrencyCode.유로,
+  [Country.체코]: CurrencyCode.코루나,
+  [Country.네덜란드]: CurrencyCode.유로,
+  [Country.스위스]: CurrencyCode.프랑,
+  [Country.미국]: CurrencyCode.달러,
+  [Country.멕시코]: CurrencyCode['멕시코 페소'],
+} satisfies Record<Country, CurrencyCode>;
 
 export interface CurrencyInfo {
   code: CurrencyCode;
@@ -72,8 +76,14 @@ export const KRW: CurrencyInfo = { code: 'KRW', symbol: '원', name: '원', loca
  * 매핑되지 않은 목적지는 USD 반환
  */
 export function getCurrencyByDestination(destination: string): CurrencyInfo {
-  const currencyCode = getCurrencyCodeByLocation(destination)
-  return (currencyCode && CURRENCY_INFO_MAP[currencyCode]) ?? { code: 'USD', symbol: '$', name: '달러', locale: 'en-US' };
+  const country = getCountryByLocation(destination);
+  
+  if (country) {
+    const currencyCode = CountryCurrencyCode[country];
+    return CURRENCY_INFO_MAP[currencyCode]
+  }
+
+  return { code: 'USD', symbol: '$', name: '달러', locale: 'en-US' };
 }
 
 /**

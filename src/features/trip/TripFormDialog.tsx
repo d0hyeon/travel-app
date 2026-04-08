@@ -1,21 +1,38 @@
-import { useState, useEffect } from 'react'
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Button,
-  Stack,
   Autocomplete,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Stack,
+  TextField,
 } from '@mui/material'
-import { DateRangePicker } from '../../shared/components/date-range/DateRangePicker'
 import { formatDate } from 'date-fns'
+import { useEffect, useState } from 'react'
+import { getCoordinateByLocation, isLocation, Locations } from '~features/location'
 import { useIsMobile } from '~shared/hooks/useIsMobile'
-import { isLocation } from '~features/location'
-import { DestinationOptions, type DestinationOption } from './destination-options'
+import { DateRangePicker } from '../../shared/components/date-range/DateRangePicker'
+import { LocationGroup } from './trip.constants'
 
-type Destination = DestinationOption
+type Destination = {
+  name: string;
+  lat: number;
+  lng: number;
+  group: string;
+}
+const DestinationOptions = Locations.map((location) => {
+  const coordinate = getCoordinateByLocation(location)
+
+  return {
+    name: location,
+    lat: coordinate.lat,
+    lng: coordinate.lng,
+    group: LocationGroup[location],
+  }
+})
+
+
 
 interface TripFormData {
   name: string

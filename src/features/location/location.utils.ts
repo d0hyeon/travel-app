@@ -1,11 +1,11 @@
 import type { Coordinate } from '~shared/model/coordinate.model'
+import type { Country } from './country.model'
+import type { Location } from './location.model'
 import {
   LocationCoordinate,
   LocationCountry,
-  LocationCurrency,
-  LocationRegion,
+  LocationRegion
 } from './location.model'
-import type { Country, Location, LocationCurrencyCode } from './location.model'
 
 export function isLocation(value: string): value is Location {
   return value in LocationCountry
@@ -23,9 +23,4 @@ export function getRegionByLocation(location: string): string {
 
 export function getCoordinateByLocation(location: Location): Coordinate {
   return LocationCoordinate[location]
-}
-
-export function getCurrencyCodeByLocation(location: string): LocationCurrencyCode | undefined {
-  if (!isLocation(location)) return undefined
-  return LocationCurrency[location]
 }
