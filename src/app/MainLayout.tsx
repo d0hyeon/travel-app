@@ -23,7 +23,7 @@ export default function MainLayout() {
   if (isMobile) {
     return (
       <Box sx={{ height: '100dvh', display: 'flex', flexDirection: 'column' }}>
-        <Box flex={1} overflow="auto" paddingBottom={`${BottomNavigation.HEIGHT}px`}>
+        <Box flex={1} overflow="auto" paddingBottom={`calc(${BottomNavigation.HEIGHT}px) + env(safe-area-inset-bottom)`}>
           <Outlet />
         </Box>
         <BottomNavigation>
