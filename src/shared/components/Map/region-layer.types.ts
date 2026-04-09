@@ -1,46 +1,27 @@
-import type { ReactElement, ReactNode } from 'react'
-import type { Country, Location } from '~features/location'
-
-interface BaseRegionProps {
-      color: string
-  opacity?: number
-  strokeColor?: string
-}
-
-export type MapRegionProps =
-  | (BaseRegionProps & {
-      country: Country
-      location?: never
-      lat?: never
-      lng?: never
-    })
-  | (BaseRegionProps & {
-      location: Location
-      country?: never
-      lat: number
-      lng: number
-    })
-
-export interface RegionLayerProps {
-  children?: ReactNode
-}
-
-export type RegionElement = ReactElement<MapRegionProps>
+export type {
+  MapPolygonProps,
+  MapRegionProps,
+  PolygonElement,
+  PolygonLayerProps,
+  PolygonStyleProps as RegionStyleProps,
+  RegionElement,
+  RegionLayerProps,
+} from './polygon-layer.types'
 
 export interface CountryRegionDefinition {
   type: 'country'
-  country: Country
-  color: string
+  country: import('~features/location').Country
+  color?: string
   opacity?: number
   strokeColor?: string
 }
 
 export interface LocationRegionDefinition {
   type: 'region'
-  location: Location
+  location: import('~features/location').Location
   lat: number
   lng: number
-  color: string
+  color?: string
   opacity?: number
   strokeColor?: string
 }

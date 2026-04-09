@@ -24,11 +24,20 @@ export function fetchWorldBoundaries() {
 }
 
 export function fetchCountryRegionBoundaries(country: Country) {
+  return fetchCountryAdministrativeBoundaries(country, 'adm1')
+}
+
+export function fetchCountryCityBoundaries(country: Country) {
+  return fetchCountryAdministrativeBoundaries(country, 'adm2')
+}
+
+function fetchCountryAdministrativeBoundaries(country: Country, level: 'adm1' | 'adm2') {
   const iso3 = CountryCode[country]
-  const cached = regionBoundaryCache.get(iso3)
+  const cacheKey = `${level}:${iso3}`
+  const cached = regionBoundaryCache.get(cacheKey)
   if (cached) return cached
 
-  const request = fetchJson<GeoJsonFeatureCollection>(`/visit-layer/adm1/${iso3}.geojson`)
-  regionBoundaryCache.set(iso3, request)
+  const request = fetchJson<GeoJsonFeatureCollection>(`/visit-layer/${level}/${iso3}.geojson`)
+  regionBoundaryCache.set(cacheKey, request)
   return request
 }

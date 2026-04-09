@@ -1,7 +1,7 @@
 import { use } from 'react';
 import { MapTypeContext } from './MapTypeContext';
 import { GoogleMapImpl, GoogleMarker, GooglePath } from './google/GoogleMap';
-import { Region, RegionLayer } from './RegionLayer';
+import { Polygon, PolygonLayer, Region } from './PolygonLayer';
 import { KakaoMapImpl, KakaoMarker, KakaoPath } from './kakao/KakaoMap';
 import type { MapProps, MarkerProps, PathProps } from './types';
 
@@ -28,9 +28,12 @@ function Path(props: PathProps) {
 
 Map.Marker = Marker;
 Map.Path = Path;
-Map.RegionLayer = RegionLayer;
+Map.PolygonLayer = PolygonLayer;
+Map.RegionLayer = PolygonLayer;
+Map.Polygon = Polygon;
 Map.Region = Region;
 
 // Re-export types
 export type { AutoFocus, Coordinate, MapProps, MapRef, MapType, MarkerProps, PathProps } from './types';
-export type { RegionLayerProps, MapRegionProps } from './region-layer.types';
+export type { MapPolygonProps, MapRegionProps, PolygonLayerProps, RegionLayerProps } from './polygon-layer.types';
+export { getCountryPolygonCoordinates, getLocationCoordinates } from './polygon-layer.utils';

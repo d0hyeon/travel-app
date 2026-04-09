@@ -3,8 +3,6 @@ import { reactRouter } from '@react-router/dev/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 
-const isProd = process.env.NODE_ENV === 'production'
-
 // https://vite.dev/config/
 const config = {
   base: '/',
