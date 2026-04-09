@@ -1,5 +1,5 @@
 import PublicIcon from '@mui/icons-material/Public'
-import { Box, Chip, CircularProgress, IconButton, Stack, Tooltip } from '@mui/material'
+import { Box, CircularProgress, IconButton, Tooltip } from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
 import { Suspense, useMemo, useState } from 'react'
 import { getPhotosByPlaceId, photoKey } from '../photo/photo.api'
@@ -8,6 +8,7 @@ import { useTrips } from '../trip/useTrips'
 import { Country, getCountryByLocation, type Country as CountryType } from '~features/location'
 import { Map } from '~shared/components/Map'
 import { BottomNavigation } from '~shared/components/BottomNavigation'
+import { MultiSelectDropdown } from '~shared/components/MultiSelectDropdown'
 import { useIsMobile } from '~shared/hooks/useIsMobile'
 import { useOverlay } from '~shared/hooks/useOverlay'
 import { PlaceExplorerDetailBottomSheet } from './PlaceExplorerDetailBottomSheet'
@@ -62,17 +63,12 @@ function Resolved() {
   )
 
 
-  const { data: coordinatesByLocation = {} } = useLocationsCoordinates(domesticLocations)
+  const { data: coordinatesByLocation = {} } = useLocationsCoordinates(domesticLocations, 'city')
 
   const tripColorMap = Object.fromEntries(
     trips.map((trip, index) => [trip.id, TRIP_COLORS[index % TRIP_COLORS.length]]),
   )
   const getTripColor = (tripId: string): TripColor => tripColorMap[tripId] ?? TRIP_COLORS[0]
-  const toggleTrip = (tripId: string) => {
-    setSelectedTripIds((prev) =>
-      prev.includes(tripId) ? prev.filter((id) => id !== tripId) : [...prev, tripId],
-    )
-  }
   const getCountryOpacity = (count: number) => {
     if (count >= 3) return 0.35
     if (count >= 2) return 0.3
@@ -90,66 +86,18 @@ function Resolved() {
 
   return (
     <Box sx={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
-      <Stack
-        direction="row"
-        spacing={0.75}
-        sx={{
-          position: 'absolute',
-          top: 8,
-          left: 8,
-          right: 8,
-          zIndex: 10,
-          overflowX: 'auto',
-          pt: 0.5,
-          pb: 0.5,
-          '&::-webkit-scrollbar': { display: 'none' },
-        }}
-        zIndex={1}
-      >
-        {trips.map((trip) => {
-          const isSelected = selectedTripIds.includes(trip.id)
-
-          return (
-            <Chip
-              key={trip.id}
-              label={trip.name}
-              size="small"
-              onClick={() => toggleTrip(trip.id)}
-              sx={{
-                flexShrink: 0,
-                fontSize: 12,
-                backgroundColor: getTripColor(trip.id).bg,
-                color: getTripColor(trip.id).text,
-                border: 'none',
-                fontWeight: isSelected ? 700 : 400,
-                boxShadow: isSelected
-                  ? `0 0 0 1.5px ${getTripColor(trip.id).text}`
-                  : '0 1px 3px rgba(0,0,0,0.12)',
-              }}
-            />
-          )
-        })}
-      </Stack>
-
-      <Tooltip title={showVisitLayer ? '방문 국가 숨기기' : '방문 국가 표시'} placement="left">
-        <IconButton
-          onClick={() => setShowVisitLayer((value) => !value)}
-          sx={{
-            position: 'absolute',
-            bottom: isMobile ? BottomNavigation.HEIGHT + 16 : 16,
-            right: 16,
-            zIndex: 2000,
-            bgcolor: showVisitLayer ? 'primary.main' : 'background.paper',
-            color: showVisitLayer ? 'primary.contrastText' : 'text.secondary',
-            boxShadow: 2,
-            '&:hover': {
-              bgcolor: showVisitLayer ? 'primary.dark' : 'grey.100',
-            },
-          }}
-        >
-          <PublicIcon fontSize="small" />
-        </IconButton>
-      </Tooltip>
+      <Box position="absolute" top={8} left={8} zIndex={10} >
+        <MultiSelectDropdown
+          value={selectedTripIds}
+          options={trips.map((trip) => ({
+            value: trip.id,
+            label: trip.name,
+            color: getTripColor(trip.id).marker,
+          }))}
+          placeholder="전체 여행"
+          onChange={setSelectedTripIds}
+        />
+      </Box>
 
       <Map
         type="google"
@@ -222,6 +170,26 @@ function Resolved() {
           />
         ))}
       </Map>
+      <Tooltip title={showVisitLayer ? '방문 국가 숨기기' : '방문 국가 표시'} placement="left">
+        <IconButton
+          onClick={() => setShowVisitLayer((value) => !value)}
+          sx={{
+            position: 'absolute',
+            bottom: isMobile ? BottomNavigation.HEIGHT + 16 : 16,
+            right: 16,
+            zIndex: 2000,
+            bgcolor: showVisitLayer ? 'primary.main' : 'background.paper',
+            color: showVisitLayer ? 'primary.contrastText' : 'text.secondary',
+            boxShadow: 2,
+            '&:hover': {
+              bgcolor: showVisitLayer ? 'primary.dark' : 'grey.100',
+            },
+          }}
+        >
+          <PublicIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
+
     </Box>
   )
 }
