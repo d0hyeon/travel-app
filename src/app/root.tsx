@@ -66,7 +66,7 @@ export default function Root() {
               <SearchParamProvider>
                 <Outlet />
               </SearchParamProvider>
-              <Instller />
+              <Installer />
             </OverlayProvider>
           </ErrorBoundary>
         </LocalizationProvider>
@@ -75,13 +75,14 @@ export default function Root() {
   )
 }
 
-function Instller() {
+function Installer() {
   const confirm = useConfirmDialog();
 
   useEffect(() => {
     const updateSW = registerSW({
+      immediate: true,
       async onNeedRefresh() {
-        const isConfirm = await confirm('새로운 버전이 출시되었어요. 업데이트를 진행할게요');
+        const isConfirm = await confirm('새로운 버전이 출시되었어요.\n업데이트를 진행할게요');
         await updateSW(isConfirm);
         location.reload();
       },
