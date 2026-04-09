@@ -25,12 +25,12 @@ const config = {
 }
 
 
-if (isProd) {
   config.plugins.push(
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       injectRegister: 'inline',
+      devOptions: { enabled: false },
       manifest: {
         name: '여행 플래너',
         short_name: '여행',
@@ -72,12 +72,12 @@ if (isProd) {
         ]
       },
       workbox: {
-        navigateFallback: null, // NetworkFirst로 대체
+        navigateFallback: '/index.html',
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         cleanupOutdatedCaches: true,
-        clientsClaim: true,
-        skipWaiting: true,
+        clientsClaim: false,
+        skipWaiting: false,
         runtimeCaching: [
           {
             // HTML 페이지는 네트워크 우선 (오프라인일 때만 캐시)
@@ -85,7 +85,7 @@ if (isProd) {
             handler: 'NetworkFirst',
             options: {
               cacheName: 'pages-cache',
-              networkTimeoutSeconds: 3,
+              networkTimeoutSeconds: 10,
             },
           },
           {
@@ -108,6 +108,6 @@ if (isProd) {
       },
     })
   )
-}
+
 
 export default defineConfig(config);
