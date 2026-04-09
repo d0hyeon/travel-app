@@ -12,7 +12,7 @@ import {
 import SearchIcon from '@mui/icons-material/Search'
 import { BottomSheet } from '../../../shared/components/BottomSheet'
 import type { MapType } from '../../../shared/components/Map'
-import { usePlaceSearch } from '../../../shared/hooks/usePlaceSearch'
+import { usePlaceSearch } from './usePlaceSearch'
 import type { PlaceSearchResult } from './PlaceSearchDialog'
 
 interface Props {

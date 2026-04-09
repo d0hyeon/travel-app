@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { loadKakaoMap } from '../components/Map/kakao/loader';
-import { loadGoogleMaps } from '../components/Map/google/loader';
-import type { MapType } from '../components/Map/types';
+import { loadKakaoMap } from '../../../shared/components/Map/kakao/loader';
+import { loadGoogleMaps } from '../../../shared/components/Map/google/loader';
+import type { MapType } from '../../../shared/components/Map/types';
 
 export interface PlaceResult {
   id: string;

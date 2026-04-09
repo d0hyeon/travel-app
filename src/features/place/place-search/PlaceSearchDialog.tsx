@@ -15,7 +15,7 @@ import {
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import { Map, type MapType } from '../../../shared/components/Map'
-import { usePlaceSearch } from '../../../shared/hooks/usePlaceSearch'
+import { usePlaceSearch } from './usePlaceSearch'
 
 export interface PlaceSearchResult {
   id: string
