@@ -1,20 +1,20 @@
 import PublicIcon from '@mui/icons-material/Public'
-import { Box, Chip, CircularProgress, Stack, Tooltip, IconButton } from '@mui/material'
+import { Box, Chip, CircularProgress, IconButton, Stack, Tooltip } from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
 import { Suspense, useMemo, useState } from 'react'
 import { getPhotosByPlaceId, photoKey } from '../photo/photo.api'
 import type { Place } from '../place/place.types'
 import { useTrips } from '../trip/useTrips'
+import { Country, getCountryByLocation, type Country as CountryType } from '~features/location'
 import { Map } from '~shared/components/Map'
-import { useIsMobile } from '~shared/hooks/useIsMobile'
 import { BottomNavigation } from '~shared/components/BottomNavigation'
-import { useAllPlaces } from './useAllPlaces'
-import { PlaceDetailBottomSheet } from './PlaceDetailBottomSheet'
-import { PlaceDetailSidePanel } from './PlaceDetailSidePanel'
+import { useIsMobile } from '~shared/hooks/useIsMobile'
 import { useOverlay } from '~shared/hooks/useOverlay'
-import { getCountryByLocation, isLocation, type Country, type Location } from '~features/location'
+import { PlaceExplorerDetailBottomSheet } from './PlaceExplorerDetailBottomSheet'
+import { PlaceExplorerDetailSidePanel } from './PlaceExplorerDetailSidePanel'
+import { useLocationsCoordinates } from './useLocationsCoordinates'
+import { useVisitedPlaces } from './useVisitedPlaces'
 
-// 파스텔 배경색 / 진한 텍스트(마커)용 쌍
 type TripColor = { bg: string; text: string; marker: string }
 
 const TRIP_COLORS: TripColor[] = [
@@ -28,119 +28,68 @@ const TRIP_COLORS: TripColor[] = [
   { bg: '#eef7e4', text: '#6f9850', marker: '#88bf5c' },
 ]
 
-export default function MapPage() {
+export default function PlaceExplorerPage() {
   return (
     <Suspense fallback={
       <Box display="flex" alignItems="center" justifyContent="center" height="100%">
         <CircularProgress />
       </Box>
     }>
-      <MapPageResolved />
+      <Resolved />
     </Suspense>
   )
 }
 
-function MapPageResolved() {
+function Resolved() {
   const { data: trips } = useTrips()
-  const { data: places } = useAllPlaces()
   const isMobile = useIsMobile()
 
   const [selectedTripIds, setSelectedTripIds] = useState<string[]>([])
   const [showVisitLayer, setShowVisitLayer] = useState(true)
 
-  const filteredTrips = useMemo(
-    () => (
-      selectedTripIds.length === 0
-        ? trips
-        : trips.filter((trip) => selectedTripIds.includes(trip.id))
-    ),
-    [selectedTripIds, trips]
+  const {
+    data: { places, countries, locations },
+  } = useVisitedPlaces(selectedTripIds)
+
+
+  const domesticLocations = useMemo(
+    () => locations.filter((item) => getCountryByLocation(item.location) === Country.한국),
+    [locations],
+  )
+  const foreignLocations = useMemo(
+    () => locations.filter((item) => getCountryByLocation(item.location) !== Country.한국),
+    [locations],
   )
 
-  const countryVisitData = useMemo(() => {
-    const countMap: Partial<Record<Country, number>> = {}
-    filteredTrips.forEach((trip) => {
-      const country = getCountryByLocation(trip.destination)
-      if (!country) return
-      countMap[country] = (countMap[country] ?? 0) + 1
-    })
-    return countMap
-  }, [filteredTrips])
 
-  const regionVisitPoints = useMemo(() => {
-    const regionMap = new globalThis.Map<string, {
-      id: string
-      location: Location
-      lat: number
-      lng: number
-      count: number
-    }>()
+  const { data: coordinatesByLocation = {} } = useLocationsCoordinates(domesticLocations)
 
-    filteredTrips.forEach((trip) => {
-      if (!isLocation(trip.destination)) return
-
-      const key = `${trip.destination}:${trip.lat}:${trip.lng}`
-      const current = regionMap.get(key)
-
-      if (current) {
-        current.count += 1
-        return
-      }
-
-      regionMap.set(key, {
-        id: key,
-        location: trip.destination,
-        lat: trip.lat,
-        lng: trip.lng,
-        count: 1,
-      })
-    })
-
-    return [...regionMap.values()]
-  }, [filteredTrips])
-
-  const tripColorMap: Record<string, TripColor> = Object.fromEntries(
-    trips.map((trip, i) => [trip.id, TRIP_COLORS[i % TRIP_COLORS.length]])
+  const tripColorMap = Object.fromEntries(
+    trips.map((trip, index) => [trip.id, TRIP_COLORS[index % TRIP_COLORS.length]]),
   )
-
   const getTripColor = (tripId: string): TripColor => tripColorMap[tripId] ?? TRIP_COLORS[0]
-
-  const filteredPlaces = selectedTripIds.length === 0
-    ? places
-    : places.filter(p => selectedTripIds.includes(p.tripId))
-
   const toggleTrip = (tripId: string) => {
-    setSelectedTripIds(prev =>
-      prev.includes(tripId) ? prev.filter(id => id !== tripId) : [...prev, tripId]
+    setSelectedTripIds((prev) =>
+      prev.includes(tripId) ? prev.filter((id) => id !== tripId) : [...prev, tripId],
     )
   }
-
-  const overlay = useOverlay();
-
-  const getVisitColor = (count: number) => {
-    if (count >= 5) return '#1a7a57'
-    if (count >= 3) return '#2a9d6f'
-    if (count >= 2) return '#52b78a'
-    return '#82d2ae'
-  }
-
   const getCountryOpacity = (count: number) => {
-    if (count >= 5) return 0.34
-    if (count >= 3) return 0.27
-    if (count >= 2) return 0.21
-    return 0.19
+    if (count >= 3) return 0.35
+    if (count >= 2) return 0.3
+    return 0.25
   }
 
   const getRegionOpacity = (count: number) => {
-    if (count >= 5) return 0.14
-    if (count >= 3) return 0.12
-    if (count >= 2) return 0.1
-    return 0.1
+    if (count >= 5) return 0.24
+    if (count >= 3) return 0.22
+    if (count >= 2) return 0.2
+    return 0.2
   }
+
+  const overlay = useOverlay()
 
   return (
     <Box sx={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
-      {/* 여행 필터 */}
       <Stack
         direction="row"
         spacing={0.75}
@@ -157,8 +106,9 @@ function MapPageResolved() {
         }}
         zIndex={1}
       >
-        {trips.map(trip => {
+        {trips.map((trip) => {
           const isSelected = selectedTripIds.includes(trip.id)
+
           return (
             <Chip
               key={trip.id}
@@ -181,10 +131,9 @@ function MapPageResolved() {
         })}
       </Stack>
 
-      {/* 방문 국가 레이어 토글 */}
       <Tooltip title={showVisitLayer ? '방문 국가 숨기기' : '방문 국가 표시'} placement="left">
         <IconButton
-          onClick={() => setShowVisitLayer((v) => !v)}
+          onClick={() => setShowVisitLayer((value) => !value)}
           sx={{
             position: 'absolute',
             bottom: isMobile ? BottomNavigation.HEIGHT + 16 : 16,
@@ -202,7 +151,6 @@ function MapPageResolved() {
         </IconButton>
       </Tooltip>
 
-      {/* 지도 */}
       <Map
         type="google"
         sx={{ width: '100%', height: '100%' }}
@@ -211,28 +159,40 @@ function MapPageResolved() {
         clusterGridSize={60}
       >
         {showVisitLayer && (
-          <Map.RegionLayer>
-            {Object.entries(countryVisitData).map(([country, count]) => (
+          <Map.PolygonLayer>
+            {Object.entries(countries).map(([country, count]) => (
               <Map.Region
                 key={country}
-                country={country as Country}
-                color={getVisitColor(count ?? 0)}
+                country={country as CountryType}
+                color="#2a9d6f"
                 opacity={getCountryOpacity(count ?? 0)}
               />
             ))}
-            {regionVisitPoints.map((regionItem) => (
+            {domesticLocations.map((item) => {
+              const coordinates = coordinatesByLocation[item.id]
+              if (!coordinates) return null
+
+              return (
+                <Map.Polygon
+                  key={item.id}
+                  coordinates={coordinates}
+                  color="#2a9d6f"
+                  opacity={getRegionOpacity(item.count)}
+                />
+              )
+            })}
+            {foreignLocations.map((item) => (
               <Map.Region
-                key={regionItem.id}
-                location={regionItem.location}
-                lat={regionItem.lat}
-                lng={regionItem.lng}
-                color={getVisitColor(regionItem.count)}
-                opacity={getRegionOpacity(regionItem.count)}
+                key={item.id}
+                location={item.location}
+                color="#2a9d6f"
+                opacity={getRegionOpacity(item.count)}
               />
             ))}
-          </Map.RegionLayer>
+          </Map.PolygonLayer>
         )}
-        {filteredPlaces.map(place => (
+
+        {places.map((place) => (
           <PlaceMarker
             key={place.id}
             place={place}
@@ -242,28 +202,26 @@ function MapPageResolved() {
               overlay.open(({ isOpen, close }) => {
                 if (isMobile) {
                   return (
-                    <PlaceDetailBottomSheet
+                    <PlaceExplorerDetailBottomSheet
                       isOpen={isOpen}
                       place={place}
                       onClose={close}
                     />
                   )
                 }
+
                 return (
-                  <PlaceDetailSidePanel
+                  <PlaceExplorerDetailSidePanel
                     isOpen={isOpen}
                     place={place}
                     onClose={close}
                   />
                 )
               })
-
             }}
           />
         ))}
       </Map>
-
-
     </Box>
   )
 }

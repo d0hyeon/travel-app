@@ -20,7 +20,7 @@ interface Props {
   onClose: () => void
 }
 
-export function PlaceDetailBottomSheet({ isOpen, place, onClose }: Props) {
+export function PlaceExplorerDetailBottomSheet({ isOpen, place, onClose }: Props) {
   return (
     <BottomSheet
       onClose={onClose}

@@ -22,7 +22,7 @@ interface Props {
   onClose: () => void
 }
 
-export function PlaceDetailSidePanel({ place, isOpen = true, onClose }: Props) {
+export function PlaceExplorerDetailSidePanel({ place, isOpen = true, onClose }: Props) {
   return (
     <Drawer
       anchor="left"
