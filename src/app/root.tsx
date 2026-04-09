@@ -81,8 +81,9 @@ function Instller() {
   useEffect(() => {
     const updateSW = registerSW({
       async onNeedRefresh() {
-        const isConfirm = await confirm('새로운 버전이 출시 되었습니다. 업데이트 할거지?');
-        updateSW(isConfirm);
+        const isConfirm = await confirm('새로운 버전이 출시되었어요. 업데이트를 진행할게요');
+        await updateSW(isConfirm);
+        location.reload();
       },
     })
   }, [])
