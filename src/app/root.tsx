@@ -83,8 +83,7 @@ function Installer() {
       // immediate: true,
       async onNeedRefresh() {
         const isConfirm = await confirm('새로운 버전이 출시되었어요.\n업데이트를 진행할게요');
-        await updateSW(isConfirm);
-        location.reload();
+        if (isConfirm) updateSW(true);
       },
     })
   }, [])
