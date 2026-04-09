@@ -5,30 +5,21 @@ import { useAsyncEffect } from '~shared/hooks/useAsyncEffect'
 import { useCleanup } from '~shared/hooks/useCleanup'
 import { GoogleMapContext } from '../GoogleMap'
 import { getPolygonFeatureStyle } from './polygon-layer.style'
-import type { GeoJsonFeatureCollection } from '../region-layer/region-layer.types'
 import {
   getCountryPolygonCoordinateGroups,
   getLocationCoordinates,
 } from '../../polygon-layer.utils'
+import type { MapPolygonProps, PolygonStyleProps } from '../../polygon-layer.types'
+import type { GeoJsonFeatureCollection } from '../boundary/boundary.types'
 
 export interface GooglePolygonLayerProps {
   children?: ReactNode
 }
 
-type BasePolygonProps = {
-  color?: string
-  opacity?: number
-  strokeColor?: string
-}
 
-type PolygonProps = BasePolygonProps & {
-  coordinates: Coordinate[][]
+type PolygonProps = MapPolygonProps & {
   layerType?: 'polygon' | 'country' | 'region'
 }
-
-type RegionProps =
-  | (BasePolygonProps & { country: Country; location?: never; lat?: never; lng?: never })
-  | (BasePolygonProps & { location: Location; country?: never })
 
 export function Polygon(props: PolygonProps) {
   const { clearFeatures, replaceFeatures } = usePolygonFeatures()
@@ -44,6 +35,10 @@ export function Polygon(props: PolygonProps) {
   return null
 }
 
+type RegionProps =
+  | (PolygonStyleProps & { country: Country; location?: never; lat?: never; lng?: never })
+  | (PolygonStyleProps & { location: Location; country?: never })
+
 export function Region(props: RegionProps) {
   const [coordinateGroups, setCoordinateGroups] = useState<Coordinate[][][] | null>(null)
 
@@ -58,7 +53,7 @@ export function Region(props: RegionProps) {
       return
     }
 
-    const coordinates = await getLocationCoordinates(props.location)
+    const coordinates = await getLocationCoordinates({ location: props.location })
     if (!mounted) return
 
     setCoordinateGroups(coordinates ? [coordinates] : [])
@@ -137,7 +132,7 @@ function useApplyPolygonLayerStyle() {
 
 function createPolygonFeatureCollection(
   coordinates: Coordinate[][],
-  style: BasePolygonProps,
+  style: PolygonStyleProps,
   layerType: PolygonProps['layerType'] = 'polygon',
 ): GeoJsonFeatureCollection {
   return {

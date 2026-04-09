@@ -36,4 +36,5 @@ Map.Region = Region;
 // Re-export types
 export type { AutoFocus, Coordinate, MapProps, MapRef, MapType, MarkerProps, PathProps } from './types';
 export type { MapPolygonProps, MapRegionProps, PolygonLayerProps, RegionLayerProps } from './polygon-layer.types';
+export type { LocationCoordinateLevel } from './polygon-layer.utils';
 export { getCountryPolygonCoordinates, getLocationCoordinates } from './polygon-layer.utils';

@@ -1,17 +1,18 @@
 import { CountryCode, type Country } from '~features/location'
-import type { GeoJsonFeatureCollection } from './region-layer.types'
+import type { GeoJsonFeatureCollection } from './boundary.types'
 
 const WORLD_BOUNDARY_URL = '/visit-layer/world.geojson'
 
 const worldBoundaryCache = new Map<string, Promise<GeoJsonFeatureCollection>>()
-const regionBoundaryCache = new Map<string, Promise<GeoJsonFeatureCollection>>()
+const administrativeBoundaryCache = new Map<string, Promise<GeoJsonFeatureCollection>>()
 
 async function fetchJson<T>(url: string): Promise<T> {
-  const res = await fetch(url)
-  if (!res.ok) {
-    throw new Error(`HTTP ${res.status} for ${url}`)
+  const response = await fetch(url)
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status} for ${url}`)
   }
-  return res.json() as Promise<T>
+
+  return response.json() as Promise<T>
 }
 
 export function fetchWorldBoundaries() {
@@ -34,10 +35,10 @@ export function fetchCountryCityBoundaries(country: Country) {
 function fetchCountryAdministrativeBoundaries(country: Country, level: 'adm1' | 'adm2') {
   const iso3 = CountryCode[country]
   const cacheKey = `${level}:${iso3}`
-  const cached = regionBoundaryCache.get(cacheKey)
+  const cached = administrativeBoundaryCache.get(cacheKey)
   if (cached) return cached
 
   const request = fetchJson<GeoJsonFeatureCollection>(`/visit-layer/${level}/${iso3}.geojson`)
-  regionBoundaryCache.set(cacheKey, request)
+  administrativeBoundaryCache.set(cacheKey, request)
   return request
 }

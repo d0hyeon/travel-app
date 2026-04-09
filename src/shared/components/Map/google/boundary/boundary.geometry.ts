@@ -1,6 +1,10 @@
-import type { GeoJsonFeature, GeoJsonFeatureCollection, GeoJsonGeometry } from './region-layer.types'
-import type { LocationRegionDefinition } from '../../region-layer.types'
 import type { Coordinate } from '~shared/model/coordinate.model'
+import type {
+  GeoJsonFeature,
+  GeoJsonFeatureCollection,
+  GeoJsonGeometry,
+  LocationBoundaryDefinition,
+} from './boundary.types'
 
 interface Point {
   lat: number
@@ -173,75 +177,6 @@ export function getDistanceScore(a: Point, b: Point) {
   return (latDiff * latDiff) + (lngDiff * lngDiff)
 }
 
-export function buildRegionFeatureCollection(
-  geoJson: GeoJsonFeatureCollection,
-  regions: LocationRegionDefinition[]
-): GeoJsonFeatureCollection
-export function buildRegionFeatureCollection(
-  geoJson: GeoJsonFeatureCollection,
-  region: LocationRegionDefinition
-): GeoJsonFeatureCollection 
-export function buildRegionFeatureCollection(
-  geoJson: GeoJsonFeatureCollection,
-  _regions: LocationRegionDefinition[] | LocationRegionDefinition
-): GeoJsonFeatureCollection {
-  const stylesByShapeId = new Map<string, LocationRegionDefinition>()
-  const centersByShapeId = new Map<string, Point>()
-
-  geoJson.features.forEach((feature) => {
-    const shapeId = String(feature.properties.shapeID ?? feature.properties.shapeName ?? '')
-    const center = getGeometryCenter(feature.geometry)
-    if (!shapeId || !center) return
-    centersByShapeId.set(shapeId, center)
-  })
-
-  const regions = Array.isArray(_regions) ? _regions : [_regions];
-  regions.forEach((region) => {
-    const matchedFeature = geoJson.features.find((feature) => containsPoint(feature.geometry, region))
-    
-    const resolvedFeature = matchedFeature ?? geoJson.features.reduce<GeoJsonFeature | null>((closest, feature) => {
-      const shapeId = String(feature.properties.shapeID ?? feature.properties.shapeName ?? '')
-      const center = centersByShapeId.get(shapeId)
-      if (!shapeId || !center) return closest
-
-      if (!closest) return feature
-
-      const currentShapeId = String(closest.properties.shapeID ?? closest.properties.shapeName ?? '')
-      const currentCenter = centersByShapeId.get(currentShapeId)
-      if (!currentCenter) return feature
-
-      return getDistanceScore(region, center) < getDistanceScore(region, currentCenter) ? feature : closest
-    }, null)
-
-    if (!resolvedFeature) return
-
-    const shapeId = String(resolvedFeature.properties.shapeID ?? resolvedFeature.properties.shapeName ?? region.location)
-    stylesByShapeId.set(shapeId, region)
-  })
-
-  return {
-    type: 'FeatureCollection',
-    features: geoJson.features.flatMap((feature) => {
-      const shapeId = String(feature.properties.shapeID ?? feature.properties.shapeName ?? '')
-      const region = stylesByShapeId.get(shapeId)
-
-      if (!region) return []
-
-      return [{
-        ...feature,
-        properties: {
-          ...feature.properties,
-          layerType: 'region',
-          region: region.location,
-          color: region.color,
-          opacity: region.opacity,
-          strokeColor: region.strokeColor,
-        },
-      }]
-    }),
-  }
-}
-
 export function getCountryCoordinates(
   geoJson: GeoJsonFeatureCollection,
   country: string,
@@ -274,9 +209,9 @@ export function getCountryCoordinateGroups(
   return getGeometryCoordinateGroups(feature.geometry)
 }
 
-export function getRegionCoordinates(
+export function getLocationCoordinatesFromBoundary(
   geoJson: GeoJsonFeatureCollection,
-  region: LocationRegionDefinition,
+  location: LocationBoundaryDefinition,
 ): Coordinate[][] | null {
   const centersByShapeId = new Map<string, Point>()
 
@@ -287,7 +222,7 @@ export function getRegionCoordinates(
     centersByShapeId.set(shapeId, center)
   })
 
-  const matchedFeature = geoJson.features.find((feature) => containsPoint(feature.geometry, region))
+  const matchedFeature = geoJson.features.find((feature) => containsPoint(feature.geometry, location))
 
   const resolvedFeature = matchedFeature ?? geoJson.features.reduce<GeoJsonFeature | null>((closest, feature) => {
     const shapeId = String(feature.properties.shapeID ?? feature.properties.shapeName ?? '')
@@ -300,10 +235,10 @@ export function getRegionCoordinates(
     const currentCenter = centersByShapeId.get(currentShapeId)
     if (!currentCenter) return feature
 
-    return getDistanceScore(region, center) < getDistanceScore(region, currentCenter) ? feature : closest
+    return getDistanceScore(location, center) < getDistanceScore(location, currentCenter) ? feature : closest
   }, null)
 
   if (!resolvedFeature) return null
 
-  return getGeometryCoordinatesByPoint(resolvedFeature.geometry, region)
+  return getGeometryCoordinatesByPoint(resolvedFeature.geometry, location)
 }
