@@ -2,14 +2,16 @@ import { Alert, AlertTitle, Button, CssBaseline, ThemeProvider, Typography } fro
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { QueryClientProvider } from '@tanstack/react-query'
+import { useEffect } from 'react'
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router'
-import { ErrorBoundary } from '~shared/components/ErrorBoundary'
-import { OverlayProvider } from '~shared/hooks/useOverlay'
-import '~shared/index.css'
+import { registerSW } from 'virtual:pwa-register'
 import { queryClient } from '~app/query-client'
+import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
+import { ErrorBoundary } from '~shared/components/ErrorBoundary'
 import { theme } from '~shared/config/theme'
+import { OverlayProvider } from '~shared/hooks/useOverlay'
 import { SearchParamProvider } from '~shared/hooks/useSearchParams'
-
+import '~shared/index.css'
 
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -39,6 +41,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function Root() {
+
+
+
   return (
     <ThemeProvider theme={theme}>
       <QueryClientProvider client={queryClient}>
@@ -61,10 +66,26 @@ export default function Root() {
               <SearchParamProvider>
                 <Outlet />
               </SearchParamProvider>
+              <Instller />
             </OverlayProvider>
           </ErrorBoundary>
         </LocalizationProvider>
       </QueryClientProvider>
     </ThemeProvider>
   )
+}
+
+function Instller() {
+  const confirm = useConfirmDialog();
+
+  useEffect(() => {
+    const updateSW = registerSW({
+      async onNeedRefresh() {
+        const isConfirm = await confirm('새로운 버전이 출시 되었습니다. 업데이트 할거지?');
+        updateSW(isConfirm);
+      },
+    })
+  }, [])
+
+  return null;
 }

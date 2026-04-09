@@ -5,7 +5,7 @@
     "useDefineForClassFields": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable", "ESNext"],
     "module": "ESNext",
-    "types": ["vite/client", "google.maps"],
+    "types": ["vite/client", "google.maps", "vite-plugin-pwa/client"],
     "skipLibCheck": true,
 
     /* Bundler mode */
