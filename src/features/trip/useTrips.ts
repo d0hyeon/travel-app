@@ -2,9 +2,7 @@ import { useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-q
 import { getAllTrips, createTrip, deleteTrip, tripKey } from "./trip.api";
 import type { Trip } from "./trip.types";
 
-type CreateTripVars = Omit<Trip, 'id' | 'shareLink' | 'createdAt'> & {
-  memberNames?: string[]
-}
+type CreateTripVars = Omit<Trip, 'id' | 'shareLink' | 'createdAt'>
 
 export function useTrips() {
   const queryClient = useQueryClient();
@@ -14,8 +12,7 @@ export function useTrips() {
   });
 
   const { mutateAsync: create } = useMutation({
-    mutationFn: ({ memberNames, ...data }: CreateTripVars) =>
-      createTrip(data, memberNames),
+    mutationFn: (data: CreateTripVars) => createTrip(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: useTrips.key() });
     },
