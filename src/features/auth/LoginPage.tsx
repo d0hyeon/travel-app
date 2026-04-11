@@ -1,6 +1,7 @@
 import LuggageIcon from '@mui/icons-material/Luggage'
 import { Box, Button, Typography } from '@mui/material'
 import { signInWithKakao } from './auth.api'
+import { useIsMobile } from '~shared/hooks/useIsMobile'
 
 function KakaoSymbol() {
   return (
@@ -9,13 +10,16 @@ function KakaoSymbol() {
         fillRule="evenodd"
         clipRule="evenodd"
         d="M9 0C4.029 0 0 3.074 0 6.868c0 2.442 1.617 4.588 4.071 5.808l-1.04 3.78a.35.35 0 0 0 .518.385L8.42 14.02c.191.014.383.02.58.02 4.971 0 9-3.074 9-6.868S13.971 0 9 0z"
-        fill="#3C1E1E"
+        // fill="#3C1E1E"
+        fill="#fff"
       />
     </svg>
   )
 }
 
 export default function LoginPage() {
+  const isMobile = useIsMobile();
+
   return (
     <Box
       sx={{
@@ -58,21 +62,11 @@ export default function LoginPage() {
       <Button
         onClick={signInWithKakao}
         startIcon={<KakaoSymbol />}
-        fullWidth
-        sx={{
-          bgcolor: '#FEE500',
-          color: '#3C1E1E',
-          fontWeight: 600,
-          fontSize: 15,
-          height: 54,
-          maxWidth: 400,
-          borderRadius: 2,
-          boxShadow: 'none',
-          '&:hover': {
-            bgcolor: '#F0D900',
-            boxShadow: 'none',
-          },
-        }}
+        variant="contained"
+        color="info"
+        fullWidth={isMobile}
+        size="large"
+        sx={{ minWidth: 300 }}
       >
         카카오로 로그인
       </Button>
