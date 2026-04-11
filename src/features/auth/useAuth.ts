@@ -12,8 +12,15 @@ export function useAuth() {
       setIsLoading(false)
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       setUser(session?.user ?? null)
+
+      // 신규 로그인 시 user_profiles 생성 (트리거 대신 앱에서 처리)
+      if (event === 'SIGNED_IN' && session?.user) {
+        await supabase
+          .from('user_profiles')
+          .upsert({ id: session.user.id }, { onConflict: 'id', ignoreDuplicates: true } as never)
+      }
     })
 
     return () => subscription.unsubscribe()
