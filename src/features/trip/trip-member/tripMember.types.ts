@@ -5,7 +5,7 @@ export interface TripMember {
   /** user_profiles에서 조회 */
   name: string
   /** user_profiles에서 조회 */
-  emoji: string
+  avatarUrl: string | null
   createdAt: string
 }
 

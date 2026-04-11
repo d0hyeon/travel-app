@@ -181,7 +181,7 @@ export function RouteExpenseView({ tripId }: Props) {
                                 <Typography variant="caption" color="text.secondary">
                                   {expense.payments.map(p => {
                                     const member = members.find(m => m.id === p.memberId)
-                                    return member ? `${member.emoji}` : ''
+                                    return member ? member.name[0] ?? '' : ''
                                   }).join(' ')}
                                 </Typography>
                                 <Typography variant="caption" fontWeight="medium">

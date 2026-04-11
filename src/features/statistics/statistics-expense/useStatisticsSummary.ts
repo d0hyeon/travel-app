@@ -32,7 +32,7 @@ export interface TripActivitySummary {
 
 export interface PayerSummary {
   name: string
-  emoji: string
+  avatarUrl: string | null
   totalAmountInKRW: number
   paymentCount: number
   tripCount: number
@@ -223,7 +223,7 @@ export function useStatisticsSummary(): StatisticsSummary {
           const payerKey = member.name.trim().toLowerCase()
           const currentPayer = payerMap.get(payerKey) ?? {
             name: member.name,
-            emoji: member.emoji,
+            avatarUrl: member.avatarUrl,
             totalAmountInKRW: 0,
             paymentCount: 0,
             tripCount: 0,

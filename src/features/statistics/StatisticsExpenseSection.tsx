@@ -156,7 +156,7 @@ export function StatisticsExpenseSection({ summary }: StatisticsExpenseSectionPr
                 {payerSummaries.slice(0, 5).map((summaryItem, index) => (
                   <StatisticsBarChart
                     key={`${summaryItem.name}-${index}`}
-                    label={`${summaryItem.emoji} ${summaryItem.name}`}
+                    label={summaryItem.name}
                     value={formatCurrency(summaryItem.totalAmountInKRW)}
                     ratio={
                       payerSummaries[0]?.totalAmountInKRW
@@ -183,7 +183,7 @@ export function StatisticsExpenseSection({ summary }: StatisticsExpenseSectionPr
               <StatisticsDonutChart
                 data={payerSummaries.slice(0, 5).map((summaryItem, index) => ({
                   id: `${summaryItem.name}-${index}`,
-                  label: `${summaryItem.emoji} ${summaryItem.name}`,
+                  label: summaryItem.name,
                   value: summaryItem.totalAmountInKRW,
                   helper: `${summaryItem.tripCount}개 여행 · ${summaryItem.paymentCount}회 결제`,
                 }))}

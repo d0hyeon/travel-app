@@ -15,11 +15,18 @@ export function useAuth() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       setUser(session?.user ?? null)
 
-      // 신규 로그인 시 user_profiles 생성 (트리거 대신 앱에서 처리)
+      // 로그인 시 user_profiles 생성/업데이트 (카카오 닉네임/프로필 이미지 반영)
       if (event === 'SIGNED_IN' && session?.user) {
+        const meta = session.user.user_metadata
+        const name = meta.nickname ?? meta.name ?? meta.full_name ?? ''
+        const avatarUrl = meta.picture ?? meta.avatar_url ?? null
+
         await supabase
           .from('user_profiles')
-          .upsert({ id: session.user.id }, { onConflict: 'id', ignoreDuplicates: true } as never)
+          .upsert(
+            { id: session.user.id, name, avatar_url: avatarUrl } as never,
+            { onConflict: 'id' }
+          )
       }
     })
 

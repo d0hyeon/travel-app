@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 import { convertToKRW } from '~features/expense/currency'
 import { useExpenses } from '~features/expense/useExpenses'
 import { calculateBalancesInKRW, calculateSettlements, formatCurrency } from "../../expense/expense.utils"
+import { MemberAvatar } from '../trip-member/MemberAvatar'
 import { useTripMembers } from '../trip-member/useTripMembers'
 import { useTrip } from '../useTrip'
 
@@ -54,7 +55,7 @@ export function SettlementSummary({ tripId, formatAmount = formatCurrency }: Pro
                 <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
                   <Stack direction="row" justifyContent="space-between" alignItems="center">
                     <Stack direction="row" spacing={1.5} alignItems="center">
-                      <Typography >{member.emoji}</Typography>
+                      <MemberAvatar member={member} size={24} />
                       <Typography variant='body2' fontWeight="medium">{member.name}</Typography>
                     </Stack>
                     <Box textAlign="left">

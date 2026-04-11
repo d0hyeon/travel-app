@@ -27,7 +27,7 @@ export async function getTripMembersByTripId(tripId: string): Promise<TripMember
     tripId: m.trip_id,
     userId: m.user_id,
     name: profileMap.get(m.user_id)?.name ?? '',
-    emoji: profileMap.get(m.user_id)?.emoji ?? '😀',
+    avatarUrl: profileMap.get(m.user_id)?.avatar_url ?? null,
     createdAt: m.created_at,
   }))
 }

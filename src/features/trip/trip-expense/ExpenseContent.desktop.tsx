@@ -34,6 +34,7 @@ import {
   getTotalExpensesInKRW
 } from "../../expense/expense.utils"
 import { useExpenses } from "../../expense/useExpenses"
+import { MemberAvatar } from "../trip-member/MemberAvatar"
 import { useTripMembers } from "../trip-member/useTripMembers"
 import { useTrip } from "../useTrip"
 import { RouteExpenseView } from "./RouteExpenseView"
@@ -150,7 +151,7 @@ export function ExpenseContent({ tripId }: Props) {
             >
               <Stack alignItems="start" gap={0.5}>
                 <Stack direction="row" spacing={0.5} alignItems="center" >
-                  <Typography variant="body2">{member.emoji}</Typography>
+                  <MemberAvatar member={member} size={20} />
                   <Typography variant="body2" fontWeight="medium">{member.name}</Typography>
                 </Stack>
                 <AnimatedCountText
@@ -488,7 +489,7 @@ export function ExpenseContent({ tripId }: Props) {
                   }}
                 >
                   <Stack direction="row" alignItems="center" spacing={1} mb={0.5}>
-                    <Typography fontSize={16}>{member.emoji}</Typography>
+                    <MemberAvatar member={member} size={24} />
                     <Typography variant="body2" fontWeight="medium">{member.name}</Typography>
                   </Stack>
                   <Stack direction="row" justifyContent="space-between">
