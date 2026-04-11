@@ -3,6 +3,7 @@ import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { useCallback, useEffect } from 'react';
 import { supabase } from '~api/client';
 import { updateProfile } from './auth.api';
+import { arrayIncludes } from '~shared/utils/types';
 
 export function useAuth() {
   const query = useSuspenseQuery({
@@ -35,7 +36,7 @@ export function useAuth() {
       .onAuthStateChange(async (event, session) => {
         setData(session?.user ?? null);
         
-        if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+        if (arrayIncludes(IN_AUTH_STATUSES, event)) { 
           if (session == null) return;
           const meta = session.user.user_metadata
           const name = meta.nickname ?? meta.name ?? meta.full_name ?? '';
@@ -51,3 +52,5 @@ export function useAuth() {
 
   return query;
 }
+
+const IN_AUTH_STATUSES = ['INITIAL_SESSION', 'SIGNED_IN', 'USER_UPDATED'] as const;

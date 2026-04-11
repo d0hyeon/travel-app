@@ -42,7 +42,10 @@ export default function MainLayout() {
           <BottomNavigation.Menu
             icon={<LogoutIcon fontSize="small" color="disabled" />}
             isActived={false}
-            onClick={signOut}
+            onClick={async () => {
+              await signOut();
+              window.location.reload();
+            }}
           >
             로그아웃
           </BottomNavigation.Menu>
