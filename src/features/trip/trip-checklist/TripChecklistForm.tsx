@@ -105,7 +105,7 @@ export function TripChecklistForm({
                 <Chip
                   key={x.id}
                   size="small"
-                  label={`${x.emoji} ${x.name}`}
+                  label={`${x.name}`}
                   variant={value === x.id ? 'filled' : 'outlined'}
                   color="primary"
                   onClick={() => onChange(x.id)}

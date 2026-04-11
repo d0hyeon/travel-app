@@ -217,13 +217,11 @@ export function useStatisticsSummary(): StatisticsSummary {
 
           const paymentInKRW = convertToKRW(payment.amount, expense.currency, trip.exchangeRates)
 
-          // NOTE:
-          // 통계 페이지에서는 "같은 이름이면 합쳐 보여준다"는 현재 기획을 따른다.
-          // 따라서 여행이 달라도 이름이 같으면 동일 인물로 간주해 집계한다.
-          const payerKey = member.name.trim().toLowerCase()
+          
+          const payerKey = member.user.id;
           const currentPayer = payerMap.get(payerKey) ?? {
             name: member.name,
-            avatarUrl: member.avatarUrl,
+            avatarUrl: member.user.avatarUrl,
             totalAmountInKRW: 0,
             paymentCount: 0,
             tripCount: 0,

@@ -152,7 +152,7 @@ export function ExpenseContent({ tripId }: Props) {
               <Stack alignItems="start" gap={0.5}>
                 <Stack direction="row" spacing={0.5} alignItems="center" >
                   <MemberAvatar member={member} size={20} />
-                  <Typography variant="body2" fontWeight="medium">{member.name}</Typography>
+                  <Typography variant="body2" fontWeight="medium">{member.user.name}</Typography>
                 </Stack>
                 <AnimatedCountText
                   value={balance}
@@ -316,7 +316,7 @@ export function ExpenseContent({ tripId }: Props) {
                                       key={id}
                                       size="small"
                                       variant="outlined"
-                                      label={`${member?.emoji} ${member?.name}`}
+                                      label={`${member?.user.name}`}
                                     />
                                   )
                                 })}
@@ -333,7 +333,7 @@ export function ExpenseContent({ tripId }: Props) {
                                       key={p.memberId}
                                       size="small"
                                       variant="outlined"
-                                      label={`${member?.emoji} ${member?.name}${p.amount === expense.totalAmount ? '' : ` ${formatByCurrencyCode(p.amount, expense.currency)}`}`}
+                                      label={`${member?.user.name}${p.amount === expense.totalAmount ? '' : ` ${formatByCurrencyCode(p.amount, expense.currency)}`}`}
                                     />
                                   )
                                 })}
@@ -427,14 +427,13 @@ export function ExpenseContent({ tripId }: Props) {
                         <Stack direction="row" alignItems="center" justifyContent="space-between">
                           <Stack direction="row" alignItems="center" spacing={1.5}>
                             <Box textAlign="center">
-                              <Typography fontSize={24}>{from.emoji}</Typography>
+
                               <Typography variant="caption" fontWeight="medium">
                                 {from.name}
                               </Typography>
                             </Box>
                             <ArrowForwardIcon color="action" />
                             <Box textAlign="center">
-                              <Typography fontSize={24}>{to.emoji}</Typography>
                               <Typography variant="caption" fontWeight="medium">
                                 {to.name}
                               </Typography>

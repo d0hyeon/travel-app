@@ -30,7 +30,7 @@ export function TripMemberAutocomplete<Multiple extends boolean = false>({
         multiple={true}
         renderInput={(props) => <TextField {...props} />}
         // @ts-ignore
-        getOptionLabel={option => `${option.emoji} ${option.name}`}
+        getOptionLabel={option => option.user.name}
         onChange={(_, value) => {
           const ids = value.map(x => x.id);
           // @ts-ignore
@@ -45,7 +45,7 @@ export function TripMemberAutocomplete<Multiple extends boolean = false>({
   return (
     <Autocomplete<TripMember, false, false, false>
       // @ts-ignore
-      getOptionLabel={option => `${option.emoji} ${option.name}`}
+      getOptionLabel={option => option.user.name}
       value={value}
       options={members}
       multiple={multiple}

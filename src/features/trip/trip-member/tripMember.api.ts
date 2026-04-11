@@ -1,7 +1,7 @@
 import { supabase } from '~api/client'
 import type { TripMember } from './tripMember.types'
 
-export const tripMemberKey = 'trip_members'
+export const tripMemberKey = 'trip_members';
 
 export async function getTripMembersByTripId(tripId: string): Promise<TripMember[]> {
   const { data: members, error } = await supabase
@@ -32,9 +32,12 @@ export async function getTripMembersByTripId(tripId: string): Promise<TripMember
       id: m.id,
       tripId: m.trip_id,
       userId: m.user_id,
-      // user_id가 없는 레거시 멤버는 기존 name 컬럼 폴백
-      name: profile?.name ?? (m as never as { name: string }).name ?? '',
-      avatarUrl: profile?.avatar_url ?? null,
+      name: profile!.name,
+      user: {
+        id: m.user_id,
+        name: profile?.name ?? '',
+        avatarUrl: profile?.avatar_url ?? null,
+      },
       createdAt: m.created_at,
     }
   })

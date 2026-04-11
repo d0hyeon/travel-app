@@ -56,7 +56,7 @@ export function SettlementSummary({ tripId, formatAmount = formatCurrency }: Pro
                   <Stack direction="row" justifyContent="space-between" alignItems="center">
                     <Stack direction="row" spacing={1.5} alignItems="center">
                       <MemberAvatar member={member} size={24} />
-                      <Typography variant='body2' fontWeight="medium">{member.name}</Typography>
+                      <Typography variant='body2' fontWeight="medium">{member.user.name}</Typography>
                     </Stack>
                     <Box textAlign="left">
                       <Stack gap={0.5} minWidth={150}>
@@ -122,13 +122,11 @@ export function SettlementSummary({ tripId, formatAmount = formatCurrency }: Pro
                     <Stack direction="row" alignItems="center" justifyContent="space-between">
                       <Stack direction="row" alignItems="center" spacing={1}>
                         <Box textAlign="center">
-                          <Typography fontSize={20}>{from.emoji}</Typography>
-                          <Typography variant="caption">{from.name}</Typography>
+                          <Typography variant="caption">{from.user.name}</Typography>
                         </Box>
                         <ArrowForwardIcon color="action" fontSize="small" />
                         <Box textAlign="center">
-                          <Typography fontSize={20}>{to.emoji}</Typography>
-                          <Typography variant="caption">{to.name}</Typography>
+                          <Typography variant="caption">{to.user.name}</Typography>
                         </Box>
                       </Stack>
                       <Typography variant="body2" color="primary">

@@ -149,7 +149,7 @@ TripChecklist.Item = ({ tripId, id, ...props }: ItemProps) => {
             <Box sx={{ flex: 0, fontSize: 0 }}>
               <Chip
                 size="small"
-                label={`${담당자.emoji} ${담당자.name}`}
+                label={`${담당자.name}`}
                 variant="outlined"
                 sx={theme => ({
                   color: theme.palette.text.secondary,

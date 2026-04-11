@@ -226,7 +226,7 @@ ExpenseForm.Resolved = ({
                             <Select variant="standard" {...field}>
                               {members.map(m => (
                                 <MenuItem key={m.id} value={m.id}>
-                                  {m.emoji} {m.name}
+                                  {m.name}
                                 </MenuItem>
                               ))}
                             </Select>
