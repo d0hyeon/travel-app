@@ -8,7 +8,7 @@ import type { Expense } from "~features/expense/expense.types"
 
 interface Payer {
   memberId: string;
-  emoji: string;
+  avatarUrl: string | null;
   name: string;
   amount: number
 }
@@ -92,7 +92,7 @@ export function useExpensesByPlace(tripId: string) {
           acc.push({
             memberId: member.id,
             name: member.name,
-            emoji: member.emoji,
+            avatarUrl: member.avatarUrl,
             amount: payment.amount
           });
         }

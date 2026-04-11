@@ -227,7 +227,7 @@ TripChecklist.ReadonlyItem = ({ id, tripId, ...props }: ItemProps) => {
             <Chip
               variant="outlined"
               size="small"
-              label={`${member.emoji} ${member.name}`}
+              label={member.name}
               sx={isMobile ? { fontSize: 10, padding: 0, height: 20, span: { paddingX: 0.5 } } : {}}
             />
           )}

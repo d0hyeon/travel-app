@@ -398,7 +398,7 @@ ExpenseForm.Resolved = ({
                     return (
                       <Chip
                         key={member.id}
-                        label={`${member.emoji} ${member.name}`}
+                        label={member.name}
                         variant={isSelected ? 'filled' : 'outlined'}
                         color={isSelected ? 'primary' : 'default'}
                         onClick={() => {

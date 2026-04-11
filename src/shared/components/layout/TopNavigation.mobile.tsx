@@ -43,7 +43,7 @@ export function TopNavigation({
         </Box>
       </Box>
       <Stack direction="row" alignItems="center">
-
+        {rightElement}
       </Stack>
 
     </Stack>

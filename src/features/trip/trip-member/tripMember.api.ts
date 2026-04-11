@@ -3,68 +3,53 @@ import type { TripMember } from './tripMember.types'
 
 export const tripMemberKey = 'trip_members'
 
-function toTripMember(row: {
-  id: string
-  trip_id: string
-  name: string
-  emoji: string
-  created_at: string
-}): TripMember {
-  return {
-    id: row.id,
-    tripId: row.trip_id,
-    name: row.name,
-    emoji: row.emoji,
-    createdAt: row.created_at,
-  }
-}
-
 export async function getTripMembersByTripId(tripId: string): Promise<TripMember[]> {
-  const { data, error } = await supabase
+  const { data: members, error } = await supabase
     .from('trip_members')
     .select('*')
     .eq('trip_id', tripId)
     .order('created_at', { ascending: true })
 
   if (error) throw error
-  return (data ?? []).map(toTripMember)
-}
+  if (!members?.length) return []
 
-export async function createTripMember(data: Omit<TripMember, 'id' | 'createdAt'>): Promise<TripMember> {
-  const { data: created, error } = await supabase
-    .from('trip_members')
-    .insert({
-      trip_id: data.tripId,
-      name: data.name,
-      emoji: data.emoji,
-    } as never)
-    .select()
-    .single()
+  const userIds = members.map((m) => m.user_id).filter(Boolean) as string[]
 
-  if (error) throw error
-  return toTripMember(created!)
-}
+  const profileMap = new Map<string, { name: string; avatar_url: string | null }>()
+  if (userIds.length > 0) {
+    const { data: profiles, error: profileError } = await supabase
+      .from('user_profiles')
+      .select('*')
+      .in('id', userIds)
 
-export async function updateTripMember(
-  id: string,
-  data: Partial<Pick<TripMember, 'name' | 'emoji'>>
-): Promise<TripMember | undefined> {
-  const updateData: Record<string, unknown> = {}
-  if (data.name !== undefined) updateData.name = data.name
-  if (data.emoji !== undefined) updateData.emoji = data.emoji
-
-  const { data: updated, error } = await supabase
-    .from('trip_members')
-    .update(updateData as never)
-    .eq('id', id)
-    .select()
-    .single()
-
-  if (error) {
-    if (error.code === 'PGRST116') return undefined
-    throw error
+    if (profileError) throw profileError
+    profiles?.forEach((p) => profileMap.set(p.id, p))
   }
-  return updated ? toTripMember(updated) : undefined
+
+  return members.map((m) => {
+    const profile = m.user_id ? profileMap.get(m.user_id) : null
+    return {
+      id: m.id,
+      tripId: m.trip_id,
+      userId: m.user_id,
+      // user_id가 없는 레거시 멤버는 기존 name 컬럼 폴백
+      name: profile?.name ?? (m as never as { name: string }).name ?? '',
+      avatarUrl: profile?.avatar_url ?? null,
+      createdAt: m.created_at,
+    }
+  })
+}
+
+export async function joinTrip(tripId: string): Promise<void> {
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) throw new Error('로그인이 필요합니다')
+
+  const { error } = await supabase
+    .from('trip_members')
+    .insert({ trip_id: tripId, user_id: user.id } as never)
+
+  // 이미 멤버인 경우 무시
+  if (error && error.code !== '23505') throw error
 }
 
 export async function deleteTripMember(id: string): Promise<boolean> {

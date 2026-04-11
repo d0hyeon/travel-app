@@ -1,8 +1,8 @@
-import { Alert, AlertTitle, Button, CssBaseline, ThemeProvider, Typography } from '@mui/material'
+import { Alert, AlertTitle, Box, Button, CircularProgress, CssBaseline, ThemeProvider, Typography } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { QueryClientProvider } from '@tanstack/react-query'
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router'
 import { registerSW } from 'virtual:pwa-register'
 import { queryClient } from '~app/query-client'
@@ -64,7 +64,9 @@ export default function Root() {
               <CssBaseline />
               {/* <TouchRippleOverlay /> */}
               <SearchParamProvider>
-                <Outlet />
+                <Suspense fallback={<Box display="flex" justifyContent="center" alignItems="center" height="100dvh"><CircularProgress /></Box>}>
+                  <Outlet />
+                </Suspense>
               </SearchParamProvider>
               <Installer />
             </OverlayProvider>

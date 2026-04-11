@@ -30,7 +30,7 @@ type Step = typeof STEPS[number]
 const STEP_LABELS: Record<Step, string> = {
   destination: '어디로 떠나시나요?',
   date: '언제 떠나시나요?',
-  info: '여행 이름과 멤버를 입력해주세요',
+  info: '여행 이름을 입력해주세요',
 }
 
 export default function TripCreatePage() {
@@ -64,21 +64,25 @@ export default function TripCreatePage() {
     setStep('info', { replace: false })
   }
 
-  const handleInfoNext = async (name: string, memberNames: string[]) => {
+  const handleInfoNext = async (name: string) => {
     if (!destination || !dateRange) return
-    const trip = await create({
-      name: name || `${destination.name} 여행`,
-      destination: destination.name,
-      lat: destination.lat,
-      lng: destination.lng,
-      startDate: dateRange[0],
-      endDate: dateRange[1],
-      isOverseas: isOverseasByCoordinate(destination.lat, destination.lng),
-      exchangeRate: null,
-      exchangeRates: null,
-      memberNames,
-    })
-    navigate(`/trip/${trip.id}`)
+    try {
+      const trip = await create({
+        name: name || `${destination.name} 여행`,
+        destination: destination.name,
+        lat: destination.lat,
+        lng: destination.lng,
+        startDate: dateRange[0],
+        endDate: dateRange[1],
+        isOverseas: isOverseasByCoordinate(destination.lat, destination.lng),
+        exchangeRate: null,
+        exchangeRates: null,
+      })
+      navigate(`/trip/${trip.id}`)
+    } catch (e) {
+      console.error('여행 생성 실패:', e)
+      alert('여행 생성에 실패했어요: ' + (e instanceof Error ? e.message : String(e)))
+    }
   }
 
   return (

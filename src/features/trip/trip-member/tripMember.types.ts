@@ -1,8 +1,11 @@
 export interface TripMember {
   id: string
   tripId: string
+  userId: string
+  /** user_profiles에서 조회 */
   name: string
-  emoji: string
+  /** user_profiles에서 조회 */
+  avatarUrl: string | null
   createdAt: string
 }
 

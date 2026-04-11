@@ -4,7 +4,6 @@ import { formatDate } from '../../shared/utils/formats';
 import { deletePhotosByTripId } from '~features/photo/photo.api';
 import { getCurrencyByDestination, type ExchangeRateEntry } from '../expense/currency';
 import type { DataRaw } from '~api/tables.types';
-import { getRandomEmoji } from './trip-member/tripMember.types';
 
 function getDatesBetween(startDate: string, endDate: string): string[] {
   const dates: string[] = []
@@ -21,9 +20,7 @@ function getDatesBetween(startDate: string, endDate: string): string[] {
 
 export const tripKey = 'trips'
 
-// DB row -> App model 변환
 function toTrip(row: DataRaw<'trips'>): Trip {
-  // 기존 단일 환율 → 배열로 자동 마이그레이션
   let exchangeRates: ExchangeRateEntry[] | null = (row.exchange_rates as ExchangeRateEntry[] | null) ?? null;
   if (!exchangeRates && row.exchange_rate != null) {
     const currency = getCurrencyByDestination(row.destination);
@@ -65,7 +62,7 @@ export async function getTripById(id: string): Promise<Trip | undefined> {
     .single()
 
   if (error) {
-    if (error.code === 'PGRST116') return undefined // not found
+    if (error.code === 'PGRST116') return undefined
     throw error
   }
   return data ? toTrip(data) : undefined
@@ -73,22 +70,18 @@ export async function getTripById(id: string): Promise<Trip | undefined> {
 
 export async function getTripByShareLink(shareLink: string): Promise<Trip | undefined> {
   const { data, error } = await supabase
-    .from('trips')
-    .select('*')
-    .eq('share_link', shareLink)
-    .single()
+    .rpc('get_trip_by_share_link', { link: shareLink })
 
-  if (error) {
-    if (error.code === 'PGRST116') return undefined
-    throw error
-  }
-  return data ? toTrip(data) : undefined
+  if (error) throw error
+  return data?.[0] ? toTrip(data[0]) : undefined
 }
 
 export async function createTrip(
-  data: Omit<Trip, 'id' | 'shareLink' | 'createdAt'>,
-  memberNames: string[] = []
+  data: Omit<Trip, 'id' | 'shareLink' | 'createdAt'>
 ): Promise<Trip> {
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) throw new Error('로그인이 필요합니다')
+
   const { data: created, error } = await supabase
     .from('trips')
     .insert({
@@ -100,6 +93,7 @@ export async function createTrip(
       end_date: data.endDate,
       share_link: crypto.randomUUID(),
       is_overseas: data.isOverseas,
+      user_id: user.id,
     } as never)
     .select()
     .single()
@@ -123,15 +117,10 @@ export async function createTrip(
     await supabase.from('routes').insert(routes as never)
   }
 
-  // 멤버 일괄 생성
-  if (memberNames.length > 0) {
-    const members = memberNames.map((name) => ({
-      trip_id: trip.id,
-      name,
-      emoji: getRandomEmoji(),
-    }))
-    await supabase.from('trip_members').insert(members as never)
-  }
+  // 생성자를 첫 번째 멤버로 추가
+  await supabase
+    .from('trip_members')
+    .insert({ trip_id: trip.id, user_id: user.id } as never)
 
   return trip
 }
@@ -165,7 +154,7 @@ export async function updateTrip(id: string, data: Partial<Omit<Trip, 'id' | 'cr
 
 export async function deleteTrip(id: string): Promise<boolean> {
   await deletePhotosByTripId(id);
-  
+
   const { error } = await supabase
     .from('trips')
     .delete()

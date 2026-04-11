@@ -283,24 +283,21 @@ export type Database = {
       trip_members: {
         Row: {
           created_at: string
-          emoji: string
           id: string
-          name: string
           trip_id: string
+          user_id: string
         }
         Insert: {
           created_at?: string
-          emoji: string
           id?: string
-          name: string
           trip_id: string
+          user_id: string
         }
         Update: {
           created_at?: string
-          emoji?: string
           id?: string
-          name?: string
           trip_id?: string
+          user_id?: string
         }
         Relationships: [
           {
@@ -326,6 +323,7 @@ export type Database = {
           name: string
           share_link: string
           start_date: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -340,6 +338,7 @@ export type Database = {
           name: string
           share_link?: string
           start_date: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -354,6 +353,31 @@ export type Database = {
           name?: string
           share_link?: string
           start_date?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          emoji: string
+          id: string
+          name: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          emoji?: string
+          id: string
+          name?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          emoji?: string
+          id?: string
+          name?: string
         }
         Relationships: []
       }
@@ -362,7 +386,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_access_trip: {
+        Args: { trip_id: string }
+        Returns: boolean
+      }
+      get_trip_by_share_link: {
+        Args: { link: string }
+        Returns: Database['public']['Tables']['trips']['Row'][]
+      }
     }
     Enums: {
       [_ in never]: never
