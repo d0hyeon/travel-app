@@ -20,3 +20,18 @@ export async function getCurrentUser() {
   if (error) throw error
   return user
 }
+
+interface UpdateProfilePayload {
+  id: string;
+  name?: string;
+  avatar?: string;
+}
+
+export async function updateProfile({ avatar, ...payload }: UpdateProfilePayload) {
+  await supabase
+    .from('user_profiles')
+    .upsert(
+      { ...payload, avatar_url: avatar } as never,
+      { onConflict: 'id' }
+    )
+}
