@@ -23,13 +23,14 @@ export default function LoginPage() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
         bgcolor: 'background.default',
-        gap: 6,
+        px: 3,
+        pt: 6,
+        pb: `calc(24px + env(safe-area-inset-bottom))`,
       }}
     >
-      {/* 로고 + 앱명 */}
-      <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
+      {/* 심볼 + 앱명 */}
+      <Box flex={1} display="flex" flexDirection="column" alignItems="center" justifyContent="center" gap={2}>
         <Box
           sx={{
             width: 72,
@@ -57,13 +58,14 @@ export default function LoginPage() {
       <Button
         onClick={signInWithKakao}
         startIcon={<KakaoSymbol />}
+        fullWidth
         sx={{
           bgcolor: '#FEE500',
           color: '#3C1E1E',
           fontWeight: 600,
           fontSize: 15,
-          height: 52,
-          width: 300,
+          height: 54,
+          maxWidth: 400,
           borderRadius: 2,
           boxShadow: 'none',
           '&:hover': {
