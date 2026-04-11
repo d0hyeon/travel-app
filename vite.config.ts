@@ -72,13 +72,12 @@ const config = {
       workbox: {
         navigateFallback: '/index.html',
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        globPatterns: ['**/*.{js,css,ico,png,svg,woff2}'],
         cleanupOutdatedCaches: true,
-        clientsClaim: false,
+        clientsClaim: true,
         skipWaiting: false,
         runtimeCaching: [
           // {
-          //   // HTML 페이지는 네트워크 우선 (오프라인일 때만 캐시)
           //   urlPattern: ({ request }) => request.mode === 'navigate',
           //   handler: 'NetworkFirst',
           //   options: {
