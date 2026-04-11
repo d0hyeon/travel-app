@@ -66,18 +66,23 @@ export default function TripCreatePage() {
 
   const handleInfoNext = async (name: string) => {
     if (!destination || !dateRange) return
-    const trip = await create({
-      name: name || `${destination.name} 여행`,
-      destination: destination.name,
-      lat: destination.lat,
-      lng: destination.lng,
-      startDate: dateRange[0],
-      endDate: dateRange[1],
-      isOverseas: isOverseasByCoordinate(destination.lat, destination.lng),
-      exchangeRate: null,
-      exchangeRates: null,
-    })
-    navigate(`/trip/${trip.id}`)
+    try {
+      const trip = await create({
+        name: name || `${destination.name} 여행`,
+        destination: destination.name,
+        lat: destination.lat,
+        lng: destination.lng,
+        startDate: dateRange[0],
+        endDate: dateRange[1],
+        isOverseas: isOverseasByCoordinate(destination.lat, destination.lng),
+        exchangeRate: null,
+        exchangeRates: null,
+      })
+      navigate(`/trip/${trip.id}`)
+    } catch (e) {
+      console.error('여행 생성 실패:', e)
+      alert('여행 생성에 실패했어요: ' + (e instanceof Error ? e.message : String(e)))
+    }
   }
 
   return (
