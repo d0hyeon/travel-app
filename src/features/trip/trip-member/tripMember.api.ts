@@ -13,23 +13,31 @@ export async function getTripMembersByTripId(tripId: string): Promise<TripMember
   if (error) throw error
   if (!members?.length) return []
 
-  const { data: profiles, error: profileError } = await supabase
-    .from('user_profiles')
-    .select('*')
-    .in('id', members.map((m) => m.user_id))
+  const userIds = members.map((m) => m.user_id).filter(Boolean) as string[]
 
-  if (profileError) throw profileError
+  const profileMap = new Map<string, { name: string; avatar_url: string | null }>()
+  if (userIds.length > 0) {
+    const { data: profiles, error: profileError } = await supabase
+      .from('user_profiles')
+      .select('*')
+      .in('id', userIds)
 
-  const profileMap = new Map(profiles?.map((p) => [p.id, p]) ?? [])
+    if (profileError) throw profileError
+    profiles?.forEach((p) => profileMap.set(p.id, p))
+  }
 
-  return members.map((m) => ({
-    id: m.id,
-    tripId: m.trip_id,
-    userId: m.user_id,
-    name: profileMap.get(m.user_id)?.name ?? '',
-    avatarUrl: profileMap.get(m.user_id)?.avatar_url ?? null,
-    createdAt: m.created_at,
-  }))
+  return members.map((m) => {
+    const profile = m.user_id ? profileMap.get(m.user_id) : null
+    return {
+      id: m.id,
+      tripId: m.trip_id,
+      userId: m.user_id,
+      // user_id가 없는 레거시 멤버는 기존 name 컬럼 폴백
+      name: profile?.name ?? (m as never as { name: string }).name ?? '',
+      avatarUrl: profile?.avatar_url ?? null,
+      createdAt: m.created_at,
+    }
+  })
 }
 
 export async function joinTrip(tripId: string): Promise<void> {

@@ -4,43 +4,27 @@
 
 -- ------------------------------------------------------------
 -- 1. user_profiles
---    auth.users와 1:1, 이름/이모지 저장
+--    auth.users와 1:1, 이름/프로필 이미지 저장
 -- ------------------------------------------------------------
 CREATE TABLE user_profiles (
   id         UUID        PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   name       TEXT        NOT NULL DEFAULT '',
-  emoji      TEXT        NOT NULL DEFAULT '😀',
+  avatar_url TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 신규 유저 가입 시 자동으로 profile row 생성
-CREATE OR REPLACE FUNCTION handle_new_user()
-RETURNS TRIGGER AS $$
-BEGIN
-  INSERT INTO user_profiles (id)
-  VALUES (NEW.id)
-  ON CONFLICT (id) DO NOTHING;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
-
 -- ------------------------------------------------------------
--- 2. trips — user_id 추가
+-- 2. trips — user_id 추가 (nullable: 기존 레거시 여행은 NULL)
 -- ------------------------------------------------------------
 ALTER TABLE trips ADD COLUMN user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL;
 
 -- ------------------------------------------------------------
--- 3. trip_members — user 기반으로 전환
---    name/emoji는 user_profiles에서 조회
+-- 3. trip_members — user_id 추가
+--    name/emoji는 레거시 데이터 폴백용으로 유지
+--    user_id가 있으면 user_profiles에서 name/avatar 조회
 -- ------------------------------------------------------------
 ALTER TABLE trip_members
-  ADD COLUMN user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  DROP COLUMN name,
-  DROP COLUMN emoji;
+  ADD COLUMN user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE;
 
 -- ------------------------------------------------------------
 -- 4. 초대 링크로 여행 조회 (RLS 우회 함수)
@@ -61,7 +45,8 @@ RETURNS BOOLEAN AS $$
     SELECT 1 FROM trips t
     WHERE t.id = trip_id
       AND (
-        t.user_id = auth.uid()
+        t.user_id IS NULL           -- 레거시 여행: 누구나 접근 가능
+        OR t.user_id = auth.uid()
         OR EXISTS (
           SELECT 1 FROM trip_members m
           WHERE m.trip_id = t.id AND m.user_id = auth.uid()
@@ -79,7 +64,8 @@ ALTER TABLE trips ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "trips_select" ON trips FOR SELECT
   USING (
-    user_id = auth.uid()
+    user_id IS NULL             -- 레거시 여행
+    OR user_id = auth.uid()
     OR id IN (SELECT m.trip_id FROM trip_members m WHERE m.user_id = auth.uid())
   );
 
@@ -90,7 +76,10 @@ CREATE POLICY "trips_update" ON trips FOR UPDATE
   USING (can_access_trip(id));
 
 CREATE POLICY "trips_delete" ON trips FOR DELETE
-  USING (user_id = auth.uid()); -- 삭제는 owner만
+  USING (
+    user_id IS NULL             -- 레거시 여행은 누구나 삭제 가능 (추후 소유권 이전 후 제거)
+    OR user_id = auth.uid()
+  );
 
 -- trip_members
 ALTER TABLE trip_members ENABLE ROW LEVEL SECURITY;
@@ -114,6 +103,9 @@ ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "profiles_select" ON user_profiles FOR SELECT
   USING (true); -- 같은 여행 멤버 프로필 조회 필요하므로 인증된 유저는 모두 읽기 가능
+
+CREATE POLICY "profiles_insert" ON user_profiles FOR INSERT
+  WITH CHECK (id = auth.uid());
 
 CREATE POLICY "profiles_update" ON user_profiles FOR UPDATE
   USING (id = auth.uid()); -- 본인 프로필만 수정
