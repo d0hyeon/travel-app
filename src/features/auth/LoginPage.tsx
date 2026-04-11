@@ -2,71 +2,78 @@ import LuggageIcon from '@mui/icons-material/Luggage'
 import { Box, Button, Typography } from '@mui/material'
 import { signInWithKakao } from './auth.api'
 
+function KakaoSymbol() {
+  return (
+    <svg width="18" height="17" viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M9 0C4.029 0 0 3.074 0 6.868c0 2.442 1.617 4.588 4.071 5.808l-1.04 3.78a.35.35 0 0 0 .518.385L8.42 14.02c.191.014.383.02.58.02 4.971 0 9-3.074 9-6.868S13.971 0 9 0z"
+        fill="#3C1E1E"
+      />
+    </svg>
+  )
+}
+
 export default function LoginPage() {
   return (
     <Box
       sx={{
         height: '100dvh',
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(160deg, #0f2027 0%, #203a43 50%, #2c5364 100%)',
+        bgcolor: 'background.default',
+        gap: 6,
       }}
     >
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 3,
-          p: 5,
-          borderRadius: 4,
-          bgcolor: 'rgba(255,255,255,0.06)',
-          backdropFilter: 'blur(16px)',
-          border: '1px solid rgba(255,255,255,0.1)',
-          width: 300,
-        }}
-      >
+      {/* 로고 + 앱명 */}
+      <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
         <Box
           sx={{
-            width: 64,
-            height: 64,
-            borderRadius: '50%',
-            bgcolor: 'rgba(255,255,255,0.1)',
+            width: 72,
+            height: 72,
+            borderRadius: 4,
+            bgcolor: 'primary.main',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <LuggageIcon sx={{ fontSize: 32, color: 'white' }} />
+          <LuggageIcon sx={{ fontSize: 36, color: 'white' }} />
         </Box>
-
         <Box textAlign="center">
-          <Typography variant="h5" fontWeight={600} mb={0.5} color="white">
+          <Typography variant="h5" fontWeight={700} mb={0.5}>
             여행 플래너
           </Typography>
-          <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.5)' }}>
+          <Typography variant="body2" color="text.secondary">
             여행을 계획하고 함께 기록해요
           </Typography>
         </Box>
-
-        <Button
-          variant="contained"
-          fullWidth
-          onClick={signInWithKakao}
-          sx={{
-            bgcolor: '#FEE500',
-            color: '#3C1E1E',
-            fontWeight: 500,
-            height: 48,
-            borderRadius: 100,
-            boxShadow: 'none',
-            '&:hover': { bgcolor: '#F0D900', boxShadow: 'none' },
-          }}
-        >
-          카카오로 시작하기
-        </Button>
       </Box>
+
+      {/* 카카오 로그인 버튼 */}
+      <Button
+        onClick={signInWithKakao}
+        startIcon={<KakaoSymbol />}
+        sx={{
+          bgcolor: '#FEE500',
+          color: '#3C1E1E',
+          fontWeight: 600,
+          fontSize: 15,
+          height: 52,
+          width: 300,
+          borderRadius: 2,
+          boxShadow: 'none',
+          '&:hover': {
+            bgcolor: '#F0D900',
+            boxShadow: 'none',
+          },
+        }}
+      >
+        카카오로 로그인
+      </Button>
     </Box>
   )
 }
