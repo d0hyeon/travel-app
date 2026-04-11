@@ -34,8 +34,9 @@ export function useAuth() {
     const { data: { subscription } } = supabase.auth
       .onAuthStateChange(async (event, session) => {
         setData(session?.user ?? null);
-
+        
         if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+          if (session == null) return;
           const meta = session.user.user_metadata
           const name = meta.nickname ?? meta.name ?? meta.full_name ?? '';
           const avatarUrl = meta.picture ?? meta.avatar_url ?? null
