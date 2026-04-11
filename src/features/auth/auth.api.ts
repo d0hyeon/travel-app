@@ -2,10 +2,9 @@ import { supabase } from '~api/client'
 
 export async function signInWithKakao() {
   const { error } = await supabase.auth.signInWithOAuth({
-    provider: 'kakao',
+    provider: 'kakao' as never,
     options: {
       redirectTo: window.location.origin,
-      scopes: 'profile_nickname profile_image',
     },
   })
   if (error) throw error
