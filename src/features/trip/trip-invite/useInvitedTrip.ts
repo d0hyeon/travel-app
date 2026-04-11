@@ -21,16 +21,13 @@ export function useInvitedTrip({ sharedLink }: UseInvitedTripParams) {
   const { data, ...queries } = useSuspenseQuery({
     queryKey: useInvitedTrip.key(sharedLink),
     queryFn: async () => {
-      try {
-        const trip = await getTripByShareLink(sharedLink);
-        if (trip == null) {
-          throw new Error(ERROR_MESSAGE[ErrorTypes.만료된_링크], { cause: ERROR_MESSAGE[ErrorTypes.만료된_링크] })
-        }
-
-        return trip;
-      } catch {
-        throw new Error(ERROR_MESSAGE[ErrorTypes.잘못된_링크], { cause: ERROR_MESSAGE[ErrorTypes.잘못된_링크] })
+      const trip = await getTripByShareLink(sharedLink).catch(() => {
+        throw new Error(ERROR_MESSAGE[ErrorTypes.잘못된_링크])
+      });
+      if (trip == null) {
+        throw new Error(ERROR_MESSAGE[ErrorTypes.만료된_링크])
       }
+      return trip;
     },
   });
 
