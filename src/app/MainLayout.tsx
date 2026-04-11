@@ -1,9 +1,11 @@
 import LuggageIcon from '@mui/icons-material/Luggage'
+import LogoutIcon from '@mui/icons-material/Logout'
 import MapIcon from '@mui/icons-material/Map'
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
-import { Box, Stack, Tooltip, Typography } from '@mui/material'
+import { Box, IconButton, Stack, Tooltip, Typography } from '@mui/material'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
+import { signOut } from '~features/auth/auth.api'
 import { BottomNavigation } from '~shared/components/BottomNavigation'
 import { useIsMobile } from '~shared/hooks/useIsMobile'
 
@@ -37,6 +39,13 @@ export default function MainLayout() {
               {label}
             </BottomNavigation.Menu>
           ))}
+          <BottomNavigation.Menu
+            icon={<LogoutIcon fontSize="small" color="disabled" />}
+            isActived={false}
+            onClick={signOut}
+          >
+            로그아웃
+          </BottomNavigation.Menu>
         </BottomNavigation>
       </Box>
     )
@@ -55,42 +64,50 @@ export default function MainLayout() {
           alignItems: 'center',
           py: 2,
           gap: 0.5,
-          zIndex: 100
+          zIndex: 100,
+          justifyContent: 'space-between',
         }}
       >
-        {TABS.map(({ label, path, Icon }) => {
-          const isActive = location.pathname === path;
-          return (
-            <Tooltip key={path} title={label} placement="right">
-              <Link to={path}>
-                <Stack
-                  component="button"
-                  alignItems="center"
-                  justifyContent="center"
-                  gap={0.5}
-                  sx={{
-                    width: 52,
-                    py: 1.25,
-                    borderRadius: 2,
-                    border: 'none',
-                    cursor: 'pointer',
-                    bgcolor: isActive ? 'primary.main' : 'transparent',
-                    color: isActive ? 'primary.contrastText' : 'text.secondary',
-                    transition: 'background-color 0.15s',
-                    '&:hover': {
-                      bgcolor: isActive ? 'primary.dark' : 'action.hover',
-                    },
-                  }}
-                >
-                  <Icon fontSize="small" sx={{ color: 'inherit' }} />
-                  <Typography variant="caption" fontSize={10} fontWeight={isActive ? 700 : 400} sx={{ color: 'inherit' }}>
-                    {label}
-                  </Typography>
-                </Stack>
-              </Link>
-            </Tooltip>
-          )
-        })}
+        <Stack alignItems="center" gap={0.5}>
+          {TABS.map(({ label, path, Icon }) => {
+            const isActive = location.pathname === path;
+            return (
+              <Tooltip key={path} title={label} placement="right">
+                <Link to={path}>
+                  <Stack
+                    component="button"
+                    alignItems="center"
+                    justifyContent="center"
+                    gap={0.5}
+                    sx={{
+                      width: 52,
+                      py: 1.25,
+                      borderRadius: 2,
+                      border: 'none',
+                      cursor: 'pointer',
+                      bgcolor: isActive ? 'primary.main' : 'transparent',
+                      color: isActive ? 'primary.contrastText' : 'text.secondary',
+                      transition: 'background-color 0.15s',
+                      '&:hover': {
+                        bgcolor: isActive ? 'primary.dark' : 'action.hover',
+                      },
+                    }}
+                  >
+                    <Icon fontSize="small" sx={{ color: 'inherit' }} />
+                    <Typography variant="caption" fontSize={10} fontWeight={isActive ? 700 : 400} sx={{ color: 'inherit' }}>
+                      {label}
+                    </Typography>
+                  </Stack>
+                </Link>
+              </Tooltip>
+            )
+          })}
+        </Stack>
+        <Tooltip title="로그아웃" placement="right">
+          <IconButton onClick={signOut} size="small" sx={{ color: 'text.secondary' }}>
+            <LogoutIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
       </Stack>
 
       {/* 콘텐츠 */}
