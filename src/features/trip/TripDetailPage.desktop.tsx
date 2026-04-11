@@ -16,6 +16,7 @@ import { TopNavigation } from '~shared/components/layout/TopNavigation.desktop.t
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { lazy } from '~shared/utils/react'
 import { TripNameEditableText } from './TripNameEditableText.tsx'
+import { TripShareButton } from './TripShareButton.tsx'
 import { useTripId } from './useTripId'
 
 const TripPhotoContent = lazy(async () => {
@@ -50,7 +51,7 @@ export function TripDetailPageDesktop() {
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
       {/* Header */}
-      <TopNavigation>
+      <TopNavigation rightElement={<TripShareButton tripId={tripId} />}>
         <TripNameEditableText tripId={tripId} variant="h6" />
       </TopNavigation>
 
