@@ -77,15 +77,15 @@ const config = {
         clientsClaim: false,
         skipWaiting: false,
         runtimeCaching: [
-          {
-            // HTML 페이지는 네트워크 우선 (오프라인일 때만 캐시)
-            urlPattern: ({ request }) => request.mode === 'navigate',
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'pages-cache',
-              networkTimeoutSeconds: 10,
-            },
-          },
+          // {
+          //   // HTML 페이지는 네트워크 우선 (오프라인일 때만 캐시)
+          //   urlPattern: ({ request }) => request.mode === 'navigate',
+          //   handler: 'NetworkFirst',
+          //   options: {
+          //     cacheName: 'pages-cache',
+          //     networkTimeoutSeconds: 10,
+          //   },
+          // },
           {
             urlPattern: /^https:\/\/.*\.kakaocdn\.net\/.*/i,
             handler: 'CacheFirst',
