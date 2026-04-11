@@ -17,7 +17,7 @@ export function useAuth() {
         throw error;
       }
 
-      return session?.user;
+      return session?.user ?? null;
     },
     refetchOnMount: false,
     refetchInterval: false,
