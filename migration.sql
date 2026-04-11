@@ -151,3 +151,43 @@ ALTER TABLE checklist ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "checklist_access" ON checklist
   USING (can_access_trip(trip_id))
   WITH CHECK (can_access_trip(trip_id));
+
+-- ============================================================
+-- Phase 2: 수동 유저 매핑 완료 후 실행
+-- 모든 trip_members.user_id와 trips.user_id 매핑이 끝난 뒤에만 실행할 것
+-- ============================================================
+
+-- 매핑 누락 여부 확인 (실행 전 반드시 확인)
+-- SELECT * FROM trip_members WHERE user_id IS NULL;
+-- SELECT * FROM trips WHERE user_id IS NULL;
+
+-- 1. NOT NULL 제약 추가
+ALTER TABLE trip_members ALTER COLUMN user_id SET NOT NULL;
+ALTER TABLE trips ALTER COLUMN user_id SET NOT NULL;
+
+-- 2. 레거시 허용 RLS 정책 교체 (user_id IS NULL 조건 제거)
+DROP POLICY "trips_select" ON trips;
+CREATE POLICY "trips_select" ON trips FOR SELECT
+  USING (
+    user_id = auth.uid()
+    OR id IN (SELECT m.trip_id FROM trip_members m WHERE m.user_id = auth.uid())
+  );
+
+DROP POLICY "trips_delete" ON trips;
+CREATE POLICY "trips_delete" ON trips FOR DELETE
+  USING (user_id = auth.uid());
+
+CREATE OR REPLACE FUNCTION can_access_trip(trip_id UUID)
+RETURNS BOOLEAN AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM trips t
+    WHERE t.id = trip_id
+      AND (
+        t.user_id = auth.uid()
+        OR EXISTS (
+          SELECT 1 FROM trip_members m
+          WHERE m.trip_id = t.id AND m.user_id = auth.uid()
+        )
+      )
+  );
+$$ LANGUAGE sql SECURITY DEFINER;
