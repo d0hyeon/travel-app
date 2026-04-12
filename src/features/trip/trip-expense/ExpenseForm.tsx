@@ -197,7 +197,7 @@ ExpenseForm.Resolved = ({
                                     </PopMenu.Item>
                                   ))}
                                 <Divider />
-                                {otherCurrencies.map((code, i) => (
+                                {otherCurrencies.map((code) => (
                                   <PopMenu.Item
                                     key={code}
                                     onClick={() => handleCurrencySelect(code)}

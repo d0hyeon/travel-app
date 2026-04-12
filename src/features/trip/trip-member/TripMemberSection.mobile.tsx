@@ -22,7 +22,7 @@ export function TripMemberSection(props: Props) {
 
 function Resolved({ tripId }: Props) {
   const { data: members } = useTripMembers(tripId)
-  const orderedMembers = members.toSorted((a, b) => a.isHost ? SortCommand.Shift : SortCommand.Maintain)
+  const orderedMembers = members.toSorted((a) => a.isHost ? SortCommand.Shift : SortCommand.Maintain)
 
   return (
     <Stack gap={1} width="100%">

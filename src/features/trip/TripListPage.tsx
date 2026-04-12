@@ -7,14 +7,13 @@ import {
 } from '@mui/material'
 import { Link, PrefetchPageLinks, useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
+import { BottomArea } from '~shared/components/BottomArea'
+import { BottomNavigation } from '~shared/components/BottomNavigation'
 import { useIsMobile } from '~shared/hooks/useIsMobile'
 import { useOverlay } from '~shared/hooks/useOverlay'
-import { isOverseasByCoordinate } from '~shared/utils/geo'
 import { ListItem } from '../../shared/components/ListItem'
 import { TripFormDialog } from './components/TripFormDialog'
 import { useTrips } from './useTrips'
-import { BottomArea } from '~shared/components/BottomArea'
-import { BottomNavigation } from '~shared/components/BottomNavigation'
 
 export default function TripListPage() {
   const { data: trips, create } = useTrips();
@@ -30,7 +29,6 @@ export default function TripListPage() {
         onSubmit={async (data) => {
           const trip = await create({
             ...data,
-            isOverseas: isOverseasByCoordinate(data.lat, data.lng),
             exchangeRate: null,
             exchangeRates: null
           })

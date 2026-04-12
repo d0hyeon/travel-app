@@ -42,7 +42,6 @@ function toTrip(row: DataRaw<'trips'>): Trip {
     endDate: row.end_date,
     shareLink: row.share_link,
     createdAt: row.created_at,
-    isOverseas: row.is_overseas,
     exchangeRate: row.exchange_rate,
     exchangeRates,
   }
@@ -98,7 +97,6 @@ export async function createTrip(
       start_date: data.startDate,
       end_date: data.endDate,
       share_link: crypto.randomUUID(),
-      is_overseas: data.isOverseas,
       user_id: userId,
     } as never)
     .select()
@@ -143,7 +141,6 @@ export async function updateTrip(id: string, data: Partial<Omit<Trip, 'id' | 'cr
   if (data.startDate !== undefined) updateData.start_date = data.startDate
   if (data.endDate !== undefined) updateData.end_date = data.endDate
   if (data.shareLink !== undefined) updateData.share_link = data.shareLink
-  if (data.isOverseas !== undefined) updateData.is_overseas = data.isOverseas
   if (data.exchangeRate !== undefined) updateData.exchange_rate = data.exchangeRate
   if (data.exchangeRates !== undefined) updateData.exchange_rates = data.exchangeRates
 

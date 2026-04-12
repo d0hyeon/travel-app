@@ -5,7 +5,6 @@ import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { useQueryParamState } from '~shared/hooks/useQueryParamState'
 import { lazy } from '~shared/utils/react'
-import { isOverseasByCoordinate } from '~shared/utils/geo'
 import { useTrips } from '../useTrips'
 import type { Destination } from './DestinationStep'
 
@@ -74,7 +73,6 @@ export default function TripCreatePage() {
         lng: primary.lng,
         startDate: dateRange[0],
         endDate: dateRange[1],
-        isOverseas: isOverseasByCoordinate(primary.lat, primary.lng),
         exchangeRate: null,
         exchangeRates: null,
       })
