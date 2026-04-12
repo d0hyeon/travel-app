@@ -1,6 +1,6 @@
 import { Box, CircularProgress, Container, LinearProgress, Typography } from '@mui/material'
 import { Suspense, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router'
+import { PrefetchPageLinks, useNavigate } from 'react-router'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { useQueryParamState } from '~shared/hooks/useQueryParamState'
@@ -106,7 +106,7 @@ export default function TripCreatePage() {
 
           />
         </Box>
-
+        <PrefetchPageLinks page={`/trip/:tripId`} />
         {/* 스텝 컨텐츠 */}
         <Box >
           {/* 타이틀 */}

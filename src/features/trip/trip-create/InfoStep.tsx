@@ -1,16 +1,17 @@
-import { useState } from 'react'
-import { Box, Button, TextField, Typography } from '@mui/material'
-import { BottomArea } from '~shared/components/BottomArea'
+import { Box, Button, TextField, Typography } from '@mui/material';
+import { useState, useTransition } from 'react';
+import { BottomArea } from '~shared/components/BottomArea';
 
 const BOTTOM_AREA_HEIGHT = 64
 
 interface Props {
   destination: string
-  onNext: (name: string) => void
+  onNext: (name: string) => void | Promise<void>
 }
 
 export function InfoStep({ destination, onNext }: Props) {
-  const [name, setName] = useState('')
+  const [name, setName] = useState('');
+  const [isPending, startTransition] = useTransition();
 
   return (
     <>
@@ -34,7 +35,8 @@ export function InfoStep({ destination, onNext }: Props) {
           variant="contained"
           fullWidth
           size="large"
-          onClick={() => onNext(name)}
+          loading={isPending}
+          onClick={() => startTransition(() => onNext(name))}
         >
           완료
         </Button>

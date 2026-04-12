@@ -1,9 +1,10 @@
 import { Box, Button, CircularProgress, Container, Typography } from '@mui/material'
-import { Suspense } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { Suspense, useTransition } from 'react'
+import { PrefetchPageLinks, useNavigate, useParams } from 'react-router'
 import { ErrorBoundary } from '~shared/components/ErrorBoundary'
 import { assert } from '~shared/utils/assert'
 import { useInvitedTrip } from './useInvitedTrip'
+
 
 export default function TripInvitePage() {
 
@@ -42,13 +43,17 @@ function Resolved() {
   assert(!!shareLink, '잘못된 접근입니다.');
   const { data: trip, join } = useInvitedTrip({ sharedLink: shareLink })
 
-  const handleJoin = async () => {
-    await join()
-    navigate(`/trip/${trip.id}`, { replace: true })
+  const handleJoin = () => {
+    startTransition(async () => {
+      await join()
+      await navigate(`/trip/${trip.id}`, { replace: true });
+    })
   }
+  const [isPending, startTransition] = useTransition();
 
   return (
     <>
+      <PrefetchPageLinks page={`/trip/${trip.id}`} />
       <Box>
         <Typography variant="h6" fontWeight="bold" mb={1}>
           {trip.name}
@@ -64,8 +69,7 @@ function Resolved() {
         variant="contained"
         size="large"
         onClick={handleJoin}
-        disabled={join.isPending}
-        loading={join.isPending}
+        loading={isPending}
         loadingPosition="start"
         sx={{ width: 200 }}
       >
