@@ -10,7 +10,12 @@ export async function signInWithKakao() {
   if (error) throw error
 }
 
-export async function signOut() {
+export async function signInWithEmail(email: string, password: string) {
+  const { error } = await supabase.auth.signInWithPassword({ email, password })
+  if (error) throw error
+}
+
+
   const { error } = await supabase.auth.signOut()
   if (error) throw error
 }

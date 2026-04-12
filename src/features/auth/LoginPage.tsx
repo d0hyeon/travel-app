@@ -1,6 +1,7 @@
 import LuggageIcon from '@mui/icons-material/Luggage'
-import { Box, Button, Typography } from '@mui/material'
-import { signInWithKakao } from './auth.api'
+import { Box, Button, Divider, Stack, TextField, Typography } from '@mui/material'
+import { useState } from 'react'
+import { signInWithEmail, signInWithKakao } from './auth.api'
 import { useIsMobile } from '~shared/hooks/useIsMobile'
 
 function KakaoSymbol() {
@@ -14,6 +15,25 @@ function KakaoSymbol() {
         fill="#fff"
       />
     </svg>
+  )
+}
+
+function DevLogin() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    signInWithEmail(email, password)
+  }
+
+  return (
+    <Stack gap={1.5} width="100%" maxWidth={400} component="form" onSubmit={handleSubmit}>
+      <Divider><Typography variant="caption" color="text.disabled">DEV</Typography></Divider>
+      <TextField size="small" label="이메일" value={email} onChange={e => setEmail(e.target.value)} />
+      <TextField size="small" label="비밀번호" type="password" value={password} onChange={e => setPassword(e.target.value)} />
+      <Button type="submit" variant="outlined" size="small">로그인</Button>
+    </Stack>
   )
 }
 
@@ -57,6 +77,9 @@ export default function LoginPage() {
           </Typography>
         </Box>
       </Box>
+
+      {/* DEV 전용 이메일 로그인 */}
+      {import.meta.env.DEV && <DevLogin />}
 
       {/* 카카오 로그인 버튼 */}
       <Button
