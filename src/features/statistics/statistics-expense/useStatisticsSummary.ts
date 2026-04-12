@@ -218,10 +218,10 @@ export function useStatisticsSummary(): StatisticsSummary {
           const paymentInKRW = convertToKRW(payment.amount, expense.currency, trip.exchangeRates)
 
           
-          const payerKey = member.user.id;
+          const payerKey = member.id;
           const currentPayer = payerMap.get(payerKey) ?? {
             name: member.name,
-            avatarUrl: member.user.avatarUrl,
+            avatarUrl: member.profileUrl,
             totalAmountInKRW: 0,
             paymentCount: 0,
             tripCount: 0,

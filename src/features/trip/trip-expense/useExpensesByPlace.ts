@@ -91,8 +91,8 @@ export function useExpensesByPlace(tripId: string) {
         if (member != null) {
           acc.push({
             memberId: member.id,
-            name: member.user.name,
-            avatarUrl: member.user.avatarUrl,
+            name: member.name,
+            avatarUrl: member.profileUrl,
             amount: payment.amount
           });
         }

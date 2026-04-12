@@ -1,14 +1,12 @@
+import type { UserProfile } from "~features/user-profile/user-profile.type"
+
 export interface TripMemberUser {
   id: string
   name: string
   avatarUrl: string | null
 }
 
-export interface TripMember {
-  id: string
-  tripId: string
-  userId: string;
-  name: string;
-  user: TripMemberUser
-  createdAt: string
+export interface TripMember extends UserProfile {
+  tripId: string;
+  isHost: boolean;
 }

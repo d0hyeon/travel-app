@@ -42,10 +42,10 @@ function Resolved({ tripId }: Props) {
                 key={member.id}
                 leftAddon={
                   <Avatar
-                    src={member.user.avatarUrl ?? undefined}
+                    src={member.profileUrl ?? undefined}
                     sx={{ width: 44, height: 44, fontSize: 18 }}
                   >
-                    {member.user.name?.[0] ?? '?'}
+                    {member.name?.[0] ?? '?'}
                   </Avatar>
                 }
                 rightAddon={
@@ -59,7 +59,7 @@ function Resolved({ tripId }: Props) {
                 }
               >
                 <Typography variant="body2">
-                  {member.user.name || '(이름 없음)'}
+                  {member.name || '(이름 없음)'}
                 </Typography>
               </ListItem>
             ))

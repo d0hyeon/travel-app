@@ -152,7 +152,7 @@ export function ExpenseContent({ tripId }: Props) {
               <Stack alignItems="start" gap={0.5}>
                 <Stack direction="row" spacing={0.5} alignItems="center" >
                   <MemberAvatar member={member} size={20} />
-                  <Typography variant="body2" fontWeight="medium">{member.user.name}</Typography>
+                  <Typography variant="body2" fontWeight="medium">{member.name}</Typography>
                 </Stack>
                 <AnimatedCountText
                   value={balance}
@@ -316,7 +316,7 @@ export function ExpenseContent({ tripId }: Props) {
                                       key={id}
                                       size="small"
                                       variant="outlined"
-                                      label={`${member?.user.name}`}
+                                      label={`${member?.name}`}
                                     />
                                   )
                                 })}
@@ -333,7 +333,7 @@ export function ExpenseContent({ tripId }: Props) {
                                       key={p.memberId}
                                       size="small"
                                       variant="outlined"
-                                      label={`${member?.user.name}${p.amount === expense.totalAmount ? '' : ` ${formatByCurrencyCode(p.amount, expense.currency)}`}`}
+                                      label={`${member?.name}${p.amount === expense.totalAmount ? '' : ` ${formatByCurrencyCode(p.amount, expense.currency)}`}`}
                                     />
                                   )
                                 })}
