@@ -87,6 +87,25 @@ export function getCurrencyByDestination(destination: string): CurrencyInfo {
 }
 
 /**
+ * 복수 목적지에 해당하는 화포 목록 반환 (KRW 포함, 중복 제거)
+ */
+export function getCurrenciesByDestinations(destinations: string[]): CurrencyInfo[] {
+  const seen = new Set<string>();
+  const currencies: CurrencyInfo[] = [{ code: 'KRW', symbol: '원', name: '원', locale: 'ko-KR' }];
+  seen.add('KRW');
+
+  for (const destination of destinations) {
+    const currency = getCurrencyByDestination(destination);
+    if (!seen.has(currency.code)) {
+      seen.add(currency.code);
+      currencies.push(currency);
+    }
+  }
+
+  return currencies;
+}
+
+/**
  * 금액을 지정된 화폐 단위로 포맷팅
  */
 export function formatAmount(amount: number, currency: CurrencyInfo): string {

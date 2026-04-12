@@ -170,21 +170,24 @@ export function useStatisticsSummary(): StatisticsSummary {
       const expenses = expensesByTrip[index]
       const members = membersByTrip[index]
       const memberMap = new Map(members.map((member) => [member.id, member]))
-      const regionName = getRegionByLocation(trip.destination)
+      // 여러 목적지인 경우 각 목적지별로 통계 집계
+      for (const destination of trip.destinations) {
+        const regionName = getRegionByLocation(destination)
 
-      const currentRegion = regionVisitMap.get(regionName) ?? {
-        region: regionName,
-        tripCount: 0,
-      }
-      currentRegion.tripCount += 1
-      regionVisitMap.set(regionName, currentRegion)
+        const currentRegion = regionVisitMap.get(regionName) ?? {
+          region: regionName,
+          tripCount: 0,
+        }
+        currentRegion.tripCount += 1
+        regionVisitMap.set(regionName, currentRegion)
 
-      const currentCity = cityMap.get(trip.destination) ?? {
-        city: trip.destination,
-        tripCount: 0,
+        const currentCity = cityMap.get(destination) ?? {
+          city: destination,
+          tripCount: 0,
+        }
+        currentCity.tripCount += 1
+        cityMap.set(destination, currentCity)
       }
-      currentCity.tripCount += 1
-      cityMap.set(trip.destination, currentCity)
 
       expenses.forEach((expense) => {
         const totalInKRW = convertToKRW(expense.totalAmount, expense.currency, trip.exchangeRates)

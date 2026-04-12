@@ -4,7 +4,9 @@ export interface Trip {
   id: string
   userId: string | null
   name: string
-  destination: string
+  /** 여행 목적지 목록 (순서 있음, 첫 번째가 대표 목적지) */
+  destinations: string[]
+  /** 대표 좌표 (첫 번째 목적지 기준) */
   lat: number
   lng: number
   startDate: string // ISO date

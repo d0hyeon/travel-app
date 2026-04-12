@@ -25,12 +25,14 @@ import {
 import { DatePicker } from '@mui/x-date-pickers'
 import { Suspense, useState, type ReactNode } from "react"
 import { Controller, FormProvider, useFieldArray, useForm, useFormContext, useWatch } from "react-hook-form"
-import { CurrencyCodes, getCurrencyName, getUsedCurrencies, type CurrencyCode } from '~features/expense/currency'
+import { getCurrenciesByDestinations, getCurrencyName, getUsedCurrencies, type CurrencyCode } from '~features/expense/currency'
 import { useExpenses } from '~features/expense/useExpenses'
+import { useTrip } from '~features/trip/useTrip'
 import { useTripMembers } from '~features/trip/trip-member/useTripMembers'
 import { PopMenu } from '~shared/components/PopMenu'
 import { useIsMobile } from '~shared/hooks/useIsMobile'
 import { formatDateISO } from "../../../shared/utils/formats"
+import { SortCommand } from '~shared/utils/sorts'
 import { useTripPlaces } from '../trip-place/useTripPlaces'
 
 export interface PaymentField {
@@ -71,10 +73,13 @@ ExpenseForm.Resolved = ({
   onSubmit,
   ...props
 }: Props) => {
+  const { data: trip } = useTrip(tripId);
   const { data: members } = useTripMembers(tripId);
   const { data: places } = useTripPlaces(tripId);
   const { data: expenses } = useExpenses(tripId);
 
+  // 여행 목적지 기반 화폐 목록 (KRW 항상 포함)
+  const availableCurrencies = getCurrenciesByDestinations(trip.destinations);
   // 사용된 통화 목록 (KRW 제외)
   const usedCurrencies = getUsedCurrencies(expenses);
 
@@ -168,9 +173,9 @@ ExpenseForm.Resolved = ({
                         endAdornment:
                           <PopMenu
                             items={
-                              CurrencyCodes
-                                .toSorted((a) => usedCurrencies.includes(a) ? -1 : 1)
-                                .map(code => (
+                              availableCurrencies
+                                .toSorted((a) => usedCurrencies.includes(a.code) ? SortCommand.Shift : SortCommand.Maintain)
+                                .map(({ code }) => (
                                   <PopMenu.Item
                                     key={code}
                                     onClick={() => handleCurrencySelect(code)}

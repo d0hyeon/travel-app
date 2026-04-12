@@ -40,22 +40,21 @@ export default function TripCreatePage() {
   const [step, setStep] = useQueryParamState<Step>('step', { defaultValue: 'destination' })
   const currentIndex = STEPS.indexOf(step as Step)
 
-  const [destination, setDestination] = useState<Destination | null>(null)
+  const [destinations, setDestinations] = useState<Destination[]>([])
   const [dateRange, setDateRange] = useState<[string, string] | null>(null)
 
   // 이전 스텝 상태 없이 직접 접근하면 처음으로 돌려보냄
   useEffect(() => {
-    if (step === 'date' && destination === null) {
+    if (step === 'date' && destinations.length === 0) {
       setStep('destination')
     }
-    if (step === 'info' && (destination === null || dateRange === null)) {
-      setStep(destination === null ? 'destination' : 'date')
+    if (step === 'info' && (destinations.length === 0 || dateRange === null)) {
+      setStep(destinations.length === 0 ? 'destination' : 'date')
     }
   }, [step])
 
-
-  const handleDestinationNext = (dest: Destination) => {
-    setDestination(dest)
+  const handleDestinationNext = (dests: Destination[]) => {
+    setDestinations(dests)
     setStep('date', { replace: false })
   }
 
@@ -65,16 +64,17 @@ export default function TripCreatePage() {
   }
 
   const handleInfoNext = async (name: string) => {
-    if (!destination || !dateRange) return
+    if (destinations.length === 0 || !dateRange) return
+    const primary = destinations[0]
     try {
       const trip = await create({
-        name: name || `${destination.name} 여행`,
-        destination: destination.name,
-        lat: destination.lat,
-        lng: destination.lng,
+        name: name || `${destinations.map(d => d.name).join(', ')} 여행`,
+        destinations: destinations.map(d => d.name),
+        lat: primary.lat,
+        lng: primary.lng,
         startDate: dateRange[0],
         endDate: dateRange[1],
-        isOverseas: isOverseasByCoordinate(destination.lat, destination.lng),
+        isOverseas: isOverseasByCoordinate(primary.lat, primary.lng),
         exchangeRate: null,
         exchangeRates: null,
       })
@@ -120,13 +120,13 @@ export default function TripCreatePage() {
               value={step as Step}
               cases={{
                 destination: () => (
-                  <DestinationStep defaultValue={destination} onNext={handleDestinationNext} />
+                  <DestinationStep defaultValue={destinations} onNext={handleDestinationNext} />
                 ),
                 date: () => (
                   <DateStep defaultValue={dateRange} onNext={handleDateNext} />
                 ),
-                info: () => destination && (
-                  <InfoStep destination={destination.name} onNext={handleInfoNext} />
+                info: () => destinations.length > 0 && (
+                  <InfoStep destination={destinations.map(d => d.name).join(', ')} onNext={handleInfoNext} />
                 ),
               }}
             />

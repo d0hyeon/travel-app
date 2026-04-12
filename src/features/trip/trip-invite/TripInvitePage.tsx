@@ -59,7 +59,7 @@ function Resolved() {
           {trip.name}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          {trip.destination} · {trip.startDate} ~ {trip.endDate}
+          {trip.destinations.join(', ')} · {trip.startDate} ~ {trip.endDate}
         </Typography>
       </Box>
       <Typography variant="body2" color="text.secondary">

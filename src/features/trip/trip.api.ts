@@ -22,9 +22,12 @@ function getDatesBetween(startDate: string, endDate: string): string[] {
 export const tripKey = 'trips'
 
 function toTrip(row: DataRaw<'trips'>): Trip {
+  const destinations: string[] = (row as never as { destinations: string[] | null }).destinations
+    ?? [row.destination]
+
   let exchangeRates: ExchangeRateEntry[] | null = (row.exchange_rates as ExchangeRateEntry[] | null) ?? null;
   if (!exchangeRates && row.exchange_rate != null) {
-    const currency = getCurrencyByDestination(row.destination);
+    const currency = getCurrencyByDestination(destinations[0]);
     exchangeRates = [{ currencyCode: currency.code, rate: row.exchange_rate }];
   }
 
@@ -32,7 +35,7 @@ function toTrip(row: DataRaw<'trips'>): Trip {
     id: row.id,
     userId: (row as never as { user_id: string | null }).user_id ?? null,
     name: row.name,
-    destination: row.destination,
+    destinations,
     lat: row.lat,
     lng: row.lng,
     startDate: row.start_date,
@@ -88,7 +91,8 @@ export async function createTrip(
     .from('trips')
     .insert({
       name: data.name,
-      destination: data.destination,
+      destination: data.destinations[0],
+      destinations: data.destinations,
       lat: data.lat,
       lng: data.lng,
       start_date: data.startDate,
@@ -130,7 +134,10 @@ export async function createTrip(
 export async function updateTrip(id: string, data: Partial<Omit<Trip, 'id' | 'createdAt'>>): Promise<Trip | undefined> {
   const updateData: Record<string, unknown> = {}
   if (data.name !== undefined) updateData.name = data.name
-  if (data.destination !== undefined) updateData.destination = data.destination
+  if (data.destinations !== undefined) {
+    updateData.destination = data.destinations[0]
+    updateData.destinations = data.destinations
+  }
   if (data.lat !== undefined) updateData.lat = data.lat
   if (data.lng !== undefined) updateData.lng = data.lng
   if (data.startDate !== undefined) updateData.start_date = data.startDate
