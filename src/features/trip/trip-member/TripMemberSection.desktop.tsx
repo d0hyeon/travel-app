@@ -1,9 +1,12 @@
 import DeleteIcon from '@mui/icons-material/Delete'
-import { Avatar, Card, CardContent, CardHeader, IconButton, Skeleton, Stack, Typography } from "@mui/material"
+import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium'
+import { Card, CardContent, CardHeader, IconButton, Skeleton, Stack, Typography } from "@mui/material"
 import { Suspense } from 'react'
 import { ListItem } from '../../../shared/components/ListItem'
 import { TripInviteButton } from '../components/TripInviteButton'
 import { useTripMembers } from './useTripMembers'
+import { MemberAvatar } from './MemberAvatar'
+import { SortCommand } from '~shared/utils/sorts'
 
 interface Props {
   tripId: string
@@ -19,6 +22,7 @@ export function TripMemberSection(props: Props) {
 
 function Resolved({ tripId }: Props) {
   const { data: members } = useTripMembers(tripId)
+  const orderedMembers = members.toSorted((a, b) => a.isHost ? SortCommand.Shift : SortCommand.Maintain)
 
   return (
     <Card variant="outlined">
@@ -28,26 +32,27 @@ function Resolved({ tripId }: Props) {
       </Stack>
       <CardContent>
         <Stack spacing={1}>
-          {members.length === 0 ? (
+          {orderedMembers.length === 0 ? (
             <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: 'center' }}>
               초대 링크로 멤버를 추가해보세요
             </Typography>
           ) : (
-            members.map((member) => (
+            orderedMembers.map((member) => (
               <ListItem
                 key={member.id}
-                leftAddon={
-                  <Avatar
-                    src={member.profileUrl ?? undefined}
-                    sx={{ width: 44, height: 44, fontSize: 18 }}
-                  >
-                    {member.name?.[0] ?? '?'}
-                  </Avatar>
-                }
+                leftAddon={<MemberAvatar member={member} size={44} />}
               >
-                <Typography variant="body2">
-                  {member.name || '(이름 없음)'}
-                </Typography>
+                <Stack direction="row" alignItems="center" gap={0.5}>
+                  <Typography variant="body2">
+                    {member.name || '(이름 없음)'}
+                  </Typography>
+                  {member.isHost && (
+                    <>
+                      <WorkspacePremiumIcon sx={{ fontSize: 14, color: 'primary.main' }} />
+                      <Typography variant="caption" color="text.secondary">호스트</Typography>
+                    </>
+                  )}
+                </Stack>
               </ListItem>
             ))
           )}

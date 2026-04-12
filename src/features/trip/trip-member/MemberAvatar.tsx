@@ -7,7 +7,6 @@ interface Props extends AvatarProps {
 }
 
 export function MemberAvatar({ member, size = 28, sx, ...props }: Props) {
-
   return (
     <Avatar
       src={member.profileUrl ?? undefined}
