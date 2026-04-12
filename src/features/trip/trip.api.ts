@@ -56,7 +56,7 @@ export async function getAllTrips(): Promise<Trip[]> {
   return (data ?? []).map(toTrip)
 }
 
-export async function getTripById(id: string): Promise<Trip | undefined> {
+export async function getTripById(id: string): Promise<Trip> {
   const { data, error } = await supabase
     .from('trips')
     .select('*')
