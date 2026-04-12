@@ -2,7 +2,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import { Avatar, Card, CardContent, CardHeader, IconButton, Skeleton, Stack, Typography } from "@mui/material"
 import { Suspense } from 'react'
 import { ListItem } from '../../../shared/components/ListItem'
-import { TripInviteButton } from '../TripInviteButton'
+import { TripInviteButton } from '../components/TripInviteButton'
 import { useTripMembers } from './useTripMembers'
 
 interface Props {

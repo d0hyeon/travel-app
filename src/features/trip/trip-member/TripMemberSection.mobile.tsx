@@ -3,7 +3,7 @@ import { Avatar, IconButton, Skeleton, Stack, Typography } from "@mui/material"
 import { Suspense } from 'react'
 import { ListItem } from '~shared/components/ListItem'
 import { useTripMembers } from '../trip-member/useTripMembers'
-import { TripInviteButton } from '../TripInviteButton'
+import { TripInviteButton } from '../components/TripInviteButton'
 
 interface Props {
   tripId: string

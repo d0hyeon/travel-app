@@ -12,8 +12,8 @@ import { formatDate } from 'date-fns'
 import { useEffect, useState } from 'react'
 import { getCoordinateByLocation, isLocation, Locations } from '~features/location'
 import { useIsMobile } from '~shared/hooks/useIsMobile'
-import { DateRangePicker } from '../../shared/components/date-range/DateRangePicker'
-import { LocationGroup } from './trip.constants'
+import { DateRangePicker } from '../../../shared/components/date-range/DateRangePicker'
+import { LocationGroup } from '../trip.constants'
 
 type Destination = {
   name: string;

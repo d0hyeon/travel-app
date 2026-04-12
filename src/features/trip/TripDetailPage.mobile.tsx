@@ -21,7 +21,7 @@ import { useActivationSignal } from '~shared/hooks/useActivationSignal.ts';
 import { lazy } from '~shared/utils/react.ts';
 import { useQueryParamState } from '../../shared/hooks/useQueryParamState';
 import { TripBasicInfoContent } from './trip-basic-info/TripBasicInfoContent.mobile';
-import { TripNameEditableText } from './TripNameEditableText.tsx';
+import { TripNameEditableText } from './components/TripNameEditableText.tsx';
 import { useTripId } from './useTripId';
 import { PopMenu } from '~shared/components/PopMenu.tsx';
 import { TripLeavePopMenuItem } from './components/TripLeavePopMenuItem.tsx';

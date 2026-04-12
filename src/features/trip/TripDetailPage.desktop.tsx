@@ -17,7 +17,7 @@ import { PopMenu } from '~shared/components/PopMenu.tsx';
 import { SwitchCase } from '~shared/components/SwitchCase';
 import { lazy } from '~shared/utils/react';
 import { TripLeavePopMenuItem } from './components/TripLeavePopMenuItem.tsx';
-import { TripNameEditableText } from './TripNameEditableText.tsx';
+import { TripNameEditableText } from './components/TripNameEditableText.tsx';
 import { useTripId } from './useTripId';
 
 const TripPhotoContent = lazy(async () => {
