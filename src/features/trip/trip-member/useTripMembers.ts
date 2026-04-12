@@ -2,7 +2,7 @@ import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-q
 import { queryClient } from "~app/query-client"
 import { tripKey } from "../trip.api"
 import {
-  deleteTripMember,
+  leaveTrip,
   getTripMembersByTripId,
   tripMemberKey,
 } from "./tripMember.api"
@@ -16,7 +16,7 @@ export function useTripMembers(tripId: string) {
   })
 
   const { mutate: remove } = useMutation({
-    mutationFn: deleteTripMember,
+    mutationFn: leaveTrip,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: useTripMembers.key(tripId) })
     }
