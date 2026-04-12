@@ -8,6 +8,7 @@ import { AppRoute } from '~app/routes'
 import { signOut } from '~features/auth/auth.api'
 import { BottomNavigation } from '~shared/components/BottomNavigation'
 import { useIsMobile } from '~shared/hooks/useIsMobile'
+import { isDev } from './env'
 
 
 const TABS = [
@@ -39,16 +40,18 @@ export default function MainLayout() {
               {label}
             </BottomNavigation.Menu>
           ))}
-          <BottomNavigation.Menu
-            icon={<LogoutIcon fontSize="small" color="disabled" />}
-            isActived={false}
-            onClick={async () => {
-              await signOut();
-              window.location.reload();
-            }}
-          >
-            로그아웃
-          </BottomNavigation.Menu>
+          {isDev && (
+            <BottomNavigation.Menu
+              icon={<LogoutIcon fontSize="small" color="disabled" />}
+              isActived={false}
+              onClick={async () => {
+                await signOut();
+                window.location.reload();
+              }}
+            >
+              로그아웃
+            </BottomNavigation.Menu>
+          )}
         </BottomNavigation>
       </Box>
     )
@@ -106,11 +109,13 @@ export default function MainLayout() {
             )
           })}
         </Stack>
-        <Tooltip title="로그아웃" placement="right">
-          <IconButton onClick={signOut} size="small" sx={{ color: 'text.secondary' }}>
-            <LogoutIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
+        {isDev && (
+          <Tooltip title="로그아웃" placement="right">
+            <IconButton onClick={signOut} size="small" sx={{ color: 'text.secondary' }}>
+              <LogoutIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        )}
       </Stack>
 
       {/* 콘텐츠 */}
