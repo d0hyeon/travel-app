@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useAuth } from "~features/auth/useAuth";
 import { deleteTrip, getTripById, tripKey, updateTrip } from "./trip.api";
 import { leaveTrip } from "./trip-member/tripMember.api";
 import { assert } from '~shared/utils/assert';
@@ -6,6 +7,7 @@ import type { Trip } from "./trip.types";
 
 export function useTrip(id: string) {
   const queryClient = useQueryClient();
+  const { data: user } = useAuth();
 
   const query = useSuspenseQuery({
     queryKey: useTrip.key(id),
@@ -33,7 +35,7 @@ export function useTrip(id: string) {
   });
 
   const leave = useMutation({
-    mutationFn: () => leaveTrip(id),
+    mutationFn: () => leaveTrip(id, user!.id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [tripKey] });
     }

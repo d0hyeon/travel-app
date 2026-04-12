@@ -78,11 +78,9 @@ export async function getTripByShareLink(shareLink: string): Promise<Trip | unde
 }
 
 export async function createTrip(
-  data: Omit<Trip, 'id' | 'shareLink' | 'createdAt' | 'userId'>
+  data: Omit<Trip, 'id' | 'shareLink' | 'createdAt' | 'userId'>,
+  userId: string,
 ): Promise<Trip> {
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) throw new Error('로그인이 필요합니다')
-
   const { data: created, error } = await supabase
     .from('trips')
     .insert({
@@ -94,7 +92,7 @@ export async function createTrip(
       end_date: data.endDate,
       share_link: crypto.randomUUID(),
       is_overseas: data.isOverseas,
-      user_id: user.id,
+      user_id: userId,
     } as never)
     .select()
     .single()
@@ -121,7 +119,7 @@ export async function createTrip(
   // 생성자를 첫 번째 멤버로 추가
   await supabase
     .from('trip_members')
-    .insert({ trip_id: trip.id, user_id: user.id } as never)
+    .insert({ trip_id: trip.id, user_id: userId } as never)
 
   return trip
 }
