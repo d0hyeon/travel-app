@@ -9,6 +9,7 @@ import {
   Box,
   Button,
   Chip,
+  Divider,
   FormControl,
   IconButton,
   InputAdornment,
@@ -176,16 +177,16 @@ ExpenseForm.Resolved = ({
                       input: {
                         endAdornment:
                           <PopMenu
-                            items={
-                              [
-                                ...availableCurrencies
+                            list={(
+                              <PopMenu.List>
+                                {availableCurrencies
                                   .toSorted((a) => usedCurrencies.includes(a.code) ? SortCommand.Shift : SortCommand.Maintain)
                                   .map(({ code }) => (
                                     <PopMenu.Item
                                       key={code}
                                       onClick={() => handleCurrencySelect(code)}
                                       sx={{
-                                        fontWeight: code === selectedCurrency ? 'bold' : 'normal',
+                                        fontWeight: 700,
                                         color: code === selectedCurrency ? 'primary.main' : 'inherit',
                                       }}
                                     >
@@ -194,14 +195,14 @@ ExpenseForm.Resolved = ({
                                         <Chip size="small" label="사용됨" sx={{ ml: 1, height: 18, fontSize: 10 }} />
                                       )}
                                     </PopMenu.Item>
-                                  )),
-                                ...otherCurrencies.map((code, i) => (
+                                  ))}
+                                <Divider />
+                                {otherCurrencies.map((code, i) => (
                                   <PopMenu.Item
                                     key={code}
-                                    divider={i === 0}
                                     onClick={() => handleCurrencySelect(code)}
                                     sx={{
-                                      fontWeight: code === selectedCurrency ? 'bold' : 'normal',
+                                      fontWeight: code === selectedCurrency ? 700 : 'normal',
                                       color: code === selectedCurrency ? 'primary.main' : 'text.secondary',
                                     }}
                                   >
@@ -210,8 +211,9 @@ ExpenseForm.Resolved = ({
                                       <Chip size="small" label="사용됨" sx={{ ml: 1, height: 18, fontSize: 10 }} />
                                     )}
                                   </PopMenu.Item>
-                                )),
-                              ]}
+                                ))}
+                              </PopMenu.List>
+                            )}
                           >
                             <InputAdornment
                               position="end"
