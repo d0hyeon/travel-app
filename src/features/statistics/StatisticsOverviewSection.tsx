@@ -83,7 +83,7 @@ export function StatisticsOverviewSection({ summary }: StatisticsOverviewSection
                   id: summaryItem.trip.id,
                   label: summaryItem.trip.name,
                   value: summaryItem.placeCount,
-                  helper: summaryItem.trip.destination,
+                  helper: summaryItem.trip.destinations.join(', '),
                 }))}
                 formatValue={(value) => `${value}곳`}
                 colors={['#d68d06', '#e6a93d', '#efc46d', '#f4d999', '#faecc8']}
@@ -94,7 +94,7 @@ export function StatisticsOverviewSection({ summary }: StatisticsOverviewSection
                   id: summaryItem.trip.id,
                   label: summaryItem.trip.name,
                   value: summaryItem.placeCount,
-                  helper: summaryItem.trip.destination,
+                  helper: summaryItem.trip.destinations.join(', '),
                 }))}
                 formatValue={(value) => `${value}곳`}
                 colors={['#d68d06', '#e6a93d', '#efc46d', '#f4d999', '#faecc8']}
@@ -109,7 +109,7 @@ export function StatisticsOverviewSection({ summary }: StatisticsOverviewSection
                     label={`${index + 1}. ${summaryItem.trip.name}`}
                     value={`${summaryItem.placeCount}곳`}
                     ratio={topActivityPlaceCount > 0 ? summaryItem.placeCount / topActivityPlaceCount : 0}
-                    helper={summaryItem.trip.destination}
+                    helper={summaryItem.trip.destinations.join(', ')}
                     tone="amber"
                   />
                 ))}

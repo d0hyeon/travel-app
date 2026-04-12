@@ -33,26 +33,26 @@ export const CurrencyCodes = Object.keys(CurrencyCode) as CurrencyCode[];
 export const CurrencyCodeLabel = reverseKeyValue(CurrencyCode);
 
 export const CountryCurrencyCode = {
-  [Country.한국]: CurrencyCode.원,
-  [Country.일본]: CurrencyCode.엔,
-  [Country.태국]: CurrencyCode.바트,
-  [Country.싱가포르]: CurrencyCode['싱가포르 달러'],
-  [Country.베트남]: CurrencyCode.동,
-  [Country.인도네시아]: CurrencyCode.루피아,
-  [Country.필리핀]: CurrencyCode['필리핀 페소'],
-  [Country.말레이시아]: CurrencyCode.링깃,
-  [Country.중국]: CurrencyCode.위안,
-  [Country.대만]: CurrencyCode['대만 달러'],
-  [Country.프랑스]: CurrencyCode.유로,
-  [Country.영국]: CurrencyCode.파운드,
-  [Country.이탈리아]: CurrencyCode.유로,
-  [Country.스페인]: CurrencyCode.유로,
-  [Country.체코]: CurrencyCode.코루나,
-  [Country.네덜란드]: CurrencyCode.유로,
-  [Country.스위스]: CurrencyCode.프랑,
-  [Country.미국]: CurrencyCode.달러,
-  [Country.멕시코]: CurrencyCode['멕시코 페소'],
-} satisfies Record<Country, CurrencyCode>;
+  [Country.한국]: [CurrencyCode.원],
+  [Country.일본]: [CurrencyCode.엔],
+  [Country.태국]: [CurrencyCode.바트],
+  [Country.싱가포르]: [CurrencyCode['싱가포르 달러']],
+  [Country.베트남]: [CurrencyCode.동],
+  [Country.인도네시아]: [CurrencyCode.루피아],
+  [Country.필리핀]: [CurrencyCode['필리핀 페소']],
+  [Country.말레이시아]: [CurrencyCode.링깃],
+  [Country.중국]: [CurrencyCode.위안],
+  [Country.대만]: [CurrencyCode['대만 달러']],
+  [Country.프랑스]: [CurrencyCode.유로],
+  [Country.영국]: [CurrencyCode.파운드],
+  [Country.이탈리아]: [CurrencyCode.유로],
+  [Country.스페인]: [CurrencyCode.유로],
+  [Country.체코]: [CurrencyCode.코루나],
+  [Country.네덜란드]: [CurrencyCode.유로],
+  [Country.스위스]: [CurrencyCode.프랑, CurrencyCode.유로], // 공식 화폐 + 통용
+  [Country.미국]: [CurrencyCode.달러],
+  [Country.멕시코]: [CurrencyCode['멕시코 페소']],
+} satisfies Record<Country, CurrencyCode[]>;
 
 export interface CurrencyInfo {
   code: CurrencyCode;
@@ -75,15 +75,34 @@ export const KRW: CurrencyInfo = { code: 'KRW', symbol: '원', name: '원', loca
  * 목적지에 해당하는 화폐 정보 반환
  * 매핑되지 않은 목적지는 USD 반환
  */
-export function getCurrencyByDestination(destination: string): CurrencyInfo {
+export function getCurrencyByDestination(destination: string): CurrencyInfo[] {
   const country = getCountryByLocation(destination);
   
   if (country) {
-    const currencyCode = CountryCurrencyCode[country];
-    return CURRENCY_INFO_MAP[currencyCode]
+    return CountryCurrencyCode[country].map(code => CURRENCY_INFO_MAP[code]);
   }
 
-  return { code: 'USD', symbol: '$', name: '달러', locale: 'en-US' };
+  return [{ code: 'USD', symbol: '$', name: '달러', locale: 'en-US' }];
+}
+
+/**
+ * 복수 목적지에 해당하는 화포 목록 반환 (KRW 포함, 중복 제거)
+ */
+export function getCurrenciesByDestinations(destinations: string[]): CurrencyInfo[] {
+  const seen = new Set<string>();
+  const currencies: CurrencyInfo[] = [{ code: 'KRW', symbol: '원', name: '원', locale: 'ko-KR' }];
+  seen.add('KRW');
+
+  for (const destination of destinations) {
+    for (const currency of getCurrencyByDestination(destination)) {
+      if (!seen.has(currency.code)) {
+        seen.add(currency.code);
+        currencies.push(currency);
+      }
+    }
+  }
+
+  return currencies;
 }
 
 /**

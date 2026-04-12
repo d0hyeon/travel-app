@@ -21,9 +21,9 @@ type Destination = {
   lng: number;
   group: string;
 }
+
 const DestinationOptions = Locations.map((location) => {
   const coordinate = getCoordinateByLocation(location)
-
   return {
     name: location,
     lat: coordinate.lat,
@@ -32,11 +32,9 @@ const DestinationOptions = Locations.map((location) => {
   }
 })
 
-
-
 interface TripFormData {
   name: string
-  destination: string
+  destinations: string[]
   lat: number
   lng: number
   startDate: string
@@ -52,22 +50,18 @@ interface Props {
 
 export function TripFormDialog({ open, onClose, onSubmit, initialData }: Props) {
   const [name, setName] = useState('')
-  const [destination, setDestination] = useState<Destination | null>(null)
+  const [destinations, setDestinations] = useState<Destination[]>([])
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
 
-  // 다이얼로그 열릴 때 초기화
   useEffect(() => {
     if (open) {
       setName(initialData?.name ?? '')
-      setDestination(
-        initialData
-          ? (
-            isLocation(initialData.destination)
-              ? DestinationOptions.find((d) => d.name === initialData.destination) ?? null
-              : null
-          )
-          : null
+      setDestinations(
+        initialData?.destinations
+          .filter(isLocation)
+          .map(d => DestinationOptions.find(o => o.name === d)!)
+          .filter(Boolean) ?? []
       )
       setStartDate(initialData?.startDate ?? '')
       setEndDate(initialData?.endDate ?? '')
@@ -75,18 +69,19 @@ export function TripFormDialog({ open, onClose, onSubmit, initialData }: Props) 
   }, [open, initialData])
 
   const handleSubmit = () => {
-    if (!name || !destination || !startDate || !endDate) return
+    if (!name || destinations.length === 0 || !startDate || !endDate) return
+    const primary = destinations[0]
     onSubmit({
       name,
-      destination: destination.name,
-      lat: destination.lat,
-      lng: destination.lng,
+      destinations: destinations.map(d => d.name),
+      lat: primary.lat,
+      lng: primary.lng,
       startDate,
       endDate,
     })
   }
 
-  const isValid = name && destination && startDate && endDate
+  const isValid = name && destinations.length > 0 && startDate && endDate
   const isMobile = useIsMobile()
 
   return (
@@ -102,11 +97,12 @@ export function TripFormDialog({ open, onClose, onSubmit, initialData }: Props) 
           />
 
           <Autocomplete
+            multiple
             options={DestinationOptions}
             groupBy={(option) => option.group}
             getOptionLabel={(option) => option.name}
-            value={destination}
-            onChange={(_, newValue) => setDestination(newValue)}
+            value={destinations}
+            onChange={(_, newValue) => setDestinations(newValue)}
             renderInput={(params) => (
               <TextField {...params} label="목적지" placeholder="검색 또는 선택" />
             )}

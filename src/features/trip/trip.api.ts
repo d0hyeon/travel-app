@@ -22,24 +22,26 @@ function getDatesBetween(startDate: string, endDate: string): string[] {
 export const tripKey = 'trips'
 
 function toTrip(row: DataRaw<'trips'>): Trip {
+  const destinations: string[] = (row as never as { destinations: string[] | null }).destinations
+    ?? [row.destination]
+
   let exchangeRates: ExchangeRateEntry[] | null = (row.exchange_rates as ExchangeRateEntry[] | null) ?? null;
   if (!exchangeRates && row.exchange_rate != null) {
-    const currency = getCurrencyByDestination(row.destination);
-    exchangeRates = [{ currencyCode: currency.code, rate: row.exchange_rate }];
+    const primaryCurrency = getCurrencyByDestination(destinations[0])[0];
+    exchangeRates = [{ currencyCode: primaryCurrency.code, rate: row.exchange_rate }];
   }
 
   return {
     id: row.id,
     userId: (row as never as { user_id: string | null }).user_id ?? null,
     name: row.name,
-    destination: row.destination,
+    destinations,
     lat: row.lat,
     lng: row.lng,
     startDate: row.start_date,
     endDate: row.end_date,
     shareLink: row.share_link,
     createdAt: row.created_at,
-    isOverseas: row.is_overseas,
     exchangeRate: row.exchange_rate,
     exchangeRates,
   }
@@ -88,13 +90,13 @@ export async function createTrip(
     .from('trips')
     .insert({
       name: data.name,
-      destination: data.destination,
+      destination: data.destinations[0],
+      destinations: data.destinations,
       lat: data.lat,
       lng: data.lng,
       start_date: data.startDate,
       end_date: data.endDate,
       share_link: crypto.randomUUID(),
-      is_overseas: data.isOverseas,
       user_id: userId,
     } as never)
     .select()
@@ -130,13 +132,15 @@ export async function createTrip(
 export async function updateTrip(id: string, data: Partial<Omit<Trip, 'id' | 'createdAt'>>): Promise<Trip | undefined> {
   const updateData: Record<string, unknown> = {}
   if (data.name !== undefined) updateData.name = data.name
-  if (data.destination !== undefined) updateData.destination = data.destination
+  if (data.destinations !== undefined) {
+    updateData.destination = data.destinations[0]
+    updateData.destinations = data.destinations
+  }
   if (data.lat !== undefined) updateData.lat = data.lat
   if (data.lng !== undefined) updateData.lng = data.lng
   if (data.startDate !== undefined) updateData.start_date = data.startDate
   if (data.endDate !== undefined) updateData.end_date = data.endDate
   if (data.shareLink !== undefined) updateData.share_link = data.shareLink
-  if (data.isOverseas !== undefined) updateData.is_overseas = data.isOverseas
   if (data.exchangeRate !== undefined) updateData.exchange_rate = data.exchangeRate
   if (data.exchangeRates !== undefined) updateData.exchange_rates = data.exchangeRates
 

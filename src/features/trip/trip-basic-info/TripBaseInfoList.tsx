@@ -32,7 +32,7 @@ function Resolved({ tripId, editable, size, direction, ...props }: Props) {
         <Typography variant={size === 's' ? "caption" : "subtitle2"} color="text.secondary">
           목적지
         </Typography>
-        <Typography variant={size === 's' ? 'body2' : "body1"}>{trip.destination}</Typography>
+        <Typography variant={size === 's' ? 'body2' : "body1"}>{trip.destinations.join(', ')}</Typography>
       </Stack>
       <Stack direction={direction === 'horizontal' ? 'row' : 'column'} justifyContent={direction === 'horizontal' ? 'space-between' : undefined}>
         <Typography variant={size === 's' ? "caption" : "subtitle2"} color="text.secondary">

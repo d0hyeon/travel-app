@@ -11,12 +11,20 @@ const DestinationGroupOptions = LocationGroups.map((group) => ({
 }))
 
 interface Props {
-  defaultValue: Destination | null
-  onNext: (destination: Destination) => void
+  defaultValue: Destination[]
+  onNext: (destinations: Destination[]) => void
 }
 
 export function DestinationStep({ defaultValue, onNext }: Props) {
-  const [selected, setSelected] = useState<Destination | null>(defaultValue)
+  const [selected, setSelected] = useState<Destination[]>(defaultValue)
+
+  const toggle = (dest: Destination) => {
+    setSelected((prev) =>
+      prev.some((d) => d.name === dest.name)
+        ? prev.filter((d) => d.name !== dest.name)
+        : [...prev, dest]
+    )
+  }
 
   return (
     <>
@@ -29,12 +37,12 @@ export function DestinationStep({ defaultValue, onNext }: Props) {
               </Typography>
               <Stack direction="row" flexWrap="wrap" gap={1}>
                 {group.destinations.map((dest) => {
-                  const isSelected = selected?.name === dest.name
+                  const isSelected = selected.some((d) => d.name === dest.name)
                   return (
                     <Chip
                       key={dest.name}
                       label={dest.name}
-                      onClick={() => setSelected(isSelected ? null : dest)}
+                      onClick={() => toggle(dest)}
                       variant={isSelected ? 'filled' : 'outlined'}
                       color={isSelected ? 'primary' : 'default'}
                       sx={{ cursor: 'pointer' }}
@@ -45,16 +53,15 @@ export function DestinationStep({ defaultValue, onNext }: Props) {
             </Box>
           ))}
         </Stack>
-
       </Stack>
 
-      <BottomActions position="fixed" bottom={0} bgcolor="background.paper" >
+      <BottomActions position="fixed" bottom={0} bgcolor="background.paper">
         <Button
           variant="contained"
           fullWidth
           size="large"
-          disabled={!selected}
-          onClick={() => selected && onNext(selected)}
+          disabled={selected.length === 0}
+          onClick={() => onNext(selected)}
         >
           다음
         </Button>
