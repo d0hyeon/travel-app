@@ -6,6 +6,7 @@ import { Suspense, useEffect } from 'react'
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router'
 import { registerSW } from 'virtual:pwa-register'
 import { queryClient } from '~app/query-client'
+import { AuthStateSync } from '~features/auth/useAuth'
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { ErrorBoundary } from '~shared/components/ErrorBoundary'
 import { theme } from '~shared/config/theme'
@@ -64,7 +65,8 @@ export default function Root() {
               <CssBaseline />
               {/* <TouchRippleOverlay /> */}
               <SearchParamProvider>
-                <Suspense fallback={<Box display="flex" justifyContent="center" alignItems="center" height="100dvh"><CircularProgress /></Box>}>
+                <AuthStateSync />
+              <Suspense fallback={<Box display="flex" justifyContent="center" alignItems="center" height="100dvh"><CircularProgress /></Box>}>
                   <Outlet />
                 </Suspense>
               </SearchParamProvider>
