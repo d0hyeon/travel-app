@@ -6,17 +6,19 @@ import {
   Tab,
   Tabs,
   Typography
-} from '@mui/material'
-import { useQueryParamState } from '../../shared/hooks/useQueryParamState'
-import { TripBasicInfoContent } from './trip-basic-info/TripBasicInfoContent.desktop'
+} from '@mui/material';
+import { useQueryParamState } from '../../shared/hooks/useQueryParamState';
+import { TripBasicInfoContent } from './trip-basic-info/TripBasicInfoContent.desktop';
 
 
-import { ErrorBoundary } from '~shared/components/ErrorBoundary.tsx'
-import { TopNavigation } from '~shared/components/layout/TopNavigation.desktop.tsx'
-import { SwitchCase } from '~shared/components/SwitchCase'
-import { lazy } from '~shared/utils/react'
-import { TripNameEditableText } from './TripNameEditableText.tsx'
-import { useTripId } from './useTripId'
+import { ErrorBoundary } from '~shared/components/ErrorBoundary.tsx';
+import { TopNavigation } from '~shared/components/layout/TopNavigation.desktop.tsx';
+import { PopMenu } from '~shared/components/PopMenu.tsx';
+import { SwitchCase } from '~shared/components/SwitchCase';
+import { lazy } from '~shared/utils/react';
+import { TripLeavePopMenuItem } from './components/TripLeavePopMenuItem.tsx';
+import { TripNameEditableText } from './TripNameEditableText.tsx';
+import { useTripId } from './useTripId';
 
 const TripPhotoContent = lazy(async () => {
   const module = await import('./trip-photo/TripPhotoContent.desktop.tsx')
@@ -50,7 +52,11 @@ export function TripDetailPageDesktop() {
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
       {/* Header */}
-      <TopNavigation>
+      <TopNavigation
+        rightElement={
+          <PopMenu items={<TripLeavePopMenuItem tripId={tripId} />} />
+        }
+      >
         <TripNameEditableText tripId={tripId} variant="h6" />
       </TopNavigation>
 
@@ -103,3 +109,4 @@ export function TripDetailPageDesktop() {
     </Box>
   )
 }
+

@@ -22,9 +22,9 @@ function Resolved({ tripId }: Props) {
 
   return (
     <Card variant="outlined">
-      <Stack direction="row" alignItems="center" justifyContent="space-between">
+      <Stack direction="row" alignItems="center" justifyContent="space-between" paddingRight={2}>
         <CardHeader title={`참여 인원 (${members.length}명)`} />
-        <TripInviteButton tripId={tripId} />
+        <TripInviteButton tripId={tripId}>초대</TripInviteButton>
       </Stack>
       <CardContent>
         <Stack spacing={1}>

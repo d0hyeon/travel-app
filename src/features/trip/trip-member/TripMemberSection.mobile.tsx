@@ -26,7 +26,7 @@ function Resolved({ tripId }: Props) {
         <Typography variant="subtitle2" color="text.secondary" sx={{ marginTop: -1 }}>
           인원 ({members.length}명)
         </Typography>
-        <TripInviteButton tripId={tripId} />
+        <TripInviteButton tripId={tripId}>초대</TripInviteButton>
       </Stack>
       <Stack spacing={1} width="100%">
         {members.length === 0 ? (

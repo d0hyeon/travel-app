@@ -23,6 +23,8 @@ import { useQueryParamState } from '../../shared/hooks/useQueryParamState';
 import { TripBasicInfoContent } from './trip-basic-info/TripBasicInfoContent.mobile';
 import { TripNameEditableText } from './TripNameEditableText.tsx';
 import { useTripId } from './useTripId';
+import { PopMenu } from '~shared/components/PopMenu.tsx';
+import { TripLeavePopMenuItem } from './components/TripLeavePopMenuItem.tsx';
 
 
 type TabType = 'Info' | 'Place' | 'Route' | 'Expense' | 'Photo';
@@ -50,7 +52,11 @@ export function TripDetailPageMobile() {
   return (
     <Box sx={{ height: '100dvh', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
-      <TopNavigation>
+      <TopNavigation
+        rightElement={
+          <PopMenu items={<TripLeavePopMenuItem tripId={tripId} />} />
+        }
+      >
         <TripNameEditableText variant="subtitle2" tripId={tripId} fontWeight={600} noWrap />
       </TopNavigation>
 

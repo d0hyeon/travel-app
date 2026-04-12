@@ -24,7 +24,9 @@ export function TripInviteButton({ tripId, children = '초대하기', ...props }
   return (
     <>
       <Tooltip title="초대 링크 복사">
-        <Button size="small" {...props} onClick={handleShare} />
+        <Button size="small" variant="contained" {...props} onClick={handleShare}>
+          {children}
+        </Button>
 
       </Tooltip>
       <Snackbar
