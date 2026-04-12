@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { getTripById, tripKey, updateTrip } from "./trip.api";
+import { deleteTrip, getTripById, tripKey, updateTrip } from "./trip.api";
+import { leaveTrip } from "./trip-member/tripMember.api";
 import { assert } from '~shared/utils/assert';
 import type { Trip } from "./trip.types";
 
@@ -24,9 +25,25 @@ export function useTrip(id: string) {
     }
   });
 
+  const remove = useMutation({
+    mutationFn: () => deleteTrip(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [tripKey] });
+    }
+  });
+
+  const leave = useMutation({
+    mutationFn: () => leaveTrip(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [tripKey] });
+    }
+  });
+
   return {
     ...query,
     update,
+    remove,
+    leave,
   };
 }
 

@@ -1,29 +1,21 @@
-import DeleteIcon from '@mui/icons-material/Delete'
-import ExitToAppIcon from '@mui/icons-material/ExitToApp'
 import {
   Box,
   Button,
   Container,
-  IconButton,
   Stack,
   Typography
 } from '@mui/material'
 import { Link, useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
-import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { useIsMobile } from '~shared/hooks/useIsMobile'
 import { useOverlay } from '~shared/hooks/useOverlay'
 import { isOverseasByCoordinate } from '~shared/utils/geo'
 import { ListItem } from '../../shared/components/ListItem'
 import { TripFormDialog } from './TripFormDialog'
-import { useAuth } from '~features/auth/useAuth'
 import { useTrips } from './useTrips'
 
 export default function TripListPage() {
-  const confirm = useConfirmDialog()
-
-  const { data: trips, create, remove, leave } = useTrips();
-  const { data: currentUser } = useAuth();
+  const { data: trips, create } = useTrips();
   const overlay = useOverlay();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
@@ -71,47 +63,14 @@ export default function TripListPage() {
       ) : (
         <Stack spacing={2}>
           {trips.map((trip, idx) => (
-            <Stack key={trip.id} direction="row" alignItems="center" gap={1}>
-              <Link to={`/trip/${trip.id}`} style={{ flex: 1 }}>
-
-                <ListItem
-                  leftAddon={<ListItem.Ordering>{idx + 1}</ListItem.Ordering>}
-                  rightAddon={
-                    trip.userId === currentUser?.id ? (
-                      <IconButton
-                        size="small"
-                        color="error"
-                        onClick={async (e) => {
-                          e.preventDefault()
-                          if (await confirm(`"${trip.name}" 여행을 삭제하시겠습니까?`)) {
-                            await remove(trip.id)
-                          }
-                        }}
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    ) : (
-                      <IconButton
-                        size="small"
-                        color="warning"
-                        onClick={async (e) => {
-                          e.preventDefault()
-                          if (await confirm(`"${trip.name}" 여행에서 나가시겠습니까?`)) {
-                            await leave(trip.id)
-                          }
-                        }}
-                      >
-                        <ExitToAppIcon fontSize="small" />
-                      </IconButton>
-                    )
-                  }
-                >
-                  <ListItem.Title>{trip.name}</ListItem.Title>
-                  <ListItem.Text>{trip.startDate} ~ {trip.endDate}</ListItem.Text>
-                </ListItem>
-              </Link>
-
-            </Stack>
+            <Link key={trip.id} to={`/trip/${trip.id}`}>
+              <ListItem
+                leftAddon={<ListItem.Ordering>{idx + 1}</ListItem.Ordering>}
+              >
+                <ListItem.Title>{trip.name}</ListItem.Title>
+                <ListItem.Text>{trip.startDate} ~ {trip.endDate}</ListItem.Text>
+              </ListItem>
+            </Link>
           ))}
         </Stack>
       )}

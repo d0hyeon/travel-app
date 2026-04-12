@@ -1,10 +1,14 @@
-import { Box, Card, CardContent, CardHeader, Stack, Typography } from "@mui/material"
+import { Box, Button, Card, CardContent, CardHeader, Stack, Typography } from "@mui/material"
 import { Suspense } from 'react'
+import { useNavigate } from 'react-router'
+import { useAuth } from '~features/auth/useAuth'
+import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { TripChecklist } from '../trip-checklist/TripChecklist'
 import { TripChecklistAddButton } from '../trip-checklist/TripChecklistAddButton'
 import { TripMemberSection } from '../trip-member/TripMemberSection.desktop'
 import { TripMemo } from '../trip-memo/TripMemo'
 import { TripMemoAddButton } from '../trip-memo/TripMemoAddButton'
+import { useTrip } from '../useTrip'
 import { TripBaseInfoList } from './TripBaseInfoList'
 import { TripDDay } from './TripDDay'
 
@@ -13,6 +17,26 @@ interface Props {
 }
 
 export function TripBasicInfoContent({ tripId }: Props) {
+  const { data: trip, remove, leave } = useTrip(tripId)
+  const { data: currentUser } = useAuth()
+  const navigate = useNavigate()
+  const confirm = useConfirmDialog()
+
+  const isOwner = trip.userId === currentUser?.id
+
+  const handleDelete = async () => {
+    if (await confirm(`"${trip.name}" 여행을 삭제하시겠습니까?`)) {
+      await remove.mutateAsync()
+      navigate('/', { replace: true })
+    }
+  }
+
+  const handleLeave = async () => {
+    if (await confirm(`"${trip.name}" 여행에서 나가시겠습니까?`)) {
+      await leave.mutateAsync()
+      navigate('/', { replace: true })
+    }
+  }
 
   return (
     <Box>
@@ -46,6 +70,16 @@ export function TripBasicInfoContent({ tripId }: Props) {
           </Card>
 
           <TripMemberSection tripId={tripId} />
+
+          {isOwner ? (
+            <Button variant="outlined" color="error" onClick={handleDelete}>
+              여행 삭제
+            </Button>
+          ) : (
+            <Button variant="outlined" color="warning" onClick={handleLeave}>
+              여행 나가기
+            </Button>
+          )}
         </Stack>
         <Stack flex="0 0 500px" spacing={3} sx={{ position: 'relative' }}>
           <Card
@@ -71,8 +105,6 @@ export function TripBasicInfoContent({ tripId }: Props) {
               </CardContent>
             </Suspense>
           </Card>
-
-
         </Stack>
       </Stack>
     </Box>
