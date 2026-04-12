@@ -1,8 +1,8 @@
 import DeleteIcon from '@mui/icons-material/Delete'
 import { Avatar, Card, CardContent, CardHeader, IconButton, Skeleton, Stack, Typography } from "@mui/material"
 import { Suspense } from 'react'
-import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { ListItem } from '../../../shared/components/ListItem'
+import { TripInviteButton } from '../TripInviteButton'
 import { useTripMembers } from './useTripMembers'
 
 interface Props {
@@ -18,18 +18,14 @@ export function TripMemberSection(props: Props) {
 }
 
 function Resolved({ tripId }: Props) {
-  const { data: members, remove } = useTripMembers(tripId)
-  const confirm = useConfirmDialog()
-
-  const handleDeleteMember = async (memberId: string) => {
-    if (await confirm('이 인원을 삭제하시겠습니까?')) {
-      remove(memberId)
-    }
-  }
+  const { data: members } = useTripMembers(tripId)
 
   return (
     <Card variant="outlined">
-      <CardHeader title={`참여 인원 (${members.length}명)`} />
+      <Stack direction="row" alignItems="center" justifyContent="space-between">
+        <CardHeader title={`참여 인원 (${members.length}명)`} />
+        <TripInviteButton tripId={tripId} />
+      </Stack>
       <CardContent>
         <Stack spacing={1}>
           {members.length === 0 ? (
@@ -47,15 +43,6 @@ function Resolved({ tripId }: Props) {
                   >
                     {member.name?.[0] ?? '?'}
                   </Avatar>
-                }
-                rightAddon={
-                  <IconButton
-                    size="small"
-                    onClick={() => handleDeleteMember(member.id)}
-                    color="error"
-                  >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
                 }
               >
                 <Typography variant="body2">

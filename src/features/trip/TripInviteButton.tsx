@@ -1,13 +1,12 @@
-import ShareIcon from '@mui/icons-material/Share'
-import { IconButton, Snackbar, Tooltip } from '@mui/material'
+import { Button, Snackbar, Tooltip, type ButtonProps } from '@mui/material'
 import { useState } from 'react'
 import { useTrip } from './useTrip'
 
-interface Props {
+interface Props extends ButtonProps {
   tripId: string
 }
 
-export function TripShareButton({ tripId }: Props) {
+export function TripInviteButton({ tripId, children = '초대하기', ...props }: Props) {
   const { data: trip } = useTrip(tripId)
   const [open, setOpen] = useState(false)
 
@@ -25,9 +24,8 @@ export function TripShareButton({ tripId }: Props) {
   return (
     <>
       <Tooltip title="초대 링크 복사">
-        <IconButton onClick={handleShare} size="small">
-          <ShareIcon fontSize="small" />
-        </IconButton>
+        <Button size="small" {...props} onClick={handleShare} />
+
       </Tooltip>
       <Snackbar
         open={open}

@@ -22,7 +22,6 @@ import { lazy } from '~shared/utils/react.ts';
 import { useQueryParamState } from '../../shared/hooks/useQueryParamState';
 import { TripBasicInfoContent } from './trip-basic-info/TripBasicInfoContent.mobile';
 import { TripNameEditableText } from './TripNameEditableText.tsx';
-import { TripShareButton } from './TripShareButton.tsx';
 import { useTripId } from './useTripId';
 
 
@@ -51,7 +50,7 @@ export function TripDetailPageMobile() {
   return (
     <Box sx={{ height: '100dvh', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
-      <TopNavigation rightElement={<TripShareButton tripId={tripId} />}>
+      <TopNavigation>
         <TripNameEditableText variant="subtitle2" tripId={tripId} fontWeight={600} noWrap />
       </TopNavigation>
 
