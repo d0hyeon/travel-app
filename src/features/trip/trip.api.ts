@@ -27,8 +27,8 @@ function toTrip(row: DataRaw<'trips'>): Trip {
 
   let exchangeRates: ExchangeRateEntry[] | null = (row.exchange_rates as ExchangeRateEntry[] | null) ?? null;
   if (!exchangeRates && row.exchange_rate != null) {
-    const currency = getCurrencyByDestination(destinations[0]);
-    exchangeRates = [{ currencyCode: currency.code, rate: row.exchange_rate }];
+    const primaryCurrency = getCurrencyByDestination(destinations[0])[0];
+    exchangeRates = [{ currencyCode: primaryCurrency.code, rate: row.exchange_rate }];
   }
 
   return {
