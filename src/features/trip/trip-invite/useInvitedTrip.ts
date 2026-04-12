@@ -1,5 +1,4 @@
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
-import { useAuth } from "~features/auth/useAuth";
 import { getTripByShareLink } from "../trip.api";
 import { joinTrip } from "../trip-member/tripMember.api";
 import type { ValueOf } from "~shared/utils/types";
@@ -19,7 +18,6 @@ const ERROR_MESSAGE = {
 } satisfies Record<ErrorType, string>;
 
 export function useInvitedTrip({ sharedLink }: UseInvitedTripParams) {
-  const { data: user } = useAuth();
   const { data, ...queries } = useSuspenseQuery({
     queryKey: useInvitedTrip.key(sharedLink),
     queryFn: async () => {
@@ -34,7 +32,7 @@ export function useInvitedTrip({ sharedLink }: UseInvitedTripParams) {
   });
 
   const { mutateAsync, ...mutation } = useMutation({
-    mutationFn: () => joinTrip(data.id, user!.id),
+    mutationFn: () => joinTrip(data.id),
   });
 
   return {

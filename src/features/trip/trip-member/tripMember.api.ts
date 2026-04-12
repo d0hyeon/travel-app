@@ -1,4 +1,5 @@
 import { supabase } from '~api/client';
+import { getAuth } from '~features/auth/useAuth';
 import type { TripMember } from './tripMember.types';
 
 export const tripMemberKey = 'trip_members';
@@ -34,21 +35,27 @@ export async function getTripMembersByTripId(tripId: string): Promise<TripMember
   
 }
 
-export async function joinTrip(tripId: string, userId: string): Promise<void> {
+export async function joinTrip(tripId: string): Promise<void> {
+  const user = getAuth()
+  if (!user) throw new Error('로그인이 필요합니다')
+
   const { error } = await supabase
     .from('trip_members')
-    .insert({ trip_id: tripId, user_id: userId } as never)
+    .insert({ trip_id: tripId, user_id: user.id } as never)
 
   // 이미 멤버인 경우 무시
   if (error && error.code !== '23505') throw error
 }
 
-export async function leaveTrip(tripId: string, userId: string): Promise<void> {
+export async function leaveTrip(tripId: string): Promise<void> {
+  const user = getAuth()
+  if (!user) throw new Error('로그인이 필요합니다')
+
   const { error } = await supabase
     .from('trip_members')
     .delete()
     .eq('trip_id', tripId)
-    .eq('user_id', userId)
+    .eq('user_id', user.id)
 
   if (error) throw error
 }

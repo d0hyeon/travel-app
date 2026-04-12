@@ -1,4 +1,5 @@
 import { supabase } from '~api/client'
+import { getAuth } from '~features/auth/useAuth'
 import type { Trip } from './trip.types'
 import { formatDate } from '../../shared/utils/formats';
 import { deletePhotosByTripId } from '~features/photo/photo.api';
@@ -79,8 +80,11 @@ export async function getTripByShareLink(shareLink: string): Promise<Trip | unde
 
 export async function createTrip(
   data: Omit<Trip, 'id' | 'shareLink' | 'createdAt' | 'userId'>,
-  userId: string,
 ): Promise<Trip> {
+  const user = getAuth()
+  if (!user) throw new Error('로그인이 필요합니다')
+
+  const userId = user.id
   const { data: created, error } = await supabase
     .from('trips')
     .insert({
