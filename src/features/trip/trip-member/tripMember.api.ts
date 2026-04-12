@@ -15,7 +15,8 @@ export async function getTripMembersByTripId(tripId: string): Promise<TripMember
   if (memberError) throw memberError
   if (!members?.length) return []
 
-  const userIds = [trip.user_id, ...members.map((m) => m.user_id)].filter(x => x != null)
+  const userIds = [trip.user_id, ...members.map((m) => m.user_id)].filter(x => x != null);
+  const memberIdMap = Object.fromEntries(members.map(x => ([x.user_id, x.id])));
   const { data: profiles, error: profileError } = await supabase
     .from('user_profiles')
     .select('*')
@@ -24,7 +25,8 @@ export async function getTripMembersByTripId(tripId: string): Promise<TripMember
 
   return profiles.map((profile) => ({
     tripId,
-    id: profile.id,
+    id: memberIdMap[profile.id],
+    userId: profile.id,
     name: profile.name,
     profileUrl: profile.avatar_url,
     isHost: trip.user_id === profile.id,
