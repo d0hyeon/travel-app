@@ -64,10 +64,9 @@ export async function getTripById(id: string): Promise<Trip | undefined> {
     .single()
 
   if (error) {
-    if (error.code === 'PGRST116') return undefined
-    throw error
+    throw new Error('찾을 수 없는 여행 정보입니다.')
   }
-  return data ? toTrip(data) : undefined
+  return toTrip(data);
 }
 
 export async function getTripByShareLink(shareLink: string): Promise<Trip | undefined> {

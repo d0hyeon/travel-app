@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { deleteTrip, getTripById, tripKey, updateTrip } from "./trip.api";
 import { leaveTrip } from "./trip-member/tripMember.api";
-import { assert } from '~shared/utils/assert';
 import type { Trip } from "./trip.types";
 
 export function useTrip(id: string) {
@@ -9,11 +8,7 @@ export function useTrip(id: string) {
 
   const query = useSuspenseQuery({
     queryKey: useTrip.key(id),
-    queryFn: async () => {
-      const data = await getTripById(id);
-      assert(data != null, '존재하지 않는 데이터');
-      return data;
-    }
+    queryFn: () => getTripById(id),
   });
 
   const update = useMutation({
