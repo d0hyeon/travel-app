@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { supabase } from '~api/client';
 import { updateProfile } from './auth.api';
 import { arrayIncludes } from '~shared/utils/types';
+import { queryClient } from '~app/query-client';
 
 export function useAuth() {
   return useSuspenseQuery({
@@ -25,6 +26,11 @@ export function useAuth() {
     staleTime: Infinity,
     gcTime: Infinity,
   });
+}
+export function getAuth() {
+  const auth = queryClient.getQueryData<User | null>(['auth']);
+
+  return auth ?? null;
 }
 
 /** 앱 전체에서 한 번만 마운트해야 함 (root.tsx) */
