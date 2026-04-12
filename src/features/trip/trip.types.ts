@@ -2,6 +2,7 @@ import type { ExchangeRateEntry } from '../expense/currency'
 
 export interface Trip {
   id: string
+  userId: string | null
   name: string
   destination: string
   lat: number

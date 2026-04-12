@@ -44,12 +44,15 @@ export async function joinTrip(tripId: string): Promise<void> {
   if (error && error.code !== '23505') throw error
 }
 
-export async function deleteTripMember(id: string): Promise<boolean> {
+export async function leaveTrip(tripId: string): Promise<void> {
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) throw new Error('로그인이 필요합니다')
+
   const { error } = await supabase
     .from('trip_members')
     .delete()
-    .eq('id', id)
+    .eq('trip_id', tripId)
+    .eq('user_id', user.id)
 
   if (error) throw error
-  return true
 }

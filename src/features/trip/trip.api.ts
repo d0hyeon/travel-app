@@ -29,6 +29,7 @@ function toTrip(row: DataRaw<'trips'>): Trip {
 
   return {
     id: row.id,
+    userId: (row as never as { user_id: string | null }).user_id ?? null,
     name: row.name,
     destination: row.destination,
     lat: row.lat,
