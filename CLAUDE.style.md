@@ -222,3 +222,64 @@ function DateField() { // → SomethingDateField
 - 불필요한 추상화·미래 대비 코드는 작성하지 않는다
 - 암묵적인 결합이나 의존이 없도록 한다.
 - 주석은 구현 배경 설명보다, 현재 구조를 다시 검토해야 하는 조건과 전환 신호를 남기는 데 사용한다.
+
+---
+
+## 표현의 명확성
+
+코드는 동작만 맞으면 되는 게 아니라, **의도가 읽혀야 한다**.
+변수명·메서드 선택·상수화는 "이 코드가 무엇을 하려는가"를 드러내는 수단이다.
+
+### 불변 배열 조작
+
+원본을 건드리지 않는 배열 메서드를 우선 사용한다.
+
+```ts
+// ✗ — 스프레드로 복사 후 sort. 의도가 두 단계로 분리됨
+const sorted = [...members].sort((a, b) => ...)
+
+// ✓ — 불변 정렬 의도가 메서드 이름 자체에 담김
+const sorted = members.toSorted((a, b) => ...)
+```
+
+### 변수명은 역할을 설명한다
+
+파생 데이터의 변수명은 **원본과 어떻게 다른지**가 드러나야 한다.
+`sorted`처럼 가공 방식만 설명하는 이름은 역할을 숨긴다.
+
+```ts
+// ✗ — 어떻게 만들었는지만 설명
+const sorted = members.toSorted(...)
+
+// ✓ — 왜 이 순서인지, 무엇을 위한 배열인지 드러남
+const orderedMembers = members.toSorted(...)
+```
+
+### 정렬 comparator — 의도를 수식으로 표현
+
+comparator 내부의 수식은 **"무엇을 앞으로 보내려는가"** 가 읽혀야 한다.
+
+```ts
+// ✗ — 두 항을 빼는 구조라 읽는 사람이 직접 계산해야 함
+members.toSorted((a, b) => (b.isHost ? 1 : 0) - (a.isHost ? 1 : 0))
+
+// ✓ — a가 호스트면 앞으로, 아니면 그대로 — 의도가 바로 읽힘
+members.toSorted((a, b) => a.isHost ? -1 : 0)
+```
+
+### 정렬 기준이 도메인 의미를 가질 때 — 상수로 명시
+
+`-1 / 0` 같은 매직 넘버보다, 의도를 이름으로 표현한 상수가 낫다.
+특히 정렬 기준이 여러 곳에서 쓰이거나, 비즈니스 규칙에서 비롯된 경우.
+
+```ts
+// ✗ — -1이 "앞으로"라는 걸 읽는 사람이 알아야 함
+members.toSorted((a, b) => a.isHost ? -1 : 0)
+
+// ✓ — 정렬 의도가 이름으로 드러남
+const Sort = { Shift: -1, Maintain: 0 } as const
+members.toSorted((a, b) => a.isHost ? Sort.Shift : Sort.Maintain)
+```
+
+> `SortCommand`처럼 도메인 무관한 순수 상수는 `shared/utils/`에 둔다.
+> `*.utils.ts`는 도메인 비즈니스 로직 전용이므로 혼용하지 않는다.
