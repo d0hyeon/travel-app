@@ -25,7 +25,7 @@ import {
 import { DatePicker } from '@mui/x-date-pickers'
 import { Suspense, useState, type ReactNode } from "react"
 import { Controller, FormProvider, useFieldArray, useForm, useFormContext, useWatch } from "react-hook-form"
-import { getCurrenciesByDestinations, getCurrencyName, getUsedCurrencies, type CurrencyCode } from '~features/expense/currency'
+import { CurrencyCode as CurrencyCodeMap, getCurrenciesByDestinations, getCurrencyName, getUsedCurrencies, type CurrencyCode } from '~features/expense/currency'
 import { useExpenses } from '~features/expense/useExpenses'
 import { useTrip } from '~features/trip/useTrip'
 import { useTripMembers } from '~features/trip/trip-member/useTripMembers'
@@ -80,6 +80,10 @@ ExpenseForm.Resolved = ({
 
   // 여행 목적지 기반 화폐 목록 (KRW 항상 포함)
   const availableCurrencies = getCurrenciesByDestinations(trip.destinations);
+  const availableCurrencyCodes = new Set(availableCurrencies.map(c => c.code));
+  // 목적지에 없는 나머지 화폐 (직접 추가용)
+  const otherCurrencies = (Object.values(CurrencyCodeMap) as CurrencyCode[])
+    .filter(code => !availableCurrencyCodes.has(code));
   // 사용된 통화 목록 (KRW 제외)
   const usedCurrencies = getUsedCurrencies(expenses);
 
@@ -173,15 +177,32 @@ ExpenseForm.Resolved = ({
                         endAdornment:
                           <PopMenu
                             items={
-                              availableCurrencies
-                                .toSorted((a) => usedCurrencies.includes(a.code) ? SortCommand.Shift : SortCommand.Maintain)
-                                .map(({ code }) => (
+                              [
+                                ...availableCurrencies
+                                  .toSorted((a) => usedCurrencies.includes(a.code) ? SortCommand.Shift : SortCommand.Maintain)
+                                  .map(({ code }) => (
+                                    <PopMenu.Item
+                                      key={code}
+                                      onClick={() => handleCurrencySelect(code)}
+                                      sx={{
+                                        fontWeight: code === selectedCurrency ? 'bold' : 'normal',
+                                        color: code === selectedCurrency ? 'primary.main' : 'inherit',
+                                      }}
+                                    >
+                                      {getCurrencyName(code)}
+                                      {usedCurrencies.includes(code) && (
+                                        <Chip size="small" label="사용됨" sx={{ ml: 1, height: 18, fontSize: 10 }} />
+                                      )}
+                                    </PopMenu.Item>
+                                  )),
+                                ...otherCurrencies.map((code, i) => (
                                   <PopMenu.Item
                                     key={code}
+                                    divider={i === 0}
                                     onClick={() => handleCurrencySelect(code)}
                                     sx={{
                                       fontWeight: code === selectedCurrency ? 'bold' : 'normal',
-                                      color: code === selectedCurrency ? 'primary.main' : 'inherit',
+                                      color: code === selectedCurrency ? 'primary.main' : 'text.secondary',
                                     }}
                                   >
                                     {getCurrencyName(code)}
@@ -189,7 +210,8 @@ ExpenseForm.Resolved = ({
                                       <Chip size="small" label="사용됨" sx={{ ml: 1, height: 18, fontSize: 10 }} />
                                     )}
                                   </PopMenu.Item>
-                                ))}
+                                )),
+                              ]}
                           >
                             <InputAdornment
                               position="end"
