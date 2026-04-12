@@ -23,10 +23,11 @@ interface MenuProps {
   /** 트리거 요소 (생략 시 MoreVertIcon 버튼) */
   children?: ReactNode
   /** 메뉴 아이템들 */
-  items: ReactNode[] | ReactNode;
+  items?: ReactNode[] | ReactNode;
+  list?: ReactNode;
 }
 
-export function PopMenu({ children, items }: MenuProps) {
+export function PopMenu({ children, list, items }: MenuProps) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
 
   const handleClose = () => setAnchorEl(null)
@@ -69,11 +70,14 @@ export function PopMenu({ children, items }: MenuProps) {
           <Grow {...TransitionProps}>
             <Paper elevation={8} sx={{ maxHeight, overflow: 'auto' }}>
               <ClickAwayListener onClickAway={handleClose}>
-                <MenuList>
-                  <MenuContext.Provider value={{ close: handleClose }}>
-                    {items}
-                  </MenuContext.Provider>
-                </MenuList>
+                <MenuContext.Provider value={{ close: handleClose }}>
+                  {list ?? (
+                    <MenuList>
+                      {items}
+                    </MenuList>
+                  )}
+
+                </MenuContext.Provider>
               </ClickAwayListener>
             </Paper>
           </Grow>
@@ -82,6 +86,8 @@ export function PopMenu({ children, items }: MenuProps) {
     </>
   )
 }
+
+PopMenu.List = MenuList;
 
 interface MenuItemProps extends Omit<MuiMenuItemProps, 'onClick' | 'color'> {
   onClick?: () => void
