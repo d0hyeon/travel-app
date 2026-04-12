@@ -78,7 +78,7 @@ export async function getTripByShareLink(shareLink: string): Promise<Trip | unde
 }
 
 export async function createTrip(
-  data: Omit<Trip, 'id' | 'shareLink' | 'createdAt'>
+  data: Omit<Trip, 'id' | 'shareLink' | 'createdAt' | 'userId'>
 ): Promise<Trip> {
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) throw new Error('로그인이 필요합니다')

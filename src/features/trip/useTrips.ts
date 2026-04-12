@@ -3,7 +3,7 @@ import { getAllTrips, createTrip, deleteTrip, tripKey } from "./trip.api";
 import { leaveTrip } from "./trip-member/tripMember.api";
 import type { Trip } from "./trip.types";
 
-type CreateTripVars = Omit<Trip, 'id' | 'shareLink' | 'createdAt'>
+type CreateTripVars = Omit<Trip, 'id' | 'shareLink' | 'createdAt' | 'userId'>
 
 export function useTrips() {
   const queryClient = useQueryClient();
