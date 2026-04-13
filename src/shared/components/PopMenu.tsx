@@ -9,9 +9,10 @@ import {
   Popper,
   type MenuItemProps as MuiMenuItemProps,
   useTheme,
-  Box
+  Box,
+  type MenuListProps
 } from "@mui/material";
-import { cloneElement, createContext, isValidElement, useContext, useMemo, useState, type ReactElement, type ReactNode } from "react";
+import { cloneElement, createContext, isValidElement, use, useContext, useMemo, useState, type ReactElement, type ReactNode } from "react";
 
 interface MenuContextValue {
   close: () => void
@@ -69,16 +70,11 @@ export function PopMenu({ children, list, items }: MenuProps) {
         {({ TransitionProps }) => (
           <Grow {...TransitionProps}>
             <Paper elevation={8} sx={{ maxHeight, overflow: 'auto' }}>
-              <ClickAwayListener onClickAway={handleClose}>
-                <MenuContext.Provider value={{ close: handleClose }}>
-                  {list ?? (
-                    <MenuList>
-                      {items}
-                    </MenuList>
-                  )}
-
-                </MenuContext.Provider>
-              </ClickAwayListener>
+              <MenuContext.Provider value={{ close: handleClose }}>
+                {list ?? (
+                  <PopMenu.List>{items}</PopMenu.List>
+                )}
+              </MenuContext.Provider>
             </Paper>
           </Grow>
         )}
@@ -87,7 +83,15 @@ export function PopMenu({ children, list, items }: MenuProps) {
   )
 }
 
-PopMenu.List = MenuList;
+PopMenu.List = (props: MenuListProps) => {
+  const { close } = use(MenuContext);
+
+  return (
+    <ClickAwayListener onClickAway={close}>
+      <MenuList {...props} />
+    </ClickAwayListener>
+  )
+};
 
 interface MenuItemProps extends Omit<MuiMenuItemProps, 'onClick' | 'color'> {
   onClick?: () => void
