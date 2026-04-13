@@ -28,6 +28,7 @@
     "@tanstack/react-query": "^5.90.21",
     "@toss/use-overlay": "^1.4.2",
     "date-fns": "^4.1.0",
+    "exifr": "^7.1.3",
     "heic-to": "^1.4.2",
     "isbot": "^5",
     "react": "^19.2.0",

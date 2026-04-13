@@ -1,7 +1,9 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { deletePhoto, getPhotosByTripId, photoKey, uploadPhoto } from "~features/photo/photo.api";
+import { findNearestPlaceFromPhoto } from "~features/photo/photo.utils";
 import type { Photo } from "~features/photo/photo.types";
 import { tripKey } from "../trip.api";
+import { useTripPlaces } from "../trip-place/useTripPlaces";
 import { queryClient } from "~app/query-client";
 
 type FileUploadParams =
@@ -10,6 +12,8 @@ type FileUploadParams =
 
 export function useTripPhotos(tripId: string) {
   const queryClient = useQueryClient();
+  const { data: places } = useTripPlaces(tripId);
+
   const { data, refetch, ...queries } = useSuspenseQuery({
     queryKey: useTripPhotos.key(tripId),
     queryFn: () => getPhotosByTripId(tripId)
@@ -17,12 +21,13 @@ export function useTripPhotos(tripId: string) {
 
   const { mutateAsync: upload, isPending: isUploading } = useMutation({
     mutationFn: async ({ file, files, placeId }: FileUploadParams) => {
-      if (file) {
-        const response = await uploadPhoto({ tripId, placeId, file });
-        return [response];
+      const uploadSingle = async (file: File) => {
+        const resolvedPlaceId = placeId ?? await findNearestPlaceFromPhoto(file, places)
+        return uploadPhoto({ tripId, placeId: resolvedPlaceId, file })
       }
 
-      return Promise.all(files.map(file => uploadPhoto({ file, tripId, placeId })))
+      if (file) return [await uploadSingle(file)]
+      return Promise.all(files.map(uploadSingle))
     },
     onSuccess: (data) => {
       queryClient.setQueryData<Photo[]>(useTripPhotos.key(tripId), (curr) => {
