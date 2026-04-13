@@ -12,3 +12,20 @@ export function isKoreaCoordinate(lat: number, lng: number): boolean {
 export function isOverseasByCoordinate(lat: number, lng: number): boolean {
   return !isKoreaCoordinate(lat, lng);
 }
+
+/**
+ * Haversine 공식으로 두 좌표 간 거리(m) 계산
+ */
+export function calcDistance(
+  a: { lat: number; lng: number },
+  b: { lat: number; lng: number }
+): number {
+  const R = 6371000
+  const toRad = (deg: number) => (deg * Math.PI) / 180
+  const dLat = toRad(b.lat - a.lat)
+  const dLng = toRad(b.lng - a.lng)
+  const sinDLat = Math.sin(dLat / 2)
+  const sinDLng = Math.sin(dLng / 2)
+  const x = sinDLat * sinDLat + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * sinDLng * sinDLng
+  return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x))
+}
