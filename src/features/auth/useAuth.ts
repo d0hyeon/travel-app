@@ -41,8 +41,8 @@ export function AuthStateSync() {
     const { data: { subscription } } = supabase.auth
       .onAuthStateChange(async (event, session) => {
         queryClient.setQueryData<User | null>(['auth'], session?.user ?? null);
-
-        if (arrayIncludes(IN_AUTH_STATUSES, event)) {
+        
+        if (event === 'USER_UPDATED') {
           if (session == null) return;
           const meta = session.user.user_metadata;
           const name = meta.nickname ?? meta.name ?? meta.full_name ?? '';
@@ -58,4 +58,3 @@ export function AuthStateSync() {
   return null;
 }
 
-const IN_AUTH_STATUSES = ['INITIAL_SESSION', 'SIGNED_IN', 'USER_UPDATED'] as const;
