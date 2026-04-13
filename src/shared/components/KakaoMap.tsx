@@ -7,9 +7,9 @@
  *   <Map.Path />
  * </Map>
  */
-import { Map, type MapRef } from './Map';
 import type { BoxProps } from '@mui/material';
 import type { ReactNode, Ref } from 'react';
+import { Map, type MapRef } from './Map';
 
 type AutoFocus = 'marker' | 'path' | false;
 

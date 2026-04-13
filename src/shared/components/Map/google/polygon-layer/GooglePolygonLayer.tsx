@@ -3,7 +3,6 @@ import { type Country, type Location } from '~features/location'
 import type { Coordinate } from '~shared/model/coordinate.model'
 import { useAsyncEffect } from '~shared/hooks/useAsyncEffect'
 import { useCleanup } from '~shared/hooks/useCleanup'
-import { GoogleMapContext } from '../GoogleMap'
 import { getPolygonFeatureStyle } from './polygon-layer.style'
 import {
   getCountryPolygonCoordinateGroups,
@@ -11,6 +10,7 @@ import {
 } from '../../polygon-layer.utils'
 import type { MapPolygonProps, PolygonStyleProps } from '../../polygon-layer.types'
 import type { GeoJsonFeatureCollection } from '../boundary/boundary.types'
+import { GoogleMapContext } from '../../MapContext'
 
 export interface GooglePolygonLayerProps {
   children?: ReactNode

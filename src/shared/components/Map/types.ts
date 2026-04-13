@@ -1,4 +1,3 @@
-import type { BoxProps } from '@mui/material';
 import type { ReactNode, Ref } from 'react';
 import type { Coordinate } from '~shared/model/coordinate.model';
 export type { Coordinate } from '~shared/model/coordinate.model';
@@ -13,8 +12,7 @@ export interface MapRef {
   focus: () => void;
 }
 
-export interface MapProps extends Omit<BoxProps, 'ref' | 'autoFocus'> {
-  type: MapType;
+export interface MapProps  {
   defaultCenter?: Coordinate;
   autoFocus?: AutoFocus;
   children?: ReactNode;
@@ -58,8 +56,11 @@ export interface MarkerData {
   id: string;
   position: Coordinate;
   label?: string;
+  tooltip?: string | string[];
   variant?: 'default' | 'selected' | 'disabled';
   color?: string;
   opacity?: number;
+  thumbnailUrl?: string;
   onClick?: () => void;
+  onContextMenu?: () => void;
 }
