@@ -7,7 +7,7 @@ export async function findNearestPlaceFromPhoto(
   file: File,
   places: Array<{ id: string; lat: number; lng: number }>
 ): Promise<string | undefined> {
-  const exif = await exifr.parse(file, { gps: true, pick: ['latitude', 'longitude'] })
+  const exif = await exifr.gps(file)
   const { latitude: lat, longitude: lng } = exif ?? {}
 
   if (lat == null || lng == null) return undefined
@@ -16,6 +16,6 @@ export async function findNearestPlaceFromPhoto(
     .map(place => ({ place, distance: calcDistance({ lat, lng }, place) }))
     .filter(({ distance }) => distance <= PLACE_MATCH_DISTANCE_LIMIT)
     .toSorted((a, b) => a.distance - b.distance)[0]
-
+  
   return nearest?.place.id
 }
