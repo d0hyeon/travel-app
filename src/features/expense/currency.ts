@@ -17,6 +17,7 @@ export const CurrencyCode = {
   위안: 'CNY',
   '대만 달러': 'TWD',
   '홍콩 달러': 'HKD',
+  '캐나다 달러': 'CAD',
   바트: 'THB',
   동: 'VND',
   '싱가포르 달러': 'SGD',
@@ -52,6 +53,7 @@ export const CountryCurrencyCode = {
   [Country.스위스]: [CurrencyCode.프랑, CurrencyCode.유로], // 공식 화폐 + 통용
   [Country.미국]: [CurrencyCode.달러],
   [Country.멕시코]: [CurrencyCode['멕시코 페소']],
+  [Country.캐나다]: [CurrencyCode['캐나다 달러']]
 } satisfies Record<Country, CurrencyCode[]>;
 
 export interface CurrencyInfo {

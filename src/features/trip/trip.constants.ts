@@ -46,12 +46,21 @@ export const LocationGroup = {
   프라하: '유럽',
   암스테르담: '유럽',
   취리히: '유럽',
+  니스: '유럽',
+  밀라노: '유럽',
+  베네치아: '유럽',
+  베른: '유럽',
+  인터라켄: '유럽',
+  피렌체: '유럽',
+  제네바: '유럽',
   뉴욕: '미주',
   로스앤젤레스: '미주',
   호놀룰루: '미주',
   샌프란시스코: '미주',
   라스베이거스: '미주',
   칸쿤: '미주',
+  벤쿠버: '미주',
+  토론토: '미주',
 } as const satisfies Record<Location, typeof LocationGroups[number]>;
 
 export const LocationOptions = Locations.map((location) => {

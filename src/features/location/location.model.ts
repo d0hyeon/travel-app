@@ -3,6 +3,7 @@ import type { ValueOf } from '~shared/utils/types';
 import { Country } from './country.model';
 
 export const Locations = [
+  // 국내
   '서울',
   '부산',
   '제주',
@@ -20,12 +21,16 @@ export const Locations = [
   '평창',
   '포천',
   '진안',
+  
+  // 일본
   '도쿄',
   '오사카',
   '교토',
   '후쿠오카',
   '삿포로',
   '오키나와',
+  
+  // 동남아
   '방콕',
   '푸켓',
   '싱가포르',
@@ -36,23 +41,44 @@ export const Locations = [
   '세부',
   '보라카이',
   '코타키나발루',
+  
+  // 동아시아
   '홍콩',
   '마카오',
   '타이베이',
   '상하이',
+
+  // 유럽 
   '파리',
+  '니스',
+
   '런던',
-  '로마',
   '바르셀로나',
   '프라하',
-  '암스테르담',
+
+  '베른',
+  '제네바',
   '취리히',
+  '인터라켄',
+
+  '로마',
+  '피렌체',
+  '베네치아',
+  '밀라노',
+  
+  '암스테르담',
+  
+  // 아메리카 
   '뉴욕',
   '로스앤젤레스',
   '호놀룰루',
   '샌프란시스코',
   '라스베이거스',
   '칸쿤',
+  
+  '벤쿠버',
+  '토론토',
+
 ] as const
 export type Location = typeof Locations[number];
 
@@ -94,20 +120,36 @@ export const LocationRegion = {
   마카오: '마카오',
   타이베이: '대만',
   상하이: '중국',
-  파리: '프랑스',
-  런던: '영국',
+  
   로마: '이탈리아',
+  밀라노: '이탈리아',
+  베네치아: '이탈리아',
+  피렌체: '이탈리아',
+  
+  취리히: '스위스',
+  베른: '스위스',
+  인터라켄: '스위스',
+  제네바: '스위스',
+  
+  파리: '프랑스',
+  니스: '프랑스',
+  
+  런던: '영국',
   바르셀로나: '스페인',
   프라하: '체코',
   암스테르담: '네덜란드',
-  취리히: '스위스',
+  
   뉴욕: '미국',
   로스앤젤레스: '미국',
   호놀룰루: '미국',
   샌프란시스코: '미국',
   라스베이거스: '미국',
+
+  토론토: '캐나다',
+  벤쿠버: '캐나다',
+  
   칸쿤: '멕시코',
-} as const
+} satisfies Record<Location, string>;
 
 export type Region = ValueOf<typeof LocationRegion>;
 
@@ -156,6 +198,15 @@ export const LocationCountry = {
   프라하: Country.체코,
   암스테르담: Country.네덜란드,
   취리히: Country.스위스,
+  니스: Country.프랑스,
+  밀라노: Country.이탈리아,
+  베른: Country.스위스,
+  베네치아: Country.이탈리아,
+  벤쿠버: Country.캐나다,
+  토론토: Country.캐나다,
+  인터라켄: Country.스위스, 
+  제네바: Country.스위스,
+  피렌체: Country.이탈리아,
   뉴욕: Country.미국,
   로스앤젤레스: Country.미국,
   호놀룰루: Country.미국,
@@ -217,6 +268,17 @@ export const LocationCoordinate: Record<Location, Coordinate> = {
   샌프란시스코: { lat: 37.7749, lng: -122.4194 },
   라스베이거스: { lat: 36.1699, lng: -115.1398 },
   칸쿤: { lat: 21.1619, lng: -86.8515 },
+  벤쿠버: { lat: 49.2827, lng: -123.1207 },
+  토론토: { lat: 43.65107, lng: -79.347015 },
+
+  베른: { lat: 46.94809, lng: 7.44744 },
+  제네바: { lat: 46.20439, lng: 6.143158 },
+  인터라켄: { lat: 46.68635, lng: 7.863204 },
+
+  피렌체: { lat: 43.769562, lng: 11.255814 },
+  베네치아: { lat: 45.440847, lng: 12.315515 },
+  밀라노: { lat: 45.464204, lng: 9.189982 },
+  니스: { lat: 43.710173, lng: 7.261953 }
 }
 
 export type LocationCoordinateValue = (typeof LocationCoordinate)[Location]

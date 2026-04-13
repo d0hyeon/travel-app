@@ -19,7 +19,8 @@ export const Country = {
   네덜란드: 'Netherlands',
   스위스: 'Switzerland',
   미국: 'United States of America',
-  멕시코: 'Mexico'
+  멕시코: 'Mexico',
+  캐나다: 'Canada',
 } as const
 export type Country = ValueOf<typeof Country>;
 
@@ -43,5 +44,6 @@ export const CountryCode = {
   [Country.스위스]: 'CHE',
   [Country.미국]: 'USA',
   [Country.멕시코]: 'MEX',
+  [Country.캐나다]: 'CAN',
 } as const satisfies Record<Country, string>;
 export type CountryCode = ValueOf<typeof CountryCode>;
