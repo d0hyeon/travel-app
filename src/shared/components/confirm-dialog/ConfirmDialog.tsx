@@ -5,7 +5,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import type { ReactNode } from 'react';
+import { useEffect, useEffectEvent, type ReactNode } from 'react';
 
 export type ConfirmDialogProps = {
   title: string;
@@ -18,6 +18,19 @@ export type ConfirmDialogProps = {
 };
 
 export function ConfirmDialog({ title, description, isOpen, confirmLabel = '확인', cancelLabel = '취소', onCancel, onConfirm }: ConfirmDialogProps) {
+  const handleKeyInput = useEffectEvent((event: KeyboardEvent) => {
+    switch (event.key) {
+      case 'Enter':
+        return onConfirm?.();
+      case 'Esc':
+        return onCancel?.()
+    }
+  })
+
+  useEffect(() => {
+    document.addEventListener('keyup', handleKeyInput);
+    return () => document.removeEventListener('keyup', handleKeyInput)
+  }, [])
 
   return (
     <CustomDialog
