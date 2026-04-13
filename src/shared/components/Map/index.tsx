@@ -9,7 +9,7 @@ import type { MapProps, MarkerProps, PathProps } from './types';
 
 const KakaoMap = lazy(() => import('./kakao/KakaoMap'));
 const KakaoMarker = lazy(() => import('./kakao/KakaoMapMarker'));
-const KakaoPath = lazy(() => import('./kakao/KakaoMapMarker'));
+const KakaoPath = lazy(() => import('./kakao/KakaoMapPath'));
 
 const GoogleMap = lazy(() => import('./google/GoogleMap'));
 const GoogleMarker = lazy(() => import('./google/GoogleMapMarker'));

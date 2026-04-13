@@ -2,7 +2,7 @@ import { use, useEffect } from "react";
 import { KakaoMapContext } from "../MapContext";
 import type { PathProps } from "../types";
 
-export default function KakaoPath({ coordinates, strokeColor, strokeWeight, strokeOpacity, strokeStyle }: PathProps) {
+export default function KakaoMapPath({ coordinates, strokeColor, strokeWeight, strokeOpacity, strokeStyle }: PathProps) {
   const context = use(KakaoMapContext);
   const path = coordinates.map(x => new kakao.maps.LatLng(x.lat, x.lng));
 
