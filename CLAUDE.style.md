@@ -215,14 +215,6 @@ function DateField() { // → SomethingDateField
 
 ---
 
-## 코드 작성 원칙
-
-- 요청을 구현하기 전, 설계 원칙·확장성·인터페이스 적절성을 스스로 검토한다
-- 더 나은 방안이 있거나 트레이드오프가 있으면 구현 전에 피드백한다
-- 불필요한 추상화·미래 대비 코드는 작성하지 않는다
-- 암묵적인 결합이나 의존이 없도록 한다.
-- 주석은 구현 배경 설명보다, 현재 구조를 다시 검토해야 하는 조건과 전환 신호를 남기는 데 사용한다.
-
 ---
 
 ## 표현의 명확성
@@ -261,10 +253,10 @@ comparator 내부의 수식은 **"무엇을 앞으로 보내려는가"** 가 읽
 
 ```ts
 // ✗ — 두 항을 빼는 구조라 읽는 사람이 직접 계산해야 함
-members.toSorted((a, b) => (b.isHost ? 1 : 0) - (a.isHost ? 1 : 0))
+members.toSorted((a, b) => (b.isHost ? 1 : 0) - (a.isHost ? 1 : 0));
 
 // ✓ — a가 호스트면 앞으로, 아니면 그대로 — 의도가 바로 읽힘
-members.toSorted((a, b) => a.isHost ? -1 : 0)
+members.toSorted((a, b) => (a.isHost ? -1 : 0));
 ```
 
 ### 정렬 기준이 도메인 의미를 가질 때 — 상수로 명시
@@ -274,12 +266,21 @@ members.toSorted((a, b) => a.isHost ? -1 : 0)
 
 ```ts
 // ✗ — -1이 "앞으로"라는 걸 읽는 사람이 알아야 함
-members.toSorted((a, b) => a.isHost ? -1 : 0)
+members.toSorted((a, b) => (a.isHost ? -1 : 0));
 
 // ✓ — 정렬 의도가 이름으로 드러남
-const Sort = { Shift: -1, Maintain: 0 } as const
-members.toSorted((a, b) => a.isHost ? Sort.Shift : Sort.Maintain)
+const Sort = { Shift: -1, Maintain: 0 } as const;
+members.toSorted((a, b) => (a.isHost ? Sort.Shift : Sort.Maintain));
 ```
 
 > `SortCommand`처럼 도메인 무관한 순수 상수는 `shared/utils/`에 둔다.
 > `*.utils.ts`는 도메인 비즈니스 로직 전용이므로 혼용하지 않는다.
+
+## 코드 작성 원칙
+
+- 요청을 구현하기 전, 설계 원칙·확장성·인터페이스 적절성을 스스로 검토한다
+- 궁금한 점이나 결정이 필요한 문제가 있다면 질문한다.
+- 더 나은 방안이 있거나 트레이드오프가 있으면 구현 전에 피드백한다
+- 불필요한 추상화·미래 대비 코드는 작성하지 않는다
+- 암묵적인 결합이나 의존이 없도록 한다.
+- 주석은 구현 배경 설명보다, 현재 구조를 다시 검토해야 하는 조건과 전환 신호를 남기는 데 사용한다.
