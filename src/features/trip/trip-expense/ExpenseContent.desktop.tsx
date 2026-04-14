@@ -21,11 +21,11 @@ import {
 import { Suspense, useMemo, useState } from "react"
 import { ListItem } from '~shared/components/ListItem'
 import { useOverlay } from '~shared/hooks/useOverlay'
-import { useQueryParamState } from '~shared/hooks/useQueryParamState'
+import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState'
 import { DialogTitle } from '~shared/components/confirm-dialog/DialogTitle'
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { EditableText } from "../../../shared/components/EditableText"
-import { formatDate } from "../../../shared/utils/formats"
+import { formatShortDate } from "../../../shared/utils/formats"
 import { convertToKRW, formatByCurrencyCode, getCurrencyName, getDefaultExchangeRate, getExchangeRate, getUsedCurrencies, setExchangeRate, type CurrencyCode } from "../../expense/currency"
 import {
   calculateBalancesInKRW,
@@ -39,7 +39,7 @@ import { useTripMembers } from "../trip-member/useTripMembers"
 import { useTrip } from "../useTrip"
 import { RouteExpenseView } from "./RouteExpenseView"
 import { useExpenseFormOverlay } from "./useExpenseFormOverlay"
-import { AnimatedCountText } from './AnimatedCountText'
+import { AnimatedCountText } from '../../../shared/components/AnimatedCountText'
 
 interface Props {
   tripId: string
@@ -303,7 +303,7 @@ export function ExpenseContent({ tripId }: Props) {
                               <Typography fontWeight="medium">{expense.description}</Typography>
                               {expense.date && (
                                 <Typography variant="caption" color="text.secondary">
-                                  {formatDate(expense.date)}
+                                  {formatShortDate(expense.date)}
                                 </Typography>
                               )}
                             </Stack>

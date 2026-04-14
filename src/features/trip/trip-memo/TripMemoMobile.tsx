@@ -23,11 +23,11 @@ import {
 } from "@mui/material";
 import { Suspense, useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { ResizeObserverArea } from '~shared/components/ResizeObserverArea';
-import { useVariation } from '~shared/hooks/useVariation';
+import { useVariation } from '~shared/hooks/extends/useVariation';
 import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
 import { useTripMemo } from "./useTripMemo";
-import { useAnimation } from '~shared/hooks/useAnimation';
-import { useQueryParamState } from '~shared/hooks/useQueryParamState';
+import { useAnimation } from '~shared/hooks/animation/useAnimation';
+import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState';
 
 const LONG_PRESS_DURATION = 500;
 

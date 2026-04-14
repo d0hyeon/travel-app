@@ -1,11 +1,11 @@
 import { format } from "date-fns";
 
-export function formatDate(dateStr: string): string {
+export function formatShortDate(dateStr: string): string {
   const date = new Date(dateStr)
   return `${date.getMonth() + 1}/${date.getDate()}`
 }
 
-export function formatDateISO(value: string | number | Date) {
+export function formatDisplayDate(value: string | number | Date) {
   return format(value, 'yyyy-MM-dd')
 }
 

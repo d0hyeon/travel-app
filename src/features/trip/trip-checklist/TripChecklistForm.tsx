@@ -2,7 +2,7 @@ import { Chip, Stack, TextField, Typography, type StackProps } from "@mui/materi
 import { DateTimePicker } from "@mui/x-date-pickers";
 import { formatDate } from "date-fns";
 import { Controller, useForm } from "react-hook-form";
-import { useIsMobile } from "~shared/hooks/useIsMobile";
+import { useIsMobile } from "~shared/hooks/env/useIsMobile";
 import { useTripMembers } from "../trip-member/useTripMembers";
 import { useTrip } from "../useTrip";
 

@@ -1,5 +1,5 @@
 import { useAuth } from "~features/auth/useAuth";
-import { assert } from "~shared/utils/assert";
+import { assert } from "~shared/utils/types";
 import { useTrip } from "../useTrip";
 import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
 import { useNavigate } from "react-router";

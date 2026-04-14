@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { useSearchParams, type NavigateOptions } from "~shared/hooks/useSearchParams";
+import { useSearchParams, type NavigateOptions } from "~shared/hooks/urls/useSearchParams";
 
 interface OptionWithDefault<T> {
   parse?: (value: string) => T;

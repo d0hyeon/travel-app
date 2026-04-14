@@ -1,6 +1,6 @@
 import { Box, ImageList, Stack, Typography } from '@mui/material';
 import { Suspense } from 'react';
-import { useIsMobile } from '~shared/hooks/useIsMobile';
+import { useIsMobile } from '~shared/hooks/env/useIsMobile';
 import { useOverlay } from '~shared/hooks/useOverlay';
 import { PhotoBottomSheet } from '~shared/components/photo/PhotoBottomSheet';
 import { PhotoDialog } from '~shared/components/photo/PhotoDialog';

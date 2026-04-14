@@ -10,7 +10,7 @@ import { useCallback, type ComponentProps, type ReactNode } from "react"
 import { DialogTitle } from '~shared/components/confirm-dialog/DialogTitle'
 import { useOverlay } from "../../../shared/hooks/useOverlay"
 import { ExpenseForm, type ExpenseFormValues } from "./ExpenseForm"
-import { BottomSheet } from "~shared/components/BottomSheet"
+import { BottomSheet } from "~shared/components/bottom-sheet/BottomSheet"
 
 export type RenderProps = {
   close: () => void;

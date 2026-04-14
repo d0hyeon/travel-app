@@ -1,6 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { assert } from "~shared/utils/assert";
-import { arrayIncludes } from "~shared/utils/types";
+import { arrayIncludes,  assert} from "~shared/utils/types";
 import { useTripPlaces } from "../trip-place/useTripPlaces";
 import { useTripRoutes } from "./useTripRoutes";
 

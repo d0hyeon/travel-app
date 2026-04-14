@@ -15,7 +15,7 @@ import { formatDate } from 'date-fns'
 import { formatCurrency } from '~features/expense/expense.utils'
 import type { StatisticsChartViewMode } from './StatisticsViewConfigButton'
 import type { ExpenseTrendPoint } from './statistics-expense/useStatisticsSummary'
-import { useIsMobile } from '~shared/hooks/useIsMobile'
+import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useStorageState } from '~shared/hooks/useStorageState'
 
 interface StatisticsTrendChartProps {

@@ -9,3 +9,12 @@ export type ValueOf<T> = T[keyof T];
 export function arrayIncludes<T>(value: (T[]) | (readonly T[]), item: unknown): item is T {
   return value.includes(item as T);
 }
+
+export function assert(
+  value: boolean,
+  message = 'Value is required'
+): asserts value {
+  if (value == null) {
+    throw new Error(message)
+  }
+}

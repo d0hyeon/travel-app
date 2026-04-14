@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Box, Button, Chip, Stack, Typography } from '@mui/material'
-import { BottomActions } from '~shared/components/BottomSheet/compounds'
+import { BottomActions } from '~shared/components/bottom-sheet/compounds'
 import { LocationGroups, LocationOptions, type LocationOption } from '../trip.constants';
 
 export type Destination = LocationOption;

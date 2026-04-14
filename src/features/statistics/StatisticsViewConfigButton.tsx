@@ -1,8 +1,8 @@
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded'
 import { Box, IconButton, Popover, Stack, Typography } from '@mui/material'
 import { useState } from 'react'
-import { BottomSheet } from '~shared/components/BottomSheet'
-import { useIsMobile } from '~shared/hooks/useIsMobile'
+import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
+import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useOverlay } from '~shared/hooks/useOverlay'
 import { useStorageState } from '~shared/hooks/useStorageState'
 

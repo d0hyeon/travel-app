@@ -8,7 +8,7 @@ import {
   Typography
 } from '@mui/material'
 import { useMemo, useRef, useState } from 'react'
-import { useQueryParamState } from '~shared/hooks/useQueryParamState'
+import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState'
 import { Map, type MapRef } from '../../../shared/components/Map'
 import { usePlaceSearchDialog } from '../../place/place-search/usePlaceSearchDialog'
 import { PlaceCategoryColorCode, type Place } from '../../place/place.types'

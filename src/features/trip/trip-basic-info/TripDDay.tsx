@@ -1,5 +1,5 @@
 import { Box, Skeleton, Typography, type BoxProps } from '@mui/material'
-import { useCountAnimation } from '~shared/hooks/useCountdownAnimation'
+import { useCountAnimation } from '~shared/hooks/animation/useCountdownAnimation'
 import { useTrip } from '../useTrip'
 
 

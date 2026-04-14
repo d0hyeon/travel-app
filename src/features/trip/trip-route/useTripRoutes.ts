@@ -1,11 +1,11 @@
 import { useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getRoutesByTripId, routeKey, createRoute, updateRoute, deleteRoute } from "../../route/route.api";
-import { assert } from '~shared/utils/assert';
+import { assert } from '~shared/utils/types';
 import { useTrip } from "../useTrip";
 import { mergeQueriesStatus } from "../../../shared/utils/merges";
 import { useMemo } from "react";
 import { addDays, differenceInDays } from "date-fns";
-import { formatDateISO } from "../../../shared/utils/formats";
+import { formatDisplayDate } from "../../../shared/utils/formats";
 import { queryClient } from "~app/query-client";
 
 export function useTripRoutes(id: string) {
@@ -24,7 +24,7 @@ export function useTripRoutes(id: string) {
   const dates = useMemo(() => {
     const diffDays = differenceInDays(trip.endDate, trip.startDate);
     return Array.from({ length: diffDays + 1 }).map((_, day) => (
-      formatDateISO(new Date(addDays(trip.startDate, day)))
+      formatDisplayDate(new Date(addDays(trip.startDate, day)))
     ))
   }, [trip.startDate, trip.endDate]);
 

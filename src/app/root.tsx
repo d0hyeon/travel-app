@@ -11,7 +11,7 @@ import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDi
 import { ErrorBoundary } from '~shared/components/ErrorBoundary'
 import { theme } from '~shared/config/theme'
 import { OverlayProvider } from '~shared/hooks/useOverlay'
-import { SearchParamProvider } from '~shared/hooks/useSearchParams'
+import { SearchParamProvider } from '~shared/hooks/urls/useSearchParams'
 import '~shared/index.css'
 
 
@@ -66,7 +66,7 @@ export default function Root() {
               {/* <TouchRippleOverlay /> */}
               <SearchParamProvider>
                 <AuthStateSync />
-              <Suspense fallback={<Box display="flex" justifyContent="center" alignItems="center" height="100dvh"><CircularProgress /></Box>}>
+                <Suspense fallback={<Box display="flex" justifyContent="center" alignItems="center" height="100dvh"><CircularProgress /></Box>}>
                   <Outlet />
                 </Suspense>
               </SearchParamProvider>

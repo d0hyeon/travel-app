@@ -31,8 +31,8 @@ import { useExpenses } from '~features/expense/useExpenses'
 import { useTrip } from '~features/trip/useTrip'
 import { useTripMembers } from '~features/trip/trip-member/useTripMembers'
 import { PopMenu } from '~shared/components/PopMenu'
-import { useIsMobile } from '~shared/hooks/useIsMobile'
-import { formatDateISO } from "../../../shared/utils/formats"
+import { useIsMobile } from '~shared/hooks/env/useIsMobile'
+import { formatDisplayDate } from "../../../shared/utils/formats"
 import { SortCommand } from '~shared/utils/sorts'
 import { useTripPlaces } from '../trip-place/useTripPlaces'
 
@@ -350,7 +350,7 @@ ExpenseForm.Resolved = ({
                 <DatePicker
                   {...field}
                   value={value ? new Date(value) : undefined}
-                  onChange={(value) => onChange(formatDateISO(value as unknown as string))}
+                  onChange={(value) => onChange(formatDisplayDate(value as unknown as string))}
                   slotProps={{
                     textField: {
                       size: 'small',
@@ -554,7 +554,7 @@ ExpenseForm.Pending = ({
                 <DatePicker
                   {...field}
                   value={value ? new Date(value) : undefined}
-                  onChange={(value) => onChange(formatDateISO(value as unknown as string))}
+                  onChange={(value) => onChange(formatDisplayDate(value as unknown as string))}
                   slotProps={{
                     textField: {
                       size: 'small',

@@ -2,9 +2,8 @@ import type { User } from '@supabase/supabase-js';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { supabase } from '~api/client';
-import { updateProfile } from './auth.api';
-import { arrayIncludes } from '~shared/utils/types';
 import { queryClient } from '~app/query-client';
+import { updateProfile } from './auth.api';
 
 export function useAuth() {
   return useSuspenseQuery({

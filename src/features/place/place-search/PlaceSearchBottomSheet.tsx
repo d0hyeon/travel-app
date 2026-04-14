@@ -10,7 +10,7 @@ import {
   InputAdornment,
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
-import { BottomSheet } from '../../../shared/components/BottomSheet'
+import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import type { MapType } from '../../../shared/components/Map'
 import { usePlaceSearch } from './usePlaceSearch'
 import type { PlaceSearchResult } from './PlaceSearchDialog'

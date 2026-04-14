@@ -7,7 +7,7 @@ import {
   Tabs,
   Typography
 } from '@mui/material';
-import { useQueryParamState } from '../../shared/hooks/useQueryParamState';
+import { useQueryParamState } from '../../shared/hooks/urls/useQueryParamState.ts';
 import { TripBasicInfoContent } from './trip-basic-info/TripBasicInfoContent.desktop';
 
 

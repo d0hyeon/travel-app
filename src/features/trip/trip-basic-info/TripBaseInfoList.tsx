@@ -1,6 +1,6 @@
 import { Skeleton, Stack, Typography, type StackProps } from "@mui/material";
 import { Suspense } from "react";
-import { formatDate } from "~shared/utils/formats";
+import { formatShortDate } from "~shared/utils/formats";
 import { TripDurationEditableText } from "../components/TripDurationEditableText";
 import { useTrip } from "../useTrip";
 
@@ -42,7 +42,7 @@ function Resolved({ tripId, editable, size, direction, ...props }: Props) {
           ? <TripDurationEditableText tripId={tripId} />
           : (
             <Typography variant={size === 's' ? 'body2' : "body1"}>
-              {formatDate(trip.startDate)} ~ {formatDate(trip.endDate)}
+              {formatShortDate(trip.startDate)} ~ {formatShortDate(trip.endDate)}
             </Typography>
           )}
       </Stack>

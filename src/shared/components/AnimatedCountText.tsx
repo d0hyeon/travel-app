@@ -1,6 +1,6 @@
 import { Typography, type TypographyProps } from "@mui/material";
 import { type ReactNode } from "react";
-import { useCountAnimation, type CountAnimationOptions } from "~shared/hooks/useCountdownAnimation";
+import { useCountAnimation, type CountAnimationOptions } from "~shared/hooks/animation/useCountdownAnimation";
 
 type Props = {
   value: number;

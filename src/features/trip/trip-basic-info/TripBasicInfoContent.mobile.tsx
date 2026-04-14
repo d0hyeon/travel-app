@@ -3,7 +3,7 @@ import { Suspense } from 'react'
 import { BottomArea } from '~shared/components/BottomArea'
 import { BottomNavigation } from '~shared/components/BottomNavigation'
 import { ErrorBoundary } from "~shared/components/ErrorBoundary"
-import { useQueryParamState } from '~shared/hooks/useQueryParamState'
+import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState'
 import { TripChecklist } from '../trip-checklist/TripChecklist'
 import { TripChecklistAddButton } from '../trip-checklist/TripChecklistAddButton'
 import { TripDeadlineChecklist } from '../trip-checklist/TripDeadlineChecklist'

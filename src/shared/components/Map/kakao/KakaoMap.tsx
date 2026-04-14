@@ -1,6 +1,6 @@
 import { Box, type BoxProps } from '@mui/material';
 import { use, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
-import { useVariation } from '~shared/hooks/useVariation';
+import { useVariation } from '~shared/hooks/extends/useVariation';
 import { KakaoMapContext } from '../MapContext';
 import type { Coordinate, MapProps, MarkerData } from '../types';
 import { createLabelContent, getMarkerImage, getZoomScale } from './kakaoMap.utils';

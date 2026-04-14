@@ -9,16 +9,16 @@ import { Box, Button, Chip, IconButton, Stack, styled, Tab, Tabs, ToggleButton, 
 import { Suspense, useMemo, useRef, useState } from "react";
 import { BottomArea } from '~shared/components/BottomArea';
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog';
-import { useQueryParamState } from '~shared/hooks/useQueryParamState';
-import { BottomSheet } from "../../../shared/components/BottomSheet";
+import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState';
+import { BottomSheet } from "../../../shared/components/bottom-sheet/BottomSheet";
 import { ListItem } from "../../../shared/components/ListItem";
 import { Map, type MapRef } from "../../../shared/components/Map";
 import { PopMenu } from "../../../shared/components/PopMenu";
 import { SortableItem } from "../../../shared/components/dnd/SortableItem";
 import { SortableList } from "../../../shared/components/dnd/SortableList";
-import { useCurrentLocation } from "../../../shared/hooks/useCurrentLocation";
+import { useCurrentLocation } from "../../../shared/hooks/env/useCurrentLocation";
 import { useOverlay } from "../../../shared/hooks/useOverlay";
-import { formatDate, formatDateISO } from "../../../shared/utils/formats";
+import { formatShortDate, formatDisplayDate } from "../../../shared/utils/formats";
 import { PlaceCategoryColorCode } from "../../place/place.types";
 import { useRoadRoute } from "../../route/road-route/useRoadRoute";
 import { useTripPlaces } from "../trip-place/useTripPlaces";
@@ -58,9 +58,9 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
     defaultValue: () => {
       const today = new Date().toISOString().split('T')[0]
       if (today >= trip.startDate && today <= trip.endDate) {
-        return formatDateISO(today)
+        return formatDisplayDate(today)
       }
-      return formatDateISO(trip.startDate)
+      return formatDisplayDate(trip.startDate)
     }
   })
   const {
@@ -97,7 +97,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
 
   const mapRef = useRef<MapRef>(null)
   const mapType = trip.isOverseas ? 'google' : 'kakao'
-  const today = formatDateISO(new Date())
+  const today = formatDisplayDate(new Date())
   const isOngoingTrip = trip.startDate <= today && today <= trip.endDate
   const currentLocation = useCurrentLocation()
   const mapCenter = isOngoingTrip ? (currentLocation ?? { lat: trip.lat, lng: trip.lng }) : { lat: trip.lat, lng: trip.lng }
@@ -146,6 +146,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
             clustering={cluastering}
             clusterGridSize={50}
             showMyLocation={isOngoingTrip}
+
           >
             {places.map((place) => {
               const isInCurrentRoute = currentRoute?.placeIds.includes(place.id) ?? false;
@@ -238,7 +239,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                 <Tab
                   key={date}
                   value={date}
-                  label={formatDate(date)}
+                  label={formatShortDate(date)}
                   onClick={() => {
                     setSelectedDate(date)
                     setSelectedRouteId(null)
@@ -275,7 +276,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                 onClick={() => {
                   createRoute({
                     tripId,
-                    name: `${formatDate(selectedDate)} 경로 ${routes.length + 1}`,
+                    name: `${formatShortDate(selectedDate)} 경로 ${routes.length + 1}`,
                     scheduledDate: selectedDate,
                   })
                 }}

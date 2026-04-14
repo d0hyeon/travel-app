@@ -7,7 +7,7 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
 import { signOut } from '~features/auth/auth.api'
 import { BottomNavigation } from '~shared/components/BottomNavigation'
-import { useIsMobile } from '~shared/hooks/useIsMobile'
+import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { isDev } from './env'
 
 

@@ -7,7 +7,7 @@ import {
   Stack, Typography,
 } from '@mui/material'
 import { useCallback, type ReactNode } from 'react'
-import { BottomSheet } from '../../shared/components/BottomSheet'
+import { BottomSheet } from '../../shared/components/bottom-sheet/BottomSheet'
 import type { Place } from './place.types'
 import { PlaceForm, type PlaceFormValues } from './PlaceForm'
 import { useOverlay } from '../../shared/hooks/useOverlay'

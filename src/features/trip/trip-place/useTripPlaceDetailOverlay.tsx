@@ -1,12 +1,12 @@
 
 
 import { Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Stack, Typography } from '@mui/material'
-import { BottomSheet } from '../../../shared/components/BottomSheet'
+import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { PlaceForm } from '../../place/PlaceForm'
 import { useCallback } from 'react';
 import { useOverlay } from '../../../shared/hooks/useOverlay';
 import { useTripPlaces } from './useTripPlaces';
-import { assert } from '~shared/utils/assert';
+import { assert } from '~shared/utils/types';
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog';
 import { PlacePhotoSection } from './PlacePhotoSection';
 

@@ -5,7 +5,7 @@ import { type ComponentProps } from "react";
 import { PlaceCategoryColorCode, type Place } from "~features/place/place.types";
 import { ListItem } from "~shared/components/ListItem";
 import { PopMenu } from "~shared/components/PopMenu";
-import { useIsMobile } from "~shared/hooks/useIsMobile";
+import { useIsMobile } from "~shared/hooks/env/useIsMobile";
 import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
 import { useTripPlaceDetailOverlay } from "./useTripPlaceDetailOverlay";
 import { useTripPlaces } from "./useTripPlaces";

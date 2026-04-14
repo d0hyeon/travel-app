@@ -10,7 +10,7 @@ import { DateCalendarDay } from './DateCalendarDay';
 import { DateCalendarHeader } from './DateCalendarHeader';
 import Menu from './Menu';
 import { type DateRange } from './type';
-import { useIsMobile } from '~shared/hooks/useIsMobile';
+import { useIsMobile } from '~shared/hooks/env/useIsMobile';
 
 type Props = {
   defaultValue?: DateRange;

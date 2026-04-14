@@ -1,4 +1,4 @@
-import { useIsMobile } from '../../shared/hooks/useIsMobile'
+import { useIsMobile } from '../../shared/hooks/env/useIsMobile'
 import { lazy } from 'react';
 
 const TripDetailPageDesktop = lazy(async () => {

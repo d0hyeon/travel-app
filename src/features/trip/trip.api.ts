@@ -1,7 +1,7 @@
 import { supabase } from '~api/client'
 import { getAuth } from '~features/auth/useAuth'
 import type { Trip } from './trip.types'
-import { formatDate } from '../../shared/utils/formats';
+import { formatShortDate } from '../../shared/utils/formats';
 import { deletePhotosByTripId } from '~features/photo/photo.api';
 import { getCurrencyByDestination, type ExchangeRateEntry } from '../expense/currency';
 import type { DataRaw } from '~api/tables.types';
@@ -110,7 +110,7 @@ export async function createTrip(
   const dates = getDatesBetween(data.startDate, data.endDate)
   const routes = dates.map((date, idx) => ({
     trip_id: trip.id,
-    name: `${formatDate(date)} 경로 1`,
+    name: `${formatShortDate(date)} 경로 1`,
     place_ids: [],
     place_memos: {},
     is_main: idx === 0,

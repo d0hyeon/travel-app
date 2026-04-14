@@ -1,5 +1,5 @@
 import { DialogTitle as Title, type DialogTitleProps } from "@mui/material";
-import { useIsMobile } from "~shared/hooks/useIsMobile";
+import { useIsMobile } from "~shared/hooks/env/useIsMobile";
 
 export function DialogTitle(props: DialogTitleProps) {
   const isMobile = useIsMobile();

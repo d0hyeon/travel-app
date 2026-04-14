@@ -9,7 +9,7 @@ import { Country, getCountryByLocation, type Country as CountryType } from '~fea
 import { Map } from '~shared/components/Map'
 import { BottomNavigation } from '~shared/components/BottomNavigation'
 import { MultiSelectDropdown } from '~shared/components/MultiSelectDropdown'
-import { useIsMobile } from '~shared/hooks/useIsMobile'
+import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useOverlay } from '~shared/hooks/useOverlay'
 import { PlaceExplorerDetailBottomSheet } from './PlaceExplorerDetailBottomSheet'
 import { PlaceExplorerDetailSidePanel } from './PlaceExplorerDetailSidePanel'

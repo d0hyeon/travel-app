@@ -1,11 +1,11 @@
 import { Button, Chip, Dialog, DialogActions, DialogContent, Stack, Typography } from "@mui/material";
 import { useCallback, useId, type ReactNode } from "react";
 import { PlaceForm, type PlaceFormValues } from "~features/place/PlaceForm";
-import { BottomSheet } from "~shared/components/BottomSheet";
+import { BottomSheet } from "~shared/components/bottom-sheet/BottomSheet";
 import { useOverlay } from "~shared/hooks/useOverlay";
 import { DialogTitle } from "~shared/components/confirm-dialog/DialogTitle";
 import { useTripPlaces } from "../trip-place/useTripPlaces";
-import { assert } from "~shared/utils/assert";
+import { assert } from "~shared/utils/types";
 import { PlacePhotoSection } from "~features/trip/trip-place/PlacePhotoSection";
 
 interface PlaceFormOverlayProps {

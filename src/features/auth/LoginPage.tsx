@@ -1,6 +1,6 @@
 import LuggageIcon from '@mui/icons-material/Luggage'
 import { Box, Button, Typography } from '@mui/material'
-import { useIsMobile } from '~shared/hooks/useIsMobile'
+import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { signInWithKakao } from './auth.api'
 import { useAuthRedirection } from './AuthNavigate'
 

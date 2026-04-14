@@ -5,7 +5,7 @@ import { useRef, useState } from "react"
 import { IntersectionArea } from "../../../shared/components/IntersectionArea"
 import { Map, type MapRef } from "../../../shared/components/Map"
 import { useRoadRoute } from "../../route/road-route/useRoadRoute"
-import { formatDate } from "../../../shared/utils/formats"
+import { formatShortDate } from "../../../shared/utils/formats"
 import { formatByCurrencyCode } from "../../expense/currency"
 import { formatCurrency } from "../../expense/expense.utils"
 import { PlaceCategoryColorCode } from "../../place/place.types"
@@ -156,7 +156,7 @@ export function RouteExpenseViewMobile({ tripId }: Props) {
             }}
           >
             <Typography variant="subtitle2" fontWeight="bold" mb={1} color="primary">
-              {dayIndex + 1}일차 · {formatDate(date)}
+              {dayIndex + 1}일차 · {formatShortDate(date)}
             </Typography>
 
             {placesByDay[dayIndex].length === 0 ? (

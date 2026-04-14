@@ -1,5 +1,5 @@
 import { useEffect, useEffectEvent } from "react";
-import { useVariation } from "./useVariation";
+import { useVariation } from "../extends/useVariation";
 
 type Hooks = {
   onScroll?: (event: Event) => void;

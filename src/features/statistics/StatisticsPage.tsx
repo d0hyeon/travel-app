@@ -1,6 +1,6 @@
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
 import { Box, Stack, Tab, Tabs, Typography } from '@mui/material'
-import { useQueryParamState } from '~shared/hooks/useQueryParamState'
+import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState'
 import { StatisticsCurrencySection } from './StatisticsCurrencySection'
 import { StatisticsExpenseSection } from './StatisticsExpenseSection'
 import { StatisticsOverviewSection } from './StatisticsOverviewSection'

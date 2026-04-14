@@ -6,8 +6,7 @@ import { useTripMembers } from "~features/trip/trip-member/useTripMembers"
 import { IntersectionArea } from "../../../shared/components/IntersectionArea"
 import { Map, type MapRef } from "../../../shared/components/Map"
 import { useRoadRoute } from "../../route/road-route/useRoadRoute"
-import { ResizeHandleHorizontal, useResizableSplit } from "../../../shared/hooks/useResizableSplit"
-import { formatDate } from "../../../shared/utils/formats"
+import { formatShortDate } from "../../../shared/utils/formats"
 import { formatByCurrencyCode } from "../../expense/currency"
 import { formatCurrency } from "../../expense/expense.utils"
 import { PlaceCategoryColorCode } from "../../place/place.types"
@@ -16,6 +15,7 @@ import { useTripRoutes } from "../trip-route/useTripRoutes"
 import { useTrip } from "../useTrip"
 import { useExpenseFormOverlay } from "./useExpenseFormOverlay"
 import { type PlaceWithRoute, useExpensesByPlace } from "./useExpensesByPlace"
+import { ResizeHandleHorizontal, useResizableSplit } from '~shared/hooks/dom/useResizableSplit'
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = [
@@ -121,7 +121,7 @@ export function RouteExpenseView({ tripId }: Props) {
               }}
             >
               <Typography variant="subtitle2" fontWeight="bold" mb={1} color="primary">
-                {dayIndex + 1}일차 · {formatDate(date)}
+                {dayIndex + 1}일차 · {formatShortDate(date)}
               </Typography>
 
               {placesByDay[dayIndex].length === 0 ? (

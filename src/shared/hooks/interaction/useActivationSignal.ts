@@ -1,6 +1,6 @@
 import { useEffect, useEffectEvent, useRef } from 'react'
-import { useVariation } from './useVariation'
-import { useIsMobile } from './useIsMobile'
+import { useVariation } from '../extends/useVariation'
+import { useIsMobile } from '../env/useIsMobile'
 
 type Options = {
   sensitivity?: number

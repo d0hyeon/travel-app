@@ -20,11 +20,11 @@ import { SortableItem } from '../../../shared/components/dnd/SortableItem'
 import { SortableList } from '../../../shared/components/dnd/SortableList'
 import { Map, type MapRef } from '../../../shared/components/Map'
 import { ListItem } from '../../../shared/components/ListItem'
-import { useCurrentLocation } from '../../../shared/hooks/useCurrentLocation'
+import { useCurrentLocation } from '../../../shared/hooks/env/useCurrentLocation'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
-import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
+import { useQueryParamState } from '../../../shared/hooks/urls/useQueryParamState'
 import { useRoadRoute } from '../../route/road-route/useRoadRoute'
-import { formatDate, formatDateISO } from '../../../shared/utils/formats'
+import { formatShortDate, formatDisplayDate } from '../../../shared/utils/formats'
 import { PlaceSearchDialog, type PlaceSearchResult } from '../../place/place-search/PlaceSearchDialog'
 import { PlaceCategoryColorCode } from '../../place/place.types'
 import { useTripPlaceDetailOverlay } from '../trip-place/useTripPlaceDetailOverlay'
@@ -62,9 +62,9 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
     defaultValue: () => {
       const today = new Date().toISOString().split('T')[0]
       if (today >= trip.startDate && today <= trip.endDate) {
-        return formatDateISO(today)
+        return formatDisplayDate(today)
       }
-      return formatDateISO(trip.startDate)
+      return formatDisplayDate(trip.startDate)
     }
   })
   const {
@@ -100,7 +100,7 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
   })
   const mapRef = useRef<MapRef>(null)
   const mapType = trip.isOverseas ? 'google' : 'kakao'
-  const today = formatDateISO(new Date())
+  const today = formatDisplayDate(new Date())
   const isOngoingTrip = trip.startDate <= today && today <= trip.endDate
   const currentLocation = useCurrentLocation()
   const mapCenter = isOngoingTrip ? (currentLocation ?? { lat: trip.lat, lng: trip.lng }) : { lat: trip.lat, lng: trip.lng }
@@ -128,7 +128,7 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
                   size="small"
                   sx={{ paddingInline: 2 }}
                 >
-                  {formatDate(x)}
+                  {formatShortDate(x)}
                 </ToggleButton>
               ))}
             </ToggleButtonGroup>
@@ -159,7 +159,7 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
                 onClick={() => {
                   createRoute({
                     tripId,
-                    name: `${formatDate(selectedDate)} 경로 ${routes.length + 1}`,
+                    name: `${formatShortDate(selectedDate)} 경로 ${routes.length + 1}`,
                     scheduledDate: selectedDate,
                   })
                 }}
@@ -352,7 +352,7 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
                     const routeNumber = routes.length + 1
                     return createRoute({
                       tripId,
-                      name: `${formatDate(selectedDate)} 경로 ${routeNumber}`,
+                      name: `${formatShortDate(selectedDate)} 경로 ${routeNumber}`,
                       placeIds: [place.id],
                     })
                   }

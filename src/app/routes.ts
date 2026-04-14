@@ -16,7 +16,7 @@ export default [
     layout("../app/MainLayout.tsx", [
       index("../features/trip/TripListPage.tsx"),
       route(AppRoute.통계, "../features/statistics/StatisticsPage.tsx"),
-      route(AppRoute.지도, "../features/placeExplorer/PlaceExplorerPage.tsx"),
+      route(AppRoute.지도, "../features/explorer/PlaceExplorerPage.tsx"),
     ]),
     route(AppRoute.여행_상세, "../features/trip/TripDetailPage.tsx"),
     route(AppRoute.여행_생성, "../features/trip/trip-create/TripCreatePage.tsx"),

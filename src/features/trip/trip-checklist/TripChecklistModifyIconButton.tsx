@@ -4,8 +4,8 @@ import { useOverlay } from "~shared/hooks/useOverlay";
 import { useId } from "react";
 import { DialogTitle } from "~shared/components/confirm-dialog/DialogTitle";
 import { TripChecklistForm } from "./TripChecklistForm";
-import { BottomSheet } from "~shared/components/BottomSheet";
-import { useIsMobile } from "~shared/hooks/useIsMobile";
+import { BottomSheet } from "~shared/components/bottom-sheet/BottomSheet";
+import { useIsMobile } from "~shared/hooks/env/useIsMobile";
 
 interface Props {
   id: string;

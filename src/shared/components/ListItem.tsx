@@ -1,6 +1,6 @@
 import { alpha, Box, Stack, Typography, type BoxProps, type StackProps, type TypographyProps } from "@mui/material";
 import { useEffect, useRef, type ReactNode } from "react";
-import { useIsMobile } from "../hooks/useIsMobile";
+import { useIsMobile } from "../hooks/env/useIsMobile";
 
 interface Props extends Omit<StackProps, 'title'> {
   leftAddon?: ReactNode;

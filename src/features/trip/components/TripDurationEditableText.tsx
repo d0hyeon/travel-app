@@ -3,7 +3,7 @@ import { InputAdornment, Skeleton } from "@mui/material";
 import { Suspense, type ComponentProps } from "react";
 import { DateRangePicker } from "~shared/components/date-range/DateRangePicker";
 import { EditableText } from "~shared/components/EditableText";
-import { formatDate, formatDateISO } from "~shared/utils/formats";
+import { formatShortDate, formatDisplayDate } from "~shared/utils/formats";
 import { useTrip } from "../useTrip";
 
 type Props = {
@@ -27,7 +27,7 @@ function Resolved({ tripId, ...props }: Props) {
     <EditableText
       {...props}
       variant="body1"
-      value={`${formatDate(trip.startDate)} ~ ${formatDate(trip.endDate)}`}
+      value={`${formatShortDate(trip.startDate)} ~ ${formatShortDate(trip.endDate)}`}
       dismissible={false}
       renderEditField={(props, control) => {
         return (
@@ -36,8 +36,8 @@ function Resolved({ tripId, ...props }: Props) {
             value={[new Date(trip.startDate), new Date(trip.endDate)]}
             onChange={([start, end]) => {
               update.mutateAsync({
-                startDate: formatDateISO(start),
-                endDate: formatDateISO(end)
+                startDate: formatDisplayDate(start),
+                endDate: formatDisplayDate(end)
               })
               control.cancelEdit();
             }}

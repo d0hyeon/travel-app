@@ -11,11 +11,11 @@ import type { Expense } from '~features/expense/expense.types'
 import { PopMenu } from '~shared/components/PopMenu'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
-import { BottomSheet } from "../../../shared/components/BottomSheet"
+import { BottomSheet } from "../../../shared/components/bottom-sheet/BottomSheet"
 import { EditableText } from "../../../shared/components/EditableText"
 import { ListItem } from "../../../shared/components/ListItem"
 import { useOverlay } from "../../../shared/hooks/useOverlay"
-import { formatDate } from "../../../shared/utils/formats"
+import { formatShortDate } from "../../../shared/utils/formats"
 import { formatByCurrencyCode, getDefaultExchangeRate, getExchangeRate, getUsedCurrencies, setExchangeRate, type CurrencyCode } from "../../expense/currency"
 import {
   formatCurrency,
@@ -24,7 +24,7 @@ import {
 import { useExpenses } from "../../expense/useExpenses"
 import { useTripMembers } from "../trip-member/useTripMembers"
 import { useTrip } from "../useTrip"
-import { AnimatedCountText } from './AnimatedCountText'
+import { AnimatedCountText } from '../../../shared/components/AnimatedCountText'
 import { RouteExpenseViewMobile } from "./RouteExpenseView.mobile"
 import { SettlementSummary } from "./SettlementSummary"
 import { useExpenseFormBottomSheet } from './useExpenseFormOverlay'
@@ -233,7 +233,7 @@ export default function ExpenseContent({ tripId }: Props) {
                         <Stack direction="row" justifyContent="space-between" alignItems="center" width="100%">
                           <Box flex={1}>
                             <ListItem.Title mb={0.5}>
-                              {expense.date && `[${formatDate(expense.date)}] `}
+                              {expense.date && `[${formatShortDate(expense.date)}] `}
                               {expense.description}
                             </ListItem.Title>
                             {expense.place && (

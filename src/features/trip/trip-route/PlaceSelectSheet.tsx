@@ -2,7 +2,7 @@ import CheckIcon from '@mui/icons-material/Check'
 import SearchIcon from '@mui/icons-material/Search'
 import { Box, Button, Checkbox, Chip, InputAdornment, Stack, TextField, Typography } from '@mui/material'
 import { useMemo, useState } from 'react'
-import { BottomSheet } from '../../../shared/components/BottomSheet'
+import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { ListItem } from '../../../shared/components/ListItem'
 import { PlaceCategoryColorCode, type Place } from '../../place/place.types'
 

@@ -1,7 +1,7 @@
 import { createContext, startTransition, use, useCallback, useEffect, useMemo, useState, type PropsWithChildren } from "react";
 import { useSearchParams as useRouterSearchParams, type NavigateOptions as RouterNavigateOptions } from "react-router";
-import { useVariation } from "~shared/hooks/useVariation";
-import { assert } from "~shared/utils/assert";
+import { useVariation } from "~shared/hooks/extends/useVariation";
+import { assert } from "~shared/utils/types";
 
 type NextValue = URLSearchParams | ((curr: URLSearchParams) => URLSearchParams)
 export type NavigateOptions = RouterNavigateOptions;
