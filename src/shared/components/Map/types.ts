@@ -12,6 +12,13 @@ export interface MapRef {
   focus: () => void;
 }
 
+export interface MapBounds {
+  north: number;
+  south: number;
+  east: number;
+  west: number;
+}
+
 export interface MapProps  {
   defaultCenter?: Coordinate;
   autoFocus?: AutoFocus;
@@ -20,6 +27,7 @@ export interface MapProps  {
   clustering?: boolean;
   clusterGridSize?: number;
   showMyLocation?: boolean;
+  onBoundsChange?: (bounds: MapBounds) => void;
 }
 
 export interface MarkerProps {

@@ -1,7 +1,7 @@
 import { Box, type BoxProps } from '@mui/material';
 import { use, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { GoogleMapContext } from '../MapContext';
-import type { Coordinate, MapProps } from '../types';
+import type { Coordinate, MapBounds, MapProps } from '../types';
 import { loadGoogleMaps } from './loader';
 
 interface MarkerData {
@@ -56,6 +56,7 @@ export default function GoogleMap({
   clustering = false,
   clusterGridSize = 60,
   showMyLocation = false,
+  onBoundsChange,
   children,
   ...boxProps
 }: Props) {
@@ -67,6 +68,8 @@ export default function GoogleMap({
   const [clusterZoom, setClusterZoom] = useState(10);
   const boundsRef = useRef<google.maps.LatLngBounds | null>(null);
   const isInitializedRef = useRef(false);
+  const onBoundsChangeRef = useRef(onBoundsChange);
+  onBoundsChangeRef.current = onBoundsChange;
 
   useEffect(() => {
     const id = setTimeout(() => setClusterZoom(zoom), 200);
@@ -82,11 +85,29 @@ export default function GoogleMap({
       styles: PASTEL_MAP_STYLES,
     });
 
-    mapInstance.addListener('zoom_changed', () => {
+    const zoomListener = mapInstance.addListener('zoom_changed', () => {
       setZoom(mapInstance.getZoom() ?? 10);
     });
 
+    const idleListener = mapInstance.addListener('idle', () => {
+      const bounds = mapInstance.getBounds();
+      if (!bounds) return;
+      const ne = bounds.getNorthEast();
+      const sw = bounds.getSouthWest();
+      onBoundsChangeRef.current?.({
+        north: ne.lat(),
+        south: sw.lat(),
+        east: ne.lng(),
+        west: sw.lng(),
+      } satisfies MapBounds);
+    });
+
     setMap(mapInstance);
+
+    return () => {
+      google.maps.event.removeListener(zoomListener);
+      google.maps.event.removeListener(idleListener);
+    };
   }, [container]);
 
   const extendBound = useCallback((coord: Coordinate) => {
