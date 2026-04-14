@@ -3,7 +3,8 @@ import { useSuspenseQueries, useSuspenseQuery } from '@tanstack/react-query'
 import { convertToKRW, type CurrencyCode } from '~features/expense/currency'
 import { expenseKey, getExpensesByTripId } from '~features/expense/expense.api'
 import type { Expense } from '~features/expense/expense.types'
-import { getTotalExpensesInKRW } from '~features/expense/expense.utils'
+import { getMyShareInKRW } from '~features/expense/expense.utils'
+import { useAuth } from '~features/auth/useAuth'
 import { getAllPlaces, placeKey } from '~features/place/place.api'
 import { PlaceCategoryColorCode, PlaceCategoryTypeLabel, PlaceCategoryType } from '~features/place/place.types'
 import { getAllRoutes, routeKey } from '~features/route/route.api'
@@ -105,6 +106,7 @@ export interface StatisticsSummary {
 }
 
 export function useStatisticsSummary(): StatisticsSummary {
+  const { data: currentUser } = useAuth()
   const { data: trips } = useTrips()
   const { data: places } = useSuspenseQuery({
     queryKey: [placeKey, 'all'],
@@ -137,14 +139,17 @@ export function useStatisticsSummary(): StatisticsSummary {
 
     const tripExpenseSummaries = trips.map((trip, index) => {
       const expenses = expensesByTrip[index]
+      const members = membersByTrip[index]
       const placeCount = confirmedPlaces.filter((place) => place.tripId === trip.id).length
+      const myMemberId = members.find((m) => m.userId === currentUser?.id)?.id
 
       return {
         trip,
         expenses,
         placeCount,
-        totalAmountInKRW: getTotalExpensesInKRW(expenses, trip.exchangeRates),
+        totalAmountInKRW: getMyShareInKRW(expenses, myMemberId, trip.exchangeRates),
         currencies: Array.from(new Set(expenses.map((expense) => expense.currency))),
+        myMemberId,
       }
     })
 
@@ -172,6 +177,8 @@ export function useStatisticsSummary(): StatisticsSummary {
       const expenses = expensesByTrip[index]
       const members = membersByTrip[index]
       const memberMap = new Map(members.map((member) => [member.id, member]))
+      const myMemberId = members.find((m) => m.userId === currentUser?.id)?.id
+
       // 여러 목적지인 경우 각 목적지별로 통계 집계
       for (const destination of trip.destinations) {
         const regionName = getRegionByLocation(destination)
@@ -192,29 +199,36 @@ export function useStatisticsSummary(): StatisticsSummary {
       }
 
       expenses.forEach((expense) => {
+        const isMyExpense = myMemberId != null && expense.splitAmong.includes(myMemberId)
         const totalInKRW = convertToKRW(expense.totalAmount, expense.currency, trip.exchangeRates)
-        const currentCurrency = currencyMap.get(expense.currency) ?? {
-          currency: expense.currency,
-          totalAmountInKRW: 0,
-          expenseCount: 0,
-        }
+        const myShareInKRW = isMyExpense ? totalInKRW / expense.splitAmong.length : 0
 
-        currentCurrency.totalAmountInKRW += totalInKRW
-        currentCurrency.expenseCount += 1
-        currencyMap.set(expense.currency, currentCurrency)
+        if (isMyExpense) {
+          const currentCurrency = currencyMap.get(expense.currency) ?? {
+            currency: expense.currency,
+            totalAmountInKRW: 0,
+            expenseCount: 0,
+          }
+          currentCurrency.totalAmountInKRW += myShareInKRW
+          currentCurrency.expenseCount += 1
+          currencyMap.set(expense.currency, currentCurrency)
+        }
 
         const place = expense.placeId ? placeById.get(expense.placeId) : undefined
         const expenseCategory = place?.category ?? PlaceCategoryType['기타']
-        const currentCategoryExpense = categoryExpenseMap.get(expenseCategory) ?? {
-          category: expenseCategory,
-          label: PlaceCategoryTypeLabel[expenseCategory],
-          color: PlaceCategoryColorCode[expenseCategory],
-          totalAmountInKRW: 0,
-          expenseCount: 0,
+
+        if (isMyExpense) {
+          const currentCategoryExpense = categoryExpenseMap.get(expenseCategory) ?? {
+            category: expenseCategory,
+            label: PlaceCategoryTypeLabel[expenseCategory],
+            color: PlaceCategoryColorCode[expenseCategory],
+            totalAmountInKRW: 0,
+            expenseCount: 0,
+          }
+          currentCategoryExpense.totalAmountInKRW += myShareInKRW
+          currentCategoryExpense.expenseCount += 1
+          categoryExpenseMap.set(expenseCategory, currentCategoryExpense)
         }
-        currentCategoryExpense.totalAmountInKRW += totalInKRW
-        currentCategoryExpense.expenseCount += 1
-        categoryExpenseMap.set(expenseCategory, currentCategoryExpense)
 
         expense.payments.forEach((payment) => {
           const member = memberMap.get(payment.memberId)
@@ -222,7 +236,6 @@ export function useStatisticsSummary(): StatisticsSummary {
 
           const paymentInKRW = convertToKRW(payment.amount, expense.currency, trip.exchangeRates)
 
-          
           const payerKey = member.userId;
           const currentPayer = payerMap.get(payerKey) ?? {
             name: member.name,
@@ -244,10 +257,11 @@ export function useStatisticsSummary(): StatisticsSummary {
       })
     })
 
+    const totalPaymentsInKRW = [...payerMap.values()].reduce((sum, p) => sum + p.totalAmountInKRW, 0)
     const payerSummaries: PayerSummary[] = [...payerMap.values()]
       .map((summary) => ({
         ...summary,
-        share: totalAmountInKRW > 0 ? summary.totalAmountInKRW / totalAmountInKRW : 0,
+        share: totalPaymentsInKRW > 0 ? summary.totalAmountInKRW / totalPaymentsInKRW : 0,
       }))
       .sort((a, b) => b.totalAmountInKRW - a.totalAmountInKRW)
 
@@ -347,5 +361,5 @@ export function useStatisticsSummary(): StatisticsSummary {
       categoryVisitSummaries,
       expenseTrend,
     }
-  }, [trips, places, routes, expensesByTrip, membersByTrip])
+  }, [trips, places, routes, expensesByTrip, membersByTrip, currentUser])
 }
