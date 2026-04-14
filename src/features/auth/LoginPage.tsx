@@ -1,7 +1,8 @@
 import LuggageIcon from '@mui/icons-material/Luggage'
 import { Box, Button, Typography } from '@mui/material'
-import { signInWithKakao } from './auth.api'
 import { useIsMobile } from '~shared/hooks/useIsMobile'
+import { signInWithKakao } from './auth.api'
+import { useAuthRedirection } from './AuthNavigate'
 
 function KakaoSymbol() {
   return (
@@ -19,6 +20,7 @@ function KakaoSymbol() {
 
 export default function LoginPage() {
   const isMobile = useIsMobile();
+  const redirection = useAuthRedirection();
 
   return (
     <Box
@@ -60,7 +62,7 @@ export default function LoginPage() {
 
       {/* 카카오 로그인 버튼 */}
       <Button
-        onClick={signInWithKakao}
+        onClick={() => signInWithKakao({ redirectTo: redirection })}
         startIcon={<KakaoSymbol />}
         variant="contained"
         color="info"

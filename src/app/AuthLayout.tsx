@@ -1,4 +1,5 @@
-import { Navigate, Outlet, useLocation } from 'react-router'
+import { Outlet, useLocation } from 'react-router'
+import { AuthNavigate } from '~features/auth/AuthNavigate'
 import { useAuth } from '~features/auth/useAuth'
 
 export default function AuthLayout() {
@@ -6,7 +7,7 @@ export default function AuthLayout() {
   const location = useLocation()
 
   if (!user) {
-    return <Navigate to="/login" state={{ from: location }} replace />
+    return <AuthNavigate />
   }
 
   return <Outlet />

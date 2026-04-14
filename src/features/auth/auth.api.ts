@@ -1,10 +1,13 @@
 import { supabase } from '~api/client'
 
-export async function signInWithKakao() {
+interface SignInWIthKakaoOptions {
+  redirectTo?: string;
+}
+export async function signInWithKakao({ redirectTo = window.location.origin }: SignInWIthKakaoOptions = {}) {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'custom:kakao' as never,
     options: {
-      redirectTo: window.location.origin,
+      redirectTo,
     },
   })
   if (error) throw error
