@@ -59,6 +59,7 @@ export function StatisticsExpenseSection({ summary }: StatisticsExpenseSectionPr
               options={[
                 { value: 'line', label: '라인형', caption: '흐름 변화를 부드럽게 봐요' },
                 { value: 'bar', label: '막대형', caption: '여행별 값 차이를 또렷하게 봐요' },
+                { value: 'donut', label: '도넛형', caption: '여행별 비중을 중심으로 봐요' },
               ]}
               value={trendViewMode}
               onChange={setTrendViewMode}
