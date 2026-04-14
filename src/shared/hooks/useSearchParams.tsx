@@ -11,15 +11,16 @@ const SearchParamsContext = createContext<readonly [URLSearchParams, Setter] | n
 
 export function SearchParamProvider({ children }: PropsWithChildren) {
   const [searchParams, updateSearchParams] = useRouterSearchParams();
-  const [count, setCount] = useState(0);
+  const [requestCount, setRequestCount] = useState(0);
 
   const [getSearchParams, requestUpdateSearchParams] = useVariation(searchParams);
+  const [getOptions, setOptions] = useVariation<NavigateOptions | undefined>(undefined);
   useEffect(() => {
     if (searchParams !== getSearchParams()) {
       requestUpdateSearchParams(searchParams);
     }
   }, [searchParams])
-  const [getOptions, setOptions] = useVariation<NavigateOptions | undefined>(undefined);
+
 
   const setSearchParams = useCallback((params: NextValue, options?: NavigateOptions) => {
     const prevParams = getSearchParams();
@@ -36,16 +37,20 @@ export function SearchParamProvider({ children }: PropsWithChildren) {
       })
     )
     setOptions(mergeOptions(prevOptions, options));
-    setCount(prev => prev + 1);
+    setRequestCount(prev => prev + 1);
   }, []);
 
   useEffect(() => {
-    if (count === 0) return;
+    if (requestCount === 0) return;
     const params = getSearchParams();
     const options = getOptions();
 
-    startTransition(() => updateSearchParams(params, options))
-  }, [count])
+    startTransition(() => {
+      updateSearchParams(params, options);
+      setRequestCount(0);
+      setOptions(undefined);
+    })
+  }, [requestCount])
 
 
   const value = useMemo(() => [searchParams, setSearchParams] as const, [searchParams])
