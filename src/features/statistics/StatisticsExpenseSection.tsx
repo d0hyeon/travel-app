@@ -7,8 +7,7 @@ import { StatisticsHeroPanel } from './StatisticsHeroPanel'
 import { StatisticsSectionCard } from './StatisticsSectionCard'
 import {
   StatisticsTrendChart,
-  StatisticsTrendModeToggle,
-  useStatisticsTrendMode,
+  useStatisticsTrendMode
 } from './StatisticsTrendChart'
 import {
   StatisticsViewConfigButton,
@@ -53,7 +52,6 @@ export function StatisticsExpenseSection({ summary }: StatisticsExpenseSectionPr
         tone="blue"
         action={
           <Stack direction="row" gap={0.75} alignItems="center">
-            <StatisticsTrendModeToggle value={trendMode} onChange={setTrendMode} />
             <StatisticsViewConfigButton
               title="지출 추이"
               options={[
@@ -67,7 +65,7 @@ export function StatisticsExpenseSection({ summary }: StatisticsExpenseSectionPr
           </Stack>
         }
       >
-        <StatisticsTrendChart data={expenseTrend} mode={trendMode} viewMode={trendViewMode} />
+        <StatisticsTrendChart data={expenseTrend} viewMode={trendViewMode} />
       </StatisticsSectionCard>
 
       <Stack gap={1}>
