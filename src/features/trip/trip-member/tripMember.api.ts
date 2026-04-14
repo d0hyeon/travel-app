@@ -14,7 +14,6 @@ export async function getTripMembersByTripId(tripId: string): Promise<TripMember
     .eq('trip_id', tripId)
     .order('created_at', { ascending: true })
   if (memberError) throw memberError
-  if (!members?.length) return []
 
   const userIds = [trip.user_id, ...members.map((m) => m.user_id)].filter(x => x != null);
   const memberIdMap = Object.fromEntries(members.map(x => ([x.user_id, x.id])));
