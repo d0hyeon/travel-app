@@ -38,7 +38,7 @@ export function StatisticsColumnChart({
           <YAxis
             tickLine={false}
             axisLine={false}
-            width={36}
+            width={40}
             tick={{ fill: theme.palette.text.secondary, fontSize: 12 }}
           />
           <Tooltip
