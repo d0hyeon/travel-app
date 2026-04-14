@@ -100,6 +100,24 @@ export function getTotalExpensesInKRW(expenses: Expense[], exchangeRates?: Excha
 }
 
 /**
+ * 특정 멤버의 n/1 분담 금액 총합 (원화 환산)
+ * - 해당 멤버가 splitAmong에 포함된 지출만 집계
+ * - 각 지출에서 totalAmount / splitAmong.length 로 계산
+ */
+export function getMyShareInKRW(
+  expenses: Expense[],
+  myMemberId: string | undefined,
+  exchangeRates?: ExchangeRateEntry[] | null
+): number {
+  if (!myMemberId) return 0
+  return expenses.reduce((sum, e) => {
+    if (!e.splitAmong.includes(myMemberId)) return sum
+    const totalInKRW = convertToKRW(e.totalAmount, e.currency, exchangeRates)
+    return sum + totalInKRW / e.splitAmong.length
+  }, 0)
+}
+
+/**
  * 원화 환산 기준으로 잔액 계산
  * @param exchangeRates 통화별 환율 배열 (1 외화 = X원)
  */
