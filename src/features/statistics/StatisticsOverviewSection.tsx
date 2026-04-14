@@ -25,13 +25,16 @@ export function StatisticsOverviewSection({ summary }: StatisticsOverviewSection
     totalPlacesCount,
     averageTripAmountInKRW,
     topRegion,
-    activityTripSummaries,
+    activityTripSummaries: rawActivityTripSummaries,
     cityVisitSummaries,
     regionVisitSummaries,
     categoryVisitSummaries,
   } = summary
 
-  const topActivityPlaceCount = activityTripSummaries[0]?.placeCount ?? 0
+  const activityTripSummaries = rawActivityTripSummaries
+    .toSorted((a, b) => b.avaragePlaceCount - a.avaragePlaceCount)
+
+  const topActivityPlaceCount = activityTripSummaries[0]?.avaragePlaceCount ?? 0
 
   return (
     <Stack gap={2}>
@@ -55,66 +58,66 @@ export function StatisticsOverviewSection({ summary }: StatisticsOverviewSection
           <StatisticsSummaryCard
             label="활동량 높은 여행"
             value={activityTripSummaries[0]?.trip.name ?? '-'}
-            caption={activityTripSummaries[0] ? `${activityTripSummaries[0].placeCount}곳` : undefined}
+            caption={activityTripSummaries[0] ? `${activityTripSummaries[0].avaragePlaceCount}곳` : undefined}
             tone="amber"
           />
         </Box>
       </StatisticsSectionCard>
 
       <StatisticsSectionCard
+        title="활동량 많은 여행 순위"
+        tone="amber"
+        action={
+          <StatisticsViewConfigButton
             title="활동량 많은 여행 순위"
-            tone="amber"
-            action={
-              <StatisticsViewConfigButton
-                title="활동량 많은 여행 순위"
-                options={[
-                  { value: 'horizontal-bar', label: '가로 막대형', caption: '여행 이름과 활동량을 함께 읽어요' },
-                  { value: 'vertical-bar', label: '세로 막대형', caption: '활동량 차이를 직관적으로 비교해요' },
-                  { value: 'donut', label: '도넛형', caption: '상위 여행 비중을 중심으로 봐요' },
-                ]}
-                value={activityViewMode}
-                onChange={setActivityViewMode}
+            options={[
+              { value: 'horizontal-bar', label: '가로 막대형', caption: '여행 이름과 활동량을 함께 읽어요' },
+              { value: 'vertical-bar', label: '세로 막대형', caption: '활동량 차이를 직관적으로 비교해요' },
+              { value: 'donut', label: '도넛형', caption: '상위 여행 비중을 중심으로 봐요' },
+            ]}
+            value={activityViewMode}
+            onChange={setActivityViewMode}
+          />
+        }
+      >
+        {activityViewMode === 'vertical-bar' ? (
+          <StatisticsColumnChart
+            data={activityTripSummaries.slice(0, 5).map((summaryItem) => ({
+              id: summaryItem.trip.id,
+              label: summaryItem.trip.name,
+              value: summaryItem.avaragePlaceCount,
+              helper: summaryItem.trip.destinations.join(', '),
+            }))}
+            formatValue={(value) => `${value}곳`}
+            colors={['#d68d06', '#e6a93d', '#efc46d', '#f4d999', '#faecc8']}
+          />
+        ) : activityViewMode === 'donut' ? (
+          <StatisticsDonutChart
+            data={activityTripSummaries.slice(0, 5).map((summaryItem) => ({
+              id: summaryItem.trip.id,
+              label: summaryItem.trip.name,
+              value: summaryItem.avaragePlaceCount,
+              helper: summaryItem.trip.destinations.join(', '),
+            }))}
+            formatValue={(value) => `${value}곳`}
+            colors={['#d68d06', '#e6a93d', '#efc46d', '#f4d999', '#faecc8']}
+            centerLabel="가장 활동적"
+            centerValue={activityTripSummaries[0]?.trip.name ?? '-'}
+          />
+        ) : (
+          <Stack gap={1.5}>
+            {activityTripSummaries.slice(0, 5).map((summaryItem, index) => (
+              <StatisticsBarChart
+                key={`${summaryItem.trip.id}-overview-activity`}
+                label={`${index + 1}. ${summaryItem.trip.name}`}
+                value={`${summaryItem.avaragePlaceCount}곳`}
+                ratio={topActivityPlaceCount > 0 ? summaryItem.avaragePlaceCount / topActivityPlaceCount : 0}
+                helper={summaryItem.trip.destinations.join(', ')}
+                tone="amber"
               />
-            }
-          >
-            {activityViewMode === 'vertical-bar' ? (
-              <StatisticsColumnChart
-                data={activityTripSummaries.slice(0, 5).map((summaryItem) => ({
-                  id: summaryItem.trip.id,
-                  label: summaryItem.trip.name,
-                  value: summaryItem.placeCount,
-                  helper: summaryItem.trip.destinations.join(', '),
-                }))}
-                formatValue={(value) => `${value}곳`}
-                colors={['#d68d06', '#e6a93d', '#efc46d', '#f4d999', '#faecc8']}
-              />
-            ) : activityViewMode === 'donut' ? (
-              <StatisticsDonutChart
-                data={activityTripSummaries.slice(0, 5).map((summaryItem) => ({
-                  id: summaryItem.trip.id,
-                  label: summaryItem.trip.name,
-                  value: summaryItem.placeCount,
-                  helper: summaryItem.trip.destinations.join(', '),
-                }))}
-                formatValue={(value) => `${value}곳`}
-                colors={['#d68d06', '#e6a93d', '#efc46d', '#f4d999', '#faecc8']}
-                centerLabel="가장 활동적"
-                centerValue={activityTripSummaries[0]?.trip.name ?? '-'}
-              />
-            ) : (
-              <Stack gap={1.5}>
-                {activityTripSummaries.slice(0, 5).map((summaryItem, index) => (
-                  <StatisticsBarChart
-                    key={`${summaryItem.trip.id}-overview-activity`}
-                    label={`${index + 1}. ${summaryItem.trip.name}`}
-                    value={`${summaryItem.placeCount}곳`}
-                    ratio={topActivityPlaceCount > 0 ? summaryItem.placeCount / topActivityPlaceCount : 0}
-                    helper={summaryItem.trip.destinations.join(', ')}
-                    tone="amber"
-                  />
-                ))}
-              </Stack>
-            )}
+            ))}
+          </Stack>
+        )}
       </StatisticsSectionCard>
 
       <Box

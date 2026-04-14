@@ -32,9 +32,12 @@ export function StatisticsRankingSection({ summary }: StatisticsRankingSectionPr
     payerSummaries,
     regionVisitSummaries,
     cityVisitSummaries,
-    activityTripSummaries,
+    activityTripSummaries: rawActivityTripSummaries,
   } = summary
 
+  const activityTripSummaries = rawActivityTripSummaries
+    .toSorted((a, b) => b.avaragePlaceCount - a.avaragePlaceCount)
+  console.log(activityTripSummaries)
   const topTravelAmount = travelSummaries[0]?.totalAmountInKRW ?? 0
 
   return (
@@ -318,10 +321,10 @@ export function StatisticsRankingSection({ summary }: StatisticsRankingSectionPr
                 <StatisticsBarChart
                   key={`${summaryItem.trip.id}-activity`}
                   label={`${index + 1}. ${summaryItem.trip.name}`}
-                  value={`${summaryItem.placeCount}곳 / 일 평균 ${Number((summaryItem.placeCount / getTripDays(summaryItem.trip.startDate, summaryItem.trip.endDate)).toFixed(1)).toLocaleString()}곳`}
+                  value={`${summaryItem.avaragePlaceCount}곳`}
                   ratio={
-                    activityTripSummaries[0]?.placeCount
-                      ? summaryItem.placeCount / activityTripSummaries[0].placeCount
+                    activityTripSummaries[0]?.avaragePlaceCount
+                      ? summaryItem.avaragePlaceCount / activityTripSummaries[0].avaragePlaceCount
                       : 0
                   }
                   tone="blue"
@@ -333,10 +336,7 @@ export function StatisticsRankingSection({ summary }: StatisticsRankingSectionPr
               data={activityTripSummaries.slice(0, 5).map((summaryItem) => ({
                 id: summaryItem.trip.id,
                 label: summaryItem.trip.name,
-                value: summaryItem.placeCount,
-                helper: `일 평균 ${Number(
-                  (summaryItem.placeCount / getTripDays(summaryItem.trip.startDate, summaryItem.trip.endDate)).toFixed(1),
-                ).toLocaleString()}곳`,
+                value: summaryItem.avaragePlaceCount,
               }))}
               formatValue={(value) => `${value}곳`}
               centerLabel="가장 활동적"
@@ -347,10 +347,7 @@ export function StatisticsRankingSection({ summary }: StatisticsRankingSectionPr
               data={activityTripSummaries.slice(0, 6).map((summaryItem) => ({
                 id: summaryItem.trip.id,
                 label: summaryItem.trip.name,
-                value: summaryItem.placeCount,
-                helper: `일 평균 ${Number(
-                  (summaryItem.placeCount / getTripDays(summaryItem.trip.startDate, summaryItem.trip.endDate)).toFixed(1),
-                ).toLocaleString()}곳`,
+                value: summaryItem.avaragePlaceCount,
               }))}
               formatValue={(value) => `${value}곳`}
               colors={['#4C84FF', '#709dff', '#95b8ff', '#bed3ff', '#dce8ff', '#edf3ff']}

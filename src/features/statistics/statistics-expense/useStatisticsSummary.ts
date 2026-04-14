@@ -12,6 +12,7 @@ import { tripKey } from '~features/trip/trip.api'
 import { getRegionByLocation } from '~features/location'
 import type { Trip } from '~features/trip/trip.types'
 import { useTrips } from '~features/trip/useTrips'
+import { differenceInDays } from 'date-fns'
 
 export interface TripExpenseSummary {
   trip: Trip
@@ -26,6 +27,7 @@ export interface TripActivitySummary {
   trip: Trip
   expenses: Expense[]
   placeCount: number
+  avaragePlaceCount: number
   totalAmountInKRW: number
   currencies: CurrencyCode[]
 }
@@ -297,16 +299,20 @@ export function useStatisticsSummary(): StatisticsSummary {
       }))
       .sort((a, b) => b.placeCount - a.placeCount)
 
-    const activityTripSummaries = [...tripExpenseSummaries]
+    const activityTripSummaries = tripExpenseSummaries
       .filter((summary) => summary.placeCount > 0)
-      .sort((a, b) => {
-        if (b.placeCount !== a.placeCount) return b.placeCount - a.placeCount
-        return b.totalAmountInKRW - a.totalAmountInKRW
+      .map(summary => {
+        const tripDays = differenceInDays(summary.trip.endDate, summary.trip.startDate);
+        return {
+          ...summary,
+          avaragePlaceCount: Math.ceil(summary.placeCount / tripDays)
+        }
       })
+    
 
     let cumulativeAmountInKRW = 0
-    const expenseTrend: ExpenseTrendPoint[] = [...tripExpenseSummaries]
-      .sort((a, b) => {
+    const expenseTrend: ExpenseTrendPoint[] = tripExpenseSummaries
+      .toSorted((a, b) => {
         const dateA = a.trip.endDate || a.trip.startDate || a.trip.createdAt
         const dateB = b.trip.endDate || b.trip.startDate || b.trip.createdAt
         return dateA.localeCompare(dateB)
