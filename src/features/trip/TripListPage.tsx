@@ -10,6 +10,7 @@ import { AppRoute } from '~app/routes'
 import { BottomArea } from '~shared/components/BottomArea'
 import { BottomNavigation } from '~shared/components/BottomNavigation'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
+import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
 import { useOverlay } from '~shared/hooks/useOverlay'
 import { ListItem } from '../../shared/components/ListItem'
 import { TripFormDialog } from './components/TripFormDialog'
@@ -20,6 +21,7 @@ export default function TripListPage() {
   const overlay = useOverlay();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  useScrollRestore()
 
   const openCreationPopup = () => {
     overlay.open(({ isOpen, close }) => (
