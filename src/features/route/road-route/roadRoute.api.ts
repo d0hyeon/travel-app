@@ -31,7 +31,7 @@ async function getGlobalRoadDirections(waypoints: Coordinate[]): Promise<Coordin
         location: { lat: wp.lat, lng: wp.lng },
         stopover: true,
       })),
-      travelMode: google.maps.TravelMode.DRIVING,
+      travelMode: google.maps.TravelMode.WALKING,
       optimizeWaypoints: false, // 순서 유지
     };
 
