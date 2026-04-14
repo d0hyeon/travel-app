@@ -28,6 +28,12 @@ export default function KakaoMap({
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
   const [zoom, setZoom] = useState(8);
+  const [clusterZoom, setClusterZoom] = useState(8);
+
+  useEffect(() => {
+    const id = setTimeout(() => setClusterZoom(zoom), 200);
+    return () => clearTimeout(id);
+  }, [zoom]);
 
   useEffect(() => {
     if (container) {
@@ -84,7 +90,7 @@ export default function KakaoMap({
 
     const markers = Array.from(markerRegistryRef.current.values());
     return calculateClusters(markers, map, clusterGridSize);
-  }, [clustering, map, clusterGridSize, markerVersion, zoom]);
+  }, [clustering, map, clusterGridSize, markerVersion, clusterZoom]);
 
   useImperativeHandle(ref, () => ({
     panTo: (lat: number, lng: number, level?: number) => {
@@ -307,8 +313,11 @@ interface ClusterOverlaysProps {
 function ClusterOverlays({ map, clusters, zoom, onClusterClick }: ClusterOverlaysProps) {
   const overlaysRef = useRef<kakao.maps.CustomOverlay[]>([]);
   const markersRef = useRef<kakao.maps.Marker[]>([]);
+  const elRegistryRef = useRef<Array<{ el: HTMLElement; type: string; handler: EventListener }>>([]);
 
   useEffect(() => {
+    elRegistryRef.current.forEach(({ el, type, handler }) => el.removeEventListener(type, handler));
+    elRegistryRef.current = [];
     overlaysRef.current.forEach(overlay => overlay.setMap(null));
     overlaysRef.current = [];
     markersRef.current.forEach(marker => marker.setMap(null));
@@ -322,8 +331,14 @@ function ClusterOverlays({ map, clusters, zoom, onClusterClick }: ClusterOverlay
           const el = document.createElement('div');
           el.innerHTML = createThumbnailContent(markerData.thumbnailUrl, markerData.color);
           el.style.cursor = 'pointer';
-          if (markerData.onClick) el.addEventListener('click', markerData.onClick);
-          if (markerData.onContextMenu) el.addEventListener('contextmenu', markerData.onContextMenu);
+          if (markerData.onClick) {
+            el.addEventListener('click', markerData.onClick);
+            elRegistryRef.current.push({ el, type: 'click', handler: markerData.onClick });
+          }
+          if (markerData.onContextMenu) {
+            el.addEventListener('contextmenu', markerData.onContextMenu);
+            elRegistryRef.current.push({ el, type: 'contextmenu', handler: markerData.onContextMenu });
+          }
 
           const overlay = new kakao.maps.CustomOverlay({
             position: new kakao.maps.LatLng(markerData.position.lat, markerData.position.lng),
@@ -377,7 +392,9 @@ function ClusterOverlays({ map, clusters, zoom, onClusterClick }: ClusterOverlay
         const content = document.createElement('div');
         content.innerHTML = createClusterContent(cluster.markers.length, zoom);
         content.style.cursor = 'pointer';
-        content.addEventListener('click', () => onClusterClick(cluster));
+        const clusterClickHandler: EventListener = () => onClusterClick(cluster);
+        content.addEventListener('click', clusterClickHandler);
+        elRegistryRef.current.push({ el: content, type: 'click', handler: clusterClickHandler });
 
         const overlay = new kakao.maps.CustomOverlay({
           position: cluster.center,
@@ -392,6 +409,8 @@ function ClusterOverlays({ map, clusters, zoom, onClusterClick }: ClusterOverlay
     });
 
     return () => {
+      elRegistryRef.current.forEach(({ el, type, handler }) => el.removeEventListener(type, handler));
+      elRegistryRef.current = [];
       overlaysRef.current.forEach(overlay => overlay.setMap(null));
       overlaysRef.current = [];
       markersRef.current.forEach(marker => marker.setMap(null));
