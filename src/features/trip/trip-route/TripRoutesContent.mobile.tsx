@@ -226,6 +226,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                 height: 40,
                 overflow: "hidden",
               }}
+              variant="scrollable"
               slotProps={{
                 list: { sx: { height: '100%' } },
               }}
