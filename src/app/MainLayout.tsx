@@ -3,11 +3,13 @@ import LogoutIcon from '@mui/icons-material/Logout'
 import MapIcon from '@mui/icons-material/Map'
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
 import { Box, IconButton, Stack, Tooltip, Typography } from '@mui/material'
+import { useRef } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
 import { signOut } from '~features/auth/auth.api'
 import { BottomNavigation } from '~shared/components/BottomNavigation'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
+import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
 import { isDev } from './env'
 
 
@@ -21,12 +23,14 @@ export default function MainLayout() {
   const location = useLocation()
   const navigate = useNavigate()
   const isMobile = useIsMobile();
+  const scrollRef = useRef<HTMLDivElement>(null)
+  useScrollRestore(scrollRef)
 
 
   if (isMobile) {
     return (
       <Box sx={{ height: '100dvh', display: 'flex', flexDirection: 'column' }}>
-        <Box flex={1} overflow="auto" paddingBottom={`calc(${BottomNavigation.HEIGHT}px + env(safe-area-inset-bottom))`}>
+        <Box ref={scrollRef} flex={1} overflow="auto" paddingBottom={`calc(${BottomNavigation.HEIGHT}px + env(safe-area-inset-bottom))`}>
           <Outlet />
         </Box>
         <BottomNavigation>
@@ -119,7 +123,7 @@ export default function MainLayout() {
       </Stack>
 
       {/* 콘텐츠 */}
-      <Box flex={1} overflow="auto">
+      <Box ref={scrollRef} flex={1} overflow="auto">
         <Outlet />
       </Box>
     </Box>
