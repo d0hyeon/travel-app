@@ -53,6 +53,7 @@ export function StatisticsDonutChart({
               ))}
             </Pie>
             <Tooltip
+              wrapperStyle={{ zIndex: 10 }}
               content={({ active, payload }) => {
                 if (!active || !payload?.length) return null
                 const item = payload[0]?.payload as StatisticsDonutChartItem
