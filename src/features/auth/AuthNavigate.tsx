@@ -2,9 +2,8 @@ import { Navigate, useLocation } from "react-router";
 import { AppRoute } from "~app/routes";
 
 export function AuthNavigate() {
-  const location = useLocation();
 
-  return <Navigate to={AppRoute.로그인} state={{ from: location }} replace />
+  return <Navigate to={AppRoute.로그인} state={{ from: window.location.href }} replace />
 }
 
 export function useAuthRedirection() {
