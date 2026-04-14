@@ -6,7 +6,7 @@ import VisibilityOnIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import WorkspacesIcon from '@mui/icons-material/Workspaces';
 import { Box, Button, Chip, IconButton, Stack, styled, Tab, Tabs, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
-import { useMemo, useRef, useState } from "react";
+import { Suspense, useMemo, useRef, useState } from "react";
 import { BottomArea } from '~shared/components/BottomArea';
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog';
 import { useQueryParamState } from '~shared/hooks/useQueryParamState';
@@ -195,13 +195,16 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                 />
               )
             })}
+
             {routes.map((route, index) => (
-              <RoutePath
-                key={route.id}
-                waypoints={route.places.filter(x => !route.hiddenPlaces.includes(x.id))}
-                color={getRouteColor(index)}
-                isSelected={route.id === currentRoute?.id}
-              />
+              <Suspense key={route.id}>
+                <RoutePath
+                  key={route.id}
+                  waypoints={route.places.filter(x => !route.hiddenPlaces.includes(x.id))}
+                  color={getRouteColor(index)}
+                  isSelected={route.id === currentRoute?.id}
+                />
+              </Suspense>
             ))}
           </Map>
         </Box>
