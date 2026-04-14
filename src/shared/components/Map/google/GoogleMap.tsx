@@ -64,8 +64,14 @@ export default function GoogleMap({
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [zoom, setZoom] = useState(10);
+  const [clusterZoom, setClusterZoom] = useState(10);
   const boundsRef = useRef<google.maps.LatLngBounds | null>(null);
   const isInitializedRef = useRef(false);
+
+  useEffect(() => {
+    const id = setTimeout(() => setClusterZoom(zoom), 200);
+    return () => clearTimeout(id);
+  }, [zoom]);
 
   useEffect(() => {
     if (!container) return;
@@ -115,8 +121,8 @@ export default function GoogleMap({
   const clusters = useMemo(() => {
     if (!clustering || !map) return null;
     const markers = Array.from(markerRegistryRef.current.values());
-    return calculateClusters(markers, map, zoom, clusterGridSize);
-  }, [clustering, map, clusterGridSize, markerVersion, zoom]);
+    return calculateClusters(markers, map, clusterZoom, clusterGridSize);
+  }, [clustering, map, clusterGridSize, markerVersion, clusterZoom]);
 
   useImperativeHandle(ref, () => ({
     panTo: (lat: number, lng: number, z?: number) => {
@@ -142,16 +148,19 @@ export default function GoogleMap({
     config: { autoFocus, clustering, clusterGridSize },
   }), [map, extendBound, registerMarker, unregisterMarker, autoFocus, clustering, clusterGridSize]);
 
+  const handleClusterClick = useCallback((cluster: Cluster) => {
+    if (!map) return;
+    const bounds = new google.maps.LatLngBounds();
+    cluster.markers.forEach(m => bounds.extend({ lat: m.position.lat, lng: m.position.lng }));
+    map.fitBounds(bounds);
+  }, [map]);
+
   return (
     <GoogleMapContext.Provider value={contextValue}>
       <Box ref={setContainer} position="relative" {...boxProps} />
       {children}
       {clusters && map && (
-        <ClusterOverlays map={map} clusters={clusters} zoom={zoom} onClusterClick={(cluster) => {
-          const bounds = new google.maps.LatLngBounds();
-          cluster.markers.forEach(m => bounds.extend({ lat: m.position.lat, lng: m.position.lng }));
-          map.fitBounds(bounds);
-        }} />
+        <ClusterOverlays map={map} clusters={clusters} onClusterClick={handleClusterClick} />
       )}
       {showMyLocation && map && <GoogleMyLocationOverlay map={map} />}
     </GoogleMapContext.Provider>
@@ -293,15 +302,17 @@ function calculateClusters(markers: MarkerData[], _map: google.maps.Map, zoom: n
 interface ClusterOverlaysProps {
   map: google.maps.Map;
   clusters: Cluster[];
-  zoom: number;
   onClusterClick: (cluster: Cluster) => void;
 }
 
-function ClusterOverlays({ map, clusters, zoom, onClusterClick }: ClusterOverlaysProps) {
+function ClusterOverlays({ map, clusters, onClusterClick }: ClusterOverlaysProps) {
   const overlaysRef = useRef<google.maps.OverlayView[]>([]);
   const markersRef = useRef<google.maps.Marker[]>([]);
+  const elRegistryRef = useRef<Array<{ el: HTMLElement; type: string; handler: EventListener }>>([]);
 
   useEffect(() => {
+    elRegistryRef.current.forEach(({ el, type, handler }) => el.removeEventListener(type, handler));
+    elRegistryRef.current = [];
     overlaysRef.current.forEach(o => o.setMap(null));
     overlaysRef.current = [];
     markersRef.current.forEach(m => m.setMap(null));
@@ -315,8 +326,14 @@ function ClusterOverlays({ map, clusters, zoom, onClusterClick }: ClusterOverlay
           const el = document.createElement('div');
           el.innerHTML = createThumbnailContent(md.thumbnailUrl, md.color ?? '#ef5350');
           el.style.cssText = 'position:absolute; transform:translate(-50%, -100%); cursor:pointer;';
-          if (md.onContextMenu) el.addEventListener('contextmenu', md.onContextMenu);
-          if (md.onClick) el.addEventListener('click', md.onClick);
+          if (md.onContextMenu) {
+            el.addEventListener('contextmenu', md.onContextMenu);
+            elRegistryRef.current.push({ el, type: 'contextmenu', handler: md.onContextMenu });
+          }
+          if (md.onClick) {
+            el.addEventListener('click', md.onClick);
+            elRegistryRef.current.push({ el, type: 'click', handler: md.onClick });
+          }
 
           class TOverlay extends google.maps.OverlayView {
             onAdd() { this.getPanes()?.overlayMouseTarget.appendChild(el); }
@@ -368,7 +385,9 @@ function ClusterOverlays({ map, clusters, zoom, onClusterClick }: ClusterOverlay
         const el = document.createElement('div');
         el.innerHTML = `<div style="width:38px;height:38px;background:white;border:2px solid #bdbdbd;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#555;font-size:13px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.15);cursor:pointer;">${cluster.markers.length}</div>`;
         el.style.cssText = 'position:absolute; transform:translate(-50%,-50%);';
-        el.addEventListener('click', () => onClusterClick(cluster));
+        const clusterClickHandler: EventListener = () => onClusterClick(cluster);
+        el.addEventListener('click', clusterClickHandler);
+        elRegistryRef.current.push({ el, type: 'click', handler: clusterClickHandler });
 
         class COverlay extends google.maps.OverlayView {
           onAdd() { this.getPanes()?.overlayMouseTarget.appendChild(el); }
@@ -385,12 +404,14 @@ function ClusterOverlays({ map, clusters, zoom, onClusterClick }: ClusterOverlay
     });
 
     return () => {
+      elRegistryRef.current.forEach(({ el, type, handler }) => el.removeEventListener(type, handler));
+      elRegistryRef.current = [];
       overlaysRef.current.forEach(o => o.setMap(null));
       overlaysRef.current = [];
       markersRef.current.forEach(m => m.setMap(null));
       markersRef.current = [];
     };
-  }, [map, clusters, zoom, onClusterClick]);
+  }, [map, clusters, onClusterClick]);
 
   return null;
 }
