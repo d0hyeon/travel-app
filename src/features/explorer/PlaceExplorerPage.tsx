@@ -81,18 +81,14 @@ function Resolved() {
   const tripColorMap = Object.fromEntries(
     trips.map((trip, index) => [trip.id, TRIP_COLORS[index % TRIP_COLORS.length]]),
   )
-  const getTripColor = (tripId: string): TripColor => tripColorMap[tripId] ?? TRIP_COLORS[0]
-  const getCountryOpacity = (count: number) => {
-    if (count >= 3) return 0.35
-    if (count >= 2) return 0.3
-    return 0.25
-  }
 
-  const getRegionOpacity = (count: number) => {
-    if (count >= 5) return 0.24
-    if (count >= 3) return 0.22
-    if (count >= 2) return 0.2
-    return 0.2
+  const getMarkerColor = (tripId: string): TripColor => tripColorMap[tripId] ?? TRIP_COLORS[0];
+  const getPolygonOpacity = (count: number) => Math.max(Math.min(count * 0.14, 0.4), 0.18);
+  const getRegionPolygonStyle = (count: number) => {
+    if (count >= 3) {
+      return { color: '#b95454', opacity: Math.min(getPolygonOpacity(count - 2), 0.3) };
+    }
+    return { color: '#2a9d6f', opacity: getPolygonOpacity(count) }
   }
 
   const overlay = useOverlay()
@@ -105,7 +101,7 @@ function Resolved() {
           options={trips.map((trip) => ({
             value: trip.id,
             label: trip.name,
-            color: getTripColor(trip.id).marker,
+            color: getMarkerColor(trip.id).marker,
           }))}
           placeholder="전체 여행"
           onChange={setSelectedTripIds}
@@ -127,19 +123,18 @@ function Resolved() {
                 key={country}
                 country={country as CountryType}
                 color="#2a9d6f"
-                opacity={getCountryOpacity(count ?? 0)}
+                opacity={getPolygonOpacity(count)}
               />
             ))}
             {domesticLocations.map((item) => {
               const coordinates = coordinatesByLocation[item.id]
-              if (!coordinates) return null
+              if (!coordinates) return null;
 
               return (
                 <Map.Polygon
                   key={item.id}
                   coordinates={coordinates}
-                  color="#2a9d6f"
-                  opacity={getRegionOpacity(item.count)}
+                  {...getRegionPolygonStyle(item.count)}
                 />
               )
             })}
@@ -147,8 +142,7 @@ function Resolved() {
               <Map.Region
                 key={item.id}
                 location={item.location}
-                color="#2a9d6f"
-                opacity={getRegionOpacity(item.count)}
+                {...getRegionPolygonStyle(item.count)}
               />
             ))}
           </Map.PolygonLayer>
@@ -158,7 +152,7 @@ function Resolved() {
           <PlaceMarker
             key={place.id}
             place={place}
-            color={getTripColor(place.tripId).marker}
+            color={getMarkerColor(place.tripId).marker}
             isSelected={false}
             onClick={() => {
               overlay.open(({ isOpen, close }) => {
