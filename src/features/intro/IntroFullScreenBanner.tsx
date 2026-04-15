@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import type { PropsWithChildren } from "react";
-import LuggageIcon from '@mui/icons-material/Luggage'
+
 
 
 export function IntroFullScreenBanner({ children }: PropsWithChildren) {
@@ -28,9 +28,11 @@ export function IntroFullScreenBanner({ children }: PropsWithChildren) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            overflow: 'hidden'
           }}
         >
-          <LuggageIcon sx={{ fontSize: 36, color: 'white' }} />
+          <img src="/pwa-512x512.png" alt="로고 이미지" />
+
         </Box>
         <Box textAlign="center">
           <Typography variant="h5" fontWeight={700} mb={0.5}>
