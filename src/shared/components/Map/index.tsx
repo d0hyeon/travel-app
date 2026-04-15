@@ -18,7 +18,7 @@ const GooglePath = lazy(() => import('./google/GoogleMapPath'));
 interface Props extends MapProps, Omit<BoxProps, 'autoFocus' | 'ref'> {
   type: 'kakao' | 'google';
 }
-const MAP_PROP_KEYS: (keyof MapProps)[] = ['autoFocus', 'children', 'clusterGridSize', 'clustering', 'defaultCenter', 'ref', 'showMyLocation']
+const MAP_PROP_KEYS: (keyof MapProps)[] = ['autoFocus', 'children', 'clusterGridSize', 'clustering', 'defaultCenter', 'onBoundsChange', 'ref', 'showMyLocation']
 
 export function Map({ type, ...props }: Props) {
 
@@ -100,4 +100,4 @@ function omit<T extends {}, Key extends keyof T>(obj: T, keys: Key[]) {
 export type { MapPolygonProps, MapRegionProps, PolygonLayerProps, RegionLayerProps } from './polygon-layer.types';
 export { getCountryPolygonCoordinates, getLocationCoordinates } from './polygon-layer.utils';
 export type { LocationCoordinateLevel } from './polygon-layer.utils';
-export type { AutoFocus, Coordinate, MapProps, MapRef, MapType, MarkerProps, PathProps } from './types';
+export type { AutoFocus, Coordinate, MapBounds, MapProps, MapRef, MapType, MarkerProps, PathProps } from './types';

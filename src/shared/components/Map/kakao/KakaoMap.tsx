@@ -2,7 +2,7 @@ import { Box, type BoxProps } from '@mui/material';
 import { use, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useVariation } from '~shared/hooks/extends/useVariation';
 import { KakaoMapContext } from '../MapContext';
-import type { Coordinate, MapProps, MarkerData } from '../types';
+import type { Coordinate, MapBounds, MapProps, MarkerData } from '../types';
 import { createLabelContent, getMarkerImage, getZoomScale } from './kakaoMap.utils';
 import './loader';
 import { loadKakaoMap } from './loader';
@@ -20,6 +20,7 @@ export default function KakaoMap({
   clustering = false,
   clusterGridSize = 60,
   showMyLocation = false,
+  onBoundsChange,
   children,
   ...boxProps
 }: Props) {
@@ -29,6 +30,8 @@ export default function KakaoMap({
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
   const [zoom, setZoom] = useState(8);
   const [clusterZoom, setClusterZoom] = useState(8);
+  const onBoundsChangeRef = useRef(onBoundsChange);
+  onBoundsChangeRef.current = onBoundsChange;
 
   useEffect(() => {
     const id = setTimeout(() => setClusterZoom(zoom), 200);
@@ -36,17 +39,36 @@ export default function KakaoMap({
   }, [zoom]);
 
   useEffect(() => {
-    if (container) {
-      const map = new kakao.maps.Map(container, {
-        center: new kakao.maps.LatLng(defaultCenter.lat, defaultCenter.lng),
-        level: 8,
-      })
-      setMap(map)
+    if (!container) return;
 
-      kakao.maps.event.addListener(map, 'zoom_changed', () => {
-        setZoom(map.getLevel())
-      })
-    }
+    const mapInstance = new kakao.maps.Map(container, {
+      center: new kakao.maps.LatLng(defaultCenter.lat, defaultCenter.lng),
+      level: 8,
+    });
+    setMap(mapInstance);
+
+    const zoomHandler = () => setZoom(mapInstance.getLevel());
+    kakao.maps.event.addListener(mapInstance, 'zoom_changed', zoomHandler);
+
+    const idleHandler = () => {
+      const bounds = (mapInstance as any).getBounds() as {
+        getNorthEast(): kakao.maps.LatLng;
+        getSouthWest(): kakao.maps.LatLng;
+      } | null;
+      if (!bounds) return;
+      onBoundsChangeRef.current?.({
+        north: bounds.getNorthEast().getLat(),
+        south: bounds.getSouthWest().getLat(),
+        east: bounds.getNorthEast().getLng(),
+        west: bounds.getSouthWest().getLng(),
+      } satisfies MapBounds);
+    };
+    kakao.maps.event.addListener(mapInstance, 'idle', idleHandler);
+
+    return () => {
+      kakao.maps.event.removeListener(mapInstance, 'zoom_changed', zoomHandler);
+      kakao.maps.event.removeListener(mapInstance, 'idle', idleHandler);
+    };
   }, [container])
 
   const boundStatusRef = useRef<'closed' | 'open'>('closed')
