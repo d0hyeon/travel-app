@@ -45,15 +45,11 @@ export default function TripPhotoContent({ tripId }: TripPhotoContentProps) {
     return grouped;
   }, [photos]);
 
-  const placesWithPhotos = useMemo(() => {
-    return places.filter(place => photosByPlace[place.id]?.length > 0);
-  }, [places, photosByPlace]);
-
   const filteredPhotos = selectedPlaceIds.length > 0
     ? selectedPlaceIds.map(x => photosByPlace[x]).flat() ?? []
     : photos;
 
-  const hasPhotoWithPlace = Object.keys(photosByPlace).length > 0;
+  const placeLength = Object.keys(photosByPlace).length;
 
   const confirm = useConfirmDialog();
   const overlay = useOverlay();
@@ -62,11 +58,14 @@ export default function TripPhotoContent({ tripId }: TripPhotoContentProps) {
   return (
     <>
       <Stack flex={1} p={2} pt={1} paddingBottom={isReadonly ? 2 : `calc(env(safe-area-inset-bottom) + ${BottomNavigation.HEIGHT + 16}px)`}>
-        <Stack position="sticky" top={8} direction="row" alignItems="center" justifyContent={hasPhotoWithPlace ? "space-between" : "end"} gap={1} mb={1} flexWrap="wrap" zIndex={10}>
-          {hasPhotoWithPlace && (
+        <Stack position="sticky" top={8} direction="row" alignItems="center" justifyContent={placeLength ? "space-between" : "end"} gap={1} mb={1} flexWrap="wrap" zIndex={10}>
+          {placeLength > 0 && (
             <MultiSelectDropdown
               placeholder="장소"
-              options={placesWithPhotos.map(x => ({ label: x.name, value: x.id }))}
+              options={places
+                .filter(x => isNotEmpty(photosByPlace[x.id]))
+                .map(x => ({ label: x.name, value: x.id }))
+              }
               value={selectedPlaceIds}
               onChange={setSelectedPlaceIds}
               sx={{ backgroundColor: 'rgba(255, 255, 255, 0.6)', backdropFilter: 'blur(5px)' }}
@@ -143,6 +142,10 @@ export default function TripPhotoContent({ tripId }: TripPhotoContentProps) {
       )}
     </>
   );
+}
+
+function isNotEmpty<T>(value?: T[]) {
+  return !!value?.length;
 }
 
 
