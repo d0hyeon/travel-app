@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router'
-import { useScrollContainerRef } from '~app/scroll-container.context'
+import { useScrollEventListener } from './useScrollEventListener';
+import { createContext, useContext, type RefObject } from 'react'
 
 /**
  * 커스텀 스크롤 컨테이너의 스크롤 위치를 복원한다.
@@ -14,20 +15,44 @@ import { useScrollContainerRef } from '~app/scroll-container.context'
  * - location.key 기준으로 sessionStorage에 위치를 저장/복원한다.
  * - mount 시 복원, unmount 시 저장한다.
  */
-export function useScrollRestore() {
-  const containerRef = useScrollContainerRef()
-  const location = useLocation()
+
+const ScrollContainerContext = createContext<RefObject<HTMLElement | null> | null>(null);
+
+export const ScrollContainerProvider = ScrollContainerContext.Provider;
+
+function useScrollContainer() {
+  const context = useContext(ScrollContainerContext);
+  if (context == null && document.scrollingElement instanceof HTMLElement) {
+    return document.scrollingElement;
+  }
+
+  return context?.current ?? null;
+}
+
+
+
+export function useScrollRestore(key?: string) {
+  const container = useScrollContainer()
+  const location = useLocation();
+
+  const storageKey = key ?? `scroll-restore:${location.key}`;
+  useScrollEventListener(container, {
+    onScrollEnd: (event) => {
+      if (event.target instanceof HTMLElement) {
+        sessionStorage.setItem(storageKey, event.target.scrollTop.toString());
+      }
+    }
+  })
 
   useEffect(() => {
-    const container = containerRef?.current
-    if (!container) return
+    if (!container) return;
 
-    const storageKey = `scroll-restore:${location.key}`
-    const saved = sessionStorage.getItem(storageKey)
-    container.scrollTop = saved != null ? Number(saved) : 0
+    const saved = sessionStorage.getItem(storageKey);
+    if (saved == null) return;
 
-    return () => {
-      sessionStorage.setItem(storageKey, String(container.scrollTop))
-    }
-  }, [location.key])
+    container.scrollTop = Number(saved);
+  }, [storageKey, container])
 }
+
+
+

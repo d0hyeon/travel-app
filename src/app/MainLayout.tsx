@@ -1,5 +1,5 @@
-import LuggageIcon from '@mui/icons-material/Luggage'
 import LogoutIcon from '@mui/icons-material/Logout'
+import LuggageIcon from '@mui/icons-material/Luggage'
 import MapIcon from '@mui/icons-material/Map'
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
 import { Box, IconButton, Stack, Tooltip, Typography } from '@mui/material'
@@ -9,8 +9,8 @@ import { AppRoute } from '~app/routes'
 import { signOut } from '~features/auth/auth.api'
 import { BottomNavigation } from '~shared/components/BottomNavigation'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
+import { ScrollContainerProvider } from '~shared/hooks/interaction/useScrollRestore'
 import { isDev } from './env'
-import { ScrollContainerContext } from './scroll-container.context'
 
 
 const TABS = [
@@ -27,7 +27,7 @@ export default function MainLayout() {
 
   if (isMobile) {
     return (
-      <ScrollContainerContext.Provider value={scrollRef}>
+      <ScrollContainerProvider value={scrollRef}>
         <Box sx={{ height: '100dvh', display: 'flex', flexDirection: 'column' }}>
           <Box ref={scrollRef} flex={1} overflow="auto" paddingBottom={`calc(${BottomNavigation.HEIGHT}px + env(safe-area-inset-bottom))`}>
             <Outlet />
@@ -57,12 +57,12 @@ export default function MainLayout() {
             )}
           </BottomNavigation>
         </Box>
-      </ScrollContainerContext.Provider>
+      </ScrollContainerProvider>
     )
   }
 
   return (
-    <ScrollContainerContext.Provider value={scrollRef}>
+    <ScrollContainerProvider value={scrollRef}>
       <Box sx={{ height: '100dvh', display: 'flex' }}>
         {/* 사이드 네비 */}
         <Stack
@@ -128,6 +128,6 @@ export default function MainLayout() {
           <Outlet />
         </Box>
       </Box>
-    </ScrollContainerContext.Provider>
+    </ScrollContainerProvider>
   )
 }
