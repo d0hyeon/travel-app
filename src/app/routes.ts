@@ -12,8 +12,8 @@ export const AppRoute = {
 
 export default [
   route(AppRoute.로그인, "../features/auth/LoginPage.tsx"),
-  layout("../app/AuthLayout.tsx", [
-    layout("../app/MainLayout.tsx", [
+  layout("../app/AuthGuardLayout.tsx", [
+    layout("../app/HomeLayout.tsx", [
       index("../features/trip/TripListPage.tsx"),
       route(AppRoute.통계, "../features/statistics/StatisticsPage.tsx"),
       route(AppRoute.지도, "../features/explorer/PlaceExplorerPage.tsx"),

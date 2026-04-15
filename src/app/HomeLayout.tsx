@@ -19,7 +19,7 @@ const TABS = [
   { label: '통계', path: AppRoute.통계, Icon: ReceiptLongIcon },
 ]
 
-export default function MainLayout() {
+export default function HomeLayout() {
   const location = useLocation()
   const navigate = useNavigate()
   const isMobile = useIsMobile();
