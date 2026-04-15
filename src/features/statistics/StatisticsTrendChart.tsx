@@ -117,7 +117,7 @@ export function StatisticsTrendChart({ data, viewMode = 'line' }: StatisticsTren
                   .map((item) => ({
                     id: item.axisId,
                     label: item.tripName,
-                    value: item.cumulativeAmountInKRW,
+                    value: item.amountInKRW,
                   }))}
                 formatValue={formatCurrency}
                 colors={["#de6b6b", "#5e8ff0", "#59b47c", "#e29a42", "#9c72e8", "#4cb9cf", "#df78af", "#88bf5c"]}
