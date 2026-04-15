@@ -12,6 +12,7 @@ import { PhotoThunbnail } from '../../../shared/components/photo/PhotoThumbnail'
 import type { Photo } from '../../photo/photo.types';
 import { useTripPlaces } from '../trip-place/useTripPlaces';
 import { useTripPhotos } from './useTripPhotos';
+
 interface TripPhotoContentProps {
   tripId: string
 }
@@ -71,9 +72,9 @@ export default function TripPhotoContent({ tripId }: TripPhotoContentProps) {
               sx={{ backgroundColor: 'rgba(255, 255, 255, 0.6)', backdropFilter: 'blur(5px)' }}
             />
           )}
-          <IOSToggleButton actived={!isReadonly} onClick={() => setIsReadonly(curr => !curr)}>
+          <IOSChipButton sx={!isReadonly ? { transform: 'scale(1.15)' } : {}} onClick={() => setIsReadonly(curr => !curr)}>
             {isReadonly ? '선택' : '완료'}
-          </IOSToggleButton>
+          </IOSChipButton>
         </Stack>
         <Box>
           <ImageList cols={3}>
@@ -109,7 +110,7 @@ export default function TripPhotoContent({ tripId }: TripPhotoContentProps) {
                   }}
                 >
                   {!isReadonly && (
-                    <Box position="absolute" display="flex" justifyContent="end" alignItems="end" right={0} top={0} padding={1} zIndex={5} width="100%" height="100%" sx={isSelected ? { backdropFilter: 'blur(1px)', backgroundColor: 'rgba(0, 0, 0, 0.1)' } : {}}>
+                    <Box position="absolute" display="flex" justifyContent="end" alignItems="end" right={0} top={0} padding={1} borderRadius={3} zIndex={5} width="100%" height="100%" sx={isSelected ? { backgroundColor: 'rgba(0, 0, 0, 0.4)' } : {}}>
                       {isSelected && <CheckIcon color="primary" sx={{ fill: '#fff', color: '#fff' }} />}
                     </Box>
                   )}
@@ -145,15 +146,24 @@ export default function TripPhotoContent({ tripId }: TripPhotoContentProps) {
 }
 
 
-const IOSToggleButton = styled(Button)<{ actived: boolean }>(({ actived, theme, size = 'medium' }) => ({
+const IOSChipButton = styled(Button)(({ size = 'medium' }) => ({
   borderRadius: '24px !important',
-  backgroundColor: actived ? alpha(theme.palette.primary.main, 1) : alpha(theme.palette.background.default, 0.5),
-  border: actived ? undefined : `1px solid ${theme.palette.primary.main}`,
-  transform: actived ? "scale(1.1)" : undefined,
-  boxShadow: actived ? '0px 3px 6px rgba(0, 0, 0, 0.4) !important' : undefined,
-  color: actived ? 'white' : theme.palette.primary.main,
-  backdropFilter: 'blur(5px)',
+  backgroundColor: 'rgba(0, 0, 0, 0.3)',
+  boxShadow: "0px 3px 8px rgba(255, 255, 255, 0.3) !important",
+  color: 'white',
+  backdropFilter: 'blur(3px)',
   transition: 'all 300ms',
+  border: `1px solid ${alpha('#fff', 0.5)}`,
   paddingInline: size === 'medium' ? '12px !important' : undefined,
-  fontSize: size === 'medium' ? '13px !important' : undefined
+  fontSize: size === 'medium' ? '13px !important' : undefined,
+  '&::before': {
+    content: '""',
+    position: 'absolute', top: 0, left: 0,
+    width: '100%', height: '100%',
+    zIndex: '5',
+    transition: 'all 200ms'
+  },
+  '&:active::before': {
+    backdropFilter: 'blur(2px)',
+  }
 }))
