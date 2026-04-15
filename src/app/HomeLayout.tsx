@@ -3,8 +3,8 @@ import LuggageIcon from '@mui/icons-material/Luggage'
 import MapIcon from '@mui/icons-material/Map'
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
 import { Box, IconButton, Stack, Tooltip, Typography } from '@mui/material'
-import { useRef } from 'react'
-import { Link, Outlet, useLocation, useNavigate } from 'react-router'
+import { useEffect, useRef, useState } from 'react'
+import { Link, Outlet, PrefetchPageLinks, useLocation, useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
 import { signOut } from '~features/auth/auth.api'
 import { BottomNavigation } from '~shared/components/BottomNavigation'
@@ -57,6 +57,7 @@ export default function HomeLayout() {
             )}
           </BottomNavigation>
         </Box>
+        <Preload />
       </ScrollContainerProvider>
     )
   }
@@ -128,6 +129,27 @@ export default function HomeLayout() {
           <Outlet />
         </Box>
       </Box>
+      <Preload />
     </ScrollContainerProvider>
+  )
+}
+
+function Preload() {
+  const [isIdle, setIsIdle] = useState(false);
+
+  useEffect(() => {
+    const id = requestIdleCallback(() => {
+      setIsIdle(true)
+    })
+
+    return () => cancelIdleCallback(id);
+  }, [])
+
+  if (!isIdle) return null;
+
+  return (
+    <>
+      {TABS.map(x => <PrefetchPageLinks key={x.path} page={x.path} />)}
+    </>
   )
 }
