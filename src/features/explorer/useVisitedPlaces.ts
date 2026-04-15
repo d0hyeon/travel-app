@@ -45,12 +45,14 @@ export function useVisitedPlaces(tripIds?: string[]) {
     const countMap: Partial<Record<Country, number>> = {}
 
     filteredTrips.forEach((trip) => {
-      trip.destinations.forEach((destination) => {
-        const country = getCountryByLocation(destination)
-        if (!country) return
+      const countries = new Set(trip.destinations
+        .map(destination => getCountryByLocation(destination))
+        .filter(country => country != null)
+      )
+
+      countries.forEach((country) => {
         countMap[country] = (countMap[country] ?? 0) + 1
-      })
-      
+      });
     })
 
     return countMap
