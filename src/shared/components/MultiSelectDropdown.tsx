@@ -8,6 +8,7 @@ import {
   MenuItem,
   Select,
   type SelectChangeEvent,
+  type SxProps,
   Typography,
 } from '@mui/material'
 
@@ -22,6 +23,7 @@ interface MultiSelectDropdownProps {
   options: MultiSelectDropdownOption[]
   placeholder: string
   onChange: (value: string[]) => void
+  sx?: SxProps
 }
 
 export function MultiSelectDropdown({
@@ -29,6 +31,7 @@ export function MultiSelectDropdown({
   options,
   placeholder,
   onChange,
+  sx,
 }: MultiSelectDropdownProps) {
   const handleChange = (event: SelectChangeEvent<string[]>) => {
     const nextValue = event.target.value
@@ -44,23 +47,26 @@ export function MultiSelectDropdown({
         onChange={handleChange}
         IconComponent={KeyboardArrowDownIcon}
         renderValue={(selected) => getDisplayLabel(selected, options, placeholder)}
-        sx={{
-          height: 34,
-          borderRadius: 999,
-          bgcolor: 'rgba(255,255,255,0.92)',
-          backdropFilter: 'blur(10px)',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.14)',
-          '.MuiSelect-select': {
-            display: 'flex',
-            alignItems: 'center',
-            gap: 0.75,
-            py: 0.75,
-            pr: 4.5,
-            pl: 1.5,
-            fontSize: 13,
-            fontWeight: 600,
+        sx={[
+          {
+            height: 34,
+            borderRadius: 999,
+            bgcolor: 'rgba(255,255,255,0.92)',
+            backdropFilter: 'blur(10px)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.14)',
+            '.MuiSelect-select': {
+              display: 'flex',
+              alignItems: 'center',
+              gap: 0.75,
+              py: 0.75,
+              pr: 4.5,
+              pl: 1.5,
+              fontSize: 13,
+              fontWeight: 600,
+            },
           },
-        }}
+          ...(Array.isArray(sx) ? sx : [sx])
+        ]}
         MenuProps={{
           PaperProps: {
             sx: {
