@@ -1,8 +1,9 @@
 import { createContext } from "react";
-import type { AutoFocus, Coordinate, MarkerData } from "./types";
+import type { AutoFocus, Coordinate, MapBounds, MarkerData } from "./types";
 
 export interface MapContextValue<MapInstance> {
   map: MapInstance | null;
+  bounds: MapBounds | null;
   extendBound: (value: Coordinate) => void;
   registerMarker: (data: MarkerData) => void;
   unregisterMarker: (id: string) => void;

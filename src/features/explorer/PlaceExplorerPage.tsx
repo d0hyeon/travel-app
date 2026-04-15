@@ -6,7 +6,7 @@ import { getPhotosByPlaceId, photoKey } from '../photo/photo.api'
 import type { Place } from '../place/place.types'
 import { useTrips } from '../trip/useTrips'
 import { Country, getCountryByLocation, type Country as CountryType } from '~features/location'
-import { Map, type MapBounds } from '~shared/components/Map'
+import { Map } from '~shared/components/Map'
 import { BottomNavigation } from '~shared/components/BottomNavigation'
 import { MultiSelectDropdown } from '~shared/components/MultiSelectDropdown'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
@@ -47,24 +47,10 @@ function Resolved() {
 
   const [selectedTripIds, setSelectedTripIds] = useState<string[]>([])
   const [showVisitLayer, setShowVisitLayer] = useState(true)
-  const [mapBounds, setMapBounds] = useState<MapBounds | null>(null)
 
   const {
     data: { places, countries, locations },
   } = useVisitedPlaces(selectedTripIds)
-
-
-  const visiblePlaces = useMemo(() => {
-    if (!mapBounds) return places;
-    // 뷰포트 밖 마커는 렌더링에서 제외 (네이티브 객체 + useQuery 해제)
-    return places.filter(
-      (place) =>
-        place.lat >= mapBounds.south &&
-        place.lat <= mapBounds.north &&
-        place.lng >= mapBounds.west &&
-        place.lng <= mapBounds.east,
-    );
-  }, [places, mapBounds]);
 
   const domesticLocations = useMemo(
     () => locations.filter((item) => getCountryByLocation(item.location) === Country.한국),
@@ -118,7 +104,6 @@ function Resolved() {
         autoFocus="marker"
         clustering
         clusterGridSize={60}
-        onBoundsChange={setMapBounds}
       >
         {showVisitLayer && (
           <Map.PolygonLayer>
@@ -154,7 +139,7 @@ function Resolved() {
           </Map.PolygonLayer>
         )}
 
-        {visiblePlaces.map((place) => (
+        {places.map((place) => (
           <PlaceMarker
             key={place.id}
             place={place}

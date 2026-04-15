@@ -2,6 +2,7 @@ import { Box, type BoxProps } from '@mui/material';
 import { use, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { GoogleMapContext } from '../MapContext';
 import type { Coordinate, MapBounds, MapProps } from '../types';
+import { isInMapBounds } from '../map.utils';
 import { loadGoogleMaps } from './loader';
 
 interface MarkerData {
@@ -66,6 +67,7 @@ export default function GoogleMap({
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [zoom, setZoom] = useState(10);
   const [clusterZoom, setClusterZoom] = useState(10);
+  const [currentBounds, setCurrentBounds] = useState<MapBounds | null>(null);
   const boundsRef = useRef<google.maps.LatLngBounds | null>(null);
   const isInitializedRef = useRef(false);
   const onBoundsChangeRef = useRef(onBoundsChange);
@@ -94,12 +96,14 @@ export default function GoogleMap({
       if (!bounds) return;
       const ne = bounds.getNorthEast();
       const sw = bounds.getSouthWest();
-      onBoundsChangeRef.current?.({
+      const newBounds: MapBounds = {
         north: ne.lat(),
         south: sw.lat(),
         east: ne.lng(),
         west: sw.lng(),
-      } satisfies MapBounds);
+      };
+      setCurrentBounds(newBounds);
+      onBoundsChangeRef.current?.(newBounds);
     });
 
     setMap(mapInstance);
@@ -141,9 +145,12 @@ export default function GoogleMap({
 
   const clusters = useMemo(() => {
     if (!clustering || !map) return null;
-    const markers = Array.from(markerRegistryRef.current.values());
+    const allMarkers = Array.from(markerRegistryRef.current.values());
+    const markers = currentBounds
+      ? allMarkers.filter(m => isInMapBounds(m.position.lat, m.position.lng, currentBounds))
+      : allMarkers;
     return calculateClusters(markers, map, clusterZoom, clusterGridSize);
-  }, [clustering, map, clusterGridSize, markerVersion, clusterZoom]);
+  }, [clustering, map, clusterGridSize, markerVersion, clusterZoom, currentBounds]);
 
   useImperativeHandle(ref, () => ({
     panTo: (lat: number, lng: number, z?: number) => {
@@ -163,6 +170,7 @@ export default function GoogleMap({
 
   const contextValue = useMemo(() => ({
     map,
+    bounds: currentBounds,
     extendBound,
     registerMarker,
     unregisterMarker,

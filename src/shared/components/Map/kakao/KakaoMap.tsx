@@ -3,6 +3,7 @@ import { use, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useS
 import { useVariation } from '~shared/hooks/extends/useVariation';
 import { KakaoMapContext } from '../MapContext';
 import type { Coordinate, MapBounds, MapProps, MarkerData } from '../types';
+import { isInMapBounds } from '../map.utils';
 import { createLabelContent, getMarkerImage, getZoomScale } from './kakaoMap.utils';
 import './loader';
 import { loadKakaoMap } from './loader';
@@ -30,6 +31,7 @@ export default function KakaoMap({
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
   const [zoom, setZoom] = useState(8);
   const [clusterZoom, setClusterZoom] = useState(8);
+  const [currentBounds, setCurrentBounds] = useState<MapBounds | null>(null);
   const onBoundsChangeRef = useRef(onBoundsChange);
   onBoundsChangeRef.current = onBoundsChange;
 
@@ -56,12 +58,14 @@ export default function KakaoMap({
         getSouthWest(): kakao.maps.LatLng;
       } | null;
       if (!bounds) return;
-      onBoundsChangeRef.current?.({
+      const newBounds: MapBounds = {
         north: bounds.getNorthEast().getLat(),
         south: bounds.getSouthWest().getLat(),
         east: bounds.getNorthEast().getLng(),
         west: bounds.getSouthWest().getLng(),
-      } satisfies MapBounds);
+      };
+      setCurrentBounds(newBounds);
+      onBoundsChangeRef.current?.(newBounds);
     };
     kakao.maps.event.addListener(mapInstance, 'idle', idleHandler);
 
@@ -110,9 +114,12 @@ export default function KakaoMap({
   const clusters = useMemo(() => {
     if (!clustering || !map) return null;
 
-    const markers = Array.from(markerRegistryRef.current.values());
+    const allMarkers = Array.from(markerRegistryRef.current.values());
+    const markers = currentBounds
+      ? allMarkers.filter(m => isInMapBounds(m.position.lat, m.position.lng, currentBounds))
+      : allMarkers;
     return calculateClusters(markers, map, clusterGridSize);
-  }, [clustering, map, clusterGridSize, markerVersion, clusterZoom]);
+  }, [clustering, map, clusterGridSize, markerVersion, clusterZoom, currentBounds]);
 
   useImperativeHandle(ref, () => ({
     panTo: (lat: number, lng: number, level?: number) => {
@@ -135,12 +142,13 @@ export default function KakaoMap({
   const value = useMemo(() => {
     return {
       map,
+      bounds: currentBounds,
       extendBound,
       registerMarker,
       unregisterMarker,
       config: { autoFocus, clustering, clusterGridSize }
     }
-  }, [map, autoFocus, clustering, clusterGridSize])
+  }, [map, currentBounds, autoFocus, clustering, clusterGridSize])
 
   const handleClusterClick = useCallback((cluster: Cluster) => {
     if (!map) return;
