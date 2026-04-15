@@ -11,6 +11,7 @@ import { useTripRoutes } from "../trip-route/useTripRoutes";
 import { useTrip } from "../useTrip";
 import { TripPlaceItemButton } from './TripPlaceItemButton';
 import { useTripPlaces } from "./useTripPlaces";
+import { useTripCluastering } from '../hooks/useTripCluastering';
 
 interface PlaceContentProps {
   tripId: string
@@ -46,10 +47,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
   const confirmedPlaces = places.filter((p) => confirmedPlaceIds.has(p.id))
   const wishedPlaces = places.filter((p) => !confirmedPlaceIds.has(p.id))
 
-  const [cluastering, setCluastering] = useQueryParamState('cluaster', {
-    defaultValue: false,
-    parse: value => value === 'true'
-  })
+  const [cluastering, setCluastering] = useTripCluastering();
   const [sheetRatio, setSheetRatio] = useState(DEFAULT_BOTTOM_SHEET_RATIO);
 
   const { searchPlace } = usePlaceSearchBottomSheet({ mapType });

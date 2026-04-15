@@ -17,6 +17,7 @@ import { useTrip } from '../useTrip'
 import { TripPlaceItemButton } from './TripPlaceItemButton'
 import { useTripPlaces } from './useTripPlaces'
 import { useTripPlaceDetailOverlay } from './useTripPlaceDetailOverlay'
+import { useTripCluastering } from '../hooks/useTripCluastering'
 
 interface TripPlaceContentProps {
   tripId: string
@@ -52,10 +53,7 @@ export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
   const confirmedPlaces = places.filter((p) => confirmedPlaceIds.has(p.id))
   const wishedPlaces = places.filter((p) => !confirmedPlaceIds.has(p.id))
 
-  const [cluastering, setCluastering] = useQueryParamState('cluaster', {
-    defaultValue: false,
-    parse: value => value === 'true'
-  })
+  const [cluastering, setCluastering] = useTripCluastering();
   const [focusedId, setFocusedId] = useState<string | null>(null)
   const { openDialog: openDetailDialog } = useTripPlaceDetailOverlay()
 

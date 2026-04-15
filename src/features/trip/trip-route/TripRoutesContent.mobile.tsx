@@ -27,6 +27,8 @@ import { PlaceSelectSheet } from "./PlaceSelectSheet";
 import { NoteEditor } from './RouteNoteList';
 import { useDayTripRoutes } from './useDayTripRoutes';
 import { usePlaceFormOverlay } from './usePlaceFormOverlay';
+import CenterFocusWeakIcon from '@mui/icons-material/CenterFocusWeak';
+import { useTripViewConfig } from './useTripViewConfig';
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = [
@@ -84,26 +86,18 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
 
   const { openBottomsheet: getUpdatedPlace } = usePlaceFormOverlay();
 
-  const [isVisibleOtherMarkers, setIsVisibleOtherMarkers] = useQueryParamState('marker', {
-    defaultValue: true,
-    parse: x => x === 'true'
-  })
-  const [cluastering, setCluastering] = useQueryParamState('cluaster', {
-    defaultValue: false,
-    parse: value => value === 'true'
-  })
+  const [viewConfig, setViewConfig] = useTripViewConfig();
   const [sheetRatio, setSheetRatio] = useState(DEFAULT_BOTTOM_SHEET_RATIO);
   const [focusedId, setFocusedId] = useState<string | null>(null)
 
-  const mapRef = useRef<MapRef>(null)
-  const mapType = trip.isOverseas ? 'google' : 'kakao'
-  const today = formatDisplayDate(new Date())
+  const today = formatDisplayDate(new Date());
   const isOngoingTrip = trip.startDate <= today && today <= trip.endDate
-  const currentLocation = useCurrentLocation()
-  const mapCenter = isOngoingTrip ? (currentLocation ?? { lat: trip.lat, lng: trip.lng }) : { lat: trip.lat, lng: trip.lng }
+  const currentLocation = useCurrentLocation({ enabled: isOngoingTrip });
+
+
+  const mapRef = useRef<MapRef>(null);
   const overlay = useOverlay()
   const confirm = useConfirmDialog();
-
 
   return (
     <>
@@ -113,15 +107,15 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
           <Stack gap={1} padding={1} position="absolute" top={0} left={0} zIndex={8}>
             <ToggleButtonGroup
               orientation="vertical"
-              value={isVisibleOtherMarkers}
+              value={viewConfig.isVisibleAllMarkers}
               exclusive
               size="small"
               sx={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
             >
-              <ToggleButton value={true} aria-label="list" onClick={() => setIsVisibleOtherMarkers(true)}>
+              <ToggleButton value={true} aria-label="list" onClick={() => setViewConfig({ isVisibleAllMarkers: true })}>
                 <VisibilityOnIcon fontSize="small" />
               </ToggleButton>
-              <ToggleButton value={false} aria-label="module" onClick={() => setIsVisibleOtherMarkers(false)}>
+              <ToggleButton value={false} aria-label="module" onClick={() => setViewConfig({ isVisibleAllMarkers: true })}>
                 <VisibilityOffIcon fontSize="small" />
               </ToggleButton>
             </ToggleButtonGroup>
@@ -129,21 +123,30 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
           <Stack gap={1} padding={1} position="absolute" top={0} right={0} zIndex={8}>
             <ToggleButton
               value="check"
-              selected={cluastering}
-              onChange={() => setCluastering(!cluastering)}
+              selected={viewConfig.isCluasterlingView}
+              onChange={() => setViewConfig({ isCluasterlingView: !viewConfig.isCluasterlingView })}
               size="small"
               sx={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
             >
               <WorkspacesIcon />
             </ToggleButton>
           </Stack>
+          <Stack gap={1} padding={1} position="absolute" bottom={8} right={0} zIndex={8}>
+            <IconButton
+              onClick={() => mapRef.current?.focus()}
+              size="small"
+              sx={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
+            >
+              <CenterFocusWeakIcon />
+            </IconButton>
+          </Stack>
           <Map
-            type={mapType}
+            type={trip.isOverseas ? 'google' : 'kakao'}
             ref={mapRef}
-            defaultCenter={mapCenter}
+            defaultCenter={currentLocation ?? { lat: trip.lat, lng: trip.lng }}
             autoFocus="path"
             height="100%"
-            clustering={cluastering}
+            clustering={viewConfig.isCluasterlingView}
             clusterGridSize={50}
             showMyLocation={isOngoingTrip}
 
@@ -152,7 +155,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
               const isInCurrentRoute = currentRoute?.placeIds.includes(place.id) ?? false;
               const orderInRoute = currentRoute?.placeIds.indexOf(place.id) ?? -1;
 
-              if (!isVisibleOtherMarkers && !isInCurrentRoute) {
+              if (!viewConfig.isVisibleAllMarkers && !isInCurrentRoute) {
                 return null;
               }
 
