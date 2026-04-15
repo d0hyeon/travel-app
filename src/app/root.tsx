@@ -1,4 +1,4 @@
-import { Alert, AlertTitle, Box, Button, CircularProgress, CssBaseline, ThemeProvider, Typography } from '@mui/material'
+import { Alert, AlertTitle, Button, CssBaseline, Fade, ThemeProvider, Typography } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { QueryClientProvider } from '@tanstack/react-query'
@@ -7,12 +7,14 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router'
 import { registerSW } from 'virtual:pwa-register'
 import { queryClient } from '~app/query-client'
 import { AuthStateSync } from '~features/auth/useAuth'
+import { IntroFullScreenBanner } from '~features/intro/IntroFullScreenBanner'
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { ErrorBoundary } from '~shared/components/ErrorBoundary'
 import { theme } from '~shared/config/theme'
-import { OverlayProvider } from '~shared/hooks/useOverlay'
 import { SearchParamProvider } from '~shared/hooks/urls/useSearchParams'
+import { OverlayProvider } from '~shared/hooks/useOverlay'
 import '~shared/index.css'
+
 
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -66,7 +68,15 @@ export default function Root() {
               {/* <TouchRippleOverlay /> */}
               <SearchParamProvider>
                 <AuthStateSync />
-                <Suspense fallback={<Box display="flex" justifyContent="center" alignItems="center" height="100dvh"><CircularProgress /></Box>}>
+                <Suspense
+                  fallback={
+                    <Fade in={true}>
+                      <div>
+                        <IntroFullScreenBanner />
+                      </div>
+                    </Fade>
+                  }
+                >
                   <Outlet />
                 </Suspense>
               </SearchParamProvider>
