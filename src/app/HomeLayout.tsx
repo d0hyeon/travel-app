@@ -3,12 +3,13 @@ import LuggageIcon from '@mui/icons-material/Luggage'
 import MapIcon from '@mui/icons-material/Map'
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
 import { Box, IconButton, Stack, Tooltip, Typography } from '@mui/material'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link, Outlet, PrefetchPageLinks, useLocation, useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
 import { signOut } from '~features/auth/auth.api'
 import { BottomNavigation } from '~shared/components/BottomNavigation'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
+import { useActivationSignal } from '~shared/hooks/interaction/useActivationSignal'
 import { ScrollContainerProvider } from '~shared/hooks/interaction/useScrollRestore'
 import { isDev } from './env'
 
@@ -135,17 +136,14 @@ export default function HomeLayout() {
 }
 
 function Preload() {
-  const [isIdle, setIsIdle] = useState(false);
+  const [isActived, setIsActived] = useState(false);
 
-  useEffect(() => {
-    const id = requestIdleCallback(() => {
-      setIsIdle(true)
-    })
+  useActivationSignal(() => {
+    setIsActived(true);
+  }, { sensitivity: 'high', once: true })
 
-    return () => cancelIdleCallback(id);
-  }, [])
 
-  if (!isIdle) return null;
+  if (!isActived) return null;
 
   return (
     <>
