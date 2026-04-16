@@ -79,9 +79,12 @@ export function PlaceSearchBottomSheet({ isOpen, onClose, onSelect, center, mapT
               ),
             }}
             onKeyDown={(event) => {
-              if (event.code === 'Enter') {
-                setIsOpenedDetail(true)
+              if (event.code === 'Enter' && keyword !== '') {
+                setIsOpenedDetail(true);
                 record(keyword);
+                if (document.activeElement instanceof HTMLInputElement) {
+                  document.activeElement.blur()
+                }
               }
             }}
           />

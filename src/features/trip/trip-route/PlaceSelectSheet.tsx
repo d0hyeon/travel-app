@@ -95,7 +95,12 @@ function Resolved({
                   </InputAdornment>
                 ),
                 onKeyUp: (event) => {
-                  if (event.code === 'Enter' && searchQuery !== '') setIsOpenDetail(true)
+                  if (event.code === 'Enter' && searchQuery !== '') {
+                    setIsOpenDetail(true);
+                    if (document.activeElement instanceof HTMLInputElement) {
+                      document.activeElement.blur()
+                    }
+                  }
                 }
               },
             }}
