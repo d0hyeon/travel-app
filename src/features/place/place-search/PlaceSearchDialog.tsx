@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useDeferredValue } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -37,22 +37,17 @@ export function PlaceSearchDialog({ isOpen, onClose, onSelect, mapType = 'kakao'
   const [focusedIndex, setFocusedIndex] = useState(-1)
   const listRef = useRef<HTMLUListElement>(null)
 
-  const { results, isLoading, error, search, clear } = usePlaceSearch({ type: mapType })
-  const focusedPlace = focusedIndex >= 0 ? results[focusedIndex] : null
+  const searchKeyword = useDeferredValue(keyword);
+  const { data: results, isLoading, error } = usePlaceSearch({ type: mapType, keyword: searchKeyword })
+  const focusedPlace = focusedIndex >= 0 && results ? results[focusedIndex] : null
 
   // Reset state when dialog opens
   useEffect(() => {
     if (isOpen) {
       setKeyword('')
       setFocusedIndex(-1)
-      clear()
     }
-  }, [isOpen, clear])
-
-  const handleKeywordChange = (value: string) => {
-    setKeyword(value)
-    search(value)
-  }
+  }, [isOpen])
 
   const handleSubmit = () => {
     if (focusedPlace) {
@@ -107,7 +102,7 @@ export function PlaceSearchDialog({ isOpen, onClose, onSelect, mapType = 'kakao'
             fullWidth
             placeholder="장소명을 입력하세요"
             value={keyword}
-            onChange={(e) => handleKeywordChange(e.target.value)}
+            onChange={(e) => setKeyword(e.target.value)}
             onKeyDown={handleKeyDown}
             size="small"
             InputProps={{
@@ -129,7 +124,7 @@ export function PlaceSearchDialog({ isOpen, onClose, onSelect, mapType = 'kakao'
 
             {error && (
               <Typography color="error" textAlign="center" py={4}>
-                {error}
+                {error.message}
               </Typography>
             )}
 

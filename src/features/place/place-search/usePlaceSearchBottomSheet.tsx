@@ -1,11 +1,12 @@
 import { useCallback } from "react";
 import { useOverlay } from "../../../shared/hooks/useOverlay";
-import type { MapType } from "../../../shared/components/Map";
+import type { Coordinate, MapType } from "../../../shared/components/Map";
 import { PlaceSearchBottomSheet } from "./PlaceSearchBottomSheet";
 import { type PlaceSearchResult } from "./PlaceSearchDialog";
 
 interface UsePlaceSearchBottomSheetOptions {
-  mapType?: MapType
+  mapType?: MapType;
+  center?: Coordinate
 }
 
 export function usePlaceSearchBottomSheet(options: UsePlaceSearchBottomSheetOptions = {}) {
@@ -16,8 +17,8 @@ export function usePlaceSearchBottomSheet(options: UsePlaceSearchBottomSheetOpti
     return new Promise<PlaceSearchResult | null>(resolve => {
       overlay.open(({ close, isOpen }) => (
         <PlaceSearchBottomSheet
+          {...options}
           isOpen={isOpen}
-          mapType={mapType}
           onClose={() => {
             close();
             resolve(null)

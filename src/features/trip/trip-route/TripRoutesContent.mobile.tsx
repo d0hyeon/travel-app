@@ -382,7 +382,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
               <PlaceSelectSheet
                 isOpen={isOpen}
                 onClose={close}
-                places={places}
+                tripId={tripId}
                 selectedPlaceIds={currentRoute?.placeIds ?? []}
                 onConfirm={(placeIds) => {
                   if (!currentRoute || placeIds.length === 0) return
