@@ -116,7 +116,7 @@ export function usePlaceSearch({ type, keyword, location }: UsePlaceSearchOption
   };
 
   const { data, isFetchingNextPage, hasNextPage, fetchNextPage, isLoading, error } = useInfiniteQuery({
-    queryKey: ['place-search', keyword],
+    queryKey: ['place-search', keyword, location?.lat, location?.lng],
     queryFn: ({ pageParam }) => {
       if (type === 'google') return searchGoogle(keyword!, pageParam);
       return searchKakao(keyword!, pageParam);
