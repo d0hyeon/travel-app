@@ -3,6 +3,7 @@ import { use, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useS
 import { useVariation } from '~shared/hooks/extends/useVariation';
 import { KakaoMapContext } from '../MapContext';
 import type { Coordinate, MapBounds, MapProps, MarkerData } from '../types';
+import { isInMapBounds } from '../map.utils';
 import { createLabelContent, getMarkerImage, getZoomScale } from './kakaoMap.utils';
 import './loader';
 import { loadKakaoMap } from './loader';
@@ -30,6 +31,8 @@ export default function KakaoMap({
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
   const [zoom, setZoom] = useState(8);
   const [clusterZoom, setClusterZoom] = useState(8);
+  const currentBoundsRef = useRef<MapBounds | null>(null);
+  const [clusterBoundsVersion, setClusterBoundsVersion] = useState(0);
   const onBoundsChangeRef = useRef(onBoundsChange);
   onBoundsChangeRef.current = onBoundsChange;
 
@@ -56,12 +59,15 @@ export default function KakaoMap({
         getSouthWest(): kakao.maps.LatLng;
       } | null;
       if (!bounds) return;
-      onBoundsChangeRef.current?.({
+      const newBounds: MapBounds = {
         north: bounds.getNorthEast().getLat(),
         south: bounds.getSouthWest().getLat(),
         east: bounds.getNorthEast().getLng(),
         west: bounds.getSouthWest().getLng(),
-      } satisfies MapBounds);
+      };
+      currentBoundsRef.current = newBounds;
+      setClusterBoundsVersion(v => v + 1);
+      onBoundsChangeRef.current?.(newBounds);
     };
     kakao.maps.event.addListener(mapInstance, 'idle', idleHandler);
 
@@ -110,9 +116,13 @@ export default function KakaoMap({
   const clusters = useMemo(() => {
     if (!clustering || !map) return null;
 
-    const markers = Array.from(markerRegistryRef.current.values());
+    const allMarkers = Array.from(markerRegistryRef.current.values());
+    const bounds = currentBoundsRef.current;
+    const markers = bounds
+      ? allMarkers.filter(m => isInMapBounds(m.position.lat, m.position.lng, bounds))
+      : allMarkers;
     return calculateClusters(markers, map, clusterGridSize);
-  }, [clustering, map, clusterGridSize, markerVersion, clusterZoom]);
+  }, [clustering, map, clusterGridSize, markerVersion, clusterZoom, clusterBoundsVersion]);
 
   useImperativeHandle(ref, () => ({
     panTo: (lat: number, lng: number, level?: number) => {
@@ -325,6 +335,97 @@ function calculateClusters(
   return clusters;
 }
 
+// ============ Diff-based ClusterOverlays ============
+
+interface ClusterEntry {
+  overlays: kakao.maps.CustomOverlay[];
+  markers: kakao.maps.Marker[];
+  domHandlers: Array<{ el: HTMLElement; type: string; handler: EventListener }>;
+}
+
+function destroyClusterEntry(entry: ClusterEntry) {
+  entry.domHandlers.forEach(({ el, type, handler }) => el.removeEventListener(type, handler));
+  entry.overlays.forEach(o => o.setMap(null));
+  entry.markers.forEach(m => {
+    kakao.maps.event.removeListener(m, 'click', () => {});
+    kakao.maps.event.removeListener(m, 'rightclick', () => {});
+    m.setMap(null);
+  });
+}
+
+function buildClusterEntry(
+  cluster: Cluster,
+  map: kakao.maps.Map,
+  zoom: number,
+  onClusterClick: () => void,
+): ClusterEntry {
+  const entry: ClusterEntry = { overlays: [], markers: [], domHandlers: [] };
+
+  if (cluster.markers.length === 1) {
+    const md = cluster.markers[0];
+
+    if (md.thumbnailUrl) {
+      const el = document.createElement('div');
+      el.innerHTML = createThumbnailContent(md.thumbnailUrl, md.color);
+      el.style.cursor = 'pointer';
+      if (md.onClick) {
+        el.addEventListener('click', md.onClick);
+        entry.domHandlers.push({ el, type: 'click', handler: md.onClick });
+      }
+      if (md.onContextMenu) {
+        el.addEventListener('contextmenu', md.onContextMenu);
+        entry.domHandlers.push({ el, type: 'contextmenu', handler: md.onContextMenu });
+      }
+      const overlay = new kakao.maps.CustomOverlay({
+        position: new kakao.maps.LatLng(md.position.lat, md.position.lng),
+        content: el,
+        yAnchor: 1.08,
+        xAnchor: 0.5,
+      });
+      overlay.setMap(map);
+      entry.overlays.push(overlay);
+    } else {
+      const marker = new kakao.maps.Marker({
+        position: new kakao.maps.LatLng(md.position.lat, md.position.lng),
+        image: getMarkerImage(md.variant, md.color, md.opacity, zoom),
+      });
+      marker.setMap(map);
+      entry.markers.push(marker);
+
+      if (md.onClick) kakao.maps.event.addListener(marker, 'click', md.onClick);
+      if (md.onContextMenu) kakao.maps.event.addListener(marker, 'rightclick', md.onContextMenu);
+
+      if (md.label) {
+        const scale = getZoomScale(zoom);
+        const labelOverlay = new kakao.maps.CustomOverlay({
+          position: new kakao.maps.LatLng(md.position.lat, md.position.lng),
+          content: createLabelContent(md.label, md.variant, md.color, md.opacity, zoom),
+          yAnchor: 1 + (36 * scale + 4) / 20,
+        });
+        labelOverlay.setMap(map);
+        entry.overlays.push(labelOverlay);
+      }
+    }
+  } else {
+    const content = document.createElement('div');
+    content.innerHTML = createClusterContent(cluster.markers.length, zoom);
+    content.style.cursor = 'pointer';
+    content.addEventListener('click', onClusterClick);
+    entry.domHandlers.push({ el: content, type: 'click', handler: onClusterClick });
+
+    const overlay = new kakao.maps.CustomOverlay({
+      position: cluster.center,
+      content,
+      yAnchor: 0.5,
+      xAnchor: 0.5,
+    });
+    overlay.setMap(map);
+    entry.overlays.push(overlay);
+  }
+
+  return entry;
+}
+
 interface ClusterOverlaysProps {
   map: kakao.maps.Map;
   clusters: Cluster[];
@@ -333,112 +434,45 @@ interface ClusterOverlaysProps {
 }
 
 function ClusterOverlays({ map, clusters, zoom, onClusterClick }: ClusterOverlaysProps) {
-  const overlaysRef = useRef<kakao.maps.CustomOverlay[]>([]);
-  const markersRef = useRef<kakao.maps.Marker[]>([]);
-  const elRegistryRef = useRef<Array<{ el: HTMLElement; type: string; handler: EventListener }>>([]);
+  const entriesRef = useRef<Map<string, ClusterEntry>>(new Map());
+  const prevZoomRef = useRef<number>(zoom);
+  const onClusterClickRef = useRef(onClusterClick);
+  onClusterClickRef.current = onClusterClick;
 
   useEffect(() => {
-    elRegistryRef.current.forEach(({ el, type, handler }) => el.removeEventListener(type, handler));
-    elRegistryRef.current = [];
-    overlaysRef.current.forEach(overlay => overlay.setMap(null));
-    overlaysRef.current = [];
-    markersRef.current.forEach(marker => marker.setMap(null));
-    markersRef.current = [];
+    const zoomChanged = prevZoomRef.current !== zoom;
+    prevZoomRef.current = zoom;
 
-    clusters.forEach(cluster => {
-      if (cluster.markers.length === 1) {
-        const markerData = cluster.markers[0];
+    // zoom 변경 시 마커 크기가 달라지므로 전체 재생성
+    if (zoomChanged) {
+      for (const entry of entriesRef.current.values()) destroyClusterEntry(entry);
+      entriesRef.current.clear();
+    }
 
-        if (markerData.thumbnailUrl) {
-          const el = document.createElement('div');
-          el.innerHTML = createThumbnailContent(markerData.thumbnailUrl, markerData.color);
-          el.style.cursor = 'pointer';
-          if (markerData.onClick) {
-            el.addEventListener('click', markerData.onClick);
-            elRegistryRef.current.push({ el, type: 'click', handler: markerData.onClick });
-          }
-          if (markerData.onContextMenu) {
-            el.addEventListener('contextmenu', markerData.onContextMenu);
-            elRegistryRef.current.push({ el, type: 'contextmenu', handler: markerData.onContextMenu });
-          }
-
-          const overlay = new kakao.maps.CustomOverlay({
-            position: new kakao.maps.LatLng(markerData.position.lat, markerData.position.lng),
-            content: el,
-            yAnchor: 1.08,
-            xAnchor: 0.5,
-          });
-          overlay.setMap(map);
-          overlaysRef.current.push(overlay);
-        } else {
-          const markerImage = getMarkerImage(
-            markerData.variant,
-            markerData.color,
-            markerData.opacity,
-            zoom
-          );
-
-          const marker = new kakao.maps.Marker({
-            position: new kakao.maps.LatLng(markerData.position.lat, markerData.position.lng),
-            image: markerImage,
-          });
-          marker.setMap(map);
-          markersRef.current.push(marker);
-
-          if (markerData.onClick) {
-            kakao.maps.event.addListener(marker, 'click', markerData.onClick);
-          }
-          if (markerData.onContextMenu) {
-            kakao.maps.event.addListener(marker, 'rightclick', markerData.onContextMenu);
-          }
-
-          if (markerData.label) {
-            const scale = getZoomScale(zoom);
-            const yAnchor = 1 + (36 * scale + 4) / 20;
-            const labelOverlay = new kakao.maps.CustomOverlay({
-              position: new kakao.maps.LatLng(markerData.position.lat, markerData.position.lng),
-              content: createLabelContent(
-                markerData.label,
-                markerData.variant,
-                markerData.color,
-                markerData.opacity,
-                zoom
-              ),
-              yAnchor,
-            });
-            labelOverlay.setMap(map);
-            overlaysRef.current.push(labelOverlay);
-          }
-        }
-      } else {
-        const content = document.createElement('div');
-        content.innerHTML = createClusterContent(cluster.markers.length, zoom);
-        content.style.cursor = 'pointer';
-        const clusterClickHandler: EventListener = () => onClusterClick(cluster);
-        content.addEventListener('click', clusterClickHandler);
-        elRegistryRef.current.push({ el: content, type: 'click', handler: clusterClickHandler });
-
-        const overlay = new kakao.maps.CustomOverlay({
-          position: cluster.center,
-          content,
-          yAnchor: 0.5,
-          xAnchor: 0.5,
-        });
-
-        overlay.setMap(map);
-        overlaysRef.current.push(overlay);
+    // 사라진 클러스터 제거
+    const newClusterMap = new Map(clusters.map(c => [c.id, c]));
+    for (const [id, entry] of entriesRef.current) {
+      if (!newClusterMap.has(id)) {
+        destroyClusterEntry(entry);
+        entriesRef.current.delete(id);
       }
-    });
+    }
 
+    // 새로 생긴 클러스터만 추가
+    for (const [id, cluster] of newClusterMap) {
+      if (entriesRef.current.has(id)) continue;
+      const handler = () => onClusterClickRef.current(cluster);
+      entriesRef.current.set(id, buildClusterEntry(cluster, map, zoom, handler));
+    }
+  }, [map, clusters, zoom]);
+
+  // 언마운트 시 전체 정리
+  useEffect(() => {
     return () => {
-      elRegistryRef.current.forEach(({ el, type, handler }) => el.removeEventListener(type, handler));
-      elRegistryRef.current = [];
-      overlaysRef.current.forEach(overlay => overlay.setMap(null));
-      overlaysRef.current = [];
-      markersRef.current.forEach(marker => marker.setMap(null));
-      markersRef.current = [];
+      for (const entry of entriesRef.current.values()) destroyClusterEntry(entry);
+      entriesRef.current.clear();
     };
-  }, [map, clusters, zoom, onClusterClick]);
+  }, []);
 
   return null;
 }
