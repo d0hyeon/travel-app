@@ -27,5 +27,4 @@ build
 
 .env
 supabase/
-.claude/
 build/

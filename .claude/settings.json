@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx vite-bundle-visualizer)",
+      "Bash(yarn remove react-router-dom)",
+      "Bash(yarn add react-router @react-router/dev @react-router/node @react-router/serve)",
+      "Bash(yarn build)",
+      "Bash(xargs sed -i '' 's/~apps\\\\//~app\\\\//g')",
+      "Bash(yarn ts-check)",
+      "Bash(git add -A)",
+      "Bash(git reset HEAD src/shared/components/BottomArea.tsx)",
+      "Bash(git commit:*)",
+      "Bash(yarn tsc --noEmit)",
+      "Read(//private/var/folders/w2/2j6pl6_n6sl9fgbh4r9k82k00000gn/T/tmp-59247-lBtkQxbdBXJo/**)",
+      "Bash(npx madge:*)",
+      "Bash(sort -t'|' -k1 -rn)",
+      "Bash(head -c 100000 dist/client/assets/trip.api-*.js)",
+      "Bash(wc -c dist/client/assets/trip.api-*.js)",
+      "Bash(head -c 200000 dist/client/assets/trip.api-*.js)",
+      "Bash(grep -oE '[A-Za-z_][A-Za-z0-9_]{20,}')",
+      "Bash(split -b 500000 dist/client/assets/trip.api-*.js /tmp/chunk_)",
+      "Bash(for f:*)",
+      "Bash(do echo:*)",
+      "Read(//Users/kdh/space/dev/travel-app/**)",
+      "Bash(grep -oE '[A-Za-z]{10,30}')",
+      "Bash(done)"
+    ],
+    "additionalDirectories": [
+      "/Users/kdh/space/dev/travel-app/app"
+    ]
+  }
+}
