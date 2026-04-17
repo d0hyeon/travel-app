@@ -1,11 +1,10 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { useCallback, useMemo, useRef } from 'react';
+import { use, useCallback, useMemo, useRef } from 'react';
 import { type Coordinate } from '~shared/model/coordinate.model';
 import { assert } from '~shared/utils/types';
 import { loadGoogleMaps } from '../../../shared/components/Map/google/loader';
 import { loadKakaoMap } from '../../../shared/components/Map/kakao/loader';
 import type { MapType } from '../../../shared/components/Map/types';
-import { use } from 'react';
 
 export interface PlaceResult {
   id: string;
@@ -142,7 +141,7 @@ export function usePlaceSearch({ type, keyword, location }: UsePlaceSearchOption
     enabled: !!keyword,
   });
 
-  const results = data?.pages.flatMap((p) => p.results) ?? [];
+  const results = useMemo(() => data?.pages.flatMap((p) => p.results) ?? [], [data]);
 
   return { data: results, isLoading, isFetchingNextPage, hasNextPage, error, fetchNextPage };
 }
