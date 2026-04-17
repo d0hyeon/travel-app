@@ -29,6 +29,7 @@ import { useDayTripRoutes } from './useDayTripRoutes';
 import { usePlaceFormOverlay } from './usePlaceFormOverlay';
 import CenterFocusWeakIcon from '@mui/icons-material/CenterFocusWeak';
 import { useTripViewConfig } from './useTripViewConfig';
+import MyLocationIcon from '@mui/icons-material/MyLocation';
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = [
@@ -144,13 +145,15 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
             </ToggleButton>
           </Stack>
           <Stack gap={1} padding={1} position="absolute" bottom={8} right={0} zIndex={8}>
-            <IconButton
-              onClick={() => mapRef.current?.focus()}
-              size="small"
-              sx={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
-            >
-              <CenterFocusWeakIcon />
-            </IconButton>
+            {currentLocation && (
+              <IconButton
+                onClick={() => mapRef.current?.panTo(currentLocation.lat, currentLocation.lng)}
+                size="small"
+                sx={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
+              >
+                <MyLocationIcon />
+              </IconButton>
+            )}
           </Stack>
           <Map
             type={trip.isOverseas ? 'google' : 'kakao'}
