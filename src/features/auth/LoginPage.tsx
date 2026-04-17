@@ -1,9 +1,8 @@
-import LuggageIcon from '@mui/icons-material/Luggage'
-import { Box, Button, Typography } from '@mui/material'
+import { Button } from '@mui/material'
+import { IntroFullScreenBanner } from '~features/intro/IntroFullScreenBanner'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { signInWithKakao } from './auth.api'
 import { useAuthRedirection } from './AuthNavigate'
-import { IntroFullScreenBanner } from '~features/intro/IntroFullScreenBanner'
 
 function KakaoSymbol() {
   return (

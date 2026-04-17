@@ -6,8 +6,7 @@ import { StatisticsDonutChart } from '~shared/components/statistics/StatisticsDo
 import { StatisticsHeroPanel } from './StatisticsHeroPanel'
 import { StatisticsSectionCard } from './StatisticsSectionCard'
 import {
-  StatisticsTrendChart,
-  useStatisticsTrendMode
+  StatisticsTrendChart
 } from './StatisticsTrendChart'
 import {
   StatisticsViewConfigButton,
@@ -20,7 +19,6 @@ interface StatisticsExpenseSectionProps {
 }
 
 export function StatisticsExpenseSection({ summary }: StatisticsExpenseSectionProps) {
-  const [trendMode, setTrendMode] = useStatisticsTrendMode()
   const [trendViewMode, setTrendViewMode] = useStatisticsChartViewMode('trend', 'line')
   const [travelViewMode, setTravelViewMode] = useStatisticsChartViewMode('travel-spend', 'horizontal-bar')
   const [payerViewMode, setPayerViewMode] = useStatisticsChartViewMode('payer-ranking', 'donut')

@@ -79,11 +79,13 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
             {places.map(place => (
               <Map.Marker
                 key={place.id}
-                variant={confirmedPlaceIds.has(place.id) ? 'selected' : 'default'}
                 label={place.name}
                 lat={place.lat}
                 lng={place.lng}
-                color={place.category ? PlaceCategoryColorCode[place.category] : undefined}
+                color={place.category
+                  ? PlaceCategoryColorCode[place.category]
+                  : confirmedPlaceIds.has(place.id) ? 'selected' : 'default'
+                }
                 onClick={() => setFocusedId(place.id)}
               />
             ))}

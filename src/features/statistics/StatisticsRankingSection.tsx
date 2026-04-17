@@ -14,12 +14,7 @@ interface StatisticsRankingSectionProps {
   summary: StatisticsSummary
 }
 
-function getTripDays(startDate: string, endDate: string) {
-  const start = new Date(startDate)
-  const end = new Date(endDate)
-  const diff = end.getTime() - start.getTime()
-  return Math.max(1, Math.floor(diff / (1000 * 60 * 60 * 24)) + 1)
-}
+
 
 export function StatisticsRankingSection({ summary }: StatisticsRankingSectionProps) {
   const [travelViewMode, setTravelViewMode] = useStatisticsChartViewMode('travel-spend', 'horizontal-bar')

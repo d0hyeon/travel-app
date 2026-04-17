@@ -1,7 +1,7 @@
 import { use, useEffect, useEffectEvent, useMemo, useState } from "react";
 import { KakaoMapContext } from "../MapContext";
 import type { MarkerProps } from "../types";
-import { createLabelContent, getMarkerImage, getZoomScale } from "./kakaoMap.utils";
+import { createLabelContent, getMarkerImage, getZoomScale, resolveMarkerColor } from "./kakaoMap.utils";
 
 export default function KakaoMapMarker({ id, lat, lng, label, tooltip, variant, color, opacity = 1, thumbnailUrl, onClick = () => { }, onContextMenu }: MarkerProps) {
   const context = use(KakaoMapContext);
@@ -65,7 +65,8 @@ export default function KakaoMapMarker({ id, lat, lng, label, tooltip, variant, 
 
     const { map } = context;
     const scale = getZoomScale(zoom);
-    const yAnchor = 1 + (36 * scale + 4) / 20;
+    const markerHalfHeight = variant === 'circle' ? 8 * scale : 30 * scale;
+    const yAnchor = 1 + (markerHalfHeight + 4) / 20;
     const overlay = new kakao.maps.CustomOverlay({
       position,
       content: createLabelContent(label, variant, color, opacity, zoom),
@@ -132,7 +133,8 @@ export default function KakaoMapMarker({ id, lat, lng, label, tooltip, variant, 
 
     const { map } = context;
     const scale = getZoomScale(zoom);
-    const yAnchor = 1 + (36 * scale) / 30;
+    const markerHeight = variant === 'circle' ? 16 * scale : 30 * scale;
+    const yAnchor = 1 + markerHeight / 30;
     const overlay = new kakao.maps.CustomOverlay({
       position,
       content: createTooltipContent(tooltip, zoom),
@@ -196,8 +198,8 @@ function createTooltipContent(tooltip: string | string[], level: number = 8): st
   `
 }
 
-function createThumbnailContent(thumbnailUrl: string, color?: string): string {
-  const borderColor = color ?? '#ef5350';
+function createThumbnailContent(thumbnailUrl: string, color?: MarkerProps['color']): string {
+  const borderColor = resolveMarkerColor(color);
   return `
     <div style="
       display: flex;

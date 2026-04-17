@@ -18,7 +18,7 @@ const GooglePath = lazy(() => import('./google/GoogleMapPath'));
 interface Props extends MapProps, Omit<BoxProps, 'autoFocus' | 'ref'> {
   type: 'kakao' | 'google';
 }
-const MAP_PROP_KEYS: (keyof MapProps)[] = ['autoFocus', 'children', 'clusterGridSize', 'clustering', 'defaultCenter', 'onBoundsChange', 'ref', 'showMyLocation']
+const MAP_PROP_KEYS: (keyof MapProps)[] = ['autoFocus', 'children', 'clusterGridSize', 'clustering', 'defaultCenter', 'center', 'onBoundsChange', 'ref']
 
 export function Map({ type, ...props }: Props) {
 

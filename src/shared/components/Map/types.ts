@@ -21,14 +21,16 @@ export interface MapBounds {
 
 export interface MapProps  {
   defaultCenter?: Coordinate;
+  center?: Coordinate;
   autoFocus?: AutoFocus;
   children?: ReactNode;
   ref?: Ref<MapRef>;
   clustering?: boolean;
   clusterGridSize?: number;
-  showMyLocation?: boolean;
   onBoundsChange?: (bounds: MapBounds) => void;
 }
+
+export type MarkerColor = 'default' | 'selected' | 'disabled' | (string & {});
 
 export interface MarkerProps {
   id?: string;
@@ -36,8 +38,8 @@ export interface MarkerProps {
   lng: number;
   label?: string;
   tooltip?: string | string[];
-  variant?: 'default' | 'selected' | 'disabled';
-  color?: string;
+  variant?: 'pin' | 'circle';
+  color?: MarkerColor;
   opacity?: number;
   thumbnailUrl?: string;
   onClick?: (marker: MarkerCallbackData) => void;
@@ -48,7 +50,7 @@ export interface MarkerCallbackData {
   lat: number;
   lng: number;
   label?: string;
-  variant?: 'default' | 'selected' | 'disabled';
+  variant?: 'pin' | 'circle';
 }
 
 export interface PathProps {
@@ -60,13 +62,14 @@ export interface PathProps {
 }
 
 // 내부 마커 레지스트리용
+/** @package */
 export interface MarkerData {
   id: string;
   position: Coordinate;
   label?: string;
   tooltip?: string | string[];
-  variant?: 'default' | 'selected' | 'disabled';
-  color?: string;
+  variant?: 'pin' | 'circle';
+  color?: MarkerColor;
   opacity?: number;
   thumbnailUrl?: string;
   onClick?: () => void;

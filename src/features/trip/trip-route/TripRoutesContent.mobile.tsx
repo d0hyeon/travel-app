@@ -98,6 +98,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
   const mapRef = useRef<MapRef>(null);
   const overlay = useOverlay()
   const confirm = useConfirmDialog();
+  console.log(viewConfig.isVisibleAllMarkers)
 
   return (
     <>
@@ -115,7 +116,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
               <ToggleButton value={true} aria-label="list" onClick={() => setViewConfig({ isVisibleAllMarkers: true })}>
                 <VisibilityOnIcon fontSize="small" />
               </ToggleButton>
-              <ToggleButton value={false} aria-label="module" onClick={() => setViewConfig({ isVisibleAllMarkers: true })}>
+              <ToggleButton value={false} aria-label="module" onClick={() => setViewConfig({ isVisibleAllMarkers: false })}>
                 <VisibilityOffIcon fontSize="small" />
               </ToggleButton>
             </ToggleButtonGroup>
@@ -143,14 +144,16 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
           <Map
             type={trip.isOverseas ? 'google' : 'kakao'}
             ref={mapRef}
-            defaultCenter={currentLocation ?? { lat: trip.lat, lng: trip.lng }}
+            defaultCenter={{ lat: trip.lat, lng: trip.lng }}
+            center={currentLocation ?? undefined}
             autoFocus="path"
             height="100%"
             clustering={viewConfig.isCluasterlingView}
             clusterGridSize={50}
-            showMyLocation={isOngoingTrip}
-
           >
+            {isOngoingTrip && currentLocation && (
+              <Map.Marker variant="circle" {...currentLocation} />
+            )}
             {places.map((place) => {
               const isInCurrentRoute = currentRoute?.placeIds.includes(place.id) ?? false;
               const orderInRoute = currentRoute?.placeIds.indexOf(place.id) ?? -1;
@@ -163,8 +166,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                 <Map.Marker
                   key={place.id}
                   label={isInCurrentRoute ? `${orderInRoute + 1}. ${place.name}` : place.name}
-                  variant={isInCurrentRoute ? 'selected' : 'disabled'}
-                  color={isInCurrentRoute && place.category ? PlaceCategoryColorCode[place.category] : undefined}
+                  color={isInCurrentRoute && place.category ? PlaceCategoryColorCode[place.category] : "disabled"}
                   onClick={async () => {
                     if (isInCurrentRoute) {
                       return setFocusedId(place.id)

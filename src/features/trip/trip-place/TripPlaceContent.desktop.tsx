@@ -8,16 +8,15 @@ import {
   Typography
 } from '@mui/material'
 import { useMemo, useRef, useState } from 'react'
-import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState'
 import { Map, type MapRef } from '../../../shared/components/Map'
 import { usePlaceSearchDialog } from '../../place/place-search/usePlaceSearchDialog'
 import { PlaceCategoryColorCode, type Place } from '../../place/place.types'
+import { useTripCluastering } from '../hooks/useTripCluastering'
 import { useTripRoutes } from '../trip-route/useTripRoutes'
 import { useTrip } from '../useTrip'
 import { TripPlaceItemButton } from './TripPlaceItemButton'
-import { useTripPlaces } from './useTripPlaces'
 import { useTripPlaceDetailOverlay } from './useTripPlaceDetailOverlay'
-import { useTripCluastering } from '../hooks/useTripCluastering'
+import { useTripPlaces } from './useTripPlaces'
 
 interface TripPlaceContentProps {
   tripId: string
@@ -142,7 +141,6 @@ export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
           {places.map(place => (
             <Map.Marker
               key={place.id}
-              variant={confirmedPlaceIds.has(place.id) ? 'selected' : 'default'}
               label={place.name}
               lat={place.lat}
               lng={place.lng}

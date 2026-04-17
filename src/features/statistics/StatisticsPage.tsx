@@ -1,11 +1,11 @@
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
-import { Box, CircularProgress, LinearProgress, Stack, Tab, Tabs, Typography } from '@mui/material'
+import { Box, CircularProgress, Stack, Tab, Tabs, Typography } from '@mui/material'
+import { Suspense } from 'react'
 import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState'
 import { StatisticsCurrencySection } from './StatisticsCurrencySection'
 import { StatisticsExpenseSection } from './StatisticsExpenseSection'
 import { StatisticsOverviewSection } from './StatisticsOverviewSection'
 import { useStatisticsSummary } from './statistics-expense/useStatisticsSummary'
-import { Suspense } from 'react'
 
 type StatisticsTab = 'overview' | 'expense' | 'currency'
 

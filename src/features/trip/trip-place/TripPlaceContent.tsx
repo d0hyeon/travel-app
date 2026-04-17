@@ -73,7 +73,7 @@ export function TripPlaceContent({ tripId, defaultCenter, ...props }: Props) {
           {places.map(place => (
             <Map.Marker
               key={place.id}
-              variant={confirmedPlaceIds.has(place.id) ? 'selected' : 'default'}
+              color={confirmedPlaceIds.has(place.id) ? 'selected' : 'default'}
               label={place.name}
               {...place}
             />

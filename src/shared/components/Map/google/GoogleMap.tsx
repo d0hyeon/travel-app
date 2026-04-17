@@ -1,22 +1,10 @@
 import { Box, type BoxProps } from '@mui/material';
 import { use, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { GoogleMapContext } from '../MapContext';
-import type { Coordinate, MapBounds, MapProps } from '../types';
+import type { Coordinate, MapBounds, MapProps, MarkerData } from '../types';
 import { isInMapBounds } from '../map.utils';
 import { loadGoogleMaps } from './loader';
 
-interface MarkerData {
-  id: string;
-  position: Coordinate;
-  label?: string;
-  tooltip?: string | string[];
-  variant?: 'default' | 'selected' | 'disabled';
-  color?: string;
-  opacity?: number;
-  thumbnailUrl?: string;
-  onClick?: () => void;
-  onContextMenu?: () => void;
-}
 
 
 const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 };
@@ -51,12 +39,12 @@ export function preload() {
   loadGoogleMaps();
 }
 export default function GoogleMap({
+  center,
   defaultCenter = DEFAULT_CENTER,
   ref,
   autoFocus = 'marker',
   clustering = false,
   clusterGridSize = 60,
-  showMyLocation = false,
   onBoundsChange,
   children,
   ...boxProps
@@ -81,8 +69,9 @@ export default function GoogleMap({
 
   useEffect(() => {
     if (!container) return;
+    const coordinate = center ?? defaultCenter
     const mapInstance = new google.maps.Map(container, {
-      center: { lat: defaultCenter.lat, lng: defaultCenter.lng },
+      center: { lat: coordinate.lat, lng: coordinate.lng },
       zoom: 10,
       disableDefaultUI: true,
       styles: PASTEL_MAP_STYLES,
@@ -115,6 +104,12 @@ export default function GoogleMap({
       google.maps.event.removeListener(idleListener);
     };
   }, [container]);
+
+  useEffect(() => {
+    if (map != null && center != null) {
+      map.setCenter(center);
+    }
+  }, [map, center?.lat, center?.lng])
 
   const extendBound = useCallback((coord: Coordinate) => {
     if (!map) return;
@@ -193,73 +188,8 @@ export default function GoogleMap({
       {clusters && map && (
         <ClusterOverlays map={map} clusters={clusters} onClusterClick={handleClusterClick} />
       )}
-      {showMyLocation && map && <GoogleMyLocationOverlay map={map} />}
     </GoogleMapContext.Provider>
   );
-}
-
-function GoogleMyLocationOverlay({ map }: { map: google.maps.Map }) {
-  useEffect(() => {
-    if (!navigator.geolocation) return;
-
-    let overlay: google.maps.OverlayView | null = null;
-    let watchId: number;
-
-    const createOverlay = (lat: number, lng: number) => {
-      if (overlay) overlay.setMap(null);
-
-      class MyLocationOverlayView extends google.maps.OverlayView {
-        private el: HTMLDivElement;
-        private position: google.maps.LatLng;
-
-        constructor(position: google.maps.LatLng) {
-          super();
-          this.position = position;
-          this.el = document.createElement('div');
-          this.el.style.cssText = `
-            width: 16px; height: 16px; border-radius: 50%;
-            background: #4285f4; border: 3px solid #fff;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-            position: absolute; transform: translate(-50%, -50%);
-          `;
-        }
-
-        onAdd() { this.getPanes()!.overlayMouseTarget.appendChild(this.el); }
-        draw() {
-          const proj = this.getProjection();
-          const point = proj.fromLatLngToDivPixel(this.position);
-          if (point) {
-            this.el.style.left = `${point.x}px`;
-            this.el.style.top = `${point.y}px`;
-          }
-        }
-        onRemove() { this.el.parentNode?.removeChild(this.el); }
-      }
-
-      overlay = new MyLocationOverlayView(new google.maps.LatLng(lat, lng));
-      overlay.setMap(map);
-    };
-
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        createOverlay(pos.coords.latitude, pos.coords.longitude);
-        watchId = navigator.geolocation.watchPosition(
-          (pos) => createOverlay(pos.coords.latitude, pos.coords.longitude),
-          undefined,
-          { enableHighAccuracy: true }
-        );
-      },
-      () => { /* 위치 권한 거부 시 무시 */ },
-      { enableHighAccuracy: true }
-    );
-
-    return () => {
-      overlay?.setMap(null);
-      if (watchId != null) navigator.geolocation.clearWatch(watchId);
-    };
-  }, [map]);
-
-  return null;
 }
 
 

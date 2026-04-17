@@ -14,26 +14,25 @@ import {
   ToggleButtonGroup,
   Typography
 } from '@mui/material'
+import { styled } from '@mui/system'
 import { Suspense, useMemo, useRef, useState } from 'react'
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { SortableItem } from '../../../shared/components/dnd/SortableItem'
 import { SortableList } from '../../../shared/components/dnd/SortableList'
-import { Map, type MapRef } from '../../../shared/components/Map'
 import { ListItem } from '../../../shared/components/ListItem'
-import { useCurrentLocation } from '../../../shared/hooks/env/useCurrentLocation'
-import { useOverlay } from '../../../shared/hooks/useOverlay'
+import { Map, type MapRef } from '../../../shared/components/Map'
 import { useQueryParamState } from '../../../shared/hooks/urls/useQueryParamState'
-import { useRoadRoute } from '../../route/road-route/useRoadRoute'
-import { formatShortDate, formatDisplayDate } from '../../../shared/utils/formats'
+import { useOverlay } from '../../../shared/hooks/useOverlay'
+import { formatDisplayDate, formatShortDate } from '../../../shared/utils/formats'
 import { PlaceSearchDialog, type PlaceSearchResult } from '../../place/place-search/PlaceSearchDialog'
 import { PlaceCategoryColorCode } from '../../place/place.types'
+import { useRoadRoute } from '../../route/road-route/useRoadRoute'
 import { useTripPlaceDetailOverlay } from '../trip-place/useTripPlaceDetailOverlay'
 import { useTripPlaces } from '../trip-place/useTripPlaces'
 import { useTrip } from '../useTrip'
 import { NoteEditor } from './RouteNoteList'
 import { useDayTripRoutes } from './useDayTripRoutes'
 import { usePlaceFormOverlay } from './usePlaceFormOverlay'
-import { styled } from '@mui/system'
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = [
@@ -99,11 +98,6 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
     parse: value => value === 'true'
   })
   const mapRef = useRef<MapRef>(null)
-  const mapType = trip.isOverseas ? 'google' : 'kakao'
-  const today = formatDisplayDate(new Date())
-  const isOngoingTrip = trip.startDate <= today && today <= trip.endDate
-  const currentLocation = useCurrentLocation()
-  const mapCenter = isOngoingTrip ? (currentLocation ?? { lat: trip.lat, lng: trip.lng }) : { lat: trip.lat, lng: trip.lng }
 
   return (
     <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
@@ -274,7 +268,7 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
                   <PlaceSearchDialog
                     isOpen={isOpen}
                     onClose={close}
-                    mapType={mapType}
+                    mapType={trip.isOverseas ? 'google' : 'kakao'}
                     onSelect={(place: PlaceSearchResult) => createPlace(place)}
                   />
                 ))
@@ -317,14 +311,13 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
           </ToggleButton>
         </Stack>
         <Map
-          type={mapType}
+          type={trip.isOverseas ? 'google' : 'kakao'}
           ref={mapRef}
-          defaultCenter={mapCenter}
+          defaultCenter={trip}
           autoFocus="path"
           height="100%"
           clustering={cluastering}
           clusterGridSize={60}
-          showMyLocation={isOngoingTrip}
         >
           {places.map((place) => {
             if (currentRoute.hiddenPlaces.includes(place.id)) {
@@ -341,10 +334,6 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
               <Map.Marker
                 key={place.id}
                 label={isInCurrentRoute ? `${orderInRoute + 1}. ${place.name}` : place.name}
-                variant={
-                  isInCurrentRoute ? 'selected' : 'disabled'
-                }
-
                 color={isInCurrentRoute && place.category ? PlaceCategoryColorCode[place.category] : undefined}
                 onContextMenu={() => detailOverlay.openDialog({ placeId: place.id, tripId })}
                 onClick={() => {

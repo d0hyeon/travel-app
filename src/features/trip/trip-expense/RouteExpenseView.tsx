@@ -220,7 +220,6 @@ export function RouteExpenseView({ tripId }: Props) {
                 lat={place.lat}
                 lng={place.lng}
                 label={`${place.orderInRoute + 1}. ${place.name}`}
-                variant={activeDayIndex === dayIndex ? 'selected' : 'disabled'}
                 color={place.category ? PlaceCategoryColorCode[place.category as keyof typeof PlaceCategoryColorCode] : getRouteColor(dayIndex)}
                 opacity={activeDayIndex === dayIndex ? 1 : 0.5}
                 onClick={() => handleAddExpense(place)}

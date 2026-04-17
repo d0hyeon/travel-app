@@ -209,8 +209,7 @@ function PlaceMarker({ place, color, isSelected, onClick }: PlaceMarkerProps) {
       lat={place.lat}
       lng={place.lng}
       label={place.name}
-      color={color}
-      variant={isSelected ? 'selected' : 'default'}
+      color={isSelected ? 'selected' : (color ?? 'default')}
       thumbnailUrl={thumbnailUrl}
       onClick={onClick}
     />

@@ -15,12 +15,12 @@ const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 }
 type Props = MapProps & Omit<BoxProps, 'ref' | 'autoFocus'>
 
 export default function KakaoMap({
+  center,
   defaultCenter = DEFAULT_CENTER,
   ref,
   autoFocus = 'marker',
   clustering = false,
   clusterGridSize = 60,
-  showMyLocation = false,
   onBoundsChange,
   children,
   ...boxProps
@@ -43,9 +43,9 @@ export default function KakaoMap({
 
   useEffect(() => {
     if (!container) return;
-
+    const coordinate = center ?? defaultCenter;
     const mapInstance = new kakao.maps.Map(container, {
-      center: new kakao.maps.LatLng(defaultCenter.lat, defaultCenter.lng),
+      center: new kakao.maps.LatLng(coordinate.lat, coordinate.lng),
       level: 8,
     });
     setMap(mapInstance);
@@ -76,6 +76,12 @@ export default function KakaoMap({
       kakao.maps.event.removeListener(mapInstance, 'idle', idleHandler);
     };
   }, [container])
+
+  useEffect(() => {
+    if (map != null && center != null) {
+      map.setCenter(new kakao.maps.LatLng(center.lat, center.lng))
+    }
+  }, [map, center?.lat, center?.lng])
 
   const boundStatusRef = useRef<'closed' | 'open'>('closed')
   const boundsRef = useRef<kakao.maps.LatLngBounds>(new kakao.maps.LatLngBounds());
@@ -174,56 +180,10 @@ export default function KakaoMap({
           onClusterClick={handleClusterClick}
         />
       )}
-      {showMyLocation && map && <MyLocationOverlay map={map} />}
     </KakaoMapContext.Provider>
   )
 }
 
-function createMyLocationContent() {
-  const el = document.createElement('div');
-  el.style.cssText = `
-    width: 16px; height: 16px; border-radius: 50%;
-    background: #4285f4; border: 3px solid #fff;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-    transform: translate(-50%, -50%);
-  `;
-  return el;
-}
-
-function MyLocationOverlay({ map }: { map: kakao.maps.Map }) {
-  useEffect(() => {
-    if (!navigator.geolocation) return;
-
-    let overlay: kakao.maps.CustomOverlay | null = null;
-    let watchId: number;
-
-    const updatePosition = (pos: GeolocationPosition) => {
-      const latLng = new kakao.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
-      if (overlay) overlay.setMap(null);
-      overlay = new kakao.maps.CustomOverlay({
-        position: latLng,
-        content: createMyLocationContent(),
-      });
-      overlay.setMap(map);
-    };
-
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        updatePosition(pos);
-        watchId = navigator.geolocation.watchPosition(updatePosition, undefined, { enableHighAccuracy: true });
-      },
-      () => { /* 위치 권한 거부 시 무시 */ },
-      { enableHighAccuracy: true }
-    );
-
-    return () => {
-      overlay?.setMap(null);
-      if (watchId != null) navigator.geolocation.clearWatch(watchId);
-    };
-  }, [map]);
-
-  return null;
-}
 
 
 
@@ -347,8 +307,8 @@ function destroyClusterEntry(entry: ClusterEntry) {
   entry.domHandlers.forEach(({ el, type, handler }) => el.removeEventListener(type, handler));
   entry.overlays.forEach(o => o.setMap(null));
   entry.markers.forEach(m => {
-    kakao.maps.event.removeListener(m, 'click', () => {});
-    kakao.maps.event.removeListener(m, 'rightclick', () => {});
+    kakao.maps.event.removeListener(m, 'click', () => { });
+    kakao.maps.event.removeListener(m, 'rightclick', () => { });
     m.setMap(null);
   });
 }
