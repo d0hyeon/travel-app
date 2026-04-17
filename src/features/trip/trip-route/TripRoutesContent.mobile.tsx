@@ -92,13 +92,21 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
 
   const today = formatDisplayDate(new Date());
   const isOngoingTrip = trip.startDate <= today && today <= trip.endDate
-  const currentLocation = useCurrentLocation({ enabled: isOngoingTrip });
 
+  const isInitialRef = useRef(false);
+  const currentLocation = useCurrentLocation({
+    enabled: isOngoingTrip,
+    onChange: (coordinate) => {
+      if (isInitialRef.current) return;
+
+      mapRef.current?.panTo(coordinate.lat, coordinate.lng)
+      isInitialRef.current = true;
+    }
+  });
 
   const mapRef = useRef<MapRef>(null);
   const overlay = useOverlay()
   const confirm = useConfirmDialog();
-  console.log(viewConfig.isVisibleAllMarkers)
 
   return (
     <>
@@ -116,9 +124,12 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
               <ToggleButton value={true} aria-label="list" onClick={() => setViewConfig({ isVisibleAllMarkers: true })}>
                 <VisibilityOnIcon fontSize="small" />
               </ToggleButton>
-              <ToggleButton value={false} aria-label="module" onClick={() => setViewConfig({ isVisibleAllMarkers: false })}>
-                <VisibilityOffIcon fontSize="small" />
-              </ToggleButton>
+              {currentLocation && (
+                <ToggleButton value={false} aria-label="module" onClick={() => mapRef.current?.panTo(currentLocation.lat, currentLocation.lng)}>
+                  <VisibilityOffIcon fontSize="small" />
+                </ToggleButton>
+              )}
+
             </ToggleButtonGroup>
           </Stack>
           <Stack gap={1} padding={1} position="absolute" top={0} right={0} zIndex={8}>
@@ -144,8 +155,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
           <Map
             type={trip.isOverseas ? 'google' : 'kakao'}
             ref={mapRef}
-            defaultCenter={{ lat: trip.lat, lng: trip.lng }}
-            center={currentLocation ?? undefined}
+            defaultCenter={currentLocation ?? { lat: trip.lat, lng: trip.lng }}
             autoFocus="path"
             height="100%"
             clustering={viewConfig.isCluasterlingView}
