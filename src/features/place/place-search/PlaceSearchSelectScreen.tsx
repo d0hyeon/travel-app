@@ -1,6 +1,7 @@
 import { Circle } from "@mui/icons-material";
-import { Box, Button, ListItemText, Stack, type BoxProps } from "@mui/material";
+import { Box, Button, CircularProgress, ListItemText, Stack, type BoxProps } from "@mui/material";
 import { useEffect, useRef, useTransition, type ReactNode, type Ref } from "react";
+import { IntersectionArea } from "~shared/components/IntersectionArea";
 import { ListItem } from "~shared/components/ListItem";
 import { Map, type Coordinate, type MapRef } from "~shared/components/Map";
 import { ResizeHandleVertical, useResizableSplit } from "~shared/hooks/dom/useResizableSplit";
@@ -27,7 +28,7 @@ export function PlaceSearchSelectScreen({
   ref,
   ...boxProps
 }: Props) {
-  const { data: results } = usePlaceSearch({ keyword, type: mapServiceProvider, location: center });
+  const { data: results, hasNextPage, isFetchingNextPage, fetchNextPage } = usePlaceSearch({ keyword, type: mapServiceProvider, location: center });
   const mapRef = useRef<MapRef>(null);
 
   useEffect(() => {
@@ -101,6 +102,13 @@ export function PlaceSearchSelectScreen({
                 />
               </ListItem.Button>
             ))}
+            <IntersectionArea onEnter={() => { if (hasNextPage && !isFetchingNextPage) fetchNextPage(); }}>
+              {isFetchingNextPage && (
+                <Box display="flex" justifyContent="center" py={1}>
+                  <CircularProgress size={20} />
+                </Box>
+              )}
+            </IntersectionArea>
           </Stack>
         </Stack>
       </Stack>
