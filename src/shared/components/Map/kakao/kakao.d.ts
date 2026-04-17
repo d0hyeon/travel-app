@@ -99,9 +99,21 @@ declare global {
       constructor()
       keywordSearch(
         keyword: string,
-        callback: (result: PlaceSearchResult[], status: Status) => void,
+        callback: (result: PlaceSearchResult[], status: Status, pagination: Pagination) => void,
         options?: PlacesSearchOptions
       ): void
+    }
+
+    interface Pagination {
+      totalCount: number
+      hasNextPage: boolean
+      isEnd: boolean
+      current: number
+      nextPage(): void
+      prevPage(): void
+      gotoPage(page: number): void
+      gotoFirst(): void
+      gotoLast(): void
     }
 
     interface PlaceSearchResult {
