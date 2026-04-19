@@ -56,10 +56,10 @@ function isSamePlace(a: ScoredPlace, b: ScoredPlace): boolean {
 
 function calcRecommendLabel(place: ScoredPlace): string {
   if (place.tripCount >= 3) return '이 지역 인기 장소'
-  if (place.tripCount >= 2) return '여러 여행자가 방문한 곳'
+  if (place.tripCount >= 2) return '믾이 방문하는 곳'
   const daysAgo = (Date.now() - new Date(place.latestTripDate).getTime()) / (1000 * 60 * 60 * 24)
   if (daysAgo < 30) return '최근 많이 방문하는 곳'
-  return '여행자들이 저장한 장소'
+  return '저장 많은 장소'
 }
 
 function calcScore(place: ScoredPlace): number {

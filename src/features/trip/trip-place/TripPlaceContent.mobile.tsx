@@ -14,7 +14,7 @@ import { useRecommendedPlaceDetailOverlay } from './RecommendedPlaceDetailOverla
 import { TripPlaceItemButton } from './TripPlaceItemButton';
 import { useTripPlaces } from "./useTripPlaces";
 
-const ZOOM_THRESHOLD = 0.1
+const ZOOM_THRESHOLD = 0.2
 
 interface PlaceContentProps {
   tripId: string
@@ -105,7 +105,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
                   tripId={tripId}
                   bounds={mapBounds}
                   selectedPlaceId={null}
-                  onSelect={() => {}}
+                  onSelect={() => { }}
                   onOpen={(place) => openRecommendedSheet({ place, tripId })}
                 />
               </Suspense>

@@ -51,7 +51,7 @@ export function getMarkerImage(
     const size = 20 * scale;
     const svgCircle = outlined ? `
     <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 16 16">
-      <circle cx="8" cy="8" r="6" fill="white" fill-opacity="0.9" stroke="${resolvedColor}" stroke-width="2.5"/>
+      <circle cx="8" cy="8" r="6" fill="white" fill-opacity="0.9" stroke="${resolvedColor}" stroke-width="2.5" stroke-opacity="${opacity}"/>
     </svg>
     ` : `
     <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 16 16">
