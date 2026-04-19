@@ -42,15 +42,20 @@ export function getMarkerImage(
   color?: MarkerColor,
   opacity = 1,
   level: number = 8,
+  outlined = false,
 ): kakao.maps.MarkerImage | undefined {
   const scale = getZoomScale(level);
   const resolvedColor = resolveMarkerColor(color, variant);
 
   if (variant === 'circle') {
     const size = 20 * scale;
-    const svgCircle = `
+    const svgCircle = outlined ? `
     <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 16 16">
-      <circle cx="8" cy="8" r="6" fill="${resolvedColor}" fill-opacity="${opacity}" stroke="white" stroke-width="4.5"/>      
+      <circle cx="8" cy="8" r="6" fill="white" fill-opacity="0.9" stroke="${resolvedColor}" stroke-width="2.5" stroke-opacity="${opacity}"/>
+    </svg>
+    ` : `
+    <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 16 16">
+      <circle cx="8" cy="8" r="6" fill="${resolvedColor}" fill-opacity="${opacity}" stroke="white" stroke-width="4.5"/>
       <circle cx="8" cy="8" r="6" fill="none" stroke="${resolvedColor}" fill-opacity="${opacity}" stroke-width="1" />
     </svg>
     `;

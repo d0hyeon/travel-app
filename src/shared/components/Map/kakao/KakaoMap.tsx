@@ -347,7 +347,7 @@ function buildClusterEntry(
     } else {
       const marker = new kakao.maps.Marker({
         position: new kakao.maps.LatLng(md.position.lat, md.position.lng),
-        image: getMarkerImage(md.variant, md.color, md.opacity, zoom),
+        image: getMarkerImage(md.variant, md.color, md.opacity, zoom, md.outlined),
       });
       marker.setMap(map);
       entry.markers.push(marker);

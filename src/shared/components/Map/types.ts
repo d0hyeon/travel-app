@@ -41,6 +41,7 @@ export interface MarkerProps {
   variant?: 'pin' | 'circle';
   color?: MarkerColor;
   opacity?: number;
+  outlined?: boolean;
   thumbnailUrl?: string;
   onClick?: (marker: MarkerCallbackData) => void;
   onContextMenu?: (marker: MarkerCallbackData) => void;
@@ -71,6 +72,7 @@ export interface MarkerData {
   variant?: 'pin' | 'circle';
   color?: MarkerColor;
   opacity?: number;
+  outlined?: boolean;
   thumbnailUrl?: string;
   onClick?: () => void;
   onContextMenu?: () => void;

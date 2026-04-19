@@ -38,8 +38,8 @@
 **파일 위치:** `src/app/routes.ts`
 
 `TripDetailPage`는 모바일/데스크탑 분기:
-- `src/app/trip/TripDetailPage.mobile.tsx` — 탭 기반 내비게이션
-- `src/app/trip/TripDetailPage.desktop.tsx` — 사이드바 레이아웃
+- `src/features/trip/TripDetailPage.mobile.tsx` — 탭 기반 내비게이션
+- `src/features/trip/TripDetailPage.desktop.tsx` — 사이드바 레이아웃
 
 ---
 
@@ -47,23 +47,29 @@
 
 ```
 src/
-├── app/                        # 기능별 모듈
+├── app/                        # 앱 진입점 및 설정
 │   ├── routes.ts               # 라우트 정의
 │   ├── root.tsx                # 루트 레이아웃 & 전역 Provider
-│   ├── client-database.ts      # IndexedDB 초기화
-│   │
-│   ├── lib/                    # 외부 라이브러리 어댑터
-│   │   ├── supabase.ts         # Supabase 클라이언트
-│   │   ├── query-client.ts     # React Query 설정
-│   │   ├── database.types.ts   # Supabase 자동 생성 타입 (yarn gen-types)
-│   │   └── database-row.types.ts
-│   │
+│   └── query-client.ts         # React Query 설정
+│
+├── api/                        # 외부 시스템 어댑터
+│   ├── client.ts               # Supabase 클라이언트
+│   ├── _database.types.ts      # Supabase 자동 생성 타입 (직접 수정 금지)
+│   └── tables.types.ts         # 테이블 Row 타입 헬퍼
+│
+├── features/                   # 도메인별 기능 모듈
+│   ├── auth/                   # 인증
 │   ├── expense/                # 지출 도메인 (공통 로직)
 │   │   ├── expense.api.ts      # Supabase CRUD
 │   │   ├── expense.types.ts    # Expense, SettlementBalance 등 타입
 │   │   ├── expense.utils.ts    # calculateBalancesInKRW, calculateSettlements
 │   │   ├── currency.ts         # 환율 변환 (convertToKRW)
 │   │   └── useExpenses.ts      # React Query 훅
+│   │
+│   ├── explorer/               # 장소 탐색 (방문 기록 기반 지도)
+│   ├── location/               # 위치 vocabulary (Location, Region, Country)
+│   │   ├── location.model.ts
+│   │   └── location.utils.ts
 │   │
 │   ├── photo/                  # 사진 도메인
 │   │   ├── photo.api.ts
@@ -72,6 +78,7 @@ src/
 │   ├── place/                  # 장소/POI 도메인
 │   │   ├── place.api.ts
 │   │   ├── place.types.ts
+│   │   ├── recommended-place.api.ts  # 추천 장소 API
 │   │   ├── PlaceForm.tsx
 │   │   ├── usePlace.ts
 │   │   └── place-search/       # 장소 검색 (BottomSheet / Dialog)
@@ -84,6 +91,9 @@ src/
 │   │       ├── roadRoute.schema.ts
 │   │       └── useRoadRoute.ts
 │   │
+│   ├── statistics/             # 여행 통계
+│   ├── tracking/               # 위치 추적
+│   │
 │   └── trip/                   # 여행 도메인 (메인 기능)
 │       ├── trip.api.ts
 │       ├── trip.types.ts
@@ -93,6 +103,8 @@ src/
 │       ├── TripDetailPage.tsx          # 반응형 분기 래퍼
 │       ├── TripDetailPage.mobile.tsx
 │       ├── TripDetailPage.desktop.tsx
+│       ├── components/                 # 여행 공통 UI 컴포넌트
+│       ├── hooks/                      # 여행 공통 훅
 │       │
 │       ├── trip-basic-info/            # 기본 정보 탭
 │       ├── trip-checklist/             # 체크리스트 탭
@@ -107,6 +119,7 @@ src/
 │       │   ├── ExpenseForm.tsx
 │       │   ├── SettlementSummary.tsx   # 개인별 정산 현황
 │       │   └── RouteExpenseView.tsx    # 경로별 지출 보기
+│       ├── trip-invite/                # 여행 초대
 │       ├── trip-member/                # 멤버 관리
 │       │   ├── tripMember.api.ts
 │       │   ├── tripMember.types.ts
@@ -122,7 +135,7 @@ src/
 │
 └── shared/                     # 공통 모듈
     ├── components/
-    │   ├── BottomSheet/        # 재사용 바텀시트
+    │   ├── bottom-sheet/       # 재사용 바텀시트
     │   ├── Map/                # 지도 추상화 (Kakao / Google 선택)
     │   │   ├── index.tsx
     │   │   ├── kakao/
@@ -136,18 +149,20 @@ src/
     │   ├── PopMenu.tsx
     │   └── EditableText.tsx
     │
-    ├── config/
-    │   └── theme.ts            # MUI 테마
-    │
     ├── hooks/
-    │   ├── useIsMobile.ts      # 반응형 분기
-    │   ├── useOverlay.tsx      # 오버레이/모달 시스템
-    │   ├── useQueryParam.ts    # URL 쿼리 파라미터
-    │   ├── useSearchParams.tsx # SearchParam 컨텍스트
-    │   └── usePlaceSearch.ts   # 장소 검색
+    │   ├── env/
+    │   │   └── useIsMobile.ts      # 반응형 분기
+    │   ├── urls/
+    │   │   ├── useQueryParam.ts    # URL 쿼리 파라미터
+    │   │   ├── useQueryParamState.ts
+    │   │   └── useSearchParams.tsx # SearchParam 컨텍스트
+    │   ├── useOverlay.tsx          # 오버레이/모달 시스템
+    │   └── ...
+    │
+    ├── model/
+    │   └── coordinate.model.ts     # 공용 좌표 타입
     │
     └── utils/
-        ├── assert.ts           # 단언 유틸
         ├── formats.ts          # 날짜/숫자 포맷
         ├── geo.ts              # 위치 유틸
         └── common.ts
@@ -188,7 +203,7 @@ TripDetailPage.desktop.tsx  ← 데스크탑 구현
 ### API / 훅 패턴
 - `*.api.ts` — Supabase 직접 호출, DB row → 도메인 모델 변환
 - `use*.ts` — React Query 훅으로 감싸서 컴포넌트에 제공
-- DB 타입은 `app/lib/database.types.ts` (자동 생성, 직접 수정 금지)
+- DB 타입은 `src/api/_database.types.ts` (자동 생성, 직접 수정 금지)
 
 ### 오버레이 시스템
 모달/바텀시트는 `useOverlay` 훅 또는 `@toss/use-overlay`를 통해 명령형으로 열고 닫습니다.
@@ -199,16 +214,17 @@ TripDetailPage.desktop.tsx  ← 데스크탑 구현
 
 | 기능 | 핵심 파일 |
 |------|-----------|
-| 여행 목록/생성 | `trip/TripListPage.tsx`, `trip/trip-create/` |
+| 여행 목록/생성 | `features/trip/TripListPage.tsx`, `features/trip/trip-create/` |
 | 위치 vocabulary | `features/location/location.model.ts`, `features/location/location.utils.ts` |
-| 여행 상세 레이아웃 | `trip/TripDetailPage.*.tsx` |
-| 지출 내역 UI | `trip/trip-expense/ExpenseContent.*.tsx` |
-| 정산 계산 로직 | `expense/expense.utils.ts` |
-| 정산 현황 UI | `trip/trip-expense/SettlementSummary.tsx` |
-| 멤버 관리 | `trip/trip-member/` |
-| 일정/경로 | `trip/trip-route/`, `route/` |
-| 장소 검색 | `place/place-search/` |
+| 여행 상세 레이아웃 | `features/trip/TripDetailPage.*.tsx` |
+| 지출 내역 UI | `features/trip/trip-expense/ExpenseContent.*.tsx` |
+| 정산 계산 로직 | `features/expense/expense.utils.ts` |
+| 정산 현황 UI | `features/trip/trip-expense/SettlementSummary.tsx` |
+| 멤버 관리 | `features/trip/trip-member/` |
+| 일정/경로 | `features/trip/trip-route/`, `features/route/` |
+| 장소 검색 | `features/place/place-search/` |
 | 지도 | `shared/components/Map/` |
 | 사진 업로드 | `shared/components/photo/PhotoUploader.tsx` |
-| 체크리스트 | `trip/trip-checklist/` |
-| 메모 | `trip/trip-memo/` |
+| 체크리스트 | `features/trip/trip-checklist/` |
+| 메모 | `features/trip/trip-memo/` |
+| 추천 장소 | `features/place/recommended-place.api.ts`, `features/trip/trip-place/useRecommendedPlaces.ts` |

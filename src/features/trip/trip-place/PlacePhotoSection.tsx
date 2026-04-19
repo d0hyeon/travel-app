@@ -6,6 +6,7 @@ import { PhotoBottomSheet } from '~shared/components/photo/PhotoBottomSheet';
 import { PhotoDialog } from '~shared/components/photo/PhotoDialog';
 import { PhotoThunbnail } from '../../../shared/components/photo/PhotoThumbnail';
 import { PhotoUploader } from '../../../shared/components/photo/PhotoUploader';
+import type { PhotoUploadValue } from '../../../shared/components/photo/PhotoUploader';
 import type { Photo } from '../../photo/photo.types';
 import { usePlacePhotos } from './useTripPlacePhotos';
 
@@ -33,16 +34,15 @@ function PlacePhotoContent({ tripId, placeId }: PlacePhotoSectionProps) {
     data: photos,
     remove,
     upload,
+    updateVisibility,
     isUploading
   } = usePlacePhotos(placeId);
 
   const overlay = useOverlay();
   const isMobile = useIsMobile();
-
-
-
-  const handleUpload = async (files: File[]) => {
-    await upload({ files, tripId });
+  const handleUpload = async ({ items }: PhotoUploadValue) => {
+    if (!items?.length) return;
+    await upload({ items, tripId });
   };
 
   const handleDelete = async (photo: Photo) => {
@@ -66,6 +66,7 @@ function PlacePhotoContent({ tripId, placeId }: PlacePhotoSectionProps) {
                       onClose={close}
                       photos={photos}
                       onDelete={handleDelete}
+                      onUpdateVisibility={(photo, isPublic) => updateVisibility({ photoId: photo.id, isPublic, tripId })}
                       initialIndex={i}
                     />
                   )
@@ -76,6 +77,7 @@ function PlacePhotoContent({ tripId, placeId }: PlacePhotoSectionProps) {
                     onClose={close}
                     photos={photos}
                     onDelete={handleDelete}
+                    onUpdateVisibility={(photo, isPublic) => updateVisibility({ photoId: photo.id, isPublic, tripId })}
                     initialIndex={i}
                   />
                 )

@@ -1,16 +1,20 @@
 import WorkspacesIcon from '@mui/icons-material/Workspaces';
 import { Box, Button, Stack, ToggleButton, Typography } from "@mui/material";
-import { useMemo, useRef, useState } from "react";
+import { Suspense, useMemo, useRef, useState } from "react";
 import { BottomArea } from '~shared/components/BottomArea';
 import { BottomSheet } from "../../../shared/components/bottom-sheet/BottomSheet";
-import { Map, type MapRef } from "../../../shared/components/Map";
+import { Map, type MapBounds, type MapRef } from "../../../shared/components/Map";
 import { usePlaceSearchBottomSheet } from '../../place/place-search/usePlaceSearchBottomSheet';
 import { PlaceCategoryColorCode, type Place } from "../../place/place.types";
 import { useTripCluastering } from '../hooks/useTripCluastering';
 import { useTripRoutes } from "../trip-route/useTripRoutes";
 import { useTrip } from "../useTrip";
+import { RecommendedMarkers } from './RecommendedPlaceBrowser';
+import { useRecommendedPlaceDetailOverlay } from './RecommendedPlaceDetailOverlay';
 import { TripPlaceItemButton } from './TripPlaceItemButton';
 import { useTripPlaces } from "./useTripPlaces";
+
+const ZOOM_THRESHOLD = 0.2
 
 interface PlaceContentProps {
   tripId: string
@@ -48,9 +52,13 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
 
   const [cluastering, setCluastering] = useTripCluastering();
   const [sheetRatio, setSheetRatio] = useState(DEFAULT_BOTTOM_SHEET_RATIO);
+  const [mapBounds, setMapBounds] = useState<MapBounds | null>(null)
 
   const { searchPlace } = usePlaceSearchBottomSheet({ mapType, center: { lat: trip.lat, lng: trip.lng } });
   const [focusedId, setFocusedId] = useState<string | null>(null)
+  const { openBottomSheet: openRecommendedSheet } = useRecommendedPlaceDetailOverlay()
+
+  const isZoomedEnough = mapBounds ? Math.abs(mapBounds.north - mapBounds.south) < ZOOM_THRESHOLD : false
 
   return (
     <>
@@ -76,6 +84,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
             height="100%"
             clustering={cluastering}
             clusterGridSize={50}
+            onBoundsChange={setMapBounds}
           >
             {places.map(place => (
               <Map.Marker
@@ -90,6 +99,17 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
                 onClick={() => setFocusedId(place.id)}
               />
             ))}
+            {isZoomedEnough && (
+              <Suspense>
+                <RecommendedMarkers
+                  tripId={tripId}
+                  bounds={mapBounds}
+                  selectedPlaceId={null}
+                  onSelect={() => { }}
+                  onOpen={(place) => openRecommendedSheet({ place, tripId })}
+                />
+              </Suspense>
+            )}
           </Map>
         </Box>
 

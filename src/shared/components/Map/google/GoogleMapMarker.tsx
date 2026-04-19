@@ -14,6 +14,7 @@ export default function GoogleMarker({
   variant = 'pin',
   color,
   opacity = 1,
+  outlined = false,
   thumbnailUrl,
   onClick,
   onContextMenu,
@@ -38,13 +39,14 @@ export default function GoogleMarker({
       variant,
       color: markerColor,
       opacity,
+      outlined,
       thumbnailUrl,
       onClick: handleClick,
       onContextMenu: handleContextMenu,
     });
 
     return () => context.unregisterMarker(markerId);
-  }, [context, markerId, lat, lng, label, variant, markerColor, opacity, thumbnailUrl]);
+  }, [context, markerId, lat, lng, label, variant, markerColor, opacity, outlined, thumbnailUrl]);
 
   const shouldRender = !context?.config.clustering;
 
@@ -60,11 +62,13 @@ export default function GoogleMarker({
     if (context.config.autoFocus === 'marker') context.extendBound({ lat, lng });
 
     if (variant === 'circle') {
-
-
-      const svg = `
+      const svg = outlined ? `
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-          <circle cx="8" cy="8" r="6" fill="${markerColor}" fill-opacity="${opacity}" stroke="white" stroke-width="4.5"/>      
+          <circle cx="8" cy="8" r="6" fill="white" fill-opacity="0.9" stroke="${markerColor}" stroke-width="2.5"/>
+        </svg>
+      ` : `
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+          <circle cx="8" cy="8" r="6" fill="${markerColor}" fill-opacity="${opacity}" stroke="white" stroke-width="4.5"/>
           <circle cx="8" cy="8" r="6" fill="none" stroke="${markerColor}" fill-opacity="${opacity}" stroke-width="1" />
         </svg>
       `;
@@ -116,7 +120,7 @@ export default function GoogleMarker({
       google.maps.event.removeListener(rmenuL);
       marker.setMap(null);
     };
-  }, [shouldRender, context, lat, lng, variant, markerColor, opacity, thumbnailUrl]);
+  }, [shouldRender, context, lat, lng, variant, markerColor, opacity, outlined, thumbnailUrl]);
 
   // 썸네일 오버레이 (클러스터링 off)
   useEffect(() => {
@@ -150,9 +154,9 @@ export default function GoogleMarker({
 
   // 라벨 (클러스터링 off, thumbnail 없을 때)
   useEffect(() => {
-    if (!shouldRender || !context?.map || !label || thumbnailUrl) return;
+    if (!shouldRender || !context?.map || !label) return;
 
-    const markerOffsetPx = variant === 'circle' ? 20 : 38;
+    const markerOffsetPx = thumbnailUrl ? 56 : variant === 'circle' ? 20 : 38;
 
     class LabelOverlay extends google.maps.OverlayView {
       private div: HTMLDivElement | null = null;

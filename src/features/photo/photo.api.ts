@@ -12,6 +12,7 @@ function toPhoto(row: DataRaw<'photos'>): Photo {
     id: row.id,
     tripId: row.trip_id,
     placeId: row.place_id,
+    isPublic: row.is_public,
     url: row.url,
     storagePath: row.storage_path,
     createdAt: row.created_at,
@@ -76,7 +77,7 @@ const resizeImage = async (_file: File) => {
   });
 };
 
-export async function uploadPhoto({ tripId, placeId, file: _file }: PhotoUploadParams): Promise<Photo> {
+export async function uploadPhoto({ tripId, placeId, file: _file, isPublic }: PhotoUploadParams): Promise<Photo> {
   const file = await resizeImage(_file);
   const fileExt = file.name.split('.').pop()
   const fileName = `${Date.now()}.${fileExt}`
@@ -105,6 +106,7 @@ export async function uploadPhoto({ tripId, placeId, file: _file }: PhotoUploadP
     .insert({
       trip_id: tripId,
       place_id: placeId,
+      is_public: isPublic,
       url: urlData.publicUrl,
       storage_path: storagePath,
     })
@@ -129,6 +131,18 @@ export async function deletePhoto(photo: Photo): Promise<boolean> {
 
   if (dbError) throw dbError
   return true
+}
+
+export async function updatePhotoVisibility(photoId: string, isPublic: boolean): Promise<Photo> {
+  const { data, error } = await supabase
+    .from('photos')
+    .update({ is_public: isPublic })
+    .eq('id', photoId)
+    .select()
+    .single()
+
+  if (error) throw error
+  return toPhoto(data)
 }
 
 export async function deletePhotosByTripId(tripId: string): Promise<void> {
