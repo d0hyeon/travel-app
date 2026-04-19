@@ -16,7 +16,7 @@ import { Map, type MapRef } from "../../../shared/components/Map";
 import { PopMenu } from "../../../shared/components/PopMenu";
 import { SortableItem } from "../../../shared/components/dnd/SortableItem";
 import { SortableList } from "../../../shared/components/dnd/SortableList";
-import { useCurrentLocation } from "../../../shared/hooks/env/useCurrentLocation";
+import { useCurrentCoordinate } from "../../../shared/hooks/env/useCurrentCoordinate";
 import { useOverlay } from "../../../shared/hooks/useOverlay";
 import { formatShortDate, formatDisplayDate } from "../../../shared/utils/formats";
 import { PlaceCategoryColorCode } from "../../place/place.types";
@@ -30,6 +30,7 @@ import { usePlaceFormOverlay } from './usePlaceFormOverlay';
 import CenterFocusWeakIcon from '@mui/icons-material/CenterFocusWeak';
 import { useTripViewConfig } from './useTripViewConfig';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
+import { useVariation } from '~shared/hooks/extends/useVariation';
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = [
@@ -94,14 +95,13 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
   const today = formatDisplayDate(new Date());
   const isOngoingTrip = trip.startDate <= today && today <= trip.endDate
 
-  const isInitialRef = useRef(false);
-  const currentLocation = useCurrentLocation({
+  const [getIsInitialed, setIsInitialed] = useVariation(false);
+  const currentCoordinate = useCurrentCoordinate({
     enabled: isOngoingTrip,
     onChange: (coordinate) => {
-      if (isInitialRef.current) return;
-
-      mapRef.current?.panTo(coordinate.lat, coordinate.lng)
-      isInitialRef.current = true;
+      if (getIsInitialed()) return;
+      mapRef.current?.panTo(coordinate.lat, coordinate.lng);
+      setIsInitialed(true);
     }
   });
 
@@ -142,9 +142,9 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
             </ToggleButton>
           </Stack>
           <Stack gap={1} padding={1} position="absolute" bottom={8} right={0} zIndex={8}>
-            {currentLocation && (
+            {currentCoordinate && (
               <IconButton
-                onClick={() => mapRef.current?.panTo(currentLocation.lat, currentLocation.lng)}
+                onClick={() => mapRef.current?.panTo(currentCoordinate.lat, currentCoordinate.lng)}
                 size="small"
                 sx={{ backgroundColor: 'rgba(255, 255, 255, 0.7) !important' }}
               >
@@ -155,14 +155,14 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
           <Map
             type={trip.isOverseas ? 'google' : 'kakao'}
             ref={mapRef}
-            defaultCenter={currentLocation ?? { lat: trip.lat, lng: trip.lng }}
+            defaultCenter={currentCoordinate ?? { lat: trip.lat, lng: trip.lng }}
             autoFocus="path"
             height="100%"
             clustering={viewConfig.isCluasterlingView}
             clusterGridSize={50}
           >
-            {isOngoingTrip && currentLocation && (
-              <Map.Marker variant="circle" {...currentLocation} />
+            {isOngoingTrip && currentCoordinate && (
+              <Map.Marker variant="circle" {...currentCoordinate} />
             )}
             {places.map((place) => {
               const isInCurrentRoute = currentRoute?.placeIds.includes(place.id) ?? false;
