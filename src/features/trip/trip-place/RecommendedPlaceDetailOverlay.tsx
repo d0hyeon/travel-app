@@ -96,17 +96,17 @@ function AddPlaceButton({
   return (
     <Button
       variant="contained"
-      startIcon={<AddIcon />}
+
       disabled={isPending}
       sx={{ whiteSpace: 'nowrap' }}
       onClick={async () => {
         await mutateAsync()
         onClose()
       }}
-
+      fullWidth
       size="large"
     >
-      추가하기
+      장소 추가
     </Button>
   )
 }
