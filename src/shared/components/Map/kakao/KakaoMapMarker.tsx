@@ -66,7 +66,7 @@ export default function KakaoMapMarker({ id, lat, lng, label, tooltip, variant, 
 
     const { map } = context;
     const scale = getZoomScale(zoom);
-    const markerHalfHeight = variant === 'circle' ? 8 * scale : 30 * scale;
+    const markerHalfHeight = thumbnailUrl ? 52 : variant === 'circle' ? 8 * scale : 30 * scale;
     const yAnchor = 1 + (markerHalfHeight + 4) / 20;
     const overlay = new kakao.maps.CustomOverlay({
       position,

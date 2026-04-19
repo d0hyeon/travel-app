@@ -156,7 +156,7 @@ export default function GoogleMarker({
   useEffect(() => {
     if (!shouldRender || !context?.map || !label) return;
 
-    const markerOffsetPx = variant === 'circle' ? 20 : 38;
+    const markerOffsetPx = thumbnailUrl ? 56 : variant === 'circle' ? 20 : 38;
 
     class LabelOverlay extends google.maps.OverlayView {
       private div: HTMLDivElement | null = null;
