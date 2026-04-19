@@ -3,7 +3,7 @@ import { KakaoMapContext } from "../MapContext";
 import type { MarkerProps } from "../types";
 import { createLabelContent, getMarkerImage, getZoomScale, resolveMarkerColor } from "./kakaoMap.utils";
 
-export default function KakaoMapMarker({ id, lat, lng, label, tooltip, variant, color, opacity = 1, thumbnailUrl, onClick = () => { }, onContextMenu }: MarkerProps) {
+export default function KakaoMapMarker({ id, lat, lng, label, tooltip, variant, color, opacity = 1, outlined = false, thumbnailUrl, onClick = () => { }, onContextMenu }: MarkerProps) {
   const context = use(KakaoMapContext);
   const markerId = useMemo(() => id ?? `${lat}_${lng}`, [id, lat, lng]);
   const position = useMemo(() => new kakao.maps.LatLng(lat, lng), [lat, lng]);
@@ -23,13 +23,14 @@ export default function KakaoMapMarker({ id, lat, lng, label, tooltip, variant, 
       variant,
       color,
       opacity,
+      outlined,
       thumbnailUrl,
       onClick: handleMarkerClick,
       onContextMenu: handleMarkerContextMenu,
     });
 
     return () => context.unregisterMarker(markerId);
-  }, [context, markerId, lat, lng, label, variant, color, opacity, thumbnailUrl]);
+  }, [context, markerId, lat, lng, label, tooltip, variant, color, opacity, outlined, thumbnailUrl]);
 
   const shouldRender = useMemo(() => {
     if (!context?.config.clustering) return true;
@@ -52,13 +53,13 @@ export default function KakaoMapMarker({ id, lat, lng, label, tooltip, variant, 
 
   const marker = useMemo(() => {
     if (thumbnailUrl) return null; // thumbnail은 CustomOverlay로 렌더링
-    const markerImage = getMarkerImage(variant, color, opacity, zoom);
+    const markerImage = getMarkerImage(variant, color, opacity, zoom, outlined);
 
     return new kakao.maps.Marker({
       position,
       image: markerImage,
     })
-  }, [position, variant, color, zoom, thumbnailUrl]);
+  }, [position, variant, color, opacity, zoom, outlined, thumbnailUrl]);
 
   useEffect(function renderLabel() {
     if (context?.map == null || label == null || !shouldRender || thumbnailUrl) return;

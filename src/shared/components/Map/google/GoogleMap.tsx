@@ -309,14 +309,31 @@ function buildClusterEntry(
       overlay.setMap(map);
       entry.overlays.push(overlay);
     } else {
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="40" viewBox="0 0 24 36"><path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 24 12 24s12-15 12-24c0-6.6-5.4-12-12-12z" fill="${md.color ?? '#ef5350'}" fill-opacity="${md.opacity ?? 1}"/><circle cx="12" cy="11" r="4" fill="white"/></svg>`;
+      const markerColor = md.color ?? '#ef5350';
+      const markerOpacity = md.opacity ?? 1;
+      const isCircle = md.variant === 'circle';
+      const svg = isCircle
+        ? md.outlined
+          ? `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="white" fill-opacity="0.9" stroke="${markerColor}" stroke-width="2.5"/></svg>`
+          : `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="${markerColor}" fill-opacity="${markerOpacity}" stroke="white" stroke-width="4.5"/><circle cx="8" cy="8" r="6" fill="none" stroke="${markerColor}" fill-opacity="${markerOpacity}" stroke-width="1"/></svg>`
+        : `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="40" viewBox="0 0 24 36"><path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 24 12 24s12-15 12-24c0-6.6-5.4-12-12-12z" fill="${markerColor}" fill-opacity="${markerOpacity}"/><circle cx="12" cy="11" r="4" fill="white"/></svg>`;
       const tooltipText = Array.isArray(md.tooltip) ? md.tooltip.join('\n') : md.tooltip;
       const marker = new google.maps.Marker({
         position: { lat: md.position.lat, lng: md.position.lng },
         map,
         title: tooltipText,
-        icon: { url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`, scaledSize: new google.maps.Size(28, 40), anchor: new google.maps.Point(14, 40) },
-        opacity: md.opacity ?? 1,
+        icon: isCircle
+          ? {
+            url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
+            scaledSize: new google.maps.Size(20, 20),
+            anchor: new google.maps.Point(8, 8),
+          }
+          : {
+            url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
+            scaledSize: new google.maps.Size(28, 40),
+            anchor: new google.maps.Point(14, 40),
+          },
+        opacity: markerOpacity,
       });
       if (md.onClick) marker.addListener('click', md.onClick);
       if (md.onContextMenu) marker.addListener('rightclick', md.onContextMenu);
@@ -327,7 +344,7 @@ function buildClusterEntry(
           private div: HTMLDivElement | null = null;
           onAdd() {
             this.div = document.createElement('div');
-            this.div.style.cssText = `position:absolute; background:${md.color ?? '#ef5350'}; color:white; padding:2px 6px; border-radius:10px; font-size:11px; font-weight:bold; white-space:nowrap; pointer-events:none; transform:translate(-50%,-100%); margin-top:-44px;`;
+            this.div.style.cssText = `position:absolute; background:${markerColor}; color:white; padding:2px 6px; border-radius:10px; font-size:11px; font-weight:bold; white-space:nowrap; pointer-events:none; transform:translate(-50%,-100%); margin-top:-${isCircle ? 24 : 44}px;`;
             this.div.textContent = md.label!;
             this.getPanes()?.overlayLayer.appendChild(this.div);
           }
