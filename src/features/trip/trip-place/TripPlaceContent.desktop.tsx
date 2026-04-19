@@ -7,16 +7,20 @@ import {
   ToggleButton,
   Typography
 } from '@mui/material'
-import { useMemo, useRef, useState } from 'react'
-import { Map, type MapRef } from '../../../shared/components/Map'
+import { Suspense, useMemo, useRef, useState } from 'react'
+import { Map, type MapBounds, type MapRef } from '../../../shared/components/Map'
 import { usePlaceSearchDialog } from '../../place/place-search/usePlaceSearchDialog'
 import { PlaceCategoryColorCode, type Place } from '../../place/place.types'
 import { useTripCluastering } from '../hooks/useTripCluastering'
 import { useTripRoutes } from '../trip-route/useTripRoutes'
 import { useTrip } from '../useTrip'
+import { RecommendedMarkers } from './RecommendedPlaceBrowser'
+import { useRecommendedPlaceDetailOverlay } from './RecommendedPlaceDetailOverlay'
 import { TripPlaceItemButton } from './TripPlaceItemButton'
 import { useTripPlaceDetailOverlay } from './useTripPlaceDetailOverlay'
 import { useTripPlaces } from './useTripPlaces'
+
+const ZOOM_THRESHOLD = 0.1
 
 interface TripPlaceContentProps {
   tripId: string
@@ -54,7 +58,11 @@ export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
 
   const [cluastering, setCluastering] = useTripCluastering();
   const [focusedId, setFocusedId] = useState<string | null>(null)
+  const [mapBounds, setMapBounds] = useState<MapBounds | null>(null)
   const { openDialog: openDetailDialog } = useTripPlaceDetailOverlay()
+  const { openDialog: openRecommendedDialog } = useRecommendedPlaceDetailOverlay()
+
+  const isZoomedEnough = mapBounds ? Math.abs(mapBounds.north - mapBounds.south) < ZOOM_THRESHOLD : false
 
   return (
     <Box height="100%" sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
@@ -136,6 +144,7 @@ export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
           height="100%"
           clustering={cluastering}
           clusterGridSize={60}
+          onBoundsChange={setMapBounds}
         >
           {places.map(place => (
             <Map.Marker
@@ -150,6 +159,17 @@ export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
               }}
             />
           ))}
+          {isZoomedEnough && (
+            <Suspense>
+              <RecommendedMarkers
+                tripId={tripId}
+                bounds={mapBounds}
+                selectedPlaceId={null}
+                onSelect={() => {}}
+                onOpen={(place) => openRecommendedDialog({ place, tripId })}
+              />
+            </Suspense>
+          )}
         </Map>
       </Box>
     </Box>
