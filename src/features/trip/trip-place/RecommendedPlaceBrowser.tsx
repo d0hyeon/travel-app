@@ -254,9 +254,6 @@ export function RecommendedMarkers({
   return (
     <>
       {visiblePlaces.map(place => {
-        const markerColor = place.category
-          ? PlaceCategoryColorCode[place.category]
-          : RECOMMENDED_MARKER_COLOR
         const thumbnailUrl = place.photos[0]
 
         return (
@@ -264,9 +261,10 @@ export function RecommendedMarkers({
             key={`rec-${place.id}`}
             lat={place.lat}
             lng={place.lng}
-            label={thumbnailUrl ? undefined : place.name}
+            label={place.name}
             variant="circle"
-            color={markerColor}
+            color="#EB5757"
+            opacity={0.8}
             outlined={!thumbnailUrl}
             thumbnailUrl={thumbnailUrl}
             tooltip={[place.recommendLabel, place.name]}
