@@ -62,7 +62,7 @@ export default function KakaoMapMarker({ id, lat, lng, label, tooltip, variant, 
   }, [position, variant, color, opacity, zoom, outlined, thumbnailUrl]);
 
   useEffect(function renderLabel() {
-    if (context?.map == null || label == null || !shouldRender || thumbnailUrl) return;
+    if (context?.map == null || label == null || !shouldRender) return;
 
     const { map } = context;
     const scale = getZoomScale(zoom);

@@ -154,7 +154,7 @@ export default function GoogleMarker({
 
   // 라벨 (클러스터링 off, thumbnail 없을 때)
   useEffect(() => {
-    if (!shouldRender || !context?.map || !label || thumbnailUrl) return;
+    if (!shouldRender || !context?.map || !label) return;
 
     const markerOffsetPx = variant === 'circle' ? 20 : 38;
 
