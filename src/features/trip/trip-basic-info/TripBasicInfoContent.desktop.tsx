@@ -7,6 +7,7 @@ import { TripMemo } from '../trip-memo/TripMemo'
 import { TripMemoAddButton } from '../trip-memo/TripMemoAddButton'
 import { TripBaseInfoList } from './TripBaseInfoList'
 import { TripDDay } from './TripDDay'
+import { RecommendedPlacesSection } from './RecommendedPlacesSection'
 
 interface Props {
   tripId: string
@@ -29,6 +30,14 @@ export function TripBasicInfoContent({ tripId }: Props) {
             <CardHeader title="여행 정보" />
             <CardContent>
               <TripBaseInfoList tripId={tripId} />
+            </CardContent>
+          </Card>
+
+          {/* 추천 장소 */}
+          <Card variant="outlined">
+            <CardHeader title="추천 장소" />
+            <CardContent>
+              <RecommendedPlacesSection tripId={tripId} />
             </CardContent>
           </Card>
 

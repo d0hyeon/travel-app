@@ -1,16 +1,19 @@
 import WorkspacesIcon from '@mui/icons-material/Workspaces';
 import { Box, Button, Stack, ToggleButton, Typography } from "@mui/material";
-import { useMemo, useRef, useState } from "react";
+import { Suspense, useMemo, useRef, useState } from "react";
 import { BottomArea } from '~shared/components/BottomArea';
 import { BottomSheet } from "../../../shared/components/bottom-sheet/BottomSheet";
 import { Map, type MapRef } from "../../../shared/components/Map";
 import { usePlaceSearchBottomSheet } from '../../place/place-search/usePlaceSearchBottomSheet';
 import { PlaceCategoryColorCode, type Place } from "../../place/place.types";
+import type { RecommendedPlace } from "../../place/recommended-place.api";
 import { useTripCluastering } from '../hooks/useTripCluastering';
 import { useTripRoutes } from "../trip-route/useTripRoutes";
 import { useTrip } from "../useTrip";
+import { useRecommendedPlaceDetailOverlay } from './RecommendedPlaceDetailOverlay';
 import { TripPlaceItemButton } from './TripPlaceItemButton';
 import { useTripPlaces } from "./useTripPlaces";
+import { useRecommendedPlaces } from './useRecommendedPlaces';
 
 interface PlaceContentProps {
   tripId: string
@@ -51,6 +54,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
 
   const { searchPlace } = usePlaceSearchBottomSheet({ mapType, center: { lat: trip.lat, lng: trip.lng } });
   const [focusedId, setFocusedId] = useState<string | null>(null)
+  const { openBottomSheet: openRecommendedSheet } = useRecommendedPlaceDetailOverlay()
 
   return (
     <>
@@ -90,6 +94,12 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
                 onClick={() => setFocusedId(place.id)}
               />
             ))}
+            <Suspense>
+              <RecommendedMarkers
+                tripId={tripId}
+                onOpen={(place) => openRecommendedSheet({ place, tripId })}
+              />
+            </Suspense>
           </Map>
         </Box>
 
@@ -148,6 +158,37 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
           장소 추가
         </Button>
       </BottomArea>
+    </>
+  )
+}
+
+const RECOMMENDED_MARKER_COLOR = '#FF9800'
+
+function RecommendedMarkers({
+  tripId,
+  onOpen,
+}: {
+  tripId: string
+  onOpen: (place: RecommendedPlace) => void
+}) {
+  const { data: recommended } = useRecommendedPlaces(tripId)
+
+  return (
+    <>
+      {recommended.map(place => (
+        <Map.Marker
+          key={`rec-${place.id}`}
+          lat={place.lat}
+          lng={place.lng}
+          label={place.name}
+          variant="circle"
+          color={RECOMMENDED_MARKER_COLOR}
+          opacity={0.8}
+          thumbnailUrl={place.photos[0]}
+          tooltip={['추천 장소', place.name]}
+          onClick={() => onOpen(place)}
+        />
+      ))}
     </>
   )
 }
