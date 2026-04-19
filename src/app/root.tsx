@@ -67,7 +67,6 @@ export default function Root() {
               <CssBaseline />
               {/* <TouchRippleOverlay /> */}
               <SearchParamProvider>
-                <AuthStateSync />
                 <Suspense
                   fallback={
                     <Fade in={true}>
@@ -78,6 +77,7 @@ export default function Root() {
                   }
                 >
                   <Outlet />
+                  <AuthStateSync />
                 </Suspense>
               </SearchParamProvider>
               <Installer />
