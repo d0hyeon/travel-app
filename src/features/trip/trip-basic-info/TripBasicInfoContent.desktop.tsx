@@ -19,7 +19,7 @@ export function TripBasicInfoContent({ tripId }: Props) {
   return (
     <Box>
       <Stack direction="row" gap={3} height="100%" sx={{ flex: 1, overflow: 'auto', p: 3 }}>
-        <Stack flex="1" spacing={3} >
+        <Stack flex="1" width="calc(100% - 524px)" spacing={3}>
           {/* D-Day */}
           <Suspense fallback={<TripDDay.Skeleton />}>
             <TripDDay tripId={tripId} />
@@ -35,7 +35,7 @@ export function TripBasicInfoContent({ tripId }: Props) {
 
           {/* 추천 장소 */}
           <Card variant="outlined">
-            <CardHeader title="추천 장소" />
+            <CardHeader title="사람들이 많이 찾는곳이에요" />
             <CardContent>
               <RecommendedPlacesSection tripId={tripId} />
             </CardContent>

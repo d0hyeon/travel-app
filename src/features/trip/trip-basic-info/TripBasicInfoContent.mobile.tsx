@@ -53,7 +53,19 @@ export function TripBasicInfoContent({ tripId }: Props) {
                 borderRadius={4}
                 width="100%"
               />
-              <RecommendedPlacesSection tripId={tripId} />
+              <Stack gap={1} width="100%">
+                <RecommendedPlacesSection
+                  tripId={tripId}
+                  header={(
+                    <Typography variant="subtitle2" color="text.secondary">
+                      사람들이 많이 찾는 곳이에요
+                    </Typography>
+                  )}
+                  width="calc(100% + 32px)"
+                  marginX={-2}
+                  paddingX={2}
+                />
+              </Stack>
 
               <ErrorBoundary>
                 <Stack gap={1} width="100%">

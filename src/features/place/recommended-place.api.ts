@@ -15,6 +15,7 @@ export interface RecommendedPlace {
   category?: PlaceCategoryType
   photos: string[]
   tripCount: number
+  recommendLabel: string
 }
 
 const SAME_PLACE_DISTANCE_THRESHOLD = 100 // meters
@@ -51,6 +52,14 @@ interface ScoredPlace {
 function isSamePlace(a: ScoredPlace, b: ScoredPlace): boolean {
   if (normalizeName(a.name) === normalizeName(b.name)) return true
   return calcDistance(a, b) < SAME_PLACE_DISTANCE_THRESHOLD
+}
+
+function calcRecommendLabel(place: ScoredPlace): string {
+  if (place.tripCount >= 3) return '이 지역 인기 장소'
+  if (place.tripCount >= 2) return '여러 여행자가 방문한 곳'
+  const daysAgo = (Date.now() - new Date(place.latestTripDate).getTime()) / (1000 * 60 * 60 * 24)
+  if (daysAgo < 30) return '최근 많이 방문하는 곳'
+  return '여행자들이 저장한 장소'
 }
 
 function calcScore(place: ScoredPlace): number {
@@ -119,7 +128,7 @@ export async function getRecommendedPlaces(
   const tripDateMap = new Map(otherTrips.map(t => [t.id, t.start_date]))
 
   const [placesResult, routesResult] = await Promise.all([
-    supabase.from('places').select('*, photos(url)').in('trip_id', tripIds),
+    supabase.from('places').select('*, photos(url, is_public)').in('trip_id', tripIds),
     supabase.from('routes').select('trip_id, place_ids, hidden_places').in('trip_id', tripIds),
   ])
 
@@ -135,7 +144,9 @@ export async function getRecommendedPlaces(
     .filter(row => !hiddenPlaceIds.has(row.id))
     .filter(row => !currentPlaceNames.has(normalizeName(row.name)))
     .map(row => {
-      const photos = ((row as { photos?: { url: string }[] }).photos ?? []).map(p => p.url)
+      const photos = ((row as { photos?: { url: string; is_public: boolean }[] }).photos ?? [])
+        .filter(photo => photo.is_public)
+        .map(photo => photo.url)
       return {
         id: row.id,
         tripId: row.trip_id,
@@ -155,5 +166,16 @@ export async function getRecommendedPlaces(
   return deduplicateAndMerge(scoredPlaces)
     .toSorted((a, b) => calcScore(b) - calcScore(a))
     .slice(0, MAX_RESULTS)
-    .map(({ confirmedCount, photoCount, latestTripDate, ...place }) => place)
+    .map(place => ({
+      id: place.id,
+      tripId: place.tripId,
+      name: place.name,
+      address: place.address,
+      lat: place.lat,
+      lng: place.lng,
+      category: place.category,
+      photos: place.photos,
+      tripCount: place.tripCount,
+      recommendLabel: calcRecommendLabel(place),
+    }))
 }
