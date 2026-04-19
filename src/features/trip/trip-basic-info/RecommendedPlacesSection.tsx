@@ -1,5 +1,5 @@
 import RoomIcon from '@mui/icons-material/Room'
-import { Box, Skeleton, Stack, Typography } from '@mui/material'
+import { Box, Chip, Skeleton, Stack, Typography } from '@mui/material'
 import { Suspense } from 'react'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { PlaceCategoryColorCode } from '../../place/place.types'
@@ -73,25 +73,43 @@ function RecommendedPlaceCard({
         transition: 'border-color 0.15s, box-shadow 0.15s',
       }}
     >
-      <Box
-        sx={{
-          width: '100%',
-          height: 72,
-          bgcolor: accentColor ? `${accentColor}22` : 'grey.100',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'hidden',
-        }}
-      >
-        {place.photos[0] ? (
-          <Box
-            component="img"
-            src={place.photos[0]}
-            sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+      <Box sx={{ position: 'relative' }}>
+        <Box
+          sx={{
+            width: '100%',
+            height: 72,
+            bgcolor: accentColor ? `${accentColor}22` : 'grey.100',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+          }}
+        >
+          {place.photos[0] ? (
+            <Box
+              component="img"
+              src={place.photos[0]}
+              sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          ) : (
+            <RoomIcon sx={{ color: accentColor ?? 'text.disabled', fontSize: 28 }} />
+          )}
+        </Box>
+        {place.tripCount > 1 && (
+          <Chip
+            label={`${place.tripCount}회`}
+            size="small"
+            sx={{
+              position: 'absolute',
+              top: 4,
+              right: 4,
+              height: 18,
+              fontSize: 10,
+              bgcolor: 'rgba(0,0,0,0.55)',
+              color: '#fff',
+              '.MuiChip-label': { px: 0.75 },
+            }}
           />
-        ) : (
-          <RoomIcon sx={{ color: accentColor ?? 'text.disabled', fontSize: 28 }} />
         )}
       </Box>
       <Box sx={{ p: 0.75 }}>
