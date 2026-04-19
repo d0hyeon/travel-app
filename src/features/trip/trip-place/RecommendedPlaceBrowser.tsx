@@ -261,7 +261,7 @@ export function RecommendedMarkers({
             key={`rec-${place.id}`}
             lat={place.lat}
             lng={place.lng}
-            label={place.name}
+            label={place.recommendLabel}
             variant="circle"
             color="#EB5757"
             opacity={0.8}
