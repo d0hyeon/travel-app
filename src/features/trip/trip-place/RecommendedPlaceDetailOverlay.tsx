@@ -1,4 +1,7 @@
 import AddIcon from '@mui/icons-material/Add'
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
+import CloseIcon from '@mui/icons-material/Close'
 import {
   Box,
   Button,
@@ -7,11 +10,12 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
   Stack,
   Typography,
 } from '@mui/material'
 import { useMutation } from '@tanstack/react-query'
-import { Suspense, useCallback } from 'react'
+import { Suspense, useCallback, useState } from 'react'
 import { queryClient } from '~app/query-client'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { Map } from '../../../shared/components/Map'
@@ -82,10 +86,13 @@ function AddPlaceButton({
       variant="contained"
       startIcon={<AddIcon />}
       disabled={isPending}
+      sx={{ whiteSpace: 'nowrap' }}
       onClick={async () => {
         await mutateAsync()
         onClose()
       }}
+
+      size="large"
     >
       추가하기
     </Button>
@@ -105,7 +112,67 @@ function PlaceMapPreview({ place, tripId }: { place: RecommendedPlace; tripId: s
   )
 }
 
+function PhotoViewer({
+  photos,
+  initialIndex,
+  onClose,
+}: {
+  photos: string[]
+  initialIndex: number
+  onClose: () => void
+}) {
+  const [index, setIndex] = useState(initialIndex)
+
+  return (
+    <Dialog open onClose={onClose} maxWidth="md" fullWidth>
+      <Box sx={{ position: 'relative', bgcolor: 'black' }}>
+        <IconButton
+          onClick={onClose}
+          size="small"
+          sx={{ position: 'absolute', top: 8, right: 8, zIndex: 1, color: 'white', bgcolor: 'rgba(0,0,0,0.4)' }}
+        >
+          <CloseIcon fontSize="small" />
+        </IconButton>
+        <Box
+          component="img"
+          src={photos[index]}
+          sx={{ width: '100%', maxHeight: '70vh', objectFit: 'contain', display: 'block' }}
+        />
+        {photos.length > 1 && (
+          <>
+            <IconButton
+              onClick={() => setIndex(i => Math.max(0, i - 1))}
+              disabled={index === 0}
+              sx={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: 'white', bgcolor: 'rgba(0,0,0,0.4)' }}
+            >
+              <ArrowBackIosNewIcon fontSize="small" />
+            </IconButton>
+            <IconButton
+              onClick={() => setIndex(i => Math.min(photos.length - 1, i + 1))}
+              disabled={index === photos.length - 1}
+              sx={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', color: 'white', bgcolor: 'rgba(0,0,0,0.4)' }}
+            >
+              <ArrowForwardIosIcon fontSize="small" />
+            </IconButton>
+            <Typography variant="caption" sx={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)', color: 'white' }}>
+              {index + 1} / {photos.length}
+            </Typography>
+          </>
+        )}
+      </Box>
+    </Dialog>
+  )
+}
+
 function PlaceDetailBody({ place, tripId }: { place: RecommendedPlace; tripId: string }) {
+  const overlay = useOverlay()
+
+  const openPhotoViewer = (initialIndex: number) => {
+    overlay.open(({ close }) => (
+      <PhotoViewer photos={place.photos} initialIndex={initialIndex} onClose={close} />
+    ))
+  }
+
   return (
     <Stack spacing={2}>
       <Suspense
@@ -133,7 +200,8 @@ function PlaceDetailBody({ place, tripId }: { place: RecommendedPlace; tripId: s
               key={i}
               component="img"
               src={url}
-              sx={{ width: 100, height: 80, objectFit: 'cover', borderRadius: 1, flexShrink: 0 }}
+              onClick={() => openPhotoViewer(i)}
+              sx={{ width: 100, height: 80, objectFit: 'cover', borderRadius: 1, flexShrink: 0, cursor: 'pointer' }}
             />
           ))}
         </Stack>
