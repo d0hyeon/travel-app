@@ -22,7 +22,7 @@ export function preload(tripId: string) {
 }
 
 export default function TripPhotoContent({ tripId }: TripPhotoContentProps) {
-  const { data: photos, upload, remove } = useTripPhotos(tripId)
+  const { data: photos, upload, remove, updateVisibility } = useTripPhotos(tripId)
 
   const { data: places } = useTripPlaces(tripId);
   const [selectedPlaceIds, setSelectedPlaceIds] = useState<string[]>([]);
@@ -79,7 +79,10 @@ export default function TripPhotoContent({ tripId }: TripPhotoContentProps) {
           <ImageList cols={3}>
             <PhotoUploader
               width="100%"
-              onUpload={(files) => upload({ files })}
+              onUpload={({ items }) => {
+                if (!items?.length) return Promise.resolve();
+                return upload({ items });
+              }}
               multiple
             />
             {filteredPhotos.map((x, i) => {
@@ -97,6 +100,7 @@ export default function TripPhotoContent({ tripId }: TripPhotoContentProps) {
                           onClose={close}
                           photos={photos}
                           onDelete={remove}
+                          onUpdateVisibility={(photo, isPublic) => updateVisibility({ photoId: photo.id, isPublic })}
                           initialIndex={i}
                         />
                       ));

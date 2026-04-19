@@ -1,6 +1,9 @@
 import CloseIcon from '@mui/icons-material/Close';
+import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Box, Dialog, IconButton, Slide, Stack } from "@mui/material";
+import DownloadIcon from '@mui/icons-material/Downloading';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { Box, Dialog, IconButton, ListSubheader, Menu, MenuItem, Slide, Stack } from "@mui/material";
 import { forwardRef, useRef, useState, type ComponentProps } from "react";
 import { Mousewheel } from 'swiper/modules';
 import { Swiper, SwiperSlide, type SwiperRef } from "swiper/react";
@@ -15,14 +18,16 @@ import type { TransitionProps } from '@mui/material/transitions';
 type Props = {
   photos: Photo[];
   onDelete?: (photo: Photo) => void;
+  onUpdateVisibility?: (photo: Photo, isPublic: boolean) => Promise<unknown>;
   initialIndex?: number
   onClose: () => void;
 } & Omit<ComponentProps<typeof Dialog>, 'onClose'>;
 
 
-export function PhotoDialog({ photos: _photos, onDelete, initialIndex = 0, onClose, ...props }: Props) {
+export function PhotoDialog({ photos: _photos, onDelete, onUpdateVisibility, initialIndex = 0, onClose, ...props }: Props) {
   const [index, setIndex] = useState(initialIndex);
   const [photos, setPhotos] = useState(_photos);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
   const confirm = useConfirmDialog();
 
   const handleDelete = async () => {
@@ -37,6 +42,20 @@ export function PhotoDialog({ photos: _photos, onDelete, initialIndex = 0, onClo
         onDelete?.(photo);
       }
     }
+  }
+
+  const handleChangeVisibility = async (isPublic: boolean) => {
+    const photo = photos.at(index);
+    if (!photo || photo.isPublic === isPublic) {
+      setMenuAnchorEl(null);
+      return;
+    }
+
+    setPhotos((current) => current.map((item) => (
+      item.id === photo.id ? { ...item, isPublic } : item
+    )));
+    setMenuAnchorEl(null);
+    await onUpdateVisibility?.(photo, isPublic);
   }
 
   const swiperRef = useRef<SwiperRef>(null);
@@ -81,12 +100,68 @@ export function PhotoDialog({ photos: _photos, onDelete, initialIndex = 0, onClo
               <DeleteIcon />
             </IconButton>
           )}
-          <IconButton
-            onClick={onClose}
-            sx={{ color: 'white' }}
-          >
-            <CloseIcon />
-          </IconButton>
+          <Stack direction="row" spacing={1}>
+            {onUpdateVisibility && (
+              <>
+                <IconButton onClick={(event) => setMenuAnchorEl(event.currentTarget)} sx={{ color: 'white' }}>
+                  <MoreVertIcon />
+                </IconButton>
+                <Menu
+                  anchorEl={menuAnchorEl}
+                  open={Boolean(menuAnchorEl)}
+                  onClose={() => setMenuAnchorEl(null)}
+                  slotProps={{
+                    paper: {
+                      sx: {
+                        minWidth: 160,
+                      },
+                    },
+                  }}
+                >
+                  <MenuItem onClick={() => {
+                    void downloadRemoteSource(photos[index].url);
+                    setMenuAnchorEl(null);
+                  }} sx={{ minHeight: 40 }}>
+                    <Stack direction="row" alignItems="center" justifyContent="space-between" width="100%">
+                      <Box>다운로드</Box>
+                      <DownloadIcon fontSize="small" />
+                    </Stack>
+                  </MenuItem>
+                  <ListSubheader
+                    disableSticky
+                    sx={{
+                      fontSize: 11,
+                      lineHeight: 1.4,
+                      color: 'text.secondary',
+                      fontWeight: 700,
+                      py: 0.75,
+                      bgcolor: 'transparent',
+                    }}
+                  >
+                    공개 설정
+                  </ListSubheader>
+                  <MenuItem onClick={() => void handleChangeVisibility(true)} sx={{ minHeight: 40 }}>
+                    <Stack direction="row" alignItems="center" justifyContent="space-between" width="100%">
+                      <Box>공개</Box>
+                      {photos[index]?.isPublic && <CheckIcon fontSize="small" />}
+                    </Stack>
+                  </MenuItem>
+                  <MenuItem onClick={() => void handleChangeVisibility(false)} sx={{ minHeight: 40 }}>
+                    <Stack direction="row" alignItems="center" justifyContent="space-between" width="100%">
+                      <Box>비공개</Box>
+                      {!photos[index]?.isPublic && <CheckIcon fontSize="small" />}
+                    </Stack>
+                  </MenuItem>
+                </Menu>
+              </>
+            )}
+            <IconButton
+              onClick={onClose}
+              sx={{ color: 'white' }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </Stack>
         </Stack>
         <Box
           display="flex"
@@ -147,4 +222,14 @@ function waitForTouchEnd() {
       resolve();
     }, { once: true })
   })
+}
+
+async function downloadRemoteSource(url: string) {
+  const response = await fetch(url);
+  const buffer = await response.arrayBuffer();
+
+  const [filename] = url.split('/').reverse();
+  const file = new File([buffer], filename);
+
+  return navigator.share({ files: [file] })
 }

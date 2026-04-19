@@ -100,6 +100,7 @@ CREATE TABLE photos (
   id           UUID        PRIMARY KEY DEFAULT uuid_generate_v4(),
   trip_id      UUID        NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
   place_id     UUID        REFERENCES places(id) ON DELETE SET NULL,
+  is_public    BOOLEAN     NOT NULL DEFAULT false,
   url          TEXT        NOT NULL,
   storage_path TEXT        NOT NULL,
   created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()

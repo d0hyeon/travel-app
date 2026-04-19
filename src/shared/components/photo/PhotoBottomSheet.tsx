@@ -1,4 +1,7 @@
-import { Box, Button, IconButton, Typography } from "@mui/material";
+import CheckIcon from '@mui/icons-material/Check';
+import { Box, Button, IconButton, ListSubheader, Typography } from "@mui/material";
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { Menu, MenuItem, Stack } from "@mui/material";
 import { useEffect, useEffectEvent, useRef, useState, type ComponentProps } from "react";
 import { Swiper, SwiperSlide, type SwiperRef } from 'swiper/react';
 import type { Photo } from "~features/photo/photo.types";
@@ -18,12 +21,14 @@ import { Virtual } from 'swiper/modules';
 type SheetProps = {
   photos: Photo[];
   onDelete?: (photo: Photo) => void;
+  onUpdateVisibility?: (photo: Photo, isPublic: boolean) => Promise<unknown>;
   initialIndex?: number
 } & Omit<ComponentProps<typeof BottomSheet>, 'children'>;
 
-export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, onClose, ...props }: SheetProps) {
+export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, onUpdateVisibility, onClose, ...props }: SheetProps) {
   const [index, setIndex] = useState(initialIndex);
   const [photos, setPhotos] = useState(_photos);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
   const confirm = useConfirmDialog();
 
   const currentImageRef = useRef<HTMLImageElement>(null);
@@ -51,6 +56,20 @@ export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, 
     }
   }
 
+  const handleChangeVisibility = async (isPublic: boolean) => {
+    const photo = photos.at(index);
+    if (!photo || photo.isPublic === isPublic) {
+      setMenuAnchorEl(null);
+      return;
+    }
+
+    setPhotos((current) => current.map((item) => (
+      item.id === photo.id ? { ...item, isPublic } : item
+    )));
+    setMenuAnchorEl(null);
+    await onUpdateVisibility?.(photo, isPublic);
+  }
+
   useGestureStart(() => swiperRef.current?.swiper.disable())
 
   return (
@@ -65,12 +84,66 @@ export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, 
         <Typography variant="body2" color="#fff" fontWeight={800}>
           {index + 1} / {photos.length}
         </Typography>
-        <IconButton
-          onClick={() => downloadRemoteSource(photos[index].url)}
-          sx={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)' }}
-        >
-          <DownloadIcon sx={{ color: '#fff' }} />
-        </IconButton>
+        <Stack direction="row" spacing={0.5} sx={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)' }}>
+          {onUpdateVisibility && (
+            <>
+              <IconButton onClick={(event) => setMenuAnchorEl(event.currentTarget)}>
+                <MoreVertIcon sx={{ color: '#fff' }} />
+              </IconButton>
+              <Menu
+                anchorEl={menuAnchorEl}
+                open={Boolean(menuAnchorEl)}
+                onClose={() => setMenuAnchorEl(null)}
+                slotProps={{
+                  paper: {
+                    sx: {
+                      minWidth: 160,
+                    },
+                  },
+                }}
+              >
+                <MenuItem
+                  onClick={() => {
+                    downloadRemoteSource(photos[index].url);
+                    setMenuAnchorEl(null);
+                  }}
+                  sx={{ minHeight: 40 }}
+                >
+                  <Stack direction="row" alignItems="center" justifyContent="space-between" width="100%">
+                    <Box>다운로드</Box>
+                    <DownloadIcon fontSize="small" />
+                  </Stack>
+                </MenuItem>
+                <ListSubheader
+                  disableSticky
+                  sx={{
+                    fontSize: 11,
+                    lineHeight: 1.4,
+                    color: 'text.secondary',
+                    fontWeight: 700,
+                    py: 0.75,
+                    bgcolor: 'transparent',
+                  }}
+                >
+                  공개 설정
+                </ListSubheader>
+                <MenuItem onClick={() => void handleChangeVisibility(true)} sx={{ minHeight: 40, paddingLeft: 3 }}>
+                  <Stack direction="row" alignItems="center" justifyContent="space-between" width="100%">
+                    <Box>공개</Box>
+                    {photos[index]?.isPublic && <CheckIcon fontSize="small" />}
+                  </Stack>
+                </MenuItem>
+                <MenuItem onClick={() => void handleChangeVisibility(false)} sx={{ minHeight: 40, paddingLeft: 3 }}>
+                  <Stack direction="row" alignItems="center" justifyContent="space-between" width="100%">
+                    <Box>비공개</Box>
+                    {!photos[index]?.isPublic && <CheckIcon fontSize="small" />}
+                  </Stack>
+                </MenuItem>
+
+              </Menu>
+            </>
+          )}
+        </Stack>
       </BottomSheet.Header>
       <BottomSheet.Body>
         <BottomSheet.Scrollable display="flex" alignItems="center" justifyContent="center" height="100%">

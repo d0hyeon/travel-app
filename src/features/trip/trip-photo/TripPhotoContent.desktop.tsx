@@ -14,7 +14,7 @@ interface TripPhotoContentProps {
 
 export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
   const overlay = useOverlay();
-  const { data: photos, remove, upload } = useTripPhotos(tripId);
+  const { data: photos, remove, upload, updateVisibility } = useTripPhotos(tripId);
   const { data: places } = useTripPlaces(tripId);
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
 
@@ -63,9 +63,10 @@ export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
         <Box component="li" margin={0.5}>
           <PhotoUploader
             width="100%"
-            sx={{ width: 120, height: 120 }}
-            onUpload={async (files) => {
-              await upload({ files, placeId: selectedPlaceId ?? undefined })
+            sx={{ width: 120 }}
+            onUpload={async ({ items }) => {
+              if (!items?.length) return;
+              await upload({ items, placeId: selectedPlaceId ?? undefined })
             }}
             multiple
           />
@@ -83,6 +84,7 @@ export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
                   open={isOpen}
                   onClose={close}
                   onDelete={remove}
+                  onUpdateVisibility={(photo, isPublic) => updateVisibility({ photoId: photo.id, isPublic })}
                 />
               ))
             }}
