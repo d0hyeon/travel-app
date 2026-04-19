@@ -115,23 +115,19 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
         {/* Map (전체) */}
         <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `calc(${sheetRatio * 100}% - 10px)` }}>
           <Stack gap={1} padding={1} position="absolute" top={0} left={0} zIndex={8}>
-            <ToggleButtonGroup
-              orientation="vertical"
-              value={viewConfig.isVisibleAllMarkers}
-              exclusive
-              size="small"
-              sx={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
-            >
-              <ToggleButton value={true} aria-label="list" onClick={() => setViewConfig({ isVisibleAllMarkers: true })}>
-                <VisibilityOnIcon fontSize="small" />
-              </ToggleButton>
-              {currentLocation && (
-                <ToggleButton value={false} aria-label="module" onClick={() => mapRef.current?.panTo(currentLocation.lat, currentLocation.lng)}>
-                  <VisibilityOffIcon fontSize="small" />
-                </ToggleButton>
-              )}
 
-            </ToggleButtonGroup>
+            <ToggleButton
+              value="check"
+              aria-label="list"
+              onClick={() => setViewConfig({ isVisibleAllMarkers: !viewConfig.isVisibleAllMarkers })}
+              selected={viewConfig.isVisibleAllMarkers}
+              size="small"
+              color="primary"
+              sx={{ backgroundColor: 'rgba(255, 255, 255, 0.7) !important' }}
+            >
+              <VisibilityOffIcon fontSize="small" />
+            </ToggleButton>
+
           </Stack>
           <Stack gap={1} padding={1} position="absolute" top={0} right={0} zIndex={8}>
             <ToggleButton
@@ -139,7 +135,8 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
               selected={viewConfig.isCluasterlingView}
               onChange={() => setViewConfig({ isCluasterlingView: !viewConfig.isCluasterlingView })}
               size="small"
-              sx={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
+              color="primary"
+              sx={{ backgroundColor: 'rgba(255, 255, 255, 0.7) !important' }}
             >
               <WorkspacesIcon />
             </ToggleButton>
@@ -149,7 +146,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
               <IconButton
                 onClick={() => mapRef.current?.panTo(currentLocation.lat, currentLocation.lng)}
                 size="small"
-                sx={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
+                sx={{ backgroundColor: 'rgba(255, 255, 255, 0.7) !important' }}
               >
                 <MyLocationIcon />
               </IconButton>
@@ -171,7 +168,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
               const isInCurrentRoute = currentRoute?.placeIds.includes(place.id) ?? false;
               const orderInRoute = currentRoute?.placeIds.indexOf(place.id) ?? -1;
 
-              if (!viewConfig.isVisibleAllMarkers && !isInCurrentRoute) {
+              if (viewConfig.isVisibleAllMarkers && !isInCurrentRoute) {
                 return null;
               }
 

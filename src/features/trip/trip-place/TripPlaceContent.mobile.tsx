@@ -61,7 +61,8 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
             selected={cluastering}
             onChange={() => setCluastering(!cluastering)}
             size="small"
-            sx={{ backgroundColor: 'rgba(255, 255, 255, 0.7)' }}
+            color="primary"
+            sx={{ backgroundColor: 'rgba(255, 255, 255, 0.7) !important' }}
           >
             <WorkspacesIcon />
           </ToggleButton>
