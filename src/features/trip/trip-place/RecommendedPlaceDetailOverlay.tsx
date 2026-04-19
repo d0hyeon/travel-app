@@ -1,7 +1,4 @@
 import AddIcon from '@mui/icons-material/Add'
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
-import CloseIcon from '@mui/icons-material/Close'
 import {
   Box,
   Button,
@@ -10,20 +7,35 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  IconButton,
   Stack,
   Typography,
 } from '@mui/material'
 import { useMutation } from '@tanstack/react-query'
-import { Suspense, useCallback, useState } from 'react'
+import { Suspense, useCallback } from 'react'
 import { queryClient } from '~app/query-client'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { Map } from '../../../shared/components/Map'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { createPlace } from '../../place/place.api'
 import type { RecommendedPlace } from '../../place/recommended-place.api'
+import { useIsMobile } from '~shared/hooks/env/useIsMobile'
+import { PhotoBottomSheet } from '~shared/components/photo/PhotoBottomSheet'
+import { PhotoDialog } from '~shared/components/photo/PhotoDialog'
+import type { Photo } from '~features/photo/photo.types'
 import { useTrip } from '../useTrip'
 import { useTripPlaces } from './useTripPlaces'
+
+function toReadonlyPhotos(urls: string[]): Photo[] {
+  return urls.map((url, i) => ({
+    id: String(i),
+    tripId: '',
+    placeId: null,
+    isPublic: true,
+    url,
+    storagePath: '',
+    createdAt: '',
+  }))
+}
 
 interface Props {
   place: RecommendedPlace
@@ -112,65 +124,19 @@ function PlaceMapPreview({ place, tripId }: { place: RecommendedPlace; tripId: s
   )
 }
 
-function PhotoViewer({
-  photos,
-  initialIndex,
-  onClose,
-}: {
-  photos: string[]
-  initialIndex: number
-  onClose: () => void
-}) {
-  const [index, setIndex] = useState(initialIndex)
-
-  return (
-    <Dialog open onClose={onClose} maxWidth="md" fullWidth>
-      <Box sx={{ position: 'relative', bgcolor: 'black' }}>
-        <IconButton
-          onClick={onClose}
-          size="small"
-          sx={{ position: 'absolute', top: 8, right: 8, zIndex: 1, color: 'white', bgcolor: 'rgba(0,0,0,0.4)' }}
-        >
-          <CloseIcon fontSize="small" />
-        </IconButton>
-        <Box
-          component="img"
-          src={photos[index]}
-          sx={{ width: '100%', maxHeight: '70vh', objectFit: 'contain', display: 'block' }}
-        />
-        {photos.length > 1 && (
-          <>
-            <IconButton
-              onClick={() => setIndex(i => Math.max(0, i - 1))}
-              disabled={index === 0}
-              sx={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: 'white', bgcolor: 'rgba(0,0,0,0.4)' }}
-            >
-              <ArrowBackIosNewIcon fontSize="small" />
-            </IconButton>
-            <IconButton
-              onClick={() => setIndex(i => Math.min(photos.length - 1, i + 1))}
-              disabled={index === photos.length - 1}
-              sx={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', color: 'white', bgcolor: 'rgba(0,0,0,0.4)' }}
-            >
-              <ArrowForwardIosIcon fontSize="small" />
-            </IconButton>
-            <Typography variant="caption" sx={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)', color: 'white' }}>
-              {index + 1} / {photos.length}
-            </Typography>
-          </>
-        )}
-      </Box>
-    </Dialog>
-  )
-}
-
 function PlaceDetailBody({ place, tripId }: { place: RecommendedPlace; tripId: string }) {
   const overlay = useOverlay()
+  const isMobile = useIsMobile()
+  const photos = toReadonlyPhotos(place.photos)
 
   const openPhotoViewer = (initialIndex: number) => {
-    overlay.open(({ close }) => (
-      <PhotoViewer photos={place.photos} initialIndex={initialIndex} onClose={close} />
-    ))
+    overlay.open(({ close, isOpen }) =>
+      isMobile ? (
+        <PhotoBottomSheet photos={photos} initialIndex={initialIndex} isOpen={isOpen} onClose={close} />
+      ) : (
+        <PhotoDialog photos={photos} initialIndex={initialIndex} open={isOpen} onClose={close} />
+      )
+    )
   }
 
   return (
