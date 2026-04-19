@@ -7,25 +7,20 @@ import {
   ToggleButton,
   Typography
 } from '@mui/material'
-import { Suspense, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Map, type MapRef } from '../../../shared/components/Map'
 import { usePlaceSearchDialog } from '../../place/place-search/usePlaceSearchDialog'
 import { PlaceCategoryColorCode, type Place } from '../../place/place.types'
-import type { RecommendedPlace } from '../../place/recommended-place.api'
 import { useTripCluastering } from '../hooks/useTripCluastering'
 import { useTripRoutes } from '../trip-route/useTripRoutes'
 import { useTrip } from '../useTrip'
-import { useRecommendedPlaceDetailOverlay } from './RecommendedPlaceDetailOverlay'
 import { TripPlaceItemButton } from './TripPlaceItemButton'
 import { useTripPlaceDetailOverlay } from './useTripPlaceDetailOverlay'
 import { useTripPlaces } from './useTripPlaces'
-import { useRecommendedPlaces } from './useRecommendedPlaces'
 
 interface TripPlaceContentProps {
   tripId: string
 }
-
-const RECOMMENDED_MARKER_COLOR = '#FF9800'
 
 export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
   const { data: trip } = useTrip(tripId)
@@ -60,7 +55,6 @@ export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
   const [cluastering, setCluastering] = useTripCluastering();
   const [focusedId, setFocusedId] = useState<string | null>(null)
   const { openDialog: openDetailDialog } = useTripPlaceDetailOverlay()
-  const { openDialog: openRecommendedDialog } = useRecommendedPlaceDetailOverlay()
 
   return (
     <Box height="100%" sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
@@ -156,43 +150,8 @@ export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
               }}
             />
           ))}
-          <Suspense>
-            <RecommendedMarkers
-              tripId={tripId}
-              onOpen={(place) => openRecommendedDialog({ place, tripId })}
-            />
-          </Suspense>
         </Map>
       </Box>
     </Box>
-  )
-}
-
-function RecommendedMarkers({
-  tripId,
-  onOpen,
-}: {
-  tripId: string
-  onOpen: (place: RecommendedPlace) => void
-}) {
-  const { data: recommended } = useRecommendedPlaces(tripId)
-
-  return (
-    <>
-      {recommended.map(place => (
-        <Map.Marker
-          key={`rec-${place.id}`}
-          lat={place.lat}
-          lng={place.lng}
-          label={place.name}
-          variant="circle"
-          color={RECOMMENDED_MARKER_COLOR}
-          opacity={0.8}
-          thumbnailUrl={place.photos[0]}
-          tooltip={['추천 장소', place.name]}
-          onClick={() => onOpen(place)}
-        />
-      ))}
-    </>
   )
 }
