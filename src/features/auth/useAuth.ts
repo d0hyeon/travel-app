@@ -1,5 +1,5 @@
 import type { User } from '@supabase/supabase-js';
-import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { useQueryClient, useSuspenseQuery, type UseQueryOptions } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { supabase } from '~api/client';
 import { queryClient } from '~app/query-client';
@@ -20,10 +20,7 @@ export function useAuth() {
 
       return session?.user ?? null;
     },
-    refetchOnMount: false,
-    refetchInterval: false,
-    staleTime: Infinity,
-    gcTime: Infinity,
+    ...REFETCH_LOCK_OPTIONS
   });
 }
 export function getAuth() {
@@ -57,3 +54,12 @@ export function AuthStateSync() {
   return null;
 }
 
+const REFETCH_LOCK_OPTIONS = {
+  refetchOnMount: false,
+  refetchInterval: false,
+  refetchIntervalInBackground: false,
+  refetchOnReconnect: false,
+  refetchOnWindowFocus: false,
+  staleTime: Infinity,
+  gcTime: Infinity,
+} satisfies Partial<UseQueryOptions>;
