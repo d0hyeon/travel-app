@@ -10,7 +10,7 @@ import { PlaceCategoryColorCode, PlaceCategoryTypeLabel, PlaceCategoryType } fro
 import { getAllRoutes, routeKey } from '~features/route/route.api'
 import { getTripMembersByTripId, tripMemberKey } from '~features/trip/trip-member/tripMember.api'
 import { tripKey } from '~features/trip/trip.api'
-import { getRegionByLocation } from '~features/location'
+import { getCountryNameByLocation, getRegionByLocation } from '~features/location'
 import type { Trip } from '~features/trip/trip.types'
 import { useTrips } from '~features/trip/useTrips'
 import { differenceInDays } from 'date-fns'
@@ -47,6 +47,12 @@ export interface CurrencySummary {
   currency: CurrencyCode
   totalAmountInKRW: number
   expenseCount: number
+  share: number
+}
+
+export interface CountryVisitSummary {
+  country: string
+  tripCount: number
   share: number
 }
 
@@ -97,6 +103,7 @@ export interface StatisticsSummary {
   travelSummaries: TripExpenseSummary[]
   payerSummaries: PayerSummary[]
   currencySummaries: CurrencySummary[]
+  countryVisitSummaries: CountryVisitSummary[]
   regionVisitSummaries: RegionVisitSummary[]
   cityVisitSummaries: CityVisitSummary[]
   activityTripSummaries: TripActivitySummary[]
@@ -169,6 +176,7 @@ export function useStatisticsSummary(): StatisticsSummary {
     const placeById = new Map(places.map((place) => [place.id, place]))
     const payerMap = new Map<string, Omit<PayerSummary, 'share'>>()
     const currencyMap = new Map<CurrencyCode, Omit<CurrencySummary, 'share'>>()
+    const countryVisitMap = new Map<string, Omit<CountryVisitSummary, 'share'>>()
     const regionVisitMap = new Map<string, Omit<RegionVisitSummary, 'share'>>()
     const cityMap = new Map<string, Omit<CityVisitSummary, 'share'>>()
     const categoryExpenseMap = new Map<PlaceCategoryType, Omit<CategoryExpenseSummary, 'share'>>()
@@ -179,10 +187,18 @@ export function useStatisticsSummary(): StatisticsSummary {
       const memberMap = new Map(members.map((member) => [member.id, member]))
       const myMemberId = members.find((m) => m.userId === currentUser?.id)?.id
 
+      const visitedCountries = new Set<string>()
       const visitedRegions = new Set<string>()
       for (const destination of trip.destinations) {
-        const regionName = getRegionByLocation(destination)
+        const countryName = getCountryNameByLocation(destination)
+        if (!visitedCountries.has(countryName)) {
+          visitedCountries.add(countryName)
+          const currentCountry = countryVisitMap.get(countryName) ?? { country: countryName, tripCount: 0 }
+          currentCountry.tripCount += 1
+          countryVisitMap.set(countryName, currentCountry)
+        }
 
+        const regionName = getRegionByLocation(destination)
         if (!visitedRegions.has(regionName)) {
           visitedRegions.add(regionName)
           const currentRegion = regionVisitMap.get(regionName) ?? { region: regionName, tripCount: 0 }
@@ -269,6 +285,13 @@ export function useStatisticsSummary(): StatisticsSummary {
       }))
       .sort((a, b) => b.totalAmountInKRW - a.totalAmountInKRW)
 
+    const countryVisitSummaries: CountryVisitSummary[] = [...countryVisitMap.values()]
+      .map((summary) => ({
+        ...summary,
+        share: totalTripsCount > 0 ? summary.tripCount / totalTripsCount : 0,
+      }))
+      .sort((a, b) => b.tripCount - a.tripCount)
+
     const regionVisitSummaries: RegionVisitSummary[] = [...regionVisitMap.values()]
       .map((summary) => ({
         ...summary,
@@ -351,6 +374,7 @@ export function useStatisticsSummary(): StatisticsSummary {
       travelSummaries,
       payerSummaries,
       currencySummaries,
+      countryVisitSummaries,
       regionVisitSummaries,
       cityVisitSummaries,
       activityTripSummaries,
