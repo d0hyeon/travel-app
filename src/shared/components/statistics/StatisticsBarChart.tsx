@@ -1,22 +1,28 @@
-import { Box, Chip, Stack, type StackProps, Typography } from '@mui/material'
+import { Box, Chip, Stack, Tooltip, type StackProps, Typography } from '@mui/material'
 import { statisticsToneStyles, type StatisticsTone } from './statistics.constants'
 
 interface StatisticsBarChartProps extends StackProps {
   label: string
+  labelTooltip?: string
+  labelTooltipOpen?: boolean
   value: string
   ratio: number
   helper?: React.ReactNode
   chips?: string[]
   tone?: StatisticsTone
+  onLabelClick?: () => void
 }
 
 export function StatisticsBarChart({
   label,
+  labelTooltip,
+  labelTooltipOpen,
   value,
   ratio,
   helper,
   chips,
   tone = 'blue',
+  onLabelClick,
   sx,
   ...stackProps
 }: StatisticsBarChartProps) {
@@ -25,9 +31,22 @@ export function StatisticsBarChart({
   return (
     <Stack gap={0.8} sx={sx} {...stackProps}>
       <Stack direction="row" alignItems="baseline" justifyContent="space-between" gap={1}>
-        <Typography fontSize={12} fontWeight={800} noWrap>
-          {label}
-        </Typography>
+        <Tooltip
+          title={labelTooltip ?? ''}
+          open={labelTooltipOpen}
+          placement="top-start"
+          arrow
+        >
+          <Typography
+            fontSize={12}
+            fontWeight={800}
+            noWrap
+            onClick={onLabelClick}
+            sx={{ cursor: onLabelClick ? 'pointer' : undefined }}
+          >
+            {label}
+          </Typography>
+        </Tooltip>
         <Typography fontSize={12} fontWeight={800} sx={{ color: colors.fill }} flexShrink={0}>
           {value}
         </Typography>

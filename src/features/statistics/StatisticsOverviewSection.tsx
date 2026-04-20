@@ -1,4 +1,5 @@
-import { Box, Stack } from '@mui/material'
+import { Box, Stack, Typography } from '@mui/material'
+import { useState } from 'react'
 import { StatisticsBarChart } from '~shared/components/statistics/StatisticsBarChart'
 import { StatisticsColumnChart } from '~shared/components/statistics/StatisticsColumnChart'
 import { StatisticsDonutChart } from '~shared/components/statistics/StatisticsDonutChart'
@@ -10,6 +11,7 @@ import {
 } from './StatisticsViewConfigButton'
 import { formatCurrency } from '~features/expense/expense.utils'
 import type { StatisticsSummary } from './statistics-expense/useStatisticsSummary'
+import { groupByTripCount, type RankedGroup } from './statistics.utils'
 
 interface StatisticsOverviewSectionProps {
   summary: StatisticsSummary
@@ -18,7 +20,8 @@ interface StatisticsOverviewSectionProps {
 export function StatisticsOverviewSection({ summary }: StatisticsOverviewSectionProps) {
   const [activityViewMode, setActivityViewMode] = useStatisticsChartViewMode('activity-trip', 'horizontal-bar')
   const [cityViewMode, setCityViewMode] = useStatisticsChartViewMode('city-visit', 'vertical-bar')
-  const [regionViewMode, setRegionViewMode] = useStatisticsChartViewMode('region-visit', 'donut')
+  const [regionViewMode, setRegionViewMode] = useStatisticsChartViewMode('region-visit', 'vertical-bar')
+  const [countryViewMode, setCountryViewMode] = useStatisticsChartViewMode('country-visit', 'donut')
   const [categoryVisitViewMode, setCategoryVisitViewMode] = useStatisticsChartViewMode('category-visit', 'donut')
   const {
     totalTripsCount,
@@ -27,6 +30,7 @@ export function StatisticsOverviewSection({ summary }: StatisticsOverviewSection
     topRegion,
     activityTripSummaries: rawActivityTripSummaries,
     cityVisitSummaries,
+    countryVisitSummaries,
     regionVisitSummaries,
     categoryVisitSummaries,
   } = summary
@@ -123,7 +127,7 @@ export function StatisticsOverviewSection({ summary }: StatisticsOverviewSection
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' },
+          gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' },
           gap: 2,
         }}
       >
@@ -144,18 +148,10 @@ export function StatisticsOverviewSection({ summary }: StatisticsOverviewSection
           }
         >
           {cityViewMode === 'horizontal-bar' ? (
-            <Stack gap={1.25}>
-              {cityVisitSummaries.map((summaryItem, index) => (
-                <StatisticsBarChart
-                  key={`${summaryItem.city}-${index}`}
-                  label={`${index + 1}. ${summaryItem.city}`}
-                  value={`${summaryItem.tripCount}회`}
-                  ratio={cityVisitSummaries[0]?.tripCount ? summaryItem.tripCount / cityVisitSummaries[0].tripCount : 0}
-                  helper={`${Math.round(summaryItem.share * 100)}%`}
-                  tone="mint"
-                />
-              ))}
-            </Stack>
+            <VisitRankingBarList
+              groups={groupByTripCount(cityVisitSummaries.map((s) => ({ name: s.city, tripCount: s.tripCount, share: s.share })))}
+              topTripCount={cityVisitSummaries[0]?.tripCount ?? 0}
+            />
           ) : cityViewMode === 'donut' ? (
             <StatisticsDonutChart
               data={cityVisitSummaries.slice(0, 5).map((summaryItem, index) => ({
@@ -171,28 +167,28 @@ export function StatisticsOverviewSection({ summary }: StatisticsOverviewSection
             />
           ) : (
             <StatisticsColumnChart
-              data={cityVisitSummaries.slice(0, 6).map((summaryItem, index) => ({
+              data={cityVisitSummaries.slice(0, 5).map((summaryItem, index) => ({
                 id: `${summaryItem.city}-${index}`,
                 label: summaryItem.city,
                 value: summaryItem.tripCount,
                 helper: `${Math.round(summaryItem.share * 100)}%`,
               }))}
               formatValue={(value) => `${value}회`}
-              colors={['#2a9d6f', '#4cb88a', '#72cf9f', '#97dfb7', '#bceecf', '#ddf7e7']}
+              colors={['#2a9d6f', '#4cb88a', '#72cf9f', '#97dfb7', '#bceecf']}
             />
           )}
         </StatisticsSectionCard>
 
         <StatisticsSectionCard
-          title="지역/국가 방문 순위"
+          title="지역 방문 순위"
           tone="mint"
           action={
             <StatisticsViewConfigButton
-              title="지역/국가 방문 순위"
+              title="지역 방문 순위"
               options={[
-                { value: 'donut', label: '도넛형', caption: '지역 비중을 중심으로 봐요' },
-                { value: 'horizontal-bar', label: '가로 막대형', caption: '지역 이름과 횟수를 함께 읽어요' },
                 { value: 'vertical-bar', label: '세로 막대형', caption: '지역 간 차이를 빠르게 비교해요' },
+                { value: 'horizontal-bar', label: '가로 막대형', caption: '지역 이름과 횟수를 함께 읽어요' },
+                { value: 'donut', label: '도넛형', caption: '지역 비중을 중심으로 봐요' },
               ]}
               value={regionViewMode}
               onChange={setRegionViewMode}
@@ -200,30 +196,11 @@ export function StatisticsOverviewSection({ summary }: StatisticsOverviewSection
           }
         >
           {regionViewMode === 'horizontal-bar' ? (
-            <Stack gap={1.25}>
-              {regionVisitSummaries.map((summaryItem, index) => (
-                <StatisticsBarChart
-                  key={`${summaryItem.region}-${index}`}
-                  label={`${index + 1}. ${summaryItem.region}`}
-                  value={`${summaryItem.tripCount}회`}
-                  ratio={regionVisitSummaries[0]?.tripCount ? summaryItem.tripCount / regionVisitSummaries[0].tripCount : 0}
-                  helper={`${Math.round(summaryItem.share * 100)}%`}
-                  tone="mint"
-                />
-              ))}
-            </Stack>
-          ) : regionViewMode === 'vertical-bar' ? (
-            <StatisticsColumnChart
-              data={regionVisitSummaries.slice(0, 6).map((summaryItem, index) => ({
-                id: `${summaryItem.region}-${index}`,
-                label: summaryItem.region,
-                value: summaryItem.tripCount,
-                helper: `${Math.round(summaryItem.share * 100)}%`,
-              }))}
-              formatValue={(value) => `${value}회`}
-              colors={['#2a9d6f', '#4cb88a', '#72cf9f', '#97dfb7', '#bceecf', '#ddf7e7']}
+            <VisitRankingBarList
+              groups={groupByTripCount(regionVisitSummaries.map((s) => ({ name: s.region, tripCount: s.tripCount, share: s.share })))}
+              topTripCount={regionVisitSummaries[0]?.tripCount ?? 0}
             />
-          ) : (
+          ) : regionViewMode === 'donut' ? (
             <StatisticsDonutChart
               data={regionVisitSummaries.slice(0, 5).map((summaryItem, index) => ({
                 id: `${summaryItem.region}-${index}`,
@@ -234,7 +211,66 @@ export function StatisticsOverviewSection({ summary }: StatisticsOverviewSection
               formatValue={(value) => `${value}회`}
               colors={['#2a9d6f', '#52b78a', '#82d2ae', '#b4e8d1', '#ddf7eb']}
               centerLabel="자주 가는 지역"
-              centerValue={regionVisitSummaries[0] ? regionVisitSummaries[0].region : '-'}
+              centerValue={regionVisitSummaries[0]?.region ?? '-'}
+            />
+          ) : (
+            <StatisticsColumnChart
+              data={regionVisitSummaries.slice(0, 5).map((summaryItem, index) => ({
+                id: `${summaryItem.region}-${index}`,
+                label: summaryItem.region,
+                value: summaryItem.tripCount,
+                helper: `${Math.round(summaryItem.share * 100)}%`,
+              }))}
+              formatValue={(value) => `${value}회`}
+              colors={['#2a9d6f', '#4cb88a', '#72cf9f', '#97dfb7', '#bceecf']}
+            />
+          )}
+        </StatisticsSectionCard>
+
+        <StatisticsSectionCard
+          title="국가 방문 순위"
+          tone="mint"
+          action={
+            <StatisticsViewConfigButton
+              title="국가 방문 순위"
+              options={[
+                { value: 'donut', label: '도넛형', caption: '국가 비중을 중심으로 봐요' },
+                { value: 'vertical-bar', label: '세로 막대형', caption: '국가 간 차이를 빠르게 비교해요' },
+                { value: 'horizontal-bar', label: '가로 막대형', caption: '국가 이름과 횟수를 함께 읽어요' },
+              ]}
+              value={countryViewMode}
+              onChange={setCountryViewMode}
+            />
+          }
+        >
+          {countryViewMode === 'horizontal-bar' ? (
+            <VisitRankingBarList
+              groups={groupByTripCount(countryVisitSummaries.map((s) => ({ name: s.country, tripCount: s.tripCount, share: s.share })))}
+              topTripCount={countryVisitSummaries[0]?.tripCount ?? 0}
+            />
+          ) : countryViewMode === 'vertical-bar' ? (
+            <StatisticsColumnChart
+              data={countryVisitSummaries.slice(0, 5).map((summaryItem, index) => ({
+                id: `${summaryItem.country}-${index}`,
+                label: summaryItem.country,
+                value: summaryItem.tripCount,
+                helper: `${Math.round(summaryItem.share * 100)}%`,
+              }))}
+              formatValue={(value) => `${value}회`}
+              colors={['#2a9d6f', '#4cb88a', '#72cf9f', '#97dfb7', '#bceecf']}
+            />
+          ) : (
+            <StatisticsDonutChart
+              data={countryVisitSummaries.slice(0, 5).map((summaryItem, index) => ({
+                id: `${summaryItem.country}-${index}`,
+                label: summaryItem.country,
+                value: summaryItem.tripCount,
+                helper: `${Math.round(summaryItem.share * 100)}%`,
+              }))}
+              formatValue={(value) => `${value}회`}
+              colors={['#2a9d6f', '#52b78a', '#82d2ae', '#b4e8d1', '#ddf7eb']}
+              centerLabel="자주 가는 국가"
+              centerValue={countryVisitSummaries[0]?.country ?? '-'}
             />
           )}
         </StatisticsSectionCard>
@@ -299,6 +335,32 @@ export function StatisticsOverviewSection({ summary }: StatisticsOverviewSection
           />
         )}
       </StatisticsSectionCard>
+    </Stack>
+  )
+}
+
+function VisitRankingBarList({ groups, topTripCount }: { groups: RankedGroup[]; topTripCount: number }) {
+  const [openRank, setOpenRank] = useState<number | null>(null)
+
+  return (
+    <Stack gap={1.25}>
+      {groups.map((group) => {
+        const label = `${group.rank}. ${group.names.slice(0, 3).join(', ')}${group.overflow > 0 ? ` 외 ${group.overflow}개` : ''}`
+
+        return (
+          <StatisticsBarChart
+            key={group.rank}
+            label={label}
+            value={`${group.tripCount}회`}
+            ratio={topTripCount > 0 ? group.tripCount / topTripCount : 0}
+            helper={`${Math.round(group.share * 100)}%`}
+            tone="mint"
+            onLabelClick={group.overflow > 0 ? () => setOpenRank(openRank === group.rank ? null : group.rank) : undefined}
+            labelTooltipOpen={openRank === group.rank}
+            labelTooltip={group.overflow > 0 ? group.names.join(', ') : undefined}
+          />
+        )
+      })}
     </Stack>
   )
 }
