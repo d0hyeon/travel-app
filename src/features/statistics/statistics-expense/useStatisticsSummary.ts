@@ -179,21 +179,18 @@ export function useStatisticsSummary(): StatisticsSummary {
       const memberMap = new Map(members.map((member) => [member.id, member]))
       const myMemberId = members.find((m) => m.userId === currentUser?.id)?.id
 
-      // 여러 목적지인 경우 각 목적지별로 통계 집계
+      const visitedRegions = new Set<string>()
       for (const destination of trip.destinations) {
         const regionName = getRegionByLocation(destination)
 
-        const currentRegion = regionVisitMap.get(regionName) ?? {
-          region: regionName,
-          tripCount: 0,
+        if (!visitedRegions.has(regionName)) {
+          visitedRegions.add(regionName)
+          const currentRegion = regionVisitMap.get(regionName) ?? { region: regionName, tripCount: 0 }
+          currentRegion.tripCount += 1
+          regionVisitMap.set(regionName, currentRegion)
         }
-        currentRegion.tripCount += 1
-        regionVisitMap.set(regionName, currentRegion)
 
-        const currentCity = cityMap.get(destination) ?? {
-          city: destination,
-          tripCount: 0,
-        }
+        const currentCity = cityMap.get(destination) ?? { city: destination, tripCount: 0 }
         currentCity.tripCount += 1
         cityMap.set(destination, currentCity)
       }
