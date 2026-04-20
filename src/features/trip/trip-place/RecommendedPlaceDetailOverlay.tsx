@@ -106,7 +106,7 @@ function AddPlaceButton({
       fullWidth
       size="large"
     >
-      장소 추가
+      장소에 담기
     </Button>
   )
 }
@@ -183,7 +183,9 @@ function RecommendedPlaceDetailSheet({ place, tripId, isOpen, onClose }: Props) 
         <Typography variant="h6">{place.name}</Typography>
       </BottomSheet.Header>
       <BottomSheet.Body>
-        <PlaceDetailBody place={place} tripId={tripId} />
+        <BottomSheet.Scrollable>
+          <PlaceDetailBody place={place} tripId={tripId} />
+        </BottomSheet.Scrollable>
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
         <Button variant="outlined" size="large" onClick={onClose} fullWidth>
