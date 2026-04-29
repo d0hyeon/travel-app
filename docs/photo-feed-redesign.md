@@ -213,8 +213,8 @@ MetaStep        — 가시성, 제목, 캡션, 위치(scope), 커버
 
 각 단계는 별도 커밋. 커밋 메시지 prefix: `feat`, `refactor`, `chore` 등 역할 단위.
 
-- [ ] **1. 계획서 작성** — `docs/photo-feed-redesign.md` (이 문서)
-- [ ] **2. DB 마이그레이션 SQL** — `migration.feed.sql` 작성
+- [x] **1. 계획서 작성** — `docs/photo-feed-redesign.md` (이 문서)
+- [x] **2. DB 마이그레이션 SQL** — `migration.feed.sql` 작성
   - enum, photo_posts, post_photos, post_comments, post_likes, RLS
   - schema.sql 갱신
 - [ ] **3. `_database.types.ts` 동기화** — Supabase CLI 없이 수동 추가
