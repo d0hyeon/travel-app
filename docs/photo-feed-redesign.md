@@ -182,8 +182,8 @@ src/
 
 ### 모듈 책임
 
-- `shared/utils/exif.ts` — 도메인 무관, 파일에서 좌표만 추출
-- `features/photo/photo.utils.ts` — 좌표를 우리 도메인의 place에 연결 (`matchPlaceByCoordinate`)
+- `shared/utils/exif.ts` — 도메인 무관, 파일에서 좌표만 추출 (`extractGps`)
+- `features/photo/photo.utils.ts` — 기존 `findNearestPlaceFromPhoto`가 `extractGps`를 사용하도록 리팩터링 (단건 업로드에 이미 적용됨)
 - `features/post/post.utils.ts` — 사진들의 placeId로 포스트 scope 추론 (`suggestScope`)
 - `features/post/post.api.ts` — 포스트 + post_photos 묶음 처리 (트랜잭션처럼)
 
@@ -218,8 +218,8 @@ MetaStep        — 가시성, 제목, 캡션, 위치(scope), 커버
   - enum, photo_posts, post_photos, post_comments, post_likes, RLS
   - schema.sql 갱신
 - [x] **3. `_database.types.ts` 동기화** — Supabase CLI 없이 수동 추가
-- [ ] **4. EXIF 유틸** — `shared/utils/exif.ts`, `features/photo/photo.utils.ts`
-  - exifr 라이브러리 추가
+- [x] **4. EXIF 유틸** — `shared/utils/exif.ts` 분리, 기존 `findNearestPlaceFromPhoto`가 사용
+  - exifr는 이미 설치되어 있고 단건 업로드에 적용됨 (`useTripPhotos`)
 - [ ] **5. post 데이터 레이어** — types, utils, api, hooks
 - [ ] **6. post-form 퍼널** — PostFormPage + Steps + Fields
 - [ ] **7. post UI 컴포넌트** — PostCard, PostFeed, PostDetail, PostLikeButton
