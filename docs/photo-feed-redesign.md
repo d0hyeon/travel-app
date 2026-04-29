@@ -217,7 +217,7 @@ MetaStep        — 가시성, 제목, 캡션, 위치(scope), 커버
 - [x] **2. DB 마이그레이션 SQL** — `migration.feed.sql` 작성
   - enum, photo_posts, post_photos, post_comments, post_likes, RLS
   - schema.sql 갱신
-- [ ] **3. `_database.types.ts` 동기화** — Supabase CLI 없이 수동 추가
+- [x] **3. `_database.types.ts` 동기화** — Supabase CLI 없이 수동 추가
 - [ ] **4. EXIF 유틸** — `shared/utils/exif.ts`, `features/photo/photo.utils.ts`
   - exifr 라이브러리 추가
 - [ ] **5. post 데이터 레이어** — types, utils, api, hooks

@@ -415,6 +415,164 @@ export type Database = {
         }
         Relationships: []
       }
+      photo_posts: {
+        Row: {
+          author_id: string
+          cover_photo_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          location_id: string | null
+          place_id: string | null
+          title: string | null
+          trip_id: string | null
+          updated_at: string | null
+          visibility: Database['public']['Enums']['post_visibility']
+        }
+        Insert: {
+          author_id: string
+          cover_photo_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          location_id?: string | null
+          place_id?: string | null
+          title?: string | null
+          trip_id?: string | null
+          updated_at?: string | null
+          visibility?: Database['public']['Enums']['post_visibility']
+        }
+        Update: {
+          author_id?: string
+          cover_photo_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          location_id?: string | null
+          place_id?: string | null
+          title?: string | null
+          trip_id?: string | null
+          updated_at?: string | null
+          visibility?: Database['public']['Enums']['post_visibility']
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photo_posts_cover_photo_id_fkey"
+            columns: ["cover_photo_id"]
+            isOneToOne: false
+            referencedRelation: "photos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "photo_posts_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "photo_posts_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_photos: {
+        Row: {
+          display_order: number
+          photo_id: string
+          post_id: string
+        }
+        Insert: {
+          display_order: number
+          photo_id: string
+          post_id: string
+        }
+        Update: {
+          display_order?: number
+          photo_id?: string
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_photos_photo_id_fkey"
+            columns: ["photo_id"]
+            isOneToOne: false
+            referencedRelation: "photos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_photos_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "photo_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_comments: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          id: string
+          post_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          id?: string
+          post_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          post_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "photo_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_likes: {
+        Row: {
+          created_at: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "photo_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -424,13 +582,21 @@ export type Database = {
         Args: { trip_id: string }
         Returns: boolean
       }
+      can_view_post: {
+        Args: {
+          post_visibility: Database['public']['Enums']['post_visibility']
+          post_author: string
+          post_trip: string
+        }
+        Returns: boolean
+      }
       get_trip_by_share_link: {
         Args: { link: string }
         Returns: Database['public']['Tables']['trips']['Row'][]
       }
     }
     Enums: {
-      [_ in never]: never
+      post_visibility: 'PRIVATE' | 'MEMBERS' | 'PUBLIC'
     }
     CompositeTypes: {
       [_ in never]: never
