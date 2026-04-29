@@ -222,7 +222,9 @@ MetaStep        — 가시성, 제목, 캡션, 위치(scope), 커버
   - exifr는 이미 설치되어 있고 단건 업로드에 적용됨 (`useTripPhotos`)
 - [x] **5. post 데이터 레이어** — types, utils, api, hooks
   - 1차 `suggestScope`는 모든 사진의 placeId가 동일할 때만 PLACE 추천. LOCATION 자동 추론은 다음 단계.
-- [ ] **6. post-form 퍼널** — PostFormPage + Steps + Fields
+- [x] **6. post-form 퍼널** — PostFormPage + Steps + Fields
+  - 1차에서 trip 선택은 필수 (photos 테이블이 trip_id NOT NULL이라 새 업로드도 trip 필요).
+  - trip nullable 흐름은 사진 소유권 모델 변경 후 다음 단계.
 - [ ] **7. post UI 컴포넌트** — PostCard, PostFeed, PostDetail, PostLikeButton
 - [ ] **8. 라우트 등록** — `/feed`, `/u/:userId`, `/post/new`, `/post/:postId`
 - [ ] **9. TripPhotoContent 진입점** — "이 여행으로 포스트 작성"
