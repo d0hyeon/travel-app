@@ -29,16 +29,16 @@ interface Props {
   isOpen: boolean
   onClose: () => void
   onSelect: (place: PlaceSearchResult) => void
-  mapType?: MapType
+  service?: MapType
 }
 
-export function PlaceSearchDialog({ isOpen, onClose, onSelect, mapType = 'kakao' }: Props) {
+export function PlaceSearchDialog({ isOpen, onClose, onSelect, service = 'kakao' }: Props) {
   const [keyword, setKeyword] = useState('')
   const [focusedIndex, setFocusedIndex] = useState(-1)
   const listRef = useRef<HTMLUListElement>(null)
 
   const searchKeyword = useDeferredValue(keyword);
-  const { data: results, isLoading, error } = usePlaceSearch({ type: mapType, keyword: searchKeyword })
+  const { data: results, isLoading, error } = usePlaceSearch({ service, keyword: searchKeyword })
   const focusedPlace = focusedIndex >= 0 && results ? results[focusedIndex] : null
 
   // Reset state when dialog opens
@@ -168,7 +168,7 @@ export function PlaceSearchDialog({ isOpen, onClose, onSelect, mapType = 'kakao'
 
         {/* Right: Map */}
         <Box sx={{ flex: 1, position: 'relative', bgcolor: 'grey.100', borderRadius: 1, overflow: 'hidden' }}>
-          <Map type={mapType} height="100%" key={focusedPlace?.id}>
+          <Map type={service} height="100%" key={focusedPlace?.id}>
             {focusedPlace && <Map.Marker {...focusedPlace} />}
           </Map>
 

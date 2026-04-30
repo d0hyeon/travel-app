@@ -5,12 +5,12 @@ import { PlaceSearchBottomSheet } from "./PlaceSearchBottomSheet";
 import { type PlaceSearchResult } from "./PlaceSearchDialog";
 
 interface UsePlaceSearchBottomSheetOptions {
-  mapType?: MapType;
+  service?: 'kakao' | 'google';
   center?: Coordinate
 }
 
 export function usePlaceSearchBottomSheet(options: UsePlaceSearchBottomSheetOptions = {}) {
-  const { mapType = 'kakao' } = options;
+  const { service = 'kakao' } = options;
   const overlay = useOverlay();
 
   const searchPlace = useCallback(() => {
@@ -18,6 +18,7 @@ export function usePlaceSearchBottomSheet(options: UsePlaceSearchBottomSheetOpti
       overlay.open(({ close, isOpen }) => (
         <PlaceSearchBottomSheet
           {...options}
+          service={service}
           isOpen={isOpen}
           onClose={() => {
             close();
@@ -30,7 +31,7 @@ export function usePlaceSearchBottomSheet(options: UsePlaceSearchBottomSheetOpti
         />
       ))
     })
-  }, [mapType])
+  }, [service])
 
   return { searchPlace }
 }

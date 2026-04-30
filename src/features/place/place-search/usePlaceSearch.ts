@@ -20,18 +20,18 @@ interface PageResult {
 }
 
 interface UsePlaceSearchOptions {
-  type: MapType;
+  service: MapType;
   location?: Coordinate;
   keyword?: string;
 }
 
 
-export function usePlaceSearch({ type, keyword, location }: UsePlaceSearchOptions) {
-  use(type === 'google' ? loadGoogleMaps() : loadKakaoMap());
+export function usePlaceSearch({ service, keyword, location }: UsePlaceSearchOptions) {
+  use(service === 'google' ? loadGoogleMaps() : loadKakaoMap());
 
   const div = useMemo(() => document.createElement('div'), []);
-  const kakaoServiceRef = useRef(type === 'kakao' ? new kakao.maps.services.Places() : null);
-  const googleServiceRef = useRef(type === 'google' ? new google.maps.places.PlacesService(div) : null);
+  const kakaoServiceRef = useRef(service === 'kakao' ? new kakao.maps.services.Places() : null);
+  const googleServiceRef = useRef(service === 'google' ? new google.maps.places.PlacesService(div) : null);
 
   const googlePaginationRef = useRef<google.maps.places.PlaceSearchPagination | null>(null);
   const googleSessionRef = useRef(0);
@@ -132,7 +132,7 @@ export function usePlaceSearch({ type, keyword, location }: UsePlaceSearchOption
   const { data, isFetchingNextPage, hasNextPage, fetchNextPage, isLoading, error } = useInfiniteQuery({
     queryKey: ['place-search', keyword, location?.lat, location?.lng],
     queryFn: ({ pageParam }) => {
-      if (type === 'google') return searchGoogle(keyword!, pageParam);
+      if (service === 'google') return searchGoogle(keyword!, pageParam);
       return searchKakao(keyword!, pageParam);
     },
     getNextPageParam: (lastPage, _, lastPageParam) =>

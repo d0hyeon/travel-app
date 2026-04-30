@@ -27,7 +27,7 @@ import { formatDisplayDate, formatShortDate } from '../../../shared/utils/format
 import { PlaceSearchDialog, type PlaceSearchResult } from '../../place/place-search/PlaceSearchDialog'
 import { PlaceCategoryColorCode } from '../../place/place.types'
 import { useRoadRoute } from '../../route/road-route/useRoadRoute'
-import { useTripPlaceDetailOverlay } from '../trip-place/useTripPlaceDetailOverlay'
+import { useTripPlaceDetailOverlay } from '../trip-place/trip-place-form/useTripPlaceFormOverlay'
 import { useTripPlaces } from '../trip-place/useTripPlaces'
 import { useTrip } from '../useTrip'
 import { NoteEditor } from './RouteNoteList'
@@ -268,7 +268,7 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
                   <PlaceSearchDialog
                     isOpen={isOpen}
                     onClose={close}
-                    mapType={trip.isOverseas ? 'google' : 'kakao'}
+                    service={trip.isOverseas ? 'google' : 'kakao'}
                     onSelect={(place: PlaceSearchResult) => createPlace(place)}
                   />
                 ))

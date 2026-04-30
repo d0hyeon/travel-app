@@ -28,18 +28,18 @@ interface Props {
   isOpen: boolean
   onClose: () => void
   onSelect: (place: PlaceSearchResult) => void
-  mapType?: MapType;
+  service?: MapType;
   center?: Coordinate;
 }
 
 
-export function PlaceSearchBottomSheet({ isOpen, onClose, onSelect, center, mapType = 'kakao' }: Props) {
+export function PlaceSearchBottomSheet({ isOpen, onClose, onSelect, center, service = 'kakao' }: Props) {
   const [keyword, setKeyword] = useState('')
   const searchKeyword = useDebouncedValue(keyword, 300);
 
   const { data: results, isLoading, error, } = usePlaceSearch({
     keyword: searchKeyword,
-    type: mapType,
+    service,
     location: center,
   })
 
@@ -157,7 +157,7 @@ export function PlaceSearchBottomSheet({ isOpen, onClose, onSelect, center, mapT
           keyword={keyword}
           onSelect={(value) => handleSelect(value)}
           center={center}
-          mapServiceProvider={mapType}
+          mapServiceProvider={service}
           topNavigation={(
             <TextField
               defaultValue={keyword}
