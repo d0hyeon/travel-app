@@ -1,6 +1,7 @@
 # Travel App — 코드베이스 가이드
 
 @CLAUDE.style.md
+@CLAUDE.modules.md
 
 ---
 
