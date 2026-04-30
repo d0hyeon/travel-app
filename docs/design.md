@@ -9,7 +9,7 @@
 
 `features/`는 도메인 관심사, `shared/`는 도메인 무관한 범용 모듈(컴포넌트, 훅, 유틸)을 담는다.
 
-모듈은 관심사에 따라 네 계층으로 분리된다.
+모듈은 관심사에 따라 다섯 계층으로 분리된다.
 
 | 계층        | 파일 패턴                  | 책임                                                               |
 | ----------- | -------------------------- | ------------------------------------------------------------------ |
@@ -17,7 +17,7 @@
 | 도메인      | `*.types.ts`, `*.utils.ts` | 비즈니스 로직과 도메인 모델 정의. 외부 의존 없는 순수 로직         |
 | 데이터      | `use*.ts`                  | 데이터 조회·변환·상태 관리. 컴포넌트가 필요한 형태로 가공해서 제공 |
 | UI          | `*.tsx`                    | 화면 렌더링과 사용자 인터랙션만 담당                               |
-| 유틸        | `*.ts`                     | 도메인·UI 무관한 순수 함수                                         |
+| 유틸        | `shared/utils/*.ts`        | 도메인·UI 무관한 순수 함수                                         |
 
 각 계층은 **소비자 친화적**이어야 한다 — 사용하는 쪽이 내부 구현을 알 필요 없이 인터페이스만으로 충분히 동작할 수 있어야 한다.
 
@@ -83,12 +83,9 @@ function createUser() { const createdAt = new Date(); ... }
 ```ts
 // 날짜 범위는 호출부가 결정해야 할 값
 function fetchExpenses(startDate: Date, endDate: Date) { ... }
-```
 
-외부에서 알아야 하는 정보는 명시적으로 열려 있어야 한다.
-
-```ts
-export const CreateUserErrorType = { 유효성: 0001, 중복: 0002 } as const
+// 에러 종류는 호출부가 핸들링해야 할 정보 → 타입으로 명시적으로 열어둔다
+export const CreateUserErrorType = { 유효성: 1001, 중복: 1002 } as const
 export type CreateUserErrorType = typeof CreateUserErrorType[keyof typeof CreateUserErrorType]
 
 /** throws {CreateUserErrorType} */
@@ -106,10 +103,10 @@ createUser.isDefinedError = (error: unknown): error is CreateUserErrorType => { 
 수행형 모듈의 이름은 "무엇이 만들어지는가"보다 "무엇을 하는가"가 드러나야 한다.
 
 ```ts
-// ✗
+// ✗ — 결과물 이름 중심
 useRenderedRegionFeatures()
 
-// ✓
+// ✓ — 행위 중심
 useApplyRegionStyle()
 useSyncRegionFeatures()
 ```
@@ -117,10 +114,10 @@ useSyncRegionFeatures()
 흐름을 더 잘 드러낼 수 있다면, 애매한 중간 추상화보다 호출부에 직접 풀어쓰는 편이 낫다.
 
 ```ts
-// ✗
-useRenderedRegionFeatures(props)
+// ✗ — 내부 흐름이 숨겨짐
+useSyncRegionFeatures(props)
 
-// ✓
+// ✓ — 무엇을 가져와서 무엇을 하는지 한눈에 읽힘
 useAsyncEffect(async () => {
   const collection = await fetchBoundary()
   replaceFeatures(collection)
