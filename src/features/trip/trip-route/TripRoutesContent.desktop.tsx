@@ -27,7 +27,7 @@ import { formatDisplayDate, formatShortDate } from '../../../shared/utils/format
 import { PlaceSearchDialog, type PlaceSearchResult } from '../../place/place-search/PlaceSearchDialog'
 import { PlaceCategoryColorCode } from '../../place/place.types'
 import { useRoadRoute } from '../../route/road-route/useRoadRoute'
-import { useTripPlaceDetailOverlay } from '../trip-place/trip-place-form/useTripPlaceFormOverlay'
+import { useTripPlaceFormOverlay } from '../trip-place/trip-place-form/useTripPlaceFormOverlay'
 import { useTripPlaces } from '../trip-place/useTripPlaces'
 import { useTrip } from '../useTrip'
 import { NoteEditor } from './RouteNoteList'
@@ -87,7 +87,7 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
   }, [routes, selectedRouteId])
 
   const { openDialog: getUpdatedPlace } = usePlaceFormOverlay();
-  const detailOverlay = useTripPlaceDetailOverlay();
+  const detailOverlay = useTripPlaceFormOverlay();
 
   const [isVisibleOtherMarkers, setIsVisibleOtherMarkers] = useQueryParamState('marker', {
     defaultValue: true,
