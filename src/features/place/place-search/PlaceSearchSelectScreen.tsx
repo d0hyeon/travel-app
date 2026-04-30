@@ -39,13 +39,13 @@ export function PlaceSearchSelectScreen({
   ...boxProps
 }: Props) {
   const [searchCenter, setSearchCenter] = useState(center);
-  const [mapCenter, setMapCenter] = useState<Coordinate | null>(null);
+  const [mapBoundsCenter, setMapBoundsCenter] = useState<Coordinate | null>(null);
+  const [mapInitialized, setMapInitialized] = useState(false);
 
-  const showSearchHere = mapCenter != null && (
+  const showSearchHere = mapInitialized && mapBoundsCenter != null && (
     searchCenter == null ||
-    calcDistance(mapCenter, searchCenter) >= SEARCH_HERE_THRESHOLD_M
+    calcDistance(mapBoundsCenter, searchCenter) >= SEARCH_HERE_THRESHOLD_M
   );
-
   const { data: results, hasNextPage, isFetchingNextPage, fetchNextPage } = usePlaceSearch({
     keyword,
     service: mapServiceProvider,
@@ -55,15 +55,18 @@ export function PlaceSearchSelectScreen({
 
   useEffect(() => {
     const [result] = results;
-    if (result) mapRef.current?.panTo(result.lat, result.lng);
-  }, [results])
+    if (result) {
+      mapRef.current?.panTo(result.lat, result.lng, 2);
+    }
+  }, [keyword])
 
   const handleBoundsChange = (bounds: MapBounds) => {
-    setMapCenter(boundsToCenter(bounds));
+    setMapBoundsCenter(boundsToCenter(bounds));
+    setMapInitialized(true);
   };
 
   const handleSearchHere = () => {
-    setSearchCenter(mapCenter!);
+    setSearchCenter(mapBoundsCenter!);
   };
 
   const { containerRef, handleProps, ratio } = useResizableSplit({
