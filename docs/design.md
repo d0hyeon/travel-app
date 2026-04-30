@@ -41,26 +41,17 @@ const members = rows.map(toMember)
 - 추상화한 뒤 오히려 호출 흐름이 더 난해해지거나, 이름만으로 역할을 이해할 수 없다면 과한 추상화 신호다
 
 두 모듈이 강하게 결합되어 함께 바뀐다면, 분리보다 책임 재정의를 먼저 검토한다.
+분리는 각 모듈을 **독립적으로 이해할 수 있을 때** 비로소 가치가 있다.
+나눈 뒤 호출부가 두 모듈의 관계를 머릿속에서 다시 조립해야 한다면, 분리 전보다 복잡해진 것이다.
 
 ```ts
-// ✗ — calculateSize는 결국 getInitialState에서만 쓰인다
+// ✗ — calculateSize가 getInitialState 안에서만 쓰인다
+//     두 함수를 따로 읽어서는 전체 의도를 파악할 수 없다
 const calculateSize = createBoxSizeCalculator(window.innerHeight)
-const { initialSnap, height } = getInitialState({ calculateSize, ... })
+const { initialSnap, height } = getInitialState({ calculateSize })
 
-// ✓ — calculateSize를 내부로 흡수
-const { initialSnap, height } = getInitialState({ maxHeight: window.innerHeight, ... })
-```
-
-분리의 결과로 호출 흐름이 오히려 난해해진다면 추상화가 과한 신호다.
-
-```tsx
-// ✗ — useInput과 Field가 강하게 결합되어 있고, UseInputValue를 외부로 노출할 이유가 없다
-type UseInputValue = { message?: string; onChange: (e: InputEvent) => void }
-function useInput(rules: Rules): UseInputValue
-function Field(props: UseInputValue) { ... }
-
-// ✓ — Field가 직접 받으면 충분하다
-function Field(props: InputProps & Rules) { ... }
+// ✓ — 호출부만 읽어도 의도가 완결된다
+const { initialSnap, height } = getInitialState({ maxHeight: window.innerHeight })
 ```
 
 ### 캡슐화
