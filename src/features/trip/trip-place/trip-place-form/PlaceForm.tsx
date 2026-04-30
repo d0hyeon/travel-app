@@ -14,7 +14,7 @@ import {
 } from '@mui/material'
 import { Controller, useForm } from 'react-hook-form'
 import { useState, type ReactNode } from 'react'
-import { PlaceCategoryColorCode, PlaceCategoryTypeLabel, PlaceCategoryTypes, type PlaceCategoryType } from './place.types'
+import { PlaceCategoryColorCode, PlaceCategoryTypeLabel, PlaceCategoryTypes, type PlaceCategoryType } from '../../../place/place.types'
 
 export interface PlaceFormValues {
   name: string;

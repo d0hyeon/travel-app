@@ -1,6 +1,6 @@
 import { Button, Chip, Dialog, DialogActions, DialogContent, Stack, Typography } from "@mui/material";
 import { useCallback, useId, type ReactNode } from "react";
-import { PlaceForm, type PlaceFormValues } from "~features/place/PlaceForm";
+import { PlaceForm, type PlaceFormValues } from "~features/trip/trip-place/trip-place-form/PlaceForm";
 import { BottomSheet } from "~shared/components/bottom-sheet/BottomSheet";
 import { useOverlay } from "~shared/hooks/useOverlay";
 import { DialogTitle } from "~shared/components/confirm-dialog/DialogTitle";

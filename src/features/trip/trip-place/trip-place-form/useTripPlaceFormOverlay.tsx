@@ -1,14 +1,14 @@
 
 
 import { Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Stack, Typography } from '@mui/material'
-import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
-import { PlaceForm } from '../../place/PlaceForm'
+import { BottomSheet } from '../../../../shared/components/bottom-sheet/BottomSheet'
+import { PlaceForm } from './PlaceForm'
 import { useCallback } from 'react';
-import { useOverlay } from '../../../shared/hooks/useOverlay';
-import { useTripPlaces } from './useTripPlaces';
+import { useOverlay } from '../../../../shared/hooks/useOverlay';
+import { useTripPlaces } from '../useTripPlaces';
 import { assert } from '~shared/utils/types';
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog';
-import { PlacePhotoSection } from './PlacePhotoSection';
+import { PlacePhotoSection } from '../PlacePhotoSection';
 
 interface PlaceDetailOverlayProps {
   tripId: string;
@@ -102,7 +102,6 @@ export function PlaceDetailSheet({ placeId, tripId, isOpen, onClose }: PlaceDeta
           id="place-form"
           defaultValues={place}
           onSubmit={(data) => {
-            console.log(data)
             update({
               ...data,
               placeId: place.id,
