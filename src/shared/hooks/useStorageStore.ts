@@ -1,6 +1,5 @@
-import { startTransition, useCallback, useEffect, useMemo, useState, useSyncExternalStore, type SetStateAction } from 'react'
+import { startTransition, useCallback, useMemo, useSyncExternalStore, type SetStateAction } from 'react'
 import { mockStorage } from './plugins/mockStorage'
-import { assert } from '~shared/utils/types'
 
 export type ExpandStorage = Omit<Storage, 'setItem'> & {
   setItem: (key: string, value: any, ...options: any[]) => void

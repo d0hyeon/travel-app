@@ -108,7 +108,7 @@ function Resolved({
           <Box flex="1" sx={{ overflowY: 'auto' }}>
             {filteredPlaces.length === 0 ? (
               <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: 'center' }}>
-                {searchQuery ? '검색 결과가 없습니다' : '추가할 수 있는 장소가 없습니다'}
+                새로운 장소를 검색해 보세요
               </Typography>
             ) : (
               <Stack spacing={0.75}>
