@@ -1,52 +1,55 @@
-import { Box, Chip, Stack, Tooltip, type StackProps, Typography } from '@mui/material'
+import { Box, Chip, ClickAwayListener, Stack, Tooltip, type StackProps, Typography } from '@mui/material'
+import { useState } from 'react'
 import { statisticsToneStyles, type StatisticsTone } from './statistics.constants'
 
 interface StatisticsBarChartProps extends StackProps {
   label: string
   labelTooltip?: string
-  labelTooltipOpen?: boolean
   value: string
   ratio: number
   helper?: React.ReactNode
   chips?: string[]
   tone?: StatisticsTone
-  onLabelClick?: () => void
 }
 
 export function StatisticsBarChart({
   label,
   labelTooltip,
-  labelTooltipOpen,
   value,
   ratio,
   helper,
   chips,
   tone = 'blue',
-  onLabelClick,
   sx,
   ...stackProps
 }: StatisticsBarChartProps) {
   const colors = statisticsToneStyles[tone]
+  const [tooltipOpen, setTooltipOpen] = useState(false)
 
   return (
     <Stack gap={0.8} sx={sx} {...stackProps}>
       <Stack direction="row" alignItems="baseline" justifyContent="space-between" gap={1}>
-        <Tooltip
-          title={labelTooltip ?? ''}
-          open={labelTooltipOpen}
-          placement="top-start"
-          arrow
-        >
-          <Typography
-            fontSize={12}
-            fontWeight={800}
-            noWrap
-            onClick={onLabelClick}
-            sx={{ cursor: onLabelClick ? 'pointer' : undefined }}
+        <ClickAwayListener onClickAway={() => setTooltipOpen(false)}>
+          <Tooltip
+            title={labelTooltip ?? ''}
+            open={labelTooltip ? tooltipOpen : false}
+            placement="top-start"
+            arrow
+            disableFocusListener
+            disableHoverListener
+            disableTouchListener
           >
-            {label}
-          </Typography>
-        </Tooltip>
+            <Typography
+              fontSize={12}
+              fontWeight={800}
+              noWrap
+              onClick={labelTooltip ? () => setTooltipOpen((prev) => !prev) : undefined}
+              sx={{ cursor: labelTooltip ? 'pointer' : undefined }}
+            >
+              {label}
+            </Typography>
+          </Tooltip>
+        </ClickAwayListener>
         <Typography fontSize={12} fontWeight={800} sx={{ color: colors.fill }} flexShrink={0}>
           {value}
         </Typography>
