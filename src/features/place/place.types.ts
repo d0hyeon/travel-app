@@ -54,6 +54,5 @@ export interface Place {
   category?: PlaceCategoryType;
   tags: string[]
   memo: string
-  scheduledDate?: string // ISO date
   createdAt: string
 }
