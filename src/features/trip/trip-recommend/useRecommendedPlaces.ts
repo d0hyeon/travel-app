@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from '~shared/hooks/extends/useSuspenseQuery'
-import { getRecommendedPlaces, recommendedPlaceKey } from '../../place/recommended-place.api'
+import { getRecommendedPlaces, recommendedPlaceKey } from './trip-recommend.api'
 import { tripKey } from '../trip.api'
 import { useTrip } from '../useTrip'
 

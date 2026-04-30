@@ -1,18 +1,18 @@
 import WorkspacesIcon from '@mui/icons-material/Workspaces';
-import { Box, Button, Stack, ToggleButton, Typography } from "@mui/material";
+import { Box, Stack, ToggleButton, Typography } from "@mui/material";
 import { Suspense, useMemo, useRef, useState } from "react";
 import { BottomArea } from '~shared/components/BottomArea';
 import { BottomSheet } from "../../../shared/components/bottom-sheet/BottomSheet";
 import { Map, type MapBounds, type MapRef } from "../../../shared/components/Map";
-import { usePlaceSearchBottomSheet } from '../../place/place-search/usePlaceSearchBottomSheet';
 import { PlaceCategoryColorCode, type Place } from "../../place/place.types";
 import { useTripCluastering } from '../hooks/useTripCluastering';
 import { useTripRoutes } from "../trip-route/useTripRoutes";
 import { useTrip } from "../useTrip";
-import { RecommendedMarkers } from './RecommendedPlaceBrowser';
-import { useRecommendedPlaceDetailOverlay } from './RecommendedPlaceDetailOverlay';
+import { useRecommendedPlaceDetailOverlay } from '../trip-recommend/RecommendedPlaceDetailOverlay';
+import { TripPlaceAdditionButton } from './TripPlaceAdditionButton';
 import { TripPlaceItemButton } from './TripPlaceItemButton';
 import { useTripPlaces } from "./useTripPlaces";
+import { RecommendedMarkers } from '../trip-recommend/RecommendedMarkers';
 
 const ZOOM_THRESHOLD = 0.2
 
@@ -30,7 +30,7 @@ export function preload(id: string) {
 
 export default function TripPlaceContent({ tripId }: PlaceContentProps) {
   const { data: trip } = useTrip(tripId)
-  const { data: places, create } = useTripPlaces(tripId)
+  const { data: places } = useTripPlaces(tripId)
   const { data: { routes } } = useTripRoutes(tripId)
 
   const mapRef = useRef<MapRef>(null);
@@ -54,11 +54,10 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
   const [sheetRatio, setSheetRatio] = useState(DEFAULT_BOTTOM_SHEET_RATIO);
   const [mapBounds, setMapBounds] = useState<MapBounds | null>(null)
 
-  const { searchPlace } = usePlaceSearchBottomSheet({ mapType, center: { lat: trip.lat, lng: trip.lng } });
   const [focusedId, setFocusedId] = useState<string | null>(null)
   const { openBottomSheet: openRecommendedSheet } = useRecommendedPlaceDetailOverlay()
 
-  const isZoomedEnough = mapBounds ? Math.abs(mapBounds.north - mapBounds.south) < ZOOM_THRESHOLD : false
+  const isZoomedEnough = mapBounds ? Math.abs(mapBounds.north - mapBounds.south) < ZOOM_THRESHOLD : false;
 
   return (
     <>
@@ -103,10 +102,8 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
               <Suspense>
                 <RecommendedMarkers
                   tripId={tripId}
-                  bounds={mapBounds}
-                  selectedPlaceId={null}
-                  onSelect={() => { }}
-                  onOpen={(place) => openRecommendedSheet({ place, tripId })}
+                  bounds={mapBounds ?? undefined}
+                  onClick={(place) => openRecommendedSheet({ place, tripId })}
                 />
               </Suspense>
             )}
@@ -152,21 +149,16 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
         </BottomSheet>
       </Box>
       <BottomArea position="static">
-        <Button
-          size="large"
-          variant="contained"
-          onClick={async () => {
-            const place = await searchPlace();
-            if (place == null) return;
-            const { id } = await create(place);
-            setFocusedId(id)
+        <TripPlaceAdditionButton
+          tripId={tripId}
+          onAddedPlace={(place) => {
+            setFocusedId(place.id)
             mapRef.current?.panTo(place.lat, place.lng, 5);
           }}
-          sx={{ fontSize: 12 }}
+          size="large"
+          variant="contained"
           fullWidth
-        >
-          장소 추가
-        </Button>
+        />
       </BottomArea>
     </>
   )

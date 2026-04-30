@@ -1,7 +1,8 @@
 import { supabase } from '~api/client'
+import { getPlacesByTripId } from '~features/place/place.api'
+import type { PlaceCategoryType } from '~features/place/place.types'
 import { calcDistance } from '~shared/utils/geo'
-import { getPlacesByTripId } from './place.api'
-import type { PlaceCategoryType } from './place.types'
+
 
 export const recommendedPlaceKey = 'recommended-places'
 

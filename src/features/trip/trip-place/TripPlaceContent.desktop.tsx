@@ -14,11 +14,11 @@ import { PlaceCategoryColorCode, type Place } from '../../place/place.types'
 import { useTripCluastering } from '../hooks/useTripCluastering'
 import { useTripRoutes } from '../trip-route/useTripRoutes'
 import { useTrip } from '../useTrip'
-import { RecommendedMarkers } from './RecommendedPlaceBrowser'
-import { useRecommendedPlaceDetailOverlay } from './RecommendedPlaceDetailOverlay'
+import { useRecommendedPlaceDetailOverlay } from '../trip-recommend/RecommendedPlaceDetailOverlay'
 import { TripPlaceItemButton } from './TripPlaceItemButton'
-import { useTripPlaceDetailOverlay } from './useTripPlaceDetailOverlay'
+import { useTripPlaceDetailOverlay } from './trip-place-form/useTripPlaceFormOverlay'
 import { useTripPlaces } from './useTripPlaces'
+import { RecommendedMarkers } from '../trip-recommend/RecommendedMarkers'
 
 const ZOOM_THRESHOLD = 0.1
 
@@ -163,10 +163,8 @@ export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
             <Suspense>
               <RecommendedMarkers
                 tripId={tripId}
-                bounds={mapBounds}
-                selectedPlaceId={null}
-                onSelect={() => {}}
-                onOpen={(place) => openRecommendedDialog({ place, tripId })}
+                bounds={mapBounds ?? undefined}
+                onClick={(place) => openRecommendedDialog({ place, tripId })}
               />
             </Suspense>
           )}

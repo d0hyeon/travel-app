@@ -12,7 +12,7 @@ import { TripMemoMobile } from '../trip-memo/TripMemoMobile'
 import { TripPinnedMemos } from '../trip-memo/TripPinnedMemos'
 import { TripBaseInfoList } from './TripBaseInfoList'
 import { TripDDay } from './TripDDay'
-import { RecommendedPlacesSection } from './RecommendedPlacesSection'
+import { RecommendedPlaceListSection } from '../trip-recommend/RecommendedPlaceListSection'
 
 interface Props {
   tripId: string
@@ -54,7 +54,7 @@ export function TripBasicInfoContent({ tripId }: Props) {
                 width="100%"
               />
               <Stack gap={1} width="100%">
-                <RecommendedPlacesSection
+                <RecommendedPlaceListSection
                   tripId={tripId}
                   header={(
                     <Typography variant="subtitle2" color="text.secondary">

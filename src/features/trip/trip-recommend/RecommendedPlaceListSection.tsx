@@ -3,16 +3,16 @@ import { Box, Chip, Skeleton, Stack, Typography, type StackProps } from '@mui/ma
 import { Suspense, type ReactNode } from 'react'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { PlaceCategoryColorCode } from '../../place/place.types'
-import type { RecommendedPlace } from '../../place/recommended-place.api'
-import { useRecommendedPlaceDetailOverlay } from '../trip-place/RecommendedPlaceDetailOverlay'
-import { useRecommendedPlaces } from '../trip-place/useRecommendedPlaces'
+import { useRecommendedPlaceDetailOverlay } from './RecommendedPlaceDetailOverlay'
+import { useRecommendedPlaces } from './useRecommendedPlaces'
+import type { RecommendedPlace } from './trip-recommend.api'
 
 interface Props extends StackProps {
   tripId: string
   header?: ReactNode;
 }
 
-export function RecommendedPlacesSection(props: Props) {
+export function RecommendedPlaceListSection(props: Props) {
   return (
     <Suspense fallback={<RecommendedPlacesSkeleton {...props} />}>
       <RecommendedPlacesSectionContent {...props} />
