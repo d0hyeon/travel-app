@@ -10,7 +10,7 @@ import { assert } from '~shared/utils/types';
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog';
 import { PlacePhotoSection } from '../PlacePhotoSection';
 
-interface PlaceDetailOverlayProps {
+interface PlaceFormOverlayProps {
   tripId: string;
   placeId: string;
   isOpen: boolean;
@@ -18,13 +18,13 @@ interface PlaceDetailOverlayProps {
 }
 
 
-export function useTripPlaceDetailOverlay() {
+export function useTripPlaceFormOverlay() {
   const overlay = useOverlay();
 
-  const openDialog = useCallback((params: Omit<PlaceDetailOverlayProps, 'isOpen' | 'onClose'>) => {
+  const openDialog = useCallback((params: Omit<PlaceFormOverlayProps, 'isOpen' | 'onClose'>) => {
     return new Promise<void>((resolve) => {
       overlay.open(({ close, isOpen }) => (
-        <PlaceDetailDialog
+        <PlaceFormDialog
           {...params}
           isOpen={isOpen}
           onClose={() => {
@@ -36,10 +36,10 @@ export function useTripPlaceDetailOverlay() {
     })
   }, []);
 
-  const openBottomSheet = useCallback((params: Omit<PlaceDetailOverlayProps, 'isOpen' | "onClose">) => {
+  const openBottomSheet = useCallback((params: Omit<PlaceFormOverlayProps, 'isOpen' | "onClose">) => {
     return new Promise<void>((resolve) => {
       overlay.open(({ close, isOpen }) => (
-        <PlaceDetailSheet
+        <PlaceFormSheet
           {...params}
           isOpen={isOpen}
           onClose={() => {
@@ -57,7 +57,7 @@ export function useTripPlaceDetailOverlay() {
 
 
 
-export function PlaceDetailSheet({ placeId, tripId, isOpen, onClose }: PlaceDetailOverlayProps) {
+export function PlaceFormSheet({ placeId, tripId, isOpen, onClose }: PlaceFormOverlayProps) {
   const { data: places, remove, update } = useTripPlaces(tripId);
   const place = places.find(x => x.id === placeId);
 
@@ -123,7 +123,7 @@ export function PlaceDetailSheet({ placeId, tripId, isOpen, onClose }: PlaceDeta
   )
 }
 
-function PlaceDetailDialog({ tripId, placeId, isOpen, onClose }: PlaceDetailOverlayProps) {
+function PlaceFormDialog({ tripId, placeId, isOpen, onClose }: PlaceFormOverlayProps) {
   const { data: places, remove, update } = useTripPlaces(tripId);
   const place = places.find(x => x.id === placeId);
 

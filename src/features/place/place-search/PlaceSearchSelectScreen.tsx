@@ -48,7 +48,7 @@ export function PlaceSearchSelectScreen({
 
   const { data: results, hasNextPage, isFetchingNextPage, fetchNextPage } = usePlaceSearch({
     keyword,
-    type: mapServiceProvider,
+    service: mapServiceProvider,
     location: searchCenter,
   });
   const mapRef = useRef<MapRef>(null);

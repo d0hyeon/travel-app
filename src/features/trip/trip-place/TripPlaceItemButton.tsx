@@ -7,7 +7,7 @@ import { ListItem } from "~shared/components/ListItem";
 import { PopMenu } from "~shared/components/PopMenu";
 import { useIsMobile } from "~shared/hooks/env/useIsMobile";
 import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
-import { useTripPlaceDetailOverlay } from "./trip-place-form/useTripPlaceFormOverlay";
+import { useTripPlaceFormOverlay } from "./trip-place-form/useTripPlaceFormOverlay";
 import { useTripPlaces } from "./useTripPlaces";
 
 interface ItemProps extends ComponentProps<typeof ListItem.Button> {
@@ -19,7 +19,7 @@ export function TripPlaceItemButton({ place, ...props }: ItemProps) {
   const {
     openDialog: openPlaceDetailDialog,
     openBottomSheet: openPlaceDetailSheet
-  } = useTripPlaceDetailOverlay();
+  } = useTripPlaceFormOverlay();
 
   const isMobile = useIsMobile();
 

@@ -16,7 +16,7 @@ import { useTripRoutes } from '../trip-route/useTripRoutes'
 import { useTrip } from '../useTrip'
 import { useRecommendedPlaceDetailOverlay } from '../trip-recommend/RecommendedPlaceDetailOverlay'
 import { TripPlaceItemButton } from './TripPlaceItemButton'
-import { useTripPlaceDetailOverlay } from './trip-place-form/useTripPlaceFormOverlay'
+import { useTripPlaceFormOverlay } from './trip-place-form/useTripPlaceFormOverlay'
 import { useTripPlaces } from './useTripPlaces'
 import { RecommendedMarkers } from '../trip-recommend/RecommendedMarkers'
 
@@ -33,7 +33,7 @@ export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
   const mapRef = useRef<MapRef>(null)
   const mapType = trip.isOverseas ? 'google' : 'kakao'
 
-  const { searchPlace } = usePlaceSearchDialog({ mapType });
+  const { searchPlace } = usePlaceSearchDialog({ service: mapType });
 
   const handleAddPlace = async () => {
     const place = await searchPlace();
@@ -59,7 +59,7 @@ export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
   const [cluastering, setCluastering] = useTripCluastering();
   const [focusedId, setFocusedId] = useState<string | null>(null)
   const [mapBounds, setMapBounds] = useState<MapBounds | null>(null)
-  const { openDialog: openDetailDialog } = useTripPlaceDetailOverlay()
+  const { openDialog: openDetailDialog } = useTripPlaceFormOverlay()
   const { openDialog: openRecommendedDialog } = useRecommendedPlaceDetailOverlay()
 
   const isZoomedEnough = mapBounds ? Math.abs(mapBounds.north - mapBounds.south) < ZOOM_THRESHOLD : false

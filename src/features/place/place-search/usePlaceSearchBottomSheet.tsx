@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useOverlay } from "../../../shared/hooks/useOverlay";
-import type { Coordinate, MapType } from "../../../shared/components/Map";
+import type { Coordinate } from "../../../shared/components/Map";
 import { PlaceSearchBottomSheet } from "./PlaceSearchBottomSheet";
 import { type PlaceSearchResult } from "./PlaceSearchDialog";
 

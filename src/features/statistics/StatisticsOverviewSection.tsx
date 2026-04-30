@@ -1,17 +1,17 @@
-import { Box, Stack, Typography } from '@mui/material'
+import { Box, Stack } from '@mui/material'
 
+import { formatCurrency } from '~features/expense/expense.utils'
 import { StatisticsBarChart } from '~shared/components/statistics/StatisticsBarChart'
 import { StatisticsColumnChart } from '~shared/components/statistics/StatisticsColumnChart'
 import { StatisticsDonutChart } from '~shared/components/statistics/StatisticsDonutChart'
+import type { StatisticsSummary } from './statistics-expense/useStatisticsSummary'
+import { groupByTripCount, type RankedGroup } from './statistics.utils'
 import { StatisticsSectionCard } from './StatisticsSectionCard'
 import { StatisticsSummaryCard } from './StatisticsSummaryCard'
 import {
   StatisticsViewConfigButton,
   useStatisticsChartViewMode,
 } from './StatisticsViewConfigButton'
-import { formatCurrency } from '~features/expense/expense.utils'
-import type { StatisticsSummary } from './statistics-expense/useStatisticsSummary'
-import { groupByTripCount, type RankedGroup } from './statistics.utils'
 
 interface StatisticsOverviewSectionProps {
   summary: StatisticsSummary
