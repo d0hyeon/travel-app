@@ -9,7 +9,7 @@ import {
 } from '@mui/material'
 import { Suspense } from 'react'
 import type { Place } from '../place/place.types'
-import { usePlacePhotos } from './usePlacePhotos'
+import { usePlacePhotos } from '../place/usePlacePhotos'
 import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
 import { useOverlay } from '~shared/hooks/useOverlay'
 import { PhotoBottomSheet } from '~shared/components/photo/PhotoBottomSheet'
