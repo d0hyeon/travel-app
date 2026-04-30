@@ -25,24 +25,27 @@
 
 ## 계층 구조
 
+`features/`는 도메인 관심사, `shared/`는 도메인 무관한 범용 모듈(컴포넌트, 훅, 유틸)을 담는다.
+
 모듈은 관심사에 따라 네 계층으로 분리된다.
 
-| 계층 | 파일 패턴 | 책임 |
-|------|-----------|------|
-| 외부 어댑터 | `*.api.ts` | Supabase 등 외부 시스템과의 통신. DB row → 도메인 모델 변환 |
-| 도메인 | `*.types.ts`, `*.utils.ts` | 비즈니스 로직과 도메인 모델 정의. 외부 의존 없는 순수 로직 |
-| 데이터 | `use*.ts` | 데이터 조회·변환·상태 관리. 컴포넌트가 필요한 형태로 가공해서 제공 |
-| UI | `*.tsx` | 화면 렌더링과 사용자 인터랙션만 담당 |
+| 계층        | 파일 패턴                  | 책임                                                               |
+| ----------- | -------------------------- | ------------------------------------------------------------------ |
+| 외부 어댑터 | `*.api.ts`                 | Supabase 등 외부 시스템과의 통신. DB row → 도메인 모델 변환        |
+| 도메인      | `*.types.ts`, `*.utils.ts` | 비즈니스 로직과 도메인 모델 정의. 외부 의존 없는 순수 로직         |
+| 데이터      | `use*.ts`                  | 데이터 조회·변환·상태 관리. 컴포넌트가 필요한 형태로 가공해서 제공 |
+| UI          | `*.tsx`                    | 화면 렌더링과 사용자 인터랙션만 담당                               |
+| 유틸        | `*.ts`                     | 도메인·UI 무관한 순수 함수                                         |
 
 각 계층은 **소비자 친화적**이어야 한다 — 사용하는 쪽이 내부 구현을 알 필요 없이 인터페이스만으로 충분히 동작할 수 있어야 한다.
 
 ```ts
 // ✓ — 훅이 필요한 형태로 가공해서 제공
-const { data: members } = useTripMembers(tripId)
+const { data: members } = useTripMembers(tripId);
 
 // ✗ — 소비자가 직접 변환 로직을 알아야 함
-const { data: rows } = useTripMemberRows(tripId)
-const members = rows.map(toMember)
+const { data: rows } = useTripMemberRows(tripId);
+const members = rows.map(toMember);
 ```
 
 ---
@@ -66,6 +69,55 @@ const { initialSnap, height } = getInitialState({ calculateSize, ... })
 const { initialSnap, height } = getInitialState({ maxHeight: window.innerHeight, ... })
 ```
 
+분리의 결과로 호출 흐름이 오히려 난해해진다면 추상화가 과한 신호다.
+
+```tsx
+// ✗ — useInput과 Field가 강하게 결합되어 있고, UseInputValue를 외부로 노출할 이유가 없다
+type UseInputValue = { message?: string; onChange: (e: InputEvent) => void }
+function useInput(rules: Rules): UseInputValue
+function Field(props: UseInputValue) { ... }
+
+// ✓ — Field가 직접 받으면 충분하다
+function Field(props: InputProps & Rules) { ... }
+```
+
+### 캡슐화
+
+내부에서 결정할 수 있는 것은 인터페이스로 드러내지 않는다.
+의존성을 드러낼지 숨길지는 **"호출부가 관여해야 할 이유가 있는가"** 로 판단한다.
+
+**숨긴다** — 모듈이 책임져야 할 규칙이거나, 호출 맥락과 무관하게 항상 같은 값인 경우
+
+```ts
+// ✗ — createdAt은 createUser의 규칙 → 호출부가 알 필요 없음
+function createUser(createdAt: Date) { ... }
+
+// ✓ — 내부에서 직접 결정
+function createUser() { const createdAt = new Date(); ... }
+```
+
+**드러낸다** — 호출하는 맥락마다 달라지는 결정이거나, 외부에서 제어해야 할 이유가 있는 경우
+
+```ts
+// 날짜 범위는 호출부가 결정해야 할 값
+function fetchExpenses(startDate: Date, endDate: Date) { ... }
+```
+
+외부에서 알아야 하는 정보는 명시적으로 열려 있어야 한다.
+
+```ts
+export const CreateUserErrorType = { 유효성: 0001, 중복: 0002 } as const
+export type CreateUserErrorType = typeof CreateUserErrorType[keyof typeof CreateUserErrorType]
+
+/** throws {CreateUserErrorType} */
+export function createUser() { ... }
+createUser.isDefinedError = (error: unknown): error is CreateUserErrorType => { ... }
+```
+
+판단이 어렵다면 두 가지를 확인한다:
+- 이 값을 **누가 알아야 할 책임**이 있는가?
+- 다른 맥락에서 **이 값을 바꿔야 할 이유**가 생길 수 있는가?
+
 ### 수행형 모듈
 
 값을 제공하는 모듈과 동작을 수행하는 모듈을 구분해서 설계한다.
@@ -73,24 +125,24 @@ const { initialSnap, height } = getInitialState({ maxHeight: window.innerHeight,
 
 ```ts
 // ✗
-useRenderedRegionFeatures()
+useRenderedRegionFeatures();
 
 // ✓
-useApplyRegionStyle()
-useSyncRegionFeatures()
+useApplyRegionStyle();
+useSyncRegionFeatures();
 ```
 
 흐름을 더 잘 드러낼 수 있다면, 애매한 중간 추상화보다 호출부에 직접 풀어쓰는 편이 낫다.
 
 ```ts
 // ✗
-useRenderedRegionFeatures(props)
+useRenderedRegionFeatures(props);
 
 // ✓
 useAsyncEffect(async () => {
-  const collection = await fetchBoundary()
-  replaceFeatures(collection)
-}, [props])
+  const collection = await fetchBoundary();
+  replaceFeatures(collection);
+}, [props]);
 ```
 
 ---
@@ -118,7 +170,7 @@ TripComponent, TripWidget          ✗
 
 ```tsx
 interface Props extends BoxProps {
-  tripId: string
+  tripId: string;
 }
 ```
 
@@ -195,15 +247,15 @@ const sorted = [...members].sort((a, b) => ...)
 const sorted = members.toSorted((a, b) => ...)
 ```
 
-### 정렬 comparator
+### 의미를 기반한 상수 활용
 
 ```ts
 // ✗ — 읽는 사람이 직접 계산해야 함
-members.toSorted((a, b) => (b.isHost ? 1 : 0) - (a.isHost ? 1 : 0))
+members.toSorted((a, b) => (b.isHost ? 1 : 0) - (a.isHost ? 1 : 0));
 
 // ✓ — 의도가 바로 읽힘
-const Sort = { Shift: -1, Maintain: 0 } as const
-members.toSorted((a, b) => (a.isHost ? Sort.Shift : Sort.Maintain))
+const Sort = { Shift: -1, Maintain: 0 } as const;
+members.toSorted((a, b) => (a.isHost ? Sort.Shift : Sort.Maintain));
 ```
 
 > 도메인 무관한 순수 상수는 `shared/utils/`에 둔다. `*.utils.ts`는 도메인 비즈니스 로직 전용이므로 혼용하지 않는다.
