@@ -1,5 +1,5 @@
 import { Box, Stack, Typography } from '@mui/material'
-import { useState } from 'react'
+
 import { StatisticsBarChart } from '~shared/components/statistics/StatisticsBarChart'
 import { StatisticsColumnChart } from '~shared/components/statistics/StatisticsColumnChart'
 import { StatisticsDonutChart } from '~shared/components/statistics/StatisticsDonutChart'
@@ -340,8 +340,6 @@ export function StatisticsOverviewSection({ summary }: StatisticsOverviewSection
 }
 
 function VisitRankingBarList({ groups, topTripCount }: { groups: RankedGroup[]; topTripCount: number }) {
-  const [openRank, setOpenRank] = useState<number | null>(null)
-
   return (
     <Stack gap={1.25}>
       {groups.map((group) => {
@@ -355,8 +353,6 @@ function VisitRankingBarList({ groups, topTripCount }: { groups: RankedGroup[]; 
             ratio={topTripCount > 0 ? group.tripCount / topTripCount : 0}
             helper={`${Math.round(group.share * 100)}%`}
             tone="mint"
-            onLabelClick={group.overflow > 0 ? () => setOpenRank(openRank === group.rank ? null : group.rank) : undefined}
-            labelTooltipOpen={openRank === group.rank}
             labelTooltip={group.overflow > 0 ? group.names.join(', ') : undefined}
           />
         )
