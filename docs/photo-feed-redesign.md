@@ -225,7 +225,8 @@ MetaStep        — 가시성, 제목, 캡션, 위치(scope), 커버
 - [x] **6. post-form 퍼널** — PostFormPage + Steps + Fields
   - 1차에서 trip 선택은 필수 (photos 테이블이 trip_id NOT NULL이라 새 업로드도 trip 필요).
   - trip nullable 흐름은 사진 소유권 모델 변경 후 다음 단계.
-- [ ] **7. post UI 컴포넌트** — PostCard, PostFeed, PostDetail, PostLikeButton
+- [x] **7. post UI 컴포넌트** — PostCard, PostFeed, PostDetail, PostLikeButton + 페이지들
+  - PhotoPost.photoIds → photos: Photo[] 로 변경 (cover 등 url 노출을 위해 join 결과 그대로 도메인에 포함)
 - [ ] **8. 라우트 등록** — `/feed`, `/u/:userId`, `/post/new`, `/post/:postId`
 - [ ] **9. TripPhotoContent 진입점** — "이 여행으로 포스트 작성"
 

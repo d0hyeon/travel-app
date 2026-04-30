@@ -1,12 +1,13 @@
 import { supabase } from '~api/client'
 import type { DataRaw } from '~api/tables.types'
+import { toPhoto } from '~features/photo/photo.api'
+import type { Photo } from '~features/photo/photo.types'
 import type { PhotoPost, PostScope, PostVisibility } from './post.types'
 
 export const postKey = 'posts'
 export const postLikeKey = 'post-likes'
 
 type PostRow = DataRaw<'photo_posts'>
-type PostPhotoRow = DataRaw<'post_photos'>
 
 function toPostScope(row: Pick<PostRow, 'place_id' | 'location_id'>): PostScope | null {
   if (row.place_id) return { kind: 'PLACE', placeId: row.place_id }
@@ -14,10 +15,22 @@ function toPostScope(row: Pick<PostRow, 'place_id' | 'location_id'>): PostScope 
   return null
 }
 
-function toPhotoPost(row: PostRow, photoLinks: Pick<PostPhotoRow, 'photo_id' | 'display_order'>[]): PhotoPost {
-  const photoIds = [...photoLinks]
+interface PostPhotoLinkWithPhoto {
+  photo_id: string
+  display_order: number
+  photos: DataRaw<'photos'> | null
+}
+
+type PostWithPhotos = PostRow & {
+  post_photos: PostPhotoLinkWithPhoto[]
+}
+
+function toPhotoPost(row: PostWithPhotos): PhotoPost {
+  const photos: Photo[] = [...row.post_photos]
     .sort((a, b) => a.display_order - b.display_order)
-    .map(link => link.photo_id)
+    .map(link => link.photos)
+    .filter((photo): photo is DataRaw<'photos'> => photo != null)
+    .map(toPhoto)
 
   return {
     id: row.id,
@@ -28,17 +41,13 @@ function toPhotoPost(row: PostRow, photoLinks: Pick<PostPhotoRow, 'photo_id' | '
     coverPhotoId: row.cover_photo_id,
     scope: toPostScope(row),
     visibility: row.visibility,
-    photoIds,
+    photos,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }
 }
 
-type PostWithPhotos = PostRow & {
-  post_photos: Pick<PostPhotoRow, 'photo_id' | 'display_order'>[]
-}
-
-const POST_SELECT = '*, post_photos(photo_id, display_order)'
+const POST_SELECT = '*, post_photos(photo_id, display_order, photos(*))'
 
 export async function getPostById(postId: string): Promise<PhotoPost | null> {
   const { data, error } = await supabase
@@ -49,7 +58,7 @@ export async function getPostById(postId: string): Promise<PhotoPost | null> {
 
   if (error) throw error
   if (!data) return null
-  return toPhotoPost(data, data.post_photos)
+  return toPhotoPost(data)
 }
 
 export async function getPublicFeed(): Promise<PhotoPost[]> {
@@ -61,7 +70,7 @@ export async function getPublicFeed(): Promise<PhotoPost[]> {
     .returns<PostWithPhotos[]>()
 
   if (error) throw error
-  return (data ?? []).map(row => toPhotoPost(row, row.post_photos))
+  return (data ?? []).map(toPhotoPost)
 }
 
 export async function getUserFeed(userId: string): Promise<PhotoPost[]> {
@@ -74,7 +83,7 @@ export async function getUserFeed(userId: string): Promise<PhotoPost[]> {
     .returns<PostWithPhotos[]>()
 
   if (error) throw error
-  return (data ?? []).map(row => toPhotoPost(row, row.post_photos))
+  return (data ?? []).map(toPhotoPost)
 }
 
 export interface CreatePostInput {
@@ -124,10 +133,10 @@ export async function createPost(input: CreatePostInput): Promise<PhotoPost> {
     }
   }
 
-  return toPhotoPost(
-    post,
-    input.photoIds.map((photoId, index) => ({ photo_id: photoId, display_order: index })),
-  )
+  // 생성 직후 join 결과로 다시 조회 — 사진 url 등 채우기 위함
+  const created = await getPostById(post.id)
+  if (!created) throw new Error('포스트를 생성했지만 다시 조회할 수 없어요')
+  return created
 }
 
 export async function deletePost(postId: string): Promise<void> {

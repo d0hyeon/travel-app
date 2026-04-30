@@ -1,3 +1,5 @@
+import type { Photo } from '~features/photo/photo.types'
+
 export const PostVisibility = {
   PRIVATE: 'PRIVATE',
   MEMBERS: 'MEMBERS',
@@ -18,8 +20,8 @@ export interface PhotoPost {
   coverPhotoId: string | null
   scope: PostScope | null
   visibility: PostVisibility
-  /** post_photos를 display_order 정렬해 채움 */
-  photoIds: string[]
+  /** display_order 정렬됨. 호출부는 사진 id가 필요하면 photos[i].id로 접근 */
+  photos: Photo[]
   createdAt: string
   updatedAt: string | null
 }

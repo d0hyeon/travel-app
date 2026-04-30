@@ -7,7 +7,7 @@ import Resizer from 'react-image-file-resizer';
 export const photoKey = 'photos'
 const BUCKET_NAME = 'photos'
 
-function toPhoto(row: DataRaw<'photos'>): Photo {
+export function toPhoto(row: DataRaw<'photos'>): Photo {
   return {
     id: row.id,
     tripId: row.trip_id,
