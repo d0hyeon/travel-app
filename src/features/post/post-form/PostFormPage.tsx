@@ -1,6 +1,6 @@
 import { Box, CircularProgress, Container, LinearProgress, Typography } from '@mui/material'
 import { Suspense, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 import { getAuth } from '~features/auth/useAuth'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
 import { SwitchCase } from '~shared/components/SwitchCase'
@@ -38,10 +38,15 @@ export default function PostFormPage() {
   const auth = getAuth()
   const { mutateAsync: createPost } = useCreatePost()
 
-  const [step, setStep] = useQueryParamState<Step>('step', { defaultValue: 'trip' })
+  const [searchParams] = useSearchParams()
+  const initialTripId = searchParams.get('tripId')
+
+  const [step, setStep] = useQueryParamState<Step>('step', {
+    defaultValue: initialTripId ? 'photo' : 'trip',
+  })
   const currentIndex = STEPS.indexOf(step as Step)
 
-  const [tripId, setTripId] = useState<string | null>(null)
+  const [tripId, setTripId] = useState<string | null>(initialTripId)
   const [photoIds, setPhotoIds] = useState<string[]>([])
 
   // 비정상 진입(직접 URL 이동) 방지

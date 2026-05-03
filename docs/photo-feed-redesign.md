@@ -227,7 +227,9 @@ MetaStep        — 가시성, 제목, 캡션, 위치(scope), 커버
   - trip nullable 흐름은 사진 소유권 모델 변경 후 다음 단계.
 - [x] **7. post UI 컴포넌트** — PostCard, PostFeed, PostDetail, PostLikeButton + 페이지들
   - PhotoPost.photoIds → photos: Photo[] 로 변경 (cover 등 url 노출을 위해 join 결과 그대로 도메인에 포함)
-- [ ] **8. 라우트 등록** — `/feed`, `/u/:userId`, `/post/new`, `/post/:postId`
+- [x] **8. 라우트 등록** — `/feed`, `/u/:userId`, `/post/new`, `/post/:postId`
+  - 미래 제거 시 routes.ts의 4줄 + features/post 폴더만 삭제 가능하도록 주석 마커 추가
+  - `/post/new?tripId=xxx`로 진입 시 photo 단계부터 시작
 - [ ] **9. TripPhotoContent 진입점** — "이 여행으로 포스트 작성"
 
 ### 1차에서 제외 (다음 단계)
