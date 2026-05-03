@@ -1,6 +1,7 @@
 import CheckIcon from '@mui/icons-material/TaskAlt';
 import { alpha, Box, Button, ImageList, Stack, styled } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
+import { CreatePostEntry } from '~features/post/CreatePostEntry';
 import { BottomArea } from '~shared/components/BottomArea';
 import { BottomNavigation } from '~shared/components/BottomNavigation';
 import { MultiSelectDropdown } from '~shared/components/MultiSelectDropdown';
@@ -71,9 +72,12 @@ export default function TripPhotoContent({ tripId }: TripPhotoContentProps) {
               sx={{ backgroundColor: 'rgba(255, 255, 255, 0.6)', backdropFilter: 'blur(5px)' }}
             />
           )}
-          <IOSChipButton sx={!isReadonly ? { transform: 'scale(1.15)' } : {}} onClick={() => setIsReadonly(curr => !curr)}>
-            {isReadonly ? '선택' : '완료'}
-          </IOSChipButton>
+          <Stack direction="row" gap={1} alignItems="center">
+            <CreatePostEntry tripId={tripId} />
+            <IOSChipButton sx={!isReadonly ? { transform: 'scale(1.15)' } : {}} onClick={() => setIsReadonly(curr => !curr)}>
+              {isReadonly ? '선택' : '완료'}
+            </IOSChipButton>
+          </Stack>
         </Stack>
         <Box>
           <ImageList cols={3}>

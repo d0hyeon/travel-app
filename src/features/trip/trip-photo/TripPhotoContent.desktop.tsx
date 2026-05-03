@@ -1,5 +1,6 @@
 import { Box, Chip, Stack } from '@mui/material';
 import { useMemo, useState } from 'react';
+import { CreatePostEntry } from '~features/post/CreatePostEntry';
 import { PhotoDialog } from '~shared/components/photo/PhotoDialog';
 import { PhotoUploader } from '~shared/components/photo/PhotoUploader';
 import { useOverlay } from '~shared/hooks/useOverlay';
@@ -41,21 +42,23 @@ export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
 
   return (
     <Stack flex={1} p={3} overflow="auto">
-      <Stack direction="row" gap={1} mb={3} flexWrap="wrap">
-        <Chip
-          label="전체"
-          variant={selectedPlaceId === null ? 'filled' : 'outlined'}
-          onClick={() => setSelectedPlaceId(null)}
-        />
-        {placesWithPhotos.map(place => (
+      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={3} gap={2}>
+        <Stack direction="row" gap={1} flexWrap="wrap">
           <Chip
-            key={place.id}
-            label={place.name}
-            variant={selectedPlaceId === place.id ? 'filled' : 'outlined'}
-            onClick={() => setSelectedPlaceId(place.id)}
-
+            label="전체"
+            variant={selectedPlaceId === null ? 'filled' : 'outlined'}
+            onClick={() => setSelectedPlaceId(null)}
           />
-        ))}
+          {placesWithPhotos.map(place => (
+            <Chip
+              key={place.id}
+              label={place.name}
+              variant={selectedPlaceId === place.id ? 'filled' : 'outlined'}
+              onClick={() => setSelectedPlaceId(place.id)}
+            />
+          ))}
+        </Stack>
+        <CreatePostEntry tripId={tripId} />
       </Stack>
 
 
