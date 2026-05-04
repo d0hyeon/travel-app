@@ -163,7 +163,6 @@ export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
             <Suspense>
               <RecommendedMarkers
                 tripId={tripId}
-                bounds={mapBounds ?? undefined}
                 onClick={(place) => openRecommendedDialog({ place, tripId })}
               />
             </Suspense>

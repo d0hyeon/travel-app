@@ -2,17 +2,18 @@ import WorkspacesIcon from '@mui/icons-material/Workspaces';
 import { Box, Stack, ToggleButton, Typography } from "@mui/material";
 import { Suspense, useMemo, useRef, useState } from "react";
 import { BottomArea } from '~shared/components/BottomArea';
+import { arraySplit } from '~shared/utils/common';
 import { BottomSheet } from "../../../shared/components/bottom-sheet/BottomSheet";
-import { Map, type MapBounds, type MapRef } from "../../../shared/components/Map";
+import { Map, type MapRef } from "../../../shared/components/Map";
 import { PlaceCategoryColorCode, type Place } from "../../place/place.types";
 import { useTripCluastering } from '../hooks/useTripCluastering';
+import { RecommendedMarkers } from '../trip-recommend/RecommendedMarkers';
+import { useRecommendedPlaceDetailOverlay } from '../trip-recommend/RecommendedPlaceDetailOverlay';
 import { useTripRoutes } from "../trip-route/useTripRoutes";
 import { useTrip } from "../useTrip";
-import { useRecommendedPlaceDetailOverlay } from '../trip-recommend/RecommendedPlaceDetailOverlay';
 import { TripPlaceAdditionButton } from './TripPlaceAdditionButton';
 import { TripPlaceItemButton } from './TripPlaceItemButton';
 import { useTripPlaces } from "./useTripPlaces";
-import { RecommendedMarkers } from '../trip-recommend/RecommendedMarkers';
 
 const MICRO_ZOOM_LEVEL = 8;
 
@@ -40,20 +41,13 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
     mapRef.current?.panTo(place.lat, place.lng)
   }
 
-  const confirmedPlaceIds = useMemo(() => {
-    const ids = new Set<string>()
-    routes.forEach((route) => {
-      route.placeIds.forEach((id) => ids.add(id))
-    })
-    return ids
-  }, [routes])
+  const planedPlaceIds = useMemo(() => new Set(routes.flatMap(route => route.id)), [routes])
+  const [planedPlaces, candidatePlaces] = useMemo(() => (
+    arraySplit(places, place => planedPlaceIds.has(place.id))
+  ), [places, planedPlaceIds])
 
-  const confirmedPlaces = places.filter((p) => confirmedPlaceIds.has(p.id))
-  const wishedPlaces = places.filter((p) => !confirmedPlaceIds.has(p.id))
-
-  const [cluastering, setCluastering] = useTripCluastering();
+  const [isCluastering, setIsCluastering] = useTripCluastering();
   const [sheetRatio, setSheetRatio] = useState(DEFAULT_BOTTOM_SHEET_RATIO);
-  const [mapBounds, setMapBounds] = useState<MapBounds | null>(null)
 
   const [focusedId, setFocusedId] = useState<string | null>(null)
   const { openBottomSheet: openRecommendedSheet } = useRecommendedPlaceDetailOverlay()
@@ -64,8 +58,8 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
         <Stack gap={1} padding={1} position="absolute" top={0} right={0} zIndex={8}>
           <ToggleButton
             value="check"
-            selected={cluastering}
-            onChange={() => setCluastering(!cluastering)}
+            selected={isCluastering}
+            onChange={() => setIsCluastering(!isCluastering)}
             size="small"
             color="primary"
             sx={{ backgroundColor: 'rgba(255, 255, 255, 0.7) !important' }}
@@ -80,9 +74,8 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
             ref={mapRef}
             defaultCenter={{ lat: trip.lat, lng: trip.lng }}
             height="100%"
-            clustering={cluastering}
+            clustering={isCluastering}
             clusterGridSize={50}
-            onBoundsChange={setMapBounds}
           >
             {({ zoom }) => (
               <>
@@ -94,7 +87,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
                     lng={place.lng}
                     color={place.category
                       ? PlaceCategoryColorCode[place.category]
-                      : confirmedPlaceIds.has(place.id) ? 'selected' : 'default'
+                      : planedPlaceIds.has(place.id) ? 'selected' : 'default'
                     }
                     variant={zoom > MICRO_ZOOM_LEVEL ? 'circle' : 'pin'}
                     onClick={() => setFocusedId(place.id)}
@@ -105,7 +98,6 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
                   <Suspense>
                     <RecommendedMarkers
                       tripId={tripId}
-                      bounds={mapBounds ?? undefined}
                       onClick={(place) => openRecommendedSheet({ place, tripId })}
                     />
                   </Suspense>
@@ -129,11 +121,11 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
         >
           <BottomSheet.Body paddingBottom={5} sx={{ scrollBehavior: 'smooth' }}>
             <Typography variant="caption" color="text.secondary" fontWeight="medium" mb={0.5} display="block">
-              확정 ({confirmedPlaces.length}) / 후보 ({wishedPlaces.length})
+              확정 ({planedPlaces.length}) / 후보 ({candidatePlaces.length})
             </Typography>
 
             <Stack spacing={0.75}>
-              {confirmedPlaces.map((place) => (
+              {planedPlaces.map((place) => (
                 <TripPlaceItemButton
                   key={place.id}
                   place={place}
@@ -142,7 +134,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
                   borderColor={theme => theme.palette.primary.main}
                 />
               ))}
-              {wishedPlaces.map((place) => (
+              {candidatePlaces.map((place) => (
                 <TripPlaceItemButton
                   key={place.id}
                   place={place}
