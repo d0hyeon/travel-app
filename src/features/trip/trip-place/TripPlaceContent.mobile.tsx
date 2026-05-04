@@ -14,7 +14,8 @@ import { TripPlaceItemButton } from './TripPlaceItemButton';
 import { useTripPlaces } from "./useTripPlaces";
 import { RecommendedMarkers } from '../trip-recommend/RecommendedMarkers';
 
-const ZOOM_THRESHOLD = 0.2
+const MICRO_ZOOM_LEVEL = 8;
+
 
 interface PlaceContentProps {
   tripId: string
@@ -57,8 +58,6 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
   const [focusedId, setFocusedId] = useState<string | null>(null)
   const { openBottomSheet: openRecommendedSheet } = useRecommendedPlaceDetailOverlay()
 
-  const isZoomedEnough = mapBounds ? Math.abs(mapBounds.north - mapBounds.south) < ZOOM_THRESHOLD : false;
-
   return (
     <>
       <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
@@ -85,28 +84,35 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
             clusterGridSize={50}
             onBoundsChange={setMapBounds}
           >
-            {places.map(place => (
-              <Map.Marker
-                key={place.id}
-                label={place.name}
-                lat={place.lat}
-                lng={place.lng}
-                color={place.category
-                  ? PlaceCategoryColorCode[place.category]
-                  : confirmedPlaceIds.has(place.id) ? 'selected' : 'default'
-                }
-                onClick={() => setFocusedId(place.id)}
-              />
-            ))}
-            {isZoomedEnough && (
-              <Suspense>
-                <RecommendedMarkers
-                  tripId={tripId}
-                  bounds={mapBounds ?? undefined}
-                  onClick={(place) => openRecommendedSheet({ place, tripId })}
-                />
-              </Suspense>
+            {({ zoom }) => (
+              <>
+                {places.map(place => (
+                  <Map.Marker
+                    key={place.id}
+                    label={zoom > MICRO_ZOOM_LEVEL ? undefined : place.name}
+                    lat={place.lat}
+                    lng={place.lng}
+                    color={place.category
+                      ? PlaceCategoryColorCode[place.category]
+                      : confirmedPlaceIds.has(place.id) ? 'selected' : 'default'
+                    }
+                    variant={zoom > MICRO_ZOOM_LEVEL ? 'circle' : 'pin'}
+                    onClick={() => setFocusedId(place.id)}
+                  />
+                ))}
+
+                {zoom <= MICRO_ZOOM_LEVEL && (
+                  <Suspense>
+                    <RecommendedMarkers
+                      tripId={tripId}
+                      bounds={mapBounds ?? undefined}
+                      onClick={(place) => openRecommendedSheet({ place, tripId })}
+                    />
+                  </Suspense>
+                )}
+              </>
             )}
+
           </Map>
         </Box>
 
@@ -163,3 +169,26 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
     </>
   )
 }
+
+
+// function calcMarkerZoomThreshold(places: { lat: number; lng: number }[]): number {
+//   if (places.length < 2) return 8;
+
+//   const centerLat = places.reduce((s, p) => s + p.lat, 0) / places.length;
+//   const centerLng = places.reduce((s, p) => s + p.lng, 0) / places.length;
+//   const center = { lat: centerLat, lng: centerLng };
+
+//   const maxDist = Math.max(...places.map(p => calcDistance(center, p)));
+//   const base = (() => {
+//     if (maxDist > 200_000) return 4;
+//     if (maxDist > 80_000) return 5;
+//     if (maxDist > 25_000) return 6;
+//     if (maxDist > 8_000) return 7;
+//     return 8;
+//   })()
+
+//   // 장소가 밀집될수록 더 당겨야 라벨이 보이도록 임계값을 낮춤
+//   const densityPenalty = Math.floor(Math.log2(places.length / 3));
+
+//   return Math.max(3, base - densityPenalty);
+// }
