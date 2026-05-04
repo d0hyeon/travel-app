@@ -18,12 +18,15 @@ export interface MapBounds {
   east: number;
   west: number;
 }
-
+export interface MapRenderProps {
+  bounds: MapBounds | null;
+  zoom: number;
+}
 export interface MapProps  {
   defaultCenter?: Coordinate;
   center?: Coordinate;
   autoFocus?: AutoFocus;
-  children?: ReactNode;
+  children?: ReactNode | ((props: MapRenderProps) => ReactNode);
   ref?: Ref<MapRef>;
   clustering?: boolean;
   clusterGridSize?: number;
@@ -31,7 +34,6 @@ export interface MapProps  {
 }
 
 export type MarkerColor = 'default' | 'selected' | 'disabled' | (string & {});
-
 export interface MarkerProps {
   id?: string;
   lat: number;

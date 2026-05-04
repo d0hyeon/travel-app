@@ -46,7 +46,7 @@ export default function KakaoMap({
     const coordinate = center ?? defaultCenter;
     const mapInstance = new kakao.maps.Map(container, {
       center: new kakao.maps.LatLng(coordinate.lat, coordinate.lng),
-      level: 8,
+      level: zoom,
     });
     setMap(mapInstance);
 
@@ -171,7 +171,7 @@ export default function KakaoMap({
   return (
     <KakaoMapContext.Provider value={value}>
       <Box ref={setContainer} position="relative" {...boxProps} />
-      {children}
+      {typeof children === 'function' ? children({ bounds: currentBoundsRef.current!, zoom }) : children}
       {clusters && map && (
         <ClusterOverlays
           map={map}

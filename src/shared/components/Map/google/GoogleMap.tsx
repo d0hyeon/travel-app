@@ -8,6 +8,7 @@ import { loadGoogleMaps } from './loader';
 
 
 const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 };
+const ZOOM_MAX_LEVEL = 22;
 
 const PASTEL_MAP_STYLES: google.maps.MapTypeStyle[] = [
   { elementType: 'geometry', stylers: [{ color: '#f5f0eb' }] },
@@ -50,11 +51,10 @@ export default function GoogleMap({
   ...boxProps
 }: Props) {
   use(loadGoogleMaps());
-
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [zoom, setZoom] = useState(10);
-  const [clusterZoom, setClusterZoom] = useState(10);
+  const [clusterZoom, setClusterZoom] = useState(8);
   const currentBoundsRef = useRef<MapBounds | null>(null);
   const [clusterBoundsVersion, setClusterBoundsVersion] = useState(0);
   const boundsRef = useRef<google.maps.LatLngBounds | null>(null);
@@ -72,12 +72,13 @@ export default function GoogleMap({
     const coordinate = center ?? defaultCenter
     const mapInstance = new google.maps.Map(container, {
       center: { lat: coordinate.lat, lng: coordinate.lng },
-      zoom: 10,
+      zoom: zoom,
       disableDefaultUI: true,
       styles: PASTEL_MAP_STYLES,
     });
 
     const zoomListener = mapInstance.addListener('zoom_changed', () => {
+      console.log(mapInstance.getZoom())
       setZoom(mapInstance.getZoom() ?? 10);
     });
 
@@ -154,7 +155,7 @@ export default function GoogleMap({
     panTo: (lat: number, lng: number, z?: number) => {
       if (!map) return;
       map.panTo({ lat, lng });
-      if (z != null) map.setZoom(z);
+      if (z != null) map.setZoom(ZOOM_MAX_LEVEL - z);
     },
     relayout: () => {
       if (!map) return;
@@ -184,7 +185,7 @@ export default function GoogleMap({
   return (
     <GoogleMapContext.Provider value={contextValue}>
       <Box ref={setContainer} position="relative" {...boxProps} />
-      {children}
+      {typeof children === 'function' ? children({ bounds: currentBoundsRef.current!, zoom: ZOOM_MAX_LEVEL - zoom }) : children}
       {clusters && map && (
         <ClusterOverlays map={map} clusters={clusters} onClusterClick={handleClusterClick} />
       )}

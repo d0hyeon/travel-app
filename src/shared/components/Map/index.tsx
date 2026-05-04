@@ -15,7 +15,7 @@ const GoogleMap = lazy(() => import('./google/GoogleMap'));
 const GoogleMarker = lazy(() => import('./google/GoogleMapMarker'));
 const GooglePath = lazy(() => import('./google/GoogleMapPath'));
 
-interface Props extends MapProps, Omit<BoxProps, 'autoFocus' | 'ref'> {
+interface Props extends MapProps, Omit<BoxProps, 'autoFocus' | 'ref' | 'children'> {
   type: 'kakao' | 'google';
 }
 const MAP_PROP_KEYS: (keyof MapProps)[] = ['autoFocus', 'children', 'clusterGridSize', 'clustering', 'defaultCenter', 'center', 'onBoundsChange', 'ref']
