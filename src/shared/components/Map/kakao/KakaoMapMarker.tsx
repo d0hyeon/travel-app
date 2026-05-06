@@ -30,19 +30,29 @@ export default function KakaoMapMarker(props: MarkerProps) {
   return <Marker {...props} />;
 }
 
-function ThumbnailMarker({ lat, lng, label, variant, color, thumbnailUrl, onClick = () => { }, onContextMenu }: MarkerProps) {
+function ThumbnailMarker({ lat, lng, label, tooltip, variant, color, thumbnailUrl, onClick = () => { }, onContextMenu }: MarkerProps) {
   const context = useMapContext(KakaoMapContext);
   const position = useMemo(() => new kakao.maps.LatLng(lat, lng), [lat, lng]);
   assert(!!thumbnailUrl, 'ThumbnailMarker requires thumbnailUrl');
 
   useEffect(() => {
-
     const el = document.createElement('div');
     el.innerHTML = createThumbnailContent(thumbnailUrl, color);
     el.style.cursor = 'pointer';
     el.addEventListener('click', () => onClick({ lat, lng, label, variant }));
     if (onContextMenu) {
       el.addEventListener('contextmenu', () => onContextMenu({ lat, lng, label, variant }));
+    }
+
+    if (tooltip) {
+      const lines = Array.isArray(tooltip) ? tooltip : [tooltip];
+      const tooltipEl = document.createElement('div');
+      tooltipEl.style.cssText = 'position:absolute; bottom:calc(100% + 28px); left:50%; transform:translateX(-50%); background:white; color:#333; padding:6px 10px; border-radius:8px; font-size:12px; box-shadow:0 2px 8px rgba(0,0,0,0.15); white-space:nowrap; pointer-events:none; display:none;';
+      tooltipEl.innerHTML = lines.map(l => `<div>${l}</div>`).join('');
+      el.style.position = 'relative';
+      el.appendChild(tooltipEl);
+      el.addEventListener('mouseenter', () => { tooltipEl.style.display = 'block'; });
+      el.addEventListener('mouseleave', () => { tooltipEl.style.display = 'none'; });
     }
 
     const overlay = new kakao.maps.CustomOverlay({
@@ -53,8 +63,23 @@ function ThumbnailMarker({ lat, lng, label, variant, color, thumbnailUrl, onClic
     });
 
     overlay.setMap(context.map);
-    return () => overlay.setMap(null);
-  }, [thumbnailUrl, context, position, color]);
+
+    let labelOverlay: kakao.maps.CustomOverlay | null = null;
+    if (label) {
+      labelOverlay = new kakao.maps.CustomOverlay({
+        position,
+        content: createLabelContent(label, variant, color),
+        yAnchor: 1 + 56 / 20,
+        xAnchor: 0.5,
+      });
+      labelOverlay.setMap(context.map);
+    }
+
+    return () => {
+      overlay.setMap(null);
+      labelOverlay?.setMap(null);
+    };
+  }, [thumbnailUrl, context, position, color, label, tooltip, variant]);
 
   return null;
 }

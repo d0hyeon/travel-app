@@ -33,7 +33,7 @@ export default function GoogleMapMarker(props: MarkerProps) {
 
 // ── ThumbnailMarker ────────────────────────────────────
 
-function ThumbnailMarker({ lat, lng, label, variant, color, thumbnailUrl, onClick }: MarkerProps) {
+function ThumbnailMarker({ lat, lng, label, tooltip, variant, color, thumbnailUrl, onClick }: MarkerProps) {
   const { map, extendBound, config } = useMapContext(GoogleMapContext);
   const markerColor = useMemo(() => resolveMarkerColor(color, variant), [color, variant]);
 
@@ -46,6 +46,17 @@ function ThumbnailMarker({ lat, lng, label, variant, color, thumbnailUrl, onClic
     el.innerHTML = createThumbnailContent(thumbnailUrl!, markerColor);
     el.style.cssText = 'position:absolute; transform:translate(-50%, -100%); cursor:pointer;';
     el.addEventListener('click', handleClick);
+
+    let tooltipEl: HTMLDivElement | null = null;
+    if (tooltip) {
+      const lines = Array.isArray(tooltip) ? tooltip : [tooltip];
+      tooltipEl = document.createElement('div');
+      tooltipEl.style.cssText = 'position:absolute; bottom:calc(100% + 28px); left:50%; transform:translateX(-50%); background:white; color:#333; padding:6px 10px; border-radius:8px; font-size:12px; box-shadow:0 2px 8px rgba(0,0,0,0.15); white-space:nowrap; pointer-events:none; display:none;';
+      tooltipEl.innerHTML = lines.map(l => `<div>${l}</div>`).join('');
+      el.appendChild(tooltipEl);
+      el.addEventListener('mouseenter', () => { if (tooltipEl) tooltipEl.style.display = 'block'; });
+      el.addEventListener('mouseleave', () => { if (tooltipEl) tooltipEl.style.display = 'none'; });
+    }
 
     class ThumbnailOverlay extends google.maps.OverlayView {
       onAdd() { this.getPanes()?.overlayMouseTarget.appendChild(el); }
@@ -66,7 +77,7 @@ function ThumbnailMarker({ lat, lng, label, variant, color, thumbnailUrl, onClic
       overlay.setMap(null);
       cleanupLabel?.();
     };
-  }, [map, lat, lng, thumbnailUrl, markerColor, label, variant]);
+  }, [map, lat, lng, thumbnailUrl, markerColor, label, tooltip, variant]);
 
   return null;
 }
