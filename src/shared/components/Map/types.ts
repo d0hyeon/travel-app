@@ -19,7 +19,6 @@ export interface MapBounds {
   west: number;
 }
 export interface MapRenderProps {
-  bounds: MapBounds | null;
   zoom: number;
 }
 export interface MapProps  {
@@ -30,7 +29,6 @@ export interface MapProps  {
   ref?: Ref<MapRef>;
   clustering?: boolean;
   clusterGridSize?: number;
-  onBoundsChange?: (bounds: MapBounds) => void;
 }
 
 export type MarkerColor = 'default' | 'selected' | 'disabled' | (string & {});

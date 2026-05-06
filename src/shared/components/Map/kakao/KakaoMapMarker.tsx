@@ -1,99 +1,41 @@
 import { use, useEffect, useEffectEvent, useMemo, useState } from "react";
-import { KakaoMapContext } from "../MapContext";
+import { assert } from "~shared/utils/types";
+import { KakaoMapContext, useMapContext } from "../MapContext";
 import type { MarkerProps } from "../types";
 import { createLabelContent, getMarkerImage, getZoomScale, resolveMarkerColor } from "./kakaoMap.utils";
+import { KakaoClusterContext } from "./KakaoMap";
 
-export default function KakaoMapMarker({ id, lat, lng, label, tooltip, variant, color, opacity = 1, outlined = false, thumbnailUrl, onClick = () => { }, onContextMenu }: MarkerProps) {
-  const context = use(KakaoMapContext);
-  const markerId = useMemo(() => id ?? `${lat}_${lng}`, [id, lat, lng]);
-  const position = useMemo(() => new kakao.maps.LatLng(lat, lng), [lat, lng]);
-  const [zoom, setZoom] = useState<number | undefined>(context?.map?.getLevel());
-
-  const handleMarkerClick = useEffectEvent(() => onClick({ lat, lng, label, variant }));
-  const handleMarkerContextMenu = useEffectEvent(() => onContextMenu?.({ lat, lng, label, variant }));
+export default function KakaoMapMarker(props: MarkerProps) {
+  const clusterContext = use(KakaoClusterContext);
+  const markerId = useMemo(() => `${props.lat}_${props.lng}`, [props.lat, props.lng]);
+  const handleMarkerClick = useEffectEvent(() => props.onClick?.(props));
+  const handleMarkerContextMenu = useEffectEvent(() => props.onContextMenu?.(props));
 
   useEffect(() => {
-    if (!context?.config.clustering) return;
+    if (!clusterContext) return;
 
-    context.registerMarker({
+    clusterContext.registerMarker({
+      ...props,
       id: markerId,
-      position: { lat, lng },
-      label,
-      tooltip,
-      variant,
-      color,
-      opacity,
-      outlined,
-      thumbnailUrl,
+      position: { lat: props.lat, lng: props.lng },
       onClick: handleMarkerClick,
       onContextMenu: handleMarkerContextMenu,
     });
 
-    return () => context.unregisterMarker(markerId);
-  }, [context, markerId, lat, lng, label, tooltip, variant, color, opacity, outlined, thumbnailUrl]);
+    return () => clusterContext.unregisterMarker(markerId);
+  }, [clusterContext, markerId, props.lat, props.lng, props.label, props.variant, props.color, props.opacity, props.outlined, props.thumbnailUrl]);
 
-  const shouldRender = useMemo(() => {
-    if (!context?.config.clustering) return true;
-    return false;
-  }, [context?.config.clustering]);
+  if (clusterContext) return null;
+  if (props.thumbnailUrl) return <ThumbnailMarker {...props} />;
+  return <Marker {...props} />;
+}
+
+function ThumbnailMarker({ lat, lng, label, variant, color, thumbnailUrl, onClick = () => { }, onContextMenu }: MarkerProps) {
+  const context = useMapContext(KakaoMapContext);
+  const position = useMemo(() => new kakao.maps.LatLng(lat, lng), [lat, lng]);
+  assert(!!thumbnailUrl, 'ThumbnailMarker requires thumbnailUrl');
 
   useEffect(() => {
-    if (context?.map == null) return;
-    const handler = () => {
-      setZoom(context.map?.getLevel())
-    }
-
-    kakao.maps.event.addListener(context.map, 'zoom_changed', handler)
-    return () => {
-      if (context.map) {
-        kakao.maps.event.removeListener(context.map, 'zoom_changed', handler)
-      }
-    }
-  }, [context?.map])
-
-  const marker = useMemo(() => {
-    if (thumbnailUrl) return null; // thumbnail은 CustomOverlay로 렌더링
-    const markerImage = getMarkerImage(variant, color, opacity, zoom, outlined);
-
-    return new kakao.maps.Marker({
-      position,
-      image: markerImage,
-    })
-  }, [position, variant, color, opacity, zoom, outlined, thumbnailUrl]);
-
-  useEffect(function renderLabel() {
-    if (context?.map == null || label == null || !shouldRender) return;
-
-    const { map } = context;
-    const scale = getZoomScale(zoom);
-    const markerHalfHeight = thumbnailUrl ? 52 : variant === 'circle' ? 8 * scale : 30 * scale;
-    const yAnchor = 1 + (markerHalfHeight + 4) / 20;
-    const overlay = new kakao.maps.CustomOverlay({
-      position,
-      content: createLabelContent(label, variant, color, opacity, zoom),
-      yAnchor,
-    });
-
-    overlay.setMap(map);
-    return () => overlay.setMap(null);
-  }, [context, label, color, opacity, zoom, shouldRender, thumbnailUrl]);
-
-  useEffect(function renderMarker() {
-    if (marker == null || context?.map == null || !shouldRender) return;
-    marker.setMap(context.map);
-
-    if (context.config.autoFocus === 'marker') {
-      context.extendBound({ lat: position.getLat(), lng: position.getLng() });
-    }
-    return () => marker.setMap(null);
-  }, [marker, position, context, shouldRender])
-
-  useEffect(function renderThumbnailOverlay() {
-    if (!thumbnailUrl || context?.map == null || !shouldRender) return;
-
-    if (context.config.autoFocus === 'marker') {
-      context.extendBound({ lat: position.getLat(), lng: position.getLng() });
-    }
 
     const el = document.createElement('div');
     el.innerHTML = createThumbnailContent(thumbnailUrl, color);
@@ -112,7 +54,92 @@ export default function KakaoMapMarker({ id, lat, lng, label, tooltip, variant, 
 
     overlay.setMap(context.map);
     return () => overlay.setMap(null);
-  }, [thumbnailUrl, context, position, color, shouldRender]);
+  }, [thumbnailUrl, context, position, color]);
+
+  return null;
+}
+
+
+function Marker({ lat, lng, label, tooltip, variant, color, opacity = 1, outlined = false, thumbnailUrl, onClick = () => { }, onContextMenu }: MarkerProps) {
+  const context = useMapContext(KakaoMapContext);
+  const clusterContext = use(KakaoClusterContext);
+  const position = useMemo(() => new kakao.maps.LatLng(lat, lng), [lat, lng]);
+  const [zoom, setZoom] = useState<number | undefined>(context.map?.getLevel());
+
+  const shouldRender = !clusterContext;
+
+  useEffect(() => {
+    const handler = () => setZoom(context.map.getLevel());
+
+    kakao.maps.event.addListener(context.map, 'zoom_changed', handler)
+    return () => {
+      kakao.maps.event.removeListener(context.map, 'zoom_changed', handler)
+    }
+  }, [context.map])
+
+  const marker = useMemo(() => {
+    const markerImage = getMarkerImage(variant, color, opacity, zoom, outlined);
+
+    return new kakao.maps.Marker({ position, image: markerImage })
+  }, [position, variant, color, opacity, zoom, outlined, thumbnailUrl]);
+
+
+  const labelOverlay = useMemo(() => {
+    if (label == null) return null;
+    const scale = getZoomScale(zoom);
+    const markerHalfHeight = variant === 'circle' ? 8 * scale : 30 * scale;
+    const yAnchor = 1 + (markerHalfHeight + 4) / 20;
+
+    return new kakao.maps.CustomOverlay({
+      position,
+      content: createLabelContent(label, variant, color, opacity, zoom),
+      yAnchor,
+    });
+  }, [label, variant, color, opacity, zoom]);
+
+  const tooltipOverlay = useMemo(() => {
+    if (tooltip == null) return null;
+    const scale = getZoomScale(zoom);
+    const markerHeight = variant === 'circle' ? 16 * scale : 30 * scale;
+    const yAnchor = 1 + markerHeight / 30;
+
+    return new kakao.maps.CustomOverlay({
+      position,
+      content: createTooltipContent(tooltip, zoom),
+      yAnchor,
+    });
+  }, [tooltip, variant, zoom]);
+
+  useEffect(() => {
+    if (!shouldRender) return;
+    labelOverlay?.setMap(context.map);
+    marker.setMap(context.map);
+
+    const showTooltip = () => tooltipOverlay?.setMap(context.map);
+    const hideTooltip = () => tooltipOverlay?.setMap(null);
+    if (tooltipOverlay != null) {
+      kakao.maps.event.addListener(marker, 'mouseover', showTooltip);
+      kakao.maps.event.addListener(marker, 'mouseout', hideTooltip);
+    }
+
+    return () => {
+      marker.setMap(null);
+      labelOverlay?.setMap(null);
+      tooltipOverlay?.setMap(null);
+      if (tooltipOverlay != null) {
+        kakao.maps.event.removeListener(marker, 'mouseover', showTooltip);
+        kakao.maps.event.removeListener(marker, 'mouseout', hideTooltip);
+      }
+    }
+  }, [context.map, labelOverlay, marker, shouldRender, tooltipOverlay]);
+
+  useEffect(() => {
+    if (context.config.autoFocus !== 'marker' || !shouldRender) return;
+    if (context.map == null) return;
+
+    context.extendBound({ lat, lng });
+  }, [lat, lng, context.extendBound, shouldRender])
+
 
   const clickHandler = useEffectEvent(() => onClick({ lat, lng, label, variant }));
   const contextMenuHandler = useEffectEvent(() => onContextMenu?.({ lat, lng, label, variant }))
@@ -129,38 +156,8 @@ export default function KakaoMapMarker({ id, lat, lng, label, tooltip, variant, 
     }
   }, [marker, shouldRender]);
 
-  useEffect(function renderTooltip() {
-    if (context?.map == null || marker == null || tooltip == null || !shouldRender) return;
-
-    const { map } = context;
-    const scale = getZoomScale(zoom);
-    const markerHeight = variant === 'circle' ? 16 * scale : 30 * scale;
-    const yAnchor = 1 + markerHeight / 30;
-    const overlay = new kakao.maps.CustomOverlay({
-      position,
-      content: createTooltipContent(tooltip, zoom),
-      yAnchor,
-    });
-
-    const showTooltip = () => overlay.setMap(map);
-    const hideTooltip = () => overlay.setMap(null);
-
-    kakao.maps.event.addListener(marker, 'mouseover', showTooltip);
-    kakao.maps.event.addListener(marker, 'mouseout', hideTooltip);
-
-    return () => {
-      overlay.setMap(null);
-      kakao.maps.event.removeListener(marker, 'mouseover', showTooltip);
-      kakao.maps.event.removeListener(marker, 'mouseout', hideTooltip);
-    };
-  }, [context, marker, position, tooltip, zoom, shouldRender]);
-
   return null;
 }
-
-
-
-
 
 
 function createTooltipContent(tooltip: string | string[], level: number = 8): string {

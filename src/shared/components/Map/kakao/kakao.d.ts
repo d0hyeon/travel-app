@@ -14,6 +14,13 @@ declare global {
       getLevel(): number
       setLevel(level: number): void
       relayout(): void;
+      getBounds(): {
+        getNorthEast(): kakao.maps.LatLng;
+        getSouthWest(): kakao.maps.LatLng;
+      }
+      getProjection(): {
+        pointFromCoords: (latlng: kakao.maps.LatLng) => { x: number; y: number };
+      }
     }
 
     class LatLng {
@@ -25,6 +32,8 @@ declare global {
     class LatLngBounds {
       constructor()
       extend(latlng: LatLng): void
+      getNorthEast(): kakao.maps.LatLng;
+      getSouthWest(): kakao.maps.LatLng;
     }
 
     class Marker {

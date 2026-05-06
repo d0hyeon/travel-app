@@ -1,185 +1,188 @@
 import { use, useEffect, useEffectEvent, useMemo } from "react";
 import type { MarkerProps } from "../types";
-import { GoogleMapContext } from "../MapContext";
+import { GoogleMapContext, useMapContext } from "../MapContext";
 import { resolveMarkerColor } from "../map.utils";
-import { createThumbnailContent } from "./GoogleMap.utils";
+import { createMarkerSvg, createThumbnailContent } from "./GoogleMap.utils";
+import { GoogleClusterContext } from "./GoogleMap";
 
+export default function GoogleMapMarker(props: MarkerProps) {
+  const clusterContext = use(GoogleClusterContext);
+  const markerId = useMemo(() => props.id ?? `${props.lat}_${props.lng}`, [props.id, props.lat, props.lng]);
+  const markerColor = useMemo(() => resolveMarkerColor(props.color, props.variant), [props.color, props.variant]);
 
-export default function GoogleMarker({
-  id,
-  lat,
-  lng,
-  label,
-  tooltip,
-  variant = 'pin',
-  color,
-  opacity = 1,
-  outlined = false,
-  thumbnailUrl,
-  onClick,
-  onContextMenu,
-}: MarkerProps) {
-  const context = use(GoogleMapContext);
-  const markerId = useMemo(() => id ?? `${lat}_${lng}`, [id, lat, lng]);
+  const handleClick = useEffectEvent(() => props.onClick?.({ lat: props.lat, lng: props.lng, label: props.label, variant: props.variant }));
+  const handleContextMenu = useEffectEvent(() => props.onContextMenu?.({ lat: props.lat, lng: props.lng, label: props.label, variant: props.variant }));
 
-  const markerColor = useMemo(() => resolveMarkerColor(color, variant), [color, variant]);
-
-  const handleClick = useEffectEvent(() => onClick?.({ lat, lng, label, variant }));
-  const handleContextMenu = useEffectEvent(() => onContextMenu?.({ lat, lng, label, variant }));
-
-  // 클러스터링 모드: 레지스트리에 등록
   useEffect(() => {
-    if (!context?.config.clustering) return;
-
-    context.registerMarker({
+    if (!clusterContext) return;
+    clusterContext.registerMarker({
+      ...props,
       id: markerId,
-      position: { lat, lng },
-      label,
-      tooltip,
-      variant,
+      position: { lat: props.lat, lng: props.lng },
       color: markerColor,
-      opacity,
-      outlined,
-      thumbnailUrl,
       onClick: handleClick,
       onContextMenu: handleContextMenu,
     });
+    return () => clusterContext.unregisterMarker(markerId);
+  }, [clusterContext, markerId, props.lat, props.lng, props.label, props.tooltip, props.variant, markerColor, props.opacity, props.outlined, props.thumbnailUrl]);
 
-    return () => context.unregisterMarker(markerId);
-  }, [context, markerId, lat, lng, label, variant, markerColor, opacity, outlined, thumbnailUrl]);
+  if (clusterContext) return null;
+  if (props.thumbnailUrl) return <ThumbnailMarker {...props} />;
+  return <Marker {...props} />;
+}
 
-  const shouldRender = !context?.config.clustering;
+// ── ThumbnailMarker ────────────────────────────────────
 
-  // 일반 마커 (클러스터링 off)
+function ThumbnailMarker({ lat, lng, label, variant, color, thumbnailUrl, onClick }: MarkerProps) {
+  const { map, extendBound, config } = useMapContext(GoogleMapContext);
+  const markerColor = useMemo(() => resolveMarkerColor(color, variant), [color, variant]);
+
+  const handleClick = useEffectEvent(() => onClick?.({ lat, lng, label, variant }));
+
   useEffect(() => {
-    if (!shouldRender || !context?.map) return;
-
-    if (thumbnailUrl) {
-      // thumbnail은 아래 별도 effect에서 처리
-      return;
-    }
-
-    if (context.config.autoFocus === 'marker') context.extendBound({ lat, lng });
-
-    if (variant === 'circle') {
-      const svg = outlined ? `
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-          <circle cx="8" cy="8" r="6" fill="white" fill-opacity="0.9" stroke="${markerColor}" stroke-width="2.5"/>
-        </svg>
-      ` : `
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-          <circle cx="8" cy="8" r="6" fill="${markerColor}" fill-opacity="${opacity}" stroke="white" stroke-width="4.5"/>
-          <circle cx="8" cy="8" r="6" fill="none" stroke="${markerColor}" fill-opacity="${opacity}" stroke-width="1" />
-        </svg>
-      `;
-      const marker = new google.maps.Marker({
-        position: { lat, lng },
-        map: context.map,
-        title: label,
-        icon: {
-          url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
-          scaledSize: new google.maps.Size(20, 20),
-          anchor: new google.maps.Point(8, 8),
-        },
-        opacity,
-      });
-
-      const clickL = marker.addListener('click', handleClick);
-      const rmenuL = marker.addListener('rightclick', handleContextMenu);
-
-      return () => {
-        google.maps.event.removeListener(clickL);
-        google.maps.event.removeListener(rmenuL);
-        marker.setMap(null);
-      };
-    }
-
-    const svg = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="34" viewBox="0 0 20 30">
-        <path d="M10 0C4.5 0 0 4.5 0 10c0 7.5 10 20 10 20s10-12.5 10-20c0-5.5-4.5-10-10-10z" fill="${markerColor}" fill-opacity="${opacity}"/>
-        <circle cx="10" cy="10" r="4" fill="white"/>
-      </svg>
-    `;
-    const marker = new google.maps.Marker({
-      position: { lat, lng },
-      map: context.map,
-      title: label,
-      icon: {
-        url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
-        scaledSize: new google.maps.Size(24, 34),
-        anchor: new google.maps.Point(12, 34),
-      },
-      opacity,
-    });
-
-    const clickL = marker.addListener('click', handleClick);
-    const rmenuL = marker.addListener('rightclick', handleContextMenu);
-
-    return () => {
-      google.maps.event.removeListener(clickL);
-      google.maps.event.removeListener(rmenuL);
-      marker.setMap(null);
-    };
-  }, [shouldRender, context, lat, lng, variant, markerColor, opacity, outlined, thumbnailUrl]);
-
-  // 썸네일 오버레이 (클러스터링 off)
-  useEffect(() => {
-    if (!shouldRender || !context?.map || !thumbnailUrl) return;
-
-    if (context.config.autoFocus === 'marker') context.extendBound({ lat, lng });
+    if (config.autoFocus === 'marker') extendBound({ lat, lng });
 
     const el = document.createElement('div');
-    el.innerHTML = createThumbnailContent(thumbnailUrl, markerColor);
+    el.innerHTML = createThumbnailContent(thumbnailUrl!, markerColor);
     el.style.cssText = 'position:absolute; transform:translate(-50%, -100%); cursor:pointer;';
     el.addEventListener('click', handleClick);
 
     class ThumbnailOverlay extends google.maps.OverlayView {
-      onAdd() {
-        this.getPanes()?.overlayMouseTarget.appendChild(el);
-      }
+      onAdd() { this.getPanes()?.overlayMouseTarget.appendChild(el); }
       draw() {
         const pos = this.getProjection().fromLatLngToDivPixel(new google.maps.LatLng(lat, lng));
-        if (pos) {
-          el.style.left = `${pos.x}px`;
-          el.style.top = `${pos.y - 8}px`;
-        }
+        if (pos) { el.style.left = `${pos.x}px`; el.style.top = `${pos.y - 8}px`; }
       }
       onRemove() { el.parentNode?.removeChild(el); }
     }
 
     const overlay = new ThumbnailOverlay();
-    overlay.setMap(context.map);
-    return () => overlay.setMap(null);
-  }, [shouldRender, context, lat, lng, thumbnailUrl, markerColor]);
+    overlay.setMap(map);
 
-  // 라벨 (클러스터링 off, thumbnail 없을 때)
-  useEffect(() => {
-    if (!shouldRender || !context?.map || !label) return;
+    const cleanupLabel = label ? mountLabelOverlay({ map, lat, lng, label, markerColor, offsetPx: 56 }) : null;
 
-    const markerOffsetPx = thumbnailUrl ? 56 : variant === 'circle' ? 20 : 38;
-
-    class LabelOverlay extends google.maps.OverlayView {
-      private div: HTMLDivElement | null = null;
-      onAdd() {
-        this.div = document.createElement('div');
-        this.div.style.cssText = `position:absolute; background:${markerColor}; color:white; padding:2px 6px; border-radius:10px; font-size:11px; font-weight:bold; white-space:nowrap; pointer-events:none; transform:translate(-50%,-100%); margin-top:-${markerOffsetPx}px;`;
-        this.div.textContent = label!;
-        this.getPanes()?.overlayLayer.appendChild(this.div);
-      }
-      draw() {
-        if (!this.div) return;
-        const pos = this.getProjection().fromLatLngToDivPixel(new google.maps.LatLng(lat, lng));
-        if (pos) { this.div.style.left = `${pos.x}px`; this.div.style.top = `${pos.y}px`; }
-      }
-      onRemove() {
-        if (this.div?.parentNode) { this.div.parentNode.removeChild(this.div); this.div = null; }
-      }
-    }
-
-    const overlay = new LabelOverlay();
-    overlay.setMap(context.map);
-    return () => overlay.setMap(null);
-  }, [shouldRender, context, lat, lng, variant, label, markerColor, thumbnailUrl]);
+    return () => {
+      el.removeEventListener('click', handleClick);
+      overlay.setMap(null);
+      cleanupLabel?.();
+    };
+  }, [map, lat, lng, thumbnailUrl, markerColor, label, variant]);
 
   return null;
+}
+
+// ── Marker ─────────────────────────────────────────────
+
+function Marker({ lat, lng, label, tooltip, variant = 'pin', color, opacity = 1, outlined = false, onClick, onContextMenu }: MarkerProps) {
+  const { map, extendBound, config } = useMapContext(GoogleMapContext);
+  const markerColor = useMemo(() => resolveMarkerColor(color, variant), [color, variant]);
+
+  const handleClick = useEffectEvent(() => onClick?.({ lat, lng, label, variant }));
+  const handleContextMenu = useEffectEvent(() => onContextMenu?.({ lat, lng, label, variant }));
+
+  useEffect(() => {
+    if (config.autoFocus === 'marker') extendBound({ lat, lng });
+
+    const svg = createMarkerSvg(variant, markerColor, opacity, outlined);
+    const isCircle = variant === 'circle';
+    const marker = new google.maps.Marker({
+      position: { lat, lng },
+      map,
+      title: label,
+      icon: isCircle
+        ? { url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`, scaledSize: new google.maps.Size(20, 20), anchor: new google.maps.Point(8, 8) }
+        : { url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`, scaledSize: new google.maps.Size(24, 34), anchor: new google.maps.Point(12, 34) },
+      opacity,
+    });
+    const clickL = marker.addListener('click', handleClick);
+    const rmenuL = marker.addListener('rightclick', handleContextMenu);
+
+    const cleanupLabel = label ? mountLabelOverlay({ map, lat, lng, label, markerColor, offsetPx: isCircle ? 20 : 38 }) : null;
+    const cleanupTooltip = tooltip ? mountTooltipOverlay({ map, lat, lng, marker, tooltip }) : null;
+
+    return () => {
+      google.maps.event.removeListener(clickL);
+      google.maps.event.removeListener(rmenuL);
+      marker.setMap(null);
+      cleanupLabel?.();
+      cleanupTooltip?.();
+    };
+  }, [map, lat, lng, variant, markerColor, opacity, outlined, label, tooltip]);
+
+  return null;
+}
+
+// ── 내부 마운트 함수 ────────────────────────────────────
+
+function mountLabelOverlay({ map, lat, lng, label, markerColor, offsetPx }: {
+  map: google.maps.Map;
+  lat: number; lng: number;
+  label: string;
+  markerColor: string;
+  offsetPx: number;
+}): () => void {
+  class LabelOverlay extends google.maps.OverlayView {
+    private div: HTMLDivElement | null = null;
+    onAdd() {
+      this.div = document.createElement('div');
+      this.div.style.cssText = `position:absolute; background:${markerColor}; color:white; padding:2px 6px; border-radius:10px; font-size:11px; font-weight:bold; white-space:nowrap; pointer-events:none; transform:translate(-50%,-100%); margin-top:-${offsetPx}px;`;
+      this.div.textContent = label;
+      this.getPanes()?.overlayLayer.appendChild(this.div);
+    }
+    draw() {
+      if (!this.div) return;
+      const pos = this.getProjection().fromLatLngToDivPixel(new google.maps.LatLng(lat, lng));
+      if (pos) { this.div.style.left = `${pos.x}px`; this.div.style.top = `${pos.y}px`; }
+    }
+    onRemove() {
+      if (this.div?.parentNode) { this.div.parentNode.removeChild(this.div); this.div = null; }
+    }
+  }
+  const overlay = new LabelOverlay();
+  overlay.setMap(map);
+  return () => overlay.setMap(null);
+}
+
+function mountTooltipOverlay({ map, lat, lng, marker, tooltip }: {
+  map: google.maps.Map;
+  lat: number; lng: number;
+  marker: google.maps.Marker;
+  tooltip: string | string[];
+}): () => void {
+  const lines = Array.isArray(tooltip) ? tooltip : [tooltip];
+  const content = lines.map(l => `<div>${l}</div>`).join('');
+
+  class TooltipOverlay extends google.maps.OverlayView {
+    private div: HTMLDivElement | null = null;
+    onAdd() {
+      this.div = document.createElement('div');
+      this.div.style.cssText = 'position:absolute; background:white; color:#333; padding:6px 10px; border-radius:8px; font-size:12px; box-shadow:0 2px 8px rgba(0,0,0,0.15); white-space:nowrap; pointer-events:none; transform:translate(-50%,-100%); margin-top:-44px;';
+      this.div.innerHTML = content;
+      this.div.style.display = 'none';
+      this.getPanes()?.overlayLayer.appendChild(this.div);
+    }
+    draw() {
+      if (!this.div) return;
+      const pos = this.getProjection().fromLatLngToDivPixel(new google.maps.LatLng(lat, lng));
+      if (pos) { this.div.style.left = `${pos.x}px`; this.div.style.top = `${pos.y}px`; }
+    }
+    onRemove() {
+      if (this.div?.parentNode) { this.div.parentNode.removeChild(this.div); this.div = null; }
+    }
+    show() { if (this.div) this.div.style.display = 'block'; }
+    hide() { if (this.div) this.div.style.display = 'none'; }
+  }
+
+  const overlay = new TooltipOverlay();
+  overlay.setMap(map);
+  const show = () => overlay.show();
+  const hide = () => overlay.hide();
+  marker.addListener('mouseover', show);
+  marker.addListener('mouseout', hide);
+
+  return () => {
+    overlay.setMap(null);
+    google.maps.event.clearListeners(marker, 'mouseover');
+    google.maps.event.clearListeners(marker, 'mouseout');
+  };
 }
