@@ -36,7 +36,6 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
   const { data: { routes } } = useTripRoutes(tripId)
 
   const mapRef = useRef<MapRef>(null);
-  const mapType = trip.isOverseas ? 'google' : 'kakao'
   const handlePlaceClick = (place: Place) => {
     mapRef.current?.panTo(place.lat, place.lng)
   }
@@ -70,7 +69,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
         {/* Map (전체) */}
         <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `calc(${sheetRatio * 100}% - 10px)` }}>
           <Map
-            type={mapType}
+            type={trip.isOverseas ? 'google' : 'kakao'}
             ref={mapRef}
             defaultCenter={{ lat: trip.lat, lng: trip.lng }}
             height="100%"

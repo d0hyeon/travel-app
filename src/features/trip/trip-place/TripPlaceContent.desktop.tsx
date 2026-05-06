@@ -20,8 +20,7 @@ import { useTripPlaceFormOverlay } from './trip-place-form/useTripPlaceFormOverl
 import { useTripPlaces } from './useTripPlaces'
 import { RecommendedMarkers } from '../trip-recommend/RecommendedMarkers'
 
-const ZOOM_THRESHOLD = 0.1
-
+const MICRO_ZOOM_LEVEL = 8;
 interface TripPlaceContentProps {
   tripId: string
 }
@@ -58,11 +57,9 @@ export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
 
   const [cluastering, setCluastering] = useTripCluastering();
   const [focusedId, setFocusedId] = useState<string | null>(null)
-  const [mapBounds, setMapBounds] = useState<MapBounds | null>(null)
   const { openDialog: openDetailDialog } = useTripPlaceFormOverlay()
   const { openDialog: openRecommendedDialog } = useRecommendedPlaceDetailOverlay()
 
-  const isZoomedEnough = mapBounds ? Math.abs(mapBounds.north - mapBounds.south) < ZOOM_THRESHOLD : false
 
   return (
     <Box height="100%" sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
@@ -144,28 +141,31 @@ export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
           height="100%"
           clustering={cluastering}
           clusterGridSize={60}
-          onBoundsChange={setMapBounds}
         >
-          {places.map(place => (
-            <Map.Marker
-              key={place.id}
-              label={place.name}
-              lat={place.lat}
-              lng={place.lng}
-              color={place.category ? PlaceCategoryColorCode[place.category] : undefined}
-              onClick={() => {
-                setFocusedId(place.id);
-                openDetailDialog({ tripId, placeId: place.id, })
-              }}
-            />
-          ))}
-          {isZoomedEnough && (
-            <Suspense>
-              <RecommendedMarkers
-                tripId={tripId}
-                onClick={(place) => openRecommendedDialog({ place, tripId })}
-              />
-            </Suspense>
+          {({ zoom }) => (
+            <>
+              {places.map(place => (
+                <Map.Marker
+                  key={place.id}
+                  label={place.name}
+                  lat={place.lat}
+                  lng={place.lng}
+                  color={place.category ? PlaceCategoryColorCode[place.category] : undefined}
+                  onClick={() => {
+                    setFocusedId(place.id);
+                    openDetailDialog({ tripId, placeId: place.id, })
+                  }}
+                />
+              ))}
+              {zoom <= MICRO_ZOOM_LEVEL && (
+                <Suspense>
+                  <RecommendedMarkers
+                    tripId={tripId}
+                    onClick={(place) => openRecommendedDialog({ place, tripId })}
+                  />
+                </Suspense>
+              )}
+            </>
           )}
         </Map>
       </Box>
