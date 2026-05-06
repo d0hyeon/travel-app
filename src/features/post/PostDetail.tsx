@@ -1,10 +1,10 @@
 import { Box, ImageList, ImageListItem, Stack, Typography } from '@mui/material'
 import { PhotoThunbnail } from '~shared/components/photo/PhotoThumbnail'
 import { PostLikeButton } from './PostLikeButton'
-import type { PhotoPost } from './post.types'
+import type { Post } from './post.types'
 
 interface Props {
-  post: PhotoPost
+  post: Post
 }
 
 export function PostDetail({ post }: Props) {

@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { queryClient } from '~app/query-client'
 import { createPost, deletePost, getPostById, postKey, type CreatePostInput } from './post.api'
-import type { PhotoPost } from './post.types'
+import type { Post } from './post.types'
 
 export function usePost(postId: string) {
   const queryClient = useQueryClient()
@@ -35,7 +35,7 @@ export function useCreatePost() {
 
   return useMutation({
     mutationFn: (input: CreatePostInput) => createPost(input),
-    onSuccess: (post: PhotoPost) => {
+    onSuccess: (post: Post) => {
       queryClient.setQueryData(usePost.key(post.id), post)
       queryClient.invalidateQueries({ queryKey: [postKey] })
     },

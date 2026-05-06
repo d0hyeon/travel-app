@@ -415,7 +415,7 @@ export type Database = {
         }
         Relationships: []
       }
-      photo_posts: {
+      posts: {
         Row: {
           author_id: string
           cover_photo_id: string | null
@@ -457,21 +457,21 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "photo_posts_cover_photo_id_fkey"
+            foreignKeyName: "posts_cover_photo_id_fkey"
             columns: ["cover_photo_id"]
             isOneToOne: false
             referencedRelation: "photos"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "photo_posts_place_id_fkey"
+            foreignKeyName: "posts_place_id_fkey"
             columns: ["place_id"]
             isOneToOne: false
             referencedRelation: "places"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "photo_posts_trip_id_fkey"
+            foreignKeyName: "posts_trip_id_fkey"
             columns: ["trip_id"]
             isOneToOne: false
             referencedRelation: "trips"
@@ -507,7 +507,7 @@ export type Database = {
             foreignKeyName: "post_photos_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
-            referencedRelation: "photo_posts"
+            referencedRelation: "posts"
             referencedColumns: ["id"]
           },
         ]
@@ -542,7 +542,7 @@ export type Database = {
             foreignKeyName: "post_comments_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
-            referencedRelation: "photo_posts"
+            referencedRelation: "posts"
             referencedColumns: ["id"]
           },
         ]
@@ -568,7 +568,7 @@ export type Database = {
             foreignKeyName: "post_likes_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
-            referencedRelation: "photo_posts"
+            referencedRelation: "posts"
             referencedColumns: ["id"]
           },
         ]

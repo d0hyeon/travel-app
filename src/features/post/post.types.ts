@@ -11,7 +11,7 @@ export type PostScope =
   | { kind: 'PLACE'; placeId: string }
   | { kind: 'LOCATION'; locationId: string }
 
-export interface PhotoPost {
+export interface Post {
   id: string
   authorId: string
   tripId: string | null

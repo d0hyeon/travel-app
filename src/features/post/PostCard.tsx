@@ -2,10 +2,10 @@ import { Box, Card, CardActionArea, CardContent, Stack, Typography } from '@mui/
 import { Link } from 'react-router'
 import { PhotoThunbnail } from '~shared/components/photo/PhotoThumbnail'
 import { PostLikeButton } from './PostLikeButton'
-import type { PhotoPost } from './post.types'
+import type { Post } from './post.types'
 
 interface Props {
-  post: PhotoPost
+  post: Post
 }
 
 export function PostCard({ post }: Props) {

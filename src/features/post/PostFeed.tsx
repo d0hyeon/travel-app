@@ -1,9 +1,9 @@
 import { Stack, Typography } from '@mui/material'
 import { PostCard } from './PostCard'
-import type { PhotoPost } from './post.types'
+import type { Post } from './post.types'
 
 interface Props {
-  posts: PhotoPost[]
+  posts: Post[]
   emptyMessage?: string
 }
 

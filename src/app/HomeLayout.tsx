@@ -1,3 +1,4 @@
+import DynamicFeedIcon from '@mui/icons-material/DynamicFeed'
 import LogoutIcon from '@mui/icons-material/Logout'
 import LuggageIcon from '@mui/icons-material/Luggage'
 import MapIcon from '@mui/icons-material/Map'
@@ -16,6 +17,7 @@ import { isDev } from './env'
 
 const TABS = [
   { label: '여행', path: AppRoute.메인, Icon: LuggageIcon },
+  { label: '피드', path: AppRoute.피드, Icon: DynamicFeedIcon },
   { label: '지도', path: AppRoute.지도, Icon: MapIcon },
   { label: '통계', path: AppRoute.통계, Icon: ReceiptLongIcon },
 ]

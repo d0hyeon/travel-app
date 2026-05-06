@@ -2,12 +2,12 @@ import { supabase } from '~api/client'
 import type { DataRaw } from '~api/tables.types'
 import { toPhoto } from '~features/photo/photo.api'
 import type { Photo } from '~features/photo/photo.types'
-import type { PhotoPost, PostScope, PostVisibility } from './post.types'
+import type { Post, PostScope, PostVisibility } from './post.types'
 
 export const postKey = 'posts'
 export const postLikeKey = 'post-likes'
 
-type PostRow = DataRaw<'photo_posts'>
+type PostRow = DataRaw<'posts'>
 
 function toPostScope(row: Pick<PostRow, 'place_id' | 'location_id'>): PostScope | null {
   if (row.place_id) return { kind: 'PLACE', placeId: row.place_id }
@@ -25,7 +25,7 @@ type PostWithPhotos = PostRow & {
   post_photos: PostPhotoLinkWithPhoto[]
 }
 
-function toPhotoPost(row: PostWithPhotos): PhotoPost {
+function toPost(row: PostWithPhotos): Post {
   const photos: Photo[] = [...row.post_photos]
     .sort((a, b) => a.display_order - b.display_order)
     .map(link => link.photos)
@@ -49,41 +49,41 @@ function toPhotoPost(row: PostWithPhotos): PhotoPost {
 
 const POST_SELECT = '*, post_photos(photo_id, display_order, photos(*))'
 
-export async function getPostById(postId: string): Promise<PhotoPost | null> {
+export async function getPostById(postId: string): Promise<Post | null> {
   const { data, error } = await supabase
-    .from('photo_posts')
+    .from('posts')
     .select(POST_SELECT)
     .eq('id', postId)
     .maybeSingle<PostWithPhotos>()
 
   if (error) throw error
   if (!data) return null
-  return toPhotoPost(data)
+  return toPost(data)
 }
 
-export async function getPublicFeed(): Promise<PhotoPost[]> {
+export async function getPublicFeed(): Promise<Post[]> {
   const { data, error } = await supabase
-    .from('photo_posts')
+    .from('posts')
     .select(POST_SELECT)
     .eq('visibility', 'PUBLIC')
     .order('created_at', { ascending: false })
     .returns<PostWithPhotos[]>()
 
   if (error) throw error
-  return (data ?? []).map(toPhotoPost)
+  return (data ?? []).map(toPost)
 }
 
-export async function getUserFeed(userId: string): Promise<PhotoPost[]> {
+export async function getUserFeed(userId: string): Promise<Post[]> {
   // RLS가 가시성을 책임짐 — 본인이면 전체, 타인이면 PUBLIC + (해당 trip 멤버라면 MEMBERS)
   const { data, error } = await supabase
-    .from('photo_posts')
+    .from('posts')
     .select(POST_SELECT)
     .eq('author_id', userId)
     .order('created_at', { ascending: false })
     .returns<PostWithPhotos[]>()
 
   if (error) throw error
-  return (data ?? []).map(toPhotoPost)
+  return (data ?? []).map(toPost)
 }
 
 export interface CreatePostInput {
@@ -97,13 +97,13 @@ export interface CreatePostInput {
   coverPhotoId?: string | null
 }
 
-export async function createPost(input: CreatePostInput): Promise<PhotoPost> {
+export async function createPost(input: CreatePostInput): Promise<Post> {
   const placeId = input.scope?.kind === 'PLACE' ? input.scope.placeId : null
   const locationId = input.scope?.kind === 'LOCATION' ? input.scope.locationId : null
   const coverPhotoId = input.coverPhotoId ?? input.photoIds[0] ?? null
 
   const { data: post, error: postError } = await supabase
-    .from('photo_posts')
+    .from('posts')
     .insert({
       author_id: input.authorId,
       trip_id: input.tripId ?? null,
@@ -128,7 +128,7 @@ export async function createPost(input: CreatePostInput): Promise<PhotoPost> {
 
     const { error: linkError } = await supabase.from('post_photos').insert(links)
     if (linkError) {
-      await supabase.from('photo_posts').delete().eq('id', post.id)
+      await supabase.from('posts').delete().eq('id', post.id)
       throw linkError
     }
   }
@@ -140,7 +140,7 @@ export async function createPost(input: CreatePostInput): Promise<PhotoPost> {
 }
 
 export async function deletePost(postId: string): Promise<void> {
-  const { error } = await supabase.from('photo_posts').delete().eq('id', postId)
+  const { error } = await supabase.from('posts').delete().eq('id', postId)
   if (error) throw error
 }
 

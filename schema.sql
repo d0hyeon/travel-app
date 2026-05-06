@@ -135,11 +135,11 @@ CREATE TABLE checklist (
 );
 
 -- ------------------------------------------------------------
--- photo_posts (사용자 단위 사진 게시 - feed)
+-- posts (사용자 단위 사진 게시 - feed)
 -- ------------------------------------------------------------
 CREATE TYPE post_visibility AS ENUM ('PRIVATE', 'MEMBERS', 'PUBLIC');
 
-CREATE TABLE photo_posts (
+CREATE TABLE posts (
   id              UUID            PRIMARY KEY DEFAULT uuid_generate_v4(),
   author_id       UUID            NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   trip_id         UUID            REFERENCES trips(id) ON DELETE SET NULL,
@@ -156,7 +156,7 @@ CREATE TABLE photo_posts (
 );
 
 CREATE TABLE post_photos (
-  post_id        UUID NOT NULL REFERENCES photo_posts(id) ON DELETE CASCADE,
+  post_id        UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
   photo_id       UUID NOT NULL REFERENCES photos(id)      ON DELETE CASCADE,
   display_order  INT  NOT NULL,
   PRIMARY KEY (post_id, photo_id)
@@ -164,7 +164,7 @@ CREATE TABLE post_photos (
 
 CREATE TABLE post_comments (
   id          UUID         PRIMARY KEY DEFAULT uuid_generate_v4(),
-  post_id     UUID         NOT NULL REFERENCES photo_posts(id) ON DELETE CASCADE,
+  post_id     UUID         NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
   author_id   UUID         NOT NULL REFERENCES auth.users(id),
   content     TEXT         NOT NULL,
   created_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
@@ -172,7 +172,7 @@ CREATE TABLE post_comments (
 );
 
 CREATE TABLE post_likes (
-  post_id     UUID         NOT NULL REFERENCES photo_posts(id) ON DELETE CASCADE,
+  post_id     UUID         NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
   user_id     UUID         NOT NULL REFERENCES auth.users(id)  ON DELETE CASCADE,
   created_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
   PRIMARY KEY (post_id, user_id)
