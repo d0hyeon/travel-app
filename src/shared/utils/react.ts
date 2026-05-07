@@ -4,19 +4,17 @@ type Module<T> = {
   default: T;
   preload?: (...args: any) => (Promise<any>) | void;
 }
-type Loader<T> = () => Promise<Module<T>>;
+type Loader = () => Promise<Module<ComponentType<any>>>;
+type LoadedComponent<L extends Loader> = Awaited<ReturnType<L>>['default'];
+type Preload<L extends Loader> = Awaited<ReturnType<L>>['preload'];
 
-export function lazy<
-  T extends ComponentType<any>,
-  L extends Loader<T>,
-  Preload = Awaited<ReturnType<L>>['preload']
->(loader: L) {
-  const Component = reactLazy<T>(() => loader());
+export function lazy<L extends Loader>(loader: L) {
+  const Component = reactLazy(() => loader()) as unknown as LoadedComponent<L>;
 
   return Object.assign(Component, {
-    preload: async(...params: Preload extends (...args: infer P) => any ? P : []) => {
+    preload: async (...params: Preload<L> extends (...args: infer P) => any ? P : []) => {
       const module = await loader();
       if (module.preload instanceof Function) module.preload(...params);
     }
-  })
+  });
 }
