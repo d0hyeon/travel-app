@@ -1,10 +1,9 @@
-import ChevronRightIcon from '@mui/icons-material/ChevronRight'
-import { Box, Card, Divider, Stack, Typography } from '@mui/material'
-import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router'
+import { Box, CircularProgress, Divider, Stack, Typography } from '@mui/material'
+import { Suspense, useMemo, useState } from 'react'
 import { useLocationsCoordinates } from '~features/explorer/useLocationsCoordinates'
 import { Country } from '~features/location/country.model'
 import { Map } from '~shared/components/Map'
+import { UserTripPhotoList } from './UserTripPhotoList'
 import { useUserTrips } from './useUserTrips'
 import { deriveVisitedCountries, deriveVisitedLocations, type VisitedLocation } from './user-profile.utils'
 
@@ -21,7 +20,7 @@ export function ProfileRecordsTab({ userId }: Props) {
 
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null)
 
-  const selected = visited.find(v => v.location === selectedLocation) ?? visited[0] ?? null
+  const selected = visited.find(v => v.location === selectedLocation) ?? null
   const domestic = useMemo(
     () => visited.filter(v => v.countryCode === Country.한국),
     [visited],
@@ -55,7 +54,6 @@ export function ProfileRecordsTab({ userId }: Props) {
           <Map
             type="google"
             sx={{ width: '100%', height: '100%' }}
-            defaultCenter={selected?.coordinate}
             autoFocus="marker"
           >
             <Map.PolygonLayer>
@@ -136,7 +134,7 @@ interface MetricBlockProps {
 function MetricBlock({ value, label }: MetricBlockProps) {
   return (
     <Stack alignItems="flex-start">
-      <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.4px', color: '#111' }}>
+      <Typography >
         {value}개
       </Typography>
       <Typography sx={{ fontSize: 13, fontWeight: 500, color: '#6b6b73' }}>
@@ -151,7 +149,6 @@ interface SelectedSectionProps {
 }
 
 function SelectedLocationSection({ location }: SelectedSectionProps) {
-  const navigate = useNavigate()
   const lastVisitLabel = formatLastVisit(location.lastVisitedAt)
 
   return (
@@ -177,42 +174,13 @@ function SelectedLocationSection({ location }: SelectedSectionProps) {
       ) : (
         <Stack spacing={1}>
           {location.trips.map((trip) => (
-            <Card
-              key={trip.id}
-              variant="outlined"
-              onClick={() => navigate(`/trip/${trip.id}`)}
-              sx={{
-                p: 1.25,
-                borderRadius: 1.5,
-                borderColor: 'rgba(0,0,0,0.05)',
-                cursor: 'pointer',
-                boxShadow: 'none',
-              }}
-            >
-              <Stack direction="row" alignItems="center" gap={1.5}>
-                <Box
-                  sx={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: '9px',
-                    background: 'linear-gradient(135deg, #FFD9A8, #E39C6E)',
-                    flexShrink: 0,
-                  }}
-                />
-                <Stack flex={1} minWidth={0}>
-                  <Typography
-                    noWrap
-                    sx={{ fontSize: 14, fontWeight: 600, letterSpacing: '-0.2px', color: '#111' }}
-                  >
-                    {trip.name}
-                  </Typography>
-                  <Typography sx={{ fontSize: 11.5, color: '#9b9ba3' }}>
-                    {location.countryName}
-                  </Typography>
-                </Stack>
-                <ChevronRightIcon sx={{ color: '#9b9ba3' }} />
-              </Stack>
-            </Card>
+            <Stack gap={1}>
+              <Typography variant="body2">{trip.name}</Typography>
+              <Suspense fallback={<CircularProgress />}>
+                <UserTripPhotoList tripId={trip.id} />
+              </Suspense>
+
+            </Stack>
           ))}
         </Stack>
       )}

@@ -27,6 +27,7 @@ export function deriveVisitedLocations(trips: Trip[]): VisitedLocation[] {
   const aggregated = new Map<Location, VisitedLocation>()
 
   for (const trip of trips) {
+    
     for (const dest of trip.destinations) {
       if (!isLocation(dest)) continue
 

@@ -49,7 +49,7 @@ export function ProfileHeader({ userId }: Props) {
         </Typography>
       </Stack>
 
-      {isOwn && (
+      {/* {isOwn && (
         <Button
           variant="contained"
           fullWidth
@@ -67,7 +67,7 @@ export function ProfileHeader({ userId }: Props) {
         >
           프로필 편집
         </Button>
-      )}
+      )} */}
     </Box>
   )
 }

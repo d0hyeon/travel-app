@@ -1,4 +1,6 @@
 import { Box, ImageList, ImageListItem, Stack, Typography } from '@mui/material'
+import { generatePath, Link } from 'react-router'
+import { AppRoute } from '~app/routes'
 import { useUserFeed } from '~features/post/useUserFeed'
 
 interface Props {
@@ -21,7 +23,9 @@ export function ProfileFeedTab({ userId }: Props) {
     <ImageList cols={3}>
       {posts.map(post => (
         <ImageListItem key={post.id} >
-          <Box component="img" src={post.photos[0].url} sx={{ aspectRatio: '1 / 1' }} />
+          <Link to={generatePath(AppRoute.포스트_상세, { postId: post.id })}>
+            <Box component="img" src={post.photos[0].url} sx={{ aspectRatio: '1 / 1' }} />
+          </Link>
         </ImageListItem>
       ))}
 
