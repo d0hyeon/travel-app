@@ -7,6 +7,8 @@ import { useTripMembers } from '../trip-member/useTripMembers'
 import { TripInviteButton } from '../components/TripInviteButton'
 import { MemberAvatar } from './MemberAvatar'
 import { SortCommand } from '~shared/utils/sorts'
+import { generatePath, Link } from 'react-router'
+import { AppRoute } from '~app/routes'
 
 interface Props {
   tripId: string
@@ -43,17 +45,19 @@ function Resolved({ tripId }: Props) {
               key={member.id}
               leftAddon={<MemberAvatar member={member} size={28} />}
             >
-              <Stack direction="row" alignItems="center" gap={0.5}>
-                <Typography variant="body2">
-                  {member.name || '(이름 없음)'}
-                </Typography>
-                {member.isHost && (
-                  <>
-                    <WorkspacePremiumIcon sx={{ fontSize: 14, color: 'primary.main' }} />
-                    <Typography variant="caption" color="text.secondary">호스트</Typography>
-                  </>
-                )}
-              </Stack>
+              <Link to={generatePath(AppRoute.사용자_피드, { userId: member.userId })}>
+                <Stack direction="row" alignItems="center" gap={0.5}>
+                  <Typography variant="body2">
+                    {member.name || '(이름 없음)'}
+                  </Typography>
+                  {member.isHost && (
+                    <>
+                      <WorkspacePremiumIcon sx={{ fontSize: 14, color: 'primary.main' }} />
+                      <Typography variant="caption" color="text.secondary">호스트</Typography>
+                    </>
+                  )}
+                </Stack>
+              </Link>
             </ListItem>
           ))
         )}
