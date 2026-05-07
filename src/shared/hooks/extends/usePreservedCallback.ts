@@ -9,5 +9,5 @@ export function usePreservedCallback<Fn extends AnyFunction>(callback: Fn) {
     ref.current = callback;
   }, [callback])
 
-  return useCallback((...params: Parameters<Fn>) => callback(...params), []);
+  return useCallback((...params: Parameters<Fn>) => ref.current(...params), []);
 }
