@@ -270,240 +270,6 @@ export type Database = {
           },
         ]
       }
-      routes: {
-        Row: {
-          created_at: string
-          hidden_places: string[] | null
-          id: string
-          is_main: boolean
-          name: string
-          place_ids: string[]
-          place_memos: Json
-          scheduled_date: string | null
-          trip_id: string
-        }
-        Insert: {
-          created_at?: string
-          hidden_places?: string[] | null
-          id?: string
-          is_main?: boolean
-          name: string
-          place_ids?: string[]
-          place_memos?: Json
-          scheduled_date?: string | null
-          trip_id: string
-        }
-        Update: {
-          created_at?: string
-          hidden_places?: string[] | null
-          id?: string
-          is_main?: boolean
-          name?: string
-          place_ids?: string[]
-          place_memos?: Json
-          scheduled_date?: string | null
-          trip_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "routes_trip_id_fkey"
-            columns: ["trip_id"]
-            isOneToOne: false
-            referencedRelation: "trips"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      trip_members: {
-        Row: {
-          created_at: string
-          id: string
-          trip_id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          trip_id: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          trip_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "trip_members_trip_id_fkey"
-            columns: ["trip_id"]
-            isOneToOne: false
-            referencedRelation: "trips"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      trips: {
-        Row: {
-          created_at: string
-          destination: string
-          end_date: string
-          exchange_rate: number | null
-          exchange_rates: Json | null
-          id: string
-          is_overseas: boolean
-          lat: number
-          lng: number
-          name: string
-          share_link: string
-          start_date: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          destination: string
-          end_date: string
-          exchange_rate?: number | null
-          exchange_rates?: Json | null
-          id?: string
-          is_overseas?: boolean
-          lat: number
-          lng: number
-          name: string
-          share_link?: string
-          start_date: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          destination?: string
-          end_date?: string
-          exchange_rate?: number | null
-          exchange_rates?: Json | null
-          id?: string
-          is_overseas?: boolean
-          lat?: number
-          lng?: number
-          name?: string
-          share_link?: string
-          start_date?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      user_profiles: {
-        Row: {
-          avatar_url: string | null
-          created_at: string
-          emoji: string
-          id: string
-          name: string
-        }
-        Insert: {
-          avatar_url?: string | null
-          created_at?: string
-          emoji?: string
-          id: string
-          name?: string
-        }
-        Update: {
-          avatar_url?: string | null
-          created_at?: string
-          emoji?: string
-          id?: string
-          name?: string
-        }
-        Relationships: []
-      }
-      posts: {
-        Row: {
-          author_id: string
-          created_at: string
-          description: string | null
-          id: string
-          location_id: string | null
-          place_id: string | null
-          title: string | null
-          trip_id: string | null
-          updated_at: string | null
-          visibility: Database['public']['Enums']['post_visibility']
-        }
-        Insert: {
-          author_id: string
-          created_at?: string
-          description?: string | null
-          id?: string
-          location_id?: string | null
-          place_id?: string | null
-          title?: string | null
-          trip_id?: string | null
-          updated_at?: string | null
-          visibility?: Database['public']['Enums']['post_visibility']
-        }
-        Update: {
-          author_id?: string
-          created_at?: string
-          description?: string | null
-          id?: string
-          location_id?: string | null
-          place_id?: string | null
-          title?: string | null
-          trip_id?: string | null
-          updated_at?: string | null
-          visibility?: Database['public']['Enums']['post_visibility']
-        }
-        Relationships: [
-          {
-            foreignKeyName: "posts_place_id_fkey"
-            columns: ["place_id"]
-            isOneToOne: false
-            referencedRelation: "places"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "posts_trip_id_fkey"
-            columns: ["trip_id"]
-            isOneToOne: false
-            referencedRelation: "trips"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      post_photos: {
-        Row: {
-          display_order: number
-          post_id: string
-          url: string
-          storage_path: string
-          place_id: string | null
-          is_public: boolean
-        }
-        Insert: {
-          display_order: number
-          post_id: string
-          url: string
-          storage_path: string
-          place_id?: string | null
-          is_public?: boolean
-        }
-        Update: {
-          display_order?: number
-          post_id?: string
-          url?: string
-          storage_path?: string
-          place_id?: string | null
-          is_public?: boolean
-        }
-        Relationships: [
-          {
-            foreignKeyName: "post_photos_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "posts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       post_comments: {
         Row: {
           author_id: string
@@ -565,30 +331,320 @@ export type Database = {
           },
         ]
       }
+      post_photos: {
+        Row: {
+          display_order: number
+          is_public: boolean
+          place_id: string | null
+          post_id: string
+          storage_path: string
+          url: string
+        }
+        Insert: {
+          display_order: number
+          is_public?: boolean
+          place_id?: string | null
+          post_id: string
+          storage_path: string
+          url: string
+        }
+        Update: {
+          display_order?: number
+          is_public?: boolean
+          place_id?: string | null
+          post_id?: string
+          storage_path?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_photos_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_photos_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          author_id: string
+          created_at: string
+          description: string | null
+          id: string
+          location_id: string | null
+          place_id: string | null
+          title: string | null
+          trip_id: string | null
+          updated_at: string | null
+          visibility: Database["public"]["Enums"]["post_visibility"]
+        }
+        Insert: {
+          author_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          location_id?: string | null
+          place_id?: string | null
+          title?: string | null
+          trip_id?: string | null
+          updated_at?: string | null
+          visibility?: Database["public"]["Enums"]["post_visibility"]
+        }
+        Update: {
+          author_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          location_id?: string | null
+          place_id?: string | null
+          title?: string | null
+          trip_id?: string | null
+          updated_at?: string | null
+          visibility?: Database["public"]["Enums"]["post_visibility"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      routes: {
+        Row: {
+          created_at: string
+          hidden_places: string[] | null
+          id: string
+          is_main: boolean
+          name: string
+          place_ids: string[]
+          place_memos: Json
+          scheduled_date: string | null
+          trip_id: string
+        }
+        Insert: {
+          created_at?: string
+          hidden_places?: string[] | null
+          id?: string
+          is_main?: boolean
+          name: string
+          place_ids?: string[]
+          place_memos?: Json
+          scheduled_date?: string | null
+          trip_id: string
+        }
+        Update: {
+          created_at?: string
+          hidden_places?: string[] | null
+          id?: string
+          is_main?: boolean
+          name?: string
+          place_ids?: string[]
+          place_memos?: Json
+          scheduled_date?: string | null
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "routes_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trip_members: {
+        Row: {
+          created_at: string
+          emoji: string | null
+          id: string
+          name: string | null
+          trip_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          emoji?: string | null
+          id?: string
+          name?: string | null
+          trip_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          emoji?: string | null
+          id?: string
+          name?: string | null
+          trip_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_members_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trips: {
+        Row: {
+          created_at: string
+          destination: string
+          destinations: Json
+          end_date: string
+          exchange_rate: number | null
+          exchange_rates: Json | null
+          id: string
+          is_overseas: boolean
+          lat: number
+          lng: number
+          name: string
+          share_link: string
+          start_date: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          destination: string
+          destinations: Json
+          end_date: string
+          exchange_rate?: number | null
+          exchange_rates?: Json | null
+          id?: string
+          is_overseas?: boolean
+          lat: number
+          lng: number
+          name: string
+          share_link?: string
+          start_date: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          destination?: string
+          destinations?: Json
+          end_date?: string
+          exchange_rate?: number | null
+          exchange_rates?: Json | null
+          id?: string
+          is_overseas?: boolean
+          lat?: number
+          lng?: number
+          name?: string
+          share_link?: string
+          start_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          id: string
+          name?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      can_access_trip: {
-        Args: { trip_id: string }
-        Returns: boolean
-      }
+      can_access_trip: { Args: { trip_id: string }; Returns: boolean }
       can_view_post: {
         Args: {
-          post_visibility: Database['public']['Enums']['post_visibility']
           post_author: string
           post_trip: string
+          post_visibility: Database["public"]["Enums"]["post_visibility"]
         }
         Returns: boolean
       }
+      get_my_trips: {
+        Args: { p_user_id: string }
+        Returns: {
+          created_at: string
+          destination: string
+          destinations: Json
+          end_date: string
+          exchange_rate: number | null
+          exchange_rates: Json | null
+          id: string
+          is_overseas: boolean
+          lat: number
+          lng: number
+          name: string
+          share_link: string
+          start_date: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "trips"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_trip_by_share_link: {
         Args: { link: string }
-        Returns: Database['public']['Tables']['trips']['Row'][]
+        Returns: {
+          created_at: string
+          destination: string
+          destinations: Json
+          end_date: string
+          exchange_rate: number | null
+          exchange_rates: Json | null
+          id: string
+          is_overseas: boolean
+          lat: number
+          lng: number
+          name: string
+          share_link: string
+          start_date: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "trips"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
     }
     Enums: {
-      post_visibility: 'PRIVATE' | 'MEMBERS' | 'PUBLIC'
+      post_visibility: "PRIVATE" | "MEMBERS" | "PUBLIC"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -715,6 +771,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      post_visibility: ["PRIVATE", "MEMBERS", "PUBLIC"],
+    },
   },
 } as const
