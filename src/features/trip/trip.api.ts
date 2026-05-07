@@ -21,7 +21,7 @@ function getDatesBetween(startDate: string, endDate: string): string[] {
 
 export const tripKey = 'trips'
 
-function toTrip(row: DataRaw<'trips'>): Trip {
+export function toTrip(row: DataRaw<'trips'>): Trip {
   const destinations: string[] = (row as never as { destinations: string[] | null }).destinations
     ?? [row.destination]
 
