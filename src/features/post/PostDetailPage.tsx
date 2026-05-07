@@ -1,13 +1,17 @@
 import { Box, Container } from '@mui/material'
-import { useParams } from 'react-router'
-import { UserProfile } from '~features/user-profile/UserProfile'
+import { useNavigate, useParams } from 'react-router'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
 import { assert } from '~shared/utils/types'
 import { PostScreen } from './PostScreen'
 import { usePost } from './usePost'
+import { useAuth } from '~features/auth/useAuth'
+import { PopMenu } from '~shared/components/PopMenu'
+import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
+import { PostMenu } from './PostMenu'
 
 export default function PostDetailPage() {
   const postId = usePostId();
+  const navigate = useNavigate();
 
   return (
     <Box height="100dvh" display="flex" flexDirection="column" overflow="auto">
@@ -19,6 +23,9 @@ export default function PostDetailPage() {
           leftElement={
             <TopNavigation.BackButton />
           }
+          rightElement={
+            <PostMenu postId={postId} onDelete={() => navigate(-1)} />
+          }
         />
 
         <PostScreen postId={postId} />
@@ -26,6 +33,7 @@ export default function PostDetailPage() {
     </Box>
   )
 }
+
 
 function usePostId() {
   const { postId } = useParams<{ postId?: string }>()
