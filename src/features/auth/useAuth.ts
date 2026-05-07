@@ -1,12 +1,14 @@
-import type { User } from '@supabase/supabase-js';
+import { type User } from '@supabase/supabase-js';
 import { useQueryClient, useSuspenseQuery, type UseQueryOptions } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { supabase } from '~api/client';
 import { queryClient } from '~app/query-client';
 import { updateProfile } from './auth.api';
+import { assert } from '~shared/utils/types';
+import { AuthError } from './AuthError';
 
 export function useAuth() {
-  return useSuspenseQuery({
+  const { data, ...queries } = useSuspenseQuery({
     queryKey: ['auth'],
     queryFn: async () => {
       const {
@@ -22,6 +24,9 @@ export function useAuth() {
     },
     ...REFETCH_LOCK_OPTIONS
   });
+  assert(!!data, new AuthError());
+
+  return { data, ...queries }
 }
 export function getAuth() {
   const auth = queryClient.getQueryData<User | null>(['auth']);
