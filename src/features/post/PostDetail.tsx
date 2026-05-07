@@ -16,7 +16,7 @@ export function PostDetail({ post }: Props) {
 
       <ImageList cols={1} gap={8}>
         {post.photos.map(photo => (
-          <ImageListItem key={photo.id}>
+          <ImageListItem key={photo.url}>
             <PhotoThunbnail src={photo.url} />
           </ImageListItem>
         ))}

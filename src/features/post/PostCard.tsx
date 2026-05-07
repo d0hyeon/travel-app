@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function PostCard({ post }: Props) {
-  const cover = post.photos.find(p => p.id === post.coverPhotoId) ?? post.photos[0]
+  const cover = post.photos[0]
 
   return (
     <Card variant="outlined" sx={{ borderRadius: 2 }}>

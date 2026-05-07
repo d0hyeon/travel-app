@@ -1,11 +1,14 @@
 import { supabase } from '~api/client'
 import type { DataRaw } from '~api/tables.types'
-import { toPhoto } from '~features/photo/photo.api'
-import type { Photo } from '~features/photo/photo.types'
-import type { Post, PostScope, PostVisibility } from './post.types'
+import { getCoordinateByLocation, isLocation } from '~features/location'
+import type { Post, PostLocation, PostPhoto, PostScope, PostVisibility } from './post.types'
+import { getAuth } from '~features/auth/useAuth'
+import { assert } from '~shared/utils/types'
 
 export const postKey = 'posts'
 export const postLikeKey = 'post-likes'
+const POSTS_TABLE = 'posts' as const
+const LEGACY_POSTS_TABLE = 'photo_posts' as const
 
 type PostRow = DataRaw<'posts'>
 
@@ -15,22 +18,61 @@ function toPostScope(row: Pick<PostRow, 'place_id' | 'location_id'>): PostScope 
   return null
 }
 
-interface PostPhotoLinkWithPhoto {
-  photo_id: string
+interface PostPhotoRow {
   display_order: number
-  photos: DataRaw<'photos'> | null
+  url: string
+  storage_path: string
+  place_id: string | null
+  is_public: boolean
+}
+
+interface PostLocationPlaceRow {
+  id: string
+  name: string
+  lat: number
+  lng: number
+  address: string | null
 }
 
 type PostWithPhotos = PostRow & {
-  post_photos: PostPhotoLinkWithPhoto[]
+  post_photos: PostPhotoRow[]
+}
+
+type PostTableName = typeof POSTS_TABLE | typeof LEGACY_POSTS_TABLE
+
+function isMissingPostsTableError(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false
+
+  const maybeMessage = 'message' in error && typeof error.message === 'string'
+    ? error.message
+    : ''
+
+  return maybeMessage.includes('relation') && maybeMessage.includes('posts') && maybeMessage.includes('does not exist')
+}
+
+async function withPostTableFallback<T>(
+  run: (table: PostTableName) => Promise<{ data: T; error: unknown }>
+): Promise<{ data: T; error: unknown; table: PostTableName }> {
+  const primary = await run(POSTS_TABLE)
+  if (!isMissingPostsTableError(primary.error)) {
+    return { ...primary, table: POSTS_TABLE }
+  }
+
+  const legacy = await run(LEGACY_POSTS_TABLE)
+  return { ...legacy, table: LEGACY_POSTS_TABLE }
 }
 
 function toPost(row: PostWithPhotos): Post {
-  const photos: Photo[] = [...row.post_photos]
+  const photos: PostPhoto[] = [...row.post_photos]
     .sort((a, b) => a.display_order - b.display_order)
-    .map(link => link.photos)
-    .filter((photo): photo is DataRaw<'photos'> => photo != null)
-    .map(toPhoto)
+    .map(link => ({
+      url: link.url,
+      storagePath: link.storage_path,
+      placeId: link.place_id,
+      isPublic: link.is_public,
+    }))
+
+  const scope = toPostScope(row)
 
   return {
     id: row.id,
@@ -38,8 +80,8 @@ function toPost(row: PostWithPhotos): Post {
     tripId: row.trip_id,
     title: row.title,
     description: row.description,
-    coverPhotoId: row.cover_photo_id,
-    scope: toPostScope(row),
+    scope,
+    location: toPostLocation(scope),
     visibility: row.visibility,
     photos,
     createdAt: row.created_at,
@@ -47,100 +89,181 @@ function toPost(row: PostWithPhotos): Post {
   }
 }
 
-const POST_SELECT = '*, post_photos(photo_id, display_order, photos(*))'
+function toPostLocation(scope: PostScope | null, place?: PostLocationPlaceRow): PostLocation | null {
+  if (scope == null) return null
+
+  if (scope.kind === 'PLACE') {
+    if (!place) return null
+    return {
+      name: place.name,
+      lat: place.lat,
+      lng: place.lng,
+      address: place.address,
+    }
+  }
+
+  if (isLocation(scope.locationId)) {
+    const coordinate = getCoordinateByLocation(scope.locationId)
+    return {
+      name: scope.locationId,
+      lat: coordinate.lat,
+      lng: coordinate.lng,
+      address: null,
+    }
+  }
+
+  return {
+    name: scope.locationId,
+    lat: null,
+    lng: null,
+    address: null,
+  }
+}
+
+async function hydratePostLocations(posts: Post[]): Promise<Post[]> {
+  const placeIds = Array.from(
+    new Set(
+      posts
+        .map((post) => post.scope)
+        .filter((scope): scope is Extract<PostScope, { kind: 'PLACE' }> => scope?.kind === 'PLACE')
+        .map((scope) => scope.placeId),
+    ),
+  )
+
+  if (placeIds.length === 0) {
+    return posts.map((post) => ({
+      ...post,
+      location: toPostLocation(post.scope),
+    }))
+  }
+
+  const { data: places, error } = await supabase
+    .from('places')
+    .select('id, name, lat, lng, address')
+    .in('id', placeIds)
+
+  if (error) throw error
+
+  const placesById = new Map((places ?? []).map((place) => [place.id, place]))
+
+  return posts.map((post) => ({
+    ...post,
+    location: post.scope?.kind === 'PLACE'
+      ? toPostLocation(post.scope, placesById.get(post.scope.placeId))
+      : toPostLocation(post.scope),
+  }))
+}
+
+const POST_SELECT = '*, post_photos(display_order, url, storage_path, place_id, is_public)'
 
 export async function getPostById(postId: string): Promise<Post | null> {
-  const { data, error } = await supabase
-    .from('posts')
-    .select(POST_SELECT)
-    .eq('id', postId)
-    .maybeSingle<PostWithPhotos>()
+  const { data, error } = await withPostTableFallback<PostWithPhotos | null>((table) =>
+    (supabase as any)
+      .from(table)
+      .select(POST_SELECT)
+      .eq('id', postId)
+      .maybeSingle()
+  )
 
   if (error) throw error
   if (!data) return null
-  return toPost(data)
+  const [post] = await hydratePostLocations([toPost(data)])
+  return post ?? null
 }
 
-export async function getPublicFeed(): Promise<Post[]> {
-  const { data, error } = await supabase
-    .from('posts')
-    .select(POST_SELECT)
-    .eq('visibility', 'PUBLIC')
-    .order('created_at', { ascending: false })
-    .returns<PostWithPhotos[]>()
+export async function getFeed(): Promise<Post[]> {
+  const { data, error } = await withPostTableFallback<PostWithPhotos[]>((table) =>
+    (supabase as any)
+      .from(table)
+      .select(POST_SELECT)
+      .order('created_at', { ascending: false })
+  )
 
   if (error) throw error
-  return (data ?? []).map(toPost)
+  return hydratePostLocations((data ?? []).map(toPost))
 }
 
 export async function getUserFeed(userId: string): Promise<Post[]> {
   // RLS가 가시성을 책임짐 — 본인이면 전체, 타인이면 PUBLIC + (해당 trip 멤버라면 MEMBERS)
-  const { data, error } = await supabase
-    .from('posts')
-    .select(POST_SELECT)
-    .eq('author_id', userId)
-    .order('created_at', { ascending: false })
-    .returns<PostWithPhotos[]>()
+  const { data, error } = await withPostTableFallback<PostWithPhotos[]>((table) =>
+    (supabase as any)
+      .from(table)
+      .select(POST_SELECT)
+      .eq('author_id', userId)
+      .order('created_at', { ascending: false })
+  )
 
   if (error) throw error
-  return (data ?? []).map(toPost)
+  return hydratePostLocations((data ?? []).map(toPost))
+}
+
+export interface PostPhotoInput {
+  url: string
+  storagePath: string
+  placeId?: string | null
+  isPublic: boolean
 }
 
 export interface CreatePostInput {
-  authorId: string
   tripId?: string | null
   title?: string | null
   description?: string | null
   scope?: PostScope | null
   visibility: PostVisibility
-  photoIds: string[]
-  coverPhotoId?: string | null
+  photos: PostPhotoInput[]
 }
 
 export async function createPost(input: CreatePostInput): Promise<Post> {
+  const auth = getAuth();
+  assert(!!auth, '인증 정보가 만료되었습니다.')
   const placeId = input.scope?.kind === 'PLACE' ? input.scope.placeId : null
   const locationId = input.scope?.kind === 'LOCATION' ? input.scope.locationId : null
-  const coverPhotoId = input.coverPhotoId ?? input.photoIds[0] ?? null
 
-  const { data: post, error: postError } = await supabase
-    .from('posts')
-    .insert({
-      author_id: input.authorId,
-      trip_id: input.tripId ?? null,
-      title: input.title ?? null,
-      description: input.description ?? null,
-      cover_photo_id: coverPhotoId,
-      place_id: placeId,
-      location_id: locationId,
-      visibility: input.visibility,
-    })
-    .select('*')
-    .single()
+  
+  const { data: post, error: postError, table } = await withPostTableFallback<PostRow>((postTable) =>
+    (supabase as any)
+      .from(postTable)
+      .insert({
+        author_id: auth.id,
+        trip_id: input.tripId ?? null,
+        title: input.title ?? null,
+        description: input.description ?? null,
+        place_id: placeId,
+        location_id: locationId,
+        visibility: input.visibility,
+      })
+      .select('*')
+      .single()
+  )
 
   if (postError) throw postError
 
-  if (input.photoIds.length > 0) {
-    const links = input.photoIds.map((photoId, index) => ({
+  if (input.photos.length > 0) {
+    const links = input.photos.map((photo, index) => ({
       post_id: post.id,
-      photo_id: photoId,
       display_order: index,
+      url: photo.url,
+      storage_path: photo.storagePath,
+      place_id: photo.placeId ?? null,
+      is_public: photo.isPublic,
     }))
 
     const { error: linkError } = await supabase.from('post_photos').insert(links)
     if (linkError) {
-      await supabase.from('posts').delete().eq('id', post.id)
+      await (supabase as any).from(table).delete().eq('id', post.id)
       throw linkError
     }
   }
 
-  // 생성 직후 join 결과로 다시 조회 — 사진 url 등 채우기 위함
   const created = await getPostById(post.id)
   if (!created) throw new Error('포스트를 생성했지만 다시 조회할 수 없어요')
   return created
 }
 
 export async function deletePost(postId: string): Promise<void> {
-  const { error } = await supabase.from('posts').delete().eq('id', postId)
+  const { error } = await withPostTableFallback<null>((table) =>
+    (supabase as any).from(table).delete().eq('id', postId).select().maybeSingle()
+  )
   if (error) throw error
 }
 

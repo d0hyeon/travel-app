@@ -1,5 +1,3 @@
-import type { Photo } from '~features/photo/photo.types'
-
 export const PostVisibility = {
   PRIVATE: 'PRIVATE',
   MEMBERS: 'MEMBERS',
@@ -11,17 +9,31 @@ export type PostScope =
   | { kind: 'PLACE'; placeId: string }
   | { kind: 'LOCATION'; locationId: string }
 
+export interface PostLocation {
+  name: string
+  lat: number | null
+  lng: number | null
+  address: string | null
+}
+
+export interface PostPhoto {
+  url: string
+  storagePath: string
+  placeId: string | null
+  isPublic: boolean
+}
+
 export interface Post {
   id: string
   authorId: string
   tripId: string | null
   title: string | null
   description: string | null
-  coverPhotoId: string | null
   scope: PostScope | null
+  location: PostLocation | null
   visibility: PostVisibility
-  /** display_order 정렬됨. 호출부는 사진 id가 필요하면 photos[i].id로 접근 */
-  photos: Photo[]
+  /** display_order 정렬됨 */
+  photos: PostPhoto[]
   createdAt: string
   updatedAt: string | null
 }

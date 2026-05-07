@@ -418,7 +418,6 @@ export type Database = {
       posts: {
         Row: {
           author_id: string
-          cover_photo_id: string | null
           created_at: string
           description: string | null
           id: string
@@ -431,7 +430,6 @@ export type Database = {
         }
         Insert: {
           author_id: string
-          cover_photo_id?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -444,7 +442,6 @@ export type Database = {
         }
         Update: {
           author_id?: string
-          cover_photo_id?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -456,13 +453,6 @@ export type Database = {
           visibility?: Database['public']['Enums']['post_visibility']
         }
         Relationships: [
-          {
-            foreignKeyName: "posts_cover_photo_id_fkey"
-            columns: ["cover_photo_id"]
-            isOneToOne: false
-            referencedRelation: "photos"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "posts_place_id_fkey"
             columns: ["place_id"]
@@ -482,27 +472,29 @@ export type Database = {
       post_photos: {
         Row: {
           display_order: number
-          photo_id: string
           post_id: string
+          url: string
+          storage_path: string
+          place_id: string | null
+          is_public: boolean
         }
         Insert: {
           display_order: number
-          photo_id: string
           post_id: string
+          url: string
+          storage_path: string
+          place_id?: string | null
+          is_public?: boolean
         }
         Update: {
           display_order?: number
-          photo_id?: string
           post_id?: string
+          url?: string
+          storage_path?: string
+          place_id?: string | null
+          is_public?: boolean
         }
         Relationships: [
-          {
-            foreignKeyName: "post_photos_photo_id_fkey"
-            columns: ["photo_id"]
-            isOneToOne: false
-            referencedRelation: "photos"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "post_photos_post_id_fkey"
             columns: ["post_id"]
