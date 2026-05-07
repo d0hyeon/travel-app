@@ -1,18 +1,18 @@
 import { Box, Stack, Typography } from '@mui/material'
-import { PostCard } from './PostCard'
-import type { Post } from './post.types'
-import { useFeed } from './useFeed'
+import { Pagination, Virtual } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { Virtual, Pagination } from 'swiper/modules'
+import { useFeed } from './useFeed'
 
-import { PostLikeButton } from './PostLikeButton'
-import { UserProfile } from '~features/user-profile/UserProfile'
 import LocationPin from '@mui/icons-material/LocationPin'
+import { UserProfile } from '~features/user-profile/UserProfile'
+import { PostLikeButton } from './PostLikeButton'
 
 // @ts-ignore
 import 'swiper/css'
 // @ts-ignore
+import { generatePath, Link } from 'react-router'
 import 'swiper/css/pagination'
+import { AppRoute } from '~app/routes'
 
 
 
@@ -24,36 +24,42 @@ export function PostFeed() {
       {posts.map((post) => (
         <Box key={post.id}>
           <Box sx={{ aspectRatio: '1 / 1', overflow: 'hidden' }}>
-            <Swiper
-              slidesPerView={1}
-              modules={[Virtual, Pagination]}
-              virtual
-              loop
-              pagination={{
+            <Link to={generatePath(AppRoute.포스트_상세, { postId: post.id })}>
+              <Swiper
+                slidesPerView={1}
+                modules={[Virtual, Pagination]}
+                virtual
+                loop
+                pagination={{
 
-              }}
-            >
-              {post.photos.map((photo) => (
-                <SwiperSlide key={photo.url}>
-                  <Box component="img" src={photo.url} loading="lazy" sx={{ aspectRatio: '1', objectFit: 'cover' }} />
-                </SwiperSlide>
-              ))}
-            </Swiper>
+                }}
+              >
+                {post.photos.map((photo) => (
+                  <SwiperSlide key={photo.url}>
+                    <Box component="img" src={photo.url} loading="lazy" sx={{ aspectRatio: '1', objectFit: 'cover' }} />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </Link>
           </Box>
           <Stack marginTop={1.5} paddingX={1.5}>
             <Stack direction="row" justifyContent="space-between" alignItems="center">
-              <UserProfile id={post.authorId} size="small" />
-              {post.location != null && (
-                <Typography
-                  component="button"
-                  variant="caption"
-                  color="textSecondary"
+              <Link to={`/u/${post.authorId}`}>
+                <UserProfile id={post.authorId} size="small" />
+              </Link>
+              <Link to={generatePath(AppRoute.포스트_상세, { postId: post.id })}>
+                {post.location != null && (
+                  <Typography
+                    component="button"
+                    variant="caption"
+                    color="textSecondary"
 
-                >
-                  <LocationPin sx={{ fontSize: 'inherit', verticalAlign: 'middle' }} />
-                  {post.location.name}
-                </Typography>
-              )}
+                  >
+                    <LocationPin sx={{ fontSize: 'inherit', verticalAlign: 'middle' }} />
+                    {post.location.name}
+                  </Typography>
+                )}
+              </Link>
             </Stack>
             <Typography variant="body2" color="textSecondary" paddingTop={1.5} paddingX={0.5}>
               {post.description}

@@ -2,6 +2,12 @@ import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-q
 import { queryClient } from '~app/query-client'
 import { createPost, deletePost, getPostById, postKey, type CreatePostInput } from './post.api'
 import type { Post } from './post.types'
+import { assert } from '~shared/utils/types';
+
+
+export const UsePostError = {
+  Deleted: "DELETED_POST",
+}
 
 export function usePost(postId: string) {
   const queryClient = useQueryClient()
@@ -10,6 +16,7 @@ export function usePost(postId: string) {
     queryKey: usePost.key(postId),
     queryFn: () => getPostById(postId),
   })
+  assert(!!data, UsePostError.Deleted);
 
   const { mutateAsync: remove } = useMutation({
     mutationFn: () => deletePost(postId),

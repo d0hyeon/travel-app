@@ -1,30 +1,35 @@
-import { Box, Container, Typography } from '@mui/material'
+import { Box, Container } from '@mui/material'
 import { useParams } from 'react-router'
+import { UserProfile } from '~features/user-profile/UserProfile'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
-import { PostDetail } from './PostDetail'
+import { assert } from '~shared/utils/types'
+import { PostScreen } from './PostScreen'
 import { usePost } from './usePost'
 
 export default function PostDetailPage() {
-  const { postId } = useParams<{ postId: string }>()
-  if (!postId) throw new Error('postId가 필요해요')
-
-  const { data: post } = usePost(postId)
-  if (!post) {
-    return (
-      <Box p={3}>
-        <Typography>포스트를 찾을 수 없어요</Typography>
-      </Box>
-    )
-  }
+  const postId = usePostId();
 
   return (
     <Box height="100dvh" display="flex" flexDirection="column" overflow="auto">
       <Container maxWidth="sm" disableGutters sx={{ flex: 1 }}>
-        <TopNavigation position="relative">
-          <Typography variant="body2">포스트</Typography>
-        </TopNavigation>
-        <PostDetail post={post} />
+        <TopNavigation
+          position="sticky"
+          borderBottom="none !important"
+          bgcolor="transparent !important"
+          leftElement={
+            <TopNavigation.BackButton />
+          }
+        />
+
+        <PostScreen postId={postId} />
       </Container>
     </Box>
   )
+}
+
+function usePostId() {
+  const { postId } = useParams<{ postId?: string }>()
+  assert(!!postId, '잘못된 접근입니다.');
+
+  return postId;
 }

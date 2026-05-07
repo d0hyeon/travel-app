@@ -11,8 +11,8 @@ export type PostScope =
 
 export interface PostLocation {
   name: string
-  lat: number | null
-  lng: number | null
+  lat: number
+  lng: number
   address: string | null
 }
 
