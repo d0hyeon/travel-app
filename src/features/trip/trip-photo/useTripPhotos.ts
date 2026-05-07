@@ -2,14 +2,13 @@ import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-q
 import { deletePhoto, getPhotosByTripId, photoKey, updatePhotoVisibility, uploadPhoto } from "~features/photo/photo.api";
 import { findNearestPlaceFromPhoto } from "~features/photo/photo.utils";
 import type { Photo } from "~features/photo/photo.types";
-import type { PhotoUploadItem } from "~shared/components/photo/PhotoUploader";
 import { tripKey } from "../trip.api";
 import { useTripPlaces } from "../trip-place/useTripPlaces";
 import { queryClient } from "~app/query-client";
 
 type FileUploadParams =
-  | { items?: never; item: PhotoUploadItem; placeId?: string }
-  | { items: PhotoUploadItem[]; item?: never; placeId?: string };
+  | { files: File[]; placeId?: string }
+  | { file: File; placeId?: string };
 
 export function useTripPhotos(tripId: string) {
   const queryClient = useQueryClient();
@@ -21,14 +20,15 @@ export function useTripPhotos(tripId: string) {
   })
 
   const { mutateAsync: upload, isPending: isUploading } = useMutation({
-    mutationFn: async ({ item, items, placeId }: FileUploadParams) => {
-      const uploadSingle = async ({ file, isPublic }: PhotoUploadItem) => {
-        const resolvedPlaceId = placeId ?? await findNearestPlaceFromPhoto(file, places)
-        return uploadPhoto({ tripId, placeId: resolvedPlaceId, file, isPublic })
+    mutationFn: async (params: FileUploadParams) => {
+      const { placeId } = params
+      const uploadSingle = async (targetFile: File) => {
+        const resolvedPlaceId = placeId ?? await findNearestPlaceFromPhoto(targetFile, places)
+        return uploadPhoto({ tripId, placeId: resolvedPlaceId, file: targetFile, isPublic: false })
       }
 
-      if (item) return [await uploadSingle(item)]
-      return Promise.all(items.map(uploadSingle))
+      if ('file' in params) return [await uploadSingle(params.file)]
+      return Promise.all(params.files.map(uploadSingle))
     },
     onSuccess: (data) => {
       queryClient.setQueryData<Photo[]>(useTripPhotos.key(tripId), (curr) => {

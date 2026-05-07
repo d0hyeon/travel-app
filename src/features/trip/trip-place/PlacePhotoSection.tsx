@@ -6,7 +6,6 @@ import { PhotoBottomSheet } from '~shared/components/photo/PhotoBottomSheet';
 import { PhotoDialog } from '~shared/components/photo/PhotoDialog';
 import { PhotoThunbnail } from '../../../shared/components/photo/PhotoThumbnail';
 import { PhotoUploader } from '../../../shared/components/photo/PhotoUploader';
-import type { PhotoUploadValue } from '../../../shared/components/photo/PhotoUploader';
 import type { Photo } from '../../photo/photo.types';
 import { usePlacePhotos } from './useTripPlacePhotos';
 
@@ -40,10 +39,10 @@ function PlacePhotoContent({ tripId, placeId }: PlacePhotoSectionProps) {
 
   const overlay = useOverlay();
   const isMobile = useIsMobile();
-  const handleUpload = async ({ items }: PhotoUploadValue) => {
-    if (!items?.length) return;
-    await upload({ items, tripId });
-  };
+  const handleUpload = async (files: File[]) => {
+    if (files.length === 0) return
+    await upload({ files, tripId })
+  }
 
   const handleDelete = async (photo: Photo) => {
     await remove(photo);

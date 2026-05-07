@@ -1,12 +1,11 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query"
 import { deletePhoto, getPhotosByPlaceId, photoKey, updatePhotoVisibility, uploadPhoto } from "~features/photo/photo.api"
 import type { Photo } from "~features/photo/photo.types"
-import type { PhotoUploadItem } from "~shared/components/photo/PhotoUploader";
 import { useTripPhotos } from "../trip-photo/useTripPhotos";
 
 type UploadParams = 
-  { items: PhotoUploadItem[]; item?: never; tripId: string; } |
-  { items?: never; item: PhotoUploadItem; tripId: string; }
+  { files: File[]; file?: never; tripId: string; } |
+  { files?: never; file: File; tripId: string; }
 
 export function usePlacePhotos(placeId: string) {
   const queryClient = useQueryClient();
@@ -16,11 +15,11 @@ export function usePlacePhotos(placeId: string) {
   })
 
   const { mutateAsync: upload, isPending: isUploading } = useMutation({
-    mutationFn: async ({ tripId, item, items }: UploadParams) => { 
-      if (items) {
-        return Promise.all(items.map(({ file, isPublic }) => uploadPhoto({ file, tripId, placeId, isPublic })));
+    mutationFn: async ({ tripId, file, files }: UploadParams) => { 
+      if (files) {
+        return Promise.all(files.map((targetFile) => uploadPhoto({ file: targetFile, tripId, placeId, isPublic: false })));
       }
-      const response = await uploadPhoto({ file: item.file, tripId, placeId, isPublic: item.isPublic })
+      const response = await uploadPhoto({ file, tripId, placeId, isPublic: false })
       return [response];
     },
     onSuccess: (data) => {

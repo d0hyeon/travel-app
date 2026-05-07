@@ -67,9 +67,9 @@ export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
           <PhotoUploader
             width="100%"
             sx={{ width: 120 }}
-            onUpload={async ({ items }) => {
-              if (!items?.length) return;
-              await upload({ items, placeId: selectedPlaceId ?? undefined })
+            onUpload={async (files) => {
+              if (files.length === 0) return
+              await upload({ files, placeId: selectedPlaceId ?? undefined })
             }}
             multiple
           />
