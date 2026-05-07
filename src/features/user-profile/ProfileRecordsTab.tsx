@@ -19,12 +19,9 @@ export function ProfileRecordsTab({ userId }: Props) {
   const visited = useMemo(() => deriveVisitedLocations(trips), [trips])
   const countries = useMemo(() => deriveVisitedCountries(trips), [trips])
 
-  const [selectedLocation, setSelectedLocation] = useState<string | null>(
-    visited[0]?.location ?? null,
-  )
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(null)
 
   const selected = visited.find(v => v.location === selectedLocation) ?? visited[0] ?? null
-
   const domestic = useMemo(
     () => visited.filter(v => v.countryCode === Country.한국),
     [visited],
@@ -96,7 +93,7 @@ export function ProfileRecordsTab({ userId }: Props) {
                 id={v.location}
                 lat={v.coordinate.lat}
                 lng={v.coordinate.lng}
-                label={v.location}
+                variant="circle"
                 color={selectedLocation === v.location ? 'selected' : 'default'}
                 onClick={() => setSelectedLocation(v.location)}
               />

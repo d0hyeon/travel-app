@@ -1,5 +1,4 @@
-import { Stack, Typography } from '@mui/material'
-import { PostCard } from '~features/post/PostCard'
+import { Box, ImageList, ImageListItem, Stack, Typography } from '@mui/material'
 import { useUserFeed } from '~features/post/useUserFeed'
 
 interface Props {
@@ -18,12 +17,14 @@ export function ProfileFeedTab({ userId }: Props) {
       </Stack>
     )
   }
-
   return (
-    <Stack spacing={2} px={2} py={2}>
-      {posts.map((post) => (
-        <PostCard key={post.id} post={post} />
+    <ImageList cols={3}>
+      {posts.map(post => (
+        <ImageListItem key={post.id} >
+          <Box component="img" src={post.photos[0].url} sx={{ aspectRatio: '1 / 1' }} />
+        </ImageListItem>
       ))}
-    </Stack>
+
+    </ImageList>
   )
 }
