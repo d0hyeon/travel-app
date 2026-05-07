@@ -1,4 +1,5 @@
 import type { Coordinate } from '~shared/model/coordinate.model'
+import { Country } from '~features/location/country.model'
 import type { Location } from '~features/location/location.model'
 import {
   getCoordinateByLocation,
@@ -10,7 +11,7 @@ import type { Trip } from '~features/trip/trip.types'
 
 export interface VisitedLocation {
   location: Location
-  countryCode: string | undefined
+  countryCode: Country | undefined
   countryName: string
   coordinate: Coordinate
   visitCount: number
@@ -57,7 +58,7 @@ export function deriveVisitedLocations(trips: Trip[]): VisitedLocation[] {
  * 사용자 trip의 destinations 전체에서 unique 국가 수를 센다.
  */
 export function countUniqueCountries(trips: Trip[]): number {
-  const countries = new Set<string>()
+  const countries = new Set<Country>()
   for (const trip of trips) {
     for (const dest of trip.destinations) {
       const country = getCountryByLocation(dest)
@@ -66,3 +67,22 @@ export function countUniqueCountries(trips: Trip[]): number {
   }
   return countries.size
 }
+
+/**
+ * 국가 단위 방문 trip 수 집계 (한 trip이 여러 국가를 방문하면 각 국가에 1씩).
+ */
+export function deriveVisitedCountries(trips: Trip[]): Map<Country, number> {
+  const map = new Map<Country, number>()
+  for (const trip of trips) {
+    const countries = new Set<Country>()
+    for (const dest of trip.destinations) {
+      const country = getCountryByLocation(dest)
+      if (country) countries.add(country)
+    }
+    countries.forEach((country) => {
+      map.set(country, (map.get(country) ?? 0) + 1)
+    })
+  }
+  return map
+}
+

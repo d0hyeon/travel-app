@@ -2,9 +2,11 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { Box, Card, Divider, Stack, Typography } from '@mui/material'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
+import { useLocationsCoordinates } from '~features/explorer/useLocationsCoordinates'
+import { Country } from '~features/location/country.model'
 import { Map } from '~shared/components/Map'
 import { useUserTrips } from './useUserTrips'
-import { deriveVisitedLocations, type VisitedLocation } from './user-profile.utils'
+import { deriveVisitedCountries, deriveVisitedLocations, type VisitedLocation } from './user-profile.utils'
 
 const MAP_HEIGHT = 280
 
@@ -15,17 +17,38 @@ interface Props {
 export function ProfileRecordsTab({ userId }: Props) {
   const { data: trips } = useUserTrips(userId)
   const visited = useMemo(() => deriveVisitedLocations(trips), [trips])
+  const countries = useMemo(() => deriveVisitedCountries(trips), [trips])
 
   const [selectedLocation, setSelectedLocation] = useState<string | null>(
     visited[0]?.location ?? null,
   )
 
-  const selected = visited.find(v => v.location === selectedLocation) ?? visited[0]
-  const countries = new Set(visited.map(v => v.countryCode).filter((v): v is string => v != null))
+  const selected = visited.find(v => v.location === selectedLocation) ?? visited[0] ?? null
+
+  const domestic = useMemo(
+    () => visited.filter(v => v.countryCode === Country.한국),
+    [visited],
+  )
+  const foreign = useMemo(
+    () => visited.filter(v => v.countryCode !== Country.한국),
+    [visited],
+  )
+  const { data: domesticPolygons = {} } = useLocationsCoordinates(
+    domestic.map(v => ({ id: v.location, location: v.location })),
+    'city',
+  )
 
   return (
     <Box>
-      <Stack direction="row" alignItems="center" px={2} pt={1.75} pb={1.25} divider={<Divider orientation="vertical" flexItem />} spacing={3}>
+      <Stack
+        direction="row"
+        alignItems="center"
+        px={2}
+        pt={1.75}
+        pb={1.25}
+        divider={<Divider orientation="vertical" flexItem />}
+        spacing={3}
+      >
         <MetricBlock value={visited.length} label="지역" />
         <MetricBlock value={countries.size} label="나라" />
       </Stack>
@@ -38,6 +61,35 @@ export function ProfileRecordsTab({ userId }: Props) {
             defaultCenter={selected?.coordinate}
             autoFocus="marker"
           >
+            <Map.PolygonLayer>
+              {[...countries.entries()].map(([country, count]) => (
+                <Map.Region
+                  key={country}
+                  country={country}
+                  color="#2a9d6f"
+                  opacity={getPolygonOpacity(count)}
+                />
+              ))}
+              {domestic.map((v) => {
+                const polygons = domesticPolygons[v.location]
+                if (!polygons) return null
+                return (
+                  <Map.Polygon
+                    key={v.location}
+                    coordinates={polygons}
+                    {...getRegionPolygonStyle(v.visitCount, v.location === selectedLocation)}
+                  />
+                )
+              })}
+              {foreign.map((v) => (
+                <Map.Region
+                  key={v.location}
+                  location={v.location}
+                  {...getRegionPolygonStyle(v.visitCount, v.location === selectedLocation)}
+                />
+              ))}
+            </Map.PolygonLayer>
+
             {visited.map((v) => (
               <Map.Marker
                 key={v.location}
@@ -62,6 +114,21 @@ export function ProfileRecordsTab({ userId }: Props) {
       {selected && <SelectedLocationSection location={selected} />}
     </Box>
   )
+}
+
+function getPolygonOpacity(count: number) {
+  return Math.max(Math.min(count * 0.14, 0.4), 0.18)
+}
+
+function getRegionPolygonStyle(count: number, isSelected: boolean) {
+  const baseColor = count >= 3 ? '#b95454' : '#2a9d6f'
+  const baseOpacity = count >= 3
+    ? Math.min(getPolygonOpacity(count - 2), 0.3)
+    : getPolygonOpacity(count)
+  return {
+    color: isSelected ? '#4C84FF' : baseColor,
+    opacity: isSelected ? Math.min(baseOpacity + 0.2, 0.55) : baseOpacity,
+  }
 }
 
 interface MetricBlockProps {
