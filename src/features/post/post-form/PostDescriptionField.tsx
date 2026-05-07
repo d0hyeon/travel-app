@@ -8,7 +8,6 @@ interface Props {
 export function PostDescriptionField({ value, onChange }: Props) {
   return (
     <TextField
-      label="설명"
       placeholder="여행에 대해 한 줄 남겨주세요"
       value={value}
       onChange={(e) => onChange(e.target.value)}
@@ -16,7 +15,7 @@ export function PostDescriptionField({ value, onChange }: Props) {
       minRows={3}
       maxRows={8}
       size="small"
-      variant="outlined"
+      variant="standard"
       fullWidth
     />
   )

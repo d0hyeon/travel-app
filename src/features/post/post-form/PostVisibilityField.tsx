@@ -1,10 +1,10 @@
-import { FormControl, FormControlLabel, FormHelperText, Radio, RadioGroup, Typography } from '@mui/material'
+import { List, ListItemButton, ListItemText, Typography } from '@mui/material'
 import { PostVisibility } from '../post.types'
+import { useState } from 'react'
 
 interface Props {
-  value: PostVisibility
+  defaultValue: PostVisibility
   onChange: (value: PostVisibility) => void
-  /** trip이 없으면 MEMBERS는 선택 불가 */
   hasTripContext: boolean
 }
 
@@ -14,37 +14,35 @@ const LABEL: Record<PostVisibility, { title: string; description: string }> = {
   [PostVisibility.PUBLIC]: { title: '전체 공개', description: '누구나 볼 수 있어요' },
 }
 
-export function PostVisibilityField({ value, onChange, hasTripContext }: Props) {
+export function PostVisibilityField({ defaultValue, onChange, hasTripContext }: Props) {
+  const [value, setValue] = useState(defaultValue);
   return (
-    <FormControl>
-      <Typography variant="subtitle2" mb={1}>공개 범위</Typography>
-      <RadioGroup
-        value={value}
-        onChange={(_, next) => onChange(next as PostVisibility)}
-      >
+    <>
+      <List disablePadding sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
         {(Object.keys(LABEL) as PostVisibility[]).map((option) => {
           const disabled = option === PostVisibility.MEMBERS && !hasTripContext
           return (
-            <FormControlLabel
+            <ListItemButton
               key={option}
-              value={option}
               disabled={disabled}
-              control={<Radio size="small" />}
-              label={
-                <>
-                  <Typography variant="body2">{LABEL[option].title}</Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {LABEL[option].description}
-                  </Typography>
-                </>
-              }
-            />
+              selected={value === option}
+              onClick={() => {
+                onChange(option)
+                setValue(option);
+              }}
+              sx={{ justifyContent: 'space-between' }}
+            >
+              <Typography variant="body2">
+                {LABEL[option].title}
+              </Typography>
+              <Typography variant="caption" color="textSecondary">
+                {LABEL[option].description}
+              </Typography>
+
+            </ListItemButton>
           )
         })}
-      </RadioGroup>
-      {!hasTripContext && (
-        <FormHelperText>여행을 선택해야 멤버 공개를 사용할 수 있어요</FormHelperText>
-      )}
-    </FormControl>
+      </List>
+    </>
   )
 }

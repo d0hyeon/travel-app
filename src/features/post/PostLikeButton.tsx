@@ -1,17 +1,17 @@
 import FavoriteIcon from '@mui/icons-material/Favorite'
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
-import { IconButton, Stack, Typography } from '@mui/material'
+import { IconButton, Stack, Typography, type StackProps } from '@mui/material'
 import { usePostLikes } from './usePostLikes'
 
-interface Props {
+interface Props extends StackProps {
   postId: string
 }
 
-export function PostLikeButton({ postId }: Props) {
+export function PostLikeButton({ postId, ...props }: Props) {
   const { data, toggle, canLike } = usePostLikes(postId)
 
   return (
-    <Stack direction="row" alignItems="center" spacing={0.5}>
+    <Stack direction="row" alignItems="center" spacing={0.5} {...props}>
       <IconButton
         size="small"
         disabled={!canLike}
