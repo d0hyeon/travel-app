@@ -1,23 +1,12 @@
 import { Box, type BoxProps } from '@mui/material';
-import { createContext, Suspense, use, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
+import { Suspense, use, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import { GoogleMapContext } from '../MapContext';
-import { useMarkerRegistry } from '../useMarkerRegistry';
-import type { MapProps, MarkerData } from '../types';
+import type { MapProps } from '../types';
 import { loadGoogleMaps } from './loader';
-import { GoogleMapClusterOverlays } from './GoogleMapClusterOverlays';
+import { ClusterProvider } from '../useClusterRegistry';
+import { GoogleMapClusterOverlays } from './cluster/GoogleMapClusterOverlays';
 import { useViewportFit } from './useViewportFit';
-
-interface GoogleClusterContextValue {
-  map: google.maps.Map;
-  registryRef: React.RefObject<Map<string, MarkerData>>;
-  version: number;
-  zoom: number;
-  gridSize: number;
-  registerMarker: (data: MarkerData) => void;
-  unregisterMarker: (id: string) => void;
-}
-
-export const GoogleClusterContext = createContext<GoogleClusterContextValue | null>(null);
+import { useMapZoomLevel } from './useMapZoomLevel';
 
 const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 };
 const ZOOM_MAX_LEVEL = 22;
@@ -66,34 +55,18 @@ export default function GoogleMap({
 
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [zoom, setZoom] = useState(10);
-  const [clusterZoom, setClusterZoom] = useState(10);
-
-  // clusterZoom은 zoom 변경 직후 클러스터 재계산이 튀는 것을 방지하기 위해 debounce
-  useEffect(() => {
-    const id = setTimeout(() => setClusterZoom(zoom), 200);
-    return () => clearTimeout(id);
-  }, [zoom]);
 
   useEffect(() => {
     if (!container) return;
     const coordinate = center ?? defaultCenter;
     const mapInstance = new google.maps.Map(container, {
       center: { lat: coordinate.lat, lng: coordinate.lng },
-      zoom,
+      zoom: 10,
       disableDefaultUI: true,
       styles: PASTEL_MAP_STYLES,
     });
 
-    const zoomListener = mapInstance.addListener('zoom_changed', () => {
-      setZoom(mapInstance.getZoom() ?? 10);
-    });
-
     setMap(mapInstance);
-
-    return () => {
-      google.maps.event.removeListener(zoomListener);
-    };
   }, [container]);
 
   useEffect(() => {
@@ -103,7 +76,6 @@ export default function GoogleMap({
   }, [map, center?.lat, center?.lng]);
 
   const { extend: extendBound, fit: focusBounds } = useViewportFit(map);
-  const { registryRef, version, registerMarker, unregisterMarker } = useMarkerRegistry();
 
   useImperativeHandle(ref, () => ({
     panTo: (lat: number, lng: number, z?: number) => {
@@ -118,38 +90,28 @@ export default function GoogleMap({
     focus: focusBounds,
   }), [map, focusBounds]);
 
-  const handleClusterClick = useCallback((markers: MarkerData[]) => {
-    if (!map) return;
-    const bounds = new google.maps.LatLngBounds();
-    markers.forEach(m => bounds.extend({ lat: m.position.lat, lng: m.position.lng }));
-    map.fitBounds(bounds);
-  }, [map]);
-
   const mapContextValue = useMemo(() => ({
     map,
     extendBound,
-    config: { autoFocus },
-  }), [map, extendBound, autoFocus]);
-
-  const clusterContextValue = useMemo(() => (
-    clustering && map
-      ? { map, registryRef, version, zoom: clusterZoom, gridSize: clusterGridSize, registerMarker, unregisterMarker }
-      : null
-  ), [clustering, map, registryRef, version, clusterZoom, clusterGridSize, registerMarker, unregisterMarker]);
+    config: { autoFocus, clustering, gridSize: clusterGridSize },
+  }), [map, extendBound, autoFocus, clustering, clusterGridSize]);
 
   return (
     <GoogleMapContext.Provider value={mapContextValue}>
       <Box ref={setContainer} position="relative" {...boxProps} />
       <Suspense>
-        {clusterContextValue ? (
-          <GoogleClusterContext.Provider value={clusterContextValue}>
-            {typeof children === 'function' ? children({ zoom: ZOOM_MAX_LEVEL - zoom }) : children}
-            <GoogleMapClusterOverlays onClusterClick={handleClusterClick} />
-          </GoogleClusterContext.Provider>
-        ) : (
-          typeof children === 'function' ? children({ zoom: ZOOM_MAX_LEVEL - zoom }) : children
-        )}
+        <ClusterProvider>
+          <Renderer>{children}</Renderer>
+          {clustering && <GoogleMapClusterOverlays gridSize={clusterGridSize} />}
+        </ClusterProvider>
       </Suspense>
     </GoogleMapContext.Provider>
   );
+}
+
+function Renderer({ children }: Pick<Props, 'children'>) {
+  const zoom = useMapZoomLevel();
+
+  if (typeof children === 'function') return children({ zoom: ZOOM_MAX_LEVEL - zoom });
+  return children;
 }

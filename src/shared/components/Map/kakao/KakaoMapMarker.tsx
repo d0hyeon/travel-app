@@ -1,20 +1,18 @@
-import { use, useEffect, useEffectEvent, useMemo, useState } from "react";
+import { useEffect, useEffectEvent, useMemo, useState } from "react";
 import { assert } from "~shared/utils/types";
 import { KakaoMapContext, useMapContext } from "../MapContext";
 import type { MarkerProps } from "../types";
+import { useClusterRegistry } from "../useClusterRegistry";
 import { createLabelContent, getMarkerImage, getZoomScale, resolveMarkerColor } from "./kakaoMap.utils";
-import { KakaoClusterContext } from "./KakaoMap";
 
 export default function KakaoMapMarker(props: MarkerProps) {
-  const clusterContext = use(KakaoClusterContext);
   const markerId = useMemo(() => `${props.lat}_${props.lng}`, [props.lat, props.lng]);
   const handleMarkerClick = useEffectEvent(() => props.onClick?.(props));
   const handleMarkerContextMenu = useEffectEvent(() => props.onContextMenu?.(props));
 
+  const { registerMarker, unregisterMarker } = useClusterRegistry();
   useEffect(() => {
-    if (!clusterContext) return;
-
-    clusterContext.registerMarker({
+    registerMarker({
       ...props,
       id: markerId,
       position: { lat: props.lat, lng: props.lng },
@@ -22,10 +20,12 @@ export default function KakaoMapMarker(props: MarkerProps) {
       onContextMenu: handleMarkerContextMenu,
     });
 
-    return () => clusterContext.unregisterMarker(markerId);
-  }, [clusterContext, markerId, props.lat, props.lng, props.label, props.variant, props.color, props.opacity, props.outlined, props.thumbnailUrl]);
+    return () => unregisterMarker(markerId);
+  }, [markerId, props.lat, props.lng, props.label, props.variant, props.color, props.opacity, props.outlined, props.thumbnailUrl]);
 
-  if (clusterContext) return null;
+  const { config } = useMapContext(KakaoMapContext)
+
+  if (config.clustering) return null;
   if (props.thumbnailUrl) return <ThumbnailMarker {...props} />;
   return <Marker {...props} />;
 }
@@ -87,11 +87,8 @@ function ThumbnailMarker({ lat, lng, label, tooltip, variant, color, thumbnailUr
 
 function Marker({ lat, lng, label, tooltip, variant, color, opacity = 1, outlined = false, thumbnailUrl, onClick = () => { }, onContextMenu }: MarkerProps) {
   const context = useMapContext(KakaoMapContext);
-  const clusterContext = use(KakaoClusterContext);
   const position = useMemo(() => new kakao.maps.LatLng(lat, lng), [lat, lng]);
   const [zoom, setZoom] = useState<number | undefined>(context.map?.getLevel());
-
-  const shouldRender = !clusterContext;
 
   useEffect(() => {
     const handler = () => setZoom(context.map.getLevel());
@@ -136,7 +133,6 @@ function Marker({ lat, lng, label, tooltip, variant, color, opacity = 1, outline
   }, [tooltip, variant, zoom]);
 
   useEffect(() => {
-    if (!shouldRender) return;
     labelOverlay?.setMap(context.map);
     marker.setMap(context.map);
 
@@ -156,21 +152,21 @@ function Marker({ lat, lng, label, tooltip, variant, color, opacity = 1, outline
         kakao.maps.event.removeListener(marker, 'mouseout', hideTooltip);
       }
     }
-  }, [context.map, labelOverlay, marker, shouldRender, tooltipOverlay]);
+  }, [context.map, labelOverlay, marker, tooltipOverlay]);
 
   useEffect(() => {
-    if (context.config.autoFocus !== 'marker' || !shouldRender) return;
+    if (context.config.autoFocus !== 'marker') return;
     if (context.map == null) return;
 
     context.extendBound({ lat, lng });
-  }, [lat, lng, context.extendBound, shouldRender])
+  }, [lat, lng, context.extendBound])
 
 
   const clickHandler = useEffectEvent(() => onClick({ lat, lng, label, variant }));
   const contextMenuHandler = useEffectEvent(() => onContextMenu?.({ lat, lng, label, variant }))
 
   useEffect(function subscribeEvnet() {
-    if (marker != null && shouldRender) {
+    if (marker != null) {
       kakao.maps.event.addListener(marker, 'click', clickHandler);
       kakao.maps.event.addListener(marker, 'rightclick', contextMenuHandler)
 
@@ -179,7 +175,7 @@ function Marker({ lat, lng, label, tooltip, variant, color, opacity = 1, outline
         kakao.maps.event.removeListener(marker, 'rightclick', contextMenuHandler)
       }
     }
-  }, [marker, shouldRender]);
+  }, [marker]);
 
   return null;
 }

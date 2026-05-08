@@ -1,21 +1,22 @@
-import { use, useEffect, useEffectEvent, useMemo } from "react";
+import { useEffect, useEffectEvent, useMemo } from "react";
 import type { MarkerProps } from "../types";
 import { GoogleMapContext, useMapContext } from "../MapContext";
 import { resolveMarkerColor } from "../map.utils";
 import { createMarkerSvg, createThumbnailContent } from "./GoogleMap.utils";
-import { GoogleClusterContext } from "./GoogleMap";
+import { useClusterRegistry } from "../useClusterRegistry";
 
 export default function GoogleMapMarker(props: MarkerProps) {
-  const clusterContext = use(GoogleClusterContext);
+  const { config } = useMapContext(GoogleMapContext);
   const markerId = useMemo(() => props.id ?? `${props.lat}_${props.lng}`, [props.id, props.lat, props.lng]);
   const markerColor = useMemo(() => resolveMarkerColor(props.color, props.variant), [props.color, props.variant]);
 
   const handleClick = useEffectEvent(() => props.onClick?.({ lat: props.lat, lng: props.lng, label: props.label, variant: props.variant }));
   const handleContextMenu = useEffectEvent(() => props.onContextMenu?.({ lat: props.lat, lng: props.lng, label: props.label, variant: props.variant }));
 
+  const { registerMarker, unregisterMarker } = useClusterRegistry();
+
   useEffect(() => {
-    if (!clusterContext) return;
-    clusterContext.registerMarker({
+    registerMarker({
       ...props,
       id: markerId,
       position: { lat: props.lat, lng: props.lng },
@@ -23,10 +24,10 @@ export default function GoogleMapMarker(props: MarkerProps) {
       onClick: handleClick,
       onContextMenu: handleContextMenu,
     });
-    return () => clusterContext.unregisterMarker(markerId);
-  }, [clusterContext, markerId, props.lat, props.lng, props.label, props.tooltip, props.variant, markerColor, props.opacity, props.outlined, props.thumbnailUrl]);
+    return () => unregisterMarker(markerId);
+  }, [markerId, props.lat, props.lng, props.label, props.tooltip, props.variant, markerColor, props.opacity, props.outlined, props.thumbnailUrl]);
 
-  if (clusterContext) return null;
+  if (config.clustering) return null;
   if (props.thumbnailUrl) return <ThumbnailMarker {...props} />;
   return <Marker {...props} />;
 }

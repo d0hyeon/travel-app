@@ -5,7 +5,7 @@ import { assert } from "~shared/utils/types";
 export interface MapContextValue<MapInstance> {
   map: MapInstance | null;
   extendBound: (value: Coordinate) => void;
-  config: { autoFocus: AutoFocus };
+  config: { autoFocus: AutoFocus; clustering: boolean; };
 }
 
 export const KakaoMapContext = createContext<MapContextValue<kakao.maps.Map> | null>(null);

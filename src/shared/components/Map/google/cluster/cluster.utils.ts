@@ -1,68 +1,27 @@
-import { use, useEffect, useEffectEvent, useMemo, useRef } from 'react';
-import type { Coordinate, MarkerData } from '../types';
-import { isInMapBounds } from '../map.utils';
-import { GoogleClusterContext } from './GoogleMap';
-import { createThumbnailContent } from './GoogleMap.utils';
-import { useMapViewport } from './useMapViewport';
+import { createThumbnailContent } from '../GoogleMap.utils';
+import type { Coordinate, MarkerData } from '../../types';
 
-
-
-interface Props {
-  onClusterClick: (markers: MarkerData[]) => void;
-}
-
-export function GoogleMapClusterOverlays({ onClusterClick }: Props) {
-  const { map, registryRef, version, zoom, gridSize } = use(GoogleClusterContext)!;
-  const bounds = useMapViewport();
-  const handleClick = useEffectEvent(onClusterClick);
-
-  const clusters = useMemo(() => {
-    const allMarkers = Array.from(registryRef.current.values());
-    const visibleMarkers = bounds
-      ? allMarkers.filter(m => isInMapBounds(m.position.lat, m.position.lng, bounds))
-      : allMarkers;
-    return calculateClusters(visibleMarkers, zoom, gridSize);
-  }, [registryRef, version, bounds, zoom, gridSize]);
-
-  const entriesRef = useRef<Map<string, ClusterEntry>>(new Map());
-
-  useEffect(() => {
-    const newClusterMap = new Map(clusters.map(c => [c.id, c]));
-
-    for (const [id, entry] of entriesRef.current) {
-      if (!newClusterMap.has(id)) {
-        destroyClusterEntry(entry);
-        entriesRef.current.delete(id);
-      }
-    }
-
-    for (const [id, cluster] of newClusterMap) {
-      if (entriesRef.current.has(id)) continue;
-      entriesRef.current.set(id, buildClusterEntry(cluster, map, () => handleClick(cluster.markers)));
-    }
-  }, [clusters]);
-
-  useEffect(() => {
-    return () => {
-      for (const entry of entriesRef.current.values()) destroyClusterEntry(entry);
-      entriesRef.current.clear();
-    };
-  }, []);
-
-  return null;
-}
-
-
-interface ClusterEntry {
+export interface ClusterEntry {
   overlays: google.maps.OverlayView[];
   markers: google.maps.Marker[];
   domHandlers: Array<{ el: HTMLElement; type: string; handler: EventListener }>;
 }
 
-function destroyClusterEntry(entry: ClusterEntry) {
+export interface Cluster {
+  id: string;
+  center: Coordinate;
+  markers: MarkerData[];
+}
+
+export function destroyEntry(entry: ClusterEntry) {
   entry.domHandlers.forEach(({ el, type, handler }) => el.removeEventListener(type, handler));
   entry.overlays.forEach(o => o.setMap(null));
   entry.markers.forEach(m => m.setMap(null));
+}
+
+export function buildEntry(cluster: Cluster, map: google.maps.Map, onClusterClick: () => void): ClusterEntry {
+  if (cluster.markers.length === 1) return buildSingleMarkerEntry(cluster.markers[0], map);
+  return buildClusterGroupEntry(cluster, map, onClusterClick);
 }
 
 function buildSingleMarkerEntry(md: MarkerData, map: google.maps.Map): ClusterEntry {
@@ -165,19 +124,6 @@ function buildClusterGroupEntry(cluster: Cluster, map: google.maps.Map, onCluste
   return entry;
 }
 
-function buildClusterEntry(cluster: Cluster, map: google.maps.Map, onClusterClick: () => void): ClusterEntry {
-  if (cluster.markers.length === 1) {
-    return buildSingleMarkerEntry(cluster.markers[0], map);
-  }
-  return buildClusterGroupEntry(cluster, map, onClusterClick);
-}
-
-interface Cluster {
-  id: string;
-  center: Coordinate;
-  markers: MarkerData[];
-}
-
 function latLngToPixel(lat: number, lng: number, zoom: number): { x: number; y: number } {
   const scale = Math.pow(2, zoom);
   const x = (lng + 180) / 360 * scale * 256;
@@ -186,7 +132,7 @@ function latLngToPixel(lat: number, lng: number, zoom: number): { x: number; y: 
   return { x, y };
 }
 
-export function calculateClusters(markers: MarkerData[], zoom: number, gridSize: number): Cluster[] {
+export function createClusters(markers: MarkerData[], zoom: number, gridSize: number): Cluster[] {
   if (markers.length === 0) return [];
 
   const markerPixels = markers.map(m => ({
@@ -224,6 +170,3 @@ export function calculateClusters(markers: MarkerData[], zoom: number, gridSize:
 
   return clusters;
 }
-
-
-

@@ -5,17 +5,17 @@ interface Options {
   once?: boolean;
 }
 
-export function useBatchedCallback<T>(onFlush: (items: T[]) => void, { once = false }: Options = {}) {
+export function useBatchedCallback<T = never>(onFlush: (items: T[]) => void, { once = false }: Options = {}) {
   const itemsRef = useRef<T[]>([]);
   const scheduledIdRef = useRef<number | null>(null);
   const flushedRef = useRef(false);
 
   const preservedCallback = usePreservedCallback(onFlush);
 
-  const collect = useCallback((item: T) => {
+  const collect = useCallback((...args: [T] extends [never] ? [] : [item: T]) => {
     if (once && flushedRef.current) return;
 
-    itemsRef.current.push(item);
+    if (args.length > 0) itemsRef.current.push(args[0] as T);
 
     if (scheduledIdRef.current) cancelAnimationFrame(scheduledIdRef.current);
     scheduledIdRef.current = requestAnimationFrame(() => {

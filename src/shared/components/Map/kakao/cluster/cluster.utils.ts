@@ -1,61 +1,10 @@
-import { use, useEffect, useEffectEvent, useMemo, useRef } from 'react';
-import type { MarkerData } from '../types';
-import { isInMapBounds } from '../map.utils';
-import { KakaoClusterContext } from './KakaoMap';
-import { createClusterContent, createThumbnailContent, getMarkerImage, getZoomScale, createLabelContent } from './kakaoMap.utils';
-import { useMapViewport } from './useMapViewport';
-
-interface Props {
-  onClusterClick: (markers: MarkerData[]) => void;
-}
-
-export function KakaoMapClusterOverlays({ onClusterClick }: Props) {
-  const { map, registryRef, version, zoom, gridSize } = use(KakaoClusterContext)!;
-  const handleClick = useEffectEvent(onClusterClick);
-
-  const bounds = useMapViewport();
-  const clusters = useMemo(() => {
-    const allMarkers = Array.from(registryRef.current.values());
-    const visibleMarkers = bounds
-      ? allMarkers.filter(m => isInMapBounds(m.position.lat, m.position.lng, bounds))
-      : allMarkers;
-
-    return createClusters(visibleMarkers, map, gridSize);
-  }, [registryRef, version, bounds, zoom, gridSize]);
-  const entriesRef = useRef<Map<string, ClusterEntry>>(new Map());
-
-  useEffect(() => {
-    const newClusterMap = new Map(clusters.map(c => [c.id, c]));
-
-    for (const [id, entry] of entriesRef.current) {
-      if (!newClusterMap.has(id)) {
-        destroyEntry(entry);
-        entriesRef.current.delete(id);
-      }
-    }
-
-    for (const [id, cluster] of newClusterMap) {
-      if (entriesRef.current.has(id)) continue;
-      entriesRef.current.set(
-        id,
-        buildEntry(cluster, map, zoom, () => handleClick(cluster.markers))
-      );
-    }
-  }, [clusters]);
-
-  useEffect(() => {
-    return () => {
-      for (const entry of entriesRef.current.values()) destroyEntry(entry);
-      entriesRef.current.clear();
-    };
-  }, []);
-
-  return null;
-}
 
 // ── 내부 타입 ──────────────────────────────────────────
 
-interface ClusterEntry {
+import type { MarkerData } from "../../types";
+import { createClusterContent, createLabelContent, createThumbnailContent, getMarkerImage, getZoomScale } from "../kakaoMap.utils";
+
+export interface ClusterEntry {
   overlays: kakao.maps.CustomOverlay[];
   markers: kakao.maps.Marker[];
   domHandlers: Array<{ el: HTMLElement; type: string; handler: EventListener }>;
@@ -63,12 +12,12 @@ interface ClusterEntry {
 
 // ── 렌더링 ─────────────────────────────────────────────
 
-function buildEntry(cluster: Cluster, map: kakao.maps.Map, zoom: number, onClusterClick: () => void): ClusterEntry {
+export function buildEntry(cluster: Cluster, map: kakao.maps.Map, zoom: number, onClusterClick: () => void): ClusterEntry {
   if (cluster.markers.length === 1) return buildSingleMarkerEntry(cluster.markers[0], map, zoom);
   return buildClusterGroupEntry(cluster, map, zoom, onClusterClick);
 }
 
-function buildSingleMarkerEntry(md: MarkerData, map: kakao.maps.Map, zoom: number): ClusterEntry {
+export function buildSingleMarkerEntry(md: MarkerData, map: kakao.maps.Map, zoom: number): ClusterEntry {
   const entry: ClusterEntry = { overlays: [], markers: [], domHandlers: [] };
 
   if (md.thumbnailUrl) {
@@ -119,7 +68,7 @@ function buildSingleMarkerEntry(md: MarkerData, map: kakao.maps.Map, zoom: numbe
   return entry;
 }
 
-function buildClusterGroupEntry(cluster: Cluster, map: kakao.maps.Map, zoom: number, onClusterClick: () => void): ClusterEntry {
+export function buildClusterGroupEntry(cluster: Cluster, map: kakao.maps.Map, zoom: number, onClusterClick: () => void): ClusterEntry {
   const entry: ClusterEntry = { overlays: [], markers: [], domHandlers: [] };
 
   const content = document.createElement('div');
@@ -140,7 +89,7 @@ function buildClusterGroupEntry(cluster: Cluster, map: kakao.maps.Map, zoom: num
   return entry;
 }
 
-function destroyEntry(entry: ClusterEntry) {
+export function destroyEntry(entry: ClusterEntry) {
   entry.domHandlers.forEach(({ el, type, handler }) => el.removeEventListener(type, handler));
   entry.overlays.forEach(o => o.setMap(null));
   entry.markers.forEach(m => {
@@ -156,7 +105,7 @@ interface Cluster {
   markers: MarkerData[];
 }
 
-function createClusters(
+export function createClusters(
   markers: MarkerData[],
   map: kakao.maps.Map,
   gridSize: number,
