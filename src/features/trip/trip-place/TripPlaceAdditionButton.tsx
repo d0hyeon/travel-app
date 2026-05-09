@@ -2,12 +2,12 @@ import { Button, type ButtonProps } from "@mui/material";
 import { usePlaceSearchBottomSheet } from "~features/place/place-search/usePlaceSearchBottomSheet";
 import { useTrip } from "../useTrip";
 import { useTripPlaces } from "./useTripPlaces";
-import type { Place } from "~features/place/place.types";
+import type { TripPlace } from "~features/place/place.types";
 import { Suspense } from "react";
 
 interface Props extends ButtonProps {
   tripId: string;
-  onAddedPlace?: (place: Place) => void;
+  onAddedPlace?: (place: TripPlace) => void;
 }
 
 export function TripPlaceAdditionButton(props: Props) {

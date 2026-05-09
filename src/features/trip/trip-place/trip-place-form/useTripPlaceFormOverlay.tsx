@@ -104,14 +104,14 @@ export function PlaceFormSheet({ placeId, tripId, isOpen, onClose }: PlaceFormOv
           onSubmit={(data) => {
             update({
               ...data,
-              placeId: place.id,
+              id: place.id,
               category: data.category || undefined,
             })
             onClose()
           }}
           sx={{ 'h6': { display: 'none' } }}
         />
-        <PlacePhotoSection tripId={tripId} placeId={placeId} />
+        <PlacePhotoSection tripId={tripId} placeId={place.placeId} />
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
         <Stack direction="row" gap={1} width="100%">
@@ -168,7 +168,7 @@ function PlaceFormDialog({ tripId, placeId, isOpen, onClose }: PlaceFormOverlayP
           onSubmit={async (data) => {
             await update({
               ...data,
-              placeId: place.id,
+              id: place.id,
               category: data.category || undefined,
               memo: data.memo,
               tags: data.tags,
@@ -176,7 +176,7 @@ function PlaceFormDialog({ tripId, placeId, isOpen, onClose }: PlaceFormOverlayP
             onClose()
           }}
         />
-        <PlacePhotoSection tripId={tripId} placeId={placeId} />
+        <PlacePhotoSection tripId={tripId} placeId={place.placeId} />
       </DialogContent>
       <DialogActions>
         <Button type="button" onClick={onClose}>취소</Button>

@@ -4,7 +4,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { useTripPlaces } from "./useTripPlaces";
 import { useTripRoutes } from "../trip-route/useTripRoutes";
 import { useTrip } from "../useTrip";
-import type { Place } from "../../place/place.types";
+import type { TripPlace } from "../../place/place.types";
 import { Map, type MapRef } from "../../../shared/components/Map";
 import { useOverlay } from "../../../shared/hooks/useOverlay";
 import { PlaceSearchDialog, type PlaceSearchResult } from "../../place/place-search/PlaceSearchDialog";
@@ -28,21 +28,13 @@ export function TripPlaceContent({ tripId, defaultCenter, ...props }: Props) {
         isOpen={isOpen}
         onClose={close}
         onSelect={(place: PlaceSearchResult) => {
-          create({
-            name: place.name,
-            address: place.address,
-            lat: place.lat,
-            lng: place.lng,
-            status: 'wished',
-            tags: [],
-            memo: '',
-          })
+          create(place)
         }}
       />
     ))
   }
 
-  const handlePlaceClick = (place: Place) => {
+  const handlePlaceClick = (place: TripPlace) => {
     mapRef.current?.panTo(place.lat, place.lng)
   }
 
@@ -122,7 +114,7 @@ export function TripPlaceContent({ tripId, defaultCenter, ...props }: Props) {
   )
 }
 
-function PlaceItem({ place, onClick }: { place: Place; onClick: () => void }) {
+function PlaceItem({ place, onClick }: { place: TripPlace; onClick: () => void }) {
   return (
     <ButtonBase
       onClick={onClick}

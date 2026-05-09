@@ -121,7 +121,7 @@ function PlaceFormSheet({
           defaultValues={defaultValues}
           onSubmit={handleSubmit}
         />
-        <PlacePhotoSection placeId={placeId} tripId={tripId} />
+        <PlacePhotoSection placeId={place.placeId} tripId={tripId} />
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
         <Button type="button" onClick={onClose} size="large" variant="outlined" fullWidth >닫기</Button>
@@ -166,7 +166,7 @@ function PlaceFormDialog({ tripId, placeId, title = '장소 정보', defaultValu
           defaultValues={defaultValues}
           onSubmit={handleSubmit}
         />
-        <PlacePhotoSection placeId={placeId} tripId={tripId} />
+        <PlacePhotoSection placeId={place.placeId} tripId={tripId} />
       </DialogContent>
       <DialogActions>
         <Button type="button" onClick={onClose}>취소</Button>

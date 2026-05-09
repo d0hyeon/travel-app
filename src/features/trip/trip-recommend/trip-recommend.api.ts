@@ -1,5 +1,5 @@
 import { supabase } from '~api/client'
-import { getPlacesByTripId } from '~features/place/place.api'
+import { getTripPlacesByTripId } from '~features/place/place.api'
 import type { PlaceCategoryType } from '~features/place/place.types'
 import { calcDistance } from '~shared/utils/geo'
 
@@ -117,7 +117,7 @@ export async function getRecommendedPlaces(
       .select('id, start_date')
       .in('destination', destinations)
       .neq('id', currentTripId),
-    getPlacesByTripId(currentTripId),
+    getTripPlacesByTripId(currentTripId),
   ])
 
   if (tripsResult.error) throw tripsResult.error
