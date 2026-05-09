@@ -8,14 +8,14 @@ import {
   Typography,
 } from '@mui/material'
 import { Suspense } from 'react'
-import type { Place } from '../place/place.types'
+import type { TripPlace } from '../place/place.types'
 import { usePlacePhotos } from '../place/usePlacePhotos'
 import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
 import { useOverlay } from '~shared/hooks/useOverlay'
 import { PhotoBottomSheet } from '~shared/components/photo/PhotoBottomSheet'
 
 interface Props {
-  place: Place
+  place: TripPlace
   isOpen?: boolean;
   onClose: () => void
 }
@@ -47,7 +47,7 @@ export function PlaceExplorerDetailBottomSheet({ isOpen, place, onClose }: Props
         {/* 사진 */}
         <Box mt={1.5}>
           <Suspense fallback={<CircularProgress size={20} />}>
-            <PlacePhotos placeId={place.id} />
+            <PlacePhotos placeId={place.placeId} />
           </Suspense>
         </Box>
       </BottomSheet.Body>

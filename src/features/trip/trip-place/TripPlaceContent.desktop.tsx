@@ -10,7 +10,7 @@ import {
 import { Suspense, useMemo, useRef, useState } from 'react'
 import { Map, type MapBounds, type MapRef } from '../../../shared/components/Map'
 import { usePlaceSearchDialog } from '../../place/place-search/usePlaceSearchDialog'
-import { PlaceCategoryColorCode, type Place } from '../../place/place.types'
+import { PlaceCategoryColorCode, type TripPlace } from '../../place/place.types'
 import { useTripCluastering } from '../hooks/useTripCluastering'
 import { useTripRoutes } from '../trip-route/useTripRoutes'
 import { useTrip } from '../useTrip'
@@ -40,7 +40,7 @@ export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
     create(place);
   }
 
-  const handlePlaceClick = (place: Place) => {
+  const handlePlaceClick = (place: TripPlace) => {
     mapRef.current?.panTo(place.lat, place.lng)
   }
 

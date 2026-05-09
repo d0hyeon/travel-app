@@ -43,16 +43,30 @@ export interface PlaceCategory {
 }
 
 
+/** 전역 POI. 특정 여행에 종속되지 않음 */
 export interface Place {
   id: string
-  tripId: string
   name: string
   address: string
   lat: number
   lng: number
+  provider: string
+  externalId: string
+  createdAt: string
+}
+
+/** 여행-장소 연결. places JOIN trip_places의 결합 모델 */
+export interface TripPlace {
+  id: string             // trip_places.id
+  placeId: string        // places.id
+  tripId: string
+  name: string           // from places
+  address: string        // from places
+  lat: number            // from places
+  lng: number            // from places
   status: PlaceStatus
-  category?: PlaceCategoryType;
+  category?: PlaceCategoryType
   tags: string[]
   memo: string
-  createdAt: string
+  createdAt: string      // trip_places.created_at
 }

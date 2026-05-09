@@ -35,33 +35,30 @@ CREATE TABLE trip_members (
 );
 
 -- ------------------------------------------------------------
--- places
+-- places (전역 POI)
 -- ------------------------------------------------------------
 CREATE TABLE places (
-  id         UUID        PRIMARY KEY DEFAULT uuid_generate_v4(),
-  trip_id    UUID        NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
-  name       TEXT        NOT NULL,
-  lat        FLOAT8      NOT NULL,
-  lng        FLOAT8      NOT NULL,
-  address    TEXT,
-  category   TEXT,
-  memo       TEXT,
-  status     TEXT        NOT NULL DEFAULT 'candidate',
-  tags       TEXT[]      NOT NULL DEFAULT '{}',
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  id          UUID        PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name        TEXT        NOT NULL,
+  lat         FLOAT8      NOT NULL,
+  lng         FLOAT8      NOT NULL,
+  address     TEXT,
+  provider    TEXT        NOT NULL DEFAULT 'legacy',
+  external_id TEXT        NOT NULL DEFAULT '',
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (provider, external_id)
 );
 
 -- ------------------------------------------------------------
--- trip_places (Phase 1: 호환 마이그레이션 — places의 trip-scoped 메타 복사본)
--- Phase 2에서 places의 trip-scoped 컬럼은 trip_places로 책임 이전됨
+-- trip_places (여행-장소 연결 — trip-scoped 메타)
 -- ------------------------------------------------------------
 CREATE TABLE trip_places (
-  id          UUID         PRIMARY KEY,
+  id          UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
   trip_id     UUID         NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
   place_id    UUID         NOT NULL REFERENCES places(id) ON DELETE CASCADE,
   category    TEXT,
   memo        TEXT,
-  status      TEXT         NOT NULL DEFAULT 'candidate',
+  status      TEXT         NOT NULL DEFAULT 'wished',
   tags        TEXT[]       NOT NULL DEFAULT '{}',
   created_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
   UNIQUE (trip_id, place_id)
@@ -73,7 +70,7 @@ CREATE TABLE trip_places (
 CREATE TABLE expenses (
   id           UUID        PRIMARY KEY DEFAULT uuid_generate_v4(),
   trip_id      UUID        NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
-  place_id     UUID        REFERENCES places(id) ON DELETE SET NULL,
+  place_id     UUID        REFERENCES trip_places(id) ON DELETE SET NULL,
   description  TEXT,
   total_amount FLOAT8      NOT NULL,
   currency     TEXT,

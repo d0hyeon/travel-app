@@ -5,7 +5,7 @@ import { expenseKey, getExpensesByTripId } from '~features/expense/expense.api'
 import type { Expense } from '~features/expense/expense.types'
 import { getMyShareInKRW } from '~features/expense/expense.utils'
 import { useAuth } from '~features/auth/useAuth'
-import { getAllPlaces, placeKey } from '~features/place/place.api'
+import { getAllTripPlaces, placeKey } from '~features/place/place.api'
 import { PlaceCategoryColorCode, PlaceCategoryTypeLabel, PlaceCategoryType } from '~features/place/place.types'
 import { getAllRoutes, routeKey } from '~features/route/route.api'
 import { getTripMembersByTripId, tripMemberKey } from '~features/trip/trip-member/tripMember.api'
@@ -117,7 +117,7 @@ export function useStatisticsSummary(): StatisticsSummary {
   const { data: trips } = useTrips()
   const { data: places } = useSuspenseQuery({
     queryKey: [placeKey, 'all'],
-    queryFn: getAllPlaces,
+    queryFn: getAllTripPlaces,
   })
   const { data: routes } = useSuspenseQuery({
     queryKey: [routeKey, 'all'],

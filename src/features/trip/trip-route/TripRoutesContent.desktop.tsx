@@ -196,7 +196,7 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
                               if (updated) {
                                 updatePlace({
                                   ...updated,
-                                  placeId: place.id,
+                                  id: place.id,
                                   category: updated.category || undefined, tags: updated.tags,
                                 })
                               }
