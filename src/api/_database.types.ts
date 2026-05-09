@@ -239,6 +239,54 @@ export type Database = {
           },
         ]
       }
+      trip_places: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          memo: string | null
+          place_id: string
+          status: string
+          tags: string[]
+          trip_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id: string
+          memo?: string | null
+          place_id: string
+          status?: string
+          tags?: string[]
+          trip_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          memo?: string | null
+          place_id?: string
+          status?: string
+          tags?: string[]
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_places_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trip_places_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       routes: {
         Row: {
           created_at: string

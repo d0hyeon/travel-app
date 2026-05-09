@@ -52,6 +52,22 @@ CREATE TABLE places (
 );
 
 -- ------------------------------------------------------------
+-- trip_places (Phase 1: 호환 마이그레이션 — places의 trip-scoped 메타 복사본)
+-- Phase 2에서 places의 trip-scoped 컬럼은 trip_places로 책임 이전됨
+-- ------------------------------------------------------------
+CREATE TABLE trip_places (
+  id          UUID         PRIMARY KEY,
+  trip_id     UUID         NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
+  place_id    UUID         NOT NULL REFERENCES places(id) ON DELETE CASCADE,
+  category    TEXT,
+  memo        TEXT,
+  status      TEXT         NOT NULL DEFAULT 'candidate',
+  tags        TEXT[]       NOT NULL DEFAULT '{}',
+  created_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+  UNIQUE (trip_id, place_id)
+);
+
+-- ------------------------------------------------------------
 -- expenses
 -- ------------------------------------------------------------
 CREATE TABLE expenses (
