@@ -379,8 +379,6 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
-          location_id: string | null
-          place_id: string | null
           title: string | null
           trip_id: string | null
           updated_at: string | null
@@ -391,8 +389,6 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
-          location_id?: string | null
-          place_id?: string | null
           title?: string | null
           trip_id?: string | null
           updated_at?: string | null
@@ -403,8 +399,6 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
-          location_id?: string | null
-          place_id?: string | null
           title?: string | null
           trip_id?: string | null
           updated_at?: string | null
@@ -412,17 +406,43 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "posts_place_id_fkey"
-            columns: ["place_id"]
-            isOneToOne: false
-            referencedRelation: "places"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "posts_trip_id_fkey"
             columns: ["trip_id"]
             isOneToOne: false
             referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_locations: {
+        Row: {
+          post_id: string
+          place_id: string
+          display_order: number
+        }
+        Insert: {
+          post_id: string
+          place_id: string
+          display_order: number
+        }
+        Update: {
+          post_id?: string
+          place_id?: string
+          display_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_locations_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_locations_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
             referencedColumns: ["id"]
           },
         ]

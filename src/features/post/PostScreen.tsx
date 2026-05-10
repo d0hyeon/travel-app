@@ -44,18 +44,22 @@ function Resolved({ postId }: Props) {
         </Typography>
       )}
 
-      {post.location && (
+      {post.places.length > 0 && (
         <Map
-          type={isOverseasByCoordinate(post.location.lat, post.location.lng) ? 'google' : 'kakao'}
-          center={post.location}
+          type={isOverseasByCoordinate(post.places[0].lat, post.places[0].lng) ? 'google' : 'kakao'}
+          center={post.places[0]}
           height={300}
           borderRadius={4}
         >
-          <Map.Marker
-            label={post.location.name}
-            variant="pin"
-            {...post.location}
-          />
+          {post.places.map((place) => (
+            <Map.Marker
+              key={place.placeId}
+              label={place.name}
+              variant="pin"
+              lat={place.lat}
+              lng={place.lng}
+            />
+          ))}
         </Map>
       )}
       <Box>

@@ -48,15 +48,15 @@ export function PostFeed() {
                 <UserProfile id={post.authorId} size="small" />
               </Link>
               <Link to={generatePath(AppRoute.포스트_상세, { postId: post.id })}>
-                {post.location != null && (
+                {post.places.length > 0 && (
                   <Typography
                     component="button"
                     variant="caption"
                     color="textSecondary"
-
                   >
                     <LocationPin sx={{ fontSize: 'inherit', verticalAlign: 'middle' }} />
-                    {post.location.name}
+                    {post.places[0].name}
+                    {post.places.length > 1 && ` 외 ${post.places.length - 1}`}
                   </Typography>
                 )}
               </Link>

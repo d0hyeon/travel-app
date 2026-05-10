@@ -1,6 +1,6 @@
 import CheckIcon from '@mui/icons-material/TaskAlt'
 import { Box, Button, ImageList, type BoxProps } from '@mui/material'
-import { useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useTripPhotos } from '~features/trip/trip-photo/useTripPhotos'
 import { BottomArea } from '~shared/components/BottomArea'
 import { PhotoThunbnail } from '~shared/components/photo/PhotoThumbnail'
@@ -13,21 +13,17 @@ import { Swiper, SwiperSlide } from 'swiper/react'
 import 'swiper/css'
 
 interface Props {
-  tripId: string
+  tripId: string | null
   defaultValue: DraftPostPhoto[]
   onNext: (photos: DraftPostPhoto[]) => void
 }
 
 export function PhotoStep({ tripId, defaultValue, onNext }: Props) {
-  const { data: photos } = useTripPhotos(tripId);
   const { data: localPhotos, save } = useLocalPhotoStore();
   const [selectedIds, setSelectedIds] = useState<string[]>(defaultValue.map((photo) => photo.id))
+  const [savedPhotos, setSavedPhotos] = useState<DraftPostPhoto[]>([])
 
-
-  const allPhotos: DraftPostPhoto[] = [
-    ...localPhotos,
-    ...photos.map((photo) => ({ ...photo, source: 'saved' as const })),
-  ]
+  const allPhotos: DraftPostPhoto[] = [...localPhotos, ...savedPhotos]
 
   const toggle = (id: string) => {
     setSelectedIds((curr) =>
@@ -42,11 +38,12 @@ export function PhotoStep({ tripId, defaultValue, onNext }: Props) {
           <Swiper>
             {selectedIds.map(id => {
               const photo = allPhotos.find(photo => photo.id === id);
+              if (!photo) return null
 
               return (
-                <SwiperSlide key={photo!.id} >
+                <SwiperSlide key={photo.id} >
                   <Box overflow="hidden" sx={{ aspectRatio: '1 / 1' }}>
-                    <img src={photo!.url} />
+                    <img src={photo.url} />
                   </Box>
                 </SwiperSlide>
               )
@@ -62,45 +59,24 @@ export function PhotoStep({ tripId, defaultValue, onNext }: Props) {
               setSelectedIds((curr) => [...curr, ...photos.map((photo) => photo.id)])
             }}
           />
-          {localPhotos.map(photo => {
-            const isSelected = selectedIds.includes(photo.id);
-
-            return (
-              <Box
-                key={photo.id}
-                position="relative"
-                onClick={() => toggle(photo.id)}
-                sx={{ cursor: 'pointer' }}
-              >
-                {isSelected && (
-                  <Overlay>
-                    <CheckIcon sx={{ color: '#fff' }} />
-                  </Overlay>
-                )}
-                <PhotoThunbnail src={photo.url} />
-              </Box>
-            )
-          })}
-          {photos.map((photo) => {
-            const isSelected = selectedIds.includes(photo.id);
-
-            return (
-              <Box
-                key={photo.id}
-                position="relative"
-                onClick={() => toggle(photo.id)}
-                sx={{ cursor: 'pointer' }}
-              >
-                {isSelected && (
-                  <Overlay>
-                    <CheckIcon sx={{ color: '#fff' }} />
-                  </Overlay>
-                )}
-                <PhotoThunbnail src={photo.url} />
-              </Box>
-            )
-          })}
-
+          {localPhotos.map(photo => (
+            <SelectablePhoto
+              key={photo.id}
+              src={photo.url}
+              selected={selectedIds.includes(photo.id)}
+              onClick={() => toggle(photo.id)}
+            />
+          ))}
+          {tripId && (
+            <Suspense fallback={null}>
+              <TripSavedPhotos
+                tripId={tripId}
+                selectedIds={selectedIds}
+                onToggle={toggle}
+                onLoad={setSavedPhotos}
+              />
+            </Suspense>
+          )}
         </ImageList>
       </Box>
 
@@ -116,6 +92,49 @@ export function PhotoStep({ tripId, defaultValue, onNext }: Props) {
         </Button>
       </BottomArea>
     </>
+  )
+}
+
+function TripSavedPhotos({
+  tripId,
+  selectedIds,
+  onToggle,
+  onLoad,
+}: {
+  tripId: string
+  selectedIds: string[]
+  onToggle: (id: string) => void
+  onLoad: (photos: DraftPostPhoto[]) => void
+}) {
+  const { data: photos } = useTripPhotos(tripId);
+  useEffect(() => {
+    onLoad(photos.map((photo) => ({ ...photo, source: 'saved' as const })))
+  }, [photos])
+
+  return (
+    <>
+      {photos.map((photo) => (
+        <SelectablePhoto
+          key={photo.id}
+          src={photo.url}
+          selected={selectedIds.includes(photo.id)}
+          onClick={() => onToggle(photo.id)}
+        />
+      ))}
+    </>
+  )
+}
+
+function SelectablePhoto({ src, selected, onClick }: { src: string; selected: boolean; onClick: () => void }) {
+  return (
+    <Box position="relative" onClick={onClick} sx={{ cursor: 'pointer' }}>
+      {selected && (
+        <Overlay>
+          <CheckIcon sx={{ color: '#fff' }} />
+        </Overlay>
+      )}
+      <PhotoThunbnail src={src} />
+    </Box>
   )
 }
 

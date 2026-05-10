@@ -45,7 +45,6 @@ export default function PostFormPage() {
 
   const { form, update, submit } = usePostForm({
     onSubmit: async (value) => {
-      if (!tripId) return
       const isPublic = value.visibility !== 'PRIVATE'
       const uploadedPhotos = await Promise.all(
         value.photos.map(async (photo) => {
@@ -58,15 +57,17 @@ export default function PostFormPage() {
       )
 
       const post = await createPost({
-        ...value,
         tripId,
+        description: value.description,
+        visibility: value.visibility,
+        placeIds: value.places.map((p) => p.placeId),
         photos: uploadedPhotos,
       })
       navigate(`/post/${post.id}`)
     }
   });
 
-  const handleTripNext = (id: string) => {
+  const handleTripNext = (id: string | null) => {
     setTripId(id)
     setStep('photo', { replace: false })
   }
@@ -89,14 +90,14 @@ export default function PostFormPage() {
               value={step as Step}
               cases={{
                 trip: () => <TripStep defaultValue={tripId} onNext={handleTripNext} />,
-                photo: () => tripId && (
+                photo: () => (
                   <PhotoStep
                     tripId={tripId}
                     defaultValue={form.photos ?? []}
                     onNext={handlePhotoNext}
                   />
                 ),
-                meta: () => tripId && !!form.photos && (
+                meta: () => !!form.photos && (
                   <MetaStep
                     tripId={tripId}
                     selectedPhotos={form.photos}

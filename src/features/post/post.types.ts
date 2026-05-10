@@ -5,11 +5,8 @@ export const PostVisibility = {
 } as const
 export type PostVisibility = typeof PostVisibility[keyof typeof PostVisibility]
 
-export type PostScope =
-  | { kind: 'PLACE'; placeId: string }
-  | { kind: 'LOCATION'; locationId: string }
-
-export interface PostLocation {
+export interface PostPlace {
+  placeId: string
   name: string
   lat: number
   lng: number
@@ -29,8 +26,8 @@ export interface Post {
   tripId: string | null
   title: string | null
   description: string | null
-  scope: PostScope | null
-  location: PostLocation | null
+  /** display_order 정렬됨 */
+  places: PostPlace[]
   visibility: PostVisibility
   /** display_order 정렬됨 */
   photos: PostPhoto[]

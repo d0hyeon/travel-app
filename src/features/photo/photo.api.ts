@@ -120,10 +120,11 @@ export interface PostPhotoUploadResult {
   storagePath: string
 }
 
-export async function uploadPostPhoto(tripId: string, file: File): Promise<PostPhotoUploadResult> {
+export async function uploadPostPhoto(tripId: string | null, file: File): Promise<PostPhotoUploadResult> {
   const resized = await resizeImage(file);
   const fileExt = resized.name.split('.').pop()
-  const storagePath = `posts/${tripId}/${Date.now()}.${fileExt}`
+  const scope = tripId ?? 'orphan'
+  const storagePath = `posts/${scope}/${Date.now()}.${fileExt}`
   const url = await uploadToStorage(storagePath, resized)
   return { url, storagePath }
 }
