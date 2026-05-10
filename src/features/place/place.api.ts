@@ -75,17 +75,26 @@ export async function upsertPlace(
   externalId: string,
   data: { name: string; address: string; lat: number; lng: number },
 ): Promise<Place> {
-  const { data: row, error } = await supabase
+  const { data: inserted, error } = await supabase
     .from('places')
     .upsert(
       { provider, external_id: externalId, name: data.name, address: data.address || null, lat: data.lat, lng: data.lng },
-      { onConflict: 'provider,external_id', ignoreDuplicates: false },
+      { onConflict: 'provider,external_id', ignoreDuplicates: true },
     )
     .select()
-    .single()
 
   if (error) throw error
-  return toPlace(row!)
+  if (inserted && inserted.length > 0) return toPlace(inserted[0])
+
+  const { data: existing, error: selectError } = await supabase
+    .from('places')
+    .select('*')
+    .eq('provider', provider)
+    .eq('external_id', externalId)
+    .single()
+
+  if (selectError) throw selectError
+  return toPlace(existing)
 }
 
 export async function getAllPlaces(): Promise<Place[]> {
@@ -107,30 +116,6 @@ export async function getPlaceById(id: string): Promise<Place> {
 
   if (error) throw error
   return toPlace(data)
-}
-
-export async function updatePlace(
-  id: string,
-  data: Partial<Pick<Place, 'name' | 'address' | 'lat' | 'lng'>>,
-): Promise<Place | undefined> {
-  const patch: Record<string, unknown> = {}
-  if (data.name !== undefined) patch.name = data.name
-  if (data.address !== undefined) patch.address = data.address || null
-  if (data.lat !== undefined) patch.lat = data.lat
-  if (data.lng !== undefined) patch.lng = data.lng
-
-  const { data: row, error } = await supabase
-    .from('places')
-    .update(patch as never)
-    .eq('id', id)
-    .select()
-    .single()
-
-  if (error) {
-    if (error.code === 'PGRST116') return undefined
-    throw error
-  }
-  return row ? toPlace(row) : undefined
 }
 
 // ─────────────────────────────────────────

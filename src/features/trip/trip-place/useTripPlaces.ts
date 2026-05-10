@@ -4,7 +4,6 @@ import {
   deleteTripPlace,
   getTripPlacesByTripId,
   placeKey,
-  updatePlace,
   updateTripPlace,
   upsertPlace,
 } from "../../place/place.api";
@@ -26,27 +25,17 @@ export function useTripPlaces(tripId: string) {
   const update = useMutation({
     mutationFn: async ({
       id,
-      name,
-      address,
       category,
       memo,
       tags,
+      status,
     }: {
       id: string
-      name?: string
-      address?: string
       category?: PlaceCategoryType
       memo?: string
       tags?: string[]
-    }) => {
-      const tripPlace = data.find((p) => p.id === id)
-      if (!tripPlace) throw new Error('TripPlace not found')
-
-      if (name !== undefined || address !== undefined) {
-        await updatePlace(tripPlace.placeId, { name, address })
-      }
-      return updateTripPlace(id, { category, memo, tags })
-    },
+      status?: PlaceStatus
+    }) => updateTripPlace(id, { category, memo, tags, status }),
     onSuccess: () => refetch(),
   })
 

@@ -128,12 +128,15 @@ export async function getRecommendedPlaces(
   const tripIds = otherTrips.map(t => t.id)
   const tripDateMap = new Map(otherTrips.map(t => [t.id, t.start_date]))
 
-  const [placesResult, routesResult] = await Promise.all([
-    supabase.from('places').select('*, photos(url, is_public)').in('trip_id', tripIds),
+  const [tripPlacesResult, routesResult] = await Promise.all([
+    supabase
+      .from('trip_places')
+      .select('id, trip_id, category, places!inner(name, address, lat, lng, photos(url, is_public))')
+      .in('trip_id', tripIds),
     supabase.from('routes').select('trip_id, place_ids, hidden_places').in('trip_id', tripIds),
   ])
 
-  if (placesResult.error) throw placesResult.error
+  if (tripPlacesResult.error) throw tripPlacesResult.error
   if (routesResult.error) throw routesResult.error
 
   const routes = routesResult.data ?? []
@@ -141,20 +144,33 @@ export async function getRecommendedPlaces(
   const hiddenPlaceIds = new Set(routes.flatMap(r => r.hidden_places ?? []))
   const currentPlaceNames = new Set(currentPlaces.map(p => normalizeName(p.name)))
 
-  const scoredPlaces: ScoredPlace[] = (placesResult.data ?? [])
+  type TripPlaceRow = {
+    id: string
+    trip_id: string
+    category: string | null
+    places: {
+      name: string
+      address: string | null
+      lat: number
+      lng: number
+      photos: { url: string; is_public: boolean }[] | null
+    }
+  }
+
+  const scoredPlaces: ScoredPlace[] = ((tripPlacesResult.data ?? []) as unknown as TripPlaceRow[])
     .filter(row => !hiddenPlaceIds.has(row.id))
-    .filter(row => !currentPlaceNames.has(normalizeName(row.name)))
+    .filter(row => !currentPlaceNames.has(normalizeName(row.places.name)))
     .map(row => {
-      const photos = ((row as { photos?: { url: string; is_public: boolean }[] }).photos ?? [])
+      const photos = (row.places.photos ?? [])
         .filter(photo => photo.is_public)
         .map(photo => photo.url)
       return {
         id: row.id,
         tripId: row.trip_id,
-        name: row.name,
-        address: row.address ?? '',
-        lat: row.lat,
-        lng: row.lng,
+        name: row.places.name,
+        address: row.places.address ?? '',
+        lat: row.places.lat,
+        lng: row.places.lng,
         category: (row.category as PlaceCategoryType) ?? undefined,
         photos,
         confirmedCount: confirmedPlaceIds.has(row.id) ? 1 : 0,
