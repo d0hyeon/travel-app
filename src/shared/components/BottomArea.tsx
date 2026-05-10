@@ -8,7 +8,7 @@ export function BottomArea({ bottom, ...props }: StackProps) {
       padding={1}
       position="fixed"
       bottom={bottom ? `calc(${bottom}px + env(safe-area-inset-bottom))` : 0}
-      paddingBlock={bottom ? undefined : 'calc(8px + env(safe-area-inset-bottom))'}
+      paddingBottom={bottom ? undefined : 'calc(8px + env(safe-area-inset-bottom))'}
       width="100%"
       bgcolor="#fff"
       zIndex={10}
