@@ -1,4 +1,3 @@
-import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { Box, Button, Stack, Typography } from '@mui/material'
 import { useState } from 'react'
 import { BottomArea } from '~shared/components/BottomArea'
@@ -44,14 +43,20 @@ export function TripStep({ defaultValue, onNext }: Props) {
         )}
       </Box>
 
-      <BottomArea sx={{ padding: '12px 16px 20px', borderTop: '1px solid rgba(0,0,0,0.05)' }}>
-        <NextButton
-          enabled={isNextEnabled}
+      <BottomArea sx={{ borderTop: '1px solid rgba(0,0,0,0.05)' }}>
+        <Button
+          size="large"
+          variant="contained"
+
+          disabled={!isNextEnabled}
           onClick={() => {
             if (!isNextEnabled) return
             onNext(selection === 'none' ? null : (selection as string))
           }}
-        />
+          fullWidth
+        >
+          다음
+        </Button>
       </BottomArea>
     </>
   )
@@ -210,33 +215,6 @@ function RadioIndicator({ selected }: { selected: boolean }) {
         </Box>
       )}
     </Box>
-  )
-}
-
-function NextButton({ enabled, onClick }: { enabled: boolean; onClick: () => void }) {
-  return (
-    <Button
-      onClick={onClick}
-      disabled={!enabled}
-      aria-disabled={!enabled}
-      disableElevation
-      endIcon={enabled ? <ChevronRightIcon /> : null}
-      sx={{
-        width: '100%',
-        height: 52,
-        borderRadius: '14px',
-        fontSize: 15.5,
-        fontWeight: 700,
-        letterSpacing: '-0.2px',
-        bgcolor: enabled ? 'primary.main' : '#f5f5f7',
-        color: enabled ? '#fff' : '#9b9ba3',
-        transition: 'all .15s',
-        '&:hover': { bgcolor: enabled ? 'primary.dark' : '#f5f5f7' },
-        '&.Mui-disabled': { bgcolor: '#f5f5f7', color: '#9b9ba3' },
-      }}
-    >
-      다음
-    </Button>
   )
 }
 

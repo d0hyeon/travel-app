@@ -1,5 +1,6 @@
-import { Box, CircularProgress, Container } from '@mui/material'
-import { Suspense, useState } from 'react'
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
+import { Box, CircularProgress, Container, IconButton, Stack, Typography } from '@mui/material'
+import { Suspense, useState, type PropsWithChildren } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { createPhotoFileFromUrl, uploadPostPhoto } from '~features/photo/photo.api'
 import { SwitchCase } from '~shared/components/SwitchCase'
@@ -8,7 +9,6 @@ import { lazy } from '~shared/utils/react'
 import { useCreatePost } from '../usePost'
 import type { MetaStepValue } from './MetaStep'
 import { isLocalDraftPostPhoto, type DraftPostPhoto } from './postDraftPhoto'
-import { PostFormStepHeader, type PostFormStep } from './PostFormStepHeader'
 import { usePostForm } from './usePostForm'
 
 const TripStep = lazy(async () => {
@@ -26,11 +26,18 @@ const MetaStep = lazy(async () => {
   return { default: MetaStep }
 })
 
-type Step = PostFormStep
 
-const FULL_STEPS = ['trip', 'photo', 'meta'] as const satisfies readonly PostFormStep[]
-const SKIP_TRIP_STEPS = ['photo', 'meta'] as const satisfies readonly PostFormStep[]
 
+const STEPS = ['trip', 'photo', 'meta'] as const;
+type Step = typeof STEPS[number];
+
+
+
+const STEP_TITLE: Record<Step, string> = {
+  trip: '여행 선택',
+  photo: '이미지 선택',
+  meta: '상세 설정',
+}
 
 export default function PostFormPage() {
   const navigate = useNavigate()
@@ -39,12 +46,15 @@ export default function PostFormPage() {
   const [searchParams] = useSearchParams()
   const initialTripId = searchParams.get('tripId')
   const skipTripStep = initialTripId != null
-  const steps = skipTripStep ? SKIP_TRIP_STEPS : FULL_STEPS
+  const steps = initialTripId != null
+    ? STEPS.filter(x => x !== 'trip')
+    : STEPS
 
   const [step, setStep] = useQueryParamState<Step>('step', {
     defaultValue: skipTripStep ? 'photo' : 'trip',
   });
   const [tripId, setTripId] = useState<string | null>(initialTripId)
+  const stepIndex = steps.findIndex(x => x === step);
 
   const { form, update, submit } = usePostForm({
     onSubmit: async (value) => {
@@ -72,18 +82,59 @@ export default function PostFormPage() {
 
   const handleTripNext = (id: string | null) => {
     setTripId(id)
-    setStep('photo', { replace: false })
+    setStep('photo')
   }
 
   const handlePhotoNext = (photos: DraftPostPhoto[]) => {
     update({ photos })
-    setStep('meta', { replace: false })
+    setStep('meta')
   }
+
 
   return (
     <Box height="100dvh" display="flex" flexDirection="column" overflow="auto">
       <Container maxWidth="sm" disableGutters sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-        <PostFormStepHeader step={step as Step} steps={steps} />
+        <TopNavigation>
+          <IconButton
+            sx={{ width: 36, height: 36 }}
+            aria-label="뒤로"
+            onClick={() => {
+              if (stepIndex <= 0) {
+                return navigate(-1);
+              }
+              setStep(steps[stepIndex - 1]);
+            }}
+          >
+            <ChevronLeftIcon sx={{ color: '#111', strokeWidth: 1.8 }} />
+          </IconButton>
+          <Box flex={1} minWidth={0}>
+            <Typography sx={{ fontSize: 11.5, fontWeight: 500, color: '#9b9ba3', mb: '2px' }}>
+              새 포스트 · {stepIndex + 1}/{steps.length}
+            </Typography>
+            <Typography sx={{ fontSize: 17, fontWeight: 700, letterSpacing: '-0.3px', color: '#111' }}>
+              {STEP_TITLE[step]}
+            </Typography>
+          </Box>
+
+          <Stack direction="row" gap="4px" alignItems="center">
+            {steps.map((s, idx) => {
+              const isCurrent = idx === stepIndex
+              const isDone = idx < stepIndex
+              return (
+                <Box
+                  key={s}
+                  sx={{
+                    width: isCurrent ? 16 : 6,
+                    height: 6,
+                    borderRadius: '3px',
+                    bgcolor: isCurrent || isDone ? 'primary.main' : 'rgba(0,0,0,0.12)',
+                    transition: 'all .2s',
+                  }}
+                />
+              )
+            })}
+          </Stack>
+        </TopNavigation>
 
         <Box>
           <Suspense fallback={<Box display="flex" justifyContent="center" pt={4}><CircularProgress /></Box>}>
@@ -113,6 +164,27 @@ export default function PostFormPage() {
           </Suspense>
         </Box>
       </Container>
+    </Box>
+  )
+}
+
+function TopNavigation(props: PropsWithChildren) {
+  return (
+    <Box
+      position="sticky"
+      top={0}
+      zIndex={20}
+      sx={{
+        height: 64,
+        px: 2,
+        py: '14px',
+        bgcolor: 'background.paper',
+        borderBottom: '1px solid rgba(0,0,0,0.05)',
+      }}
+    >
+      <Stack direction="row" alignItems="center" gap={1} height="100%">
+        {props.children}
+      </Stack>
     </Box>
   )
 }
