@@ -59,7 +59,7 @@ function RecommendedPlaceDetailSheet({ place, tripId, isOpen, onClose }: Props) 
       </BottomSheet.Header>
       <BottomSheet.Body>
         <BottomSheet.Scrollable>
-          <PlaceInfoWidget placeId={place.placeId} />
+          <PlaceInfoWidget placeId={place.id} />
         </BottomSheet.Scrollable>
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
@@ -81,7 +81,7 @@ function RecommendedPlaceDetailDialog({ place, tripId, isOpen, onClose }: Props)
     <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>{place.name}</DialogTitle>
       <DialogContent>
-        <PlaceInfoWidget placeId={place.placeId} />
+        <PlaceInfoWidget placeId={place.id} />
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>닫기</Button>

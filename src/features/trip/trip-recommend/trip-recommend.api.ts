@@ -7,8 +7,8 @@ import { calcDistance } from '~shared/utils/geo'
 export const recommendedPlaceKey = 'recommended-places'
 
 export interface RecommendedPlace {
+  /** 전역 places.id */
   id: string
-  placeId: string
   tripId: string
   provider: string
   externalId: string
@@ -39,8 +39,8 @@ function calcRecencyScore(tripStartDate: string): number {
 }
 
 interface ScoredPlace {
+  /** 전역 places.id */
   id: string
-  placeId: string
   tripId: string
   provider: string
   externalId: string
@@ -57,6 +57,7 @@ interface ScoredPlace {
 }
 
 function isSamePlace(a: ScoredPlace, b: ScoredPlace): boolean {
+  if (a.id === b.id) return true
   if (normalizeName(a.name) === normalizeName(b.name)) return true
   return calcDistance(a, b) < SAME_PLACE_DISTANCE_THRESHOLD
 }
@@ -174,8 +175,7 @@ export async function getRecommendedPlaces(
         .filter(photo => photo.is_public)
         .map(photo => photo.url)
       return {
-        id: row.id,
-        placeId: row.places.id,
+        id: row.places.id,
         tripId: row.trip_id,
         provider: row.places.provider,
         externalId: row.places.external_id,
@@ -197,7 +197,6 @@ export async function getRecommendedPlaces(
     .slice(0, MAX_RESULTS)
     .map(place => ({
       id: place.id,
-      placeId: place.placeId,
       tripId: place.tripId,
       provider: place.provider,
       externalId: place.externalId,
