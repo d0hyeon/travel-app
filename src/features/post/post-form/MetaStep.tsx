@@ -82,7 +82,6 @@ export function MetaStep({ tripId, selectedPhotos, onNext }: Props) {
           size="large"
           loading={isPending}
           disabled={isPending}
-          loadingIndicator={<CircularProgress />}
           loadingPosition="start"
           onClick={() => {
             startTransition(async () => {
