@@ -24,17 +24,24 @@ export function useTripPlaces(tripId: string) {
   const update = useMutation({
     mutationFn: async ({
       id,
+      placeId,
       category,
       memo,
       tags,
       status,
     }: {
-      id: string
+      id?: string
+      /** @deprecated trip place 식별자는 id를 사용. 구 호출부 호환용 */
+      placeId?: string
       category?: PlaceCategoryType
       memo?: string
       tags?: string[]
       status?: PlaceStatus
-    }) => updateTripPlace(id, { category, memo, tags, status }),
+    }) => {
+      const tripPlaceId = id ?? placeId
+      if (!tripPlaceId) throw new Error('useTripPlaces.update: id is required')
+      return updateTripPlace(tripPlaceId, { category, memo, tags, status })
+    },
     onSuccess: () => refetch(),
   })
 
