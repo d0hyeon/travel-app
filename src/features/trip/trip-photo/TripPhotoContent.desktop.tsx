@@ -41,7 +41,7 @@ export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
 
   return (
     <Stack flex={1} p={3} overflow="auto">
-      <Stack direction="row" gap={1} mb={3} flexWrap="wrap">
+      <Stack direction="row" gap={1} flexWrap="wrap" mb={3}>
         <Chip
           label="전체"
           variant={selectedPlaceId === null ? 'filled' : 'outlined'}
@@ -53,7 +53,6 @@ export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
             label={place.name}
             variant={selectedPlaceId === place.id ? 'filled' : 'outlined'}
             onClick={() => setSelectedPlaceId(place.id)}
-
           />
         ))}
       </Stack>
@@ -64,9 +63,9 @@ export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
           <PhotoUploader
             width="100%"
             sx={{ width: 120 }}
-            onUpload={async ({ items }) => {
-              if (!items?.length) return;
-              await upload({ items, placeId: selectedPlaceId ?? undefined })
+            onUpload={async (files) => {
+              if (files.length === 0) return
+              await upload({ files, placeId: selectedPlaceId ?? undefined })
             }}
             multiple
           />

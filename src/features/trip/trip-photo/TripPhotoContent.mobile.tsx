@@ -79,9 +79,9 @@ export default function TripPhotoContent({ tripId }: TripPhotoContentProps) {
           <ImageList cols={3}>
             <PhotoUploader
               width="100%"
-              onUpload={({ items }) => {
-                if (!items?.length) return Promise.resolve();
-                return upload({ items });
+              onUpload={(files) => {
+                if (files.length === 0) return Promise.resolve()
+                return upload({ files })
               }}
               multiple
             />

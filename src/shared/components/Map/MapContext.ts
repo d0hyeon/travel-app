@@ -26,12 +26,13 @@ export function useMapContext<MapInstance>(Context: React.Context<MapContextValu
 function waitForInitialize<T>(getNode: () => T | null | undefined) {
   const node = getNode();
   if (node == null) {
-    const { promise, resolve } = Promise.withResolvers<T>();
-    const timerId = setInterval(() => {
+    const { promise, resolve, reject } = Promise.withResolvers<T>();
+    setTimeout(() => {
       const node = getNode();
       if (node != null) {
-        clearInterval(timerId);
         resolve(node);
+      } else {
+        reject(promise)
       }
     }, 10);
     return promise;

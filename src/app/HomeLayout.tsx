@@ -1,10 +1,12 @@
+import DynamicFeedIcon from '@mui/icons-material/DynamicFeed'
 import LogoutIcon from '@mui/icons-material/Logout'
 import LuggageIcon from '@mui/icons-material/Luggage'
 import MapIcon from '@mui/icons-material/Map'
+import ProfileIcon from '@mui/icons-material/AccountCircle'
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
 import { Box, IconButton, Stack, Tooltip, Typography } from '@mui/material'
 import { useRef, useState } from 'react'
-import { Link, Outlet, PrefetchPageLinks, useLocation, useNavigate } from 'react-router'
+import { generatePath, Link, Outlet, PrefetchPageLinks, useLocation, useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
 import { signOut } from '~features/auth/auth.api'
 import { BottomNavigation } from '~shared/components/BottomNavigation'
@@ -12,10 +14,12 @@ import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useActivationSignal } from '~shared/hooks/interaction/useActivationSignal'
 import { ScrollContainerProvider } from '~shared/hooks/interaction/useScrollRestore'
 import { isDev } from './env'
+import { useAuth } from '~features/auth/useAuth'
 
 
 const TABS = [
   { label: '여행', path: AppRoute.메인, Icon: LuggageIcon },
+  { label: '피드', path: AppRoute.피드, Icon: DynamicFeedIcon },
   { label: '지도', path: AppRoute.지도, Icon: MapIcon },
   { label: '통계', path: AppRoute.통계, Icon: ReceiptLongIcon },
 ]
@@ -25,6 +29,9 @@ export default function HomeLayout() {
   const navigate = useNavigate()
   const isMobile = useIsMobile();
   const scrollRef = useRef<HTMLDivElement>(null)
+
+  const { data: auth } = useAuth();
+  const mypagePath = generatePath(AppRoute.사용자_피드, { userId: auth.id })
 
   if (isMobile) {
     return (
@@ -44,18 +51,13 @@ export default function HomeLayout() {
                 {label}
               </BottomNavigation.Menu>
             ))}
-            {isDev && (
-              <BottomNavigation.Menu
-                icon={<LogoutIcon fontSize="small" color="disabled" />}
-                isActived={false}
-                onClick={async () => {
-                  await signOut();
-                  window.location.reload();
-                }}
-              >
-                로그아웃
-              </BottomNavigation.Menu>
-            )}
+            <BottomNavigation.Menu
+              icon={<ProfileIcon fontSize="small" color={location.pathname === mypagePath ? 'primary' : 'disabled'} />}
+              isActived={location.pathname === mypagePath}
+              onClick={() => navigate(mypagePath, {})}
+            >
+              내 정보
+            </BottomNavigation.Menu>
           </BottomNavigation>
         </Box>
         <Preload />

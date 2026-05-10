@@ -7,6 +7,7 @@ import { TripMemo } from '../trip-memo/TripMemo'
 import { TripMemoAddButton } from '../trip-memo/TripMemoAddButton'
 import { TripBaseInfoList } from './TripBaseInfoList'
 import { TripDDay } from './TripDDay'
+import { TripPostCreateCard } from './TripPostCreateCard'
 import { RecommendedPlaceListSection } from '../trip-recommend/RecommendedPlaceListSection'
 
 interface Props {
@@ -23,6 +24,10 @@ export function TripBasicInfoContent({ tripId }: Props) {
           {/* D-Day */}
           <Suspense fallback={<TripDDay.Skeleton />}>
             <TripDDay tripId={tripId} />
+          </Suspense>
+
+          <Suspense fallback={null}>
+            <TripPostCreateCard tripId={tripId} />
           </Suspense>
 
           {/* 여행 정보 */}

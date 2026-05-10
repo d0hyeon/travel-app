@@ -12,9 +12,10 @@ export function arrayIncludes<T>(value: (T[]) | (readonly T[]), item: unknown): 
 
 export function assert(
   value: boolean,
-  message = 'Value is required'
+  fallback: string | Error = 'Value is required'
 ): asserts value {
   if (value == null) {
-    throw new Error(message)
+    if (typeof fallback === 'string') throw new Error(fallback)
+    throw fallback;
   }
 }

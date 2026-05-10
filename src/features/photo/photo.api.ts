@@ -7,7 +7,7 @@ import Resizer from 'react-image-file-resizer';
 export const photoKey = 'photos'
 const BUCKET_NAME = 'photos'
 
-function toPhoto(row: DataRaw<'photos'>): Photo {
+export function toPhoto(row: DataRaw<'photos'>): Photo {
   return {
     id: row.id,
     tripId: row.trip_id,
@@ -77,37 +77,35 @@ const resizeImage = async (_file: File) => {
   });
 };
 
+async function uploadToStorage(storagePath: string, file: File): Promise<string> {
+  const { data: signedData, error: signedError } = await supabase.storage
+    .from(BUCKET_NAME)
+    .createSignedUploadUrl(storagePath)
+  if (signedError) throw signedError
+
+  const { error: uploadError } = await supabase.storage
+    .from(BUCKET_NAME)
+    .uploadToSignedUrl(storagePath, signedData.token, file)
+  if (uploadError) throw uploadError
+
+  return supabase.storage.from(BUCKET_NAME).getPublicUrl(storagePath).data.publicUrl
+}
+
 export async function uploadPhoto({ tripId, placeId, file: _file, isPublic }: PhotoUploadParams): Promise<Photo> {
   const file = await resizeImage(_file);
   const fileExt = file.name.split('.').pop()
   const fileName = `${Date.now()}.${fileExt}`
-  const storagePath = `${tripId}/${placeId}/${fileName}`
+  const storagePath = `${tripId}/${placeId ?? '_'}/${fileName}`
 
-  // Presigned URL 생성
-  const { data: signedData, error: signedError } = await supabase.storage
-    .from(BUCKET_NAME)
-    .createSignedUploadUrl(storagePath)
-
-  if (signedError) throw signedError
-
-  // Presigned URL로 업로드
-  const { error: uploadError } = await supabase.storage
-    .from(BUCKET_NAME)
-    .uploadToSignedUrl(storagePath, signedData.token, file)
-
-  if (uploadError) throw uploadError
-
-  const { data: urlData } = supabase.storage
-    .from(BUCKET_NAME)
-    .getPublicUrl(storagePath)
+  const publicUrl = await uploadToStorage(storagePath, file)
 
   const { data: created, error: insertError } = await supabase
     .from('photos')
     .insert({
       trip_id: tripId,
-      place_id: placeId,
+      place_id: placeId ?? null,
       is_public: isPublic,
-      url: urlData.publicUrl,
+      url: publicUrl,
       storage_path: storagePath,
     })
     .select()
@@ -115,6 +113,31 @@ export async function uploadPhoto({ tripId, placeId, file: _file, isPublic }: Ph
 
   if (insertError) throw insertError
   return toPhoto(created!)
+}
+
+export interface PostPhotoUploadResult {
+  url: string
+  storagePath: string
+}
+
+export async function uploadPostPhoto(tripId: string | null, file: File): Promise<PostPhotoUploadResult> {
+  const resized = await resizeImage(file);
+  const fileExt = resized.name.split('.').pop()
+  const scope = tripId ?? 'orphan'
+  const storagePath = `posts/${scope}/${Date.now()}.${fileExt}`
+  const url = await uploadToStorage(storagePath, resized)
+  return { url, storagePath }
+}
+
+export async function createPhotoFileFromUrl(url: string, fileName = `${Date.now()}.jpg`): Promise<File> {
+  const response = await fetch(url)
+  if (!response.ok) {
+    throw new Error('사진 파일을 다시 가져오지 못했어요')
+  }
+
+  const blob = await response.blob()
+  const contentType = blob.type || 'image/jpeg'
+  return new File([blob], fileName, { type: contentType })
 }
 
 export async function deletePhoto(photo: Photo): Promise<boolean> {

@@ -203,12 +203,12 @@ export type Database = {
         Insert: {
           address?: string | null
           created_at?: string
-          external_id: string
+          external_id?: string
           id?: string
           lat: number
           lng: number
           name: string
-          provider: string
+          provider?: string
         }
         Update: {
           address?: string | null
@@ -222,47 +222,176 @@ export type Database = {
         }
         Relationships: []
       }
-      trip_places: {
+      post_comments: {
         Row: {
-          category: string | null
+          author_id: string
+          content: string
           created_at: string
           id: string
-          memo: string | null
-          place_id: string
-          status: string
-          tags: string[]
-          trip_id: string
+          post_id: string
+          updated_at: string | null
         }
         Insert: {
-          category?: string | null
+          author_id: string
+          content: string
           created_at?: string
           id?: string
-          memo?: string | null
-          place_id: string
-          status?: string
-          tags?: string[]
-          trip_id: string
+          post_id: string
+          updated_at?: string | null
         }
         Update: {
-          category?: string | null
+          author_id?: string
+          content?: string
           created_at?: string
           id?: string
-          memo?: string | null
-          place_id?: string
-          status?: string
-          tags?: string[]
-          trip_id?: string
+          post_id?: string
+          updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "trip_places_place_id_fkey"
+            foreignKeyName: "post_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_likes: {
+        Row: {
+          created_at: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_locations: {
+        Row: {
+          display_order: number
+          place_id: string
+          post_id: string
+        }
+        Insert: {
+          display_order: number
+          place_id: string
+          post_id: string
+        }
+        Update: {
+          display_order?: number
+          place_id?: string
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_locations_place_id_fkey"
             columns: ["place_id"]
             isOneToOne: false
             referencedRelation: "places"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "trip_places_trip_id_fkey"
+            foreignKeyName: "post_locations_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_photos: {
+        Row: {
+          display_order: number
+          is_public: boolean
+          place_id: string | null
+          post_id: string
+          storage_path: string
+          url: string
+        }
+        Insert: {
+          display_order: number
+          is_public?: boolean
+          place_id?: string | null
+          post_id: string
+          storage_path: string
+          url: string
+        }
+        Update: {
+          display_order?: number
+          is_public?: boolean
+          place_id?: string | null
+          post_id?: string
+          storage_path?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_photos_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_photos_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          author_id: string
+          created_at: string
+          description: string | null
+          id: string
+          title: string | null
+          trip_id: string | null
+          updated_at: string | null
+          visibility: Database["public"]["Enums"]["post_visibility"]
+        }
+        Insert: {
+          author_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          title?: string | null
+          trip_id?: string | null
+          updated_at?: string | null
+          visibility?: Database["public"]["Enums"]["post_visibility"]
+        }
+        Update: {
+          author_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          title?: string | null
+          trip_id?: string | null
+          updated_at?: string | null
+          visibility?: Database["public"]["Enums"]["post_visibility"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_trip_id_fkey"
             columns: ["trip_id"]
             isOneToOne: false
             referencedRelation: "trips"
@@ -343,10 +472,59 @@ export type Database = {
           },
         ]
       }
+      trip_places: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          memo: string | null
+          place_id: string
+          status: string
+          tags: string[]
+          trip_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          memo?: string | null
+          place_id: string
+          status?: string
+          tags?: string[]
+          trip_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          memo?: string | null
+          place_id?: string
+          status?: string
+          tags?: string[]
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_places_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trip_places_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trips: {
         Row: {
           created_at: string
           destination: string
+          destinations: Json
           end_date: string
           exchange_rate: number | null
           exchange_rates: Json | null
@@ -357,11 +535,12 @@ export type Database = {
           name: string
           share_link: string
           start_date: string
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           created_at?: string
           destination: string
+          destinations: Json
           end_date: string
           exchange_rate?: number | null
           exchange_rates?: Json | null
@@ -372,11 +551,12 @@ export type Database = {
           name: string
           share_link?: string
           start_date: string
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           created_at?: string
           destination?: string
+          destinations?: Json
           end_date?: string
           exchange_rate?: number | null
           exchange_rates?: Json | null
@@ -387,7 +567,7 @@ export type Database = {
           name?: string
           share_link?: string
           start_date?: string
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -395,21 +575,18 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
-          emoji: string
           id: string
           name: string
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
-          emoji?: string
           id: string
           name?: string
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
-          emoji?: string
           id?: string
           name?: string
         }
@@ -420,17 +597,68 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      can_access_trip: {
-        Args: { trip_id: string }
+      can_access_trip: { Args: { trip_id: string }; Returns: boolean }
+      can_view_post: {
+        Args: {
+          post_author: string
+          post_trip: string
+          post_visibility: Database["public"]["Enums"]["post_visibility"]
+        }
         Returns: boolean
+      }
+      get_my_trips: {
+        Args: { p_user_id: string }
+        Returns: {
+          created_at: string
+          destination: string
+          destinations: Json
+          end_date: string
+          exchange_rate: number | null
+          exchange_rates: Json | null
+          id: string
+          is_overseas: boolean
+          lat: number
+          lng: number
+          name: string
+          share_link: string
+          start_date: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "trips"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       get_trip_by_share_link: {
         Args: { link: string }
-        Returns: Database['public']['Tables']['trips']['Row'][]
+        Returns: {
+          created_at: string
+          destination: string
+          destinations: Json
+          end_date: string
+          exchange_rate: number | null
+          exchange_rates: Json | null
+          id: string
+          is_overseas: boolean
+          lat: number
+          lng: number
+          name: string
+          share_link: string
+          start_date: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "trips"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
     }
     Enums: {
-      [_ in never]: never
+      post_visibility: "PRIVATE" | "MEMBERS" | "PUBLIC"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -557,6 +785,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      post_visibility: ["PRIVATE", "MEMBERS", "PUBLIC"],
+    },
   },
 } as const
