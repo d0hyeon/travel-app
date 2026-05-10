@@ -2,12 +2,8 @@ import { Box, Container } from '@mui/material'
 import { useNavigate, useParams } from 'react-router'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
 import { assert } from '~shared/utils/types'
-import { PostScreen } from './PostScreen'
-import { usePost } from './usePost'
-import { useAuth } from '~features/auth/useAuth'
-import { PopMenu } from '~shared/components/PopMenu'
-import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { PostMenu } from './PostMenu'
+import { PostScreen } from './PostScreen'
 
 export default function PostDetailPage() {
   const postId = usePostId();
