@@ -4,7 +4,7 @@ import { IconButton, Stack, Typography, type StackProps } from '@mui/material'
 import { usePostLikes } from './usePostLikes'
 
 interface Props extends StackProps {
-  postId: string
+  postId: string;
 }
 
 export function PostLikeButton({ postId, ...props }: Props) {
