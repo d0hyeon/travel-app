@@ -80,7 +80,7 @@ export function PhotoStep({ tripId, defaultValue, onNext }: Props) {
         </ImageList>
       </Box>
 
-      <BottomArea>
+      <BottomArea sx={{ borderTop: '1px solid rgba(0,0,0,0.05)' }}>
         <Button
           variant="contained"
           fullWidth

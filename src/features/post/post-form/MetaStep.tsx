@@ -2,6 +2,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import {
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -74,12 +75,15 @@ export function MetaStep({ tripId, selectedPhotos, onNext }: Props) {
         </Stack>
       </Box>
 
-      <BottomArea>
+      <BottomArea sx={{ borderTop: '1px solid rgba(0,0,0,0.05)' }}>
         <Button
           variant="contained"
           fullWidth
           size="large"
           loading={isPending}
+          disabled={isPending}
+          loadingIndicator={<CircularProgress />}
+          loadingPosition="start"
           onClick={() => {
             startTransition(async () => {
               await onNext({
