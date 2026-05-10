@@ -76,7 +76,7 @@ export default function PostFormPage() {
         placeIds: value.places.map((p) => p.placeId),
         photos: uploadedPhotos,
       })
-      await navigate(`/post/${post.id}`)
+      await navigate(`/post/${post.id}`, { replace: true })
     }
   });
 
