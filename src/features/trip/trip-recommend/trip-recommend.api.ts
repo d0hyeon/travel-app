@@ -8,7 +8,10 @@ export const recommendedPlaceKey = 'recommended-places'
 
 export interface RecommendedPlace {
   id: string
+  placeId: string
   tripId: string
+  provider: string
+  externalId: string
   name: string
   address: string
   lat: number
@@ -37,7 +40,10 @@ function calcRecencyScore(tripStartDate: string): number {
 
 interface ScoredPlace {
   id: string
+  placeId: string
   tripId: string
+  provider: string
+  externalId: string
   name: string
   address: string
   lat: number
@@ -131,7 +137,7 @@ export async function getRecommendedPlaces(
   const [tripPlacesResult, routesResult] = await Promise.all([
     supabase
       .from('trip_places')
-      .select('id, trip_id, category, places!inner(name, address, lat, lng, photos(url, is_public))')
+      .select('id, trip_id, category, places!inner(id, provider, external_id, name, address, lat, lng, photos(url, is_public))')
       .in('trip_id', tripIds),
     supabase.from('routes').select('trip_id, place_ids, hidden_places').in('trip_id', tripIds),
   ])
@@ -149,6 +155,9 @@ export async function getRecommendedPlaces(
     trip_id: string
     category: string | null
     places: {
+      id: string
+      provider: string
+      external_id: string
       name: string
       address: string | null
       lat: number
@@ -166,7 +175,10 @@ export async function getRecommendedPlaces(
         .map(photo => photo.url)
       return {
         id: row.id,
+        placeId: row.places.id,
         tripId: row.trip_id,
+        provider: row.places.provider,
+        externalId: row.places.external_id,
         name: row.places.name,
         address: row.places.address ?? '',
         lat: row.places.lat,
@@ -185,7 +197,10 @@ export async function getRecommendedPlaces(
     .slice(0, MAX_RESULTS)
     .map(place => ({
       id: place.id,
+      placeId: place.placeId,
       tripId: place.tripId,
+      provider: place.provider,
+      externalId: place.externalId,
       name: place.name,
       address: place.address,
       lat: place.lat,

@@ -8,7 +8,6 @@ import {
   upsertPlace,
 } from "../../place/place.api";
 import type { PlaceCategoryType, PlaceStatus, TripPlace } from "../../place/place.types";
-import type { PlaceResult } from "../../place/place-search/usePlaceSearch";
 import { tripKey } from "../trip.api";
 import { queryClient } from "~app/query-client";
 
@@ -54,18 +53,27 @@ export function useTripPlaces(tripId: string) {
   }
 }
 
+export interface AddTripPlacePayload {
+  provider: string
+  externalId: string
+  name: string
+  address: string
+  lat: number
+  lng: number
+}
+
 export function useAddTripPlace(
   tripId: string,
-  options?: Omit<MutationOptions<TripPlace, Error, PlaceResult>, 'mutationFn'>,
+  options?: Omit<MutationOptions<TripPlace, Error, AddTripPlacePayload>, 'mutationFn'>,
 ) {
   return useMutation({
     ...options,
-    mutationFn: async (result: PlaceResult) => {
-      const place = await upsertPlace(result.provider, result.externalId, {
-        name: result.name,
-        address: result.address,
-        lat: result.lat,
-        lng: result.lng,
+    mutationFn: async (payload: AddTripPlacePayload) => {
+      const place = await upsertPlace(payload.provider, payload.externalId, {
+        name: payload.name,
+        address: payload.address,
+        lat: payload.lat,
+        lng: payload.lng,
       })
       return createTripPlace({
         tripId,
