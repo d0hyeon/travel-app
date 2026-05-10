@@ -1,14 +1,14 @@
-import { Box, CircularProgress, Container, Typography } from '@mui/material'
+import { Box, CircularProgress, Container } from '@mui/material'
 import { Suspense, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { createPhotoFileFromUrl, uploadPostPhoto } from '~features/photo/photo.api'
-import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState'
 import { lazy } from '~shared/utils/react'
 import { useCreatePost } from '../usePost'
 import type { MetaStepValue } from './MetaStep'
 import { isLocalDraftPostPhoto, type DraftPostPhoto } from './postDraftPhoto'
+import { PostFormStepHeader, type PostFormStep } from './PostFormStepHeader'
 import { usePostForm } from './usePostForm'
 
 const TripStep = lazy(async () => {
@@ -26,8 +26,7 @@ const MetaStep = lazy(async () => {
   return { default: MetaStep }
 })
 
-const STEPS = ['trip', 'photo', 'meta'] as const
-type Step = typeof STEPS[number]
+type Step = PostFormStep
 
 
 
@@ -80,9 +79,7 @@ export default function PostFormPage() {
   return (
     <Box height="100dvh" display="flex" flexDirection="column" overflow="auto">
       <Container maxWidth="sm" disableGutters sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-        <TopNavigation position="sticky">
-          <Typography variant="body2">새 포스트</Typography>
-        </TopNavigation>
+        <PostFormStepHeader step={step as Step} />
 
         <Box>
           <Suspense fallback={<Box display="flex" justifyContent="center" pt={4}><CircularProgress /></Box>}>
