@@ -203,12 +203,12 @@ export type Database = {
         Insert: {
           address?: string | null
           created_at?: string
-          external_id: string
+          external_id?: string
           id?: string
           lat: number
           lng: number
           name: string
-          provider: string
+          provider?: string
         }
         Update: {
           address?: string | null
@@ -221,54 +221,6 @@ export type Database = {
           provider?: string
         }
         Relationships: []
-      }
-      trip_places: {
-        Row: {
-          category: string | null
-          created_at: string
-          id: string
-          memo: string | null
-          place_id: string
-          status: string
-          tags: string[]
-          trip_id: string
-        }
-        Insert: {
-          category?: string | null
-          created_at?: string
-          id?: string
-          memo?: string | null
-          place_id: string
-          status?: string
-          tags?: string[]
-          trip_id: string
-        }
-        Update: {
-          category?: string | null
-          created_at?: string
-          id?: string
-          memo?: string | null
-          place_id?: string
-          status?: string
-          tags?: string[]
-          trip_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "trip_places_place_id_fkey"
-            columns: ["place_id"]
-            isOneToOne: false
-            referencedRelation: "places"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "trip_places_trip_id_fkey"
-            columns: ["trip_id"]
-            isOneToOne: false
-            referencedRelation: "trips"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       post_comments: {
         Row: {
@@ -324,6 +276,39 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "post_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_locations: {
+        Row: {
+          display_order: number
+          place_id: string
+          post_id: string
+        }
+        Insert: {
+          display_order: number
+          place_id: string
+          post_id: string
+        }
+        Update: {
+          display_order?: number
+          place_id?: string
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_locations_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_locations_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "posts"
@@ -414,39 +399,6 @@ export type Database = {
           },
         ]
       }
-      post_locations: {
-        Row: {
-          post_id: string
-          place_id: string
-          display_order: number
-        }
-        Insert: {
-          post_id: string
-          place_id: string
-          display_order: number
-        }
-        Update: {
-          post_id?: string
-          place_id?: string
-          display_order?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "post_locations_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "posts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "post_locations_place_id_fkey"
-            columns: ["place_id"]
-            isOneToOne: false
-            referencedRelation: "places"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       routes: {
         Row: {
           created_at: string
@@ -494,31 +446,73 @@ export type Database = {
       trip_members: {
         Row: {
           created_at: string
-          emoji: string | null
           id: string
-          name: string | null
           trip_id: string
           user_id: string
         }
         Insert: {
           created_at?: string
-          emoji?: string | null
           id?: string
-          name?: string | null
           trip_id: string
           user_id: string
         }
         Update: {
           created_at?: string
-          emoji?: string | null
           id?: string
-          name?: string | null
           trip_id?: string
           user_id?: string
         }
         Relationships: [
           {
             foreignKeyName: "trip_members_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trip_places: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          memo: string | null
+          place_id: string
+          status: string
+          tags: string[]
+          trip_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          memo?: string | null
+          place_id: string
+          status?: string
+          tags?: string[]
+          trip_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          memo?: string | null
+          place_id?: string
+          status?: string
+          tags?: string[]
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_places_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trip_places_trip_id_fkey"
             columns: ["trip_id"]
             isOneToOne: false
             referencedRelation: "trips"
