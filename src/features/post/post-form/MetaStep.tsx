@@ -24,6 +24,7 @@ import { Swiper, SwiperSlide } from 'swiper/react'
 
 // @ts-ignore
 import 'swiper/css'
+import { useLoading } from '~shared/hooks/useLoading'
 
 export interface MetaStepValue {
   description: string
@@ -34,7 +35,7 @@ export interface MetaStepValue {
 interface Props {
   tripId?: string | null
   selectedPhotos: DraftPostPhoto[]
-  onNext: (value: MetaStepValue) => void
+  onNext: (value: MetaStepValue) => (void | Promise<void>)
 }
 
 export function MetaStep({ tripId, selectedPhotos, onNext }: Props) {
@@ -47,6 +48,8 @@ export function MetaStep({ tripId, selectedPhotos, onNext }: Props) {
     : places.length === 1
       ? places[0].name
       : `${places[0].name} 외 ${places.length - 1}`
+
+  const [isPending, startTransition] = useLoading();
 
   return (
     <>
@@ -76,12 +79,16 @@ export function MetaStep({ tripId, selectedPhotos, onNext }: Props) {
           variant="contained"
           fullWidth
           size="large"
+          loading={isPending}
           onClick={() => {
-            onNext({
-              description: description.trim(),
-              places,
-              visibility,
+            startTransition(async () => {
+              await onNext({
+                description: description.trim(),
+                places,
+                visibility,
+              })
             })
+
           }}
         >
           확인
