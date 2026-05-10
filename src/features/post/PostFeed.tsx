@@ -8,11 +8,13 @@ import { UserProfile } from '~features/user-profile/UserProfile'
 import { PostLikeButton } from './PostLikeButton'
 import { AppRoute } from '~app/routes'
 import { generatePath, Link } from 'react-router'
+import LockIcon from '@mui/icons-material/Lock';
 
 // @ts-ignore
 import 'swiper/css'
 // @ts-ignore
 import 'swiper/css/pagination'
+import { PostVisibility } from './post.types'
 
 
 
@@ -74,6 +76,14 @@ export function PostFeed() {
                 <Typography variant="body2" color="textSecondary" paddingTop={1.5} paddingX={0.5}>
                   {post.description}
                 </Typography>
+              )}
+              {post.visibility !== PostVisibility.PUBLIC && (
+                <Stack direction="row" marginTop={1} alignItems="center" gap={0.5} >
+                  <LockIcon fontSize="small" color="disabled" sx={{ fontSize: 14 }} />
+                  <Typography variant="caption" color="textSecondary" sx={{ fontSize: 11 }}>
+                    비공개
+                  </Typography>
+                </Stack>
               )}
 
             </Link>
