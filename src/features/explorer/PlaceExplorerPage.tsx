@@ -3,7 +3,7 @@ import { Box, CircularProgress, IconButton, Tooltip } from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
 import { Suspense, useMemo, useState } from 'react'
 import { getPhotosByPlaceId, photoKey } from '../photo/photo.api'
-import type { Place } from '../place/place.types'
+import type { TripPlace } from '../place/place.types'
 import { useTrips } from '../trip/useTrips'
 import { Country, getCountryByLocation, type Country as CountryType } from '~features/location'
 import { Map } from '~shared/components/Map'
@@ -188,7 +188,7 @@ function Resolved() {
 }
 
 interface PlaceMarkerProps {
-  place: Place
+  place: TripPlace
   color: string
   isSelected: boolean
   onClick: () => void
@@ -196,8 +196,8 @@ interface PlaceMarkerProps {
 
 function PlaceMarker({ place, color, isSelected, onClick }: PlaceMarkerProps) {
   const { data: photos } = useQuery({
-    queryKey: [photoKey, 'place', place.id],
-    queryFn: () => getPhotosByPlaceId(place.id),
+    queryKey: [photoKey, 'place', place.placeId],
+    queryFn: () => getPhotosByPlaceId(place.placeId),
     staleTime: Infinity,
   })
 

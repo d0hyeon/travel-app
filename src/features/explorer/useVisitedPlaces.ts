@@ -2,7 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import { useMemo } from 'react'
 import { Country, getCountryByLocation, isLocation, type Location } from '~features/location'
 import { useTrips } from '../trip/useTrips'
-import { getAllPlaces, placeKey } from "../place/place.api"
+import { getAllTripPlaces, placeKey } from "../place/place.api"
 import { getAllRoutes, routeKey } from "../route/route.api"
 
 export interface VisitedLocation {
@@ -16,7 +16,7 @@ export function useVisitedPlaces(tripIds?: string[]) {
   const { data, ...placesQuery } = useSuspenseQuery({
     queryKey: [placeKey, routeKey, 'confirmed-all'],
     queryFn: async () => {
-      const [places, routes] = await Promise.all([getAllPlaces(), getAllRoutes()])
+      const [places, routes] = await Promise.all([getAllTripPlaces(), getAllRoutes()])
       const confirmedPlaceIds = new Set(routes.flatMap((route) => route.placeIds))
 
       return places.filter((place) => confirmedPlaceIds.has(place.id))

@@ -100,7 +100,7 @@ export type Database = {
             foreignKeyName: "expenses_place_id_fkey"
             columns: ["place_id"]
             isOneToOne: false
-            referencedRelation: "places"
+            referencedRelation: "trip_places"
             referencedColumns: ["id"]
           },
           {
@@ -192,46 +192,77 @@ export type Database = {
       places: {
         Row: {
           address: string | null
-          category: string | null
           created_at: string
+          external_id: string
           id: string
           lat: number
           lng: number
-          memo: string | null
           name: string
+          provider: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          external_id: string
+          id?: string
+          lat: number
+          lng: number
+          name: string
+          provider: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          external_id?: string
+          id?: string
+          lat?: number
+          lng?: number
+          name?: string
+          provider?: string
+        }
+        Relationships: []
+      }
+      trip_places: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          memo: string | null
+          place_id: string
           status: string
           tags: string[]
           trip_id: string
         }
         Insert: {
-          address?: string | null
           category?: string | null
           created_at?: string
           id?: string
-          lat: number
-          lng: number
           memo?: string | null
-          name: string
+          place_id: string
           status?: string
           tags?: string[]
           trip_id: string
         }
         Update: {
-          address?: string | null
           category?: string | null
           created_at?: string
           id?: string
-          lat?: number
-          lng?: number
           memo?: string | null
-          name?: string
+          place_id?: string
           status?: string
           tags?: string[]
           trip_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "places_trip_id_fkey"
+            foreignKeyName: "trip_places_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trip_places_trip_id_fkey"
             columns: ["trip_id"]
             isOneToOne: false
             referencedRelation: "trips"

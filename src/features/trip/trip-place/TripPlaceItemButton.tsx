@@ -2,7 +2,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { Box, Chip, Stack } from "@mui/material";
 import { type ComponentProps } from "react";
-import { PlaceCategoryColorCode, type Place } from "~features/place/place.types";
+import { PlaceCategoryColorCode, type TripPlace } from "~features/place/place.types";
 import { ListItem } from "~shared/components/ListItem";
 import { PopMenu } from "~shared/components/PopMenu";
 import { useIsMobile } from "~shared/hooks/env/useIsMobile";
@@ -11,7 +11,7 @@ import { useTripPlaceFormOverlay } from "./trip-place-form/useTripPlaceFormOverl
 import { useTripPlaces } from "./useTripPlaces";
 
 interface ItemProps extends ComponentProps<typeof ListItem.Button> {
-  place: Place;
+  place: TripPlace;
 }
 export function TripPlaceItemButton({ place, ...props }: ItemProps) {
   const confirm = useConfirmDialog();

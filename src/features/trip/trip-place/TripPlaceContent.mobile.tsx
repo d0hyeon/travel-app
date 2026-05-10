@@ -5,7 +5,7 @@ import { BottomArea } from '~shared/components/BottomArea';
 import { arraySplit } from '~shared/utils/common';
 import { BottomSheet } from "../../../shared/components/bottom-sheet/BottomSheet";
 import { Map, type MapRef } from "../../../shared/components/Map";
-import { PlaceCategoryColorCode, type Place } from "../../place/place.types";
+import { PlaceCategoryColorCode, type TripPlace } from "../../place/place.types";
 import { useTripCluastering } from '../hooks/useTripCluastering';
 import { RecommendedMarkers } from '../trip-recommend/RecommendedMarkers';
 import { useRecommendedPlaceDetailOverlay } from '../trip-recommend/RecommendedPlaceDetailOverlay';
@@ -36,7 +36,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
   const { data: { routes } } = useTripRoutes(tripId)
 
   const mapRef = useRef<MapRef>(null);
-  const handlePlaceClick = (place: Place) => {
+  const handlePlaceClick = (place: TripPlace) => {
     mapRef.current?.panTo(place.lat, place.lng)
   }
 

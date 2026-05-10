@@ -15,15 +15,9 @@ import {
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import { Map, type MapType } from '../../../shared/components/Map'
-import { usePlaceSearch } from './usePlaceSearch'
+import { usePlaceSearch, type PlaceResult } from './usePlaceSearch'
 
-export interface PlaceSearchResult {
-  id: string
-  name: string
-  address: string
-  lat: number
-  lng: number
-}
+export type PlaceSearchResult = PlaceResult
 
 interface Props {
   isOpen: boolean

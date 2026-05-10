@@ -201,7 +201,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                     if (updated) {
                       updatePlace({
                         ...updated,
-                        placeId: place.id,
+                        id: place.id,
                         category: updated.category || undefined, tags: updated.tags
                       })
                     }
@@ -328,7 +328,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                             if (updated) {
                               updatePlace({
                                 ...updated,
-                                placeId: place.id,
+                                id: place.id,
                                 category: updated.category || undefined, tags: updated.tags
                               })
                             }

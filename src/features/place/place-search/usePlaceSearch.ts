@@ -7,7 +7,9 @@ import { loadKakaoMap } from '../../../shared/components/Map/kakao/loader';
 import type { MapType } from '../../../shared/components/Map/types';
 
 export interface PlaceResult {
-  id: string;
+  /** 검색 서비스의 장소 식별자 (places.external_id로 저장됨) */
+  externalId: string;
+  provider: 'kakao' | 'google';
   name: string;
   address: string;
   lat: number;
@@ -50,7 +52,8 @@ export function usePlaceSearch({ service, keyword, location }: UsePlaceSearchOpt
       if (status === google.maps.places.PlacesServiceStatus.OK && results) {
         googleResolverRef.current?.({
           results: results.map((item) => ({
-            id: item.place_id ?? crypto.randomUUID(),
+            externalId: item.place_id ?? crypto.randomUUID(),
+            provider: 'google' as const,
             name: item.name ?? '',
             address: item.formatted_address ?? '',
             lat: item.geometry?.location?.lat() ?? 0,
@@ -85,7 +88,8 @@ export function usePlaceSearch({ service, keyword, location }: UsePlaceSearchOpt
         }
         resolve({
           results: data.map((item) => ({
-            id: item.id,
+            externalId: item.id,
+            provider: 'kakao' as const,
             name: item.place_name,
             address: item.road_address_name || item.address_name,
             lat: parseFloat(item.y),
