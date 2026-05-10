@@ -12,6 +12,7 @@ import { TripMemoMobile } from '../trip-memo/TripMemoMobile'
 import { TripPinnedMemos } from '../trip-memo/TripPinnedMemos'
 import { TripBaseInfoList } from './TripBaseInfoList'
 import { TripDDay } from './TripDDay'
+import { TripPostCreateCard } from './TripPostCreateCard'
 import { RecommendedPlaceListSection } from '../trip-recommend/RecommendedPlaceListSection'
 
 interface Props {
@@ -40,7 +41,11 @@ export function TripBasicInfoContent({ tripId }: Props) {
             </Suspense>
 
             <Stack gap={3} alignItems="start">
-              {/* D-Day */}
+              <ErrorBoundary>
+                <Suspense fallback={null}>
+                  <TripPostCreateCard tripId={tripId} />
+                </Suspense>
+              </ErrorBoundary>
 
               {/* 여행 정보 */}
               <TripBaseInfoList

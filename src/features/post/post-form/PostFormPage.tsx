@@ -28,6 +28,8 @@ const MetaStep = lazy(async () => {
 
 type Step = PostFormStep
 
+const FULL_STEPS = ['trip', 'photo', 'meta'] as const satisfies readonly PostFormStep[]
+const SKIP_TRIP_STEPS = ['photo', 'meta'] as const satisfies readonly PostFormStep[]
 
 
 export default function PostFormPage() {
@@ -36,9 +38,11 @@ export default function PostFormPage() {
 
   const [searchParams] = useSearchParams()
   const initialTripId = searchParams.get('tripId')
+  const skipTripStep = initialTripId != null
+  const steps = skipTripStep ? SKIP_TRIP_STEPS : FULL_STEPS
 
   const [step, setStep] = useQueryParamState<Step>('step', {
-    defaultValue: initialTripId ? 'photo' : 'trip',
+    defaultValue: skipTripStep ? 'photo' : 'trip',
   });
   const [tripId, setTripId] = useState<string | null>(initialTripId)
 
@@ -79,7 +83,7 @@ export default function PostFormPage() {
   return (
     <Box height="100dvh" display="flex" flexDirection="column" overflow="auto">
       <Container maxWidth="sm" disableGutters sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-        <PostFormStepHeader step={step as Step} />
+        <PostFormStepHeader step={step as Step} steps={steps} />
 
         <Box>
           <Suspense fallback={<Box display="flex" justifyContent="center" pt={4}><CircularProgress /></Box>}>

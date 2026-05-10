@@ -4,8 +4,6 @@ import { useNavigate } from 'react-router'
 
 export type PostFormStep = 'trip' | 'photo' | 'meta'
 
-const STEP_ORDER: PostFormStep[] = ['trip', 'photo', 'meta']
-
 const STEP_TITLE: Record<PostFormStep, string> = {
   trip: '여행 선택',
   photo: '이미지 선택',
@@ -14,11 +12,12 @@ const STEP_TITLE: Record<PostFormStep, string> = {
 
 interface Props {
   step: PostFormStep
+  steps: readonly PostFormStep[]
 }
 
-export function PostFormStepHeader({ step }: Props) {
+export function PostFormStepHeader({ step, steps }: Props) {
   const navigate = useNavigate()
-  const stepIndex = STEP_ORDER.indexOf(step)
+  const stepIndex = steps.indexOf(step)
 
   return (
     <Box
@@ -44,7 +43,7 @@ export function PostFormStepHeader({ step }: Props) {
 
         <Box flex={1} minWidth={0}>
           <Typography sx={{ fontSize: 11.5, fontWeight: 500, color: '#9b9ba3', mb: '2px' }}>
-            새 포스트 · {stepIndex + 1}/{STEP_ORDER.length}
+            새 포스트 · {stepIndex + 1}/{steps.length}
           </Typography>
           <Typography sx={{ fontSize: 17, fontWeight: 700, letterSpacing: '-0.3px', color: '#111' }}>
             {STEP_TITLE[step]}
@@ -52,7 +51,7 @@ export function PostFormStepHeader({ step }: Props) {
         </Box>
 
         <Stack direction="row" gap="4px" alignItems="center">
-          {STEP_ORDER.map((s, idx) => {
+          {steps.map((s, idx) => {
             const isCurrent = idx === stepIndex
             const isDone = idx < stepIndex
             return (
