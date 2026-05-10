@@ -36,7 +36,22 @@ ALTER TABLE expenses
 ALTER TABLE trip_places ALTER COLUMN id SET DEFAULT gen_random_uuid();
 
 -- ------------------------------------------------------------
--- 4. places — trip-scoped 컬럼 DROP
+-- 4. places RLS — 기존 trip 귀속 정책 제거, 전역 읽기 정책으로 교체
+--    places는 전역 POI (read-only). 인증 사용자는 SELECT/INSERT 가능,
+--    UPDATE/DELETE는 차단 (값은 upsert 시 ON CONFLICT DO NOTHING).
+-- ------------------------------------------------------------
+DROP POLICY IF EXISTS "places_access" ON places;
+
+CREATE POLICY "places_select" ON places
+  FOR SELECT TO authenticated
+  USING (true);
+
+CREATE POLICY "places_insert" ON places
+  FOR INSERT TO authenticated
+  WITH CHECK (true);
+
+-- ------------------------------------------------------------
+-- 5. places — trip-scoped 컬럼 DROP
 -- ------------------------------------------------------------
 ALTER TABLE places
   DROP COLUMN trip_id,
