@@ -11,6 +11,7 @@ export function BottomArea({ bottom, ...props }: StackProps) {
       width="100%"
       bgcolor="#fff"
       zIndex={10}
+      maxWidth={theme => theme.breakpoints.values.sm}
       {...props}
     />
   )
