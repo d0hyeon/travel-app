@@ -1,5 +1,5 @@
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
-import { Box, CircularProgress, Container, IconButton, Stack, Typography } from '@mui/material'
+import { Alert, AlertTitle, Box, CircularProgress, Container, IconButton, Stack, Typography } from '@mui/material'
 import { Suspense, useState, type PropsWithChildren } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { createPhotoFileFromUrl, uploadPostPhoto } from '~features/photo/photo.api'
@@ -56,7 +56,7 @@ export default function PostFormPage() {
   const [tripId, setTripId] = useState<string | null>(initialTripId)
   const stepIndex = steps.findIndex(x => x === step);
 
-  const { form, update, submit } = usePostForm({
+  const { form, error, update, submit } = usePostForm({
     onSubmit: async (value) => {
       const isPublic = value.visibility !== 'PRIVATE'
       const uploadedPhotos = await Promise.all(
@@ -137,6 +137,13 @@ export default function PostFormPage() {
         </TopNavigation>
 
         <Box>
+          {!!error && (
+            <Alert color="error" >
+              <AlertTitle>에러가 발생했어요!</AlertTitle>
+
+              <Typography variant="caption">{JSON.stringify(error)}</Typography>
+            </Alert>
+          )}
           <Suspense fallback={<Box display="flex" justifyContent="center" pt={4}><CircularProgress /></Box>}>
             <SwitchCase
               value={step as Step}

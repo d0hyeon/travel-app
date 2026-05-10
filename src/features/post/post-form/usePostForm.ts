@@ -27,7 +27,7 @@ export function usePostForm(options: UsePostFormOptions) {
     description: ''
   })
   const [_, setVersion] = useState(0);
-
+  const [error, setError] = useState<null | unknown>(null)
   const getIsValid = useCallback(() => Object.values(getForm()).every(x => x != null), []);
 
   const update = useCallback((values: Partial<PostFormValues>) => {
@@ -39,13 +39,18 @@ export function usePostForm(options: UsePostFormOptions) {
   const handleSubmit = usePreservedCallback(options.onSubmit);
   const submit = useCallback(async () => {
     assert(getIsValid(), '값이 누락 되었습니다.');
-    await handleSubmit(getForm() as PostFormValues)
+    try {
+      await handleSubmit(getForm() as PostFormValues)
+    } catch (error) {
+      setError(error)
+    }
   }, []);
 
 
   return {
     form: getForm(),
     isValid: getIsValid(),
+    error,
     update,
     submit,
   };
