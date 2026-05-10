@@ -76,7 +76,7 @@ export default function PostFormPage() {
         placeIds: value.places.map((p) => p.placeId),
         photos: uploadedPhotos,
       })
-      navigate(`/post/${post.id}`)
+      await navigate(`/post/${post.id}`)
     }
   });
 
@@ -155,7 +155,7 @@ export default function PostFormPage() {
                     selectedPhotos={form.photos}
                     onNext={(values: MetaStepValue) => {
                       update(values);
-                      submit();
+                      return submit();
                     }}
                   />
                 ),

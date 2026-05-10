@@ -37,19 +37,15 @@ export function usePostForm(options: UsePostFormOptions) {
   }, [])
 
   const handleSubmit = usePreservedCallback(options.onSubmit);
-  const [isSubmitting, startTransition] = useLoading();
-  const submit = useCallback(() => {
+  const submit = useCallback(async () => {
     assert(getIsValid(), '값이 누락 되었습니다.');
-    startTransition(() => {
-      handleSubmit(getForm() as PostFormValues)
-    });
+    await handleSubmit(getForm() as PostFormValues)
   }, []);
 
 
   return {
     form: getForm(),
     isValid: getIsValid(),
-    isSubmitting,
     update,
     submit,
   };
