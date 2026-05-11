@@ -3,6 +3,7 @@ import { Box, Container, Fab, Typography } from '@mui/material'
 import { Link } from 'react-router'
 import { AppRoute } from '~app/routes'
 import { PostFeed } from './PostFeed'
+import { BottomNavigation } from '~shared/components/BottomNavigation'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
 import { TopNavigation as DesktopNavigation } from '~shared/components/layout/TopNavigation.desktop'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
@@ -27,7 +28,7 @@ export default function FeedPage() {
         component={Link}
         to={AppRoute.포스트_생성}
         aria-label="새 포스트"
-        sx={{ position: 'fixed', right: 16, bottom: 80 }}
+        sx={{ position: 'fixed', right: 16, bottom: `calc(${BottomNavigation.HEIGHT + 24}px + env(safe-area-inset-bottom))` }}
       >
         <AddIcon />
       </Fab>

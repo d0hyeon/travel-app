@@ -1,13 +1,14 @@
+import AddIcon from '@mui/icons-material/Add'
 import {
   Box,
   Button,
   Container,
+  Fab,
   Stack,
   Typography
 } from '@mui/material'
 import { Link, PrefetchPageLinks, useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
-import { BottomArea } from '~shared/components/BottomArea'
 import { BottomNavigation } from '~shared/components/BottomNavigation'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
@@ -81,15 +82,14 @@ export default function TripListPage() {
 
       </Container>
       {isMobile && (
-        <BottomArea position="fixed" bottom={BottomNavigation.HEIGHT}>
-          <Button
-            variant="contained"
-            fullWidth
-            onClick={() => navigate(AppRoute.여행_생성)}
-          >
-            새 여행
-          </Button>
-        </BottomArea>
+        <Fab
+          color="primary"
+          onClick={() => navigate(AppRoute.여행_생성)}
+          aria-label="새 여행"
+          sx={{ position: 'fixed', right: 16, bottom: `calc(${BottomNavigation.HEIGHT + 24}px + env(safe-area-inset-bottom))` }}
+        >
+          <AddIcon />
+        </Fab>
       )}
     </>
   )
