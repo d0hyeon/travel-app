@@ -47,7 +47,7 @@ export function CreateTripCardButton({ sx, ...props }: StackProps<'button'>) {
       ...(Array.isArray(sx) ? sx : [sx])
       ]}
       onClick={() => {
-        isMobile ? () => navigate(AppRoute.여행_생성) : openCreationPopup
+        isMobile ? navigate(AppRoute.여행_생성) : openCreationPopup();
       }}
       {...props}
     >
