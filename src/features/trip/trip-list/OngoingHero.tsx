@@ -3,14 +3,17 @@ import { Box, ButtonBase, LinearProgress, Stack, Typography } from '@mui/materia
 import { Link, PrefetchPageLinks } from 'react-router'
 import type { Trip } from '../trip.types'
 import { formatTripDate, getTripDuration, getTripProgress } from './trip-list.utils'
+import { differenceInDays, startOfToday } from 'date-fns'
 
 interface Props {
   trip: Trip
 }
 
+
 export function OngoingHero({ trip }: Props) {
   const progress = getTripProgress(trip.startDate, trip.endDate)
   const { nights, days } = getTripDuration(trip.startDate, trip.endDate)
+  const currDays = differenceInDays(startOfToday(), trip.startDate);
 
   return (
     <Link to={`/trip/${trip.id}`} style={{ textDecoration: 'none' }} aria-label={`진행 중인 여행: ${trip.name}`}>
@@ -30,27 +33,13 @@ export function OngoingHero({ trip }: Props) {
           }}
         >
           <Stack direction="row" alignItems="flex-start" justifyContent="space-between">
-            {trip.destinations.length === 1 ? (
-              <Stack direction="row" alignItems="center" gap={1} mb={0.5}>
-                <DestinationBadge label={trip.destinations[0]} />
-                <Typography sx={{ fontSize: 20, fontWeight: 700, lineHeight: 1.25, color: '#fff' }}>
-                  {trip.name}
-                </Typography>
-              </Stack>
-            ) : (
-              <Box mb={0.5}>
-                <Typography sx={{ fontSize: 20, fontWeight: 700, lineHeight: 1.25, color: '#fff', mb: 0.5 }}>
-                  {trip.name}
-                </Typography>
-                {trip.destinations.length > 0 && (
-                  <Stack direction="row" flexWrap="wrap" gap={0.5}>
-                    {trip.destinations.map((dest) => (
-                      <DestinationBadge key={dest} label={dest} />
-                    ))}
-                  </Stack>
-                )}
-              </Box>
-            )}
+
+            <Stack direction="row" alignItems="center" gap={1} mb={0.5}>
+              <Typography variant="body2">{currDays + 1}일차</Typography>
+              <Typography sx={{ fontSize: 20, fontWeight: 700, lineHeight: 1.25, color: '#fff' }}>
+                {trip.name}
+              </Typography>
+            </Stack>
             <ChevronRightIcon sx={{ fontSize: 20, color: 'rgba(255,255,255,0.7)', mt: 0.25 }} />
           </Stack>
 
@@ -81,6 +70,7 @@ export function OngoingHero({ trip }: Props) {
               {formatTripDate(trip.endDate)}
             </Typography>
           </Stack>
+
         </Box>
       </ButtonBase>
     </Link>
