@@ -18,7 +18,7 @@ export default [
   route(AppRoute.로그인, "../features/auth/LoginPage.tsx"),
   layout("../app/AuthGuardLayout.tsx", [
     layout("../app/HomeLayout.tsx", [
-      index("../features/trip/TripListPage.tsx"),
+      index("../features/trip/trip-list/TripListPage.tsx"),
       route(AppRoute.피드, "../features/post/FeedPage.tsx"),
       route(AppRoute.사용자_피드, "../features/user-profile/UserProfilePage.tsx"),
       route(AppRoute.통계, "../features/statistics/StatisticsPage.tsx"),
