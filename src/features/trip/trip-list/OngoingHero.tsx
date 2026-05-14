@@ -3,7 +3,7 @@ import { Box, ButtonBase, LinearProgress, Stack, Typography } from '@mui/materia
 import { Link, PrefetchPageLinks } from 'react-router'
 import type { Trip } from '../trip.types'
 import { formatTripDate, getTripDuration, getTripProgress } from './trip-list.utils'
-import { differenceInDays, startOfToday } from 'date-fns'
+import { differenceInDays, startOfToday, set } from 'date-fns'
 
 interface Props {
   trip: Trip
@@ -13,7 +13,7 @@ interface Props {
 export function OngoingHero({ trip }: Props) {
   const progress = getTripProgress(trip.startDate, trip.endDate)
   const { nights, days } = getTripDuration(trip.startDate, trip.endDate)
-  const currDays = differenceInDays(startOfToday(), trip.startDate);
+  const currDays = differenceInDays(startOfToday(), resetTime(trip.startDate));
 
   return (
     <Link to={`/trip/${trip.id}`} style={{ textDecoration: 'none' }} aria-label={`진행 중인 여행: ${trip.name}`}>
@@ -94,4 +94,8 @@ function DestinationBadge({ label }: { label: string }) {
       {label}
     </Box>
   )
+}
+
+function resetTime(value: Date | string) {
+  return set(value, { hours: 0, minutes: 0, seconds: 0, milliseconds: 0 })
 }
