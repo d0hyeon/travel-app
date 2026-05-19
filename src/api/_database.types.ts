@@ -631,6 +631,31 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      get_user_trips: {
+        Args: { p_user_id: string }
+        Returns: {
+          created_at: string
+          destination: string
+          destinations: Json
+          end_date: string
+          exchange_rate: number | null
+          exchange_rates: Json | null
+          id: string
+          is_overseas: boolean
+          lat: number
+          lng: number
+          name: string
+          share_link: string
+          start_date: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "trips"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_trip_by_share_link: {
         Args: { link: string }
         Returns: {

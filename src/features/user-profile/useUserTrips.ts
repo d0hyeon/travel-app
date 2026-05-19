@@ -4,10 +4,10 @@ import { toTrip, tripKey } from '~features/trip/trip.api'
 import type { Trip } from '~features/trip/trip.types'
 
 async function fetchUserTrips(userId: string): Promise<Trip[]> {
- const { data, error } = await supabase
-  .rpc('get_my_trips', {
-    p_user_id: userId,
-  })
+  const { data, error } = await supabase
+    .rpc('get_user_trips', {
+      p_user_id: userId,
+    })
   
   if (error) throw error
   return (data ?? []).map(toTrip)

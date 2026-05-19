@@ -8,6 +8,7 @@ async function fetchUserPhotos(userId: string): Promise<Photo[]> {
     .from('photos')
     .select('*, trips!inner(user_id)')
     .eq('trips.user_id', userId)
+    .eq('is_public', true)
     .order('created_at', { ascending: false })
 
   if (error) throw error
