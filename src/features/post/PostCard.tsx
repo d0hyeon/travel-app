@@ -1,52 +1,87 @@
 import { Box, Card, CardActionArea, CardContent, Stack, Typography } from '@mui/material'
-import { Link } from 'react-router'
+import { generatePath, Link } from 'react-router'
 import { PhotoThunbnail } from '~shared/components/photo/PhotoThumbnail'
 import { PostLikeButton } from './PostLikeButton'
-import type { Post } from './post.types'
+import { PostVisibility, type Post } from './post.types'
+import { AppRoute } from '~app/routes'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { UserProfile } from '~features/user-profile/UserProfile'
+import { Pagination, Virtual } from 'swiper/modules'
+import LocationPin from '@mui/icons-material/LocationPin'
+import LockIcon from '@mui/icons-material/Lock';
+
+// @ts-ignore
+import 'swiper/css'
+// @ts-ignore
+import 'swiper/css/pagination'
 
 interface Props {
   post: Post
 }
 
 export function PostCard({ post }: Props) {
-  const cover = post.photos[0]
 
   return (
-    <Card variant="outlined" sx={{ borderRadius: 2 }}>
-      <CardActionArea component={Link} to={`/post/${post.id}`}>
-        {cover && (
-          <Box sx={{ aspectRatio: '4 / 3', overflow: 'hidden' }}>
-            <PhotoThunbnail src={cover.url} />
-          </Box>
-        )}
-        <CardContent>
-          <Stack spacing={1}>
-            {post.title && (
-              <Typography variant="subtitle1" noWrap>{post.title}</Typography>
-            )}
-            {post.description && (
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                }}
-              >
-                {post.description}
-              </Typography>
-            )}
-            <Typography variant="caption" color="text.secondary">
-              사진 {post.photos.length}장
-            </Typography>
-          </Stack>
-        </CardContent>
-      </CardActionArea>
-      <Box px={2} pb={1}>
-        <PostLikeButton postId={post.id} />
+    <Box key={post.id} bgcolor="white" borderRadius={4} overflow="hidden">
+      <Box sx={{ aspectRatio: '1 / 1', overflow: 'hidden' }}>
+        <Link to={generatePath(AppRoute.포스트_상세, { postId: post.id })}>
+          <Swiper
+            slidesPerView={1}
+            modules={[Virtual, Pagination]}
+            virtual
+            loop
+            pagination
+          >
+            {post.photos.map((photo) => (
+              <SwiperSlide key={photo.url}>
+                <Box component="img" src={photo.url} loading="lazy" sx={{ aspectRatio: '1', objectFit: 'cover' }} />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </Link>
       </Box>
-    </Card>
+      <Stack paddingX={1.5} paddingTop={1} paddingBottom={2}>
+        <Stack direction="row" justifyContent="space-between" alignItems="center" marginBottom={-0.5}>
+          <Stack direction="row" gap={0.5} alignItems="center">
+            <Link to={`/u/${post.authorId}`}>
+              <UserProfile id={post.authorId} size="small" marginRight={0.5} />
+            </Link>
+            {post.places.length > 0 && (
+              <>
+                <Box width="2px" height="2px" bgcolor={t => t.palette.text.secondary} borderRadius="100%" />
+
+                <Typography
+                  component="button"
+                  variant="caption"
+                  color="textSecondary"
+                >
+                  <LocationPin sx={{ fontSize: 'inherit', verticalAlign: 'middle' }} />
+                  {post.places[0].name}
+                  {post.places.length > 1 && ` 외 ${post.places.length - 1}`}
+                </Typography>
+              </>
+            )}
+          </Stack>
+
+          <PostLikeButton postId={post.id} />
+        </Stack>
+        <Link to={generatePath(AppRoute.포스트_상세, { postId: post.id })}>
+
+          {post.description && (
+            <Typography variant="body2" color="textSecondary" paddingTop={1.5} paddingX={0.5}>
+              {post.description}
+            </Typography>
+          )}
+          {post.visibility !== PostVisibility.PUBLIC && (
+            <Stack direction="row" marginTop={1} alignItems="center" gap={0.5} >
+              <LockIcon fontSize="small" color="disabled" sx={{ fontSize: 14 }} />
+              <Typography variant="caption" color="textSecondary" sx={{ fontSize: 11 }}>
+                비공개
+              </Typography>
+            </Stack>
+          )}
+        </Link>
+      </Stack>
+    </Box>
   )
 }
