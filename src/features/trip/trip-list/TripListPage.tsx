@@ -1,5 +1,6 @@
 import AddIcon from '@mui/icons-material/Add'
-import { alpha, Box, ButtonBase, Container, Fab, Stack, Typography } from '@mui/material'
+import { Box, ButtonBase, Container, Fab, Stack, Typography, useMediaQuery } from '@mui/material'
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
 import { BottomNavigation } from '~shared/components/BottomNavigation'
@@ -7,13 +8,12 @@ import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
 import { useOverlay } from '~shared/hooks/useOverlay'
 import { TripFormDialog } from '../components/TripFormDialog'
-import type { Trip } from '../trip.types'
+import { useTrips } from '../useTrips'
+import { CreateTripCardButton } from './CreateTripCardButton'
 import { OngoingHero } from './OngoingHero'
 import { PastTripRow } from './PastTripRow'
 import { UpcomingCard } from './UpcomingCard'
 import { getDaysUntil, getTripStatus, getTripYear } from './trip-list.utils'
-import { useTrips } from '../useTrips'
-import { CreateTripCardButton } from './CreateTripCardButton'
 
 export default function TripListPage() {
   const { data: trips, create } = useTrips()
@@ -39,19 +39,20 @@ export default function TripListPage() {
     ))
   }
 
-  const ongoingTrips = trips.filter((t) => getTripStatus(t.startDate, t.endDate) === 'ongoing')
-  const upcomingTrips = trips
-    .filter((t) => getTripStatus(t.startDate, t.endDate) === 'upcoming')
-    .toSorted((a, b) => getDaysUntil(a.startDate) - getDaysUntil(b.startDate))
-  const pastTrips = trips
-    .filter((t) => getTripStatus(t.startDate, t.endDate) === 'past')
-    .toSorted((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+  const tripsByStatus = useMemo(() => (
+    Object.groupBy(
+      trips.toSorted((a, b) => getDaysUntil(a.startDate) - getDaysUntil(b.startDate)),
+      trip => getTripStatus(trip.startDate, trip.endDate)
+    )
+  ), [trips])
 
-  const pastByYear = pastTrips.reduce<Record<string, Trip[]>>((acc, trip) => {
-    const year = getTripYear(trip.startDate)
-      ; (acc[year] ??= []).push(trip)
-    return acc
-  }, {})
+  const {
+    ongoing: ongoingTrips = [],
+    past: pastTrips = [],
+    upcoming: upcomingTrips = []
+  } = tripsByStatus;
+
+  const pastByYear = Object.groupBy(pastTrips, (trip) => getTripYear(trip.startDate))
   const pastYears = Object.keys(pastByYear).toSorted((a, b) => Number(b) - Number(a))
   const hasAnyTrip = trips.length > 0;
 
@@ -106,7 +107,7 @@ export default function TripListPage() {
                           <Box key={year}>
                             <YearLabel year={year} />
                             <Stack gap={1} marginTop={1}>
-                              {pastByYear[year].map((trip) => (
+                              {pastByYear[year]!.map((trip) => (
                                 <PastTripRow key={trip.id} trip={trip} />
                               ))}
                             </Stack>
@@ -158,6 +159,8 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 }
 
 function YearLabel({ year }: { year: string }) {
+  const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'));
+
   return (
     <Box position="relative" display="inline-block">
       <Typography
@@ -170,19 +173,19 @@ function YearLabel({ year }: { year: string }) {
           marginLeft: -3.5,
           paddingLeft: 3.5,
           '&::before': {
-            content: '""',
+            content: isMobile ? '""' : 'initial',
             position: 'absolute',
             top: '50%',
             height: '2px',
             bgcolor: 'rgba(0,0,0,0.1)',
-            width: 'calc(100% - 16px)',
+            width: 40,
             left: 0,
             transform: 'translate(-50%, 0)',
             zIndex: -1,
           },
         }}
       >
-        {year}
+        {year}년
       </Typography>
     </Box>
   )
