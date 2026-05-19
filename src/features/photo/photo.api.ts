@@ -85,7 +85,7 @@ async function uploadToStorage(storagePath: string, file: File): Promise<string>
 
   const { error: uploadError } = await supabase.storage
     .from(BUCKET_NAME)
-    .uploadToSignedUrl(storagePath, signedData.token, file)
+    .uploadToSignedUrl(storagePath, signedData.token, file, { cacheControl: String(60 * 60 * 24 * 365) })
   if (uploadError) throw uploadError
 
   return supabase.storage.from(BUCKET_NAME).getPublicUrl(storagePath).data.publicUrl
