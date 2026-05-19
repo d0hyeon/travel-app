@@ -1,7 +1,6 @@
-import { useEffect } from 'react'
-import { useLocation } from 'react-router'
+import { createContext, useContext, useEffect } from 'react';
+import { useLocation } from 'react-router';
 import { useScrollEventListener } from './useScrollEventListener';
-import { createContext, useContext, type RefObject } from 'react'
 
 /**
  * 커스텀 스크롤 컨테이너의 스크롤 위치를 복원한다.
@@ -16,17 +15,17 @@ import { createContext, useContext, type RefObject } from 'react'
  * - mount 시 복원, unmount 시 저장한다.
  */
 
-const ScrollContainerContext = createContext<RefObject<HTMLElement | null> | null>(null);
+const ScrollContainerContext = createContext<HTMLElement | null>(null);
 
 export const ScrollContainerProvider = ScrollContainerContext.Provider;
 
 function useScrollContainer() {
   const context = useContext(ScrollContainerContext);
-  if (context == null && document.scrollingElement instanceof HTMLElement) {
-    return document.scrollingElement;
+  
+  if (context == null) {
+    return document.querySelector('.app-root') as HTMLElement;
   }
-
-  return context?.current ?? null;
+  return context ?? null;
 }
 
 
@@ -49,7 +48,6 @@ export function useScrollRestore(key?: string) {
 
     const saved = sessionStorage.getItem(storageKey);
     if (saved == null) return;
-
     container.scrollTop = Number(saved);
   }, [storageKey, container])
 }

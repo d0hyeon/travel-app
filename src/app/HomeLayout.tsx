@@ -28,16 +28,16 @@ export default function HomeLayout() {
   const location = useLocation()
   const navigate = useNavigate()
   const isMobile = useIsMobile();
-  const scrollRef = useRef<HTMLDivElement>(null)
+  const [scrollElement, setScrollElement] = useState<HTMLDivElement | null>(null)
 
   const { data: auth } = useAuth();
   const mypagePath = generatePath(AppRoute.사용자_피드, { userId: auth.id })
 
   if (isMobile) {
     return (
-      <ScrollContainerProvider value={scrollRef}>
+      <ScrollContainerProvider value={scrollElement}>
         <Box sx={{ height: '100dvh', display: 'flex', flexDirection: 'column' }}>
-          <Box ref={scrollRef} flex={1} overflow="auto" paddingBottom={`calc(${BottomNavigation.HEIGHT}px + env(safe-area-inset-bottom))`}>
+          <Box ref={setScrollElement} className="scrollable" flex={1} overflow="auto" paddingBottom={`calc(${BottomNavigation.HEIGHT}px + env(safe-area-inset-bottom))`}>
             <Outlet />
           </Box>
           <BottomNavigation>
@@ -66,7 +66,7 @@ export default function HomeLayout() {
   }
 
   return (
-    <ScrollContainerProvider value={scrollRef}>
+    <ScrollContainerProvider value={scrollElement}>
       <Box sx={{ height: '100dvh', display: 'flex' }}>
         {/* 사이드 네비 */}
         <Stack
@@ -128,7 +128,7 @@ export default function HomeLayout() {
         </Stack>
 
         {/* 콘텐츠 */}
-        <Box ref={scrollRef} flex={1} overflow="auto">
+        <Box ref={setScrollElement} flex={1} overflow="auto">
           <Outlet />
         </Box>
       </Box>

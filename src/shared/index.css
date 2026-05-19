@@ -6,7 +6,7 @@ html, body {
   overflow: hidden;
 }
 
-#root {
+.app-root {
   height: 100%;
   /* 실제 스크롤은 여기서 일어나게 함 */
   overflow-y: auto;
