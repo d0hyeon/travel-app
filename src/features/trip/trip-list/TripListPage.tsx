@@ -84,7 +84,7 @@ export default function TripListPage() {
             ))}
             <Box paddingX={1}>
               {(upcomingTrips.length > 0 || pastTrips.length > 0) && (
-                <TimelineSection>
+                <Box>
                   {upcomingTrips.length > 0 && (
                     <Box mb={3}>
                       <SectionLabel>예정된 여행</SectionLabel>
@@ -115,7 +115,7 @@ export default function TripListPage() {
                       </Stack>
                     </Box>
                   )}
-                </TimelineSection>
+                </Box>
               )}
             </Box>
           </Stack>
@@ -137,14 +137,6 @@ export default function TripListPage() {
         </Fab>
       )}
     </>
-  )
-}
-
-function TimelineSection({ children }: { children: React.ReactNode }) {
-  return (
-    <Box sx={{ borderLeft: '2px solid rgba(0,0,0,0.08)', pl: '28px', overflow: 'hidden' }}>
-      {children}
-    </Box>
   )
 }
 
