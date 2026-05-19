@@ -10,6 +10,7 @@ const BUCKET_NAME = 'photos'
 export function toPhoto(row: DataRaw<'photos'>): Photo {
   return {
     id: row.id,
+    userId: row.user_id,
     tripId: row.trip_id,
     placeId: row.place_id,
     isPublic: row.is_public,
@@ -99,9 +100,12 @@ export async function uploadPhoto({ tripId, placeId, file: _file, isPublic }: Ph
 
   const publicUrl = await uploadToStorage(storagePath, file)
 
+  const { data: { user } } = await supabase.auth.getUser()
+
   const { data: created, error: insertError } = await supabase
     .from('photos')
     .insert({
+      user_id: user!.id,
       trip_id: tripId,
       place_id: placeId ?? null,
       is_public: isPublic,

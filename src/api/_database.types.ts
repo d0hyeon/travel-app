@@ -153,6 +153,7 @@ export type Database = {
           storage_path: string
           trip_id: string
           url: string
+          user_id: string
         }
         Insert: {
           created_at?: string
@@ -162,6 +163,7 @@ export type Database = {
           storage_path: string
           trip_id: string
           url: string
+          user_id: string
         }
         Update: {
           created_at?: string
@@ -171,6 +173,7 @@ export type Database = {
           storage_path?: string
           trip_id?: string
           url?: string
+          user_id?: string
         }
         Relationships: [
           {
@@ -631,8 +634,8 @@ export type Database = {
           isSetofReturn: true
         }
       }
-      get_user_trips: {
-        Args: { p_user_id: string }
+      get_trip_by_share_link: {
+        Args: { link: string }
         Returns: {
           created_at: string
           destination: string
@@ -656,8 +659,8 @@ export type Database = {
           isSetofReturn: true
         }
       }
-      get_trip_by_share_link: {
-        Args: { link: string }
+      get_user_trips: {
+        Args: { p_user_id: string }
         Returns: {
           created_at: string
           destination: string

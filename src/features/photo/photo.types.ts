@@ -1,5 +1,6 @@
 export interface Photo {
   id: string
+  userId: string
   tripId: string
   placeId: string | null;
   isPublic: boolean
