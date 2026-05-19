@@ -1,17 +1,14 @@
-import { Box, Button, Dialog, DialogActions, DialogContent, ImageList, ImageListItem, Skeleton, Stack, Typography } from '@mui/material'
+import { Box, ImageList, ImageListItem, Skeleton, Stack, Typography } from '@mui/material'
 import { Suspense } from 'react'
-import { PlaceInfoWidget } from '~features/place/PlaceInfoWIdget'
 import { UserProfile } from '~features/user-profile/UserProfile'
 import { ListItem } from '~shared/components/ListItem'
 import { Map } from '~shared/components/Map'
-import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
-import { DialogTitle } from '~shared/components/confirm-dialog/DialogTitle'
-import { useIsMobile } from '~shared/hooks/env/useIsMobile'
-import { useOverlay } from '~shared/hooks/useOverlay'
 import { isOverseasByCoordinate } from '~shared/utils/geo'
 import { PostLikeButton } from './PostLikeButton'
-import type { PostPlace } from './post.types'
 import { usePost } from './usePost'
+import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
+import { generatePath, Link, useNavigate } from 'react-router'
+import { AppRoute } from '~app/routes'
 
 interface Props {
   postId: string
@@ -27,37 +24,7 @@ export function PostScreen(props: Props) {
 
 function Resolved({ postId }: Props) {
   const { data: post } = usePost(postId);
-  const isMobile = useIsMobile();
-  const overlay = useOverlay();
-
-  const openPlaceOverlay = (place: PostPlace) => {
-    overlay.open(({ isOpen, close }) => {
-      if (isMobile) {
-        return (
-          <BottomSheet isOpen={isOpen} onClose={close}>
-            <BottomSheet.Header>{place.name}</BottomSheet.Header>
-            <BottomSheet.Body>
-              <BottomSheet.Scrollable>
-                <PlaceInfoWidget placeId={place.placeId} />
-              </BottomSheet.Scrollable>
-            </BottomSheet.Body>
-          </BottomSheet>
-        )
-      }
-      return (
-        <Dialog open={isOpen} onClose={close}>
-          <DialogTitle>{place.name}</DialogTitle>
-          <DialogContent>
-            <PlaceInfoWidget placeId={place.placeId} />
-          </DialogContent>
-          <DialogActions>
-            <Button variant="contained">닫기</Button>
-          </DialogActions>
-        </Dialog>
-      )
-    })
-
-  }
+  const navigate = useNavigate()
 
   return (
     <Stack spacing={2} px={2} py={2}>
@@ -98,16 +65,18 @@ function Resolved({ postId }: Props) {
                 variant="pin"
                 lat={place.lat}
                 lng={place.lng}
-                onClick={() => openPlaceOverlay(place)}
+                onClick={() => navigate(generatePath(AppRoute.장소_상세, { placeId: place.placeId }))}
               />
             ))}
           </Map>
           <Stack gap={1}>
             {post.places.map(place => (
-              <ListItem key={place.placeId} onClick={() => openPlaceOverlay(place)}>
-                <ListItem.Title>{place.name}</ListItem.Title>
-                <ListItem.Text>{place.address}</ListItem.Text>
-              </ListItem>
+              <Link key={place.placeId} to={generatePath(AppRoute.장소_상세, { placeId: place.placeId })}>
+                <ListItem key={place.placeId}>
+                  <ListItem.Title>{place.name}</ListItem.Title>
+                  <ListItem.Text>{place.address}</ListItem.Text>
+                </ListItem>
+              </Link>
             ))}
           </Stack>
         </>

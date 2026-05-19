@@ -4,29 +4,30 @@ import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
 import { assert } from '~shared/utils/types'
 import { PostMenu } from './PostMenu'
 import { PostScreen } from './PostScreen'
+import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
 
 export default function PostDetailPage() {
   const postId = usePostId();
   const navigate = useNavigate();
 
-  return (
-    <Box height="100dvh" display="flex" flexDirection="column" overflow="auto">
-      <Container maxWidth="sm" disableGutters sx={{ flex: 1 }}>
-        <TopNavigation
-          position="sticky"
-          borderBottom="none !important"
-          bgcolor="transparent !important"
-          leftElement={
-            <TopNavigation.BackButton />
-          }
-          rightElement={
-            <PostMenu postId={postId} onDelete={() => navigate(-1)} />
-          }
-        />
+  useScrollRestore(`post-page-${postId}`);
 
-        <PostScreen postId={postId} />
-      </Container>
-    </Box>
+  return (
+    <Container maxWidth="sm" disableGutters sx={{ flex: 1 }}>
+      <TopNavigation
+        position="sticky"
+        borderBottom="none !important"
+        bgcolor="transparent !important"
+        leftElement={
+          <TopNavigation.BackButton />
+        }
+        rightElement={
+          <PostMenu postId={postId} onDelete={() => navigate(-1)} />
+        }
+      />
+
+      <PostScreen postId={postId} />
+    </Container>
   )
 }
 

@@ -9,6 +9,7 @@ export const AppRoute = {
   여행_초대: '/trip/invite/:shareLink',
   로그인: '/login',
   피드: '/feed',
+  장소_상세: '/place/:placeId',
   사용자_피드: '/u/:userId',
   포스트_생성: '/post/new',
   포스트_상세: '/post/:postId',
@@ -30,6 +31,7 @@ export default [
     // photo feed (제거 시 아래 2줄과 features/post 폴더만 삭제)
     route(AppRoute.포스트_생성, "../features/post/post-form/PostFormPage.tsx"),
     route(AppRoute.포스트_상세, "../features/post/PostDetailPage.tsx"),
+    route(AppRoute.장소_상세, "../features/place/place-detail/PlaceDetailPage.tsx"),
   ]),
   route("*", "NotFound.tsx"),
 ] satisfies RouteConfig;

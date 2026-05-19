@@ -11,7 +11,7 @@ interface Options<T> {
 }
 
 export function useQueryParam<T>(key: string, options: OptionWithDefault<T>): T;
-export function useQueryParam<T>(key: string, options?: Options<T>): T | undefined
+export function useQueryParam<T = string>(key: string, options?: Options<T>): T | undefined
 
 export function useQueryParam<T>(key: string, { defaultValue, parse }: Options<T> | OptionWithDefault<T> = { }) {
   const [searchParams] = useSearchParams();
