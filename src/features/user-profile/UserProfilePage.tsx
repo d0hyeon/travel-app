@@ -1,24 +1,36 @@
-import { Box, Stack, Tab, Tabs, Typography } from '@mui/material'
+import { Box, Stack, Tab, Tabs, Typography, type TypographyProps } from '@mui/material'
+import { startTransition, useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router'
+import { ResizeObserverArea } from '~shared/components/ResizeObserverArea'
 import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState'
+import { arrayIncludes, assert } from '~shared/utils/types'
 import { ProfileFeedTab } from './ProfileFeedTab'
 import { ProfileHeader } from './ProfileHeader'
 import { ProfileRecordsTab } from './ProfileRecordsTab'
 import { ProfileStatStrip } from './ProfileStatStrip'
 
 const TABS = ['feed', 'records'] as const
-type TabKey = typeof TABS[number]
+type Tab = typeof TABS[number];
 
-const TAB_LABELS: Record<TabKey, string> = {
+const TAB_LABELS: Record<Tab, string> = {
   feed: '피드',
   records: '기록',
 }
 
-export default function UserProfilePage() {
-  const { userId } = useParams<{ userId: string }>()
-  if (!userId) throw new Error('userId가 필요해요')
+const FULL_CONTENTS = ['records'] satisfies Tab[]
 
-  const [tab, setTab] = useQueryParamState<TabKey>('tab', { defaultValue: 'feed' })
+export default function UserProfilePage() {
+  const userId = useUserId();
+  const [tab, setTab] = useQueryParamState<Tab>('tab', { defaultValue: 'feed' })
+  const [isLoadedContent, setIsLoadedContent] = useState(false);
+  const tabRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isLoadedContent || !arrayIncludes(FULL_CONTENTS, tab)) return;
+
+    tabRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+    startTransition(() => setIsLoadedContent(false))
+  }, [isLoadedContent, tab])
 
   return (
     <Box display="flex" flexDirection="column" minHeight="100%">
@@ -27,10 +39,17 @@ export default function UserProfilePage() {
         <ProfileStatStrip userId={userId} />
       </Box>
 
-      <Box position="sticky" top={0} zIndex={5} bgcolor="background.paper" borderBottom="1px solid rgba(0,0,0,0.08)">
+      <Box
+        ref={tabRef}
+        position="sticky"
+        top={0}
+        zIndex={5}
+        bgcolor="background.paper"
+        borderBottom="1px solid rgba(0,0,0,0.08)"
+      >
         <Tabs
           value={tab}
-          onChange={(_, next) => setTab(next as TabKey)}
+          onChange={(_, next) => setTab(next as Tab)}
           variant="fullWidth"
           slotProps={{ indicator: { sx: { height: 2, bgcolor: '#111' } } }}
         >
@@ -56,13 +75,23 @@ export default function UserProfilePage() {
         </Tabs>
       </Box>
 
-      <Stack flex={1}>
-        {tab === 'feed' ? (
-          <ProfileFeedTab userId={userId} />
-        ) : (
-          <ProfileRecordsTab userId={userId} />
-        )}
-      </Stack>
+      <ResizeObserverArea enabled={!isLoadedContent} onResize={() => setIsLoadedContent(true)}>
+        <Stack flex={1}>
+          {tab === 'feed' ? (
+            <ProfileFeedTab userId={userId} />
+          ) : (
+            <ProfileRecordsTab userId={userId} />
+          )}
+        </Stack>
+      </ResizeObserverArea>
     </Box>
   )
 }
+
+function useUserId() {
+  const { userId } = useParams<{ userId: string }>()
+  assert(!!userId, '잘못된 경로입니다.')
+
+  return userId;
+}
+
