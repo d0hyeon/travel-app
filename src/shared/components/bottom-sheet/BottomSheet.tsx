@@ -24,6 +24,7 @@ interface BottomSheetProps extends BoxProps {
   onClose?: () => void
   /** 스냅 변경 콜백 (바텀시트가 차지하는 비율 전달) */
   onSnapChange?: (snapRatio: number) => void;
+  backdrop?: boolean;
   ref?: Ref<BottomSheetRef>;
 }
 
@@ -36,6 +37,7 @@ export function BottomSheet({
   onClose,
   onSnapChange,
   ref,
+  backdrop = true,
   ...props
 }: BottomSheetProps) {
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
@@ -101,7 +103,7 @@ export function BottomSheet({
 
   return (
     <>
-      {isModalMode && (
+      {isModalMode && backdrop && (
         <Fade in={isOpen}>
           <Box
             onClick={onClose}
@@ -122,7 +124,7 @@ export function BottomSheet({
         isDragging={isDragging}
       >
         <DragHandle handlers={handlers} />
-        <Stack height={isMeasuring ? "auto" : `calc(100% - ${DRAG_HANDLE_HEIGHT}px)`} ref={setContent}>
+        <Stack className="calculator" height={isMeasuring ? "auto" : `calc(100% - ${DRAG_HANDLE_HEIGHT}px)`} ref={setContent}>
           <BottomSheetProvider value={contextValue}>
             {children}
           </BottomSheetProvider>
