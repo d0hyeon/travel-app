@@ -36,7 +36,7 @@ export function ProfileRecordsTab({ userId }: Props) {
 
   return (
     <Box>
-      <Box height="calc(100dvh - 40px)" bgcolor="#EDF2F7" position="relative">
+      <Box height="calc(100svh - 40px)" bgcolor="#EDF2F7" position="relative">
         <ToggleButton
           value="check"
           aria-label="list"

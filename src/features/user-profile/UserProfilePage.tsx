@@ -1,5 +1,5 @@
-import { Box, Stack, Tab, Tabs, Typography, type TypographyProps } from '@mui/material'
-import { startTransition, useEffect, useRef, useState } from 'react'
+import { Box, Stack, Tab, Tabs, Typography } from '@mui/material'
+import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router'
 import { ResizeObserverArea } from '~shared/components/ResizeObserverArea'
 import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState'
@@ -22,15 +22,14 @@ const FULL_CONTENTS = ['records'] satisfies Tab[]
 export default function UserProfilePage() {
   const userId = useUserId();
   const [tab, setTab] = useQueryParamState<Tab>('tab', { defaultValue: 'feed' })
-  const [isLoadedContent, setIsLoadedContent] = useState(false);
+  const [hasScrolledToTab, setHasScrolledToTab] = useState(false);
   const tabRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!isLoadedContent || !arrayIncludes(FULL_CONTENTS, tab)) return;
+    setHasScrolledToTab(false)
+  }, [tab])
 
-    tabRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
-    startTransition(() => setIsLoadedContent(false))
-  }, [isLoadedContent, tab])
+  const shouldScrollOnLayout = arrayIncludes(FULL_CONTENTS, tab) && !hasScrolledToTab
 
   return (
     <Box display="flex" flexDirection="column" minHeight="100%">
@@ -75,7 +74,13 @@ export default function UserProfilePage() {
         </Tabs>
       </Box>
 
-      <ResizeObserverArea enabled={!isLoadedContent} onResize={() => setIsLoadedContent(true)}>
+      <ResizeObserverArea
+        enabled={shouldScrollOnLayout}
+        onResize={() => {
+          setHasScrolledToTab(true)
+          tabRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+        }}
+      >
         <Stack flex={1}>
           {tab === 'feed' ? (
             <ProfileFeedTab userId={userId} />
