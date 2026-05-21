@@ -1,9 +1,8 @@
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import CheckIcon from '@mui/icons-material/Check'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
+import CloseIcon from '@mui/icons-material/Close'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
 import PeopleIcon from '@mui/icons-material/People'
-import CloseIcon from '@mui/icons-material/Close'
 import {
   Box,
   Button,
@@ -15,32 +14,24 @@ import {
   Stack,
   Typography,
 } from '@mui/material'
-import { Suspense, useCallback, useMemo, useState } from 'react'
+import { Suspense, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
 import type { Location } from '~features/location'
 import { LocationForm } from '~features/location/LocationForm'
 import type { PlaceCategoryType } from '~features/place/place.types'
-import { PlaceCategoryTypeLabel } from '~features/place/place.types'
+import { PlaceCategoryColorCode, PlaceCategoryTypeLabel } from '~features/place/place.types'
 import { BottomArea } from '~shared/components/BottomArea'
-import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
 import { FullScreenPopup } from '~shared/components/FullScreenPopup'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
-import { ListItem } from '~shared/components/ListItem'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
+import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
+import { ListItem } from '~shared/components/ListItem'
 import { useOverlay } from '~shared/hooks/useOverlay'
 import type { ExploredPlace } from './explorer.api'
 import { useExplorerDetailOverlay } from './explorer-detail/useExplorerDetailOverlay'
 import { useExploredPlaces } from './useExploredPlaces'
 import { useRecentHotPlaces } from './useRecentHotPlaces'
-
-const PERIOD_OPTIONS = [
-  { label: '3개월', value: 3 },
-  { label: '6개월', value: 6 },
-  { label: '1년', value: 12 },
-] as const
-
-type PeriodMonths = (typeof PERIOD_OPTIONS)[number]['value']
 
 const SECTION_LIMIT = 10
 
@@ -70,13 +61,11 @@ interface SectionProps {
 }
 
 function RecentHotSection({ location, category }: SectionProps) {
-  const [months, setMonths] = useState<PeriodMonths>(3)
-  const { data: places } = useRecentHotPlaces(months, location, category)
+  const { data: places } = useRecentHotPlaces(3, location, category)
   const isMobile = useIsMobile()
   const { openFullScreen, openSideSheet } = useExplorerDetailOverlay()
   const openDetail = (place: ExploredPlace) =>
     isMobile ? openFullScreen(place) : openSideSheet(place)
-  const openPeriodSheet = usePeriodBottomSheet(months, setMonths)
   const navigate = useNavigate()
 
   const recentHot = useMemo(
@@ -84,36 +73,22 @@ function RecentHotSection({ location, category }: SectionProps) {
     [places],
   )
 
-  const currentLabel = PERIOD_OPTIONS.find((o) => o.value === months)?.label ?? ''
-
   return (
     <Box mb={3}>
       <Stack direction="row" alignItems="center" justifyContent="space-between" px={2} mb={1.5}>
         <Typography variant="subtitle1" fontWeight={900}>
           ✨ 최근 핫플레이스
         </Typography>
-        <Stack direction="row" alignItems="center" gap={0.5}>
-          <Button
-            size="small"
-            variant="text"
-            color="info"
-            startIcon={<CalendarTodayIcon sx={{ fontSize: '14px !important' }} />}
-            onClick={openPeriodSheet}
-            sx={{ minWidth: 0, fontSize: 12 }}
-          >
-            {currentLabel}
-          </Button>
-          <Button
-            size="small"
-            variant="text"
-            color="inherit"
-            endIcon={<ChevronRightIcon sx={{ fontSize: '16px !important' }} />}
-            onClick={() => navigate(AppRoute.탐색_최근핫플)}
-            sx={{ minWidth: 0, fontSize: 12, color: 'text.secondary' }}
-          >
-            더보기
-          </Button>
-        </Stack>
+        <Button
+          size="small"
+          variant="text"
+          color="inherit"
+          endIcon={<ChevronRightIcon sx={{ fontSize: '16px !important' }} />}
+          onClick={() => navigate(AppRoute.탐색_최근핫플)}
+          sx={{ minWidth: 0, fontSize: 12, color: 'text.secondary' }}
+        >
+          더보기
+        </Button>
       </Stack>
 
       {recentHot.length === 0 ? (
@@ -131,11 +106,9 @@ function RecentHotSection({ location, category }: SectionProps) {
           }}
         >
           {recentHot.map((place) => (
-            <HorizontalPlaceCard
-              key={place.placeId}
-              place={place}
-              onClick={() => openDetail(place)}
-            />
+            <Box key={place.placeId} sx={{ width: 140, flexShrink: 0 }}>
+              <PlaceCard place={place} onClick={() => openDetail(place)} />
+            </Box>
           ))}
         </Box>
       )}
@@ -185,49 +158,32 @@ function TopVisitedSection({ location, category }: SectionProps) {
   )
 }
 
-// ─── HorizontalPlaceCard ──────────────────────────────────────────────────────
+// ─── PlaceCard (가로 스크롤용 카드 + 더보기 페이지 공용) ─────────────────────
 
-function HorizontalPlaceCard({ place, onClick }: { place: ExploredPlace; onClick: () => void }) {
-  const categoryLabel = place.categories[0] ? PlaceCategoryTypeLabel[place.categories[0]] : null
+export function PlaceCard({ place, onClick }: { place: ExploredPlace; onClick: () => void }) {
+  const accentColor = place.categories[0] ? PlaceCategoryColorCode[place.categories[0]] : undefined
 
   return (
     <Card
       elevation={0}
-      sx={{ borderRadius: 3, border: 1, borderColor: 'divider', overflow: 'hidden', flexShrink: 0, width: 140 }}
+      sx={{ borderRadius: 3, border: 1, borderColor: 'divider', overflow: 'hidden', width: '100%' }}
     >
       <CardActionArea onClick={onClick}>
         <CardMedia
           component="div"
           sx={{
             height: 140,
-            bgcolor: 'grey.100',
+            bgcolor: accentColor ? `${accentColor}22` : 'grey.100',
             backgroundImage: place.thumbnailUrl ? `url(${place.thumbnailUrl})` : undefined,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             display: 'flex',
-            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            position: 'relative',
           }}
         >
-          {!place.thumbnailUrl && <LocationOnIcon sx={{ fontSize: 36, color: 'grey.300' }} />}
-          {categoryLabel && (
-            <Box
-              sx={{
-                position: 'absolute',
-                top: 8,
-                left: 8,
-                bgcolor: 'rgba(0,0,0,0.45)',
-                borderRadius: 1,
-                px: 0.75,
-                py: 0.25,
-              }}
-            >
-              <Typography variant="caption" sx={{ color: '#fff', fontSize: 10, lineHeight: 1.4 }}>
-                {categoryLabel}
-              </Typography>
-            </Box>
+          {!place.thumbnailUrl && (
+            <LocationOnIcon sx={{ fontSize: 36, color: accentColor ?? 'text.disabled' }} />
           )}
         </CardMedia>
         <Box sx={{ p: 1.5 }}>
@@ -249,6 +205,7 @@ function HorizontalPlaceCard({ place, onClick }: { place: ExploredPlace; onClick
 // ─── PlaceListItem ────────────────────────────────────────────────────────────
 
 export function PlaceListItem({ place, onClick }: { place: ExploredPlace; onClick: () => void }) {
+  const accentColor = place.categories[0] ? PlaceCategoryColorCode[place.categories[0]] : undefined
   const categoryLabel = place.categories[0] ? PlaceCategoryTypeLabel[place.categories[0]] : null
   const subText = [categoryLabel, place.address].filter(Boolean).join(' · ')
 
@@ -280,35 +237,18 @@ export function PlaceListItem({ place, onClick }: { place: ExploredPlace; onClic
           height: 64,
           borderRadius: 2,
           flexShrink: 0,
-          bgcolor: 'grey.100',
+          bgcolor: accentColor ? `${accentColor}22` : 'grey.100',
           backgroundImage: place.thumbnailUrl ? `url(${place.thumbnailUrl})` : undefined,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          position: 'relative',
           overflow: 'hidden',
         }}
       >
-        {!place.thumbnailUrl && <LocationOnIcon sx={{ fontSize: 24, color: 'grey.300' }} />}
-        {categoryLabel && (
-          <Box
-            sx={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              bgcolor: 'rgba(0,0,0,0.45)',
-              px: 0.5,
-              py: 0.25,
-              textAlign: 'center',
-            }}
-          >
-            <Typography sx={{ color: '#fff', fontSize: 9, lineHeight: 1.4 }}>
-              {categoryLabel}
-            </Typography>
-          </Box>
+        {!place.thumbnailUrl && (
+          <LocationOnIcon sx={{ fontSize: 24, color: accentColor ?? 'text.disabled' }} />
         )}
       </Box>
 
@@ -372,39 +312,6 @@ function ListSectionSkeleton() {
   )
 }
 
-// ─── usePeriodBottomSheet ─────────────────────────────────────────────────────
-
-function usePeriodBottomSheet(months: PeriodMonths, onSelect: (v: PeriodMonths) => void) {
-  const overlay = useOverlay()
-
-  return useCallback(() => {
-    overlay.open(({ isOpen, close }) => (
-      <BottomSheet isOpen={isOpen} onClose={close}>
-        <BottomSheet.Header>기간 선택</BottomSheet.Header>
-        <BottomSheet.Body>
-          <Stack gap={1} pb={1}>
-            {PERIOD_OPTIONS.map((opt) => (
-              <ListItem.Button
-                key={opt.value}
-                onClick={() => { onSelect(opt.value); close() }}
-                rightAddon={
-                  opt.value === months
-                    ? <CheckIcon sx={{ fontSize: 16, color: 'primary.main' }} />
-                    : undefined
-                }
-                sx={{ border: 'none' }}
-              >
-                <ListItem.Title fontWeight={opt.value === months ? 700 : 400}>
-                  {opt.label}
-                </ListItem.Title>
-              </ListItem.Button>
-            ))}
-          </Stack>
-        </BottomSheet.Body>
-      </BottomSheet>
-    ))
-  }, [overlay, months, onSelect])
-}
 
 // ─── useLocationOverlay ───────────────────────────────────────────────────────
 
@@ -453,4 +360,44 @@ export function useLocationOverlay() {
       ))
     })
   }, [overlay])
+}
+
+// ─── useCategoryBottomSheet ───────────────────────────────────────────────────
+
+export function useCategoryBottomSheet(
+  category: PlaceCategoryType | null,
+  onSelect: (v: PlaceCategoryType | null) => void,
+) {
+  const overlay = useOverlay()
+
+  return useCallback(() => {
+    overlay.open(({ isOpen, close }) => (
+      <BottomSheet isOpen={isOpen} onClose={close}>
+        <BottomSheet.Header>카테고리 선택</BottomSheet.Header>
+        <BottomSheet.Body>
+          <Stack gap={1} pb={1}>
+            <ListItem.Button
+              onClick={() => { onSelect(null); close() }}
+              rightAddon={category === null ? <CheckIcon sx={{ fontSize: 16, color: 'primary.main' }} /> : undefined}
+              sx={{ border: 'none' }}
+            >
+              <ListItem.Title fontWeight={category === null ? 700 : 400}>전체</ListItem.Title>
+            </ListItem.Button>
+            {EXPLORER_CATEGORY_TYPES.map((cat) => (
+              <ListItem.Button
+                key={cat}
+                onClick={() => { onSelect(cat); close() }}
+                rightAddon={category === cat ? <CheckIcon sx={{ fontSize: 16, color: 'primary.main' }} /> : undefined}
+                sx={{ border: 'none' }}
+              >
+                <ListItem.Title fontWeight={category === cat ? 700 : 400}>
+                  {PlaceCategoryTypeLabel[cat]}
+                </ListItem.Title>
+              </ListItem.Button>
+            ))}
+          </Stack>
+        </BottomSheet.Body>
+      </BottomSheet>
+    ))
+  }, [overlay, category, onSelect])
 }

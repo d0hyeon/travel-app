@@ -1,4 +1,3 @@
-import CheckIcon from '@mui/icons-material/Check'
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted'
 import MapIcon from '@mui/icons-material/Map'
 import {
@@ -9,20 +8,16 @@ import {
   ToggleButtonGroup,
   type BoxProps,
 } from '@mui/material'
-import { Suspense, useCallback, useRef, useState } from 'react'
+import { Suspense, useRef, useState } from 'react'
 import type { Location } from '~features/location'
 import type { PlaceCategoryType } from '~features/place/place.types'
 import { PlaceCategoryTypeLabel } from '~features/place/place.types'
-import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
 import { Extrude } from '~shared/components/Extrude'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
-import { ListItem } from '~shared/components/ListItem'
 import { SwitchCase } from '~shared/components/SwitchCase'
-import { ScrollContainerProvider, useScrollContainer } from '~shared/hooks/interaction/useScrollRestore'
+import { ScrollContainerProvider } from '~shared/hooks/interaction/useScrollRestore'
 import { useScrollStatus } from '~shared/hooks/interaction/useScrollStatus'
-import { useOverlay } from '~shared/hooks/useOverlay'
-import { EXPLORER_CATEGORY_TYPES } from './explorer.api'
-import { ExplorerCatalog, useLocationOverlay } from './ExplorerCatalog'
+import { ExplorerCatalog, useLocationOverlay, useCategoryBottomSheet } from './ExplorerCatalog'
 import { ExplorerMap } from './ExplorerMap'
 
 type ViewMode = 'map' | 'list'
@@ -99,54 +94,6 @@ export default function PlaceExplorerPage() {
       </ScrollContainerProvider>
     </Box>
   )
-}
-
-function useCategoryBottomSheet(
-  category: PlaceCategoryType | null,
-  onSelect: (v: PlaceCategoryType | null) => void,
-) {
-  const overlay = useOverlay()
-
-  return useCallback(() => {
-    overlay.open(({ isOpen, close }) => (
-      <BottomSheet isOpen={isOpen} onClose={close}>
-        <BottomSheet.Header>카테고리 선택</BottomSheet.Header>
-        <BottomSheet.Body>
-          <Stack gap={1} pb={1}>
-            <ListItem.Button
-              onClick={() => { onSelect(null); close() }}
-              rightAddon={
-                category === null
-                  ? <CheckIcon sx={{ fontSize: 16, color: 'primary.main' }} />
-                  : undefined
-              }
-              sx={{ border: 'none' }}
-            >
-              <ListItem.Title fontWeight={category === null ? 700 : 400}>
-                전체
-              </ListItem.Title>
-            </ListItem.Button>
-            {EXPLORER_CATEGORY_TYPES.map((cat) => (
-              <ListItem.Button
-                key={cat}
-                onClick={() => { onSelect(cat); close() }}
-                rightAddon={
-                  category === cat
-                    ? <CheckIcon sx={{ fontSize: 16, color: 'primary.main' }} />
-                    : undefined
-                }
-                sx={{ border: 'none' }}
-              >
-                <ListItem.Title fontWeight={category === cat ? 700 : 400}>
-                  {PlaceCategoryTypeLabel[cat]}
-                </ListItem.Title>
-              </ListItem.Button>
-            ))}
-          </Stack>
-        </BottomSheet.Body>
-      </BottomSheet>
-    ))
-  }, [overlay, category, onSelect])
 }
 
 type ToggleButtonProps = {
