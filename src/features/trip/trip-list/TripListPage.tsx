@@ -41,7 +41,7 @@ export default function TripListPage() {
 
   const tripsByStatus = useMemo(() => (
     Object.groupBy(
-      trips.toSorted((a, b) => getDaysUntil(a.startDate) - getDaysUntil(b.startDate)),
+      trips.toSorted((a, b) => getDaysUntil(b.startDate) - getDaysUntil(a.startDate)),
       trip => getTripStatus(trip.startDate, trip.endDate)
     )
   ), [trips])
