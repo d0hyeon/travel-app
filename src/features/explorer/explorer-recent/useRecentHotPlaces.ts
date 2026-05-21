@@ -27,7 +27,7 @@ export function useRecentHotPlaces({ inquiryMonths, ...params }: RecentHotPlaceO
     return query.data
       .filter((p) => !params.location || arrayIncludes(p.destinations, params.location) )
       .filter((p) => !params.category || arrayIncludes(p.categories, params.category))
-  }, [query.data, params])
+  }, [query.data, params.location, params.category])
 
   return { ...query, data }
 }

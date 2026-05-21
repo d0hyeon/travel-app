@@ -1,9 +1,9 @@
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted'
 import MapIcon from '@mui/icons-material/Map'
 import { ToggleButton, ToggleButtonGroup } from '@mui/material'
-import { useState } from 'react'
+import { type ViewMode } from './useExplorerViewMode'
 
-export type ViewMode = 'list' | 'map'
+export { useExplorerViewMode, type ViewMode } from './useExplorerViewMode'
 
 type ViewToggleProps = { value: ViewMode; onChange: (value: ViewMode) => void }
 
@@ -33,6 +33,3 @@ export function ExplorerViewToggleButton({ value, onChange }: ViewToggleProps) {
   )
 }
 
-export function useExplorerViewMode() {
-  return useState<ViewMode>('list')
-}

@@ -10,7 +10,7 @@ import { getCoordinateByLocation } from "~features/location";
 
 export function ExplorerMap(props: BoxProps) {
   const { category, location } = useExplorerFilterParams();
-  const { data: places } = useExploredPlaces();
+  const { data: places } = useExploredPlaces(location, category);
   const { data: hotPlaces } = useRecentHotPlaces({ inquiryMonths: 3, category, location });
 
   const isMobile = useIsMobile()

@@ -4,7 +4,6 @@ import { Country, getCountryByLocation, isLocation, type Location } from '~featu
 import { useTrips } from '../trip/useTrips'
 import { getAllTripPlaces, placeKey } from "../place/place.api"
 import { getAllRoutes, routeKey } from "../route/route.api"
-import { supabase } from "~api/client"
 
 export interface VisitedLocation {
   id: string

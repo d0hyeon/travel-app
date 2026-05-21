@@ -15,7 +15,7 @@ export function ExplorerCatalog({ location, category }: ExplorerCatalogProps) {
   return (
     <Stack gap={3} py={2}>
       <Suspense fallback={<HorizontalSectionSkeleton />}>
-        <RecentHotSection location={location ?? undefined} category={category ?? undefined} />
+        <RecentHotSection location={location} category={category} />
       </Suspense>
       <Suspense fallback={<ListSectionSkeleton />}>
         <TopVisitedSection location={location} category={category} />
