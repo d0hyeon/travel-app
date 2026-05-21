@@ -38,7 +38,7 @@ export function TopNavigation({
     >
       <Box display="flex" alignItems="center" gap={0.5}>
         {leftElement}
-        <Box flex={1} minWidth={0}>
+        <Box flex={1} minWidth={0} paddingX={leftElement == null ? 1 : 0}>
           {children}
         </Box>
       </Box>

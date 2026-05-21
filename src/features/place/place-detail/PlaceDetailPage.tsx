@@ -1,23 +1,18 @@
-import { Box, Skeleton, Stack, Tab, Tabs } from "@mui/material";
-import { Suspense } from "react";
-import { PostCard } from "~features/post/PostCard";
-import { TopNavigation } from "~shared/components/layout/TopNavigation.mobile";
-import { useQueryParamState } from "~shared/hooks/urls/useQueryParamState";
-import { usePlaceFeed } from "../../post/place-feed/usePlaceFeed";
-import { usePlace } from "../usePlace";
-import { PlaceInfoWidget } from "../PlaceInfoWIdget";
-import { usePlaceId } from "./usePlaceId";
+import { Box, Skeleton, Tab, Tabs } from '@mui/material'
+import { Suspense } from 'react'
+import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
+import { SwitchCase } from '~shared/components/SwitchCase'
+import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState'
+import { usePlace } from '../usePlace'
+import { PlaceDetailContent } from './PlaceDetailContent'
+import { usePlaceId } from './usePlaceId'
 
-type TabType = 'info' | 'feed'
-
-interface Props {
-  placeId: string;
-}
+type ContentType = keyof typeof PlaceDetailContent;
 
 export default function PlaceDetailPage() {
-  const placeId = usePlaceId();
-  const [currentTab, setCurrentTab] = useQueryParamState<TabType>('tab', {
-    defaultValue: 'info',
+  const placeId = usePlaceId()
+  const [currentTab, setCurrentTab] = useQueryParamState<ContentType>('tab', {
+    defaultValue: 'Info',
   })
 
   return (
@@ -25,36 +20,40 @@ export default function PlaceDetailPage() {
       <Suspense fallback={<PlaceHeader.Pending />}>
         <PlaceHeader placeId={placeId} />
       </Suspense>
-
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', flexShrink: 0 }}>
         <Tabs
           value={currentTab}
-          onChange={(_, value: TabType) => setCurrentTab(value)}
+          onChange={(_, value) => setCurrentTab(value)}
           variant="fullWidth"
         >
-          <Tab label="기본정보" value="info" />
-          <Tab label="피드" value="feed" />
+          <Tab label="기본정보" value="Info" />
+          <Tab label="피드" value="Feed" />
         </Tabs>
       </Box>
 
       <Box flex={1} overflow="auto">
-        {currentTab === 'info' && (
-          <Box padding={2}>
-            <PlaceInfoWidget placeId={placeId} />
-          </Box>
-        )}
-        {currentTab === 'feed' && (
-          <Suspense fallback={<PlaceFeed.Pending />}>
-            <PlaceFeed placeId={placeId} />
-          </Suspense>
-        )}
+        <SwitchCase
+          value={currentTab}
+          cases={{
+            Info: (
+              <Box padding={2}>
+                <PlaceDetailContent.Info placeId={placeId} />
+              </Box>
+            ),
+            Feed: (
+              <Suspense fallback={<PlaceDetailContent.Feed.Pending />}>
+                <PlaceDetailContent.Feed placeId={placeId} />
+              </Suspense>
+            )
+          }}
+        />
       </Box>
     </Box>
   )
 }
 
-function PlaceHeader({ placeId }: Props) {
-  const { data: { name } } = usePlace(placeId);
+function PlaceHeader({ placeId }: { placeId: string }) {
+  const { data: { name } } = usePlace(placeId)
 
   return (
     <TopNavigation position="sticky">
@@ -62,39 +61,9 @@ function PlaceHeader({ placeId }: Props) {
     </TopNavigation>
   )
 }
-PlaceHeader.Pending = () => {
-  return (
-    <TopNavigation>
-      <Skeleton variant="text" width={120} />
-    </TopNavigation>
-  )
-}
 
-function PlaceFeed({ placeId }: Props) {
-  const { data: { feed } } = usePlaceFeed(placeId);
-
-  if (feed.length === 0) {
-    return (
-      <Box textAlign="center" py={8} color="text.secondary" fontSize={14}>
-        아직 이 장소의 기록이 없어요
-      </Box>
-    )
-  }
-
-  return (
-    <Stack gap={2} padding={2} bgcolor={theme => theme.palette.grey[200]}>
-      {feed.map(post => (
-        <PostCard key={post.id} post={post} />
-      ))}
-    </Stack>
-  )
-}
-PlaceFeed.Pending = () => {
-  return (
-    <Stack gap={2} padding={2}>
-      <Skeleton height={300} />
-      <Skeleton height={300} />
-      <Skeleton height={300} />
-    </Stack>
-  )
-}
+PlaceHeader.Pending = () => (
+  <TopNavigation>
+    <Skeleton variant="text" width={120} />
+  </TopNavigation>
+)

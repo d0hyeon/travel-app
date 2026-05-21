@@ -1,217 +1,200 @@
-import PublicIcon from '@mui/icons-material/Public'
-import { Box, CircularProgress, IconButton, Tooltip } from '@mui/material'
-import { useQuery } from '@tanstack/react-query'
-import { Suspense, useMemo, useState } from 'react'
-import { getPhotosByPlaceId, photoKey } from '../photo/photo.api'
-import type { TripPlace } from '../place/place.types'
-import { useTrips } from '../trip/useTrips'
-import { Country, getCountryByLocation, type Country as CountryType } from '~features/location'
-import { Map } from '~shared/components/Map'
-import { BottomNavigation } from '~shared/components/BottomNavigation'
-import { MultiSelectDropdown } from '~shared/components/MultiSelectDropdown'
-import { useIsMobile } from '~shared/hooks/env/useIsMobile'
+import CheckIcon from '@mui/icons-material/Check'
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted'
+import MapIcon from '@mui/icons-material/Map'
+import {
+  Box,
+  Chip,
+  Stack,
+  ToggleButton,
+  ToggleButtonGroup,
+  type BoxProps,
+} from '@mui/material'
+import { Suspense, useCallback, useRef, useState } from 'react'
+import type { Location } from '~features/location'
+import type { PlaceCategoryType } from '~features/place/place.types'
+import { PlaceCategoryTypeLabel } from '~features/place/place.types'
+import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
+import { Extrude } from '~shared/components/Extrude'
+import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
+import { ListItem } from '~shared/components/ListItem'
+import { SwitchCase } from '~shared/components/SwitchCase'
+import { ScrollContainerProvider, useScrollContainer } from '~shared/hooks/interaction/useScrollRestore'
+import { useScrollStatus } from '~shared/hooks/interaction/useScrollStatus'
 import { useOverlay } from '~shared/hooks/useOverlay'
-import { PlaceExplorerDetailBottomSheet } from './PlaceExplorerDetailBottomSheet'
-import { PlaceExplorerDetailSidePanel } from './PlaceExplorerDetailSidePanel'
-import { useLocationsCoordinates } from './useLocationsCoordinates'
-import { useVisitedPlaces } from './useVisitedPlaces'
+import { EXPLORER_CATEGORY_TYPES } from './explorer.api'
+import { ExplorerCatalog, useLocationOverlay } from './ExplorerCatalog'
+import { ExplorerMap } from './ExplorerMap'
 
-type TripColor = { bg: string; text: string; marker: string }
-
-const TRIP_COLORS: TripColor[] = [
-  { bg: '#fce8e8', text: '#b85f5f', marker: '#de6b6b' },
-  { bg: '#e8f0fc', text: '#4f76c7', marker: '#5e8ff0' },
-  { bg: '#e8f7ee', text: '#4c8a63', marker: '#59b47c' },
-  { bg: '#fdf0e0', text: '#bc7c37', marker: '#e29a42' },
-  { bg: '#f0e8fc', text: '#855dcb', marker: '#9c72e8' },
-  { bg: '#e4f5f7', text: '#3f8a9d', marker: '#4cb9cf' },
-  { bg: '#fce8f3', text: '#bc5f92', marker: '#df78af' },
-  { bg: '#eef7e4', text: '#6f9850', marker: '#88bf5c' },
-]
+type ViewMode = 'map' | 'list'
 
 export default function PlaceExplorerPage() {
-  return (
-    <Suspense fallback={
-      <Box display="flex" alignItems="center" justifyContent="center" height="100%">
-        <CircularProgress />
-      </Box>
-    }>
-      <Resolved />
-    </Suspense>
-  )
-}
+  const [viewMode, setViewMode] = useExplorerViewMode()
+  const [location, setLocation] = useState<Location | null>(null)
+  const [category, setCategory] = useState<PlaceCategoryType | null>(null)
+  const openLocationOverlay = useLocationOverlay()
+  const openCategorySheet = useCategoryBottomSheet(category, setCategory)
 
-function Resolved() {
-  const { data: trips } = useTrips()
-  const isMobile = useIsMobile()
-
-  const [selectedTripIds, setSelectedTripIds] = useState<string[]>([])
-  const [showVisitLayer, setShowVisitLayer] = useState(true)
-
-  const {
-    data: { places, countries, locations },
-  } = useVisitedPlaces(selectedTripIds)
-
-  const domesticLocations = useMemo(
-    () => locations.filter((item) => getCountryByLocation(item.location) === Country.한국),
-    [locations],
-  )
-  const foreignLocations = useMemo(
-    () => locations.filter((item) => getCountryByLocation(item.location) !== Country.한국),
-    [locations],
-  )
-
-
-  const { data: coordinatesByLocation = {} } = useLocationsCoordinates(domesticLocations, 'city')
-
-  const tripColorMap = Object.fromEntries(
-    trips.map((trip, index) => [trip.id, TRIP_COLORS[index % TRIP_COLORS.length]]),
-  )
-
-  const getMarkerColor = (tripId: string): TripColor => tripColorMap[tripId] ?? TRIP_COLORS[0];
-  const getPolygonOpacity = (count: number) => Math.max(Math.min(count * 0.14, 0.4), 0.18);
-  const getRegionPolygonStyle = (count: number) => {
-    if (count >= 3) {
-      return { color: '#b95454', opacity: Math.min(getPolygonOpacity(count - 2), 0.3) };
-    }
-    return { color: '#2a9d6f', opacity: getPolygonOpacity(count) }
+  const handleLocationChipClick = async () => {
+    const result = await openLocationOverlay(location ?? undefined)
+    if (result !== undefined) setLocation(result)
   }
 
-  const overlay = useOverlay()
+  const chipSx = { fontSize: 11, height: 26 };
+  const titleRef = useRef(null)
+
+  const [container, setContainer] = useState<HTMLElement | null>(null);
+  const { isScrollDown } = useScrollStatus(container);
 
   return (
-    <Box sx={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
-      <Box position="absolute" top={8} left={8} zIndex={10} >
-        <MultiSelectDropdown
-          value={selectedTripIds}
-          options={trips.map((trip) => ({
-            value: trip.id,
-            label: trip.name,
-            color: getMarkerColor(trip.id).marker,
-          }))}
-          placeholder="전체 여행"
-          onChange={setSelectedTripIds}
-        />
-      </Box>
-
-      <Map
-        type="google"
-        sx={{ width: '100%', height: '100%' }}
-        autoFocus="marker"
-        clustering
-        clusterGridSize={60}
+    <Box height="100%" display="flex" flexDirection="column" bgcolor="background.paper">
+      <TopNavigation
+        position="sticky"
+        leftElement={null}
+        rightElement={<ExplorerViewToggleButton value={viewMode} onChange={setViewMode} />}
+        sx={{ borderBottom: 'none' }}
       >
-        {showVisitLayer && (
-          <Map.PolygonLayer>
-            {Object.entries(countries).map(([country, count]) => (
-              <Map.Region
-                key={country}
-                country={country as CountryType}
-                color="#2a9d6f"
-                opacity={getPolygonOpacity(count)}
-              />
-            ))}
-            {domesticLocations.map((item) => {
-              const coordinates = coordinatesByLocation[item.id]
-              if (!coordinates) return null;
+        <Box ref={titleRef} paddingX={1}>
+          탐색
+        </Box>
+      </TopNavigation>
 
-              return (
-                <Map.Polygon
-                  key={item.id}
-                  coordinates={coordinates}
-                  {...getRegionPolygonStyle(item.count)}
-                />
-              )
-            })}
-            {foreignLocations.map((item) => (
-              <Map.Region
-                key={item.id}
-                location={item.location}
-                {...getRegionPolygonStyle(item.count)}
-              />
-            ))}
-          </Map.PolygonLayer>
-        )}
-
-        {places.map((place) => (
-          <PlaceMarker
-            key={place.id}
-            place={place}
-            color={getMarkerColor(place.tripId).marker}
-            isSelected={false}
-            onClick={() => {
-              overlay.open(({ isOpen, close }) => {
-                if (isMobile) {
-                  return (
-                    <PlaceExplorerDetailBottomSheet
-                      isOpen={isOpen}
-                      place={place}
-                      onClose={close}
-                    />
-                  )
-                }
-
-                return (
-                  <PlaceExplorerDetailSidePanel
-                    isOpen={isOpen}
-                    place={place}
-                    onClose={close}
-                  />
-                )
-              })
-            }}
-          />
-        ))}
-      </Map>
-      <Tooltip title={showVisitLayer ? '방문 국가 숨기기' : '방문 국가 표시'} placement="left">
-        <IconButton
-          onClick={() => setShowVisitLayer((value) => !value)}
-          sx={{
-            position: 'absolute',
-            bottom: isMobile ? BottomNavigation.HEIGHT + 16 : 16,
-            right: 16,
-            zIndex: 2000,
-            bgcolor: showVisitLayer ? 'primary.main' : 'background.paper',
-            color: showVisitLayer ? 'primary.contrastText' : 'text.secondary',
-            boxShadow: 2,
-            '&:hover': {
-              bgcolor: showVisitLayer ? 'primary.dark' : 'grey.100',
-            },
-          }}
-        >
-          <PublicIcon fontSize="small" />
-        </IconButton>
-      </Tooltip>
-
+      <FilterNavigation
+        sx={{ zIndex: 1000, transition: 'all 200ms', position: 'fixed', top: TopNavigation.HEIGHT }}
+        paddingBottom={isScrollDown ? 0 : 1}
+        height={isScrollDown ? 0 : 'auto'}
+      >
+        <Extrude active={isScrollDown} target={titleRef.current} axis="y">
+          <Stack direction="row" gap={1} alignItems="center">
+            <Chip
+              label={location ?? '지역'}
+              onClick={handleLocationChipClick}
+              color={location ? 'primary' : 'default'}
+              variant="outlined"
+              size="small"
+              sx={{ ...chipSx, fontWeight: location ? 700 : 400 }}
+            />
+            <Chip
+              label={category ? PlaceCategoryTypeLabel[category] : '카테고리'}
+              onClick={openCategorySheet}
+              color={category ? 'primary' : 'default'}
+              variant="outlined"
+              size="small"
+              sx={{ ...chipSx, fontWeight: category ? 700 : 400 }}
+            />
+          </Stack>
+        </Extrude>
+      </FilterNavigation>
+      <ScrollContainerProvider value={container}>
+        <Box ref={setContainer} flex={1} height="100%" position="relative" paddingTop={`${FilterNavigation.height}px`} overflow="auto">
+          <Suspense>
+            <SwitchCase
+              value={viewMode}
+              cases={{
+                map: () => <ExplorerMap height="100%" />,
+                list: () => <ExplorerCatalog location={location} category={category} />,
+              }}
+            />
+          </Suspense>
+        </Box>
+      </ScrollContainerProvider>
     </Box>
   )
 }
 
-interface PlaceMarkerProps {
-  place: TripPlace
-  color: string
-  isSelected: boolean
-  onClick: () => void
+function useCategoryBottomSheet(
+  category: PlaceCategoryType | null,
+  onSelect: (v: PlaceCategoryType | null) => void,
+) {
+  const overlay = useOverlay()
+
+  return useCallback(() => {
+    overlay.open(({ isOpen, close }) => (
+      <BottomSheet isOpen={isOpen} onClose={close}>
+        <BottomSheet.Header>카테고리 선택</BottomSheet.Header>
+        <BottomSheet.Body>
+          <Stack gap={1} pb={1}>
+            <ListItem.Button
+              onClick={() => { onSelect(null); close() }}
+              rightAddon={
+                category === null
+                  ? <CheckIcon sx={{ fontSize: 16, color: 'primary.main' }} />
+                  : undefined
+              }
+              sx={{ border: 'none' }}
+            >
+              <ListItem.Title fontWeight={category === null ? 700 : 400}>
+                전체
+              </ListItem.Title>
+            </ListItem.Button>
+            {EXPLORER_CATEGORY_TYPES.map((cat) => (
+              <ListItem.Button
+                key={cat}
+                onClick={() => { onSelect(cat); close() }}
+                rightAddon={
+                  category === cat
+                    ? <CheckIcon sx={{ fontSize: 16, color: 'primary.main' }} />
+                    : undefined
+                }
+                sx={{ border: 'none' }}
+              >
+                <ListItem.Title fontWeight={category === cat ? 700 : 400}>
+                  {PlaceCategoryTypeLabel[cat]}
+                </ListItem.Title>
+              </ListItem.Button>
+            ))}
+          </Stack>
+        </BottomSheet.Body>
+      </BottomSheet>
+    ))
+  }, [overlay, category, onSelect])
 }
 
-function PlaceMarker({ place, color, isSelected, onClick }: PlaceMarkerProps) {
-  const { data: photos } = useQuery({
-    queryKey: [photoKey, 'place', place.placeId],
-    queryFn: () => getPhotosByPlaceId(place.placeId),
-    staleTime: Infinity,
-  })
-
-  const thumbnailUrl = photos?.[0]?.url
-
+type ToggleButtonProps = {
+  value: ViewMode;
+  onChange: (value: ViewMode) => void;
+}
+function ExplorerViewToggleButton({ value, onChange }: ToggleButtonProps) {
   return (
-    <Map.Marker
-      id={place.id}
-      lat={place.lat}
-      lng={place.lng}
-      label={place.name}
-      color={isSelected ? 'selected' : (color ?? 'default')}
-      thumbnailUrl={thumbnailUrl}
-      onClick={onClick}
+    <ToggleButtonGroup
+      value={value}
+      exclusive
+      onChange={(_, value: ViewMode) => onChange(value)}
+      size="small"
+      sx={theme => ({
+        backgroundColor: theme.palette.grey[200],
+        padding: 0.5,
+        borderRadius: '12px',
+        '& .MuiToggleButton-root': { border: 'none', px: 1 },
+        '.Mui-selected': { backgroundColor: '#fff !important' },
+        '.MuiButtonBase-root': { borderRadius: '8px', paddingY: 0.5, }
+      })}
+
+    >
+      <ToggleButton value="list" aria-label="리스트 뷰" >
+        <FormatListBulletedIcon fontSize="small" />
+      </ToggleButton>
+      <ToggleButton value="map" aria-label="지도 뷰">
+        <MapIcon fontSize="small" />
+      </ToggleButton>
+    </ToggleButtonGroup>
+  )
+}
+
+function useExplorerViewMode() {
+  return useState<ViewMode>('list');
+}
+
+function FilterNavigation(props: BoxProps) {
+  return (
+    <Box
+      width="100%"
+      height={FilterNavigation.height}
+      paddingX={2}
+      borderBottom={1}
+      borderColor="divider"
+      bgcolor="#fff"
+      {...props}
     />
   )
 }
+FilterNavigation.height = 35

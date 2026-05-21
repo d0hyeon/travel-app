@@ -24,11 +24,10 @@ export function GoogleMapClusterOverlays({ gridSize }: Props) {
 
   const clusters = useMemo(() => {
     const allMarkers = Array.from(registry.values());
-    const visibleMarkers = bounds
-      ? allMarkers.filter(m => isInMapBounds(m.position.lat, m.position.lng, bounds))
-      : allMarkers;
-    return createClusters(visibleMarkers, zoom, gridSize);
-  }, [registry, version, bounds, zoom, gridSize]);
+    const allClusters = createClusters(allMarkers, zoom, gridSize);
+    if (!bounds) return allClusters;
+    return allClusters.filter(c => isInMapBounds(c.center.lat, c.center.lng, bounds));
+  }, [registry, version, zoom, gridSize, bounds]);
 
   const entriesRef = useRef<Map<string, ClusterEntry>>(new Map());
 

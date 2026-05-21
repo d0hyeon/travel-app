@@ -4,6 +4,7 @@ import { Country, getCountryByLocation, isLocation, type Location } from '~featu
 import { useTrips } from '../trip/useTrips'
 import { getAllTripPlaces, placeKey } from "../place/place.api"
 import { getAllRoutes, routeKey } from "../route/route.api"
+import { supabase } from "~api/client"
 
 export interface VisitedLocation {
   id: string
@@ -18,10 +19,12 @@ export function useVisitedPlaces(tripIds?: string[]) {
     queryFn: async () => {
       const [places, routes] = await Promise.all([getAllTripPlaces(), getAllRoutes()])
       const confirmedPlaceIds = new Set(routes.flatMap((route) => route.placeIds))
-
+  
+    
       return places.filter((place) => confirmedPlaceIds.has(place.id))
     },
   })
+  
 
   const filteredTrips = useMemo(
     () => (

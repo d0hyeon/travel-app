@@ -42,7 +42,7 @@ function Header() {
   if (isMobile) {
     return (
       <TopNavigation leftElement={null} position="sticky">
-        <Typography variant="body1" fontWeight={800} paddingX={1}>
+        <Typography variant="body1" fontWeight={800} >
           피드
         </Typography>
       </TopNavigation>
@@ -51,7 +51,7 @@ function Header() {
 
   return (
     <DesktopNavigation leftElement={null} position="sticky">
-      <Typography variant="h6" fontWeight={800} paddingX={1}>
+      <Typography variant="h6" fontWeight={800}>
         피드
       </Typography>
     </DesktopNavigation>

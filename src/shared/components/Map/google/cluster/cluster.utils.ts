@@ -106,8 +106,13 @@ function buildClusterGroupEntry(cluster: Cluster, map: google.maps.Map, onCluste
   const el = document.createElement('div');
   el.innerHTML = `<div style="width:38px;height:38px;background:white;border:2px solid #bdbdbd;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#555;font-size:13px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.15);cursor:pointer;">${cluster.markers.length}</div>`;
   el.style.cssText = 'position:absolute; transform:translate(-50%,-50%);';
-  el.addEventListener('click', onClusterClick);
-  entry.domHandlers.push({ el, type: 'click', handler: onClusterClick });
+
+  const clickHandler: EventListener = (e) => {
+    e.stopPropagation();
+    onClusterClick();
+  };
+  el.addEventListener('click', clickHandler);
+  entry.domHandlers.push({ el, type: 'click', handler: clickHandler });
 
   class COverlay extends google.maps.OverlayView {
     onAdd() { this.getPanes()?.overlayMouseTarget.appendChild(el); }
@@ -162,7 +167,8 @@ export function createClusters(markers: MarkerData[], zoom: number, gridSize: nu
     if (nearby.length >= 2) {
       const centerLat = nearby.reduce((s, m) => s + m.position.lat, 0) / nearby.length;
       const centerLng = nearby.reduce((s, m) => s + m.position.lng, 0) / nearby.length;
-      clusters.push({ id: `cluster_${marker.id}`, center: { lat: centerLat, lng: centerLng }, markers: nearby });
+      const stableId = nearby.map(m => m.id).toSorted().join(',');
+      clusters.push({ id: `cluster_${stableId}`, center: { lat: centerLat, lng: centerLng }, markers: nearby });
     } else {
       clusters.push({ id: `single_${marker.id}`, center: marker.position, markers: [marker] });
     }

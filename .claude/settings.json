@@ -23,7 +23,12 @@
       "Bash(do echo:*)",
       "Read(//Users/kdh/space/dev/travel-app/**)",
       "Bash(grep -oE '[A-Za-z]{10,30}')",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(git checkout *)",
+      "mcp__plugin_oh-my-claudecode_t__lsp_document_symbols",
+      "Read(//Users/kdh/.claude/skills/personal-review/references/**)",
+      "Edit(~/.claude/skills/personal-review/**)",
+      "Read(//Users/kdh/.claude/skills/architecture-assistant/references/**)"
     ],
     "additionalDirectories": [
       "/Users/kdh/space/dev/travel-app/app"

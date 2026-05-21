@@ -1,7 +1,9 @@
-import { Button } from '@mui/material'
+import { Button, Divider, Stack, TextField } from '@mui/material'
+import { useState } from 'react'
+import { isDev } from '~app/env'
 import { IntroFullScreenBanner } from '~features/intro/IntroFullScreenBanner'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
-import { signInWithKakao } from './auth.api'
+import { signInWithEmail, signInWithKakao } from './auth.api'
 import { useAuthRedirection } from './AuthNavigate'
 
 function KakaoSymbol() {
@@ -19,14 +21,11 @@ function KakaoSymbol() {
 }
 
 export default function LoginPage() {
-  const isMobile = useIsMobile();
-  const redirection = useAuthRedirection();
+  const isMobile = useIsMobile()
+  const redirection = useAuthRedirection()
 
   return (
     <IntroFullScreenBanner>
-      {/* 심볼 + 앱명 */}
-
-      {/* 카카오 로그인 버튼 */}
       <Button
         onClick={() => signInWithKakao({ redirectTo: redirection })}
         startIcon={<KakaoSymbol />}
@@ -38,6 +37,55 @@ export default function LoginPage() {
       >
         카카오로 로그인
       </Button>
+
+      {isDev && (
+        <>
+          <Divider sx={{ width: 300, color: 'text.disabled', fontSize: 12 }}>dev only</Divider>
+          <DevEmailLogin />
+        </>
+      )}
     </IntroFullScreenBanner>
+  )
+}
+
+function DevEmailLogin() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setError(null)
+    try {
+      await signInWithEmail(email, password)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '로그인 실패')
+    }
+  }
+
+  return (
+    <Stack component="form" onSubmit={handleSubmit} spacing={1.5} sx={{ width: 300 }}>
+      <TextField
+        size="small"
+        label="이메일"
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        autoComplete="email"
+      />
+      <TextField
+        size="small"
+        label="비밀번호"
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        autoComplete="current-password"
+        error={!!error}
+        helperText={error ?? undefined}
+      />
+      <Button type="submit" variant="outlined" size="small">
+        이메일로 로그인
+      </Button>
+    </Stack>
   )
 }

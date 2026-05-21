@@ -11,13 +11,13 @@ import {
   Typography,
 } from '@mui/material'
 import { Suspense } from 'react'
-import type { TripPlace } from '../place/place.types'
-import { usePlacePhotos } from '../place/usePlacePhotos'
+import type { ExploredPlace } from '../explorer.api'
+import { usePlacePhotos } from '../../place/usePlacePhotos'
 import { useOverlay } from '~shared/hooks/useOverlay'
 import { PhotoBottomSheet } from '~shared/components/photo/PhotoBottomSheet'
 
 interface Props {
-  place: TripPlace
+  place: ExploredPlace
   isOpen?: boolean
   onClose: () => void
 }
@@ -55,12 +55,6 @@ export function PlaceExplorerDetailSidePanel({ place, isOpen = true, onClose }: 
               <LocationOnIcon sx={{ fontSize: 13, color: 'text.disabled' }} />
               <Typography variant="caption" color="text.secondary">{place.address}</Typography>
             </Stack>
-          )}
-
-          {place.memo && (
-            <Typography variant="body2" color="text.secondary" mt={1}>
-              {place.memo}
-            </Typography>
           )}
 
           <Box mt={1.5}>

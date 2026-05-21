@@ -25,7 +25,9 @@ export function useRegisteredMarker() {
   assert(!!context, 'context가 초기화되지 않았습니다.');
 
   const { version, registryRef } = context;
-  return { version, data: registryRef.current };
+  // version을 key로 삼아 Map 스냅샷을 반환 — Ref 참조 동일성 문제로 useMemo가 깨지지 않던 버그 수정
+  const snapshot = useMemo(() => new Map(registryRef.current), [version]);
+  return { version, data: snapshot };
 }
 
 export function ClusterProvider({ children }: PropsWithChildren) {

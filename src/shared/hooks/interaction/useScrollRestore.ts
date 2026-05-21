@@ -19,7 +19,7 @@ const ScrollContainerContext = createContext<HTMLElement | null>(null);
 
 export const ScrollContainerProvider = ScrollContainerContext.Provider;
 
-function useScrollContainer() {
+export function useScrollContainer() {
   const context = useContext(ScrollContainerContext);
   
   if (context == null) {

@@ -6,7 +6,7 @@ type Hooks = {
   onScrollStart?: (event: Event) => void;
   onScrollEnd?: (event: Event) => void;
 }
-export function useScrollEventListener<T extends HTMLElement>(target: T | null, hooks: Hooks) {
+export function useScrollEventListener<T extends HTMLElement>(target: T | Window | null, hooks: Hooks) {
   const [getIsStart, setIsStart] = useVariation(false);
   const handleScroll = useEffectEvent((event: Event) => {
     if (getIsStart()) { 

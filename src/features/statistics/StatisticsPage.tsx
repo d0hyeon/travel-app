@@ -39,7 +39,7 @@ export default function StatisticsPage() {
           <Tabs
             value={currentTab}
             onChange={(_, value: StatisticsTab) => setCurrentTab(value)}
-            variant="scrollable"
+
             allowScrollButtonsMobile
             sx={{
               borderBottom: '1px solid #ddd',

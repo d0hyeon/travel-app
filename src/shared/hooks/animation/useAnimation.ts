@@ -12,23 +12,21 @@ type AnimationSpec = {
   direction?: PlaybackDirection
 }
 
-type PlayOverride<T extends Element> = Partial<AnimationSpec> & {
-  element?: T
-}
 
-type PlayWithDefaultElement<T extends Element> = (
-  override?: PlayOverride<T>
+type PlayWithDefaultElement = (
+  spec?: Partial<AnimationSpec>
 ) => Promise<void>
 
 type PlayWithoutElement<T extends Element> = (
-  override: PlayOverride<T> & { element: T }
+  target: T,
+  spec?: Partial<AnimationSpec>
 ) => Promise<void>
 
-type UseAnimationReturnWithElement<T extends Element> = {
-  play: PlayWithDefaultElement<T>
+type UseAnimationReturnWithElement = {
+  play: PlayWithDefaultElement;
   stop: () => void
   pause: () => void
-  reverse: () => void
+  reverse: () => Promise<void>
   isRunning: boolean
   animation: React.MutableRefObject<Animation | null>
 }
@@ -45,7 +43,7 @@ type UseAnimationReturnWithoutElement<T extends Element> = {
 export function useAnimation<T extends Element>(
   spec: AnimationSpec,
   element: T | null,
-): UseAnimationReturnWithElement<T>
+): UseAnimationReturnWithElement;
 
 export function useAnimation<T extends Element>(
   spec: AnimationSpec
@@ -89,15 +87,19 @@ export function useAnimation<T extends Element>(
     animationRef.current?.pause()
   }, [])
 
-  const reverse = useCallback(() => {
+  const reverse = useCallback(async () => {
     animationRef.current?.reverse()
+    await animationRef.current?.finished;
   }, [])
 
   const play = useCallback(
-    async (override: PlayOverride<T> = {}) => {
+    async (...args: Parameters<PlayWithDefaultElement> | Parameters<PlayWithoutElement<T>>) => {
+      const overrideElement = args.length === 2 ? args[0] : null;
+      const overrideSpec = args.length === 2 ? args[1] : args[0];
+
       const base = baseSpecRef.current
 
-      const target = override.element ?? element
+      const target = overrideElement ?? element
 
       if (!target) {
         throw new Error("Animation element is required")
@@ -105,7 +107,7 @@ export function useAnimation<T extends Element>(
 
       const spec: AnimationSpec = {
         ...base,
-        ...override
+        ...overrideSpec
       }
 
       const animation = buildAnimation(target, spec)
@@ -135,17 +137,44 @@ export function useAnimation<T extends Element>(
   }
 }
 
-export type AnimationApi = {
-  play(options?: Partial<PlayWithDefaultElement<Element>>): Promise<void>
 
-  stop(): void
+export const Easing = {
+  // preset keywords
+  Linear: "linear",
+  Ease: "ease",
+  EaseIn: "ease-in",
+  EaseOut: "ease-out",
+  EaseInOut: "ease-in-out",
+  StepStart: "step-start",
+  StepEnd: "step-end",
 
-  scrub(progress: number): void
+  // commonly used bezier presets
+  Standard: "cubic-bezier(0.4, 0, 0.2, 1)",
+  Decelerate: "cubic-bezier(0, 0, 0.2, 1)",
+  Accelerate: "cubic-bezier(0.4, 0, 1, 1)",
+  Sharp: "cubic-bezier(0.4, 0, 0.6, 1)",
 
-  pause(): void
+  // helpers
+  cubicBezier: (
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number
+  ) => `cubic-bezier(${x1}, ${y1}, ${x2}, ${y2})`,
 
-  resume(): void
+  steps: (
+    count: number,
+    position?:
+      | "jump-start"
+      | "jump-end"
+      | "jump-none"
+      | "jump-both"
+      | "start"
+      | "end"
+  ) =>
+    position
+      ? `steps(${count}, ${position})`
+      : `steps(${count})`,
 
-  isPlaying(): boolean
-}
-
+  linear: (points: string) => `linear(${points})`,
+} as const

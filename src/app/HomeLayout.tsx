@@ -20,7 +20,7 @@ import { useAuth } from '~features/auth/useAuth'
 const TABS = [
   { label: '여행', path: AppRoute.메인, Icon: LuggageIcon },
   { label: '피드', path: AppRoute.피드, Icon: DynamicFeedIcon },
-  { label: '지도', path: AppRoute.지도, Icon: MapIcon },
+  { label: '탐색', path: AppRoute.탐색, Icon: MapIcon },
   { label: '통계', path: AppRoute.통계, Icon: ReceiptLongIcon },
 ]
 
