@@ -36,8 +36,8 @@ export default [
     route(AppRoute.포스트_상세, "../features/post/PostDetailPage.tsx"),
     route(AppRoute.장소_상세, "../features/place/place-detail/PlaceDetailPage.tsx"),
     route(AppRoute.어드민_여행_목록, "../features/admin/AdminTripListPage.tsx"),
-    route(AppRoute.탐색_최다방문, "../features/explorer/TopVisitedPage.tsx"),
-    route(AppRoute.탐색_최근핫플, "../features/explorer/RecentHotPage.tsx"),
+    route(AppRoute.탐색_최다방문, "../features/explorer/explorer-ranking/TopVisitedPage.tsx"),
+    route(AppRoute.탐색_최근핫플, "../features/explorer/explorer-recent/RecentHotPage.tsx"),
   ]),
   route("*", "NotFound.tsx"),
 ] satisfies RouteConfig;
