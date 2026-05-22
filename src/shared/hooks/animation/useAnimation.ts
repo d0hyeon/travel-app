@@ -27,6 +27,7 @@ type UseAnimationReturnWithElement = {
   stop: () => void
   pause: () => void
   reverse: () => Promise<void>
+  scrub: (progress: number) => void
   isRunning: boolean
   animation: React.MutableRefObject<Animation | null>
 }
@@ -36,6 +37,7 @@ type UseAnimationReturnWithoutElement<T extends Element> = {
   stop: () => void
   pause: () => void
   reverse: () => void
+  scrub: (progress: number) => void
   isRunning: boolean
   animation: React.MutableRefObject<Animation | null>
 }
@@ -56,7 +58,7 @@ export function useAnimation<T extends Element>(
 export function useAnimation<T extends Element>(
   baseSpec: AnimationSpec,
   element?: T | null,
-) {
+): UseAnimationReturnWithElement | UseAnimationReturnWithoutElement<T> {
   const animationRef = useRef<Animation | null>(null)
   const baseSpecRef = useRef(baseSpec)
 
@@ -81,6 +83,16 @@ export function useAnimation<T extends Element>(
   const stop = useCallback(() => {
     animationRef.current?.cancel()
     setRunning(false)
+  }, [])
+
+  const scrub = useCallback((progress: number) => {
+    const anim = animationRef.current
+    if (!anim) return
+    anim.pause()
+    const duration = (anim.effect as KeyframeEffect)?.getTiming().duration
+    if (typeof duration === 'number') {
+      anim.currentTime = progress * duration
+    }
   }, [])
 
   const pause = useCallback(() => {
@@ -132,11 +144,13 @@ export function useAnimation<T extends Element>(
     stop,
     pause,
     reverse,
+    scrub,
     isRunning,
     animation: animationRef
   }
 }
 
+export type AnimationApi = ReturnType<typeof useAnimation<HTMLDivElement>>;
 
 export const Easing = {
   // preset keywords
