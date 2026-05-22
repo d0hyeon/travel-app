@@ -132,14 +132,9 @@ export function Extrude({
       className={className}
       style={{
         transformOrigin: 'top left',
-
-        willChange:
-          'transform, opacity',
-
-        transition: `
-          transform ${duration}ms ${easing}
-        `,
-
+        width: 'fit-content',
+        willChange: 'transform, opacity',
+        transition: `transform ${duration}ms ${easing}`,
         ...motionStyle,
         ...style,
       }}
