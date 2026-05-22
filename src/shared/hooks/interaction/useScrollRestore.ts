@@ -28,29 +28,39 @@ export function useScrollContainer() {
   return context ?? null;
 }
 
+type RestoreOptions<E extends HTMLElement> = {
+  element?: E | null;
+  key?: string;
+}
 
-
-export function useScrollRestore(key?: string) {
+export function useScrollRestore<E extends HTMLElement>(options: RestoreOptions<E> = {}) {
   const container = useScrollContainer()
   const location = useLocation();
-
-  const storageKey = key ?? `scroll-restore:${location.key}`;
-  useScrollEventListener(container, {
+  
+  const storageKey = options.key ?? `scroll-restore:${location.key}`;
+  const target = objectHasByKey(options, 'element') ? options.element : container;
+  
+  useScrollEventListener(target, {
     onScrollEnd: (event) => {
       if (event.target instanceof HTMLElement) {
-        sessionStorage.setItem(storageKey, event.target.scrollTop.toString());
+        const value = [event.target.scrollTop, event.target.scrollLeft].join(', ')
+        sessionStorage.setItem(storageKey, value);
       }
     }
   })
 
   useEffect(() => {
-    if (!container) return;
-
+    if (!target) return;
     const saved = sessionStorage.getItem(storageKey);
     if (saved == null) return;
-    container.scrollTop = Number(saved);
-  }, [storageKey, container])
+
+    const [top, left] = saved.split(',').map(Number);
+    target.scrollTo({ top, left })
+  }, [storageKey, target])
 }
 
+function objectHasByKey<T extends {}, Key extends keyof T>(obj: T, key: Key): obj is T & Record<Key, Omit<T[Key], 'undefined'>> {
+  return Object.hasOwn(obj, key) 
+}
 
 

@@ -118,8 +118,8 @@ export function ProfileRecordsTab({ userId }: Props) {
       </Box>
       <BottomSheet
         isOpen={!!selected}
-        snapPoints={[0.3, 0.5, 0.8]}
-        defaultSnapIndex={1}
+        snapPoints={[0.5, 0.8]}
+        defaultSnapIndex={0}
         onClose={() => selectLocation(null)}
         backdrop={false}
       >

@@ -1,6 +1,6 @@
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { Box, Button, Stack, Typography } from '@mui/material'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
 import type { Location } from '~features/location'
@@ -10,6 +10,7 @@ import { useExplorerDetailOverlay } from '../explorer-detail/useExplorerDetailOv
 import { PlaceCard } from '../explorer-place-item/PlaceCard'
 import { useRecentHotPlaces } from './useRecentHotPlaces'
 import type { ExploredPlace } from '../explorer.api'
+import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
 
 const SECTION_LIMIT = 10
 
@@ -37,6 +38,9 @@ export function RecentHotSection({ location, category }: Props) {
   const recentHot = useMemo(() => places.toReversed().slice(0, SECTION_LIMIT), [places])
   const toDetailUrl = buildDetailUrl(AppRoute.탐색_최근핫플, location, category)
 
+  const [scrollContainer, setScrollContainer] = useState<HTMLDivElement | null>(null)
+  useScrollRestore({ element: scrollContainer });
+
   return (
     <Box mb={3}>
       <Stack direction="row" alignItems="center" justifyContent="space-between" px={2} mb={1.5}>
@@ -58,23 +62,13 @@ export function RecentHotSection({ location, category }: Props) {
           자료를 찾을 수 없어요
         </Typography>
       ) : (
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            gap: 1.5,
-            overflowX: 'auto',
-            px: 2,
-            pb: 0.5,
-            '&::-webkit-scrollbar': { display: 'none' },
-          }}
-        >
+        <Stack ref={setScrollContainer} width="100%" direction="row" gap={0.5} px={2} pb={0.5} overflow="auto" sx={{ '&::-webkit-scrollbar': { display: 'none' } }}>
           {recentHot.map((place) => (
-            <Box key={place.placeId} sx={{ width: 140, flexShrink: 0 }}>
+            <Box key={place.placeId} sx={{ width: isMobile ? 140 : 200, flexShrink: 0 }}>
               <PlaceCard place={place} onClick={() => openDetail(place)} />
             </Box>
           ))}
-        </Box>
+        </Stack>
       )}
     </Box>
   )

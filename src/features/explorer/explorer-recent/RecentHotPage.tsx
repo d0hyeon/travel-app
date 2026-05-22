@@ -1,5 +1,5 @@
 import CheckIcon from '@mui/icons-material/Check'
-import { Box, Chip, Grid, Skeleton, Stack } from '@mui/material'
+import { Box, Chip, Container, Grid, Skeleton, Stack } from '@mui/material'
 import { Suspense, useCallback, useRef, useState } from 'react'
 import { getCoordinateByLocation, type Location } from '~features/location'
 import type { PlaceCategoryType } from '~features/place/place.types'
@@ -88,9 +88,11 @@ export default function RecentHotPage() {
           cases={{
             list: () => (
               <Box px={2} py={2}>
-                <Suspense fallback={<GridSkeleton />}>
-                  <RecentHotGrid months={months} location={location ?? undefined} category={category ?? undefined} />
-                </Suspense>
+                <Container maxWidth="sm" >
+                  <Suspense fallback={<GridSkeleton />}>
+                    <RecentHotGrid months={months} location={location ?? undefined} category={category ?? undefined} />
+                  </Suspense>
+                </Container>
               </Box>
             ),
             map: () => (
@@ -123,9 +125,10 @@ function RecentHotGrid({
   const sorted = places.toReversed()
 
   return (
-    <Grid container spacing={1.5}>
+
+    <Grid container spacing={1.5} columns={2}>
       {sorted.map((place) => (
-        <Grid key={place.placeId} size={6}>
+        <Grid key={place.placeId} size={1}>
           <PlaceCard place={place} onClick={() => openDetail(place)} />
         </Grid>
       ))}

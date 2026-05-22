@@ -16,7 +16,7 @@ export function PlaceCard({ place, onClick }: { place: ExploredPlace; onClick: (
         <CardMedia
           component="div"
           sx={{
-            height: 140,
+
             bgcolor: accentColor ? `${accentColor}22` : 'grey.100',
             backgroundImage: place.thumbnailUrl ? `url(${place.thumbnailUrl})` : undefined,
             backgroundSize: 'cover',
@@ -24,6 +24,7 @@ export function PlaceCard({ place, onClick }: { place: ExploredPlace; onClick: (
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            aspectRatio: '1 / 1'
           }}
         >
           {!place.thumbnailUrl && (
@@ -33,6 +34,9 @@ export function PlaceCard({ place, onClick }: { place: ExploredPlace; onClick: (
         <Box sx={{ p: 1.5 }}>
           <Typography variant="body2" fontWeight={700} noWrap title={place.name}>
             {place.name}
+          </Typography>
+          <Typography variant="caption" color="textSecondary">
+            {place.destinations.join(', ')}
           </Typography>
           <Stack direction="row" alignItems="center" gap={0.5} mt={0.5}>
             <PeopleIcon sx={{ fontSize: 11, color: 'primary.main' }} />

@@ -8,13 +8,21 @@ import {
   ImageList,
   ImageListItem,
   Stack,
+  Tab,
+  Tabs,
   Typography,
 } from '@mui/material'
-import { Suspense } from 'react'
-import type { ExploredPlace } from '../explorer.api'
-import { usePlacePhotos } from '../../place/usePlacePhotos'
+import { Suspense, useState } from 'react'
+import { usePlace } from '~features/place/usePlace'
+import { usePlaceFeed } from '~features/post/place-feed/usePlaceFeed'
+import { PostCard } from '~features/post/PostCard'
+import { Map } from '~shared/components/Map'
+import { PhotoDialog } from '~shared/components/photo/PhotoDialog'
+import { SwitchCase } from '~shared/components/SwitchCase'
 import { useOverlay } from '~shared/hooks/useOverlay'
-import { PhotoBottomSheet } from '~shared/components/photo/PhotoBottomSheet'
+import { isOverseasByCoordinate } from '~shared/utils/geo'
+import { usePlacePhotos } from '../../place/usePlacePhotos'
+import type { ExploredPlace } from '../explorer.api'
 
 interface Props {
   place: ExploredPlace
@@ -23,19 +31,19 @@ interface Props {
 }
 
 export function PlaceExplorerDetailSidePanel({ place, isOpen = true, onClose }: Props) {
+  const [currentTab, changeTab] = useState<'basic' | 'feed'>('basic');
+
   return (
     <Drawer
-      anchor="left"
+      anchor="right"
       open={isOpen}
       onClose={onClose}
       hideBackdrop
-      sx={{ zIndex: 10 }}
+      sx={{ zIndex: 1000 }}
       PaperProps={{
         sx: {
-          left: 72,
-          width: 360,
+          width: 500,
           maxWidth: 'calc(100% - 72px)',
-          zIndex: 1,
         },
       }}
     >
@@ -50,54 +58,100 @@ export function PlaceExplorerDetailSidePanel({ place, isOpen = true, onClose }: 
         </Stack>
 
         <Box px={2} pb={2} overflow="auto" flex={1}>
-          {place.address && (
-            <Stack direction="row" alignItems="center" gap={0.25}>
-              <LocationOnIcon sx={{ fontSize: 13, color: 'text.disabled' }} />
-              <Typography variant="caption" color="text.secondary">{place.address}</Typography>
-            </Stack>
-          )}
+          <Tabs variant="fullWidth" value={currentTab} onChange={(_, value) => changeTab(value)} >
+            <Tab label="기본정보" value="basic" />
+            <Tab label="피드" value="feed" />
+          </Tabs>
+
 
           <Box mt={1.5}>
             <Suspense fallback={<Box display="flex" justifyContent="center"><CircularProgress size={20} /></Box>}>
-              <PlacePhotos placeId={place.placeId} />
+              <SwitchCase
+                value={currentTab}
+                cases={{
+                  basic: <PlaceBasicInfo placeId={place.placeId} />,
+                  feed: () => <PlaceFeed placeId={place.placeId} />
+                }}
+              />
             </Suspense>
+
           </Box>
         </Box>
       </Box>
     </Drawer>
   )
 }
+type ContentProps = {
+  placeId: string;
+}
+function PlaceFeed({ placeId }: ContentProps) {
+  const { data: { feed } } = usePlaceFeed(placeId);
 
-function PlacePhotos({ placeId }: { placeId: string }) {
-  const { data: photos } = usePlacePhotos(placeId)
-  const overlay = useOverlay()
-
-  if (photos.length === 0) {
+  if (feed.length === 0) {
     return (
-      <Typography variant="body2" color="text.disabled">사진이 없어요</Typography>
+      <Typography variant="body2" color="textSecondary" marginTop={5} textAlign="center">
+        작성된 피드가 없어요
+      </Typography>
     )
   }
 
   return (
-    <ImageList cols={2} gap={6} sx={{ m: 0 }}>
-      {photos.map((photo, idx) => (
-        <ImageListItem
-          key={photo.id}
-          sx={{ borderRadius: 2, overflow: 'hidden', cursor: 'pointer' }}
-          onClick={() => {
-            overlay.open(({ isOpen, close }) => (
-              <PhotoBottomSheet
-                isOpen={isOpen}
-                onClose={close}
-                photos={photos}
-                initialIndex={idx}
-              />
-            ))
-          }}
-        >
-          <img src={photo.url} alt="" loading="lazy" style={{ aspectRatio: '1', objectFit: 'cover', width: '100%' }} />
-        </ImageListItem>
+    <Stack gap={1}>
+      {feed.map(post => (
+        <PostCard key={post.id} post={post} />
       ))}
-    </ImageList>
+    </Stack>
+  )
+}
+
+function PlaceBasicInfo({ placeId }: { placeId: string }) {
+  const { data: place } = usePlace(placeId)
+  const { data: photos } = usePlacePhotos(placeId);
+
+  const overlay = useOverlay()
+
+  return (
+    <Stack gap={1}>
+      <Map
+        type={isOverseasByCoordinate(place.lat, place.lng) ? 'google' : 'kakao'}
+        height={300}
+        center={place}
+      >
+        <Map.Marker
+          {...place}
+          label={place.name}
+          variant="pin"
+        />
+      </Map>
+
+      {place.address && (
+        <Stack direction="row" alignItems="center" gap={0.25} >
+          <LocationOnIcon sx={{ fontSize: 13, color: 'text.disabled' }} />
+          <Typography variant="caption" color="text.secondary">{place.address}</Typography>
+        </Stack>
+      )}
+      {photos.length !== 0 && (
+        <ImageList cols={2} gap={6} sx={{ mt: 2 }}>
+          {photos.map((photo, idx) => (
+            <ImageListItem
+              key={photo.id}
+              sx={{ borderRadius: 2, overflow: 'hidden', cursor: 'pointer' }}
+              onClick={() => {
+                overlay.open(({ isOpen, close }) => (
+                  <PhotoDialog
+                    open={isOpen}
+                    onClose={close}
+                    photos={photos}
+                    initialIndex={idx}
+                  />
+                ))
+              }}
+            >
+              <img src={photo.url} alt="" loading="lazy" style={{ aspectRatio: '1', objectFit: 'cover', width: '100%' }} />
+            </ImageListItem>
+          ))}
+        </ImageList>
+      )}
+    </Stack>
   )
 }

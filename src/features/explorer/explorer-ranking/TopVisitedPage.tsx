@@ -1,4 +1,4 @@
-import { Box, Grid, Skeleton, Stack } from '@mui/material'
+import { Box, Container, Grid, Skeleton, Stack } from '@mui/material'
 import { Suspense, useRef, useState } from 'react'
 import { getCoordinateByLocation, type Location } from '~features/location'
 import type { PlaceCategoryType } from '~features/place/place.types'
@@ -56,14 +56,17 @@ export default function TopVisitedPage() {
         paddingTop={`${FilterNavigation.height}px`}
         position="relative"
       >
+
         <SwitchCase
           value={viewMode}
           cases={{
             list: () => (
               <Box px={2} py={2}>
-                <Suspense fallback={<GridSkeleton />}>
-                  <TopVisitedGrid location={location} category={category} />
-                </Suspense>
+                <Container maxWidth="sm" >
+                  <Suspense fallback={<GridSkeleton />}>
+                    <TopVisitedGrid location={location} category={category} />
+                  </Suspense>
+                </Container>
               </Box>
             ),
             map: () => (
@@ -73,6 +76,7 @@ export default function TopVisitedPage() {
             ),
           }}
         />
+
       </Box>
     </Box>
   )
@@ -94,13 +98,15 @@ function TopVisitedGrid({
   const sorted = places.toSorted((a, b) => b.visitorCount - a.visitorCount)
 
   return (
-    <Grid container spacing={1.5}>
+
+    <Grid container spacing={1.5} columns={2}>
       {sorted.map((place) => (
-        <Grid key={place.placeId} size={6}>
+        <Grid key={place.placeId} size={1}>
           <PlaceCard place={place} onClick={() => openDetail(place)} />
         </Grid>
       ))}
     </Grid>
+
   )
 }
 

@@ -6,7 +6,6 @@ import { Suspense, useRef, useState } from 'react'
 import { Extrude } from '~shared/components/Extrude'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
 import { SwitchCase } from '~shared/components/SwitchCase'
-import { ScrollContainerProvider } from '~shared/hooks/interaction/useScrollRestore'
 import { useScrollStatus } from '~shared/hooks/interaction/useScrollStatus'
 import { ExplorerFilter } from './explorer-filters/ExplorerFilters'
 import { useExplorerFilterParams } from './explorer-filters/useExplorerFilterParams'
@@ -47,26 +46,25 @@ export default function PlaceExplorerPage() {
         </Extrude>
       </FilterNavigation>
 
-      <ScrollContainerProvider value={container}>
-        <Box
-          ref={setContainer}
-          flex={1}
-          height="100%"
-          position="relative"
-          paddingTop={`${FilterNavigation.height}px`}
-          overflow="auto"
-        >
-          <Suspense>
-            <SwitchCase
-              value={viewMode}
-              cases={{
-                map: () => <ExplorerMap height="100%" />,
-                list: () => <ExplorerCatalog location={location ?? undefined} category={category ?? undefined} />,
-              }}
-            />
-          </Suspense>
-        </Box>
-      </ScrollContainerProvider>
+      <Box
+        ref={setContainer}
+        flex={1}
+        height="100%"
+        position="relative"
+        paddingTop={`${FilterNavigation.height}px`}
+        overflow="auto"
+        sx={{ overscrollBehaviorY: 'none' }}
+      >
+        <Suspense>
+          <SwitchCase
+            value={viewMode}
+            cases={{
+              map: () => <ExplorerMap height="100%" />,
+              list: () => <ExplorerCatalog location={location ?? undefined} category={category ?? undefined} />,
+            }}
+          />
+        </Suspense>
+      </Box>
     </Box>
   )
 }
