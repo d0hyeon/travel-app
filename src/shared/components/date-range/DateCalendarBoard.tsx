@@ -101,7 +101,6 @@ export const DateCalendarBoard = ({
 
           onChange={handleClickPicker}
           onMonthChange={(date) => {
-            console.log(date)
             if (isMobile) {
               setDisplayDate(date);
             }

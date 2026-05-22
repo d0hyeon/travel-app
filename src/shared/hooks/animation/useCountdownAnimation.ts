@@ -62,7 +62,6 @@ export function useCountAnimation(
 
     return () => {
       clearTimeout(timeoutId);
-      console.log('청소')
       if (animationId) cancelAnimationFrame(animationId);
     }
   }, [targetValue, enabled, duration, delay])

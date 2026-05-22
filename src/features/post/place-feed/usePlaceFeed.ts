@@ -6,11 +6,7 @@ export function usePlaceFeed(placeId: string) {
   const { data: place } = usePlace(placeId);
   const { data: feed, ...queries } = useSuspenseQuery({
     queryKey: usePlaceFeed.key(placeId),
-    queryFn: async () => {
-      const d = await getFeedByPlace(placeId)
-      console.log(d)
-      return d;
-    },
+    queryFn: async () => getFeedByPlace(placeId),
   });
 
   return { data: { feed, place }, ...queries }

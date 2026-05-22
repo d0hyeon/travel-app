@@ -49,7 +49,6 @@ function OverlayItem({
   element: OverlayElement
   onClose: () => void
 }) {
-  console.log('OverlayItem')
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {

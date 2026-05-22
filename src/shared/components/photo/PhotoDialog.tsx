@@ -217,8 +217,7 @@ const Transition = forwardRef(function Transition(
 function waitForTouchEnd() {
   return new Promise<void>((resolve) => {
 
-    window.addEventListener('', () => {
-      console.log('?? ');
+    window.addEventListener('touchend', () => {
       resolve();
     }, { once: true })
   })

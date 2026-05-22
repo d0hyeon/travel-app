@@ -17,7 +17,7 @@ export function PostFeed() {
   useScrollRestore();
 
   return (
-    <Stack spacing={2} onPointerDown={(event) => console.log(event)}>
+    <Stack spacing={2}>
       {posts.map((post) => <PostCard key={post.id} post={post} />)}
     </Stack >
   )

@@ -4,7 +4,6 @@ import { type PickersCalendarHeaderProps } from '@mui/x-date-pickers';
 import { formatDate } from 'date-fns';
 
 export function ReadonlyDateCalendarHeader({ currentMonth, format = 'MMMM yyyy', sx, ...props }: PickersCalendarHeaderProps) {
-  console.log(props)
   return (
     <Stack
       direction="row"
