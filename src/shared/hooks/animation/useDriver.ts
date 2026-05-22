@@ -30,14 +30,14 @@ export function useDriver(animation: AnimationApi, driver: Driver) {
       const isAccessed = getIsAccesedState();
       if (isAccessed) {
         setCurrent(state)
-      }
-      setStatus(state.progress === 0
-        ? 'start'
-        : state.progress === 1
-          ? 'end'
-          : null
-      );
       
+        setStatus(state.progress === 0
+          ? 'start'
+          : state.progress === 1
+            ? 'end'
+            : null
+        );
+      }
 
       if (animation?.scrub) {
         animation.scrub(state.progress)
@@ -62,7 +62,7 @@ export function useDriver(animation: AnimationApi, driver: Driver) {
     return new Proxy(data, {
       get: (_, key) => {
         if (typeof key === 'string') {
-          if (key === 'current') {
+          if(Object.keys(data).includes(key)) {
             setIsAccesedState(true);
           }
           // @ts-ignore
