@@ -61,7 +61,7 @@ export default function TopVisitedPage() {
           value={viewMode}
           cases={{
             list: () => (
-              <Box px={2} py={2}>
+              <Box py={2}>
                 <Container maxWidth="sm" >
                   <Suspense fallback={<GridSkeleton />}>
                     <TopVisitedGrid location={location} category={category} />

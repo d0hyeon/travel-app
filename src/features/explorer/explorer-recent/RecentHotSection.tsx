@@ -1,5 +1,5 @@
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
-import { Box, Button, Stack, Typography } from '@mui/material'
+import { Box, Button, Skeleton, Stack, Typography } from '@mui/material'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
@@ -62,7 +62,7 @@ export function RecentHotSection({ location, category }: Props) {
           자료를 찾을 수 없어요
         </Typography>
       ) : (
-        <Stack ref={setScrollContainer} width="100%" direction="row" gap={0.5} px={2} pb={0.5} overflow="auto" sx={{ '&::-webkit-scrollbar': { display: 'none' } }}>
+        <Stack ref={setScrollContainer} width="100%" direction="row" gap={isMobile ? 1 : 2} px={2} pb={0.5} overflow="auto" sx={{ '&::-webkit-scrollbar': { display: 'none' } }}>
           {recentHot.map((place) => (
             <Box key={place.placeId} sx={{ width: isMobile ? 140 : 200, flexShrink: 0 }}>
               <PlaceCard place={place} onClick={() => openDetail(place)} />
@@ -70,6 +70,27 @@ export function RecentHotSection({ location, category }: Props) {
           ))}
         </Stack>
       )}
+    </Box>
+  )
+}
+
+RecentHotSection.Skeleton = () => {
+  const isMobile = useIsMobile();
+
+  return (
+    <Box mb={3}>
+      <Skeleton variant="text" width={140} height={28} sx={{ mx: 2, mb: 1.5 }} />
+      <Stack direction="row" gap={isMobile ? 1 : 2} px={2}>
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Box key={i} sx={{ width: isMobile ? 140 : 200, flexShrink: 0, borderRadius: 3, overflow: 'hidden', border: 1, borderColor: 'divider' }}>
+            <Skeleton variant="rectangular" height={isMobile ? 140 : 200} />
+            <Box p={1.5}>
+              <Skeleton variant="text" width="80%" height={16} />
+              <Skeleton variant="text" width={60} height={14} sx={{ mt: 0.5 }} />
+            </Box>
+          </Box>
+        ))}
+      </Stack>
     </Box>
   )
 }

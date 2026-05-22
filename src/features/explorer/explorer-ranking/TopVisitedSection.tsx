@@ -1,5 +1,5 @@
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
-import { Box, Button, Stack, Typography } from '@mui/material'
+import { Box, Button, Skeleton, Stack, Typography } from '@mui/material'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
@@ -57,6 +57,24 @@ export function TopVisitedSection({ location, category }: Props) {
           <PlaceListItem key={place.placeId} place={place} onClick={() => openDetail(place)} />
         ))}
       </Stack>
+    </Box>
+  )
+}
+
+TopVisitedSection.Skeleton = () => {
+  return (
+    <Box>
+      <Skeleton variant="text" width={100} height={28} sx={{ mx: 2, mb: 1.5 }} />
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Stack key={i} direction="row" gap={1.5} px={2} py={1.25} alignItems="center">
+          <Skeleton variant="rounded" width={64} height={64} sx={{ borderRadius: 2, flexShrink: 0 }} />
+          <Box flex={1}>
+            <Skeleton variant="text" width="60%" height={16} />
+            <Skeleton variant="text" width="80%" height={14} />
+            <Skeleton variant="text" width={80} height={14} sx={{ mt: 0.5 }} />
+          </Box>
+        </Stack>
+      ))}
     </Box>
   )
 }

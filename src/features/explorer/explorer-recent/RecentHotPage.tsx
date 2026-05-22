@@ -87,7 +87,7 @@ export default function RecentHotPage() {
           value={viewMode}
           cases={{
             list: () => (
-              <Box px={2} py={2}>
+              <Box py={2}>
                 <Container maxWidth="sm" >
                   <Suspense fallback={<GridSkeleton />}>
                     <RecentHotGrid months={months} location={location ?? undefined} category={category ?? undefined} />
