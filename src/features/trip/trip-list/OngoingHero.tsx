@@ -16,7 +16,7 @@ export function OngoingHero({ trip }: Props) {
   const currDays = differenceInDays(startOfToday(), resetTime(trip.startDate));
 
   return (
-    <Link to={`/trip/${trip.id}`} style={{ textDecoration: 'none' }} aria-label={`진행 중인 여행: ${trip.name}`}>
+    <Link to={`/trip/${trip.id}`} style={{ textDecoration: 'none' }} aria-label={`진행 중인 여행: ${trip.name}`} viewTransition>
       <PrefetchPageLinks page={`/trip/${trip.id}`} />
       <ButtonBase
         component="div"

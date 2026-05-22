@@ -46,7 +46,7 @@ export default function HomeLayout() {
                 key={path}
                 icon={<Icon fontSize="small" color={location.pathname === path ? 'primary' : 'disabled'} />}
                 isActived={location.pathname === path}
-                onClick={() => navigate(path)}
+                onClick={() => navigate(path, { viewTransition: true })}
               >
                 {label}
               </BottomNavigation.Menu>
@@ -54,7 +54,7 @@ export default function HomeLayout() {
             <BottomNavigation.Menu
               icon={<ProfileIcon fontSize="small" color={location.pathname === mypagePath ? 'primary' : 'disabled'} />}
               isActived={location.pathname === mypagePath}
-              onClick={() => navigate(mypagePath, {})}
+              onClick={() => navigate(mypagePath, { viewTransition: true })}
             >
               내 정보
             </BottomNavigation.Menu>
@@ -88,7 +88,7 @@ export default function HomeLayout() {
               const isActive = location.pathname === path;
               return (
                 <Tooltip key={path} title={label} placement="right">
-                  <Link to={path}>
+                  <Link to={path} viewTransition>
                     <Stack
                       component="button"
                       alignItems="center"

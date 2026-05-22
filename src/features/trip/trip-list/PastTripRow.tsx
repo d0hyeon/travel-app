@@ -17,6 +17,7 @@ export function PastTripRow({ trip }: Props) {
       to={`/trip/${trip.id}`}
       style={{ textDecoration: 'none' }}
       aria-label={`지난 여행: ${trip.name}`}
+      viewTransition
     >
       <PrefetchPageLinks page={`/trip/${trip.id}`} />
       <ButtonBase

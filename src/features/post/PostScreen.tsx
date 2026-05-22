@@ -71,7 +71,7 @@ function Resolved({ postId }: Props) {
           </Map>
           <Stack gap={1}>
             {post.places.map(place => (
-              <Link key={place.placeId} to={generatePath(AppRoute.장소_상세, { placeId: place.placeId })}>
+              <Link key={place.placeId} to={generatePath(AppRoute.장소_상세, { placeId: place.placeId })} viewTransition>
                 <ListItem key={place.placeId}>
                   <ListItem.Title>{place.name}</ListItem.Title>
                   <ListItem.Text>{place.address}</ListItem.Text>

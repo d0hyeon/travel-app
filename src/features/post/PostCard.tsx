@@ -24,7 +24,7 @@ export function PostCard({ post }: Props) {
   return (
     <Box key={post.id} bgcolor="white" borderRadius={4} overflow="hidden">
       <Box sx={{ aspectRatio: '1 / 1', overflow: 'hidden' }}>
-        <Link to={generatePath(AppRoute.포스트_상세, { postId: post.id })}>
+        <Link to={generatePath(AppRoute.포스트_상세, { postId: post.id })} viewTransition>
           <Swiper
             slidesPerView={1}
             modules={[Virtual, Pagination]}
@@ -43,7 +43,7 @@ export function PostCard({ post }: Props) {
       <Stack paddingX={1.5} paddingTop={1} paddingBottom={2}>
         <Stack direction="row" justifyContent="space-between" alignItems="center" marginBottom={-0.5}>
           <Stack direction="row" gap={0.5} alignItems="center">
-            <Link to={`/u/${post.authorId}`}>
+            <Link to={`/u/${post.authorId}`} viewTransition>
               <UserProfile id={post.authorId} size="small" marginRight={0.5} />
             </Link>
             {post.places.length > 0 && (
@@ -65,7 +65,7 @@ export function PostCard({ post }: Props) {
 
           <PostLikeButton postId={post.id} />
         </Stack>
-        <Link to={generatePath(AppRoute.포스트_상세, { postId: post.id })}>
+        <Link to={generatePath(AppRoute.포스트_상세, { postId: post.id })} viewTransition>
 
           {post.description && (
             <Typography variant="body2" color="textSecondary" paddingTop={1.5} paddingX={0.5}>

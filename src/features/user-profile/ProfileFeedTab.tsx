@@ -23,7 +23,7 @@ export function ProfileFeedTab({ userId }: Props) {
     <ImageList cols={3}>
       {posts.map(post => (
         <ImageListItem key={post.id} >
-          <Link to={generatePath(AppRoute.포스트_상세, { postId: post.id })}>
+          <Link to={generatePath(AppRoute.포스트_상세, { postId: post.id })} viewTransition>
             <Box component="img" src={post.photos[0].url} sx={{ aspectRatio: '1 / 1' }} />
           </Link>
         </ImageListItem>

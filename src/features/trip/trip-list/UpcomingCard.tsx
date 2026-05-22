@@ -28,6 +28,7 @@ export function UpcomingCard({ trip }: Props) {
       to={`/trip/${trip.id}`}
       style={{ textDecoration: 'none' }}
       aria-label={`예정된 여행: ${trip.name}, ${dDayLabel}`}
+      viewTransition
     >
       <PrefetchPageLinks page={`/trip/${trip.id}`} />
       <ButtonBase
