@@ -10,8 +10,7 @@ type Hooks = {
 }
 export function useScrollEventListener<T extends HTMLElement>(target: T | Window | null, hooks: Hooks) {
   const [getIsStart, setIsStart] = useVariation(false);
-  const onScroll = useEffectEvent((event: Event) => {
-    console.log('run')
+  const handleScroll = useEffectEvent((event: Event) => {
     if (getIsStart()) {
       hooks?.onScroll?.(event);
       return;
@@ -21,7 +20,7 @@ export function useScrollEventListener<T extends HTMLElement>(target: T | Window
     hooks.onScrollStart?.(event);
   });
 
-  const handleScroll = useMemo(() => throttle(onScroll, 1000),[]);
+  
 
   const handleScrollEnd = useEffectEvent((event: Event) => {
     hooks.onScrollEnd?.(event);
