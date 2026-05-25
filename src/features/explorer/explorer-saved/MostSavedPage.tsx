@@ -40,7 +40,7 @@ export default function MostSavedPage() {
         paddingBottom={isScrollDown ? 0 : 1}
         sx={{ zIndex: 1000, transition: 'all 200ms', position: 'fixed', top: TopNavigation.HEIGHT }}
       >
-        <Extrude active={isScrollDown} target={titleRef.current} axis="y">
+        <Extrude active={isScrollDown} target={titleRef.current} >
           <Stack direction="row" gap={1} alignItems="center">
             <ExplorerFilter.LocationChip />
             <ExplorerFilter.CategoryChip />
