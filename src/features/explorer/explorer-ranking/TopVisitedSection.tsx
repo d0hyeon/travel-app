@@ -10,15 +10,14 @@ import { useExplorerDetailOverlay } from '../explorer-detail/useExplorerDetailOv
 import { PlaceListItem } from '../explorer-place-item/PlaceListItem'
 import { useExploredPlaces } from '../explorer-ranking/useExploredPlaces'
 import type { ExploredPlace } from '../explorer.api'
+import { buildExplorerDetailUrl } from '../explorer.utils'
+import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 
 const SECTION_LIMIT = 10
 
-interface Props {
-  location?: Location | null
-  category?: PlaceCategoryType | null
-}
 
-export function TopVisitedSection({ location, category }: Props) {
+export function TopVisitedSection() {
+  const { location, category } = useExplorerFilterParams();
   const { data: places } = useExploredPlaces(location, category)
   const isMobile = useIsMobile()
   const { openFullScreen, openSideSheet } = useExplorerDetailOverlay()
@@ -30,7 +29,7 @@ export function TopVisitedSection({ location, category }: Props) {
     () => places.toSorted((a, b) => b.visitorCount - a.visitorCount).slice(0, SECTION_LIMIT),
     [places],
   )
-  const toDetailUrl = buildDetailUrl(AppRoute.탐색_최다방문, location, category)
+  const toDetailUrl = buildExplorerDetailUrl(AppRoute.장소_최다방문순, location, category)
 
   return (
     <Box>
@@ -54,7 +53,11 @@ export function TopVisitedSection({ location, category }: Props) {
           </Typography>
         )}
         {topVisited.map((place) => (
-          <PlaceListItem key={place.placeId} place={place} onClick={() => openDetail(place)} />
+          <PlaceListItem
+            key={place.placeId}
+            place={{ ...place, countLabel: `${place.visitorCount}명 다녀옴` }}
+            onClick={() => openDetail(place)}
+          />
         ))}
       </Stack>
     </Box>
@@ -79,10 +82,3 @@ TopVisitedSection.Skeleton = () => {
   )
 }
 
-function buildDetailUrl(base: string, location?: Location | null, category?: PlaceCategoryType | null) {
-  const params = new URLSearchParams()
-  if (location) params.set('location', location)
-  if (category) params.set('category', category)
-  const qs = params.toString()
-  return qs ? `${base}?${qs}` : base
-}

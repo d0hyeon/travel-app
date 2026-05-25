@@ -1,5 +1,7 @@
-import { useEffect, useEffectEvent } from "react";
+import { useEffect, useEffectEvent, useMemo } from "react";
 import { useVariation } from "../extends/useVariation";
+import { debounce } from "@mui/material";
+import { throttle } from "~shared/utils/throttle";
 
 type Hooks = {
   onScroll?: (event: Event) => void;
@@ -8,13 +10,18 @@ type Hooks = {
 }
 export function useScrollEventListener<T extends HTMLElement>(target: T | Window | null, hooks: Hooks) {
   const [getIsStart, setIsStart] = useVariation(false);
-  const handleScroll = useEffectEvent((event: Event) => {
-    if (getIsStart()) { 
-      return hooks?.onScroll?.(event);
+  const onScroll = useEffectEvent((event: Event) => {
+    console.log('run')
+    if (getIsStart()) {
+      hooks?.onScroll?.(event);
+      return;
     }
+
     setIsStart(true);
-    hooks.onScrollStart?.(event)
-  })
+    hooks.onScrollStart?.(event);
+  });
+
+  const handleScroll = useMemo(() => throttle(onScroll, 1000),[]);
 
   const handleScrollEnd = useEffectEvent((event: Event) => {
     hooks.onScrollEnd?.(event);

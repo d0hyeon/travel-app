@@ -73,3 +73,56 @@ export async function getRecentHotPlaces(months: number): Promise<ExploredPlaces
 
   return callExploredPlaces(sinceISO)
 }
+
+export interface MostSavedPlace {
+  placeId: string
+  name: string
+  address: string
+  lat: number
+  lng: number
+  saveCount: number
+  destinations: string[]
+  categories: PlaceCategoryTypeValue[]
+  thumbnailUrl?: string
+}
+
+export interface MostSavedPlacesResult {
+  places: MostSavedPlace[]
+  totalTrips: number
+}
+
+interface MostSavedPlaceRow {
+  place_id: string
+  name: string
+  address: string
+  lat: number
+  lng: number
+  save_count: number
+  destinations: string[]
+  categories: PlaceCategoryTypeValue[]
+  thumbnail_url: string | null
+  total_trips: number
+}
+
+export async function getMostSavedPlaces(): Promise<MostSavedPlacesResult> {
+  const { data, error } = await supabase.rpc('get_most_saved_places' as 'get_user_trips', {} as never)
+
+  if (error) throw error
+
+  const rows = (data as unknown as MostSavedPlaceRow[]) ?? []
+  const totalTrips = rows[0]?.total_trips ?? 0
+
+  const places = rows.map((row) => ({
+    placeId: row.place_id,
+    name: row.name,
+    address: row.address ?? '',
+    lat: row.lat,
+    lng: row.lng,
+    saveCount: row.save_count,
+    destinations: row.destinations ?? [],
+    categories: row.categories ?? [],
+    thumbnailUrl: row.thumbnail_url ?? undefined,
+  }))
+
+  return { places, totalTrips }
+}

@@ -1,10 +1,19 @@
 import LocationOnIcon from '@mui/icons-material/LocationOn'
 import PeopleIcon from '@mui/icons-material/People'
 import { Box, Stack, Typography } from '@mui/material'
+import type { PlaceCategoryType } from '~features/place/place.types'
 import { PlaceCategoryColorCode, PlaceCategoryTypeLabel } from '~features/place/place.types'
-import type { ExploredPlace } from '../explorer.api'
 
-export function PlaceListItem({ place, onClick }: { place: ExploredPlace; onClick: () => void }) {
+interface PlaceListItemPlace {
+  placeId: string
+  name: string
+  address: string
+  categories: PlaceCategoryType[]
+  thumbnailUrl?: string
+  countLabel: string
+}
+
+export function PlaceListItem({ place, onClick }: { place: PlaceListItemPlace; onClick: () => void }) {
   const accentColor = place.categories[0] ? PlaceCategoryColorCode[place.categories[0]] : undefined
   const categoryLabel = place.categories[0] ? PlaceCategoryTypeLabel[place.categories[0]] : null
   const subText = [categoryLabel, place.address].filter(Boolean).join(' · ')
@@ -63,7 +72,7 @@ export function PlaceListItem({ place, onClick }: { place: ExploredPlace; onClic
         <Stack direction="row" alignItems="center" gap={0.5} mt={0.5}>
           <PeopleIcon sx={{ fontSize: 11, color: 'primary.main' }} />
           <Typography variant="caption" color="primary" fontWeight={700}>
-            {place.visitorCount}명 다녀옴
+            {place.countLabel}
           </Typography>
         </Stack>
       </Box>

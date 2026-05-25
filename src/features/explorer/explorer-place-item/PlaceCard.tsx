@@ -1,10 +1,19 @@
 import LocationOnIcon from '@mui/icons-material/LocationOn'
 import PeopleIcon from '@mui/icons-material/People'
 import { Box, Card, CardActionArea, CardMedia, Stack, Typography } from '@mui/material'
+import type { PlaceCategoryType } from '~features/place/place.types'
 import { PlaceCategoryColorCode } from '~features/place/place.types'
-import type { ExploredPlace } from '../explorer.api'
 
-export function PlaceCard({ place, onClick }: { place: ExploredPlace; onClick: () => void }) {
+interface PlaceCardPlace {
+  placeId: string
+  name: string
+  destinations: string[]
+  categories: PlaceCategoryType[]
+  thumbnailUrl?: string
+  countLabel: string
+}
+
+export function PlaceCard({ place, onClick }: { place: PlaceCardPlace; onClick: () => void }) {
   const accentColor = place.categories[0] ? PlaceCategoryColorCode[place.categories[0]] : undefined
 
   return (
@@ -16,7 +25,6 @@ export function PlaceCard({ place, onClick }: { place: ExploredPlace; onClick: (
         <CardMedia
           component="div"
           sx={{
-
             bgcolor: accentColor ? `${accentColor}22` : 'grey.100',
             backgroundImage: place.thumbnailUrl ? `url(${place.thumbnailUrl})` : undefined,
             backgroundSize: 'cover',
@@ -24,7 +32,7 @@ export function PlaceCard({ place, onClick }: { place: ExploredPlace; onClick: (
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            aspectRatio: '1 / 1'
+            aspectRatio: '1 / 1',
           }}
         >
           {!place.thumbnailUrl && (
@@ -41,7 +49,7 @@ export function PlaceCard({ place, onClick }: { place: ExploredPlace; onClick: (
           <Stack direction="row" alignItems="center" gap={0.5} mt={0.5}>
             <PeopleIcon sx={{ fontSize: 11, color: 'primary.main' }} />
             <Typography variant="caption" color="primary" fontWeight={700}>
-              {place.visitorCount}번 방문
+              {place.countLabel}
             </Typography>
           </Stack>
         </Box>
