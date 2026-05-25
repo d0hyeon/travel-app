@@ -122,12 +122,10 @@ function RecentHotGrid({
   const openDetail = (place: ExploredPlace) =>
     isMobile ? openFullScreen(place) : openSideSheet(place)
 
-  const sorted = places.toReversed()
-
   return (
 
     <Grid container spacing={1.5} columns={2}>
-      {sorted.map((place) => (
+      {places.map((place) => (
         <Grid key={place.placeId} size={1}>
           <PlaceCard place={place} onClick={() => openDetail(place)} />
         </Grid>

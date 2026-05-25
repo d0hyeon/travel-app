@@ -35,7 +35,7 @@ export function RecentHotSection({ location, category }: Props) {
     isMobile ? openFullScreen(place) : openSideSheet(place)
   const navigate = useNavigate()
 
-  const recentHot = useMemo(() => places.toReversed().slice(0, SECTION_LIMIT), [places])
+  const topHotPlaces = useMemo(() => places.slice(0, SECTION_LIMIT), [places])
   const toDetailUrl = buildDetailUrl(AppRoute.탐색_최근핫플, location, category)
 
   const [scrollContainer, setScrollContainer] = useState<HTMLDivElement | null>(null)
@@ -57,13 +57,13 @@ export function RecentHotSection({ location, category }: Props) {
         </Button>
       </Stack>
 
-      {recentHot.length === 0 ? (
+      {topHotPlaces.length === 0 ? (
         <Typography variant="body2" color="text.secondary" px={2} py={4} textAlign="center">
           자료를 찾을 수 없어요
         </Typography>
       ) : (
         <Stack ref={setScrollContainer} width="100%" direction="row" gap={isMobile ? 1 : 2} px={2} pb={0.5} overflow="auto" sx={{ '&::-webkit-scrollbar': { display: 'none' } }}>
-          {recentHot.map((place) => (
+          {topHotPlaces.map((place) => (
             <Box key={place.placeId} sx={{ width: isMobile ? 140 : 200, flexShrink: 0 }}>
               <PlaceCard place={place} onClick={() => openDetail(place)} />
             </Box>
