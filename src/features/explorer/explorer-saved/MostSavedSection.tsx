@@ -24,7 +24,7 @@ export function MostSavedSection() {
   const navigate = useNavigate()
 
   const topSaved = useMemo(() => places.slice(0, SECTION_LIMIT), [places])
-  const toDetailUrl = buildExplorerDetailUrl(AppRoute.탐색_많이저장, location, category)
+  const toDetailUrl = buildExplorerDetailUrl(AppRoute.장소_저장순, location, category)
 
   const [scrollContainer, setScrollContainer] = useState<HTMLDivElement | null>(null)
   useScrollRestore({ element: scrollContainer })

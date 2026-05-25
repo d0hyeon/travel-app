@@ -29,7 +29,7 @@ export function TopVisitedSection() {
     () => places.toSorted((a, b) => b.visitorCount - a.visitorCount).slice(0, SECTION_LIMIT),
     [places],
   )
-  const toDetailUrl = buildExplorerDetailUrl(AppRoute.탐색_최다방문, location, category)
+  const toDetailUrl = buildExplorerDetailUrl(AppRoute.장소_최다방문순, location, category)
 
   return (
     <Box>

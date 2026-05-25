@@ -26,7 +26,7 @@ export function RecentHotSection() {
   const navigate = useNavigate()
 
   const topHotPlaces = useMemo(() => places.slice(0, SECTION_LIMIT), [places])
-  const toDetailUrl = buildExplorerDetailUrl(AppRoute.탐색_최근핫플, location, category)
+  const toDetailUrl = buildExplorerDetailUrl(AppRoute.장소_급상승, location, category)
 
   const [scrollContainer, setScrollContainer] = useState<HTMLDivElement | null>(null)
   useScrollRestore({ element: scrollContainer });
