@@ -397,8 +397,8 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                 selectedPlaceIds={currentRoute?.placeIds ?? []}
                 onConfirm={(placeIds) => {
                   if (!currentRoute || placeIds.length === 0) return
-                  const newPlaceIds = [...currentRoute.placeIds, ...placeIds]
-                  update({ routeId: currentRoute.id, placeIds: newPlaceIds })
+                  const mergedPlaceIds = Array.from(new Set([...currentRoute.placeIds, ...placeIds]))
+                  update({ routeId: currentRoute.id, placeIds: mergedPlaceIds })
                 }}
               />
             ))
