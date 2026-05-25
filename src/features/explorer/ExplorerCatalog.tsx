@@ -17,11 +17,11 @@ export function ExplorerCatalog({ location, category }: ExplorerCatalogProps) {
       <Suspense fallback={<RecentHotSection.Skeleton />}>
         <RecentHotSection location={location} category={category} />
       </Suspense>
-      <Suspense fallback={<TopVisitedSection.Skeleton />}>
-        <TopVisitedSection location={location} category={category} />
-      </Suspense>
       <Suspense fallback={<MostSavedSection.Skeleton />}>
         <MostSavedSection location={location} category={category} />
+      </Suspense>
+      <Suspense fallback={<TopVisitedSection.Skeleton />}>
+        <TopVisitedSection location={location} category={category} />
       </Suspense>
     </Stack>
   )
