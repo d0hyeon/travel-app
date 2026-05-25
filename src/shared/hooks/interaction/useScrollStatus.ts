@@ -28,7 +28,7 @@ export function useScrollStatus<T extends HTMLElement>(target: T | null) {
       }
     },
     onScroll: (event) => {
-      const target = event.currentTarget as T;
+      const target = (event.currentTarget ?? event.target) as T;
       const { scrollTop, scrollLeft } = target
       if (accessorRef.current.scrollX) {
         setScrollX(scrollLeft);
