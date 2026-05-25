@@ -162,21 +162,35 @@ export async function createTripPlace(params: {
   category?: PlaceCategoryType
   tags?: string[]
 }): Promise<TripPlace> {
-  const { data: row, error } = await supabase
+  const { data: inserted, error } = await supabase
     .from('trip_places')
-    .insert({
-      trip_id: params.tripId,
-      place_id: params.placeId,
-      status: params.status ?? 'wished',
-      memo: params.memo || null,
-      category: params.category || null,
-      tags: params.tags ?? [],
-    })
+    .upsert(
+      {
+        trip_id: params.tripId,
+        place_id: params.placeId,
+        status: params.status ?? 'wished',
+        memo: params.memo || null,
+        category: params.category || null,
+        tags: params.tags ?? [],
+      },
+      { onConflict: 'trip_id,place_id', ignoreDuplicates: true },
+    )
     .select(TRIP_PLACE_SELECT)
-    .single()
 
   if (error) throw error
-  return toTripPlace(row as Parameters<typeof toTripPlace>[0])
+  if (inserted && inserted.length > 0) {
+    return toTripPlace(inserted[0] as Parameters<typeof toTripPlace>[0])
+  }
+
+  const { data: existing, error: selectError } = await supabase
+    .from('trip_places')
+    .select(TRIP_PLACE_SELECT)
+    .eq('trip_id', params.tripId)
+    .eq('place_id', params.placeId)
+    .single()
+
+  if (selectError) throw selectError
+  return toTripPlace(existing as Parameters<typeof toTripPlace>[0])
 }
 
 export async function updateTripPlace(
