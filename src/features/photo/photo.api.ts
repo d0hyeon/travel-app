@@ -52,18 +52,22 @@ function splitExtension(value: string) {
   return [filenames.join('.'), extension] as const;
 }
 
+const ResizeQualityOption = {
+  Low: { maxSize: 1600, quality: 80 },
+  Medium: { maxSize: 1000, quality: 90 },
+} as const;
 
-const resizeImage = async (_file: File) => {
+const resizeImage = async (_file: File, quality: keyof typeof ResizeQualityOption = 'Medium') => {
   const file = (await isHeic(_file)) ? await convertHeicToJPEG(_file) : _file;
   const [fileName, fileType = 'JPEG'] = splitExtension(file.name);
 
   return new Promise<File>((resolve, reject) => {
     Resizer.imageFileResizer(
       file,
-      1000,
-      1000,
-      fileType,
-      100,
+      ResizeQualityOption[quality].maxSize,
+      ResizeQualityOption[quality].maxSize,
+      'WEBP',
+      ResizeQualityOption[quality].quality,
       0,
       (result) => {
         if (result instanceof File || result instanceof Blob) {
@@ -125,7 +129,7 @@ export interface PostPhotoUploadResult {
 }
 
 export async function uploadPostPhoto(tripId: string | null, file: File): Promise<PostPhotoUploadResult> {
-  const resized = await resizeImage(file);
+  const resized = await resizeImage(file, 'Low');
   const fileExt = resized.name.split('.').pop()
   const scope = tripId ?? 'orphan'
   const storagePath = `posts/${scope}/${Date.now()}.${fileExt}`
