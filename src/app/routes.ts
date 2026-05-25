@@ -16,6 +16,7 @@ export const AppRoute = {
   어드민_여행_목록: '/admin/trips',
   탐색_최다방문: '/explorer/top-visited',
   탐색_최근핫플: '/explorer/recent-hot',
+  탐색_많이저장: '/explorer/most-saved',
 } as const;
 
 export default [
@@ -38,6 +39,7 @@ export default [
     route(AppRoute.어드민_여행_목록, "../features/admin/AdminTripListPage.tsx"),
     route(AppRoute.탐색_최다방문, "../features/explorer/explorer-ranking/TopVisitedPage.tsx"),
     route(AppRoute.탐색_최근핫플, "../features/explorer/explorer-recent/RecentHotPage.tsx"),
+    route(AppRoute.탐색_많이저장, "../features/explorer/explorer-saved/MostSavedPage.tsx"),
   ]),
   route("*", "NotFound.tsx"),
 ] satisfies RouteConfig;

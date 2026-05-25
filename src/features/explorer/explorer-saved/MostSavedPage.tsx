@@ -14,11 +14,10 @@ import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterPa
 import { PlaceCard } from '../explorer-place-item/PlaceCard'
 import { ExplorerViewToggleButton, useExplorerViewMode } from '../explorer-view/ExplorerViewToggleButton'
 import { FilterNavigation } from '../explorer-view/FilterNavigation'
-import type { ExploredPlace } from '../explorer.api'
-import { useExploredPlaces } from './useExploredPlaces'
+import type { MostSavedPlace } from '../explorer.api'
+import { useMostSavedPlaces } from './useMostSavedPlaces'
 
-
-export default function TopVisitedPage() {
+export default function MostSavedPage() {
   const { location, category } = useExplorerFilterParams()
   const [viewMode, setViewMode] = useExplorerViewMode()
 
@@ -33,7 +32,7 @@ export default function TopVisitedPage() {
         rightElement={<ExplorerViewToggleButton value={viewMode} onChange={setViewMode} />}
         sx={{ borderBottom: 'none' }}
       >
-        <Box ref={titleRef} paddingX={1}>최다 방문</Box>
+        <Box ref={titleRef} paddingX={1}>많이 저장된 곳</Box>
       </TopNavigation>
 
       <FilterNavigation
@@ -56,71 +55,65 @@ export default function TopVisitedPage() {
         paddingTop={`${FilterNavigation.height}px`}
         position="relative"
       >
-
         <SwitchCase
           value={viewMode}
           cases={{
             list: () => (
               <Box py={2}>
-                <Container maxWidth="sm" >
+                <Container maxWidth="sm">
                   <Suspense fallback={<GridSkeleton />}>
-                    <TopVisitedGrid location={location} category={category} />
+                    <MostSavedGrid location={location} category={category} />
                   </Suspense>
                 </Container>
               </Box>
             ),
             map: () => (
               <Suspense>
-                <TopVisitedMap location={location} category={category} />
+                <MostSavedMap location={location} category={category} />
               </Suspense>
             ),
           }}
         />
-
       </Box>
     </Box>
   )
 }
 
-function TopVisitedGrid({
+function MostSavedGrid({
   location,
   category,
 }: {
   location?: Location
   category?: PlaceCategoryType
 }) {
-  const { data: places } = useExploredPlaces(location, category)
+  const { data: places } = useMostSavedPlaces({ location, category })
   const isMobile = useIsMobile()
   const { openFullScreen, openSideSheet } = useExplorerDetailOverlay()
-  const openDetail = (place: ExploredPlace) =>
+  const openDetail = (place: MostSavedPlace) =>
     isMobile ? openFullScreen(place) : openSideSheet(place)
 
-  const sorted = places.toSorted((a, b) => b.visitorCount - a.visitorCount)
-
   return (
-
     <Grid container spacing={1.5} columns={2}>
-      {sorted.map((place) => (
+      {places.map((place) => (
         <Grid key={place.placeId} size={1}>
-          <PlaceCard place={{ ...place, countLabel: `${place.visitorCount}번 방문` }} onClick={() => openDetail(place)} />
+          <PlaceCard place={{ ...place, countLabel: `${place.saveCount}번 저장됨` }} onClick={() => openDetail(place)} />
         </Grid>
       ))}
     </Grid>
-
   )
 }
 
-function TopVisitedMap({
+function MostSavedMap({
   location,
   category,
 }: {
   location?: Location
   category?: PlaceCategoryType
 }) {
-  const { data: places } = useExploredPlaces(location, category)
+  const { data: places } = useMostSavedPlaces({ location, category })
   const isMobile = useIsMobile()
   const { openFullScreen, openSideSheet } = useExplorerDetailOverlay()
-  const center = location ? getCoordinateByLocation(location) : undefined;
+  const center = location ? getCoordinateByLocation(location) : undefined
 
   return (
     <Map
@@ -138,7 +131,7 @@ function TopVisitedMap({
           lat={place.lat}
           lng={place.lng}
           label={place.name}
-          color={place.visitorCount >= 2 ? '#ff6b35' : '#1976d2'}
+          color={place.saveCount >= 2 ? '#ff6b35' : '#1976d2'}
           thumbnailUrl={place.thumbnailUrl}
           onClick={() => isMobile ? openFullScreen(place) : openSideSheet(place)}
         />

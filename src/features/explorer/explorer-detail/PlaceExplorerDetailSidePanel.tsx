@@ -22,10 +22,8 @@ import { SwitchCase } from '~shared/components/SwitchCase'
 import { useOverlay } from '~shared/hooks/useOverlay'
 import { isOverseasByCoordinate } from '~shared/utils/geo'
 import { usePlacePhotos } from '../../place/usePlacePhotos'
-import type { ExploredPlace } from '../explorer.api'
-
 interface Props {
-  place: ExploredPlace
+  place: { placeId: string; name: string }
   isOpen?: boolean
   onClose: () => void
 }
