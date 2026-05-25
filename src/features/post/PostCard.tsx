@@ -28,13 +28,12 @@ export function PostCard({ post }: Props) {
           <Swiper
             slidesPerView={1}
             modules={[Virtual, Pagination]}
-            virtual
             loop
             pagination
           >
             {post.photos.map((photo) => (
               <SwiperSlide key={photo.url}>
-                <Box component="img" src={photo.url} loading="lazy" sx={{ aspectRatio: '1', objectFit: 'cover' }} />
+                <Box component="img" src={photo.url} sx={{ aspectRatio: '1', objectFit: 'cover' }} />
               </SwiperSlide>
             ))}
           </Swiper>

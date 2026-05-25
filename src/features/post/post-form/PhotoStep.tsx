@@ -1,13 +1,13 @@
 import CheckIcon from '@mui/icons-material/TaskAlt'
 import { Box, Button, ImageList, type BoxProps } from '@mui/material'
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { useTripPhotos } from '~features/trip/trip-photo/useTripPhotos'
 import { BottomArea } from '~shared/components/BottomArea'
 import { PhotoThunbnail } from '~shared/components/photo/PhotoThumbnail'
 import { PhotoUploader } from '~shared/components/photo/PhotoUploader'
 import type { DraftPostPhoto } from './postDraftPhoto'
 import { useLocalPhotoStore } from './useLocalPhotoStore'
-import { Swiper, SwiperSlide } from 'swiper/react'
+import { Swiper, type SwiperRef, SwiperSlide } from 'swiper/react'
 
 // @ts-ignore
 import 'swiper/css'
@@ -31,11 +31,13 @@ export function PhotoStep({ tripId, defaultValue, onNext }: Props) {
     )
   }
 
+  const swiperRef = useRef<SwiperRef>(null)
+
   return (
     <>
       <Box marginTop={2} px={2} pb={`${BOTTOM_AREA_HEIGHT + 16}px`}>
         <Box marginBottom={2} border={theme => `1px dashed ${theme.palette.divider}`} sx={{ aspectRatio: '1 / 1' }}>
-          <Swiper>
+          <Swiper ref={swiperRef}>
             {selectedIds.map(id => {
               const photo = allPhotos.find(photo => photo.id === id);
               if (!photo) return null
@@ -57,6 +59,7 @@ export function PhotoStep({ tripId, defaultValue, onNext }: Props) {
             onUpload={async files => {
               const photos = await save(files)
               setSelectedIds((curr) => [...curr, ...photos.map((photo) => photo.id)])
+              swiperRef.current?.swiper.slideTo(selectedIds.length + 1);
             }}
           />
           {localPhotos.map(photo => (
