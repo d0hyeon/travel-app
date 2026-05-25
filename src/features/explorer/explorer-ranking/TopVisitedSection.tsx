@@ -11,15 +11,13 @@ import { PlaceListItem } from '../explorer-place-item/PlaceListItem'
 import { useExploredPlaces } from '../explorer-ranking/useExploredPlaces'
 import type { ExploredPlace } from '../explorer.api'
 import { buildExplorerDetailUrl } from '../explorer.utils'
+import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 
 const SECTION_LIMIT = 10
 
-interface Props {
-  location?: Location | null
-  category?: PlaceCategoryType | null
-}
 
-export function TopVisitedSection({ location, category }: Props) {
+export function TopVisitedSection() {
+  const { location, category } = useExplorerFilterParams();
   const { data: places } = useExploredPlaces(location, category)
   const isMobile = useIsMobile()
   const { openFullScreen, openSideSheet } = useExplorerDetailOverlay()

@@ -8,7 +8,6 @@ import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { useScrollStatus } from '~shared/hooks/interaction/useScrollStatus'
 import { ExplorerFilter } from './explorer-filters/ExplorerFilters'
-import { useExplorerFilterParams } from './explorer-filters/useExplorerFilterParams'
 import { ExplorerViewToggleButton, useExplorerViewMode } from './explorer-view/ExplorerViewToggleButton'
 import { FilterNavigation } from './explorer-view/FilterNavigation'
 import { ExplorerCatalog } from './ExplorerCatalog'
@@ -16,7 +15,6 @@ import { ExplorerMap } from './ExplorerMap'
 
 export default function PlaceExplorerPage() {
   const [viewMode, setViewMode] = useExplorerViewMode()
-  const { category, location } = useExplorerFilterParams();
 
   const titleRef = useRef(null)
   const [container, setContainer] = useState<HTMLElement | null>(null)
@@ -60,7 +58,7 @@ export default function PlaceExplorerPage() {
             value={viewMode}
             cases={{
               map: () => <ExplorerMap height="100%" />,
-              list: () => <ExplorerCatalog location={location ?? undefined} category={category ?? undefined} />,
+              list: () => <ExplorerCatalog />,
             }}
           />
         </Suspense>

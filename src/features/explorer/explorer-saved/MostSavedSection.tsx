@@ -3,11 +3,10 @@ import { Box, Button, Skeleton, Stack, Typography } from '@mui/material'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
-import type { Location } from '~features/location'
-import type { PlaceCategoryType } from '~features/place/place.types'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
 import { useExplorerDetailOverlay } from '../explorer-detail/useExplorerDetailOverlay'
+import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 import { PlaceCard } from '../explorer-place-item/PlaceCard'
 import type { MostSavedPlace } from '../explorer.api'
 import { buildExplorerDetailUrl } from '../explorer.utils'
@@ -15,12 +14,8 @@ import { useMostSavedPlaces } from './useMostSavedPlaces'
 
 const SECTION_LIMIT = 10
 
-interface Props {
-  location?: Location | null
-  category?: PlaceCategoryType | null
-}
-
-export function MostSavedSection({ location, category }: Props) {
+export function MostSavedSection() {
+  const { location, category } = useExplorerFilterParams();
   const { data: places } = useMostSavedPlaces({ location, category })
   const isMobile = useIsMobile()
   const { openFullScreen, openSideSheet } = useExplorerDetailOverlay()

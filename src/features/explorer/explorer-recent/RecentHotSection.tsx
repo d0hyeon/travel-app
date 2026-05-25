@@ -12,15 +12,12 @@ import { useRecentHotPlaces } from './useRecentHotPlaces'
 import type { ExploredPlace } from '../explorer.api'
 import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
 import { buildExplorerDetailUrl } from '../explorer.utils'
+import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 
 const SECTION_LIMIT = 10
 
-interface Props {
-  location?: Location
-  category?: PlaceCategoryType
-}
-
-export function RecentHotSection({ location, category }: Props) {
+export function RecentHotSection() {
+  const { location, category } = useExplorerFilterParams();
   const { data: places } = useRecentHotPlaces({ inquiryMonths: 3, location, category })
   const isMobile = useIsMobile()
   const { openFullScreen, openSideSheet } = useExplorerDetailOverlay()
