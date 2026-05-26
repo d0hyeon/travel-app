@@ -533,7 +533,6 @@ export type Database = {
           exchange_rates: Json | null
           id: string
           is_overseas: boolean
-          is_public: boolean
           lat: number
           lng: number
           name: string
@@ -550,7 +549,6 @@ export type Database = {
           exchange_rates?: Json | null
           id?: string
           is_overseas?: boolean
-          is_public?: boolean
           lat: number
           lng: number
           name: string
@@ -567,7 +565,6 @@ export type Database = {
           exchange_rates?: Json | null
           id?: string
           is_overseas?: boolean
-          is_public?: boolean
           lat?: number
           lng?: number
           name?: string

@@ -41,7 +41,6 @@ export function toTrip(row: DataRaw<'trips'>): Trip {
     startDate: row.start_date,
     endDate: row.end_date,
     shareLink: row.share_link,
-    isPublic: row.is_public ?? false,
     createdAt: row.created_at,
     exchangeRate: row.exchange_rate,
     exchangeRates,
@@ -144,7 +143,6 @@ export async function updateTrip(id: string, data: Partial<Omit<Trip, 'id' | 'cr
   if (data.shareLink !== undefined) updateData.share_link = data.shareLink
   if (data.exchangeRate !== undefined) updateData.exchange_rate = data.exchangeRate
   if (data.exchangeRates !== undefined) updateData.exchange_rates = data.exchangeRates
-  if (data.isPublic !== undefined) updateData.is_public = data.isPublic
 
   const { data: updated, error } = await supabase
     .from('trips')
