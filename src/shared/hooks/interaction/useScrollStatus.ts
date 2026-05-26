@@ -46,7 +46,7 @@ export function useScrollStatus<T extends HTMLElement>(target: T | null) {
         setScrollX(scrollLeft);
       }
       if (accessorRef.current.scrollY || accessorRef.current.isScrollDown) {
-        setScrollY(scrollTop);
+        setScrollY(Math.max(scrollTop, 0));
       }
     }
   })
