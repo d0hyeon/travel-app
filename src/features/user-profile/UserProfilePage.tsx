@@ -24,10 +24,21 @@ const EXTEND_VIEWPORT_CONTENTS = ['records'] satisfies Tab[]
 export default function UserProfilePage() {
   const userId = useUserId();
   const [currentTab, selectTab] = useQueryParamState<Tab>('tab', { defaultValue: 'feed' })
-  const [isExtendedViewport, setIsExtendedViewport] = useState(false);
-  const topStickyRef = useRef<HTMLDivElement>(null);
 
+  const [isExtendedViewport, setIsExtendedViewport] = useState(false);
+  const topElementRef = useRef<HTMLDivElement>(null);
   const scrollContainer = useScrollContainer();
+
+  /** 스크롤 제어를 통해 컨텐츠의 뷰포트를 확대한다. */
+  const extendViewport = async () => {
+    setIsExtendedViewport(true)
+    topElementRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+    await waitForScrollEnd(scrollContainer);
+    setIsExtendedViewport(false)
+  }
+  const isExtendContent = arrayIncludes(EXTEND_VIEWPORT_CONTENTS, currentTab);
+
+
 
   return (
     <Box display="flex" flexDirection="column" minHeight="100%">
@@ -39,7 +50,7 @@ export default function UserProfilePage() {
 
 
         <Box
-          ref={topStickyRef}
+          ref={topElementRef}
           position="sticky"
           top={0}
           zIndex={5}
@@ -75,13 +86,8 @@ export default function UserProfilePage() {
         </Box>
       </Container>
       <ResizeObserverArea
-        enabled={arrayIncludes(EXTEND_VIEWPORT_CONTENTS, currentTab) && !isExtendedViewport}
-        onResize={async () => {
-          setIsExtendedViewport(true)
-          topStickyRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
-          await waitForScrollEnd(scrollContainer);
-          setIsExtendedViewport(false)
-        }}
+        enabled={isExtendContent && !isExtendedViewport}
+        onResize={extendViewport}
       >
         <Stack flex={1}>
           {currentTab === 'feed' ? (
