@@ -609,6 +609,36 @@ export type Database = {
         }
         Returns: boolean
       }
+      get_explored_places: {
+        Args: { since_date?: string }
+        Returns: {
+          address: string
+          categories: Json
+          destinations: Json
+          lat: number
+          lng: number
+          name: string
+          place_id: string
+          thumbnail_url: string
+          total_trips: number
+          visitor_count: number
+        }[]
+      }
+      get_most_saved_places: {
+        Args: never
+        Returns: {
+          address: string
+          categories: Json
+          destinations: Json
+          lat: number
+          lng: number
+          name: string
+          place_id: string
+          save_count: number
+          thumbnail_url: string
+          total_trips: number
+        }[]
+      }
       get_my_trips: {
         Args: { p_user_id: string }
         Returns: {
@@ -634,6 +664,20 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      get_routes_with_places_by_trip_id: {
+        Args: { p_trip_id: string }
+        Returns: {
+          place_address: string
+          place_id: string
+          place_lat: number
+          place_lng: number
+          place_name: string
+          place_order: number
+          route_id: string
+          route_name: string
+          scheduled_date: string
+        }[]
+      }
       get_trip_by_share_link: {
         Args: { link: string }
         Returns: {
@@ -658,6 +702,18 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      get_trips_by_destination: {
+        Args: { p_destinations: string[]; p_exclude_trip_id: string }
+        Returns: {
+          destinations: Json
+          end_date: string
+          id: string
+          member_count: number
+          preview_coordinates: Json
+          route_count: number
+          start_date: string
+        }[]
       }
       get_user_trips: {
         Args: { p_user_id: string }
