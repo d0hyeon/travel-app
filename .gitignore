@@ -29,3 +29,4 @@ build
 supabase/
 build/
 .gstack/
+.omc
