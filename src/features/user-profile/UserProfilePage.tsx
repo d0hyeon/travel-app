@@ -1,5 +1,6 @@
 import { Box, Container, Stack, Tab, Tabs, Typography } from '@mui/material'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
+import 'scrollyfills'
 import { useParams } from 'react-router'
 import { ResizeObserverArea } from '~shared/components/ResizeObserverArea'
 import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState'
@@ -8,6 +9,7 @@ import { ProfileFeedTab } from './ProfileFeedTab'
 import { ProfileHeader } from './ProfileHeader'
 import { ProfileRecordsTab } from './ProfileRecordsTab'
 import { ProfileStatStrip } from './ProfileStatStrip'
+import { useScrollContainer } from '~shared/hooks/interaction/useScrollRestore'
 
 const TABS = ['feed', 'records'] as const
 type Tab = typeof TABS[number];
@@ -17,19 +19,15 @@ const TAB_LABELS: Record<Tab, string> = {
   records: '기록',
 }
 
-const FULL_CONTENTS = ['records'] satisfies Tab[]
+const EXTEND_VIEWPORT_CONTENTS = ['records'] satisfies Tab[]
 
 export default function UserProfilePage() {
   const userId = useUserId();
-  const [tab, setTab] = useQueryParamState<Tab>('tab', { defaultValue: 'feed' })
-  const [hasScrolledToTab, setHasScrolledToTab] = useState(false);
-  const tabRef = useRef<HTMLDivElement>(null);
+  const [currentTab, selectTab] = useQueryParamState<Tab>('tab', { defaultValue: 'feed' })
+  const [isExtendedViewport, setIsExtendedViewport] = useState(false);
+  const topStickyRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    setHasScrolledToTab(false)
-  }, [tab])
-
-  const shouldScrollOnLayout = arrayIncludes(FULL_CONTENTS, tab) && !hasScrolledToTab
+  const scrollContainer = useScrollContainer();
 
   return (
     <Box display="flex" flexDirection="column" minHeight="100%">
@@ -41,7 +39,7 @@ export default function UserProfilePage() {
 
 
         <Box
-          ref={tabRef}
+          ref={topStickyRef}
           position="sticky"
           top={0}
           zIndex={5}
@@ -49,8 +47,8 @@ export default function UserProfilePage() {
           borderBottom="1px solid rgba(0,0,0,0.08)"
         >
           <Tabs
-            value={tab}
-            onChange={(_, next) => setTab(next as Tab)}
+            value={currentTab}
+            onChange={(_, next) => selectTab(next as Tab)}
             variant="fullWidth"
             slotProps={{ indicator: { sx: { height: 2, bgcolor: '#111' } } }}
           >
@@ -62,8 +60,8 @@ export default function UserProfilePage() {
                   <Typography
                     sx={{
                       fontSize: 14,
-                      fontWeight: tab === key ? 700 : 500,
-                      color: tab === key ? '#111' : '#6b6b73',
+                      fontWeight: currentTab === key ? 700 : 500,
+                      color: currentTab === key ? '#111' : '#6b6b73',
                       letterSpacing: '-0.2px',
                     }}
                   >
@@ -77,14 +75,16 @@ export default function UserProfilePage() {
         </Box>
       </Container>
       <ResizeObserverArea
-        enabled={shouldScrollOnLayout}
-        onResize={() => {
-          setHasScrolledToTab(true)
-          tabRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+        enabled={arrayIncludes(EXTEND_VIEWPORT_CONTENTS, currentTab) && !isExtendedViewport}
+        onResize={async () => {
+          setIsExtendedViewport(true)
+          topStickyRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+          await waitForScrollEnd(scrollContainer);
+          setIsExtendedViewport(false)
         }}
       >
         <Stack flex={1}>
-          {tab === 'feed' ? (
+          {currentTab === 'feed' ? (
             <Container maxWidth="md" sx={{ paddingX: '0px !important' }}>
               <ProfileFeedTab userId={userId} />
             </Container>
@@ -104,3 +104,13 @@ function useUserId() {
   return userId;
 }
 
+function waitForScrollEnd<T extends HTMLElement>(element?: T) {
+  const { promise, resolve } = Promise.withResolvers<void>();
+  const target = element ?? window;
+  const timeout = setTimeout(resolve, 300);
+  target.addEventListener('scrollend', () => {
+    clearTimeout(timeout);
+    resolve();
+  }, { once: true, passive: true });
+  return promise;
+}

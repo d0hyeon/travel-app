@@ -4886,6 +4886,11 @@ schema-idb@^0.0.8:
   resolved "https://registry.yarnpkg.com/schema-idb/-/schema-idb-0.0.8.tgz#da74333e581f4edd8604eedad1090112069d8d86"
   integrity sha512-mcrtRLJZ+lH5MOiFLAPOrHd5Bq6EjWc/tDioKkTNS3T4r3sqLsXrAhyxTSnefr15kjOYME176qRAQBXpH7Kw1Q==
 
+scrollyfills@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/scrollyfills/-/scrollyfills-1.0.4.tgz#38822da03f872e08a51edb3a17e632ee7db5955e"
+  integrity sha512-5V9QrElky6ZOHMQPRVQBYzgviOpW5Y1sqj3yBUuUOXI6QbZW7WztmNkBBHE9WFF3oX5jRfg/K3Gx3I5RgYq8gw==
+
 semver@^6.3.1:
   version "6.3.1"
   resolved "https://registry.npmjs.org/semver/-/semver-6.3.1.tgz"
