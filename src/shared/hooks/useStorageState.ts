@@ -75,3 +75,7 @@ export function useStorageState<T, S extends ExpandStorage = ExpandStorage>(
 
   return useMemo(() => [state, setState, clear] as const, [state, setState, clear])
 }
+
+export const Parser = {
+  bool: (v: string) => v === 'true'
+}
