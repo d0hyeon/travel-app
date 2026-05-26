@@ -182,8 +182,18 @@ export async function createPost(input: CreatePostInput): Promise<Post> {
 }
 
 export async function deletePost(postId: string): Promise<void> {
+  const { data: photos } = await supabase
+    .from('post_photos')
+    .select('storage_path')
+    .eq('post_id', postId)
+
   const { error } = await supabase.from('posts').delete().eq('id', postId)
   if (error) throw error
+
+  if (photos && photos.length > 0) {
+    const storagePaths = photos.map((p) => p.storage_path)
+    await supabase.storage.from('photos').remove(storagePaths)
+  }
 }
 
 export async function getLikeStatus(postId: string, userId: string): Promise<{ count: number; liked: boolean }> {
