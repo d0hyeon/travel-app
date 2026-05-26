@@ -12,6 +12,7 @@ export interface Trip {
   startDate: string // ISO date
   endDate: string
   shareLink: string
+  isPublic: boolean
   createdAt: string
   /** @deprecated exchangeRates 사용 */
   exchangeRate: number | null
