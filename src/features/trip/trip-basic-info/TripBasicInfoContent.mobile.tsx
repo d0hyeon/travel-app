@@ -14,6 +14,7 @@ import { TripBaseInfoList } from './TripBaseInfoList'
 import { TripDDay } from './TripDDay'
 import { TripPostCreateCard } from './TripPostCreateCard'
 import { RecommendedPlaceListSection } from '../trip-recommend/RecommendedPlaceListSection'
+import { CommunityRoutesSection } from '../trip-community-routes/CommunityRoutesSection'
 
 interface Props {
   tripId: string
@@ -71,6 +72,15 @@ export function TripBasicInfoContent({ tripId }: Props) {
                   paddingX={2}
                 />
               </Stack>
+
+              <ErrorBoundary>
+                <CommunityRoutesSection
+                  tripId={tripId}
+                  width="calc(100% + 32px)"
+                  marginX={-2}
+                  paddingX={2}
+                />
+              </ErrorBoundary>
 
               <ErrorBoundary>
                 <Stack gap={1} width="100%">
