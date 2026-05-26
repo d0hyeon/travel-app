@@ -40,7 +40,7 @@ export async function joinTrip(tripId: string): Promise<void> {
 
   const { error } = await supabase
     .from('trip_members')
-    .insert({ trip_id: tripId, user_id: user.id } as never)
+    .insert({ trip_id: tripId, user_id: user.id })
 
   // 이미 멤버인 경우 무시
   if (error && error.code !== '23505') throw error

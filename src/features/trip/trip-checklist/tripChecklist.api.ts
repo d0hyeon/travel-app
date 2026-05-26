@@ -1,4 +1,5 @@
 import { supabase } from "~api/client"
+import type { UpdateDataType } from "~api/tables.types"
 import type { MutableTripChecklist, TripChecklist } from "./tripChecklist.type"
 
 type RawData = {
@@ -79,7 +80,7 @@ export async function updateChecklist({ id, ...data }: UpdateChecklist) {
   
   const { data: updated, error } = await supabase
     .from('checklist')
-    .update(payload as never)
+    .update(payload as UpdateDataType<'checklist'>)
     .eq('id', id)
     .select()
     .single()

@@ -1,4 +1,4 @@
-import type { DataRaw } from '~api/tables.types'
+import type { DataRaw, CreateDataType, UpdateDataType } from '~api/tables.types'
 import type { Json } from '~api/tables.types'
 import { supabase } from '~api/client'
 import type { Route } from './route.types'
@@ -90,7 +90,7 @@ export async function createRoute(data: Omit<Route, 'id' | 'createdAt' | "hidden
   if (data.isMain) {
     await supabase
       .from('routes')
-      .update({ is_main: false } as never)
+      .update({ is_main: false } satisfies UpdateDataType<'routes'>)
       .eq('trip_id', data.tripId)
       .eq('is_main', true)
   }
@@ -101,10 +101,10 @@ export async function createRoute(data: Omit<Route, 'id' | 'createdAt' | "hidden
       trip_id: data.tripId,
       name: data.name,
       place_ids: data.placeIds,
-      place_memos: data.placeMemos ?? {},
+      place_memos: data.placeMemos as Json ?? {},
       is_main: data.isMain,
       scheduled_date: data.scheduledDate ?? null,
-    } as never)
+    } satisfies CreateDataType<'routes'>)
     .select()
     .single()
 
@@ -119,7 +119,7 @@ export async function updateRoute(id: string, data: Partial<Omit<Route, 'id' | '
     if (route) {
       await supabase
         .from('routes')
-        .update({ is_main: false } as never)
+        .update({ is_main: false } satisfies UpdateDataType<'routes'>)
         .eq('trip_id', route.tripId)
         .eq('is_main', true)
     }
@@ -135,7 +135,7 @@ export async function updateRoute(id: string, data: Partial<Omit<Route, 'id' | '
 
   const { data: updated, error } = await supabase
     .from('routes')
-    .update(updateData as never)
+    .update(updateData as UpdateDataType<'routes'>)
     .eq('id', id)
     .select()
     .single()

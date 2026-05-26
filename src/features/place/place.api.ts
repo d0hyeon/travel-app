@@ -1,4 +1,5 @@
 import { supabase } from '~api/client'
+import type { UpdateDataType } from '~api/tables.types'
 import type { Place, PlaceCategoryType, PlaceStatus, TripPlace } from './place.types'
 
 export const placeKey = 'places'
@@ -205,7 +206,7 @@ export async function updateTripPlace(
 
   const { data: row, error } = await supabase
     .from('trip_places')
-    .update(patch as never)
+    .update(patch as UpdateDataType<'trip_places'>)
     .eq('id', id)
     .select(TRIP_PLACE_SELECT)
     .single()

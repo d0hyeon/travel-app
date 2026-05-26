@@ -1,4 +1,5 @@
 import { supabase } from '~api/client'
+import type { CreateDataType } from '~api/tables.types'
 
 interface SignInWIthKakaoOptions {
   redirectTo?: string;
@@ -39,7 +40,7 @@ export async function updateProfile({ avatar, ...payload }: UpdateProfilePayload
   await supabase
     .from('user_profiles')
     .upsert(
-      { ...payload, avatar_url: avatar } as never,
+      { ...payload, avatar_url: avatar } satisfies CreateDataType<'user_profiles'>,
       { onConflict: 'id' }
     )
 }

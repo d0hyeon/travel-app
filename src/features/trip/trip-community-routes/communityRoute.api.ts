@@ -35,13 +35,13 @@ export async function getTripsByDestination(
   excludeTripId: string,
 ): Promise<CommunityTrip[]> {
   const { data, error } = await supabase.rpc(
-    'get_trips_by_destination' as 'get_user_trips',
-    { p_destinations: destinations, p_exclude_trip_id: excludeTripId } as never,
+    'get_trips_by_destination',
+    { p_destinations: destinations, p_exclude_trip_id: excludeTripId },
   )
 
   if (error) throw error
 
-  const rows = (data as unknown as CommunityTripRow[]) ?? []
+  const rows = (data ?? []) as unknown as CommunityTripRow[]
   return rows.map((row) => ({
     id: row.id,
     destinations: row.destinations ?? [],
@@ -60,13 +60,13 @@ export async function getRoutesWithPlacesByTripId(
   tripId: string,
 ): Promise<CommunityRouteWithPlaces[]> {
   const { data, error } = await supabase.rpc(
-    'get_routes_with_places_by_trip_id' as 'get_user_trips',
-    { p_trip_id: tripId } as never,
+    'get_routes_with_places_by_trip_id',
+    { p_trip_id: tripId },
   )
 
   if (error) throw error
 
-  const rows = (data as unknown as CommunityRoutePlaceRow[]) ?? []
+  const rows = (data ?? []) as unknown as CommunityRoutePlaceRow[]
 
   const routeMap = new Map<string, CommunityRouteWithPlaces>()
   for (const row of rows) {

@@ -1,4 +1,4 @@
-import type { DataRaw } from '~api/tables.types'
+import type { DataRaw, UpdateDataType } from '~api/tables.types'
 import type { Json } from '~api/tables.types'
 import { supabase } from '~api/client'
 import type { Expense } from './expense.types'
@@ -42,7 +42,7 @@ export async function createExpense(data: Omit<Expense, 'id' | 'createdAt'>): Pr
       description: data.description,
       total_amount: data.totalAmount,
       currency: data.currency,
-      payments: data.payments as unknown as Json,
+      payments: data.payments as Json,
       split_among: data.splitAmong,
       date: data.date,
     })
@@ -68,7 +68,7 @@ export async function updateExpense(
 
   const { data: updated, error } = await supabase
     .from('expenses')
-    .update(updateData as never)
+    .update(updateData as UpdateDataType<'expenses'>)
     .eq('id', id)
     .select()
     .single()

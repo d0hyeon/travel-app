@@ -38,13 +38,13 @@ interface ExploredPlaceRow {
 }
 
 async function callExploredPlaces(sinceDate?: string): Promise<ExploredPlacesResult> {
-  const { data, error } = await supabase.rpc('get_explored_places' as 'get_user_trips', {
-    since_date: sinceDate ?? null,
-  } as never)
+  const { data, error } = await supabase.rpc('get_explored_places', {
+    since_date: sinceDate,
+  })
 
   if (error) throw error
 
-  const rows = (data as unknown as ExploredPlaceRow[]) ?? []
+  const rows = (data ?? []) as unknown as ExploredPlaceRow[]
   const totalTrips = rows[0]?.total_trips ?? 0
 
   const places = rows.map((row) => ({
@@ -105,11 +105,11 @@ interface MostSavedPlaceRow {
 }
 
 export async function getMostSavedPlaces(): Promise<MostSavedPlacesResult> {
-  const { data, error } = await supabase.rpc('get_most_saved_places' as 'get_user_trips', {} as never)
+  const { data, error } = await supabase.rpc('get_most_saved_places')
 
   if (error) throw error
 
-  const rows = (data as unknown as MostSavedPlaceRow[]) ?? []
+  const rows = (data ?? []) as unknown as MostSavedPlaceRow[]
   const totalTrips = rows[0]?.total_trips ?? 0
 
   const places = rows.map((row) => ({

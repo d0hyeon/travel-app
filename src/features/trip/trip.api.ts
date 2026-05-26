@@ -4,7 +4,7 @@ import type { Trip } from './trip.types'
 import { formatShortDate } from '../../shared/utils/formats';
 import { deletePhotosByTripId } from '~features/photo/photo.api';
 import { getCurrencyByDestination, type ExchangeRateEntry } from '../expense/currency';
-import type { DataRaw } from '~api/tables.types';
+import type { DataRaw, CreateDataType, UpdateDataType } from '~api/tables.types';
 
 function getDatesBetween(startDate: string, endDate: string): string[] {
   const dates: string[] = []
@@ -22,8 +22,7 @@ function getDatesBetween(startDate: string, endDate: string): string[] {
 export const tripKey = 'trips'
 
 export function toTrip(row: DataRaw<'trips'>): Trip {
-  const destinations: string[] = (row as never as { destinations: string[] | null }).destinations
-    ?? [row.destination]
+  const destinations: string[] = (row.destinations as string[] | null) ?? [row.destination]
 
   let exchangeRates: ExchangeRateEntry[] | null = (row.exchange_rates as ExchangeRateEntry[] | null) ?? null;
   if (!exchangeRates && row.exchange_rate != null) {
@@ -33,7 +32,7 @@ export function toTrip(row: DataRaw<'trips'>): Trip {
 
   return {
     id: row.id,
-    userId: (row as never as { user_id: string | null }).user_id ?? null,
+    userId: row.user_id ?? null,
     name: row.name,
     destinations,
     lat: row.lat,
@@ -91,14 +90,14 @@ export async function createTrip(
     .insert({
       name: data.name,
       destination: data.destinations[0],
-      destinations: data.destinations,
+      destinations: data.destinations as unknown as import('~api/tables.types').Json,
       lat: data.lat,
       lng: data.lng,
       start_date: data.startDate,
       end_date: data.endDate,
       share_link: crypto.randomUUID(),
       user_id: userId,
-    } as never)
+    } satisfies CreateDataType<'trips'>)
     .select()
     .single()
 
@@ -118,13 +117,13 @@ export async function createTrip(
   }))
 
   if (routes.length > 0) {
-    await supabase.from('routes').insert(routes as never)
+    await supabase.from('routes').insert(routes as CreateDataType<'routes'>[])
   }
 
   // 생성자를 첫 번째 멤버로 추가
   await supabase
     .from('trip_members')
-    .insert({ trip_id: trip.id, user_id: userId } as never)
+    .insert({ trip_id: trip.id, user_id: userId })
 
   return trip
 }
@@ -146,7 +145,7 @@ export async function updateTrip(id: string, data: Partial<Omit<Trip, 'id' | 'cr
 
   const { data: updated, error } = await supabase
     .from('trips')
-    .update(updateData as never)
+    .update(updateData as UpdateDataType<'trips'>)
     .eq('id', id)
     .select()
     .single()
