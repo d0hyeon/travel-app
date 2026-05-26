@@ -2,8 +2,17 @@ import { useCallback, useSyncExternalStore } from "react";
 import type { DraftPostPhoto } from "./postDraftPhoto";
 import { heicTo, isHeic } from "heic-to";
 
-const photoStore = new Set<DraftPostPhoto>();
+interface LocalPhoto {
+  file: File;
+  url: string;
+}
+
+const photoStore = new Set<LocalPhoto>();
 const observers = new Set<VoidFunction>();
+
+const disposeRegistry = new FinalizationRegistry((item: LocalPhoto) => {
+  URL.revokeObjectURL(item.url);
+})
 
 export function useLocalPhotoStore() {
   const data = useSyncExternalStore(
@@ -20,13 +29,9 @@ export function useLocalPhotoStore() {
         ? new File([await heicTo({ blob: _file, type: 'image/jpeg' })], _file.name)
         : _file
       
-      const item = {
-        id: Date.now().toString(),
-        url: URL.createObjectURL(file),
-        file,
-        source: 'local' as const,
-        placeId: null,
-      }
+
+      const item = { file, url: URL.createObjectURL(file) };
+      disposeRegistry.register(photoStore, item);
       photoStore.add(item);
       return item;
     }));
