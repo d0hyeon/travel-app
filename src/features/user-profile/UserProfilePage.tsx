@@ -27,21 +27,17 @@ export default function UserProfilePage() {
 
   const [isExtendedViewport, setIsExtendedViewport] = useState(false);
   const topElementRef = useRef<HTMLDivElement>(null);
-  const scrollContainer = useScrollContainer();
 
+  /** 스크롤 제어를 통해 컨텐츠의 뷰포트를 확대한다. */
+  const extendViewport = async () => {
+    setIsExtendedViewport(true)
+    topElementRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+  }
   useEffect(() => {
     setIsExtendedViewport(false)
   }, [currentTab])
 
-  /** 스크롤 제어를 통해 컨텐츠의 뷰포트를 확대한다. */
-  const extendViewport = async () => {
-    if (isExtendedViewport) return
-    setIsExtendedViewport(true)
-    topElementRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
-    await waitForScrollEnd(scrollContainer);
-    setIsExtendedViewport(false)
-  }
-  const isExtendContent = arrayIncludes(EXTEND_VIEWPORT_CONTENTS, currentTab);
+  const isExtendContent = arrayIncludes(EXTEND_VIEWPORT_CONTENTS, currentTab) && !isExtendedViewport;
 
 
 
