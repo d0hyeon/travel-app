@@ -1,4 +1,5 @@
 import { useRef, useState, useCallback } from "react"
+import { useSyncableRef } from "../extends/useSyncableRef"
 
 type Frames = Keyframe[] | PropertyIndexedKeyframes
 
@@ -60,7 +61,7 @@ export function useAnimation<T extends Element>(
   element?: T | null,
 ): UseAnimationReturnWithElement | UseAnimationReturnWithoutElement<T> {
   const animationRef = useRef<Animation | null>(null)
-  const baseSpecRef = useRef(baseSpec)
+  const baseSpecRef = useSyncableRef(baseSpec)
 
   const [isRunning, setRunning] = useState(false)
 
