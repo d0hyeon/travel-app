@@ -1,5 +1,5 @@
 import { Box, Container, Stack, Tab, Tabs, Typography } from '@mui/material'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import 'scrollyfills'
 import { useParams } from 'react-router'
 import { ResizeObserverArea } from '~shared/components/ResizeObserverArea'
@@ -29,8 +29,13 @@ export default function UserProfilePage() {
   const topElementRef = useRef<HTMLDivElement>(null);
   const scrollContainer = useScrollContainer();
 
+  useEffect(() => {
+    setIsExtendedViewport(false)
+  }, [currentTab])
+
   /** 스크롤 제어를 통해 컨텐츠의 뷰포트를 확대한다. */
   const extendViewport = async () => {
+    if (isExtendedViewport) return
     setIsExtendedViewport(true)
     topElementRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
     await waitForScrollEnd(scrollContainer);
@@ -86,7 +91,7 @@ export default function UserProfilePage() {
         </Box>
       </Container>
       <ResizeObserverArea
-        enabled={isExtendContent && !isExtendedViewport}
+        enabled={isExtendContent}
         onResize={extendViewport}
       >
         <Stack flex={1}>
