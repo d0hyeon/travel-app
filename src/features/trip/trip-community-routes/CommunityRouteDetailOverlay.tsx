@@ -37,7 +37,7 @@ export function useCommunityRouteDetailOverlay() {
 
 function CommunityRouteDetailSheet({ communityTrip, tripId, isOpen, onClose }: Props) {
   return (
-    <BottomSheet isOpen={isOpen} onClose={onClose} snapPoints={[0.85, 1]} defaultSnapIndex={1}>
+    <BottomSheet isOpen={isOpen} onClose={onClose} snapPoints={[0.85, 1]} defaultSnapIndex={0}>
       <BottomSheet.Body sx={{ p: 0 }}>
         <Suspense fallback={<DetailSkeleton />}>
           <DetailContent communityTrip={communityTrip} tripId={tripId} />
