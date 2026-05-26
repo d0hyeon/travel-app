@@ -1,4 +1,4 @@
-import { Box, Stack, Tab, Tabs, Typography } from '@mui/material'
+import { Box, Container, Stack, Tab, Tabs, Typography } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router'
 import { ResizeObserverArea } from '~shared/components/ResizeObserverArea'
@@ -33,47 +33,49 @@ export default function UserProfilePage() {
 
   return (
     <Box display="flex" flexDirection="column" minHeight="100%">
-      <ProfileHeader userId={userId} />
-      <Box pb={1}>
-        <ProfileStatStrip userId={userId} />
-      </Box>
+      <Container maxWidth="md" sx={{ paddingX: '0px !important' }}>
+        <ProfileHeader userId={userId} />
+        <Box pb={1}>
+          <ProfileStatStrip userId={userId} />
+        </Box>
 
-      <Box
-        ref={tabRef}
-        position="sticky"
-        top={0}
-        zIndex={5}
-        bgcolor="background.paper"
-        borderBottom="1px solid rgba(0,0,0,0.08)"
-      >
-        <Tabs
-          value={tab}
-          onChange={(_, next) => setTab(next as Tab)}
-          variant="fullWidth"
-          slotProps={{ indicator: { sx: { height: 2, bgcolor: '#111' } } }}
+
+        <Box
+          ref={tabRef}
+          position="sticky"
+          top={0}
+          zIndex={5}
+          bgcolor="background.paper"
+          borderBottom="1px solid rgba(0,0,0,0.08)"
         >
-          {TABS.map((key) => (
-            <Tab
-              key={key}
-              value={key}
-              label={
-                <Typography
-                  sx={{
-                    fontSize: 14,
-                    fontWeight: tab === key ? 700 : 500,
-                    color: tab === key ? '#111' : '#6b6b73',
-                    letterSpacing: '-0.2px',
-                  }}
-                >
-                  {TAB_LABELS[key]}
-                </Typography>
-              }
-              sx={{ minHeight: 44 }}
-            />
-          ))}
-        </Tabs>
-      </Box>
-
+          <Tabs
+            value={tab}
+            onChange={(_, next) => setTab(next as Tab)}
+            variant="fullWidth"
+            slotProps={{ indicator: { sx: { height: 2, bgcolor: '#111' } } }}
+          >
+            {TABS.map((key) => (
+              <Tab
+                key={key}
+                value={key}
+                label={
+                  <Typography
+                    sx={{
+                      fontSize: 14,
+                      fontWeight: tab === key ? 700 : 500,
+                      color: tab === key ? '#111' : '#6b6b73',
+                      letterSpacing: '-0.2px',
+                    }}
+                  >
+                    {TAB_LABELS[key]}
+                  </Typography>
+                }
+                sx={{ minHeight: 44 }}
+              />
+            ))}
+          </Tabs>
+        </Box>
+      </Container>
       <ResizeObserverArea
         enabled={shouldScrollOnLayout}
         onResize={() => {
@@ -83,7 +85,9 @@ export default function UserProfilePage() {
       >
         <Stack flex={1}>
           {tab === 'feed' ? (
-            <ProfileFeedTab userId={userId} />
+            <Container maxWidth="md" sx={{ paddingX: '0px !important' }}>
+              <ProfileFeedTab userId={userId} />
+            </Container>
           ) : (
             <ProfileRecordsTab userId={userId} />
           )}
