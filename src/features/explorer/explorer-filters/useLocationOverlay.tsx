@@ -11,6 +11,15 @@ import { useOverlay } from '~shared/hooks/useOverlay'
 export function useLocationOverlay() {
   const overlay = useOverlay()
 
+  /**
+   * @TODO 
+   * useLocationOverlay -> defaultValue를 받는 함수 반환
+   *  -> 훅의 정의와 함수 시그니처가 충분히 표현되지 못함.
+   * 
+   * [개선 예시]
+   *   useLocationOverlay -> selectLocation({ defaultValue }) 
+   *   위처럼 기명화를 통해 함수의 역할과 시그니처를 명확히 표현할 수 있다. (오버레이 형태로 지역을 선택)
+   */
   return useCallback((defaultValue?: Location) => {
     return new Promise<Location | null | undefined>((resolve) => {
       overlay.open(({ isOpen, close }) => (
