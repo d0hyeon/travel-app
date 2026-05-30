@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
-import { MOCK_TRIP_ID } from '../src/mocks/handlers'
+import { MOCK_TRIP_ID } from '~features/trip/trip.mock';
+
 
 // ────────────────────────────────────────────────────────────
 // MSW 방식에서는 beforeEach에서 별도 Mock 등록이 필요 없다.
