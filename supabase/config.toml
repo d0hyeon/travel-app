@@ -1,0 +1,2 @@
+[functions.kakao-directions]
+verify_jwt = false

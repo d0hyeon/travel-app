@@ -26,7 +26,11 @@ build
 *.sw?
 
 .env
-supabase/
 build/
+supabase/.temp/
 .gstack/
 .omc
+# Playwright
+e2e/.auth/
+test-results/
+playwright-report/
