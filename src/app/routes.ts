@@ -36,7 +36,6 @@ export default [
     route(AppRoute.포스트_생성, "../features/post/post-form/PostFormPage.tsx"),
     route(AppRoute.포스트_상세, "../features/post/PostDetailPage.tsx"),
     route(AppRoute.장소_상세, "../features/place/place-detail/PlaceDetailPage.tsx"),
-    route(AppRoute.어드민_여행_목록, "../features/admin/AdminTripListPage.tsx"),
     route(AppRoute.장소_최다방문순, "../features/explorer/explorer-ranking/TopVisitedPage.tsx"),
     route(AppRoute.장소_급상승, "../features/explorer/explorer-recent/RecentHotPage.tsx"),
     route(AppRoute.장소_저장순, "../features/explorer/explorer-saved/MostSavedPage.tsx"),
