@@ -2,7 +2,7 @@ import { renderHook, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useTrip } from '../useTrip'
 import * as tripApi from '../trip.api'
-import { createWrapper } from '~test-utils/wrapper'
+import { createWrapper } from '~fixtures/wraper'
 
 // ────────────────────────────────────────────────────────────
 // 무엇을 테스트하는가
