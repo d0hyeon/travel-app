@@ -47,31 +47,7 @@ beforeEach(() => {
 
 describe('useTrip', () => {
   // ──────────────────────────────────────────────────────────
-  // 케이스 1: 기본 데이터 조회
-  //
-  // getTripById Mock → useTrip이 반환한 data가
-  // Mock 데이터와 일치하는지 검증한다.
-  //
-  // 이것이 단위 테스트와 다른 점:
-  //   - toTrip 변환, React Query 캐싱, useSuspenseQuery 연동을
-  //     실제로 거치면서 검증한다
-  // ──────────────────────────────────────────────────────────
-  it('getTripById 응답을 그대로 반환한다', async () => {
-    vi.spyOn(tripApi, 'getTripById').mockResolvedValue(MOCK_TRIP)
-
-    const { result } = renderHook(() => useTrip('trip-001'), {
-      wrapper: createWrapper(),
-    })
-
-    await waitFor(() => expect(result.current.data).toBeDefined())
-
-    expect(result.current.data.id).toBe('trip-001')
-    expect(result.current.data.name).toBe('도쿄 여행')
-    expect(result.current.data.startDate).toBe('2025-07-01')
-  })
-
-  // ──────────────────────────────────────────────────────────
-  // 케이스 2: isOverseas 계산
+  // 케이스 1: isOverseas 계산
   //
   // useTrip은 destinations 기반으로 isOverseas를 계산해서 붙여준다.
   // 이 계산은 location 도메인 로직(getCoordinateByLocation)에 의존한다.
@@ -138,7 +114,7 @@ describe('useTrip', () => {
   // 에러가 throw되면 컴포넌트가 unmount되고 result.current가 null이 된다.
   // wrapper에 ErrorBoundary를 달아 caught 여부로 검증한다.
   // ──────────────────────────────────────────────────────────
-  it('getTripById 에러 시 ErrorBoundary가 에러를 잡는다', async () => {
+  it('존재하지 않는 여행에 접근하면 에러가 전파된다', async () => {
     vi.spyOn(tripApi, 'getTripById').mockRejectedValue(new Error('찾을 수 없는 여행 정보입니다.'))
 
     const caughtErrors: Error[] = []

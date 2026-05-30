@@ -48,33 +48,7 @@ beforeEach(() => {
 
 describe('useExpenses', () => {
   // ──────────────────────────────────────────────────────────
-  // 케이스 1: 기본 데이터 조회
-  // ──────────────────────────────────────────────────────────
-  it('지출 목록을 반환한다', async () => {
-    setupMocks()
-
-    const { result } = renderHook(() => useExpenses(TRIP_ID), {
-      wrapper: createWrapper(),
-    })
-
-    await waitFor(() => expect(result.current.data).toHaveLength(1))
-    expect(result.current.data[0].description).toBe('라멘')
-    expect(result.current.data[0].totalAmount).toBe(15_000)
-  })
-
-  it('지출이 없으면 빈 배열을 반환한다', async () => {
-    setupMocks([])
-
-    const { result } = renderHook(() => useExpenses(TRIP_ID), {
-      wrapper: createWrapper(),
-    })
-
-    await waitFor(() => expect(result.current.data).toBeDefined())
-    expect(result.current.data).toHaveLength(0)
-  })
-
-  // ──────────────────────────────────────────────────────────
-  // 케이스 2: create — totalAmount 자동 합산
+  // 케이스 1: create — totalAmount 자동 합산
   //
   // create()는 payments 배열의 amount 합계로 totalAmount를 계산해서
   // createExpense()에 전달한다. 호출부가 totalAmount를 직접 계산할 필요 없다.

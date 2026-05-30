@@ -44,6 +44,42 @@ calculateBalancesInKRW + calculateSettlements가 협력해서 정산 결과를 �
 
 ---
 
+## 무엇을 검증하는가
+
+테스트는 "코드가 어떻게 구현되었는가"가 아니라 **"사용자에게 어떤 동작을 보장해야 하는가"** 를 검증한다.
+
+### 좋은 테스트
+
+실제 서비스 규칙이나 사용자 경험을 검증한다. 요구사항이 바뀌지 않는 한 리팩터링 과정에서도 안정적으로 유지된다.
+
+```
+✓ payments 합계가 totalAmount로 자동 계산된다
+✓ 해외 여행이면 isOverseas가 true이다
+✓ 여행 정보를 수정하면 캐시가 즉시 갱신된다
+✓ 지출을 삭제하면 목록에서도 제거된다
+✓ 환율이 적용된 정산 결과가 올바르다
+```
+
+### 지양하는 테스트
+
+단순히 값을 전달하거나 반환하는지만 검증한다. 실패해도 어떤 요구사항이 깨진 건지 파악하기 어렵다.
+
+```
+✗ 지출 목록을 반환한다
+✗ 응답을 그대로 반환한다
+✗ 지출이 없으면 빈 배열을 반환한다
+```
+
+### 작성 전 체크리스트
+
+- 이 테스트가 실패하면 실제 사용자에게 영향이 있는가?
+- 이 테스트가 실패하면 어떤 요구사항이 깨졌는지 설명할 수 있는가?
+- 내부 구현을 리팩터링해도 이 테스트는 유지되어야 하는가?
+
+셋 모두 "예"이면 좋은 테스트다.
+
+---
+
 ## 단위 테스트 — 훅 (renderHook)
 
 ### 언제 쓰는가
@@ -217,11 +253,16 @@ yarn test:ui        # 브라우저 UI로 결과 확인
 
 ### 현재 테스트 목록
 
-| 파일 | 분류 | 대상 | 케이스 수 |
-|------|------|------|----------|
-| `expense/__tests__/settlement.integration.test.ts` | 통합 | 정산 파이프라인 (두 함수 협력) | 12개 |
-| `expense/__tests__/useExpenses.integration.test.ts` | 단위 | useExpenses 훅 | 5개 |
-| `trip/__tests__/useTrip.integration.test.ts` | 단위 | useTrip 훅 | 5개 |
+| 파일 | 분류 | 케이스 |
+|------|------|--------|
+| `expense/__tests__/settlement.integration.test.ts` | 통합 | A가 전액 냈을 때 B가 절반을 돌려준다 외 11개 |
+| `expense/__tests__/useExpenses.test.ts` | 단위 | payments 합계가 totalAmount로 자동 계산된다 |
+| | | 지출을 추가하면 목록 맨 앞에 즉시 반영된다 |
+| | | 지출을 삭제하면 목록에서 즉시 제거된다 |
+| `trip/__tests__/useTrip.integration.test.ts` | 단위 | 해외 목적지면 isOverseas가 true이다 |
+| | | 국내 목적지면 isOverseas가 false이다 |
+| | | 여행 정보를 수정하면 캐시가 즉시 갱신된다 |
+| | | 존재하지 않는 여행에 접근하면 에러가 전파된다 |
 
 > 파일명의 `integration`은 이전 네이밍 관습. 현재 기준으로 settlement는 통합, useExpenses/useTrip는 단위에 해당한다.
 
