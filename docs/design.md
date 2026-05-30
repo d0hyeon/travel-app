@@ -19,46 +19,41 @@
 | UI          | `*.tsx`                    | 화면 렌더링과 사용자 인터랙션만 담당                               |
 | 유틸        | `shared/utils/*.ts`        | 도메인·UI 무관한 순수 함수                                         |
 
-각 계층은 **소비자 친화적**이어야 한다 — 사용하는 쪽이 내부 구현을 알 필요 없이 인터페이스만으로 충분히 동작할 수 있어야 한다.
-
-```ts
-// ✓ — 훅이 필요한 형태로 가공해서 제공
-const { data: members } = useTripMembers(tripId)
-
-// ✗ — 소비자가 직접 변환 로직을 알아야 함
-const { data: rows } = useTripMemberRows(tripId)
-const members = rows.map(toMember)
-```
-
 ---
 
 ## 모듈 설계
 
 좋은 설계는 책임의 경계가 분명하고, 호출부가 덜 추론해도 되며, 변경 영향이 좁게 머무는 설계다.
-모듈은 사용하는 쪽이 내부 구현을 알지 않아도 되도록 소비자 친화적인 인터페이스를 제공해야 한다.
-추상화는 구조를 복잡하게 감추기 위한 장치가 아니라, 지금 반복해서 마주치는 문제의 경계를 분명하게 드러내기 위한 수단이어야 한다.
-미래의 가능성을 위한 일반화보다, 현재의 사용처를 더 단순하고 안전하게 만드는 쪽을 우선한다.
 
-- 각 모듈은 하나의 명확한 책임만 가진다
-- 모듈 이름만으로 역할이 예측 가능해야 한다
-- 인터페이스가 어색하게 느껴지면 책임 과중 신호 → 분리 검토
+- 각 모듈은 하나의 명확한 책임만 가진다. 모듈 인터페이스로 역할이 예측 가능해야 한다
+  - 인터페이스가 어색하게 느껴지면 책임 과중 신호 → 분리 검토
 - 추상화는 구현을 숨기는 것보다 책임의 경계를 분명하게 드러내는 데 목적이 있다
-- 추상화한 뒤 오히려 호출 흐름이 더 난해해지거나, 이름만으로 역할을 이해할 수 없다면 과한 추상화 신호다
-
-두 모듈이 강하게 결합되어 함께 바뀐다면, 분리보다 책임 재정의를 먼저 검토한다.
-분리는 각 모듈을 **독립적으로 이해할 수 있을 때** 비로소 가치가 있다.
-나눈 뒤 호출부가 두 모듈의 관계를 머릿속에서 다시 조립해야 한다면, 분리 전보다 복잡해진 것이다.
-좋은 분리는 변경이 잦은 부분과 안정적인 부분의 경계를 드러낸다.
-아직 반복되지 않은 가능성을 위해 먼저 분리하지 않는다.
+  - 추상화한 뒤 오히려 호출 흐름이 더 난해해지거나, 역할을 이해할 수 없다면 과한 추상화 신호다
+- 두 모듈이 강하게 결합되어 함께 바뀐다면, 분리보다 책임 재정의를 먼저 검토한다.
 
 ```ts
 // ✗ — calculateSize가 getInitialState 안에서만 쓰인다
 //     두 함수를 따로 읽어서는 전체 의도를 파악할 수 없다
-const calculateSize = createBoxSizeCalculator(window.innerHeight)
-const { initialSnap, height } = getInitialState({ calculateSize })
+const calculateSize = createBoxSizeCalculator(window.innerHeight);
+const { initialSnap, height } = getInitialState({ calculateSize });
 
 // ✓ — 호출부만 읽어도 의도가 완결된다
-const { initialSnap, height } = getInitialState({ maxHeight: window.innerHeight })
+const { initialSnap, height } = getInitialState({
+  maxHeight: window.innerHeight,
+});
+```
+
+### 인터페이스
+
+각 계층은 **소비자 친화적**이어야 한다 — 사용하는 쪽이 내부 구현을 알 필요 없이 인터페이스만으로 충분히 동작할 수 있어야 한다.
+
+```ts
+// ✓ — 훅이 필요한 형태로 가공해서 제공
+const { data: members } = useTripMembers(tripId);
+
+// ✗ — 소비자가 직접 변환 로직을 알아야 함
+const { data: rows } = useTripMemberRows(tripId);
+const members = rows.map(toMember);
 ```
 
 ### 캡슐화
@@ -92,6 +87,7 @@ createUser.isDefinedError = (error: unknown): error is CreateUserErrorType => { 
 ```
 
 판단이 어렵다면 두 가지를 확인한다:
+
 - 이 값을 **누가 알아야 할 책임**이 있는가?
 - 다른 맥락에서 **이 값을 바꿔야 할 이유**가 생길 수 있는가?
 
@@ -102,24 +98,24 @@ createUser.isDefinedError = (error: unknown): error is CreateUserErrorType => { 
 
 ```ts
 // ✗ — 결과물 이름 중심
-useRenderedRegionFeatures()
+useRenderedRegionFeatures();
 
 // ✓ — 행위 중심
-useApplyRegionStyle()
-useSyncRegionFeatures()
+useApplyRegionStyle();
+useSyncRegionFeatures();
 ```
 
 흐름을 더 잘 드러낼 수 있다면, 애매한 중간 추상화보다 호출부에 직접 풀어쓰는 편이 낫다.
 
 ```ts
 // ✗ — 내부 흐름이 숨겨짐
-useSyncRegionFeatures(props)
+useSyncRegionFeatures(props);
 
 // ✓ — 무엇을 가져와서 무엇을 하는지 한눈에 읽힘
 useAsyncEffect(async () => {
-  const collection = await fetchBoundary()
-  replaceFeatures(collection)
-}, [props])
+  const collection = await fetchBoundary();
+  replaceFeatures(collection);
+}, [props]);
 ```
 
 ---
@@ -147,7 +143,7 @@ TripComponent, TripWidget          ✗
 
 ```tsx
 interface Props extends BoxProps {
-  tripId: string
+  tripId: string;
 }
 ```
 
