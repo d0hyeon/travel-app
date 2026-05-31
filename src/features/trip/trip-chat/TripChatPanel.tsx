@@ -52,10 +52,11 @@ function Resolved({ tripId, onClose }: Props) {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const handleSendMessage = () => {
-    if (!inputRef.current?.value.trim()) return;
+    const content = inputRef.current?.value.trim();
+    if (!content) return;
 
-    sendMessage(inputRef.current.value.trim());
-    inputRef.current.value = '';
+    sendMessage(content);
+    inputRef.current!.value = '';
   }
 
   const { data: currentUser } = useAuth();
@@ -95,7 +96,7 @@ function Resolved({ tripId, onClose }: Props) {
         <div ref={bottomRef} />
       </Stack>
 
-      <Paper elevation={2} sx={{ p: 1.5, borderRadius: 0, flexShrink: 0 }}>
+      <Paper elevation={2} sx={{ p: 1.5, paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)', borderRadius: 0, flexShrink: 0 }}>
         <Stack direction="row" alignItems="flex-end" gap={1}>
           <InputBase
             ref={inputRef}
