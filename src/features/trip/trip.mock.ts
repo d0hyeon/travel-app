@@ -1,5 +1,6 @@
 import { http, HttpResponse, type HttpRequestHandler } from "msw"
 import { MOCK_USER_ID } from "~features/auth/auth.mock"
+import { MOCK_MESSAGES } from "./trip-chat/tripChat.mock"
 
 export const MOCK_TRIP_ID = 'test-trip-001'
 export const MOCK_TRIP_ROW = {
@@ -54,4 +55,12 @@ export default [
   http.get('*/rest/v1/expenses', () => HttpResponse.json([])),
   http.get('*/rest/v1/memos', () => HttpResponse.json([])),
   http.get('*/rest/v1/checklist', () => HttpResponse.json([])),
+
+  // ── trip_messages ──────────────────────────────────────────
+  http.get('*/rest/v1/trip_messages', () =>
+    HttpResponse.json(MOCK_MESSAGES)
+  ),
+  http.post('*/rest/v1/trip_messages', () =>
+    HttpResponse.json(MOCK_MESSAGES[0], { status: 201 })
+  ),
 ]
