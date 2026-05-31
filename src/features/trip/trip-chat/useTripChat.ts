@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useEffectEvent } from 'react';
 import type { TripMember } from '../trip-member/tripMember.types';
 import { useTripMembers } from '../trip-member/useTripMembers';
 import { getChatMessages, sendChatMessage, subscribeTripMessages, tripChatKey } from './tripChat.api';
@@ -30,7 +30,15 @@ export function useSubscribeTripChat(tripId: string) {
   }, [tripId, queryClient])
 }
 
-export function useTripChat(tripId: string) {
+interface TripChat extends ChatMessage {
+  user?: TripMember;
+}
+
+interface Options {
+  onLoad?: (data: TripChat[]) => void;
+}
+
+export function useTripChat(tripId: string, { onLoad }: Options = {}) {
   const query = useSuspenseQuery({
     queryKey: useTripChat.key(tripId),
     queryFn: async () => {
@@ -43,13 +51,16 @@ export function useTripChat(tripId: string) {
         [member.userId]: member
       }), {})
 
-      return messages.map<ChatMessage & { user: TripMember | undefined }>(message => ({
+      return messages.map<TripChat>(message => ({
         ...message,
         user: member[message.userId]
       }))
     },
     staleTime: 0,
   })
+
+  const handleLoad = useEffectEvent(() => onLoad?.(query.data));
+  useEffect(() => handleLoad(), [query.data]);
 
   const send = useMutation({
     mutationFn: (content: string) => sendChatMessage(tripId, content),
