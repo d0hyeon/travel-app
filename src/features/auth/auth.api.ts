@@ -48,7 +48,7 @@ export async function updateProfile({ avatar, ...payload }: UpdateProfilePayload
 export async function addPushSubscription(userId: string, subscription: PushSubscription) {
   const { error } = await supabase.from('push_subscriptions').upsert({
     user_id: userId,
-    subscription: subscription as unknown as Json,
+    subscription: subscription.toJSON() as Json,
   })
   if (error) throw error
 }
