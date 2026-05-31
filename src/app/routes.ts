@@ -5,6 +5,7 @@ export const AppRoute = {
   통계: '/statistics',
   탐색: '/explorer',
   여행_상세: '/trip/:tripId',
+  여행_채팅: '/trip/:tripId/chat',
   여행_생성: '/trip/new',
   여행_초대: '/trip/invite/:shareLink',
   로그인: '/login',
@@ -30,6 +31,7 @@ export default [
       route(AppRoute.탐색, "../features/explorer/PlaceExplorerPage.tsx"),
     ]),
     route(AppRoute.여행_상세, "../features/trip/TripDetailPage.tsx"),
+    route(AppRoute.여행_채팅, "../features/trip/TripChatPage.tsx"),
     route(AppRoute.여행_생성, "../features/trip/trip-create/TripCreatePage.tsx"),
     route(AppRoute.여행_초대, "../features/trip/trip-invite/TripInvitePage.tsx"),
     // photo feed (제거 시 아래 2줄과 features/post 폴더만 삭제)

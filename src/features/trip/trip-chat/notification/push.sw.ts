@@ -33,17 +33,14 @@ sw.addEventListener('push', (event: PushEvent) => {
 sw.addEventListener('notificationclick', (event: NotificationEvent) => {
   event.notification.close()
   const tripId = (event.notification.data as { tripId?: string })?.tripId
+  const targetUrl = tripId ? `/trip/${tripId}/chat` : '/'
 
   event.waitUntil(
     sw.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      const target = clientList.find((c) => c.focused) ?? clientList[0]
-
-      if (target) {
-        if (tripId) target.postMessage({ type: 'OPEN_CHAT_PANEL', tripId })
-        return target.focus()
+      if (clientList.length > 0) {
+        return clientList[0].navigate(targetUrl)
       }
-
-      return sw.clients.openWindow('/')
+      return sw.clients.openWindow(targetUrl)
     })
   )
 })
