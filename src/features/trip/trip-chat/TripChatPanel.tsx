@@ -49,8 +49,7 @@ function TripChatPanelResolved({ tripId, onClose }: Props) {
 
   useEffect(() => {
     markAsRead(tripId)
-    return () => { markAsRead(tripId) }
-  }, [tripId])
+  }, [tripId, messages.length])
 
   const handleSend = () => {
     const content = input.trim()
@@ -60,7 +59,7 @@ function TripChatPanelResolved({ tripId, onClose }: Props) {
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault()
       handleSend()
     }
