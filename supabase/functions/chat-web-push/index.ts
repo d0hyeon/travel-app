@@ -22,7 +22,15 @@ Deno.serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
-  const { tripId, senderId, title, body } = await req.json()
+  const { tripId, senderId, body } = await req.json()
+
+  const { data: trip } = await supabase
+    .from('trips')
+    .select('name')
+    .eq('id', tripId)
+    .single()
+
+  const title = trip?.name ?? '여행'
 
   // 여행 멤버 중 발신자를 제외한 user_id 목록
   const { data: members, error: memberError } = await supabase
@@ -55,6 +63,12 @@ Deno.serve(async (req) => {
     const results = await Promise.allSettled(
       subscriptions.map((row: { id: string; subscription: unknown }) =>
         webpush.sendNotification(row.subscription as webpush.PushSubscription, payload)
+          .catch(async (err: { statusCode?: number }) => {
+            if (err.statusCode === 410 || err.statusCode === 404) {
+              await supabase.from('push_subscriptions').delete().eq('id', row.id)
+            }
+            throw err
+          })
       ),
     )
 

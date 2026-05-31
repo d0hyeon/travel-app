@@ -76,8 +76,7 @@ export async function sendChatMessage(tripId: string, content: string): Promise<
     body: {
       tripId,
       senderId: user.id,
-      title: user.user_metadata?.name ?? '새 메시지',
-      body: content.length > 50 ? content.slice(0, 50) + '…' : content,
+      body: `${user.user_metadata?.name ?? '알 수 없음'}: ${content.length > 50 ? content.slice(0, 50) + '…' : content}`,
     },
   }).catch(() => {})
 
