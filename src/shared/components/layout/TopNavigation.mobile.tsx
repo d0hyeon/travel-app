@@ -57,7 +57,7 @@ TopNavigation.BackButton = (props: IconButtonProps) => {
   return (
     <IconButton
       onClick={() => {
-        if (window.history.length === 0) {
+        if (window.history.length <= 1) {
           return navigate('/');
         }
         navigate(-1);
