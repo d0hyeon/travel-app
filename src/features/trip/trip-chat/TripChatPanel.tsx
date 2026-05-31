@@ -8,17 +8,20 @@ import {
   Paper,
   Skeleton,
   Stack,
-  Typography,
+  Typography
 } from '@mui/material'
 import { Suspense, useEffect, useRef } from 'react'
 import { useAuth } from '~features/auth/useAuth'
 import { useVariation } from '~shared/hooks/extends/useVariation'
 import type { TripMember } from '../trip-member/tripMember.types'
 import type { ChatMessage } from './tripChat.types'
-import { useSubscribeTripChat, useTripChat } from './useTripChat'
-import { markAsRead } from './useUnreadChatCount'
+
 import { useForm } from 'react-hook-form'
+import { useRegisterChatActivity } from '~features/trip/trip-chat/notification/useRegisterChatActivity'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
+import { ChatPushNoticeCard } from './ChatPushNoticeCard'
+import { useTripChatMessages } from './useTripChatMessages'
+import { markAsRead } from './useUnreadChatCount'
 
 interface Props {
   tripId: string
@@ -35,13 +38,12 @@ export function TripChatPanel(props: Props) {
 }
 
 function Resolved({ tripId, onClose }: Props) {
-  const { data: messages, send: sendMessage } = useTripChat(tripId, {
+  const { data: messages, send: sendMessage } = useTripChatMessages(tripId, {
     onLoad: (messages) => {
       const last = messages[messages.length - 1]
       markAsRead(tripId, last?.createdAt)
     }
   })
-  useSubscribeTripChat(tripId)
 
   const [getIsMounted, setIsMounted] = useVariation(false);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -57,8 +59,10 @@ function Resolved({ tripId, onClose }: Props) {
 
   const form = useForm<{ content: string }>();
   const formRef = useRef<HTMLFormElement>(null);
+
   const { data: currentUser } = useAuth();
   const isMobile = useIsMobile();
+  useRegisterChatActivity(tripId);
 
   return (
     <Stack height="100%">
@@ -77,8 +81,12 @@ function Resolved({ tripId, onClose }: Props) {
           <CloseIcon fontSize="small" />
         </IconButton>
       </Stack>
-
+      <Suspense>
+        <ChatPushNoticeCard margin={2} />
+      </Suspense>
       <Stack flex={1} overflow="auto" p={2} gap={1.5}>
+
+
         {messages.map((msg) => (
           <MessageCard
             key={msg.id}
@@ -202,4 +210,3 @@ function TripChatPanelSkeleton({ onClose }: { onClose: () => void }) {
     </Stack>
   )
 }
-

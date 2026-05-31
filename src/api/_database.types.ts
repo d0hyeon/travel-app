@@ -402,6 +402,27 @@ export type Database = {
           },
         ]
       }
+      push_subscriptions: {
+        Row: {
+          created_at: string
+          id: string
+          subscription: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          subscription: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          subscription?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       routes: {
         Row: {
           created_at: string

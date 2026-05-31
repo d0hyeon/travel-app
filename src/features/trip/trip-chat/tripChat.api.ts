@@ -54,7 +54,7 @@ export function subscribeTripMessages(
       }
     )
     .subscribe()
-
+  
   return () => { void supabase.removeChannel(channel) }
 
   
@@ -71,5 +71,15 @@ export async function sendChatMessage(tripId: string, content: string): Promise<
     .single()
 
   if (error) throw error
+
+  supabase.functions.invoke('chat-web-push', {
+    body: {
+      tripId,
+      senderId: user.id,
+      title: user.user_metadata?.name ?? '새 메시지',
+      body: content.length > 50 ? content.slice(0, 50) + '…' : content,
+    },
+  }).catch(() => {})
+
   return toMessage(data)
 }

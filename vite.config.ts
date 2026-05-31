@@ -29,6 +29,7 @@ const config = {
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       injectRegister: 'inline',
       devOptions: { enabled: false },
+      
       manifest: {
         name: '여행 플래너',
         short_name: '여행',
@@ -70,6 +71,7 @@ const config = {
         ]
       },
       workbox: {
+        importScripts: ['/push.sw.js'],
         navigateFallback: '/index.html',
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
         globPatterns: ['**/*.{js,css,ico,png,svg,woff2}'],

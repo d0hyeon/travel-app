@@ -1,5 +1,5 @@
 import { supabase } from '~api/client'
-import type { CreateDataType } from '~api/tables.types'
+import type { CreateDataType, Json } from '~api/tables.types'
 
 interface SignInWIthKakaoOptions {
   redirectTo?: string;
@@ -43,4 +43,12 @@ export async function updateProfile({ avatar, ...payload }: UpdateProfilePayload
       { ...payload, avatar_url: avatar } satisfies CreateDataType<'user_profiles'>,
       { onConflict: 'id' }
     )
+}
+
+export function addPushSubscription(userId: string, subscription: PushSubscription) {
+  return supabase.from('push_subscriptions').upsert({
+    user_id: userId,
+    subscription: subscription as unknown as Json,
+    keys: subscription.toJSON().keys,
+  })
 }
