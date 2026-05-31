@@ -1,4 +1,4 @@
-import { useCallback, use } from "react";
+import { useCallback, use, useState } from "react";
 import { useLoading } from "~shared/hooks/useLoading";
 import { addPushSubscription } from "./auth.api";
 import { useAuth } from "./useAuth";
@@ -29,7 +29,7 @@ export function useWebPushSubscription() {
   const isEnabled = registration != null;
 
   const existingSubscription = isEnabled ? use(getPushSubscription(registration)) : undefined;
-  const isSubscribed = !!existingSubscription;
+  const [isSubscribed, setIsSubscribed] = useState(!!existingSubscription);
 
   const hasPermission = Notification.permission === 'granted';
 
@@ -54,6 +54,7 @@ export function useWebPushSubscription() {
         });
 
         await addPushSubscription(currentUser.id, newSubscription);
+        setIsSubscribed(true)
         console.log('Subscribed to push notifications:', newSubscription);
       } catch (error) {
         alert('구독에 실패' + JSON.stringify(error));
