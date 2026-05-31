@@ -5,7 +5,7 @@ import { http, HttpResponse } from 'msw'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createElement, Suspense } from 'react'
 import { handlers } from '../../../../mocks/handlers'
-import { useTripChat } from '../useTripChat'
+import { useTripChatMessages } from '../useTripChatMessages'
 import { getUnreadCount, markAsRead, getLastReadAt } from '../useUnreadChatCount'
 import { MOCK_MESSAGES } from '../tripChat.mock'
 import { MOCK_TRIP_ID } from '~features/trip/trip.mock'
@@ -53,7 +53,7 @@ function wrapper({ children }: { children: React.ReactNode }) {
 describe('trip-chat 통합', () => {
   describe('메시지 목록 조회', () => {
     it('tripId로 메시지를 camelCase로 변환해서 반환한다', async () => {
-      const { result } = renderHook(() => useTripChat(MOCK_TRIP_ID), { wrapper })
+      const { result } = renderHook(() => useTripChatMessages(MOCK_TRIP_ID), { wrapper })
       await waitFor(() => expect(result.current.data).toHaveLength(2))
 
       const [first, second] = result.current.data
@@ -66,7 +66,7 @@ describe('trip-chat 통합', () => {
     })
 
     it('메시지가 created_at 오름차순으로 정렬된다', async () => {
-      const { result } = renderHook(() => useTripChat(MOCK_TRIP_ID), { wrapper })
+      const { result } = renderHook(() => useTripChatMessages(MOCK_TRIP_ID), { wrapper })
       await waitFor(() => expect(result.current.data).toHaveLength(2))
 
       const times = result.current.data.map((m) => m.createdAt)
@@ -76,7 +76,7 @@ describe('trip-chat 통합', () => {
 
   describe('메시지 전송', () => {
     it('전송 성공 후 isPending이 false로 돌아온다', async () => {
-      const { result } = renderHook(() => useTripChat(MOCK_TRIP_ID), { wrapper })
+      const { result } = renderHook(() => useTripChatMessages(MOCK_TRIP_ID), { wrapper })
       await waitFor(() => expect(result.current.data).toBeDefined())
       act(() => { result.current.send('새 메시지') })
       await waitFor(() => expect(result.current.send.isPending).toBe(false))
@@ -88,7 +88,7 @@ describe('trip-chat 통합', () => {
           HttpResponse.json({ message: 'Internal Server Error' }, { status: 500 })
         )
       )
-      const { result } = renderHook(() => useTripChat(MOCK_TRIP_ID), { wrapper })
+      const { result } = renderHook(() => useTripChatMessages(MOCK_TRIP_ID), { wrapper })
       await waitFor(() => expect(result.current.data).toBeDefined())
       act(() => { result.current.send('실패할 메시지').catch(() => {}) })
       await waitFor(() => expect(result.current.send.isPending).toBe(false))
@@ -129,7 +129,7 @@ describe('trip-chat 통합', () => {
       const w = ({ children }: { children: React.ReactNode }) =>
         createElement(QueryClientProvider, { client: queryClient }, createElement(Suspense, { fallback: null }, children))
 
-      const { result } = renderHook(() => useTripChat(MOCK_TRIP_ID), { wrapper: w })
+      const { result } = renderHook(() => useTripChatMessages(MOCK_TRIP_ID), { wrapper: w })
       await waitFor(() => expect(result.current.data).toHaveLength(2))
 
       const newMessage = {
@@ -142,7 +142,7 @@ describe('trip-chat 통합', () => {
 
       act(() => {
         queryClient.setQueryData(
-          useTripChat.key(MOCK_TRIP_ID),
+          useTripChatMessages.key(MOCK_TRIP_ID),
           (prev: typeof newMessage[]) => [...(prev ?? []), newMessage]
         )
       })

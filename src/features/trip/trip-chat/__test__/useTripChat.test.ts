@@ -4,7 +4,7 @@ import { setupServer } from 'msw/node'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createElement, Suspense } from 'react'
 import { handlers } from '../../../../mocks/handlers'
-import { useTripChat } from '../useTripChat'
+import { useTripChatMessages } from '../useTripChatMessages'
 import { MOCK_TRIP_ID } from '~features/trip/trip.mock'
 
 // Supabase Realtime WebSocket이 테스트 환경에서 crash하지 않도록 mock
@@ -30,9 +30,9 @@ function wrapper({ children }: { children: React.ReactNode }) {
   )
 }
 
-describe('useTripChat', () => {
+describe('useTripChatMessages', () => {
   it('tripId로 메시지 목록을 반환한다', async () => {
-    const { result } = renderHook(() => useTripChat(MOCK_TRIP_ID), { wrapper })
+    const { result } = renderHook(() => useTripChatMessages(MOCK_TRIP_ID), { wrapper })
     await waitFor(() => expect(result.current.data).toHaveLength(2))
     expect(result.current.data[0].content).toBe('안녕하세요!')
   })

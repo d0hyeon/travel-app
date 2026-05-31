@@ -2,7 +2,6 @@ import ChatIcon from '@mui/icons-material/Telegram'
 import { Badge, IconButton } from '@mui/material'
 import { Suspense } from 'react'
 import { useUnreadChatCount } from './useUnreadChatCount'
-import { useSubscribeTripChat } from './useTripChat'
 import { useTripChatOverlay } from './TripChatOverlay'
 
 interface Props {
@@ -18,7 +17,6 @@ export function ChatIconButton({ tripId }: Props) {
 }
 
 function ChatIconButtonResolved({ tripId }: Props) {
-  useSubscribeTripChat(tripId)
   const unreadCount = useUnreadChatCount(tripId)
   return <ChatIconButtonBase tripId={tripId} unreadCount={unreadCount} />
 }

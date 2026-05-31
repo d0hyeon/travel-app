@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getChatMessages, tripChatKey } from './tripChat.api'
 import type { ChatMessage } from './tripChat.types'
+import { useStorageStore } from '~shared/hooks/useStorageStore'
+import { useTripChatMessages } from './useTripChatMessages'
 
 const STORAGE_KEY = (tripId: string) => `chat_last_read_${tripId}`
 
@@ -25,11 +27,7 @@ export function getUnreadCount(tripId: string, messages: ChatMessage[]): number 
 }
 
 export function useUnreadChatCount(tripId: string): number {
-  const { data: messages } = useSuspenseQuery({
-    queryKey: [tripChatKey, 'list', tripId],
-    queryFn: () => getChatMessages(tripId),
-    staleTime: 30 * 1000,
-  })
+  const { data: messages } = useTripChatMessages(tripId)
 
   const [lastReadAt, setLastReadAt] = useState(() => getLastReadAt(tripId))
 
