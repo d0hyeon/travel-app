@@ -1,45 +1,66 @@
-import { useEffect } from 'react'
-import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
-import { supabase } from '~api/client'
-import { getChatMessages, tripChatKey } from './tripChat.api'
-import type { ChatMessage } from './tripChat.types'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import type { TripMember } from '../trip-member/tripMember.types';
+import { useTripMembers } from '../trip-member/useTripMembers';
+import { getChatMessages, sendChatMessage, subscribeTripMessages, tripChatKey } from './tripChat.api';
+import type { ChatMessage } from './tripChat.types';
 
-export function useTripChat(tripId: string) {
-  const queryClient = useQueryClient()
+let referencedCount = 0;
 
-  const { data: messages } = useSuspenseQuery({
-    queryKey: [tripChatKey, 'list', tripId],
-    queryFn: () => getChatMessages(tripId),
-    staleTime: 30 * 1000,
-  })
+export function useSubscribeTripChat(tripId: string) {
+  const queryClient = useQueryClient();
 
   useEffect(() => {
-    const channel = supabase
-      .channel(`trip_messages:${tripId}`)
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'trip_messages', filter: `trip_id=eq.${tripId}` },
-        (payload) => {
-          const row = payload.new as {
-            id: string; trip_id: string; user_id: string; content: string; created_at: string
-          }
-          const newMessage: ChatMessage = {
-            id: row.id,
-            tripId: row.trip_id,
-            userId: row.user_id,
-            content: row.content,
-            createdAt: row.created_at,
-          }
-          queryClient.setQueryData<ChatMessage[]>(
-            [tripChatKey, 'list', tripId],
-            (prev) => [...(prev ?? []), newMessage]
-          )
-        }
+    if(referencedCount > 0) {
+      referencedCount++;
+      
+      return () => {
+        referencedCount--;
+      }
+    }
+
+    const unsubscribe = subscribeTripMessages(tripId, (newMessage) => {
+      queryClient.setQueryData<ChatMessage[]>(
+        useTripChat.key(tripId),
+        (prev) => [...(prev ?? []), newMessage]
       )
-      .subscribe()
+    })
 
-    return () => { void supabase.removeChannel(channel) }
+    return unsubscribe;
   }, [tripId, queryClient])
-
-  return { messages }
 }
+
+export function useTripChat(tripId: string) {
+  const query = useSuspenseQuery({
+    queryKey: useTripChat.key(tripId),
+    queryFn: async () => {
+      const [messages, members] = await Promise.all([
+        getChatMessages(tripId),
+        useTripMembers.fetch(tripId)
+      ])
+      const member = members.reduce<Record<string, TripMember>>((result, member) => ({
+        ...result,
+        [member.userId]: member
+      }), {})
+
+      return messages.map<ChatMessage & { user: TripMember | undefined }>(message => ({
+        ...message,
+        user: member[message.userId]
+      }))
+    },
+    staleTime: 0,
+  })
+
+  const send = useMutation({
+    mutationFn: (content: string) => sendChatMessage(tripId, content),
+  })
+
+  return {
+    ...query,
+    send: Object.assign(send.mutateAsync, send)
+  }
+
+}
+useTripChat.key = (tripId: string) => [tripChatKey, 'list', tripId]
+
+

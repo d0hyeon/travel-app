@@ -3,8 +3,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useExpenses } from '../useExpenses'
 import * as expenseApi from '../expense.api'
 import * as placeApi from '../../place/place.api'
-import { createWrapper } from '~test-utils/wrapper'
+
 import type { Expense } from '../expense.types'
+import { createWrapper } from '~fixtures/wraper'
 
 // ────────────────────────────────────────────────────────────
 // 무엇을 테스트하는가

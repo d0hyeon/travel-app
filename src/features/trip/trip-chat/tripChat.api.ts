@@ -1,6 +1,7 @@
 import { supabase } from '~api/client'
 import { getAuth } from '~features/auth/useAuth'
 import type { ChatMessage } from './tripChat.types'
+import type { DataRaw } from '~api/tables.types'
 
 export const tripChatKey = 'trip_messages'
 
@@ -29,6 +30,34 @@ export async function getChatMessages(tripId: string): Promise<ChatMessage[]> {
 
   if (error) throw error
   return (data ?? []).map(toMessage)
+}
+
+export function subscribeTripMessages(
+  tripId: string,
+  callback: (data: ChatMessage) => void
+) {
+  const channel = supabase
+    .channel(`trip_messages:${tripId}`)
+    .on<DataRaw<'trip_messages'>>(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'trip_messages' },
+      ({ new: row }) => {
+        if (row.trip_id !== tripId) return
+        const newMessage: ChatMessage = {
+          id: row.id,
+          tripId: row.trip_id,
+          userId: row.user_id,
+          content: row.content,
+          createdAt: row.created_at,
+        }
+        callback(newMessage)
+      }
+    )
+    .subscribe()
+
+  return () => { void supabase.removeChannel(channel) }
+
+  
 }
 
 export async function sendChatMessage(tripId: string, content: string): Promise<ChatMessage> {

@@ -4,6 +4,7 @@ import type { TransitionProps } from '@mui/material/transitions'
 import { useOverlay } from '~shared/hooks/useOverlay'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { TripChatPanel } from './TripChatPanel'
+import { FullScreenPopup } from '~shared/components/FullScreenPopup'
 
 interface OverlayProps {
   tripId: string
@@ -31,14 +32,9 @@ function TripChatOverlay({ tripId, isOpen, onClose }: OverlayProps) {
 
   if (isMobile) {
     return (
-      <Dialog
-        open={isOpen}
-        onClose={onClose}
-        fullScreen
-        slots={{ transition: SlideUpTransition }}
-      >
+      <FullScreenPopup isOpen={isOpen} onClose={onClose}>
         <TripChatPanel tripId={tripId} isOpen={isOpen} onClose={onClose} />
-      </Dialog>
+      </FullScreenPopup>
     )
   }
 

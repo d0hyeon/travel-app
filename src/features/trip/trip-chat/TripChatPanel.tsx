@@ -12,12 +12,10 @@ import {
 } from '@mui/material'
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { useAuth } from '~features/auth/useAuth'
-import { useTripMembers } from '../trip-member/useTripMembers'
-import { markAsRead } from './useUnreadChatCount'
-import { useTripChat } from './useTripChat'
-import { useSendChatMessage } from './useSendChatMessage'
-import type { ChatMessage } from './tripChat.types'
 import type { TripMember } from '../trip-member/tripMember.types'
+import type { ChatMessage } from './tripChat.types'
+import { useTripChat } from './useTripChat'
+import { markAsRead } from './useUnreadChatCount'
 
 interface Props {
   tripId: string
@@ -35,25 +33,22 @@ export function TripChatPanel(props: Props) {
 
 function TripChatPanelResolved({ tripId, onClose }: Props) {
   const { data: currentUser } = useAuth()
-  const { messages } = useTripChat(tripId)
-  const { data: members } = useTripMembers(tripId)
-  const { send, isPending } = useSendChatMessage(tripId)
+  const { data: messages, send } = useTripChat(tripId)
   const [input, setInput] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
-
-  const memberMap = Object.fromEntries(members.map((m) => [m.userId, m]))
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages.length])
 
   useEffect(() => {
-    markAsRead(tripId)
+    const last = messages[messages.length - 1]
+    markAsRead(tripId, last?.createdAt)
   }, [tripId, messages.length])
 
   const handleSend = () => {
     const content = input.trim()
-    if (!content || isPending) return
+    if (!content || send.isPending) return
     send(content)
     setInput('')
   }
@@ -89,7 +84,7 @@ function TripChatPanelResolved({ tripId, onClose }: Props) {
             key={msg.id}
             message={msg}
             isMe={msg.userId === currentUser.id}
-            member={memberMap[msg.userId]}
+            member={msg.user}
           />
         ))}
         {messages.length === 0 && (
@@ -114,7 +109,7 @@ function TripChatPanelResolved({ tripId, onClose }: Props) {
           <IconButton
             color="primary"
             onClick={handleSend}
-            disabled={isPending || !input.trim()}
+            disabled={send.isPending || !input.trim()}
           >
             <SendIcon fontSize="small" />
           </IconButton>

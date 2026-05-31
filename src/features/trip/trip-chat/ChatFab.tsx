@@ -2,6 +2,7 @@ import ChatIcon from '@mui/icons-material/Chat'
 import { Badge, Fab } from '@mui/material'
 import { Suspense } from 'react'
 import { useUnreadChatCount } from './useUnreadChatCount'
+import { useSubscribeTripChat } from './useTripChat'
 import { useTripChatOverlay } from './TripChatOverlay'
 
 interface Props {
@@ -17,6 +18,7 @@ export function ChatFab({ tripId }: Props) {
 }
 
 function ChatFabResolved({ tripId }: Props) {
+  useSubscribeTripChat(tripId)
   const unreadCount = useUnreadChatCount(tripId)
   return <ChatFabBase tripId={tripId} unreadCount={unreadCount} />
 }

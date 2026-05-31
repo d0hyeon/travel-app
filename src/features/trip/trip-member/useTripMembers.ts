@@ -7,13 +7,17 @@ import {
   tripMemberKey,
 } from "./tripMember.api"
 
+const getQueryOptions = (tripId: string) => {
+  return {
+    queryKey: [tripKey, tripMemberKey, tripId],
+    queryFn: () => getTripMembersByTripId(tripId)
+  }
+}
+
 export function useTripMembers(tripId: string) {
   const queryClient = useQueryClient()
 
-  const { data, ...queries } = useSuspenseQuery({
-    queryKey: useTripMembers.key(tripId),
-    queryFn: () => getTripMembersByTripId(tripId)
-  })
+  const { data, ...queries } = useSuspenseQuery(getQueryOptions(tripId))
 
   const { mutate: remove } = useMutation({
     mutationFn: () => leaveTrip(tripId),
@@ -25,10 +29,6 @@ export function useTripMembers(tripId: string) {
   return { data, remove, ...queries }
 }
 
-useTripMembers.key = (tripId: string) => [tripKey, tripMemberKey, tripId]
-useTripMembers.prefetch = (tripId: string) => {
-  queryClient.prefetchQuery({
-    queryKey: useTripMembers.key(tripId),
-    queryFn: () => getTripMembersByTripId(tripId)
-  })
-}
+useTripMembers.key = (tripId: string) => getQueryOptions(tripId).queryKey;
+useTripMembers.prefetch = (tripId: string) => queryClient.prefetchQuery(getQueryOptions(tripId))
+useTripMembers.fetch = (tripId: string) => queryClient.ensureQueryData(getQueryOptions(tripId))

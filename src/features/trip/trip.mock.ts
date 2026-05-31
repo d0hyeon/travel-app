@@ -49,18 +49,13 @@ export default [
       },
     ])
   }),
-  
+
   http.get('*/rest/v1/trip_places', () => HttpResponse.json([])),
   http.get('*/rest/v1/routes', () => HttpResponse.json([])),
   http.get('*/rest/v1/expenses', () => HttpResponse.json([])),
   http.get('*/rest/v1/memos', () => HttpResponse.json([])),
   http.get('*/rest/v1/checklist', () => HttpResponse.json([])),
 
-  // ── trip_messages ──────────────────────────────────────────
-  http.get('*/rest/v1/trip_messages', () =>
-    HttpResponse.json(MOCK_MESSAGES)
-  ),
-  http.post('*/rest/v1/trip_messages', () =>
-    HttpResponse.json(MOCK_MESSAGES[0], { status: 201 })
-  ),
+  http.get('*/rest/v1/trip_messages', () => HttpResponse.json(MOCK_MESSAGES)),
+  http.post('*/rest/v1/trip_messages', () => HttpResponse.json(MOCK_MESSAGES[0], { status: 201 })),
 ]

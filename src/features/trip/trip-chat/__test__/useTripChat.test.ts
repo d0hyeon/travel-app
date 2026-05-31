@@ -11,7 +11,7 @@ import { MOCK_TRIP_ID } from '~features/trip/trip.mock'
 vi.mock('~api/client', async (importOriginal) => {
   const mod = await importOriginal<typeof import('~api/client')>()
   const fakeChannel = { on: () => fakeChannel, subscribe: () => fakeChannel }
-  mod.supabase.channel = () => fakeChannel as ReturnType<typeof mod.supabase.channel>
+  mod.supabase.channel = () => fakeChannel as unknown as ReturnType<typeof mod.supabase.channel>
   mod.supabase.removeChannel = vi.fn().mockResolvedValue('ok')
   return mod
 })
@@ -33,7 +33,7 @@ function wrapper({ children }: { children: React.ReactNode }) {
 describe('useTripChat', () => {
   it('tripId로 메시지 목록을 반환한다', async () => {
     const { result } = renderHook(() => useTripChat(MOCK_TRIP_ID), { wrapper })
-    await waitFor(() => expect(result.current.messages).toHaveLength(2))
-    expect(result.current.messages[0].content).toBe('안녕하세요!')
+    await waitFor(() => expect(result.current.data).toHaveLength(2))
+    expect(result.current.data[0].content).toBe('안녕하세요!')
   })
 })
