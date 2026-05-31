@@ -15,8 +15,10 @@ import { useAuth } from '~features/auth/useAuth'
 import { useVariation } from '~shared/hooks/extends/useVariation'
 import type { TripMember } from '../trip-member/tripMember.types'
 import type { ChatMessage } from './tripChat.types'
-import { useTripChat } from './useTripChat'
+import { useSubscribeTripChat, useTripChat } from './useTripChat'
 import { markAsRead } from './useUnreadChatCount'
+import { useForm } from 'react-hook-form'
+import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 
 interface Props {
   tripId: string
@@ -39,9 +41,10 @@ function Resolved({ tripId, onClose }: Props) {
       markAsRead(tripId, last?.createdAt)
     }
   })
+  useSubscribeTripChat(tripId)
 
-  const bottomRef = useRef<HTMLDivElement>(null);
   const [getIsMounted, setIsMounted] = useVariation(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     requestAnimationFrame(() => {
@@ -52,16 +55,10 @@ function Resolved({ tripId, onClose }: Props) {
     })
   }, [messages.length])
 
-  const inputRef = useRef<HTMLInputElement>(null);
-  const handleSendMessage = () => {
-    const content = inputRef.current?.value.trim();
-    if (!content) return;
-
-    sendMessage(content);
-    inputRef.current!.value = '';
-  }
-
+  const form = useForm<{ content: string }>();
+  const formRef = useRef<HTMLFormElement>(null);
   const { data: currentUser } = useAuth();
+  const isMobile = useIsMobile();
 
   return (
     <Stack height="100%">
@@ -99,23 +96,32 @@ function Resolved({ tripId, onClose }: Props) {
       </Stack>
 
       <Paper elevation={2} sx={{ p: 1.5, paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)', borderRadius: 0, flexShrink: 0 }}>
-        <Stack direction="row" alignItems="flex-end" gap={1}>
+        <Stack
+          ref={formRef}
+          component="form"
+          direction="row"
+          alignItems="flex-end"
+          gap={1}
+          onSubmit={form.handleSubmit(({ content }) => {
+            sendMessage(content)
+            form.reset();
+          })}
+        >
           <InputBase
-            ref={inputRef}
             multiline
             maxRows={4}
             placeholder="메시지를 입력하세요"
-            onKeyDown={(event) => {
-              if (isSendSignal(event) && !sendMessage.isPending) {
-                event.preventDefault()
-                handleSendMessage()
+            sx={{ flex: 1, bgcolor: 'grey.100', borderRadius: 2, px: 1.5, py: 1 }}
+            onKeyDown={(e) => {
+              if (!isMobile && e.metaKey && e.key === 'Enter') {
+                formRef.current?.requestSubmit();
               }
             }}
-            sx={{ flex: 1, bgcolor: 'grey.100', borderRadius: 2, px: 1.5, py: 1 }}
+            {...form.register('content', { required: true, validate: (value) => value.trim() !== '' })}
           />
           <IconButton
             color="primary"
-            onClick={handleSendMessage}
+            type="submit"
             disabled={sendMessage.isPending}
           >
             <SendIcon fontSize="small" />
@@ -197,6 +203,3 @@ function TripChatPanelSkeleton({ onClose }: { onClose: () => void }) {
   )
 }
 
-function isSendSignal(event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) {
-  return event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing;
-}
