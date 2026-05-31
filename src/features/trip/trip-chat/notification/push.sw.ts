@@ -25,17 +25,24 @@ sw.addEventListener('push', (event: PushEvent) => {
       body,
       icon: '/pwa-192x192.png',
       badge: '/pwa-192x192.png',
+      data: { tripId },
     })
   )
 })
 
 sw.addEventListener('notificationclick', (event: NotificationEvent) => {
   event.notification.close()
+  const tripId = (event.notification.data as { tripId?: string })?.tripId
+
   event.waitUntil(
     sw.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      const focused = clientList.find((c) => c.focused)
-      if (focused) return focused.focus()
-      if (clientList.length > 0) return clientList[0].focus()
+      const target = clientList.find((c) => c.focused) ?? clientList[0]
+
+      if (target) {
+        if (tripId) target.postMessage({ type: 'OPEN_CHAT_PANEL', tripId })
+        return target.focus()
+      }
+
       return sw.clients.openWindow('/')
     })
   )

@@ -10,6 +10,8 @@ import { AuthError } from '~features/auth/AuthError'
 import { useAuthNavigate } from '~features/auth/AuthNavigate'
 import { AuthStateSync } from '~features/auth/useAuth'
 import { IntroFullScreenBanner } from '~features/intro/IntroFullScreenBanner'
+import { useSubscribeChatNotification } from '~features/trip/trip-chat/notification/useSubscribeChatNotification'
+import { useTripChatOverlay } from '~features/trip/trip-chat/TripChatOverlay'
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { ErrorBoundary } from '~shared/components/ErrorBoundary'
 import { theme } from '~shared/config/theme'
@@ -103,6 +105,7 @@ export default function Root() {
 
 function Installer() {
   const confirm = useConfirmDialog();
+  const { open: openChat } = useTripChatOverlay();
 
   useEffect(() => {
     const updateSW = registerSW({
@@ -113,6 +116,8 @@ function Installer() {
       },
     })
   }, [])
+
+  useSubscribeChatNotification(openChat)
 
   return null;
 }
