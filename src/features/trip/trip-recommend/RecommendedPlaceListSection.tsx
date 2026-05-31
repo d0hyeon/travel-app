@@ -1,5 +1,5 @@
 import RoomIcon from '@mui/icons-material/Room'
-import { Box, Chip, Skeleton, Stack, Typography, type StackProps } from '@mui/material'
+import { Box, Card, CardContent, CardHeader, Chip, Skeleton, Stack, Typography, type StackProps } from '@mui/material'
 import { Suspense, type ReactNode } from 'react'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { PlaceCategoryColorCode } from '../../place/place.types'
@@ -20,6 +20,33 @@ export function RecommendedPlaceListSection(props: Props) {
   )
 }
 
+export function RecommendedPlaceListSection_Desktop({ tripId }: { tripId: string }) {
+  return (
+    <Suspense fallback={null}>
+      <RecommendedPlacesSectionDesktopContent tripId={tripId} />
+    </Suspense>
+  )
+}
+
+function RecommendedPlacesSectionDesktopContent({ tripId }: { tripId: string }) {
+  const { data: places } = useRecommendedPlaces(tripId)
+  const { openDialog } = useRecommendedPlaceDetailOverlay()
+
+  if (places.length === 0) return null
+
+  return (
+    <Card variant="outlined">
+      <CardHeader title="사람들이 많이 찾는곳이에요" />
+      <CardContent>
+        <RecommendedPlaceList
+          places={places}
+          onPlaceClick={(place) => openDialog({ place, tripId })}
+        />
+      </CardContent>
+    </Card>
+  )
+}
+
 function RecommendedPlacesSectionContent({ tripId, header, sx, ...props }: Props) {
   const { data: places } = useRecommendedPlaces(tripId)
   const { openDialog, openBottomSheet } = useRecommendedPlaceDetailOverlay()
@@ -35,20 +62,31 @@ function RecommendedPlacesSectionContent({ tripId, header, sx, ...props }: Props
   return (
     <Stack gap={1}>
       {header}
-      <Stack
-        direction="row"
-        spacing={1.5}
-        width="100%"
-        sx={[
-          { overflowX: 'auto', pb: 0.5, '::-webkit-scrollbar': { display: 'none' } },
-          ...(Array.isArray(sx) ? sx : [sx])
-        ]}
-        {...props}
-      >
-        {places.map(place => (
-          <RecommendedPlaceCard key={place.id} place={place} onClick={() => handlePlaceClick(place)} />
-        ))}
-      </Stack>
+      <RecommendedPlaceList places={places} onPlaceClick={handlePlaceClick} sx={sx} {...props} />
+    </Stack>
+  )
+}
+
+interface RecommendedPlaceListProps extends StackProps {
+  places: RecommendedPlace[]
+  onPlaceClick: (place: RecommendedPlace) => void
+}
+
+export function RecommendedPlaceList({ places, onPlaceClick, sx, ...props }: RecommendedPlaceListProps) {
+  return (
+    <Stack
+      direction="row"
+      spacing={1.5}
+      width="100%"
+      sx={[
+        { overflowX: 'auto', pb: 0.5, '::-webkit-scrollbar': { display: 'none' } },
+        ...(Array.isArray(sx) ? sx : [sx])
+      ]}
+      {...props}
+    >
+      {places.map(place => (
+        <RecommendedPlaceCard key={place.id} place={place} onClick={() => onPlaceClick(place)} />
+      ))}
     </Stack>
   )
 }

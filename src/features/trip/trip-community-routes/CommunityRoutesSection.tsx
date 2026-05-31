@@ -1,5 +1,5 @@
 import PeopleIcon from '@mui/icons-material/People'
-import { Box, Skeleton, Stack, Typography, type StackProps } from '@mui/material'
+import { Box, Card, CardContent, CardHeader, Skeleton, Stack, Typography, type StackProps } from '@mui/material'
 import { Suspense } from 'react'
 import { useCommunityRouteDetailOverlay } from './CommunityRouteDetailOverlay'
 import { CommunityRouteThumbnail } from './CommunityRouteThumbnail'
@@ -26,6 +26,33 @@ export function CommunityRoutesSection(props: Props) {
   )
 }
 
+export function CommunityRoutesSection_Desktop({ tripId }: { tripId: string }) {
+  return (
+    <Suspense fallback={null}>
+      <CommunityRoutesSectionDesktopContent tripId={tripId} />
+    </Suspense>
+  )
+}
+
+function CommunityRoutesSectionDesktopContent({ tripId }: { tripId: string }) {
+  const { data: trips } = useCommunityRoutes(tripId)
+  const { open } = useCommunityRouteDetailOverlay()
+
+  if (trips.length === 0) return null
+
+  return (
+    <Card variant="outlined">
+      <CardHeader title="이 여행지를 다녀온 사람들" />
+      <CardContent>
+        <CommunityRouteList
+          trips={trips}
+          onTripClick={(trip) => open({ communityTrip: trip, tripId })}
+        />
+      </CardContent>
+    </Card>
+  )
+}
+
 function CommunityRoutesSectionContent({ tripId, sx, ...props }: Props) {
   const { data: trips } = useCommunityRoutes(tripId)
   const { open } = useCommunityRouteDetailOverlay()
@@ -37,22 +64,38 @@ function CommunityRoutesSectionContent({ tripId, sx, ...props }: Props) {
       <Typography variant="subtitle2" color="text.secondary">
         이 여행지를 다녀온 사람들
       </Typography>
-      <Stack
-        direction="row"
-        spacing={1.5}
-        sx={[
-          { overflowX: 'auto', pb: 0.5, '::-webkit-scrollbar': { display: 'none' } },
-          ...(Array.isArray(sx) ? sx : [sx]),
-        ]}
-      >
-        {trips.map((trip) => (
-          <CommunityTripCard
-            key={trip.id}
-            trip={trip}
-            onClick={() => open({ communityTrip: trip, tripId })}
-          />
-        ))}
-      </Stack>
+      <CommunityRouteList
+        trips={trips}
+        onTripClick={(trip) => open({ communityTrip: trip, tripId })}
+        sx={sx}
+      />
+    </Stack>
+  )
+}
+
+interface CommunityRouteListProps extends StackProps {
+  trips: CommunityTrip[]
+  onTripClick: (trip: CommunityTrip) => void
+}
+
+export function CommunityRouteList({ trips, onTripClick, sx, ...props }: CommunityRouteListProps) {
+  return (
+    <Stack
+      direction="row"
+      spacing={1.5}
+      sx={[
+        { overflowX: 'auto', pb: 0.5, '::-webkit-scrollbar': { display: 'none' } },
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
+      {...props}
+    >
+      {trips.map((trip) => (
+        <CommunityTripCard
+          key={trip.id}
+          trip={trip}
+          onClick={() => onTripClick(trip)}
+        />
+      ))}
     </Stack>
   )
 }

@@ -8,8 +8,8 @@ import { TripMemoAddButton } from '../trip-memo/TripMemoAddButton'
 import { TripBaseInfoList } from './TripBaseInfoList'
 import { TripDDay } from './TripDDay'
 import { TripPostCreateCard } from './TripPostCreateCard'
-import { RecommendedPlaceListSection } from '../trip-recommend/RecommendedPlaceListSection'
-import { CommunityRoutesSection } from '../trip-community-routes/CommunityRoutesSection'
+import { RecommendedPlaceListSection_Desktop } from '../trip-recommend/RecommendedPlaceListSection'
+import { CommunityRoutesSection_Desktop } from '../trip-community-routes/CommunityRoutesSection'
 
 interface Props {
   tripId: string
@@ -40,20 +40,10 @@ export function TripBasicInfoContent({ tripId }: Props) {
           </Card>
 
           {/* 추천 장소 */}
-          <Card variant="outlined">
-            <CardHeader title="사람들이 많이 찾는곳이에요" />
-            <CardContent>
-              <RecommendedPlaceListSection tripId={tripId} />
-            </CardContent>
-          </Card>
+          <RecommendedPlaceListSection_Desktop tripId={tripId} />
 
           {/* 다른 여행자의 경로 */}
-          <Card variant="outlined">
-            <CardHeader title="이 여행지를 다녀온 사람들" />
-            <CardContent>
-              <CommunityRoutesSection tripId={tripId} />
-            </CardContent>
-          </Card>
+          <CommunityRoutesSection_Desktop tripId={tripId} />
 
           {/* 고정된 메모 */}
           <Card variant="outlined">
