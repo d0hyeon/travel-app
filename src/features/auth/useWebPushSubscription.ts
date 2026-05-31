@@ -56,6 +56,7 @@ export function useWebPushSubscription() {
         await addPushSubscription(currentUser.id, newSubscription);
         console.log('Subscribed to push notifications:', newSubscription);
       } catch (error) {
+        alert('구독에 실패' + JSON.stringify(error));
         console.error('Failed to subscribe to push notifications:', error);
       }
     })
