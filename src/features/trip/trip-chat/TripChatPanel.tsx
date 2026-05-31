@@ -10,8 +10,9 @@ import {
   Stack,
   Typography,
 } from '@mui/material'
-import { Suspense, useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef } from 'react'
 import { useAuth } from '~features/auth/useAuth'
+import { useVariation } from '~shared/hooks/extends/useVariation'
 import type { TripMember } from '../trip-member/tripMember.types'
 import type { ChatMessage } from './tripChat.types'
 import { useTripChat } from './useTripChat'
@@ -26,39 +27,38 @@ interface Props {
 export function TripChatPanel(props: Props) {
   return (
     <Suspense fallback={<TripChatPanelSkeleton onClose={props.onClose} />}>
-      <TripChatPanelResolved {...props} />
+      <Resolved {...props} />
     </Suspense>
   )
 }
 
-function TripChatPanelResolved({ tripId, onClose }: Props) {
-  const { data: currentUser } = useAuth()
-  const { data: messages, send } = useTripChat(tripId)
-  const [input, setInput] = useState('')
-  const bottomRef = useRef<HTMLDivElement>(null)
+function Resolved({ tripId, onClose }: Props) {
+  const { data: messages, send: sendMessage } = useTripChat(tripId, {
+    onLoad: (messages) => {
+      const last = messages[messages.length - 1]
+      markAsRead(tripId, last?.createdAt)
+    }
+  })
+
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const [getIsMounted, setIsMounted] = useVariation(false);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    bottomRef.current?.scrollIntoView({
+      behavior: getIsMounted() ? 'smooth' : 'instant'
+    })
+    setIsMounted(true);
   }, [messages.length])
 
-  useEffect(() => {
-    const last = messages[messages.length - 1]
-    markAsRead(tripId, last?.createdAt)
-  }, [tripId, messages.length])
+  const inputRef = useRef<HTMLInputElement>(null);
+  const handleSendMessage = () => {
+    if (!inputRef.current?.value.trim()) return;
 
-  const handleSend = () => {
-    const content = input.trim()
-    if (!content || send.isPending) return
-    send(content)
-    setInput('')
+    sendMessage(inputRef.current.value.trim());
+    inputRef.current.value = '';
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
-      e.preventDefault()
-      handleSend()
-    }
-  }
+  const { data: currentUser } = useAuth();
 
   return (
     <Stack height="100%">
@@ -80,7 +80,7 @@ function TripChatPanelResolved({ tripId, onClose }: Props) {
 
       <Stack flex={1} overflow="auto" p={2} gap={1.5}>
         {messages.map((msg) => (
-          <MessageBubble
+          <MessageCard
             key={msg.id}
             message={msg}
             isMe={msg.userId === currentUser.id}
@@ -98,18 +98,22 @@ function TripChatPanelResolved({ tripId, onClose }: Props) {
       <Paper elevation={2} sx={{ p: 1.5, borderRadius: 0, flexShrink: 0 }}>
         <Stack direction="row" alignItems="flex-end" gap={1}>
           <InputBase
+            ref={inputRef}
             multiline
             maxRows={4}
             placeholder="메시지를 입력하세요"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
+            onKeyDown={(event) => {
+              if (isSendSignal(event) && !sendMessage.isPending) {
+                event.preventDefault()
+                handleSendMessage()
+              }
+            }}
             sx={{ flex: 1, bgcolor: 'grey.100', borderRadius: 2, px: 1.5, py: 1 }}
           />
           <IconButton
             color="primary"
-            onClick={handleSend}
-            disabled={send.isPending || !input.trim()}
+            onClick={handleSendMessage}
+            disabled={sendMessage.isPending}
           >
             <SendIcon fontSize="small" />
           </IconButton>
@@ -119,13 +123,13 @@ function TripChatPanelResolved({ tripId, onClose }: Props) {
   )
 }
 
-interface BubbleProps {
+interface MessageCardProps {
   message: ChatMessage
   isMe: boolean
   member?: TripMember
 }
 
-function MessageBubble({ message, isMe, member }: BubbleProps) {
+function MessageCard({ message, isMe, member }: MessageCardProps) {
   return (
     <Stack direction={isMe ? 'row-reverse' : 'row'} alignItems="flex-end" gap={1}>
       {!isMe && (
@@ -188,4 +192,8 @@ function TripChatPanelSkeleton({ onClose }: { onClose: () => void }) {
       </Stack>
     </Stack>
   )
+}
+
+function isSendSignal(event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) {
+  return event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing;
 }
