@@ -19,6 +19,7 @@ import { lazy } from '~shared/utils/react';
 import { TripLeavePopMenuItem } from './components/TripLeavePopMenuItem.tsx';
 import { TripNameEditableText } from './components/TripNameEditableText.tsx';
 import { useTripId } from './useTripId';
+import { ChatFab } from './trip-chat/ChatFab';
 
 const TripPhotoContent = lazy(async () => {
   const module = await import('./trip-photo/TripPhotoContent.desktop.tsx')
@@ -106,6 +107,9 @@ export function TripDetailPageDesktop() {
         />
 
       </ErrorBoundary>
+
+      {/* 채팅 FAB */}
+      <ChatFab tripId={tripId} />
     </Box>
   )
 }
