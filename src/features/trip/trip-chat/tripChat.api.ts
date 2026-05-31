@@ -1,0 +1,46 @@
+import { supabase } from '~api/client'
+import { getAuth } from '~features/auth/useAuth'
+import type { ChatMessage } from './tripChat.types'
+
+export const tripChatKey = 'trip_messages'
+
+function toMessage(row: {
+  id: string
+  trip_id: string
+  user_id: string
+  content: string
+  created_at: string
+}): ChatMessage {
+  return {
+    id: row.id,
+    tripId: row.trip_id,
+    userId: row.user_id,
+    content: row.content,
+    createdAt: row.created_at,
+  }
+}
+
+export async function getChatMessages(tripId: string): Promise<ChatMessage[]> {
+  const { data, error } = await supabase
+    .from('trip_messages')
+    .select('*')
+    .eq('trip_id', tripId)
+    .order('created_at', { ascending: true })
+
+  if (error) throw error
+  return (data ?? []).map(toMessage)
+}
+
+export async function sendChatMessage(tripId: string, content: string): Promise<ChatMessage> {
+  const user = getAuth()
+  if (!user) throw new Error('로그인이 필요합니다')
+
+  const { data, error } = await supabase
+    .from('trip_messages')
+    .insert({ trip_id: tripId, user_id: user.id, content })
+    .select()
+    .single()
+
+  if (error) throw error
+  return toMessage(data)
+}
