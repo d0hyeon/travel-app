@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query"
+import { useMutation, useQueryClient, useSuspenseQuery, type UseSuspenseQueryOptions } from "@tanstack/react-query"
 import { queryClient } from "~app/query-client"
 import { tripKey } from "../trip.api"
 import {
@@ -6,6 +6,7 @@ import {
   getTripMembersByTripId,
   tripMemberKey,
 } from "./tripMember.api"
+import type { TripMember } from "./tripMember.types"
 
 const getQueryOptions = (tripId: string) => {
   return {
@@ -14,10 +15,15 @@ const getQueryOptions = (tripId: string) => {
   }
 }
 
-export function useTripMembers(tripId: string) {
+type QueryOptions<T = TripMember[]> = Omit<UseSuspenseQueryOptions<TripMember[], Error, T>, 'queryKey' | 'queryFn'>
+
+export function useTripMembers<T = TripMember[]>(tripId: string, queryOptions?: QueryOptions<T>) {
   const queryClient = useQueryClient()
 
-  const { data, ...queries } = useSuspenseQuery(getQueryOptions(tripId))
+  const { data, ...queries } = useSuspenseQuery({
+    ...getQueryOptions(tripId),
+    ...queryOptions
+  })
 
   const { mutate: remove } = useMutation({
     mutationFn: () => leaveTrip(tripId),

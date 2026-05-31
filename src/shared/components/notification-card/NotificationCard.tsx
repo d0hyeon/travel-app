@@ -20,8 +20,7 @@ function NotificationCard({
   return (
     <Box
       paddingY={1.75}
-      paddingX={2}
-      paddingRight={4}
+      paddingX={3.5}
       borderRadius={4}
       bgcolor="background.paper"
       alignItems="start"
@@ -47,7 +46,7 @@ function NotificationCard({
         </Box>
       )}
 
-      <Stack flex={1} minWidth={0} pr={onClose ? 2.5 : 0}>
+      <Stack flex={1} minWidth={0} >
         {children}
       </Stack>
 
@@ -75,9 +74,9 @@ function Title(props: TypographyProps) {
   return (
     <Typography
       variant="body2"
-      fontWeight={900}
       lineHeight={1.3}
       color="text.primary"
+      marginBottom={1}
       {...props}
     />
 

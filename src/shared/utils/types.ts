@@ -14,7 +14,7 @@ export function assert(
   value: boolean,
   fallback: string | Error = 'Value is required'
 ): asserts value {
-  if (value == null) {
+  if (!value) {
     if (typeof fallback === 'string') throw new Error(fallback)
     throw fallback;
   }
