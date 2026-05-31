@@ -6,7 +6,7 @@ export type FallbackProps = {
   resetError: () => void;
 };
 type Props = PropsWithChildren<{
-  onError?: (error: Error) => void;
+  onError?: (error: Error, reset: () => void) => void;
   ignoreError?: (error: Error) => boolean;
   fallback?: ((fallback: FallbackProps) => ReactNode) | null;
   resetKeys?: (string | number | boolean)[];
@@ -32,7 +32,7 @@ export class ErrorBoundary extends Component<Props, State> {
     if (isIgnored) {
       throw error;
     }
-    this.props.onError?.(error);
+    this.props.onError?.(error, this.resetError.bind(this));
     this.setState({ error });
   }
 

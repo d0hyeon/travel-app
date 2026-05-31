@@ -9,7 +9,7 @@ export function useAuthNavigate() {
   const navigate = useNavigate();
 
   return () => {
-    navigate(AppRoute.로그인, { state: { from: window.location.href } });
+    return navigate(AppRoute.로그인, { state: { from: window.location.href } });
   }
 }
 

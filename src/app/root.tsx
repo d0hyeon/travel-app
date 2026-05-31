@@ -80,7 +80,10 @@ export default function Root() {
                   }
                 >
                   <ErrorBoundary
-                    onError={() => login()}
+                    onError={async (_, resetError) => {
+                      await login()
+                      resetError();
+                    }}
                     ignoreError={error => !AuthError.isAuthError(error)}
                   >
                     <Outlet />
