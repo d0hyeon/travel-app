@@ -6,6 +6,8 @@ import { Suspense, useEffect } from 'react'
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router'
 import { registerSW } from 'virtual:pwa-register'
 import { queryClient } from '~app/query-client'
+import { AuthError } from '~features/auth/AuthError'
+import { useAuthNavigate } from '~features/auth/AuthNavigate'
 import { AuthStateSync } from '~features/auth/useAuth'
 import { IntroFullScreenBanner } from '~features/intro/IntroFullScreenBanner'
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
@@ -45,7 +47,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function Root() {
-
+  const login = useAuthNavigate();
 
 
   return (
@@ -77,7 +79,13 @@ export default function Root() {
                     </Fade>
                   }
                 >
-                  <Outlet />
+                  <ErrorBoundary
+                    onError={() => login()}
+                    ignoreError={error => !AuthError.isAuthError(error)}
+                  >
+                    <Outlet />
+                  </ErrorBoundary>
+
                   <AuthStateSync />
                 </Suspense>
               </SearchParamProvider>

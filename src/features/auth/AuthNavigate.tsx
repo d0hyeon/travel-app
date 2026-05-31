@@ -1,9 +1,16 @@
-import { Navigate, useLocation } from "react-router";
+import { Navigate, useLocation, useNavigate } from "react-router";
 import { AppRoute } from "~app/routes";
 
 export function AuthNavigate() {
-
   return <Navigate to={AppRoute.로그인} state={{ from: window.location.href }} replace />
+}
+
+export function useAuthNavigate() {
+  const navigate = useNavigate();
+
+  return () => {
+    navigate(AppRoute.로그인, { state: { from: window.location.href } });
+  }
 }
 
 export function useAuthRedirection() {
