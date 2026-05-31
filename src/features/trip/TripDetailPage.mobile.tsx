@@ -23,8 +23,7 @@ import { useQueryParamState } from '../../shared/hooks/urls/useQueryParamState.t
 import { TripBasicInfoContent } from './trip-basic-info/TripBasicInfoContent.mobile';
 import { TripNameEditableText } from './components/TripNameEditableText.tsx';
 import { useTripId } from './useTripId';
-import { PopMenu } from '~shared/components/PopMenu.tsx';
-import { TripLeavePopMenuItem } from './components/TripLeavePopMenuItem.tsx';
+import { ChatIconButton } from './trip-chat/ChatIconButton';
 
 
 type TabType = 'Info' | 'Place' | 'Route' | 'Expense' | 'Photo';
@@ -53,9 +52,7 @@ export function TripDetailPageMobile() {
     <Box sx={{ height: '100dvh', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
       <TopNavigation
-        rightElement={
-          <PopMenu items={<TripLeavePopMenuItem tripId={tripId} />} />
-        }
+        rightElement={<ChatIconButton tripId={tripId} />}
       >
         <TripNameEditableText variant="subtitle2" tripId={tripId} fontWeight={600} noWrap />
       </TopNavigation>
