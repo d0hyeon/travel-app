@@ -44,10 +44,12 @@ function Resolved({ tripId, onClose }: Props) {
   const [getIsMounted, setIsMounted] = useVariation(false);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({
-      behavior: getIsMounted() ? 'smooth' : 'instant'
+    requestAnimationFrame(() => {
+      bottomRef.current?.scrollIntoView({
+        behavior: getIsMounted() ? 'smooth' : 'instant'
+      })
+      setIsMounted(true);
     })
-    setIsMounted(true);
   }, [messages.length])
 
   const inputRef = useRef<HTMLInputElement>(null);
