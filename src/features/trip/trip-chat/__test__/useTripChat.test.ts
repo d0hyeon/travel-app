@@ -3,8 +3,8 @@ import { renderHook, waitFor } from '@testing-library/react'
 import { setupServer } from 'msw/node'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createElement, Suspense } from 'react'
-import chatHandlers from './tripChat.mock'
-import { useTripChat } from './useTripChat'
+import { handlers } from '../../../../mocks/handlers'
+import { useTripChat } from '../useTripChat'
 import { MOCK_TRIP_ID } from '~features/trip/trip.mock'
 
 // Supabase Realtime WebSocket이 테스트 환경에서 crash하지 않도록 mock
@@ -16,7 +16,7 @@ vi.mock('~api/client', async (importOriginal) => {
   return mod
 })
 
-const server = setupServer(...chatHandlers)
+const server = setupServer(...handlers)
 beforeAll(() => server.listen())
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { getUnreadCount, markAsRead, getLastReadAt } from './useUnreadChatCount'
-import type { ChatMessage } from './tripChat.types'
+import { getUnreadCount, markAsRead, getLastReadAt } from '../useUnreadChatCount'
+import type { ChatMessage } from '../tripChat.types'
 
 const makeMessage = (id: string, createdAt: string): ChatMessage => ({
   id,

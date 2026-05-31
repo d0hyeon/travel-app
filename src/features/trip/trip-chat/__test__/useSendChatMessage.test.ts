@@ -4,13 +4,13 @@ import { setupServer } from 'msw/node'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createElement } from 'react'
 import { http, HttpResponse } from 'msw'
-import chatHandlers from './tripChat.mock'
-import { useSendChatMessage } from './useSendChatMessage'
+import { handlers } from '../../../../mocks/handlers'
+import { useSendChatMessage } from '../useSendChatMessage'
 import { MOCK_TRIP_ID } from '~features/trip/trip.mock'
 import { MOCK_SESSION } from '~features/auth/auth.mock'
 import { queryClient as appQueryClient } from '~app/query-client'
 
-const server = setupServer(...chatHandlers)
+const server = setupServer(...handlers)
 beforeAll(() => {
   server.listen()
   appQueryClient.setQueryData(['auth'], MOCK_SESSION.user)

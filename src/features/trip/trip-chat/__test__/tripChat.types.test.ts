@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import type { ChatMessage } from './tripChat.types'
+import type { ChatMessage } from '../tripChat.types'
 
 describe('ChatMessage 타입', () => {
   it('필수 필드를 모두 포함한다', () => {
