@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
-import { ChattingNotificationEvent } from './chatting-notification.types'
-import type { ChattingNotificationMessage } from './chatting-notification.types'
+import { ChattingNotificationType, type ChattingNotificationMessage } from './chatting-notification.types'
 
 function postToSW(message: ChattingNotificationMessage) {
   navigator.serviceWorker.controller?.postMessage(message)
@@ -8,7 +7,7 @@ function postToSW(message: ChattingNotificationMessage) {
 
 export function useChatActivation(tripId: string) {
   useEffect(() => {
-    postToSW({ type: ChattingNotificationEvent.open, tripId })
-    return () => postToSW({ type: ChattingNotificationEvent.close, tripId })
+    postToSW({ type: ChattingNotificationType.open, tripId })
+    return () => postToSW({ type: ChattingNotificationType.close, tripId })
   }, [tripId])
 }
