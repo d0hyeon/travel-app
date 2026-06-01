@@ -5,7 +5,7 @@ import ConfirmDialog, { type ConfirmDialogProps } from "./ConfirmDialog";
 export function useConfirmDialog() {
   const overlay = useOverlay();
 
-  return useCallback((title: string, props?: Omit<ConfirmDialogProps, 'isOpen'>) => {
+  return useCallback((title: string, props?: Omit<ConfirmDialogProps, 'isOpen' | 'title'>) => {
     return new Promise<boolean>((resolve) => {
       overlay.open(({ isOpen, close }) => (
         <ConfirmDialog
