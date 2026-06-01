@@ -67,8 +67,9 @@ export function CommunityRouteThumbnail({
   }, [destinations])
 
   const routeCoords = previewRoutes.flatMap((r) => r.coords)
+  const allCoords = [...shapeRings.flat(), ...routeCoords]
 
-  if (routeCoords.length === 0 && shapeRings.length === 0) {
+  if (allCoords.length === 0) {
     return (
       <svg width={width} height={height} style={{ display: 'block' }}>
         <rect width={width} height={height} fill="#f5f5f5" rx={4} />
@@ -76,14 +77,11 @@ export function CommunityRouteThumbnail({
     )
   }
 
-  // bounds는 장소 좌표 기준 — shapeRings로 넓히면 도트가 좁은 영역에 몰려 사라짐
-  const boundsSource = routeCoords.length > 0 ? routeCoords : shapeRings.flat()
-
   const padding = 6
-  const minLng = Math.min(...boundsSource.map((c) => c.lng))
-  const maxLng = Math.max(...boundsSource.map((c) => c.lng))
-  const minLat = Math.min(...boundsSource.map((c) => c.lat))
-  const maxLat = Math.max(...boundsSource.map((c) => c.lat))
+  const minLng = Math.min(...allCoords.map((c) => c.lng))
+  const maxLng = Math.max(...allCoords.map((c) => c.lng))
+  const minLat = Math.min(...allCoords.map((c) => c.lat))
+  const maxLat = Math.max(...allCoords.map((c) => c.lat))
 
   const toSVG = (coords: Coordinate[]) =>
     normalizeCoordsToSVG(coords, minLng, maxLng, minLat, maxLat, width, height, padding)
