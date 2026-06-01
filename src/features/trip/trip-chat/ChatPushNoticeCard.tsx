@@ -30,7 +30,7 @@ export function ChatPushNoticeCard(props: ComponentProps<typeof NotificationCard
   }, [isPrepared]);
 
   const [isLoading, startTransition] = useLoading();
-  if (webPush.isSubscribed || !webPush.isEnabled) {
+  if (webPush.isSubscribed) {
     return null;
   }
 
@@ -41,23 +41,32 @@ export function ChatPushNoticeCard(props: ComponentProps<typeof NotificationCard
           onClose={() => animation.scrub(0)}
           {...props}
         >
-          <NotificationCard.Title textAlign="center">실시간으로 알림을 받아보세요</NotificationCard.Title>
-          <Button
-            variant="contained"
-            loading={isLoading}
-            sx={{ borderRadius: '20px !important' }}
-            onClick={() => {
-              startTransition(async () => {
-                if (!webPush.hasPermission) {
-                  const isGranted = await webPush.requestPermission();
-                  if (!isGranted) return;
-                }
-                await webPush.subscribe();
-              })
-            }}
-          >
-            알림 받기
-          </Button>
+          <NotificationCard.Title textAlign="center">
+            {webPush.isEnabled ? '실시간으로 알림을 받아보세요' : '바로가기 앱을 추가해 보세요'}
+          </NotificationCard.Title>
+          {!webPush.isEnabled ? (
+            <NotificationCard.Text>
+              실시간 알림 설정을 할 수 있어요
+            </NotificationCard.Text>
+          ) : (
+            <Button
+              variant="contained"
+              loading={isLoading}
+              sx={{ borderRadius: '20px !important' }}
+              onClick={() => {
+                startTransition(async () => {
+                  if (!webPush.hasPermission) {
+                    const isGranted = await webPush.requestPermission();
+                    if (!isGranted) return;
+                  }
+                  await webPush.subscribe();
+                })
+              }}
+            >
+              알림 받기
+            </Button>
+          )}
+
         </NotificationCard>
       </Box>
     </Box>
