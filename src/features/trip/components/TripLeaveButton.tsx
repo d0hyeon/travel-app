@@ -1,0 +1,32 @@
+import { Button, type ButtonProps } from "@mui/material";
+import { useTrip } from "../useTrip";
+import { useAuth } from "~features/auth/useAuth";
+import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
+import { useNavigate } from "react-router";
+
+interface Props extends ButtonProps {
+  tripId: string;
+}
+export function TripLeaveButton({ tripId, color = 'error', children = '나가기', ...props }: Props) {
+  const { data: auth } = useAuth();
+  const { data: { userId }, remove, leave } = useTrip(tripId);
+  const isHost = auth.id === userId;
+
+  const confirm = useConfirmDialog();
+  const navigate = useNavigate();
+
+  return (
+    <Button
+      {...props}
+      color={color}
+      onClick={async () => {
+        if (await confirm(`여행을 나가시겠어요?`)) {
+          await (isHost ? remove() : leave());
+          navigate('/', { replace: true });
+        }
+      }}
+    >
+      {children}
+    </Button>
+  )
+}

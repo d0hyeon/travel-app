@@ -15,6 +15,7 @@ import { TripDDay } from './TripDDay'
 import { TripPostCreateCard } from './TripPostCreateCard'
 import { RecommendedPlaceListSection } from '../trip-recommend/RecommendedPlaceListSection'
 import { CommunityRoutesSection } from '../trip-community-routes/CommunityRoutesSection'
+import { TripLeaveButton } from "../components/TripLeaveButton"
 
 interface Props {
   tripId: string
@@ -101,10 +102,11 @@ export function TripBasicInfoContent({ tripId }: Props) {
                 />
               </ErrorBoundary>
 
-
-
               {/* 인원 관리 */}
               <TripMemberSection tripId={tripId} />
+              <TripLeaveButton fullWidth variant="outlined" tripId={tripId} sx={{ marginTop: 6 }}>
+                여행에서 나가기
+              </TripLeaveButton>
             </Stack>
           </>
         )}

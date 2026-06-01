@@ -45,9 +45,9 @@ export function useTrip(id: string) {
 
   return {
     data: { isOverseas, ...data },
-    update,
-    remove,
-    leave,
+    update: Object.assign(update.mutateAsync, update),
+    remove: Object.assign(remove.mutateAsync, remove),
+    leave: Object.assign(leave.mutateAsync, leave),
     ...queries
   };
 }
