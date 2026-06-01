@@ -74,7 +74,7 @@ const config = {
         globPatterns: ['**/*.{js,css,ico,png,svg,woff2}'],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
-        skipWaiting: false,
+        skipWaiting: true,
         runtimeCaching: [
           // {
           //   urlPattern: ({ request }) => request.mode === 'navigate',
