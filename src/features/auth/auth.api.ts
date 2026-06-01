@@ -57,3 +57,11 @@ export async function removePushSubscription(userId: string) {
   const { error } = await supabase.from('push_subscriptions').delete().eq('user_id', userId)
   if (error) throw error
 }
+
+export async function getPushSubscriptionEndpoint(userId: string): Promise<string | null> {
+  const { data, error } = await supabase.from('push_subscriptions').select('subscription').eq('user_id', userId).maybeSingle()
+  if (error) throw error
+  if (!data) return null
+  const json = data.subscription as PushSubscriptionJSON
+  return json.endpoint ?? null
+}
