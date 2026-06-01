@@ -4,7 +4,9 @@ export function useIsMounted() {
   const ref = useRef(false);
 
   useEffect(() => {
-    ref.current = true;
+    requestAnimationFrame(() => {
+      ref.current = true;
+    });
 
     return () => {
       ref.current = false;
