@@ -151,7 +151,7 @@ function MemoEditorDialog({ memoId, tripId, ...props }: EditorDialog) {
         )}
         renderEditField={props => (
           <Box paddingY={2} paddingLeft={3}>
-            <EditableText.Field {...props} placeholder="제목을 입력하세요" />
+            <EditableText.Field {...props} />
           </Box>
         )}
         onSubmit={(value) => update({ id: memo.id, title: value === '' ? null : value })}

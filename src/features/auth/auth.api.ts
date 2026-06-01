@@ -48,20 +48,28 @@ export async function updateProfile({ avatar, ...payload }: UpdateProfilePayload
 export async function addPushSubscription(userId: string, subscription: PushSubscription) {
   const { error } = await supabase.from('push_subscriptions').upsert({
     user_id: userId,
+    endpoint: subscription.endpoint,
     subscription: subscription.toJSON() as Json,
-  })
+  }, { onConflict: 'user_id,endpoint' })
   if (error) throw error
 }
 
-export async function removePushSubscription(userId: string) {
-  const { error } = await supabase.from('push_subscriptions').delete().eq('user_id', userId)
+export async function removePushSubscription(userId: string, endpoint: string) {
+  const { error } = await supabase
+    .from('push_subscriptions')
+    .delete()
+    .eq('user_id', userId)
+    .eq('endpoint', endpoint)
   if (error) throw error
 }
 
-export async function getPushSubscriptionEndpoint(userId: string): Promise<string | null> {
-  const { data, error } = await supabase.from('push_subscriptions').select('subscription').eq('user_id', userId).maybeSingle()
+export async function getPushSubscriptionEndpoint(userId: string, endpoint: string): Promise<string | null> {
+  const { data, error } = await supabase
+    .from('push_subscriptions')
+    .select('endpoint')
+    .eq('user_id', userId)
+    .eq('endpoint', endpoint)
+    .maybeSingle()
   if (error) throw error
-  if (!data) return null
-  const json = data.subscription as PushSubscriptionJSON
-  return json.endpoint ?? null
+  return data?.endpoint ?? null
 }

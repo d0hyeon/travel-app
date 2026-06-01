@@ -1,4 +1,4 @@
-import { Box, Container, Stack, Tab, Tabs, Typography } from '@mui/material'
+import { Box, Container, IconButton, Stack, Tab, Tabs, Typography } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import 'scrollyfills'
 import { useParams } from 'react-router'
@@ -10,6 +10,9 @@ import { ProfileHeader } from './ProfileHeader'
 import { ProfileRecordsTab } from './ProfileRecordsTab'
 import { ProfileStatStrip } from './ProfileStatStrip'
 import { useScrollContainer } from '~shared/hooks/interaction/useScrollRestore'
+import LogoutIcon from '@mui/icons-material/Logout';
+import { useAuth } from '~features/auth/useAuth'
+import { signOut } from '~features/auth/auth.api'
 
 const TABS = ['feed', 'records'] as const
 type Tab = typeof TABS[number];
@@ -23,6 +26,7 @@ const EXTEND_VIEWPORT_CONTENTS = ['records'] satisfies Tab[]
 
 export default function UserProfilePage() {
   const userId = useUserId();
+  const { data: { id: currentUserId } } = useAuth();
   const [currentTab, selectTab] = useQueryParamState<Tab>('tab', { defaultValue: 'feed' })
 
   const [isExtendedViewport, setIsExtendedViewport] = useState(false);
@@ -44,7 +48,15 @@ export default function UserProfilePage() {
   return (
     <Box display="flex" flexDirection="column" minHeight="100%">
       <Container maxWidth="md" sx={{ paddingX: '0px !important' }}>
-        <ProfileHeader userId={userId} />
+        <Stack direction="row" alignItems="center" justifyContent="space-between" py={1}>
+          <ProfileHeader userId={userId} />
+          {currentUserId === userId && (
+            <IconButton color="error" onClick={() => signOut()}>
+              <LogoutIcon />
+            </IconButton>
+          )}
+
+        </Stack>
         <Box pb={1}>
           <ProfileStatStrip userId={userId} />
         </Box>

@@ -1,9 +1,8 @@
 import { use, useCallback, useMemo } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSuspenseQuery } from "~shared/hooks/extends/useSuspenseQuery";
 import { assert } from "~shared/utils/types";
 import { addPushSubscription, getPushSubscriptionEndpoint, removePushSubscription } from "./auth.api";
 import { useAuth } from "./useAuth";
-import { useSuspenseQuery } from "~shared/hooks/extends/useSuspenseQuery";
 
 let promise: Promise<ServiceWorkerRegistration | undefined> | null = null;
 function getRegistration() {
@@ -14,7 +13,7 @@ function getRegistration() {
 }
 
 let promisedBrowserSubscription: Promise<PushSubscription | null> | null = null;
-function getBrowserSubscription(registration: ServiceWorkerRegistration | undefined, vapidKey: Uint8Array) {
+function getLocalSubscription(registration: ServiceWorkerRegistration | undefined, vapidKey: Uint8Array) {
   if (promisedBrowserSubscription == null) {
     promisedBrowserSubscription = (async () => {
       if (!registration) return null;
@@ -28,7 +27,7 @@ function getBrowserSubscription(registration: ServiceWorkerRegistration | undefi
   return promisedBrowserSubscription;
 }
 
-const pushSubscriptionKey = (userId: string) => ['push_subscriptions', userId];
+const pushSubscriptionKey = (userId: string, endpoint: string | undefined) => ['push_subscriptions', userId, endpoint];
 
 export function useWebPushSubscription() {
   const { data: currentUser } = useAuth();
@@ -37,15 +36,24 @@ export function useWebPushSubscription() {
   const isEnabled = registration != null;
 
   const vapidKey = urlBase64ToUint8Array(import.meta.env.VITE_VAPID_PUBLIC_KEY);
-  const browserSubscription = isEnabled ? use(getBrowserSubscription(registration, vapidKey)) : undefined;
+  const localSubscription = isEnabled ? use(getLocalSubscription(registration, vapidKey)) : undefined;
 
-  const { data: subscriptionEndpoint, refetch } = useSuspenseQuery({
-    queryKey: pushSubscriptionKey(currentUser.id),
-    queryFn: () => getPushSubscriptionEndpoint(currentUser.id),
+  const { data: isSubscribed, refetch } = useSuspenseQuery({
+    queryKey: pushSubscriptionKey(currentUser.id, localSubscription?.endpoint),
+    queryFn: async () => {
+      if (localSubscription == null) return false;
+      const endpoint = await getPushSubscriptionEndpoint(currentUser.id, localSubscription.endpoint)
+      return endpoint != null;
+    }
   });
 
-  const isSubscribed = !!browserSubscription && browserSubscription.endpoint === subscriptionEndpoint;
-  
+  const hasPermission = Notification.permission === 'granted';
+  const requestPermission = useCallback(async () => {
+    if (hasPermission) return true;
+    const permission = await Notification.requestPermission();
+    return permission === 'granted';
+  }, [hasPermission]);
+
   const subscribe = useCallback(async () => {
     assert(registration != null, 'Service worker registration is required to subscribe to push notifications');
 
@@ -56,8 +64,8 @@ export function useWebPushSubscription() {
       });
 
       await addPushSubscription(currentUser.id, newSubscription);
-      await refetch()
       promisedBrowserSubscription = null;
+      await refetch();
     } catch (error) {
       alert('구독에 실패' + JSON.stringify(error));
       console.error('Failed to subscribe to push notifications:', error);
@@ -72,20 +80,12 @@ export function useWebPushSubscription() {
       const subscription = await registration.pushManager.getSubscription();
       await subscription?.unsubscribe();
       promisedBrowserSubscription = null;
-      await removePushSubscription(currentUser.id);
-      await refetch()
+      if (subscription) await removePushSubscription(currentUser.id, subscription.endpoint);
+      await refetch();
     } catch (error) {
       console.error('Failed to unsubscribe from push notifications:', error);
     }
   }, [currentUser, isSubscribed, registration]);
-
-  const hasPermission = Notification.permission === 'granted';
-  const requestPermission = useCallback(async () => {
-    if (hasPermission) return true;
-    const permission = await Notification.requestPermission();
-    return permission === 'granted';
-  }, [hasPermission]);
-
 
   return useMemo(() => ({
     isEnabled,
