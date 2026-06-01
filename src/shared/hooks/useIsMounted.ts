@@ -4,9 +4,7 @@ export function useIsMounted() {
   const ref = useRef(false);
 
   useEffect(() => {
-    requestIdleCallback(() => {
-      ref.current = true;
-    })
+    ref.current = true;
 
     return () => {
       ref.current = false;
