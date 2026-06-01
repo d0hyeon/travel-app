@@ -45,7 +45,6 @@ export function useWebPushSubscription() {
   }, [hasPermission])
 
   const subscribe = useCallback(async () => {
-    assert(!isSubscribed, 'Already subscribed to push notifications');
     assert(registration != null, 'Service worker registration is required to subscribe to push notifications');
 
     try {
@@ -61,7 +60,7 @@ export function useWebPushSubscription() {
       alert('구독에 실패' + JSON.stringify(error));
       console.error('Failed to subscribe to push notifications:', error);
     }
-  }, [currentUser, isSubscribed, registration]);
+  }, [currentUser, registration]);
 
   const unsubscribe = useCallback(async () => {
     assert(isSubscribed, 'Not subscribed to push notifications');
