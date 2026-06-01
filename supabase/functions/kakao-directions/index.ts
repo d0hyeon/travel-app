@@ -25,8 +25,63 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
-serve(async (req) => {
-  // CORS preflight
+async function fetchSegment(waypoints: Coordinate[]): Promise<Coordinate[] | null> {
+  const origin = waypoints[0]
+  const destination = waypoints[waypoints.length - 1]
+  const viaPoints = waypoints.slice(1, -1)
+
+  const params = new URLSearchParams({
+    origin: `${origin.lng},${origin.lat}`,
+    destination: `${destination.lng},${destination.lat}`,
+  })
+
+  if (viaPoints.length > 0) {
+    params.set('waypoints', viaPoints.slice(0, 5).map((p) => `${p.lng},${p.lat}`).join('|'))
+  }
+
+  const response = await fetch(
+    `https://apis-navi.kakaomobility.com/v1/directions?${params}`,
+    { headers: { Authorization: `KakaoAK ${KAKAO_REST_KEY}` } }
+  )
+
+  if (!response.ok) return null
+
+  const data: DirectionsResponse = await response.json()
+  if (data.routes[0]?.result_code !== 0) return null
+
+  const coordinates: Coordinate[] = []
+  for (const section of data.routes[0].sections) {
+    for (const road of section.roads) {
+      const vertexes = road.vertexes
+      for (let i = 0; i < vertexes.length; i += 2) {
+        coordinates.push({ lng: vertexes[i], lat: vertexes[i + 1] })
+      }
+    }
+  }
+  return coordinates.length > 0 ? coordinates : null
+}
+
+// 이진 탐색으로 실패 구간을 좁혀가며 실패한 최소 구간만 직선으로 처리
+async function fetchWithFallback(waypoints: Coordinate[]): Promise<Coordinate[]> {
+  const result = await fetchSegment(waypoints)
+  if (result != null) return result
+
+  // 더 이상 나눌 수 없는 최소 단위 → 직선
+  if (waypoints.length <= 2) return waypoints
+
+  const mid = Math.ceil(waypoints.length / 2)
+  const left = waypoints.slice(0, mid)
+  const right = waypoints.slice(mid - 1) // 연결점 공유
+
+  const [leftCoords, rightCoords] = await Promise.all([
+    fetchWithFallback(left),
+    fetchWithFallback(right),
+  ])
+
+  return [...leftCoords, ...rightCoords.slice(1)] // 연결점 중복 제거
+}
+
+serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -48,66 +103,10 @@ serve(async (req) => {
       )
     }
 
-    const origin = waypoints[0]
-    const destination = waypoints[waypoints.length - 1]
-    const viaPoints = waypoints.slice(1, -1)
-
-    const params = new URLSearchParams({
-      origin: `${origin.lng},${origin.lat}`,
-      destination: `${destination.lng},${destination.lat}`,
-    })
-
-    if (viaPoints.length > 0) {
-      const waypointsStr = viaPoints
-        .slice(0, 5) // 카카오 API 경유지 최대 5개
-        .map((p) => `${p.lng},${p.lat}`)
-        .join('|')
-      params.set('waypoints', waypointsStr)
-    }
-
-    const response = await fetch(
-      `https://apis-navi.kakaomobility.com/v1/directions?${params}`,
-      {
-        headers: {
-          Authorization: `KakaoAK ${KAKAO_REST_KEY}`,
-        },
-      }
-    )
-
-    if (!response.ok) {
-      console.error('카카오 모빌리티 API 오류:', response.status)
-      return new Response(
-        JSON.stringify({ coordinates: waypoints }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    const data: DirectionsResponse = await response.json()
-
-    if (data.routes[0]?.result_code !== 0) {
-      console.warn('경로 탐색 실패:', data.routes[0]?.result_msg)
-      return new Response(
-        JSON.stringify({ coordinates: waypoints }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    const coordinates: Coordinate[] = []
-
-    for (const section of data.routes[0].sections) {
-      for (const road of section.roads) {
-        const vertexes = road.vertexes
-        for (let i = 0; i < vertexes.length; i += 2) {
-          coordinates.push({
-            lng: vertexes[i],
-            lat: vertexes[i + 1],
-          })
-        }
-      }
-    }
+    const coordinates = await fetchWithFallback(waypoints)
 
     return new Response(
-      JSON.stringify({ coordinates: coordinates.length > 0 ? coordinates : waypoints }),
+      JSON.stringify({ coordinates }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {

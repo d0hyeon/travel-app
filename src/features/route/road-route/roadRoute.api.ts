@@ -7,14 +7,7 @@ interface Coordinate {
   lng: number
 }
 
-export /**
- * Google Directions API를 사용하여 경로 좌표 반환
- */
-async function getGlobalRoadDirections(waypoints: Coordinate[]): Promise<Coordinate[]> {
-  if (waypoints.length < 2) {
-    return waypoints;
-  }
-
+async function fetchGoogleSegment(waypoints: Coordinate[]): Promise<Coordinate[]> {
   await loadGoogleMaps();
 
   return new Promise((resolve) => {
@@ -32,21 +25,17 @@ async function getGlobalRoadDirections(waypoints: Coordinate[]): Promise<Coordin
         stopover: true,
       })),
       travelMode: google.maps.TravelMode.WALKING,
-      optimizeWaypoints: false, // 순서 유지
+      optimizeWaypoints: false,
     };
 
     directionsService.route(request, (result, status) => {
       if (status === google.maps.DirectionsStatus.OK && result) {
         const coordinates: Coordinate[] = [];
 
-        // 모든 leg의 step에서 path 추출
         result.routes[0]?.legs.forEach((leg) => {
           leg.steps.forEach((step) => {
             step.path?.forEach((point) => {
-              coordinates.push({
-                lat: point.lat(),
-                lng: point.lng(),
-              });
+              coordinates.push({ lat: point.lat(), lng: point.lng() });
             });
           });
         });
@@ -54,10 +43,19 @@ async function getGlobalRoadDirections(waypoints: Coordinate[]): Promise<Coordin
         resolve(coordinates.length > 0 ? coordinates : waypoints);
       } else {
         console.error('Google Directions 오류:', status);
-        resolve(waypoints); // fallback: 직선
+        resolve(waypoints);
       }
     });
   });
+}
+
+export async function getGlobalRoadDirections(waypoints: Coordinate[]): Promise<Coordinate[]> {
+  if (waypoints.length < 2) return waypoints;
+  if (waypoints.length <= 7) return fetchGoogleSegment(waypoints);
+
+  const segments = splitIntoSegments(waypoints, 7);
+  const results = await Promise.all(segments.map(fetchGoogleSegment));
+  return mergeSegments(results);
 }
 
 /**
