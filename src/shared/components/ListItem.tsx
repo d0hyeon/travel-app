@@ -69,7 +69,8 @@ ListItem.Button = ({ focused, sx, ...props }: ButtonProps) => {
           '&:focus': {
             background: alpha(theme.palette.primary.main, 0.2),
             outline: 'none'
-          }
+          },
+          cursor: 'pointer'
         }),
         ...(Array.isArray(sx) ? sx : [sx])
       ]}
