@@ -1,4 +1,4 @@
-import { styled } from '@mui/material';
+import { styled, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -45,9 +45,9 @@ export function ConfirmDialog({ title, description, isOpen, confirmLabel = 'í™•ì
       {description && (
         <DialogContent>
           {typeof description === 'string' ? (
-            <DialogContentText id="custom-dialog-description" sx={{ whiteSpace: 'pre-line' }}>
+            <Typography variant="body2" id="custom-dialog-description" color="textSecondary" sx={{ whiteSpace: 'pre-line' }}>
               {description}
-            </DialogContentText>
+            </Typography>
           ) : (
             description
           )}
