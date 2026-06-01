@@ -13,9 +13,16 @@ function getRegistration() {
 }
 
 let promisedSubscriptions: Promise<PushSubscription | null> | null = null;
-function getPushSubscription(registration: ServiceWorkerRegistration | undefined) {
+function getPushSubscription(registration: ServiceWorkerRegistration | undefined, vapidKey: Uint8Array) {
   if (promisedSubscriptions == null) {
-    promisedSubscriptions = registration?.pushManager.getSubscription() ?? Promise.resolve(null);
+    promisedSubscriptions = (async () => {
+      if (!registration) return null;
+      const existing = await registration.pushManager.getSubscription();
+      if (existing) return existing;
+      if (Notification.permission !== 'granted') return null;
+      // SW 업데이트로 구독이 사라진 경우 자동 재구독
+      return registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: vapidKey.buffer as ArrayBuffer });
+    })();
   }
   return promisedSubscriptions;
 }
@@ -28,7 +35,8 @@ export function useWebPushSubscription() {
   const registration = use(getRegistration());
   const isEnabled = registration != null;
 
-  const existingSubscription = isEnabled ? use(getPushSubscription(registration)) : undefined;
+  const vapidKey = urlBase64ToUint8Array(import.meta.env.VITE_VAPID_PUBLIC_KEY);
+  const existingSubscription = isEnabled ? use(getPushSubscription(registration, vapidKey)) : undefined;
   const [isSubscribed, setIsSubscribed] = useState(!!existingSubscription);
 
   const hasPermission = Notification.permission === 'granted';
@@ -44,13 +52,10 @@ export function useWebPushSubscription() {
     assert(registration != null, 'Service worker registration is required to subscribe to push notifications');
     
     startTransition(async () => {
-      const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
-      const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
-      
       try {
         const newSubscription = await registration.pushManager.subscribe({
           userVisibleOnly: true,
-          applicationServerKey: convertedVapidKey,
+          applicationServerKey: vapidKey.buffer as ArrayBuffer,
         });
 
         await addPushSubscription(currentUser.id, newSubscription);
