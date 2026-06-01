@@ -39,12 +39,6 @@ export function TripBasicInfoContent({ tripId }: Props) {
             </CardContent>
           </Card>
 
-          {/* 추천 장소 */}
-          <RecommendedPlaceListSection_Desktop tripId={tripId} />
-
-          {/* 다른 여행자의 경로 */}
-          <CommunityRoutesSection_Desktop tripId={tripId} />
-
           {/* 고정된 메모 */}
           <Card variant="outlined">
             <Stack direction="row" paddingY={1} marginTop={0.5} paddingX={2} alignItems="center" justifyContent="space-between">
@@ -58,6 +52,12 @@ export function TripBasicInfoContent({ tripId }: Props) {
               </Suspense>
             </CardContent>
           </Card>
+
+          {/* 추천 장소 */}
+          <RecommendedPlaceListSection_Desktop tripId={tripId} />
+
+          {/* 다른 여행자의 경로 */}
+          <CommunityRoutesSection_Desktop tripId={tripId} />
 
           <TripMemberSection tripId={tripId} />
         </Stack>

@@ -59,6 +59,25 @@ export function TripBasicInfoContent({ tripId }: Props) {
                 borderRadius={4}
                 width="100%"
               />
+
+              <ErrorBoundary>
+                <Stack gap={1} width="100%">
+                  <Typography variant='subtitle2' color="text.secondary">
+                    해야할 일
+                  </Typography>
+                  <TripDeadlineChecklist
+                    tripId={tripId}
+                    gap={1}
+                    throwOnEmpty
+                  />
+                </Stack>
+              </ErrorBoundary>
+
+              {/* 고정된 메모 */}
+              <ErrorBoundary>
+                <TripPinnedMemos tripId={tripId} throwOnEmpty />
+              </ErrorBoundary>
+
               <Stack gap={1} width="100%">
                 <RecommendedPlaceListSection
                   tripId={tripId}
@@ -82,23 +101,7 @@ export function TripBasicInfoContent({ tripId }: Props) {
                 />
               </ErrorBoundary>
 
-              <ErrorBoundary>
-                <Stack gap={1} width="100%">
-                  <Typography variant='subtitle2' color="text.secondary">
-                    해야할 일
-                  </Typography>
-                  <TripDeadlineChecklist
-                    tripId={tripId}
-                    gap={1}
-                    throwOnEmpty
-                  />
-                </Stack>
-              </ErrorBoundary>
 
-              {/* 고정된 메모 */}
-              <ErrorBoundary>
-                <TripPinnedMemos tripId={tripId} throwOnEmpty />
-              </ErrorBoundary>
 
               {/* 인원 관리 */}
               <TripMemberSection tripId={tripId} />
