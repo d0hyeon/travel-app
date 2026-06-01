@@ -1,6 +1,7 @@
-import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { Box, ButtonBase, Chip, Stack, Typography } from '@mui/material'
+import { Suspense } from 'react'
 import { Link, PrefetchPageLinks } from 'react-router'
+import { TripUnreadCountBadge } from '../trip-chat/TripUnreadCountBadge'
 import type { Trip } from '../trip.types'
 import {
   formatTripDate,
@@ -42,8 +43,16 @@ export function UpcomingCard({ trip }: Props) {
             borderColor: cardBorderColor,
             borderRadius: '16px',
             p: '14px 16px',
+            position: 'relative',
           }}
         >
+          <Suspense fallback={null}>
+            <TripUnreadCountBadge
+              tripId={trip.id}
+              variant="fill"
+              sx={{ position: 'absolute', top: 0, right: 0, transform: 'translate(50%, -50%)' }}
+            />
+          </Suspense>
           <Stack direction="row" justifyContent="space-between" alignItems="flex-start" mb={0.75}>
             <Box flex={1} pr={1}>
               {trip.destinations.length === 1 ? (

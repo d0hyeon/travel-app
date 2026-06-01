@@ -1,6 +1,8 @@
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { alpha, Box, ButtonBase, Chip, Stack, Typography, useTheme } from '@mui/material'
+import { Suspense } from 'react'
 import { Link, PrefetchPageLinks } from 'react-router'
+import { TripUnreadCountBadge } from '../trip-chat/TripUnreadCountBadge'
 import type { Trip } from '../trip.types'
 import { formatTripDate, getTripDuration } from './trip-list.utils'
 
@@ -33,8 +35,17 @@ export function PastTripRow({ trip }: Props) {
           borderRadius: '16px',
           p: '14px 16px',
           border: `1px solid ${alpha(theme.palette.divider, 0.08)}`,
+          position: 'relative',
         }}
       >
+        <Suspense fallback={null}>
+          <TripUnreadCountBadge
+            tripId={trip.id}
+            variant="fill"
+            position="absolute" right={0.5} top={-1.5}
+            sx={{ transform: 'translate(-50%, -50%)' }}
+          />
+        </Suspense>
         <Box flex={1} pr={1}>
           {trip.destinations.length === 1 ? (
             <Stack direction="row" alignItems="center" gap={0.75}>

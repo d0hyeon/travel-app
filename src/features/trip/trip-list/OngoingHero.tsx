@@ -1,6 +1,8 @@
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { Box, ButtonBase, LinearProgress, Stack, Typography } from '@mui/material'
+import { Suspense } from 'react'
 import { Link, PrefetchPageLinks } from 'react-router'
+import { TripUnreadCountBadge } from '../trip-chat/TripUnreadCountBadge'
 import type { Trip } from '../trip.types'
 import { formatTripDate, getTripDuration, getTripProgress } from './trip-list.utils'
 import { differenceInDays, startOfToday, set } from 'date-fns'
@@ -29,11 +31,17 @@ export function OngoingHero({ trip }: Props) {
             p: '20px 20px 18px',
             color: '#fff',
             position: 'relative',
-            overflow: 'hidden',
           }}
         >
+          <Suspense fallback={null}>
+            <TripUnreadCountBadge
+              tripId={trip.id}
+              variant="outline"
+              position="absolute" right="-20px" top="0"
+              sx={{ transform: 'translate(-50%, -50%)' }}
+            />
+          </Suspense>
           <Stack direction="row" alignItems="flex-start" justifyContent="space-between">
-
             <Stack direction="row" alignItems="center" gap={1} mb={0.5}>
               <Typography variant="body2">{currDays + 1}일차</Typography>
               <Typography sx={{ fontSize: 20, fontWeight: 700, lineHeight: 1.25, color: '#fff' }}>
@@ -77,24 +85,6 @@ export function OngoingHero({ trip }: Props) {
   )
 }
 
-function DestinationBadge({ label }: { label: string }) {
-  return (
-    <Box
-      sx={{
-        px: 0.75,
-        py: 0.125,
-        borderRadius: 999,
-        bgcolor: 'rgba(255,255,255,0.2)',
-        fontSize: 12,
-        fontWeight: 600,
-        color: '#fff',
-        flexShrink: 0,
-      }}
-    >
-      {label}
-    </Box>
-  )
-}
 
 function resetTime(value: Date | string) {
   return set(value, { hours: 0, minutes: 0, seconds: 0, milliseconds: 0 })
