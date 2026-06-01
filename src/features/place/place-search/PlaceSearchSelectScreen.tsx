@@ -1,12 +1,14 @@
 import { Circle } from "@mui/icons-material";
-import { Box, Button, Chip, CircularProgress, ListItemText, Stack, type BoxProps } from "@mui/material";
+import { Box, Button, Chip, CircularProgress, debounce, ListItemText, Stack, type BoxProps } from "@mui/material";
 import { useEffect, useRef, useState, useTransition, type ReactNode, type Ref } from "react";
 import { IntersectionArea } from "~shared/components/IntersectionArea";
 import { ListItem } from "~shared/components/ListItem";
 import { Map, type Coordinate, type MapBounds, type MapRef } from "~shared/components/Map";
-import { ResizeHandleVertical, useResizableSplit } from "~shared/hooks/dom/useResizableSplit";
+import { ResizeHandleVertical, SplitView, useResizableSplit } from "~shared/hooks/dom/useResizableSplit";
 import { calcDistance } from "~shared/utils/geo";
 import { usePlaceSearch, type PlaceResult } from "./usePlaceSearch";
+import { useVariation } from "~shared/hooks/extends/useVariation";
+import { usePrevValue } from "~shared/hooks/extends/usePrevValue";
 
 const COLORS = ['#66BB6A', '#EB5757', '#5DADE2', '#7986CB']
 
@@ -17,6 +19,11 @@ function boundsToCenter(bounds: MapBounds): Coordinate {
     lat: (bounds.north + bounds.south) / 2,
     lng: (bounds.east + bounds.west) / 2,
   };
+}
+
+function isFarEnough(a: Coordinate, b: Coordinate | null): boolean {
+  if (b == null) return false;
+  return calcDistance(a, b) >= SEARCH_HERE_THRESHOLD_M;
 }
 
 interface Props extends Omit<BoxProps, 'onSelect'> {
@@ -39,13 +46,6 @@ export function PlaceSearchSelectScreen({
   ...boxProps
 }: Props) {
   const [searchCenter, setSearchCenter] = useState(center);
-  const [mapBoundsCenter, setMapBoundsCenter] = useState<Coordinate | null>(null);
-  const [mapInitialized, setMapInitialized] = useState(false);
-
-  const showSearchHere = mapInitialized && mapBoundsCenter != null && (
-    searchCenter == null ||
-    calcDistance(mapBoundsCenter, searchCenter) >= SEARCH_HERE_THRESHOLD_M
-  );
   const { data: results, hasNextPage, isFetchingNextPage, fetchNextPage } = usePlaceSearch({
     keyword,
     service: mapServiceProvider,
@@ -60,19 +60,11 @@ export function PlaceSearchSelectScreen({
     }
   }, [keyword])
 
-  const handleBoundsChange = (bounds: MapBounds) => {
-    setMapBoundsCenter(boundsToCenter(bounds));
-    setMapInitialized(true);
-  };
 
-  const handleSearchHere = () => {
-    setSearchCenter(mapBoundsCenter!);
-  };
+  const [mapBoundsCenter, setMapBoundsCenter] = useState<Coordinate | null>(null);
+  const lastSearchedCenter = usePrevValue(mapBoundsCenter);
+  const isFarLastSearch = mapBoundsCenter != null && isFarEnough(mapBoundsCenter, lastSearchedCenter);
 
-  const { containerRef, handleProps, ratio } = useResizableSplit({
-    direction: 'vertical',
-    onResizeEnd: () => mapRef.current?.relayout(),
-  });
   const [isPendingApply, startTransition] = useTransition();
 
   return (
@@ -91,26 +83,29 @@ export function PlaceSearchSelectScreen({
           </Box>
         )}
 
-        <Stack
-          direction="column"
-          flex="1"
+        <SplitView
+          direction="vertical"
+          onResizeEnd={() => mapRef.current?.relayout()}
           height={topNavigation ? `calc(100% - ${NAVIGATION_HEIGHT}px)` : "100%"}
-          ref={containerRef}
+          sx={{ flex: 1 }}
         >
-          <Box position="relative" height={`${ratio}%`} flex="1">
+          <Box position="relative" height="100%">
             <Map
               ref={mapRef}
               defaultCenter={center}
               type={mapServiceProvider}
               height="100%"
               autoFocus="marker"
-              onBoundsChange={handleBoundsChange}
+              onBoundsChange={debounce((bounds) => {
+                const boundsCenter = boundsToCenter(bounds);
+                setMapBoundsCenter(boundsCenter);
+              }, 300)}
             >
               {results.map((x, idx) => (
                 <Map.Marker lat={x.lat} lng={x.lng} label={x.name} color={COLORS[idx % COLORS.length]} />
               ))}
             </Map>
-            {showSearchHere && (
+            {isFarLastSearch && (
               <Box
                 position="absolute"
                 top={12}
@@ -119,18 +114,17 @@ export function PlaceSearchSelectScreen({
               >
                 <Chip
                   label="이 장소에서 검색"
-                  onClick={handleSearchHere}
+                  onClick={() => setSearchCenter(mapBoundsCenter!)}
                   color="primary"
                   sx={{ boxShadow: 2, fontWeight: 'medium' }}
                 />
               </Box>
             )}
           </Box>
-          <ResizeHandleVertical sx={{ height: 16 }} {...handleProps} />
-          <Stack gap={1} padding={2} height={`${100 - ratio}%`} sx={{ overflowY: 'auto', }}>
+          <Stack gap={1} padding={2} sx={{ overflowY: 'auto', }}>
             {results.map((x, idx) => (
               <ListItem.Button
-                key={x.id}
+                key={x.externalId}
                 leftAddon={<Circle htmlColor={COLORS[idx % COLORS.length]} sx={{ width: '0.8rem', height: '0.8rem' }} />}
                 rightAddon={
                   <Button
@@ -160,7 +154,7 @@ export function PlaceSearchSelectScreen({
               )}
             </IntersectionArea>
           </Stack>
-        </Stack>
+        </SplitView>
       </Stack>
     </Box>
   )

@@ -1,5 +1,8 @@
+import { Box, type BoxProps } from '@mui/material'
 import { styled } from '@mui/system'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { Children, useCallback, useEffect, useRef, useState, type PropsWithChildren } from 'react'
+import { SwitchCase } from '~shared/components/SwitchCase'
+import { assert } from '~shared/utils/types'
 
 interface UseResizableSplitOptions {
   /** Initial split ratio (percentage for first panel). Default: 50 */
@@ -26,6 +29,39 @@ interface UseResizableSplitReturn {
   }
   /** Whether currently dragging */
   isDragging: boolean
+}
+
+
+export function SplitView({
+  children,
+  direction = 'vertical',
+  minRatio,
+  maxRatio,
+  initialRatio,
+  onResizeEnd,
+  ...props
+}: Omit<BoxProps, 'component'> & UseResizableSplitOptions) {
+
+  const childs = Children.toArray(children)
+  assert(childs.length === 2, 'children은 2개의 노드를 배치해주세요');
+
+  const { containerRef, handleProps, ratio } = useResizableSplit({ minRatio, maxRatio, direction, initialRatio, onResizeEnd });
+  const sizeKey = direction === 'horizontal' ? 'width' : 'height'
+
+  return (
+    <Box ref={containerRef} {...props}>
+      <Box {...{ [sizeKey]: `${ratio}%` }}>
+        {childs[0]}
+      </Box>
+      {direction === 'vertical'
+        ? <ResizeHandleVertical {...handleProps} />
+        : <ResizeHandleHorizontal {...handleProps} />}
+      <Box {...{ [sizeKey]: `100% - ${ratio}%` }}>
+        {childs[1]}
+      </Box>
+    </Box>
+  )
+
 }
 
 export function useResizableSplit(options: UseResizableSplitOptions = {}): UseResizableSplitReturn {

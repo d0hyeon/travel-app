@@ -138,7 +138,7 @@ export function PlaceSearchDialog({ isOpen, onClose, onSelect, service = 'kakao'
               <List disablePadding ref={listRef}>
                 {results.map((place, index) => (
                   <ListItemButton
-                    key={place.id}
+                    key={place.externalId}
                     selected={index === focusedIndex}
                     onClick={() => {
                       onSelect(place)
@@ -162,7 +162,7 @@ export function PlaceSearchDialog({ isOpen, onClose, onSelect, service = 'kakao'
 
         {/* Right: Map */}
         <Box sx={{ flex: 1, position: 'relative', bgcolor: 'grey.100', borderRadius: 1, overflow: 'hidden' }}>
-          <Map type={service} height="100%" key={focusedPlace?.id}>
+          <Map type={service} height="100%" key={focusedPlace?.externalId}>
             {focusedPlace && <Map.Marker {...focusedPlace} />}
           </Map>
 
