@@ -11,6 +11,29 @@ function getRegistration() {
   return promise;
 }
 
+const UNSUBSCRIBED_ENDPOINTS_KEY = 'push_unsubscribed_endpoints';
+
+function getUnsubscribedEndpoints(): Set<string> {
+  try {
+    const stored = localStorage.getItem(UNSUBSCRIBED_ENDPOINTS_KEY);
+    return new Set(stored ? JSON.parse(stored) : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function markEndpointUnsubscribed(endpoint: string) {
+  const endpoints = getUnsubscribedEndpoints();
+  endpoints.add(endpoint);
+  localStorage.setItem(UNSUBSCRIBED_ENDPOINTS_KEY, JSON.stringify([...endpoints]));
+}
+
+function clearEndpointUnsubscribed(endpoint: string) {
+  const endpoints = getUnsubscribedEndpoints();
+  endpoints.delete(endpoint);
+  localStorage.setItem(UNSUBSCRIBED_ENDPOINTS_KEY, JSON.stringify([...endpoints]));
+}
+
 let promisedBrowserSubscription: Promise<PushSubscription | null> | null = null;
 function getPushSubscription(registration: ServiceWorkerRegistration | undefined, vapidKey: Uint8Array) {
   if (promisedBrowserSubscription == null) {
@@ -19,8 +42,13 @@ function getPushSubscription(registration: ServiceWorkerRegistration | undefined
       const existing = await registration.pushManager.getSubscription();
       if (existing) return existing;
       if (Notification.permission !== 'granted') return null;
-      // SW 업데이트로 구독이 사라진 경우 자동 재구독
-      return registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: vapidKey.buffer as ArrayBuffer });
+      // SW 업데이트로 구독이 사라진 경우 자동 재구독 (명시적으로 해제한 endpoint는 제외)
+      const newSubscription = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: vapidKey.buffer as ArrayBuffer });
+      if (getUnsubscribedEndpoints().has(newSubscription.endpoint)) {
+        await newSubscription.unsubscribe();
+        return null;
+      }
+      return newSubscription;
     })();
   }
   return promisedBrowserSubscription;
@@ -52,8 +80,10 @@ export function useWebPushSubscription() {
         userVisibleOnly: true,
         applicationServerKey: vapidKey.buffer as ArrayBuffer,
       });
+      
 
       await addPushSubscription(currentUser.id, newSubscription);
+      clearEndpointUnsubscribed(newSubscription.endpoint);
       promisedBrowserSubscription = null;
       setIsSubscribed(true);
     } catch (error) {
@@ -71,6 +101,7 @@ export function useWebPushSubscription() {
       console.log('[WebPush] subscription:', subscription);
       const result = await subscription?.unsubscribe();
       console.log('[WebPush] unsubscribe result:', result);
+      if (subscription) markEndpointUnsubscribed(subscription.endpoint);
       promisedBrowserSubscription = null;
       await removePushSubscription(currentUser.id);
       setIsSubscribed(false);
