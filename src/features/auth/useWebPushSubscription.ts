@@ -1,6 +1,6 @@
 import { use, useCallback, useMemo, useState } from "react";
 import { assert } from "~shared/utils/types";
-import { addPushSubscription } from "./auth.api";
+import { addPushSubscription, removePushSubscription } from "./auth.api";
 import { useAuth } from "./useAuth";
 
 let promise: Promise<ServiceWorkerRegistration | undefined> | null = null;
@@ -62,15 +62,31 @@ export function useWebPushSubscription() {
       alert('구독에 실패' + JSON.stringify(error));
       console.error('Failed to subscribe to push notifications:', error);
     }
-  }, [currentUser])
+  }, [currentUser]);
+
+  const unsubscribe = useCallback(async () => {
+    assert(isSubscribed, 'Not subscribed to push notifications');
+    assert(registration != null, 'Service worker registration is required');
+
+    try {
+      const subscription = await registration.pushManager.getSubscription();
+      await subscription?.unsubscribe();
+      promisedSubscriptions = null;
+      await removePushSubscription(currentUser.id);
+      setIsSubscribed(false);
+    } catch (error) {
+      console.error('Failed to unsubscribe from push notifications:', error);
+    }
+  }, [currentUser, isSubscribed, registration])
   
   return useMemo(() => ({
     isEnabled,
     isSubscribed,
     subscribe,
-    hasPermission, 
-    requestPermission, 
-  }), [isSubscribed, subscribe, hasPermission, requestPermission, isEnabled]);
+    unsubscribe,
+    hasPermission,
+    requestPermission,
+  }), [isSubscribed, subscribe, unsubscribe, hasPermission, requestPermission, isEnabled]);
 }   
 
 function urlBase64ToUint8Array(base64String: string) {

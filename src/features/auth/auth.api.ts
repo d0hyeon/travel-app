@@ -52,3 +52,8 @@ export async function addPushSubscription(userId: string, subscription: PushSubs
   })
   if (error) throw error
 }
+
+export async function removePushSubscription(userId: string) {
+  const { error } = await supabase.from('push_subscriptions').delete().eq('user_id', userId)
+  if (error) throw error
+}
