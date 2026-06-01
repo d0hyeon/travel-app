@@ -11,10 +11,10 @@ function getRegistration() {
   return promise;
 }
 
-let promisedSubscriptions: Promise<PushSubscription | null> | null = null;
+let promisedBrowserSubscription: Promise<PushSubscription | null> | null = null;
 function getPushSubscription(registration: ServiceWorkerRegistration | undefined, vapidKey: Uint8Array) {
-  if (promisedSubscriptions == null) {
-    promisedSubscriptions = (async () => {
+  if (promisedBrowserSubscription == null) {
+    promisedBrowserSubscription = (async () => {
       if (!registration) return null;
       const existing = await registration.pushManager.getSubscription();
       if (existing) return existing;
@@ -23,9 +23,8 @@ function getPushSubscription(registration: ServiceWorkerRegistration | undefined
       return registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: vapidKey.buffer as ArrayBuffer });
     })();
   }
-  return promisedSubscriptions;
+  return promisedBrowserSubscription;
 }
-
 
 export function useWebPushSubscription() {
   const { data: currentUser } = useAuth();
@@ -48,7 +47,7 @@ export function useWebPushSubscription() {
   const subscribe = useCallback(async () => {
     assert(!isSubscribed, 'Already subscribed to push notifications');
     assert(registration != null, 'Service worker registration is required to subscribe to push notifications');
-    
+
     try {
       const newSubscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
@@ -56,13 +55,13 @@ export function useWebPushSubscription() {
       });
 
       await addPushSubscription(currentUser.id, newSubscription);
-      setIsSubscribed(true)
-      console.log('Subscribed to push notifications:', newSubscription);
+      promisedBrowserSubscription = null;
+      setIsSubscribed(true);
     } catch (error) {
       alert('구독에 실패' + JSON.stringify(error));
       console.error('Failed to subscribe to push notifications:', error);
     }
-  }, [currentUser]);
+  }, [currentUser, isSubscribed, registration]);
 
   const unsubscribe = useCallback(async () => {
     assert(isSubscribed, 'Not subscribed to push notifications');
@@ -70,15 +69,17 @@ export function useWebPushSubscription() {
 
     try {
       const subscription = await registration.pushManager.getSubscription();
-      await subscription?.unsubscribe();
-      promisedSubscriptions = null;
+      console.log('[WebPush] subscription:', subscription);
+      const result = await subscription?.unsubscribe();
+      console.log('[WebPush] unsubscribe result:', result);
+      promisedBrowserSubscription = null;
       await removePushSubscription(currentUser.id);
       setIsSubscribed(false);
     } catch (error) {
       console.error('Failed to unsubscribe from push notifications:', error);
     }
   }, [currentUser, isSubscribed, registration])
-  
+
   return useMemo(() => ({
     isEnabled,
     isSubscribed,
@@ -87,11 +88,11 @@ export function useWebPushSubscription() {
     hasPermission,
     requestPermission,
   }), [isSubscribed, subscribe, unsubscribe, hasPermission, requestPermission, isEnabled]);
-}   
+}
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
   const rawData = atob(base64);
   return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
-} 
+}
