@@ -21,7 +21,7 @@ function toMessage(row: {
   }
 }
 
-export async function getChatMessages(tripId: string): Promise<ChatMessage[]> {
+export async function getChatMessages(tripId: string): Promise<Omit<ChatMessage, 'profile'>[]> {
   const { data, error } = await supabase
     .from('trip_messages')
     .select('*')

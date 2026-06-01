@@ -6,7 +6,7 @@ function postToSW(message: ChattingNotificationMessage) {
   navigator.serviceWorker.controller?.postMessage(message)
 }
 
-export function useRegisterChatActivity(tripId: string) {
+export function useChatActivation(tripId: string) {
   useEffect(() => {
     postToSW({ type: ChattingNotificationEvent.open, tripId })
     return () => postToSW({ type: ChattingNotificationEvent.close, tripId })

@@ -2,7 +2,7 @@ import ChatIcon from '@mui/icons-material/Telegram'
 import { Badge, IconButton } from '@mui/material'
 import { Suspense } from 'react'
 import { useUnreadChatCount } from './useUnreadChatCount'
-import { useTripChatOverlay } from './TripChatOverlay'
+import { useTripChatOverlay } from './useTripChatOverlay'
 
 interface Props {
   tripId: string

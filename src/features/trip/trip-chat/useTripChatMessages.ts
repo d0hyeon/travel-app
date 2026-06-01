@@ -6,12 +6,9 @@ import { getChatMessages, sendChatMessage, subscribeTripMessages, tripChatKey } 
 import type { ChatMessage } from './tripChat.types';
 
 
-interface TripChat extends ChatMessage {
-  user?: TripMember;
-}
 
 interface Options {
-  onLoad?: (data: TripChat[]) => void;
+  onLoad?: (data: ChatMessage[]) => void;
   realtime?: boolean;
 }
 
@@ -34,14 +31,14 @@ export function useTripChatMessages(tripId: string, { onLoad, realtime = true }:
     staleTime: 0,
     select: (messages) => messages.map(message => ({
       ...message,
-      user: members?.[message.userId]
+      profile: members?.[message.userId]
     }))
   });
 
   useEffect(() => {
     if (!realtime || isSubscribed) return;
     const unsubscribe = subscribeTripMessages(tripId, (data) => {
-      const message = { ...data, user: members?.[data.userId] }
+      const message = { ...data, profile: members?.[data.userId] }
       queryClient.setQueryData<ChatMessage[]>(
         useTripChatMessages.key(tripId),
         (prev) => {
