@@ -92,7 +92,7 @@ export function CommunityRouteThumbnail({
   const dedupedDots = allDots.filter((pt, idx) => {
     for (let i = 0; i < idx; i++) {
       const prev = allDots[i]!
-      if (Math.hypot(pt.x - prev.x, pt.y - prev.y) < 5) return false
+      if (Math.hypot(pt.x - prev.x, pt.y - prev.y) < 7) return false
     }
     return true
   })
