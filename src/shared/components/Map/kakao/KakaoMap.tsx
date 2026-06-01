@@ -11,7 +11,7 @@ import { useViewportFit } from './useViewportFit';
 
 const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 }
 
-type Props = MapProps & Omit<BoxProps, 'ref' | 'autoFocus'>
+type Props = MapProps & Omit<BoxProps, 'ref' | 'autoFocus' | 'children'>
 
 export default function KakaoMap({
   center,

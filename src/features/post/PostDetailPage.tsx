@@ -10,7 +10,7 @@ export default function PostDetailPage() {
   const postId = usePostId();
   const navigate = useNavigate();
 
-  useScrollRestore(`post-page-${postId}`);
+  useScrollRestore({ key: `post-page-${postId}` });
 
   return (
     <Container maxWidth="sm" disableGutters sx={{ flex: 1 }}>

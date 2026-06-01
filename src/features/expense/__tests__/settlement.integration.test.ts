@@ -16,7 +16,7 @@ function makeMember(id: string): TripMember {
     tripId: 'trip-001',
     userId: `user-${id}`,
     name: id,
-    avatarUrl: null,
+    profileUrl: null,
     isHost: false,
   }
 }

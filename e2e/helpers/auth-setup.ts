@@ -1,5 +1,5 @@
 import { chromium, type FullConfig } from '@playwright/test'
-import { MOCK_SESSION } from '../../src/mocks/handlers'
+import { MOCK_SESSION } from '../../src/features/auth/auth.mock'
 
 // ────────────────────────────────────────────────────────────
 // globalSetup: 모든 테스트가 시작하기 전에 딱 한 번 실행된다.

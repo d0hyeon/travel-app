@@ -31,7 +31,7 @@ export function Map({ type, ...props }: Props) {
             display="flex"
             alignItems="center"
             justifyContent="center"
-            {...omit(props, MAP_PROP_KEYS)}
+            {...omit(props, [...MAP_PROP_KEYS, 'autoFocus', 'ref', 'children'])}
           >
             <CircularProgress />
           </Box>

@@ -35,7 +35,7 @@ const PASTEL_MAP_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: 'landscape.natural', elementType: 'geometry', stylers: [{ color: '#ede8e0' }] },
 ];
 
-type Props = MapProps & Omit<BoxProps, 'ref' | 'autoFocus'>
+type Props = MapProps & Omit<BoxProps, 'ref' | 'autoFocus' | 'children'>
 
 export function preload() {
   loadGoogleMaps();

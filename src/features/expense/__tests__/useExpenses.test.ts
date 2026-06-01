@@ -146,7 +146,7 @@ describe('useExpenses', () => {
       { ...MOCK_EXPENSE, id: 'expense-002', description: '택시' },
     ]
     setupMocks(twoExpenses)
-    vi.spyOn(expenseApi, 'deleteExpense').mockResolvedValue(undefined)
+    vi.spyOn(expenseApi, 'deleteExpense').mockResolvedValue(true)
 
     const { result } = renderHook(() => useExpenses(TRIP_ID), {
       wrapper: createWrapper(),

@@ -17,5 +17,5 @@
       "~*": ["./src/*"]
     }
   },
-  "include": ["src/app/**/*.sw.ts", "src/app/**/*.types.ts"]
+  "include": ["src/**/*.sw.ts", "src/**/*.types.ts"]
 }

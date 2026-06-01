@@ -39,7 +39,7 @@ export function TripMemoAddButton({ tripId, ...props }: Props) {
                   <BottomSheet.Body>
                     <TripMemoForm
                       id={formId}
-                      onSubmit={async (content) => {
+                      onSubmit={async ({ content }) => {
                         await add({ content });
                         handleClose();
                       }}

@@ -132,7 +132,7 @@ export function PlaceSearchBottomSheet({ isOpen, onClose, onSelect, center, serv
             <List disablePadding>
               {results.map((place) => (
                 <ListItemButton
-                  key={place.id}
+                  key={place.externalId}
                   onClick={() => handleSelect(place)}
                   sx={{ borderRadius: 1, py: 1.5 }}
                 >

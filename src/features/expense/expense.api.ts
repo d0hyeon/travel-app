@@ -42,7 +42,7 @@ export async function createExpense(data: Omit<Expense, 'id' | 'createdAt'>): Pr
       description: data.description,
       total_amount: data.totalAmount,
       currency: data.currency,
-      payments: data.payments as Json,
+      payments: data.payments as unknown as Json,
       split_among: data.splitAmong,
       date: data.date,
     })
