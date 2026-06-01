@@ -1,8 +1,7 @@
-import { useCallback, use, useState } from "react";
-import { useLoading } from "~shared/hooks/useLoading";
+import { use, useCallback, useMemo, useState } from "react";
+import { assert } from "~shared/utils/types";
 import { addPushSubscription } from "./auth.api";
 import { useAuth } from "./useAuth";
-import { assert } from "~shared/utils/types";
 
 let promise: Promise<ServiceWorkerRegistration | undefined> | null = null;
 function getRegistration() {
@@ -30,7 +29,6 @@ function getPushSubscription(registration: ServiceWorkerRegistration | undefined
 
 export function useWebPushSubscription() {
   const { data: currentUser } = useAuth();
-  const [isLoading, startTransition] = useLoading();
 
   const registration = use(getRegistration());
   const isEnabled = registration != null;
@@ -47,28 +45,32 @@ export function useWebPushSubscription() {
     return permission === 'granted';
   }, [hasPermission])
 
-  const subscribe = useCallback(() => {
+  const subscribe = useCallback(async () => {
     assert(!isSubscribed, 'Already subscribed to push notifications');
     assert(registration != null, 'Service worker registration is required to subscribe to push notifications');
     
-    startTransition(async () => {
-      try {
-        const newSubscription = await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: vapidKey.buffer as ArrayBuffer,
-        });
+    try {
+      const newSubscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: vapidKey.buffer as ArrayBuffer,
+      });
 
-        await addPushSubscription(currentUser.id, newSubscription);
-        setIsSubscribed(true)
-        console.log('Subscribed to push notifications:', newSubscription);
-      } catch (error) {
-        alert('구독에 실패' + JSON.stringify(error));
-        console.error('Failed to subscribe to push notifications:', error);
-      }
-    })
+      await addPushSubscription(currentUser.id, newSubscription);
+      setIsSubscribed(true)
+      console.log('Subscribed to push notifications:', newSubscription);
+    } catch (error) {
+      alert('구독에 실패' + JSON.stringify(error));
+      console.error('Failed to subscribe to push notifications:', error);
+    }
   }, [currentUser])
   
-  return { subscribe, isSubscribed, requestPermission, hasPermission, isLoading, isEnabled };
+  return useMemo(() => ({
+    isEnabled,
+    isSubscribed,
+    subscribe,
+    hasPermission, 
+    requestPermission, 
+  }), [isSubscribed, subscribe, hasPermission, requestPermission, isEnabled]);
 }   
 
 function urlBase64ToUint8Array(base64String: string) {

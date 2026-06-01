@@ -8,29 +8,29 @@ import { useLoading } from "~shared/hooks/useLoading";
 
 
 export function ChatPushNoticeCard(props: ComponentProps<typeof NotificationCard>) {
-  const { isSubscribed, hasPermission, subscribe, requestPermission } = useWebPushSubscription();
+  const webPush = useWebPushSubscription();
 
   const [size, calculate] = useElementSize({ once: true });
+  const isPrepared = size != null;
+
   const containerRef = useRef<HTMLDivElement>(null);
   const animation = useAnimation({
-    frames: size == null ? [] : [
+    frames: isPrepared ? [
       { height: '0px', opacity: 0, offset: 0 },
       { height: `${size.height}px`, opacity: 0, transform: 'scale(0.9)', offset: 0.3 },
       { height: `${size.height}px`, opacity: 0, transform: 'scale(0.9)', offset: 0.6 },
       { height: `${size.height}px`, opacity: 1, transform: 'scale(1)', offset: 1 }
-    ],
+    ] : [],
     duration: 800,
     delay: 1000,
   }, containerRef.current)
 
   useEffect(() => {
-    if (isSubscribed || size == null) return;
-    animation.play();
-  }, [isSubscribed, size]);
+    if (isPrepared) animation.play();
+  }, [isPrepared]);
 
   const [isLoading, startTransition] = useLoading();
-
-  if (isSubscribed) {
+  if (webPush.isSubscribed || !webPush.isEnabled) {
     return null;
   }
 
@@ -48,11 +48,11 @@ export function ChatPushNoticeCard(props: ComponentProps<typeof NotificationCard
             sx={{ borderRadius: '20px !important' }}
             onClick={() => {
               startTransition(async () => {
-                if (!hasPermission) {
-                  const isGranted = await requestPermission();
+                if (!webPush.hasPermission) {
+                  const isGranted = await webPush.requestPermission();
                   if (!isGranted) return;
                 }
-                await subscribe();
+                await webPush.subscribe();
               })
             }}
           >
