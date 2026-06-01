@@ -118,6 +118,7 @@ export type Database = {
           created_at: string
           id: string
           is_pinned: boolean
+          title: string | null
           trip_id: string
         }
         Insert: {
@@ -125,6 +126,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_pinned?: boolean
+          title?: string | null
           trip_id: string
         }
         Update: {
@@ -132,6 +134,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_pinned?: boolean
+          title?: string | null
           trip_id?: string
         }
         Relationships: [

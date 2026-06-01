@@ -8,7 +8,7 @@ import { TripChecklist } from '../trip-checklist/TripChecklist'
 import { TripChecklistAddButton } from '../trip-checklist/TripChecklistAddButton'
 import { TripDeadlineChecklist } from '../trip-checklist/TripDeadlineChecklist'
 import { TripMemberSection } from '../trip-member/TripMemberSection.mobile'
-import { TripMemoMobile } from '../trip-memo/TripMemoMobile'
+import { TripMemo } from '../trip-memo/TripMemo.mobile'
 import { TripPinnedMemos } from '../trip-memo/TripPinnedMemos'
 import { TripBaseInfoList } from './TripBaseInfoList'
 import { TripDDay } from './TripDDay'
@@ -116,7 +116,7 @@ export function TripBasicInfoContent({ tripId }: Props) {
         )}
 
         {currentTab === 'memo' && (
-          <TripMemoMobile tripId={tripId} />
+          <TripMemo tripId={tripId} />
         )}
 
       </Box>

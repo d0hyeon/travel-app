@@ -68,8 +68,8 @@ export function TripMemoAddButton({ tripId, ...props }: Props) {
                 <DialogContent>
                   <TripMemoForm
                     id={formId}
-                    onSubmit={async (content) => {
-                      await add({ content });
+                    onSubmit={async ({ title, content }) => {
+                      await add({ title: title || null, content });
                       handleClose();
                     }}
                   />

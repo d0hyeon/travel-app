@@ -25,9 +25,7 @@ export function useTripMemo(tripId: string) {
   );
 
   const { mutateAsync: add } = useMutation({
-    mutationFn: (params: Omit<CreateMemo, 'tripId'>) => {
-      return createMemo({ tripId, ...params });
-    },
+    mutationFn: (params: Omit<CreateMemo, 'tripId'>) => createMemo({ tripId, ...params }),
     onSuccess: () => refetch(),
   });
 
@@ -40,6 +38,7 @@ export function useTripMemo(tripId: string) {
 
       client.setQueryData<TripMemo[]>(useTripMemo.key(tripId), (curr) => {
         if (!curr) return curr;
+        console.log(params, curr)
         return curr.map((memo) =>
           memo.id === params.id ? { ...memo, ...params } : memo
         );

@@ -7,6 +7,7 @@ function toData(row: DataRaw<'memos'>): TripMemo {
   return {
     id: row.id,
     tripId: row.trip_id,
+    title: row.title ?? null,
     content: row.content,
     isPinned: row.is_pinned,
     createdAt: row.created_at,
@@ -28,14 +29,16 @@ export async function getMemos(tripId: string): Promise<TripMemo[]> {
 
 export interface CreateMemo {
   tripId: string;
+  title?: string | null;
   content: string;
 }
 
-export async function createMemo({ tripId, content }: CreateMemo): Promise<TripMemo> {
+export async function createMemo({ tripId, title, content }: CreateMemo): Promise<TripMemo> {
   const { data, error } = await supabase
     .from('memos')
     .insert({
       trip_id: tripId,
+      title: title ?? null,
       content,
     })
     .select()
@@ -47,6 +50,7 @@ export async function createMemo({ tripId, content }: CreateMemo): Promise<TripM
 
 export interface UpdateMemo {
   id: string;
+  title?: string | null;
   content?: string;
   isPinned?: boolean;
 }
@@ -54,6 +58,7 @@ export interface UpdateMemo {
 export async function updateMemo({ id, ...data }: UpdateMemo): Promise<TripMemo> {
   const payload: Record<string, unknown> = {};
 
+  if (data.title !== undefined) payload.title = data.title;
   if (data.content !== undefined) payload.content = data.content;
   if (data.isPinned !== undefined) payload.is_pinned = data.isPinned;
 

@@ -1,39 +1,44 @@
-import { Stack, TextField } from "@mui/material";
-import { useState, type FormEvent } from "react";
+import { Stack, TextField } from '@mui/material';
+import { useForm } from 'react-hook-form';
+
+export interface MemoFormValues {
+  title: string;
+  content: string;
+}
 
 interface Props {
   id: string;
-  defaultValue?: string;
-  onSubmit: (content: string) => void | Promise<void>;
+  defaultValues?: Partial<MemoFormValues>;
+  onSubmit: (values: MemoFormValues) => void | Promise<void>;
 }
 
-export function TripMemoForm({ id, defaultValue = '', onSubmit }: Props) {
-  const [content, setContent] = useState(defaultValue);
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    const trimmed = content.trim();
-    if (trimmed) {
-      await onSubmit(trimmed);
-    }
-  };
+export function TripMemoForm({ id, defaultValues, onSubmit }: Props) {
+  const { register, handleSubmit } = useForm<MemoFormValues>({
+    defaultValues: { title: '', content: '', ...defaultValues },
+  });
 
   return (
     <Stack
       component="form"
       id={id}
-      onSubmit={handleSubmit}
+      onSubmit={handleSubmit(onSubmit)}
       gap={2}
     >
       <TextField
         autoFocus
-        multiline
-        minRows={3}
-        maxRows={10}
-        placeholder="메모를 입력하세요"
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
+        placeholder="제목"
         fullWidth
+        variant="standard"
+        slotProps={{ input: { disableUnderline: false } }}
+        {...register('title')}
+      />
+      <TextField
+        multiline
+        minRows={8}
+        maxRows={100}
+        placeholder="메모를 입력하세요"
+        fullWidth
+        {...register('content', { required: true })}
       />
     </Stack>
   );
