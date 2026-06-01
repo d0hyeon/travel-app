@@ -116,6 +116,7 @@ function Resolved({ tripId }: Props) {
             if (content.startsWith('/')) {
               const command = content.replace('/', '');
               if (arrayIncludes(COMMANDS, command)) {
+                form.reset();
                 return PresetCommand[command]();
               }
             }
