@@ -3,6 +3,8 @@ import { Skeleton, Stack, Typography, type StackProps } from "@mui/material";
 import { Suspense } from "react";
 import { ListItem } from "~shared/components/ListItem";
 import { useTripMemo } from "./useTripMemo";
+import { generatePath, Link } from 'react-router';
+import { AppRoute } from '~app/routes';
 
 interface Props extends StackProps {
   tripId: string;
@@ -11,7 +13,7 @@ interface Props extends StackProps {
 
 export function TripPinnedMemos({ tripId, ...props }: Props) {
   return (
-    <Stack gap={1} {...props}>
+    <Stack gap={1} width="100%" {...props}>
       <Typography variant="subtitle2" color="text.secondary">
         고정된 메모
       </Typography>
@@ -26,6 +28,7 @@ export function TripPinnedMemos({ tripId, ...props }: Props) {
   );
 }
 
+
 function TripPinnedMemosContent({ tripId, throwOnEmpty, ...props }: Props) {
   const { data: { pinnedMemos } } = useTripMemo(tripId);
 
@@ -36,26 +39,36 @@ function TripPinnedMemosContent({ tripId, throwOnEmpty, ...props }: Props) {
 
   return (
     <Stack gap={1} {...props}>
-      {pinnedMemos.map((memo) => (
-        <ListItem
-          key={memo.id}
-          leftAddon={<PushPinIcon fontSize="small" color="primary" sx={{ width: 16 }} />}
-          sx={{
-            paddingY: 1,
-            boxShadow: '0px 2px 8px #ddd'
-          }}
-        >
-          <Typography
-            variant="caption"
-            sx={{
-              whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word',
-            }}
-          >
-            {memo.content}
-          </Typography>
-        </ListItem>
-      ))}
+      {pinnedMemos.map((memo) => {
+        const preview = memo.content;
+        const title = memo.title ?? preview;
+        const previewText = memo.title ? preview : null;
+
+        return (
+          <Link key={memo.id} to={generatePath(AppRoute.여행_메모_상세, { tripId, memoId: memo.id })}>
+            <ListItem
+              leftAddon={<PushPinIcon fontSize="small" color="primary" sx={{ width: 16 }} />}
+              sx={{
+                paddingY: 1,
+                boxShadow: '0px 2px 8px #ddd'
+              }}
+            >
+              <Typography variant="caption" sx={{ wordBreak: 'break-word' }}>
+                {title}
+              </Typography>
+              {previewText && (
+                <Typography
+                  variant="caption"
+                  color="textSecondary"
+                  sx={{ whiteSpace: 'nowrap', overflow: 'hidden', 'textOverflow': 'ellipsis', wordBreak: 'break-word' }}
+                >
+                  {previewText}
+                </Typography>
+              )}
+            </ListItem>
+          </Link>
+        )
+      })}
     </Stack>
   );
 }
