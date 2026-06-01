@@ -16,10 +16,10 @@ let promisedBrowserSubscription: Promise<PushSubscription | null> | null = null;
 function getLocalSubscription(registration: ServiceWorkerRegistration | undefined, vapidKey: Uint8Array) {
   if (promisedBrowserSubscription == null) {
     promisedBrowserSubscription = (async () => {
-      if (!registration) return null;
+      if (!registration?.pushManager) return null;
       const existing = await registration.pushManager.getSubscription();
       if (existing) return existing;
-      if (Notification.permission !== 'granted') return null;
+      if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return null;
       // SW 업데이트로 구독이 사라진 경우 자동 재구독
       return registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: vapidKey.buffer as ArrayBuffer });
     })();
@@ -33,7 +33,7 @@ export function useWebPushSubscription() {
   const { data: currentUser } = useAuth();
 
   const registration = use(getRegistration());
-  const isEnabled = registration != null;
+  const isEnabled = registration != null && registration.pushManager != null;
 
   const vapidKey = urlBase64ToUint8Array(import.meta.env.VITE_VAPID_PUBLIC_KEY);
   const localSubscription = isEnabled ? use(getLocalSubscription(registration, vapidKey)) : undefined;
@@ -72,8 +72,9 @@ export function useWebPushSubscription() {
     await refetch();
   }, [currentUser, subscriptionEndpoint]);
 
-  const hasPermission = Notification.permission === 'granted';
+  const hasPermission = typeof Notification !== 'undefined' && Notification.permission === 'granted';
   const requestPermission = useCallback(async () => {
+    if (typeof Notification === 'undefined') return false;
     if (hasPermission) return true;
     const permission = await Notification.requestPermission();
     return permission === 'granted';
