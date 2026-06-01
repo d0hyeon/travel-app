@@ -10,7 +10,7 @@ import {
   Typography,
   type StackProps
 } from '@mui/material'
-import { Suspense, useRef, type ReactNode } from 'react'
+import { Suspense, useCallback, useRef, type ReactNode } from 'react'
 
 import { useForm } from 'react-hook-form'
 import { useChatActivation } from '~features/trip/trip-chat/notification/useChatActivation'
@@ -19,6 +19,8 @@ import { useTripChatMessages } from '../useTripChatMessages'
 import { markAsRead } from '../useUnreadChatCount'
 import { TripChatMessage } from './TripChatMessage'
 import { TransitionGroup } from 'react-transition-group'
+import { useWebPushSubscription } from '~features/auth/useWebPushSubscription'
+import { arrayIncludes } from '~shared/utils/types'
 
 interface Props {
   tripId: string;
@@ -72,6 +74,12 @@ function Resolved({ tripId }: Props) {
   const form = useForm<{ content: string }>();
   const formRef = useRef<HTMLFormElement>(null);
 
+  const webPush = useWebPushSubscription();
+  const PresetCommand = {
+    알람끄기: webPush.unsubscribe,
+    알람켜기: webPush.subscribe,
+  }
+
   useChatActivation(tripId);
 
   return (
@@ -105,6 +113,13 @@ function Resolved({ tripId }: Props) {
           alignItems="flex-end"
           gap={1}
           onSubmit={form.handleSubmit(({ content }) => {
+            if (content.startsWith('/')) {
+              const command = content.replace('/', '');
+              if (arrayIncludes(COMMANDS, command)) {
+                return PresetCommand[command]();
+              }
+            }
+
             sendMessage(content)
             form.reset();
           })}
@@ -144,3 +159,5 @@ function Pending() {
     </Stack>
   )
 }
+
+const COMMANDS = ['알람끄기', '알람켜기'] as const;
