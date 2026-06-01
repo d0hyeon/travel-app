@@ -15,7 +15,8 @@ import { useTripRoutes } from "../trip-route/useTripRoutes"
 import { useTrip } from "../useTrip"
 import { useExpenseFormOverlay } from "./useExpenseFormOverlay"
 import { type PlaceWithRoute, useExpensesByPlace } from "./useExpensesByPlace"
-import { ResizeHandleHorizontal, useResizableSplit } from '~shared/hooks/dom/useResizableSplit'
+import { useResizableSplit } from '~shared/components/split-view/useResizableSplit'
+import { ResizeHandleHorizontal } from '~shared/components/split-view/SplitView'
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = [

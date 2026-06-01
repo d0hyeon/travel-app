@@ -1,7 +1,7 @@
 import { render, act } from '@testing-library/react';
 import { useState } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { SlideReveal } from './SlideReveal';
+import { SlideReveal } from '../SlideReveal';
 
 const mockPlay = vi.fn();
 const mockReverse = vi.fn();

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useTransition, type ReactNode, type Ref } 
 import { IntersectionArea } from "~shared/components/IntersectionArea";
 import { ListItem } from "~shared/components/ListItem";
 import { Map, type Coordinate, type MapBounds, type MapRef } from "~shared/components/Map";
-import { ResizeHandleVertical, SplitView, useResizableSplit } from "~shared/hooks/dom/useResizableSplit";
+import { SplitView, } from "~shared/components/split-view/SplitView";
 import { calcDistance } from "~shared/utils/geo";
 import { usePlaceSearch, type PlaceResult } from "./usePlaceSearch";
 import { useVariation } from "~shared/hooks/extends/useVariation";

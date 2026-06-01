@@ -39,7 +39,7 @@ import { useTripMembers } from "../trip-member/useTripMembers"
 import { useTrip } from "../useTrip"
 import { RouteExpenseView } from "./RouteExpenseView"
 import { useExpenseFormOverlay } from "./useExpenseFormOverlay"
-import { AnimatedCountText } from '../../../shared/components/AnimatedCountText'
+import { AnimatedCountText } from '../../../shared/components/animation/AnimatedCountText'
 
 interface Props {
   tripId: string
