@@ -19,7 +19,7 @@ export function ChatPushNoticeCard(props: ComponentProps<typeof NotificationCard
       { height: `${size.height}px`, opacity: 0, transform: 'scale(0.9)', offset: 0.6 },
       { height: `${size.height}px`, opacity: 1, transform: 'scale(1)', offset: 1 }
     ],
-    duration: 1000,
+    duration: 800,
     delay: 1000,
   }, containerRef.current)
 
@@ -35,7 +35,7 @@ export function ChatPushNoticeCard(props: ComponentProps<typeof NotificationCard
   }
 
   return (
-    <Box overflow="hidden" height="0px" ref={containerRef}>
+    <Box position="relative" overflow="hidden" height="0px" ref={containerRef}>
       <Box ref={calculate} position={size == null ? 'absolute' : 'relative'}>
         <NotificationCard
           onClose={() => animation.scrub(0)}
