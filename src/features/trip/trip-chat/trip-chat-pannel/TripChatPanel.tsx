@@ -1,6 +1,7 @@
 import SendIcon from '@mui/icons-material/Send'
 import {
   Box,
+  Collapse,
   IconButton,
   InputBase,
   Paper,
@@ -13,12 +14,11 @@ import { Suspense, useRef, type ReactNode } from 'react'
 
 import { useForm } from 'react-hook-form'
 import { useChatActivation } from '~features/trip/trip-chat/notification/useChatActivation'
-import { ResizeObserverArea } from '~shared/components/ResizeObserverArea'
-import { useIsMounted } from '~shared/hooks/useIsMounted'
 import { ChatPushNoticeCard } from '../ChatPushNoticeCard'
 import { useTripChatMessages } from '../useTripChatMessages'
 import { markAsRead } from '../useUnreadChatCount'
 import { TripChatMessage } from './TripChatMessage'
+import { TransitionGroup } from 'react-transition-group'
 
 interface Props {
   tripId: string;
@@ -69,30 +69,32 @@ function Resolved({ tripId }: Props) {
       markAsRead(tripId, last?.createdAt)
     }
   })
-  const isMounted = useIsMounted();
   const form = useForm<{ content: string }>();
   const formRef = useRef<HTMLFormElement>(null);
 
   useChatActivation(tripId);
 
   return (
-    <>
+    <Box flex={1} minHeight={0} display="flex" flexDirection="column">
       <Suspense>
-        <ChatPushNoticeCard margin={2} />
+        <ChatPushNoticeCard margin={2} flex={0} />
       </Suspense>
-      <Box flex={1} overflow="auto">
-        <ScrollIntoView block="end" behavior={isMounted ? 'smooth' : 'instant'}>
-          <Stack gap={1.5} padding={2}>
+      <Box flex={1} overflow="auto" display="flex" flexDirection="column-reverse">
+        <Stack padding={2}>
+          <TransitionGroup style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {messages.map((msg) => (
-              <TripChatMessage key={msg.id} message={msg} />
+              <Collapse key={msg.id}>
+                <TripChatMessage message={msg} />
+              </Collapse>
             ))}
-            {messages.length === 0 && (
-              <Typography variant="body2" color="text.secondary" textAlign="center" py={4}>
-                첫 메시지를 보내보세요!
-              </Typography>
-            )}
-          </Stack>
-        </ScrollIntoView>
+          </TransitionGroup>
+
+          {messages.length === 0 && (
+            <Typography variant="body2" color="text.secondary" textAlign="center" py={4}>
+              첫 메시지를 보내보세요!
+            </Typography>
+          )}
+        </Stack>
       </Box>
 
       <Paper elevation={2} sx={{ p: 1.5, paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)', borderRadius: 0, flexShrink: 0 }}>
@@ -128,27 +130,10 @@ function Resolved({ tripId }: Props) {
           </IconButton>
         </Stack>
       </Paper>
-    </>
+    </Box>
   )
 }
 
-interface ScrollIntiViewProps extends ScrollIntoViewOptions {
-  children?: ReactNode;
-  enabled?: boolean;
-}
-
-function ScrollIntoView({ children, enabled, ...options }: ScrollIntiViewProps) {
-  return (
-    <ResizeObserverArea
-      onResize={(entry) => {
-        entry.target.scrollIntoView(options)
-      }}
-      enabled={enabled}
-    >
-      {children}
-    </ResizeObserverArea>
-  )
-}
 
 function Pending() {
   return (
