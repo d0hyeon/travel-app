@@ -1,4 +1,4 @@
-import { use, useCallback, useMemo } from "react";
+import { use, useCallback, useEffect, useMemo } from "react";
 import { useSuspenseQuery } from "~shared/hooks/extends/useSuspenseQuery";
 import { assert } from "~shared/utils/types";
 import { addPushSubscription, getPushSubscriptionEndpoint, removePushSubscription } from "./auth.api";
@@ -38,14 +38,39 @@ export function useWebPushSubscription() {
   const vapidKey = urlBase64ToUint8Array(import.meta.env.VITE_VAPID_PUBLIC_KEY);
   const localSubscription = isEnabled ? use(getLocalSubscription(registration, vapidKey)) : undefined;
 
-  const { data: isSubscribed, refetch } = useSuspenseQuery({
+  const { data: subscriptionEndpoint, refetch } = useSuspenseQuery({
     queryKey: pushSubscriptionKey(currentUser.id, localSubscription?.endpoint),
-    queryFn: async () => {
-      if (localSubscription == null) return false;
-      const endpoint = await getPushSubscriptionEndpoint(currentUser.id, localSubscription.endpoint)
-      return endpoint != null;
-    }
+    queryFn: () => {
+      if (localSubscription == null) return null;
+      return getPushSubscriptionEndpoint(currentUser.id, localSubscription.endpoint);
+    },
   });
+
+  const isSubscribed = subscriptionEndpoint != null;
+
+  useEffect(() => {
+    if (!isSubscribed && localSubscription != null) {
+      localSubscription.unsubscribe();
+    }
+  }, [isSubscribed])
+
+  const subscribe = useCallback(async () => {
+    assert(isEnabled, 'Service worker registration is required to subscribe to push notifications');
+    const newSubscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: vapidKey.buffer
+    });
+
+    await addPushSubscription(currentUser.id, newSubscription);
+    promisedBrowserSubscription = null;
+    await refetch();
+  }, [currentUser, registration]);
+
+  const unsubscribe = useCallback(async () => {
+    assert(isSubscribed, 'Not subscribed to push notifications');
+    await removePushSubscription(currentUser.id, subscriptionEndpoint);
+    await refetch();
+  }, [currentUser, subscriptionEndpoint]);
 
   const hasPermission = Notification.permission === 'granted';
   const requestPermission = useCallback(async () => {
@@ -53,39 +78,6 @@ export function useWebPushSubscription() {
     const permission = await Notification.requestPermission();
     return permission === 'granted';
   }, [hasPermission]);
-
-  const subscribe = useCallback(async () => {
-    assert(registration != null, 'Service worker registration is required to subscribe to push notifications');
-
-    try {
-      const newSubscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: vapidKey.buffer as ArrayBuffer,
-      });
-
-      await addPushSubscription(currentUser.id, newSubscription);
-      promisedBrowserSubscription = null;
-      await refetch();
-    } catch (error) {
-      alert('구독에 실패' + JSON.stringify(error));
-      console.error('Failed to subscribe to push notifications:', error);
-    }
-  }, [currentUser, registration]);
-
-  const unsubscribe = useCallback(async () => {
-    assert(isSubscribed, 'Not subscribed to push notifications');
-    assert(registration != null, 'Service worker registration is required');
-
-    try {
-      const subscription = await registration.pushManager.getSubscription();
-      await subscription?.unsubscribe();
-      promisedBrowserSubscription = null;
-      if (subscription) await removePushSubscription(currentUser.id, subscription.endpoint);
-      await refetch();
-    } catch (error) {
-      console.error('Failed to unsubscribe from push notifications:', error);
-    }
-  }, [currentUser, isSubscribed, registration]);
 
   return useMemo(() => ({
     isEnabled,
