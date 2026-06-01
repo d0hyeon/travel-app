@@ -9,7 +9,7 @@ import { TripBaseInfoList } from './TripBaseInfoList'
 import { TripDDay } from './TripDDay'
 import { TripPostCreateCard } from './TripPostCreateCard'
 import { RecommendedPlaceListSection_Desktop } from '../trip-recommend/RecommendedPlaceListSection'
-import { CommunityRoutesSection_Desktop } from '../trip-community-routes/CommunityRoutesSection'
+import { CommunityRoutesSectionDesktop } from '../trip-community-routes/CommunityRoutesSection'
 
 interface Props {
   tripId: string
@@ -57,7 +57,7 @@ export function TripBasicInfoContent({ tripId }: Props) {
           <RecommendedPlaceListSection_Desktop tripId={tripId} />
 
           {/* 다른 여행자의 경로 */}
-          <CommunityRoutesSection_Desktop tripId={tripId} />
+          <CommunityRoutesSectionDesktop tripId={tripId} />
 
           <TripMemberSection tripId={tripId} />
         </Stack>
