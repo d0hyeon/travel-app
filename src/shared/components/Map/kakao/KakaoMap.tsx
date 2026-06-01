@@ -20,6 +20,7 @@ export default function KakaoMap({
   autoFocus = 'marker',
   clustering = false,
   clusterGridSize = 60,
+  onBoundsChange,
   children,
   ...boxProps
 }: Props) {
@@ -36,6 +37,18 @@ export default function KakaoMap({
     });
     setMap(mapInstance);
   }, [container]);
+
+  useEffect(() => {
+    if (!map || !onBoundsChange) return;
+    const handler = () => {
+      const bounds = map.getBounds();
+      const ne = bounds.getNorthEast();
+      const sw = bounds.getSouthWest();
+      onBoundsChange({ north: ne.getLat(), south: sw.getLat(), east: ne.getLng(), west: sw.getLng() });
+    };
+    kakao.maps.event.addListener(map, 'bounds_changed', handler);
+    return () => { kakao.maps.event.removeListener(map, 'bounds_changed', handler); };
+  }, [map, onBoundsChange]);
 
   useEffect(() => {
     if (map != null && center != null) {

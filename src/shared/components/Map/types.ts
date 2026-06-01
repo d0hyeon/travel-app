@@ -29,6 +29,7 @@ export interface MapProps  {
   ref?: Ref<MapRef>;
   clustering?: boolean;
   clusterGridSize?: number;
+  onBoundsChange?: (bounds: MapBounds) => void;
 }
 
 export type MarkerColor = 'default' | 'selected' | 'disabled' | (string & {});

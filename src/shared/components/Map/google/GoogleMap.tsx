@@ -48,6 +48,7 @@ export default function GoogleMap({
   autoFocus = 'marker',
   clustering = false,
   clusterGridSize = 60,
+  onBoundsChange,
   children,
   ...boxProps
 }: Props) {
@@ -68,6 +69,18 @@ export default function GoogleMap({
 
     setMap(mapInstance);
   }, [container]);
+
+  useEffect(() => {
+    if (!map || !onBoundsChange) return;
+    const listener = map.addListener('bounds_changed', () => {
+      const bounds = map.getBounds();
+      if (!bounds) return;
+      const ne = bounds.getNorthEast();
+      const sw = bounds.getSouthWest();
+      onBoundsChange({ north: ne.lat(), south: sw.lat(), east: ne.lng(), west: sw.lng() });
+    });
+    return () => { google.maps.event.removeListener(listener); };
+  }, [map, onBoundsChange]);
 
   useEffect(() => {
     if (map != null && center != null) {
