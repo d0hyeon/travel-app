@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, type ReactNode } from "react";
 import { useAnimation } from "~shared/hooks/animation/useAnimation";
 import { useElementSize } from "~shared/hooks/dom/useElementSize";
 import { useIsMounted } from "~shared/hooks/useIsMounted";
@@ -14,20 +14,24 @@ type Props = {
 export function SlideReveal({ children, open = true, delay = 0, duration = 800 }: Props) {
   const [size, calculate] = useElementSize({ once: true });
   const isPrepared = size != null;
-  const isMounted = useIsMounted();
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const animation = useAnimation({
-    frames: isPrepared ? [
+  const frames = useMemo(() => {
+    if (!isPrepared) return [];
+    return [
       { height: '0px', opacity: 0, offset: 0 },
       { height: `${size.height}px`, opacity: 0, transform: 'scale(0.9)', offset: 0.3 },
       { height: `${size.height}px`, opacity: 0, transform: 'scale(0.9)', offset: 0.6 },
       { height: `${size.height}px`, opacity: 1, transform: 'scale(1)', offset: 1 },
-    ] : [],
-    duration,
-    delay,
-  }, containerRef.current);
+    ]
+  }, [isPrepared])
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const animation = useAnimation(
+    { frames, duration, delay },
+    containerRef.current
+  );
+
+  const isMounted = useIsMounted();
   useEffect(() => {
     if (!isPrepared) return;
     if (open) {
