@@ -22,23 +22,22 @@ export function useQueryParamState<T>(key: string, { defaultValue, parse }: Opti
   const param = searchParams.get(key);
 
   const value = useMemo(() => {
-    if (param != null) {
-      if (parse != null) return parse(param);
-      return param;
+    if (param == null) {
+      if (defaultValue instanceof Function) {
+        return defaultValue();
+      }
+      return defaultValue;
     }
-    if (defaultValue instanceof Function) {
-      return defaultValue();
-    }
-    return defaultValue;
+
+    if (param === '') return undefined;
+    
+    if (parse != null) return parse(param);
+    return param;
   }, [param]);
 
   const setValue = useCallback((value: T, options?: NavigateOptions) => {
     setParams((searchParams) => { 
-      if (value == null) {
-        if(searchParams.has(key)) searchParams.delete(key);
-      } else {
-        searchParams.set(key, value.toString());
-      }
+      searchParams.set(key,  value == null ? '' : value.toString());
       return searchParams;
     }, { replace: true, ...options });
   }, [setParams]);
