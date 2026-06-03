@@ -8,9 +8,11 @@ interface Coordinate {
   lng: number
 }
 
+const MAX_WAYPOINTS = 100
+
 function parseWaypoints(raw: string): Coordinate[] | null {
   const pairs = raw.split('|')
-  if (pairs.length < 2) return null
+  if (pairs.length < 2 || pairs.length > MAX_WAYPOINTS) return null
   const coords: Coordinate[] = []
   for (const pair of pairs) {
     const parts = pair.split(',')
