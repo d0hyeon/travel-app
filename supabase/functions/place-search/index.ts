@@ -32,7 +32,7 @@ async function searchKakao(
   page: number,
   lat?: number,
   lng?: number,
-): Promise<SearchResponse> {
+): Promise<SearchResponse | null> {
   const params = new URLSearchParams({
     query: keyword,
     page: String(page),
@@ -49,7 +49,7 @@ async function searchKakao(
   )
 
   if (!res.ok) {
-    return { results: [], isEnd: true }
+    return null
   }
 
   const data = await res.json()
@@ -73,7 +73,7 @@ async function searchKakao(
 async function searchGoogle(
   keyword: string,
   pageToken?: string,
-): Promise<SearchResponse> {
+): Promise<SearchResponse | null> {
   const body: Record<string, unknown> = {
     textQuery: keyword,
     languageCode: 'ko',
@@ -95,22 +95,27 @@ async function searchGoogle(
   })
 
   if (!res.ok) {
-    return { results: [], isEnd: true }
+    return null
   }
 
   const data = await res.json()
-  const results: PlaceResult[] = (data.places ?? []).map((item: Record<string, unknown>) => {
-    const location = item.location as { latitude: number; longitude: number }
-    const displayName = item.displayName as { text: string }
-    return {
-      externalId: String(item.id),
-      provider: 'google' as const,
-      name: displayName?.text ?? '',
-      address: String(item.formattedAddress ?? ''),
-      lat: location?.latitude ?? 0,
-      lng: location?.longitude ?? 0,
-    }
-  })
+  const results: PlaceResult[] = (data.places ?? [])
+    .filter((item: Record<string, unknown>) => {
+      const loc = item.location as { latitude?: number; longitude?: number } | undefined
+      return loc?.latitude != null && loc?.longitude != null
+    })
+    .map((item: Record<string, unknown>) => {
+      const location = item.location as { latitude: number; longitude: number }
+      const displayName = item.displayName as { text: string }
+      return {
+        externalId: String(item.id),
+        provider: 'google' as const,
+        name: displayName?.text ?? '',
+        address: String(item.formattedAddress ?? ''),
+        lat: location.latitude,
+        lng: location.longitude,
+      }
+    })
 
   return {
     results,
@@ -149,10 +154,24 @@ serve(async (req: Request) => {
       )
     }
 
+    if (provider === 'google' && page > 1 && !pageToken) {
+      return new Response(
+        JSON.stringify({ results: [], isEnd: true }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      )
+    }
+
     const response =
       provider === 'google'
         ? await searchGoogle(keyword, pageToken)
         : await searchKakao(keyword, page, lat, lng)
+
+    if (response === null) {
+      return new Response(
+        JSON.stringify({ error: 'Upstream search service unavailable' }),
+        { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      )
+    }
 
     return new Response(JSON.stringify(response), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
