@@ -21,11 +21,7 @@ export function ChatPushNoticeCard(props: ComponentProps<typeof NotificationCard
         <NotificationCard.Title textAlign="center">
           실시간으로 알림을 받아보세요
         </NotificationCard.Title>
-        {!webPush.isEnabled ? (
-          <NotificationCard.Text textAlign="center">
-            바로가기 앱을 설치하면 알람을 설정할 수 있어요.
-          </NotificationCard.Text>
-        ) : (
+        {webPush.isEnabled ? (
           <Button
             variant="contained"
             loading={isLoading}
@@ -42,6 +38,11 @@ export function ChatPushNoticeCard(props: ComponentProps<typeof NotificationCard
           >
             알림 받기
           </Button>
+        ) : (
+          <NotificationCard.Text textAlign="center">
+            바로가기 앱을 설치하면 알람을 설정할 수 있어요.
+          </NotificationCard.Text>
+
         )}
       </NotificationCard>
     </SlideReveal>
