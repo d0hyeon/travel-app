@@ -32,18 +32,23 @@ async function fetchKakaoSegment(waypoints: Coordinate[]): Promise<Coordinate[] 
   const destination = waypoints[waypoints.length - 1]
   const viaPoints = waypoints.slice(1, -1)
 
+  // 카카오 API는 경유지 최대 5개 — 초과 시 이진 분할 폴백으로 위임
+  if (viaPoints.length > 5) return null
+
   const params = new URLSearchParams({
     origin: `${origin.lng},${origin.lat}`,
     destination: `${destination.lng},${destination.lat}`,
   })
   if (viaPoints.length > 0) {
-    params.set('waypoints', viaPoints.slice(0, 5).map((p) => `${p.lng},${p.lat}`).join('|'))
+    params.set('waypoints', viaPoints.map((p) => `${p.lng},${p.lat}`).join('|'))
   }
 
   const response = await fetch(
     `https://apis-navi.kakaomobility.com/v1/directions?${params}`,
     { headers: { Authorization: `KakaoAK ${KAKAO_REST_KEY}` } }
   )
+  // 일시적 오류(429/5xx)는 재귀 차단 — 직선으로 즉시 처리
+  if (response.status === 429 || response.status >= 500) return waypoints
   if (!response.ok) return null
 
   const data: KakaoDirectionsResponse = await response.json()
@@ -131,6 +136,8 @@ async function fetchGoogleSegment(waypoints: Coordinate[]): Promise<Coordinate[]
   const response = await fetch(
     `https://maps.googleapis.com/maps/api/directions/json?${params}`
   )
+  // 일시적 오류(429/5xx)는 재귀 차단 — 직선으로 즉시 처리
+  if (response.status === 429 || response.status >= 500) return waypoints
   if (!response.ok) return null
 
   const data: GoogleDirectionsResponse = await response.json()
