@@ -1,10 +1,7 @@
-import type { FunctionInvokeOptions } from '@supabase/functions-js'
-import { supabase } from '~api/client'
 import type { Coordinate } from '~shared/model/coordinate.model'
 
-interface FunctionInvokeOptionsWithQuery extends FunctionInvokeOptions {
-  query?: Record<string, unknown>
-}
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string
 
 export interface PlaceResult {
   externalId: string
@@ -40,28 +37,33 @@ function isSearchResponse(v: unknown): v is SearchResponse {
 }
 
 export async function searchPlaces(params: SearchParams): Promise<SearchResponse> {
-  const query: Record<string, unknown> = {
-    keyword: params.keyword,
-    provider: params.provider,
-    page: params.page,
-  }
+  const url = new URL(`${SUPABASE_URL}/functions/v1/place-search`)
+  url.searchParams.set('keyword', params.keyword)
+  url.searchParams.set('provider', params.provider)
+  url.searchParams.set('page', String(params.page))
 
   if (params.location) {
-    query.lat = params.location.lat
-    query.lng = params.location.lng
+    url.searchParams.set('lat', String(params.location.lat))
+    url.searchParams.set('lng', String(params.location.lng))
   }
 
   if (params.pageToken) {
-    query.pageToken = params.pageToken
+    url.searchParams.set('pageToken', params.pageToken)
   }
 
-  const invokeOptions: FunctionInvokeOptionsWithQuery = { method: 'GET', query }
-  const { data, error } = await supabase.functions.invoke('place-search', invokeOptions)
+  const response = await fetch(url.toString(), {
+    method: 'GET',
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+    },
+  })
 
-  const hasError = error || !data
-  if (hasError) {
+  if (!response.ok) {
     return { results: [], isEnd: true }
   }
+
+  const data: unknown = await response.json()
 
   if (!isSearchResponse(data)) {
     return { results: [], isEnd: true }
