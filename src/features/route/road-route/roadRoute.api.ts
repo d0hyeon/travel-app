@@ -38,20 +38,11 @@ async function fetchSegment(waypoints: Coordinate[], region: 'korea' | 'global')
   }
 }
 
-export async function getRoadDirections(waypoints: Coordinate[]): Promise<Coordinate[]> {
+export async function getRoadDirections(waypoints: Coordinate[], region: 'korea' | 'global'): Promise<Coordinate[]> {
   if (waypoints.length < 2) return waypoints
-  if (waypoints.length <= 7) return fetchSegment(waypoints, 'korea')
+  if (waypoints.length <= 7) return fetchSegment(waypoints, region)
 
   const segments = splitIntoSegments(waypoints, 7)
-  const results = await Promise.all(segments.map((s) => fetchSegment(s, 'korea')))
-  return mergeSegments(results)
-}
-
-export async function getGlobalRoadDirections(waypoints: Coordinate[]): Promise<Coordinate[]> {
-  if (waypoints.length < 2) return waypoints
-  if (waypoints.length <= 7) return fetchSegment(waypoints, 'global')
-
-  const segments = splitIntoSegments(waypoints, 7)
-  const results = await Promise.all(segments.map((s) => fetchSegment(s, 'global')))
+  const results = await Promise.all(segments.map((s) => fetchSegment(s, region)))
   return mergeSegments(results)
 }

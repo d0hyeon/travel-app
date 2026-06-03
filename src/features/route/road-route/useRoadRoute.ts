@@ -2,16 +2,12 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { clientDatabase } from '~features/route/road-route/client-database';
 import { isOverseasByCoordinate } from '~shared/utils/geo';
 import type { Coordinate } from '../../../shared/components/Map/types';
-import { getGlobalRoadDirections, getRoadDirections } from './roadRoute.api';
+import { getRoadDirections } from './roadRoute.api';
 
 interface UseDirectionsOptions {
   waypoints: Coordinate[];
 }
 
-/**
- * 도로 기반 경로 좌표를 가져오는 hook
- * type에 따라 카카오 모빌리티 또는 Google Directions API 사용
- */
 export function useRoadRoute({ waypoints }: UseDirectionsOptions) {
   const serialized = waypoints?.map((p) => `${p.lat},${p.lng}`).join('|');
 
@@ -19,12 +15,10 @@ export function useRoadRoute({ waypoints }: UseDirectionsOptions) {
     queryKey: ['directions', serialized],
     queryFn: async () => {
       const localData = await clientDatabase.roadRoutes.get(serialized);
-      const isOverseas = waypoints?.some(x => isOverseasByCoordinate(x.lat, x.lng));
 
       if (localData == null) {
-        const coordinates = isOverseas
-          ? await getGlobalRoadDirections(waypoints!)
-          : await getRoadDirections(waypoints!);
+        const region = waypoints?.some(x => isOverseasByCoordinate(x.lat, x.lng)) ? 'global' : 'korea';
+        const coordinates = await getRoadDirections(waypoints!, region);
 
         clientDatabase.roadRoutes.add({ key: serialized!, coordinates });
 
