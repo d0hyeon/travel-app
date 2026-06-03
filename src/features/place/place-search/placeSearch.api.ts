@@ -60,13 +60,13 @@ export async function searchPlaces(params: SearchParams): Promise<SearchResponse
   })
 
   if (!response.ok) {
-    return { results: [], isEnd: true }
+    throw new Error(`장소 검색 서비스 오류 (${response.status})`)
   }
 
   const data: unknown = await response.json()
 
   if (!isSearchResponse(data)) {
-    return { results: [], isEnd: true }
+    throw new Error('장소 검색 응답 형식 오류')
   }
 
   return data

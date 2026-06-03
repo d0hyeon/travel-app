@@ -52,10 +52,9 @@ describe('searchPlaces — kakao', () => {
     expect(result).toEqual({ results: kakaoResults, isEnd: true })
   })
 
-  it('HTTP 오류 시 빈 결과를 반환한다', async () => {
+  it('HTTP 오류 시 에러를 throw한다', async () => {
     mockErrorResponse(502)
-    const result = await searchPlaces({ keyword: '스타벅스', provider: 'kakao', page: 1 })
-    expect(result).toEqual({ results: [], isEnd: true })
+    await expect(searchPlaces({ keyword: '스타벅스', provider: 'kakao', page: 1 })).rejects.toThrow('502')
   })
 
   it('GET 메서드와 apikey 헤더를 사용한다', async () => {
