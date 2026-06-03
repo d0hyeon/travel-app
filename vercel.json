@@ -4,6 +4,15 @@
   "trailingSlash": false,
   "headers": [
     {
+      "source": "/api/road-directions",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, s-maxage=604800"
+        }
+      ]
+    },
+    {
       "source": "/index.html",
       "headers": [
         {
