@@ -1,2 +1,5 @@
 [functions.kakao-directions]
 verify_jwt = false
+
+[functions.place-search]
+verify_jwt = false
