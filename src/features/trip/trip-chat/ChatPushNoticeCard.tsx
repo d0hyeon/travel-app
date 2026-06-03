@@ -19,11 +19,11 @@ export function ChatPushNoticeCard(props: ComponentProps<typeof NotificationCard
     <SlideReveal open={open} delay={1000}>
       <NotificationCard onClose={() => setOpen(false)} {...props}>
         <NotificationCard.Title textAlign="center">
-          {webPush.isEnabled ? '실시간으로 알림을 받아보세요' : '바로가기 앱을 추가해 보세요'}
+          실시간으로 알림을 받아보세요
         </NotificationCard.Title>
         {!webPush.isEnabled ? (
           <NotificationCard.Text textAlign="center">
-            실시간 알림 설정을 할 수 있어요
+            바로가기 앱을 설치하면 알람을 설정할 수 있어요.
           </NotificationCard.Text>
         ) : (
           <Button
