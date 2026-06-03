@@ -30,11 +30,17 @@ type ChatPushEventPayload = {
   body: string;
   tripId: string;
 }
+const ChatPushEventDataSchema = z.object({
+  title: z.string(),
+  body: z.string(),
+  tripId: z.string()
+}) satisfies ZodSchema<ChatPushEventPayload>;
 
 sw.addEventListener('push', (event: PushEvent) => {
-  if (!isChatPushEvent(event)) return;
-  const { title, body, tripId } = event.data.json();
-
+  const parsed = ChatPushEventDataSchema.safeParse(event.data?.json());
+  if (!parsed.success) return;
+  
+  const { title, body, tripId } = parsed.data;
   if (openChatTripIds.has(tripId)) return;
 
   event.waitUntil(
@@ -50,14 +56,17 @@ sw.addEventListener('push', (event: PushEvent) => {
 type ChatNotificationPayload = {
   tripId: string;
 } 
+const ChatNotificationPayloadSchema = z.object({
+  tripId: z.string()
+}) satisfies ZodSchema<ChatNotificationPayload>
+
 
 sw.addEventListener('notificationclick', (event: NotificationEvent) => {
+  const parsed = ChatNotificationPayloadSchema.safeParse(event.notification.data);
+  if (!parsed.success) return;
+  
   event.notification.close();
-  if (!isChatNotificationEvent(event)) {
-    return;
-  }
-
-  const tripId = event.notification.data.tripId;
+  const { tripId } = parsed.data;
   const targetUrl = generatePath(AppRoute.여행_채팅, { tripId });
 
   event.waitUntil(
@@ -69,38 +78,4 @@ sw.addEventListener('notificationclick', (event: NotificationEvent) => {
     })
   )
 })
-
-const ChatPushEventDataSchema = z.object({
-  title: z.string(),
-  body: z.string(),
-  tripId: z.string()
-}) satisfies ZodSchema<ChatPushEventPayload>;
-
-type ChatPushEvent = Omit<PushEvent, 'data'> & {
-  data: Omit<PushMessageData, 'json'> & { json: () => ChatPushEventPayload }
-}
-function isChatPushEvent(event: PushEvent): event is ChatPushEvent {
-  if (event.data == null) {
-    return false;
-  }
-  
-  const { success } = ChatPushEventDataSchema.safeParse(event.data.json())
-  return success;
-}
-
-const ChatNotificationPayloadSchema = z.object({
-  tripId: z.string()
-}) satisfies ZodSchema<ChatNotificationPayload>
-
-type ChatNotificationEvent = Omit<NotificationEvent, 'notification'> & {
-  notification: Omit<Notification, 'data'> & {
-    data: ChatNotificationPayload;
-  }
-}
-
-function isChatNotificationEvent(event: NotificationEvent): event is ChatNotificationEvent {
-  const { success } = ChatNotificationPayloadSchema.safeParse(event.notification.data);
-
-  return success;
-}
 
