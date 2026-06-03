@@ -100,7 +100,7 @@ Cache-Control: public, s-maxage=604800
 ## Error Handling
 
 - 카카오 API 실패: 기존 이진 분할 폴백 로직 유지 (직선 처리)
-- 구글 API 실패: 원본 waypoints 반환
+- 구글 API 실패: 카카오와 동일하게 이진 분할 폴백 → 최소 구간 직선 처리
 - Vercel API Route 오류: 클라이언트에서 원본 waypoints 반환 (기존 동작 유지)
 - CDN 캐시는 2xx 응답만 캐시하므로 오류 응답은 캐시되지 않음
 

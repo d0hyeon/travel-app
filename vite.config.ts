@@ -9,14 +9,6 @@ const config = {
   plugins: [
     reactRouter(),
   ],
-  server: {
-    proxy: {
-      '/api': {
-        target: process.env.VITE_VERCEL_URL ?? 'https://travel-app-delta-silk.vercel.app',
-        changeOrigin: true,
-      },
-    },
-  },
   resolve: {
     alias: [
       { find: /^~(.*)/, replacement: path.resolve(__dirname, 'src/$1') },

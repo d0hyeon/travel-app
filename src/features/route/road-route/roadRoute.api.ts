@@ -1,14 +1,8 @@
+import { supabase } from '~api/client'
+
 interface Coordinate {
   lat: number
   lng: number
-}
-
-function formatCoord(n: number): string {
-  return Number.isInteger(n) ? `${n}.0` : `${n}`
-}
-
-function serializeWaypoints(waypoints: Coordinate[]): string {
-  return waypoints.map((p) => `${formatCoord(p.lng)},${formatCoord(p.lat)}`).join('|')
 }
 
 function splitIntoSegments(waypoints: Coordinate[], maxSize: number): Coordinate[][] {
@@ -34,13 +28,10 @@ function mergeSegments(segments: Coordinate[][]): Coordinate[] {
 
 async function fetchSegment(waypoints: Coordinate[], region: 'korea' | 'global'): Promise<Coordinate[]> {
   try {
-    const params = new URLSearchParams({
-      waypoints: serializeWaypoints(waypoints),
-      region,
+    const { data, error } = await supabase.functions.invoke('road-directions', {
+      body: { waypoints, region },
     })
-    const response = await fetch(`/api/road-directions?${params}`)
-    if (!response.ok) return waypoints
-    const data = await response.json()
+    if (error) return waypoints
     return data?.coordinates ?? waypoints
   } catch {
     return waypoints
