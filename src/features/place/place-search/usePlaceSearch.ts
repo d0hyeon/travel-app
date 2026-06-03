@@ -1,151 +1,39 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { use, useCallback, useMemo, useRef } from 'react';
-import { type Coordinate } from '~shared/model/coordinate.model';
-import { assert } from '~shared/utils/types';
-import { loadGoogleMaps } from '../../../shared/components/Map/google/loader';
-import { loadKakaoMap } from '../../../shared/components/Map/kakao/loader';
-import type { MapType } from '../../../shared/components/Map/types';
+import { useInfiniteQuery } from '@tanstack/react-query'
+import { useMemo } from 'react'
+import type { Coordinate } from '~shared/model/coordinate.model'
+import type { MapType } from '../../../shared/components/Map/types'
+import { searchPlaces } from './placeSearch.api'
 
-export interface PlaceResult {
-  /** 검색 서비스의 장소 식별자 (places.external_id로 저장됨) */
-  externalId: string;
-  provider: 'kakao' | 'google';
-  name: string;
-  address: string;
-  lat: number;
-  lng: number;
-}
+export type { PlaceResult } from './placeSearch.api'
 
-interface PageResult {
-  results: PlaceResult[];
-  isEnd: boolean;
+interface PageParam {
+  page: number
+  pageToken?: string
 }
 
 interface UsePlaceSearchOptions {
-  service: MapType;
-  location?: Coordinate;
-  keyword?: string;
+  service: MapType
+  location?: Coordinate
+  keyword?: string
 }
 
-
 export function usePlaceSearch({ service, keyword, location }: UsePlaceSearchOptions) {
-  use(service === 'google' ? loadGoogleMaps() : loadKakaoMap());
+  const provider = service === 'google' ? 'google' : 'kakao'
 
-  const div = useMemo(() => document.createElement('div'), []);
-  const kakaoServiceRef = useRef(service === 'kakao' ? new kakao.maps.services.Places() : null);
-  const googleServiceRef = useRef(service === 'google' ? new google.maps.places.PlacesService(div) : null);
+  const { data, isFetchingNextPage, hasNextPage, fetchNextPage, isLoading, error } =
+    useInfiniteQuery({
+      queryKey: ['place-search', keyword, location?.lat, location?.lng, provider] as const,
+      queryFn: ({ pageParam }: { pageParam: PageParam }) =>
+        searchPlaces({ keyword: keyword!, provider, page: pageParam.page, location, pageToken: pageParam.pageToken }),
+      getNextPageParam: (lastPage, _, lastPageParam: PageParam) => {
+        if (lastPage.isEnd) return undefined
+        return { page: lastPageParam.page + 1, pageToken: lastPage.nextPageToken }
+      },
+      initialPageParam: { page: 1 } as PageParam,
+      enabled: !!keyword,
+    })
 
-  const googlePaginationRef = useRef<google.maps.places.PlaceSearchPagination | null>(null);
-  const googleSessionRef = useRef(0);
-  const googleResolverRef = useRef<((r: PageResult) => void) | null>(null);
-  const googleRejectorRef = useRef<((e: unknown) => void) | null>(null);
+  const results = useMemo(() => data?.pages.flatMap((p) => p.results) ?? [], [data])
 
-  // stableGoogleCallback은 textSearch에 한 번 전달되면 nextPage()도 이 함수를 재호출한다.
-  // 각 페이지의 resolve/reject는 ref를 통해 교체되며, session ID로 stale 콜백을 무시한다.
-  const stableGoogleCallback = useCallback(
-    (
-      results: google.maps.places.PlaceResult[] | null,
-      status: google.maps.places.PlacesServiceStatus,
-      pagination: google.maps.places.PlaceSearchPagination | null
-    ) => {
-      googlePaginationRef.current = pagination;
-      if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-        googleResolverRef.current?.({
-          results: results.map((item) => ({
-            externalId: item.place_id ?? crypto.randomUUID(),
-            provider: 'google' as const,
-            name: item.name ?? '',
-            address: item.formatted_address ?? '',
-            lat: item.geometry?.location?.lat() ?? 0,
-            lng: item.geometry?.location?.lng() ?? 0,
-          })),
-          isEnd: !pagination?.hasNextPage,
-        });
-      } else if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-        googleResolverRef.current?.({ results: [], isEnd: true });
-      } else {
-        googleRejectorRef.current?.(new Error(status));
-      }
-    },
-    []
-  );
-
-  const searchKakao = (query: string, page: number): Promise<PageResult> => {
-    const service = kakaoServiceRef.current;
-    assert(!!service, '잘못된 호출입니다.');
-
-    return new Promise<PageResult>((resolve, reject) => {
-      const options: kakao.maps.services.PlacesSearchOptions = {
-        ...(location ? { location: new kakao.maps.LatLng(location.lat, location.lng) } : {}),
-        page,
-      };
-      service.keywordSearch(query, (data, status, pagination) => {
-        if (status === kakao.maps.services.Status.ERROR) {
-          return reject(new Error('검색 중 오류가 발생했습니다.'));
-        }
-        if (status === kakao.maps.services.Status.ZERO_RESULT) {
-          return resolve({ results: [], isEnd: true });
-        }
-        resolve({
-          results: data.map((item) => ({
-            externalId: item.id,
-            provider: 'kakao' as const,
-            name: item.place_name,
-            address: item.road_address_name || item.address_name,
-            lat: parseFloat(item.y),
-            lng: parseFloat(item.x),
-          })),
-          isEnd: !pagination.hasNextPage,
-        });
-      }, options);
-    });
-  };
-
-  const searchGoogle = (query: string, page: number): Promise<PageResult> => {
-    const service = googleServiceRef.current;
-    assert(!!service, '잘못된 호출입니다.');
-
-    if (page === 1) {
-      googleSessionRef.current += 1;
-      googlePaginationRef.current = null;
-    }
-    const session = googleSessionRef.current;
-
-    return new Promise<PageResult>((resolve, reject) => {
-      // session ID로 감싸 stale 콜백이 현재 쿼리를 오염시키지 않도록 한다.
-      googleResolverRef.current = (result) => {
-        if (googleSessionRef.current === session) resolve(result);
-      };
-      googleRejectorRef.current = (err) => {
-        if (googleSessionRef.current === session) reject(err);
-      };
-
-      if (page > 1 && googlePaginationRef.current?.hasNextPage) {
-        googlePaginationRef.current.nextPage();
-      } else {
-        const request: google.maps.places.TextSearchRequest = {
-          query,
-          language: 'ko',
-          location,
-        };
-        service.textSearch(request, stableGoogleCallback);
-      }
-    });
-  };
-
-  const { data, isFetchingNextPage, hasNextPage, fetchNextPage, isLoading, error } = useInfiniteQuery({
-    queryKey: ['place-search', keyword, location?.lat, location?.lng],
-    queryFn: ({ pageParam }) => {
-      if (service === 'google') return searchGoogle(keyword!, pageParam);
-      return searchKakao(keyword!, pageParam);
-    },
-    getNextPageParam: (lastPage, _, lastPageParam) =>
-      lastPage.isEnd ? undefined : lastPageParam + 1,
-    initialPageParam: 1,
-    enabled: !!keyword,
-  });
-
-  const results = useMemo(() => data?.pages.flatMap((p) => p.results) ?? [], [data]);
-
-  return { data: results, isLoading, isFetchingNextPage, hasNextPage, error, fetchNextPage };
+  return { data: results, isLoading, isFetchingNextPage, hasNextPage, error, fetchNextPage }
 }
