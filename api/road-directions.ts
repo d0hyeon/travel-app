@@ -65,7 +65,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!response.ok) {
       const text = await response.text()
       console.error('Upstream error:', response.status, text)
-      return res.status(response.status).json({ error: 'Upstream request failed' })
+      return res.status(response.status).json({ error: 'Upstream request failed', debug: { status: response.status, body: text } })
     }
 
     const data = await response.json()
