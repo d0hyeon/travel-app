@@ -45,13 +45,17 @@ export function AuthStateSync() {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth
       .onAuthStateChange(async (event, session) => {
-        if (session?.user == null) return;
+        if (session?.user == null) {
+          queryClient.setQueryData<User | null>(['auth'], null);
+          return;
+        }
+        
         queryClient.setQueryData<User | null>(['auth'], (curr) => {
           if (curr == null) return session.user;
           return { ...curr, ...session.user }
         });
         
-        if (event === 'USER_UPDATED') {
+        if (event === 'USER_UPDATED' && session?.user != null) {
           const meta = session.user.user_metadata;
           const name = meta.nickname ?? meta.name ?? meta.full_name ?? '';
           const avatarUrl = meta.picture ?? meta.avatar_url ?? null;
