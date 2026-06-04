@@ -100,6 +100,11 @@ export const theme = createTheme({
           })
         }
       ],
+      styleOverrides: {
+        root: {
+          whiteSpace: 'nowrap'
+        }
+      }
     },
 
     MuiDialog: {

@@ -4,7 +4,6 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { QueryClientProvider, } from '@tanstack/react-query'
 import { Suspense, useEffect } from 'react'
 import { Links, Meta, Outlet, Scripts } from 'react-router'
-import { Toaster } from 'sonner'
 import { registerSW } from 'virtual:pwa-register'
 import { queryClient } from '~app/query-client'
 import { AuthError } from '~features/auth/AuthError'
@@ -19,6 +18,7 @@ import { OverlayProvider } from '~shared/hooks/useOverlay'
 
 
 import '~shared/index.css'
+import { ToastRenderer } from './ToastRenderer'
 
 
 
@@ -52,7 +52,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function Root() {
   const login = useAuthNavigate();
-
 
   return (
     <ThemeProvider theme={theme}>
@@ -97,11 +96,7 @@ export default function Root() {
 
                   <AuthStateSync />
                 </Suspense>
-                <Toaster
-                  toastOptions={{
-                    style: { justifyContent: 'space-between' }
-                  }}
-                />
+                <ToastRenderer />
               </SearchParamProvider>
               <Installer />
             </OverlayProvider>

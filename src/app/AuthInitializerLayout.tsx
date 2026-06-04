@@ -1,4 +1,4 @@
-import { Button } from '@mui/material'
+import { Box, Button, Stack, Typography } from '@mui/material'
 import { Suspense } from 'react'
 import { Outlet } from 'react-router'
 import { toast } from 'sonner'
@@ -7,10 +7,9 @@ import { useAuth } from '~features/auth/useAuth'
 import { getActivedChatTripId } from '~features/trip/trip-chat/notification/useChatActivation'
 import { useChatWebPushFallback as useChatBrowserPushFallback } from '~features/trip/trip-chat/notification/useChatWebPushFallback'
 import { useTripChatOverlay } from '~features/trip/trip-chat/useTripChatOverlay'
+import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 
 export default function AuthInitializerLayout() {
-  const { data: user } = useAuth()
-
   return (
     <>
       <Outlet />
@@ -23,16 +22,26 @@ export default function AuthInitializerLayout() {
 
 function ChatInWebPush() {
   const { open } = useTripChatOverlay();
+  const isMobile = useIsMobile();
 
   useChatBrowserPushFallback(({ tripId, userName, content }) => {
     const isInChat = getActivedChatTripId() === tripId;
 
     if (isInChat) return;
-    toast.message(`${userName} ${content}`, {
-      position: 'top-center',
-      action: <Button size="small" variant='contained' onClick={() => open(tripId)} sx={{ justifySelf: 'end', alignSelf: 'end' }}>답장</Button>
+    toast.message(<Message userName={userName} content={content} />, {
+      position: isMobile ? 'top-center' : 'top-right',
+      action: <Button variant='text' size={isMobile ? 'medium' : 'small'} onClick={() => open(tripId)} sx={{ justifySelf: 'end', alignSelf: 'end' }}>답장</Button>
     })
   })
 
   return null;
+}
+
+function Message({ content, userName }: { userName: string; content: string }) {
+  return (
+    <Stack direction="row" gap={1}>
+      <Typography variant="body2" fontWeight={700} whiteSpace="nowrap">{userName}</Typography>
+      <Typography variant="caption" >{content}</Typography>
+    </Stack>
+  )
 }
