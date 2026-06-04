@@ -75,6 +75,11 @@ export const ExplorerFilterDesktop = {
     const chipRef = useRef<HTMLDivElement>(null)
     const [open, setOpen] = useState(false)
 
+    const handleSelect = (cat: PlaceCategoryType | undefined) => {
+      setCategory(cat)
+      setOpen(false)
+    }
+
     return (
       <>
         <Chip
@@ -93,14 +98,14 @@ export const ExplorerFilterDesktop = {
           anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
           transformOrigin={{ vertical: 'top', horizontal: 'left' }}
         >
-          <MenuItem onClick={() => { setCategory(undefined); setOpen(false) }}>
-            {category == null && <ListItemIcon><CheckIcon fontSize="small" color="primary" /></ListItemIcon>}
+          <MenuItem onClick={() => handleSelect(undefined)}>
+            {category === undefined && <ListItemIcon><CheckIcon fontSize="small" color="primary" /></ListItemIcon>}
             전체
           </MenuItem>
           {EXPLORER_CATEGORY_TYPES.map((cat: PlaceCategoryType) => (
             <MenuItem
               key={cat}
-              onClick={() => { setCategory(cat); setOpen(false) }}
+              onClick={() => handleSelect(cat)}
             >
               {category === cat && <ListItemIcon><CheckIcon fontSize="small" color="primary" /></ListItemIcon>}
               {PlaceCategoryTypeLabel[cat]}
