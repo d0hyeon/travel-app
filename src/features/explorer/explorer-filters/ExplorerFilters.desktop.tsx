@@ -1,72 +1,71 @@
 import CheckIcon from '@mui/icons-material/Check'
-import { Button, Chip, ListItemIcon, Menu, MenuItem, Paper, Popover, Stack } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
+import { Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, ListItemIcon, Menu, MenuItem, Stack } from '@mui/material'
 import { useRef, useState } from 'react'
-import type { Location } from '~features/location'
 import { LocationForm } from '~features/location/LocationForm'
 import type { PlaceCategoryType } from '~features/place/place.types'
 import { PlaceCategoryTypeLabel } from '~features/place/place.types'
+import { useOverlay } from '~shared/hooks/useOverlay'
 import { EXPLORER_CATEGORY_TYPES } from '../explorer.api'
 import { useExplorerFilterParams } from './useExplorerFilterParams'
 
 const CHIP_SX = { fontSize: 11, height: 26 } as const
 
-export const ExplorerFilterDesktop = {
+export const ExplorerFilters = {
   LocationChip: () => {
     const { location, setLocation } = useExplorerFilterParams()
-    const chipRef = useRef<HTMLDivElement>(null)
-    const [open, setOpen] = useState(false)
 
-    const handleSubmit = (value: Location) => {
-      setLocation(value)
-      setOpen(false)
-    }
-    const handleReset = () => {
-      setLocation(undefined)
-      setOpen(false)
-    }
-
-    return (
-      <>
-        <Chip
-          ref={chipRef}
-          label={location ?? '지역'}
-          onClick={() => setOpen(true)}
-          color={location ? 'primary' : 'default'}
-          variant="outlined"
-          size="small"
-          sx={{ ...CHIP_SX, fontWeight: location ? 700 : 400 }}
-        />
-        <Popover
-          open={open}
-          anchorEl={chipRef.current}
-          onClose={() => setOpen(false)}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-          transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-        >
-          <Paper sx={{ width: 320, p: 2 }}>
+    const overlay = useOverlay();
+    const openLocationForm = () => {
+      overlay.open(({ isOpen, close }) => (
+        <Dialog open={isOpen} onClose={close} maxWidth="xs" fullWidth>
+          <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <DialogTitle>지역 선택</DialogTitle>
+            <IconButton onClick={close} sx={{ marginRight: 1 }}>
+              <CloseIcon />
+            </IconButton>
+          </Stack>
+          <DialogContent sx={{ padding: 0 }}>
             <LocationForm
               defaultValue={location ?? undefined}
-              onSubmit={handleSubmit}
+              onSubmit={(location) => {
+                setLocation(location)
+                close();
+              }}
+              paddingInline={0}
             >
-              <Stack direction="row" gap={1} mt={2}>
+              <DialogActions sx={{ position: 'sticky', paddingRight: 2, bottom: 0, bgcolor: 'white', scrollbarWidth: '2px' }}>
                 <Button
                   type="button"
                   color="error"
                   variant="outlined"
-                  size="small"
-                  onClick={handleReset}
+                  onClick={() => {
+                    setLocation(undefined);
+                    close();
+                  }}
                   fullWidth
                 >
                   초기화
                 </Button>
-                <LocationForm.SubmitButton variant="contained" size="small" fullWidth>
+                <LocationForm.SubmitButton fullWidth variant="contained" >
                   확인
                 </LocationForm.SubmitButton>
-              </Stack>
+              </DialogActions>
             </LocationForm>
-          </Paper>
-        </Popover>
-      </>
+          </DialogContent>
+        </Dialog >
+      ))
+    }
+
+    return (
+      <Chip
+        label={location ?? '지역'}
+        onClick={() => openLocationForm()}
+        color={location ? 'primary' : 'default'}
+        variant="outlined"
+        size="small"
+        sx={{ ...CHIP_SX, fontWeight: location ? 700 : 400 }}
+      />
     )
   },
 
@@ -82,6 +81,7 @@ export const ExplorerFilterDesktop = {
 
     return (
       <>
+
         <Chip
           ref={chipRef}
           label={category ? PlaceCategoryTypeLabel[category] : '카테고리'}

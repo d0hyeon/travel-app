@@ -1,37 +1,30 @@
-import { Box, Stack, Typography } from '@mui/material'
-import { Suspense } from 'react'
+import { Box, Stack, Typography, Container } from '@mui/material'
+import { Suspense, useRef } from 'react'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.desktop'
 import { SwitchCase } from '~shared/components/SwitchCase'
-import { ExplorerFilterDesktop } from './explorer-filters/ExplorerFilters.desktop'
+import { ExplorerFilters } from './explorer-filters/ExplorerFilters.desktop'
 import { ExplorerViewToggleButton, useExplorerViewMode } from './explorer-view/ExplorerViewToggleButton'
 import { ExplorerCatalog } from './ExplorerCatalog'
 import { ExplorerMap } from './ExplorerMap'
 
 export function PlaceExplorerPageDesktop() {
   const [viewMode, setViewMode] = useExplorerViewMode()
+  const titleRef = useRef(null)
 
   return (
     <Box height="100%" display="flex" flexDirection="column" bgcolor="background.paper">
       <TopNavigation
         leftElement={null}
         rightElement={<ExplorerViewToggleButton value={viewMode} onChange={setViewMode} />}
+        sx={{ borderBottom: 0, paddingBottom: 0 }}
       >
-        <Typography variant="subtitle1" fontWeight={600}>탐색</Typography>
+        <Typography ref={titleRef} variant="subtitle1" fontWeight={600}>탐색</Typography>
       </TopNavigation>
 
-      <Stack
-        direction="row"
-        gap={1}
-        alignItems="center"
-        px={2}
-        py={1}
-        borderBottom={1}
-        borderColor="divider"
-        flexShrink={0}
-      >
+      <Stack direction="row" gap={1} alignItems="center" px={2} py={1} borderBottom={1} borderColor="divider" flexShrink={0}>
         <Suspense>
-          <ExplorerFilterDesktop.LocationChip />
-          <ExplorerFilterDesktop.CategoryChip />
+          <ExplorerFilters.LocationChip />
+          <ExplorerFilters.CategoryChip />
         </Suspense>
       </Stack>
 
@@ -41,7 +34,11 @@ export function PlaceExplorerPageDesktop() {
             value={viewMode}
             cases={{
               map: () => <ExplorerMap height="100%" />,
-              list: () => <ExplorerCatalog />,
+              list: () => (
+                <Container>
+                  <ExplorerCatalog />
+                </Container>
+              ),
             }}
           />
         </Suspense>

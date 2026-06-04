@@ -1,11 +1,11 @@
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
-import { Box, Button, Grid, Skeleton, Stack, Typography } from '@mui/material'
+import { Box, Button, Skeleton, Stack, Typography } from '@mui/material'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
 import { useExplorerDetailOverlay } from '../explorer-detail/useExplorerDetailOverlay'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
-import { PlaceCard } from '../explorer-place-item/PlaceCard'
+import { PlaceListItem } from '../explorer-place-item/PlaceListItem'
 import { buildExplorerDetailUrl } from '../explorer.utils'
 import { useExploredPlaces } from './useExploredPlaces'
 import { SECTION_LIMIT, DESKTOP_SKELETON_CARDS, formatVisitorCount } from './topVisitedSection.constants'
@@ -44,19 +44,16 @@ export function TopVisitedSectionDesktop() {
         </Typography>
       )}
 
-      <Grid container spacing={2} px={2}>
+      <Stack>
         {mostVisitedPlaces.map((place) => (
-          <Grid key={place.placeId} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-            <PlaceCard
-              place={{
-                ...place,
-                countLabel: formatVisitorCount(place.visitorCount),
-              }}
-              onClick={() => openSideSheet(place)}
-            />
-          </Grid>
+          <PlaceListItem
+            key={place.placeId}
+            place={{ ...place, countLabel: formatVisitorCount(place.visitorCount) }}
+            onClick={() => openSideSheet(place)}
+            size="large"
+          />
         ))}
-      </Grid>
+      </Stack>
     </Box>
   )
 }
@@ -64,18 +61,15 @@ export function TopVisitedSectionDesktop() {
 TopVisitedSectionDesktop.Skeleton = () => (
   <Box>
     <Skeleton variant="text" width={100} height={28} sx={{ mx: 2, mb: 1.5 }} />
-    <Grid container spacing={2} px={2}>
-      {Array.from({ length: DESKTOP_SKELETON_CARDS }).map((_, i) => (
-        <Grid key={i} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-          <Box sx={{ borderRadius: 3, overflow: 'hidden', border: 1, borderColor: 'divider' }}>
-            <Skeleton variant="rectangular" sx={{ aspectRatio: '1' }} />
-            <Box p={1.5}>
-              <Skeleton variant="text" width="80%" height={16} />
-              <Skeleton variant="text" width={60} height={14} sx={{ mt: 0.5 }} />
-            </Box>
-          </Box>
-        </Grid>
-      ))}
-    </Grid>
+    {Array.from({ length: DESKTOP_SKELETON_CARDS }).map((_, i) => (
+      <Stack key={i} direction="row" gap={1.5} px={2} py={1.25} alignItems="center">
+        <Skeleton variant="rounded" width={64} height={64} sx={{ borderRadius: 2, flexShrink: 0 }} />
+        <Box flex={1}>
+          <Skeleton variant="text" width="60%" height={16} />
+          <Skeleton variant="text" width="80%" height={14} />
+          <Skeleton variant="text" width={80} height={14} sx={{ mt: 0.5 }} />
+        </Box>
+      </Stack>
+    ))}
   </Box>
 )

@@ -40,41 +40,50 @@ export function PlaceExplorerDetailSidePanel({ place, isOpen = true, onClose }: 
       sx={{ zIndex: 1000 }}
       PaperProps={{
         sx: {
-          width: 500,
-          maxWidth: 'calc(100% - 72px)',
+          width: 480,
+          maxWidth: 'calc(100vw - 72px)',
+          display: 'flex',
+          flexDirection: 'column',
         },
       }}
     >
-      <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-        <Stack direction="row" alignItems="flex-start" justifyContent="space-between" p={2} pb={1}>
-          <Box flex={1}>
-            <Typography variant="subtitle1" fontWeight={700}>{place.name}</Typography>
-          </Box>
-          <IconButton size="small" onClick={onClose}>
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        </Stack>
+      {/* 헤더: 고정 */}
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        sx={{ px: 2, py: 1.5, borderBottom: 1, borderColor: 'divider', flexShrink: 0 }}
+      >
+        <Typography variant="subtitle1" fontWeight={700} noWrap flex={1}>
+          {place.name}
+        </Typography>
+        <IconButton size="small" onClick={onClose} sx={{ ml: 1 }}>
+          <CloseIcon fontSize="small" />
+        </IconButton>
+      </Stack>
 
-        <Box px={2} pb={2} overflow="auto" flex={1}>
-          <Tabs variant="fullWidth" value={currentTab} onChange={(_, value) => changeTab(value)} >
-            <Tab label="기본정보" value="basic" />
-            <Tab label="피드" value="feed" />
-          </Tabs>
+      {/* 탭: 고정 */}
+      <Tabs
+        variant="fullWidth"
+        value={currentTab}
+        onChange={(_, value) => changeTab(value)}
+        sx={{ borderBottom: 1, borderColor: 'divider', flexShrink: 0 }}
+      >
+        <Tab label="기본정보" value="basic" />
+        <Tab label="피드" value="feed" />
+      </Tabs>
 
-
-          <Box mt={1.5}>
-            <Suspense fallback={<Box display="flex" justifyContent="center"><CircularProgress size={20} /></Box>}>
-              <SwitchCase
-                value={currentTab}
-                cases={{
-                  basic: <PlaceBasicInfo placeId={place.placeId} />,
-                  feed: () => <PlaceFeed placeId={place.placeId} />
-                }}
-              />
-            </Suspense>
-
-          </Box>
-        </Box>
+      {/* 콘텐츠: 스크롤 */}
+      <Box flex={1} overflow="auto">
+        <Suspense fallback={<Box display="flex" justifyContent="center" pt={4}><CircularProgress size={24} /></Box>}>
+          <SwitchCase
+            value={currentTab}
+            cases={{
+              basic: <PlaceBasicInfo placeId={place.placeId} />,
+              feed: () => <PlaceFeed placeId={place.placeId} />,
+            }}
+          />
+        </Suspense>
       </Box>
     </Drawer>
   )
@@ -94,7 +103,7 @@ function PlaceFeed({ placeId }: ContentProps) {
   }
 
   return (
-    <Stack gap={1}>
+    <Stack gap={1} p={2}>
       {feed.map(post => (
         <PostCard key={post.id} post={post} />
       ))}
@@ -109,7 +118,7 @@ function PlaceBasicInfo({ placeId }: { placeId: string }) {
   const overlay = useOverlay()
 
   return (
-    <Stack gap={1}>
+    <Stack gap={2} p={2}>
       <Map
         type={isOverseasByCoordinate(place.lat, place.lng) ? 'google' : 'kakao'}
         height={300}

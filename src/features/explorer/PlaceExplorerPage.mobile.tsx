@@ -10,18 +10,7 @@ import { FilterNavigation } from './explorer-view/FilterNavigation'
 import { ExplorerCatalog } from './ExplorerCatalog'
 import { ExplorerMap } from './ExplorerMap'
 
-function FilterChips({ isScrollDown, titleRef }: { isScrollDown: boolean; titleRef: React.RefObject<null> }) {
-  return (
-    <Suspense>
-      <Extrude active={isScrollDown} target={titleRef.current} axis="y">
-        <Stack direction="row" gap={1} alignItems="center">
-          <ExplorerFilterMobile.LocationChip />
-          <ExplorerFilterMobile.CategoryChip />
-        </Stack>
-      </Extrude>
-    </Suspense>
-  )
-}
+
 
 export function PlaceExplorerPageMobile() {
   const [viewMode, setViewMode] = useExplorerViewMode()
@@ -45,7 +34,12 @@ export function PlaceExplorerPageMobile() {
         paddingBottom={isScrollDown ? 0 : 1}
         sx={{ zIndex: 1000, transition: 'all 200ms', position: 'fixed', top: TopNavigation.HEIGHT }}
       >
-        <FilterChips isScrollDown={isScrollDown} titleRef={titleRef} />
+        <Extrude active={isScrollDown} target={titleRef.current} axis="y">
+          <Stack direction="row" gap={1} alignItems="center">
+            <ExplorerFilterMobile.LocationChip />
+            <ExplorerFilterMobile.CategoryChip />
+          </Stack>
+        </Extrude>
       </FilterNavigation>
 
       <Box
