@@ -19,6 +19,7 @@ import { OverlayProvider } from '~shared/hooks/useOverlay'
 
 import '~shared/index.css'
 import { ToastRenderer } from './ToastRenderer'
+import { AppInitializer } from './AppInitializer'
 
 
 
@@ -99,6 +100,7 @@ export default function Root() {
                 <ToastRenderer />
               </SearchParamProvider>
               <Installer />
+              <AppInitializer />
             </OverlayProvider>
           </ErrorBoundary>
         </LocalizationProvider>

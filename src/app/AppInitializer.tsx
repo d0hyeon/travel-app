@@ -1,26 +1,28 @@
-import { Box, Button, Stack, Typography } from '@mui/material'
-import { Suspense } from 'react'
-import { Outlet } from 'react-router'
-import { toast } from 'sonner'
-import { AuthNavigate } from '~features/auth/AuthNavigate'
-import { useAuth } from '~features/auth/useAuth'
-import { getActivedChatTripId } from '~features/trip/trip-chat/notification/useChatActivation'
-import { useChatWebPushFallback as useChatBrowserPushFallback } from '~features/trip/trip-chat/notification/useChatWebPushFallback'
-import { useTripChatOverlay } from '~features/trip/trip-chat/useTripChatOverlay'
-import { useIsMobile } from '~shared/hooks/env/useIsMobile'
+import { Button, Stack, Typography } from "@mui/material";
+import { Suspense } from "react";
+import { toast } from "sonner";
+import { AuthStateSync, useAuth } from "~features/auth/useAuth";
+import { getActivedChatTripId } from "~features/trip/trip-chat/notification/useChatActivation";
+import { useChatWebPushFallback as useChatBrowserPushFallback } from '~features/trip/trip-chat/notification/useChatWebPushFallback';
+import { useTripChatOverlay } from "~features/trip/trip-chat/useTripChatOverlay";
+import { useIsMobile } from "~shared/hooks/env/useIsMobile";
 
-export default function AuthInitializerLayout() {
+export function AppInitializer() {
+  const { data: auth } = useAuth({ required: false });
+
   return (
     <>
-      <Outlet />
-      <Suspense>
-        <ChatInWebPush />
-      </Suspense>
+      <AuthStateSync />
+      {auth != null && (
+        <Suspense>
+          <InWebPush />
+        </Suspense>
+      )}
     </>
   )
 }
 
-function ChatInWebPush() {
+function InWebPush() {
   const { open } = useTripChatOverlay();
   const isMobile = useIsMobile();
 
