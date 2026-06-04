@@ -1,5 +1,5 @@
 import { type User } from '@supabase/supabase-js';
-import { useQueryClient, useSuspenseQuery, type UseQueryOptions } from '@tanstack/react-query';
+import { useQueryClient, useSuspenseQuery, type UseQueryOptions, type UseSuspenseQueryResult } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { supabase } from '~api/client';
 import { queryClient } from '~app/query-client';
@@ -13,7 +13,13 @@ export type Auth = User & {
   profile: UserProfile;
 }
 
-export function useAuth() {
+type UseAuthOptions = {
+  required?: boolean;
+}
+
+export function useAuth(options: { required: false }): UseSuspenseQueryResult<Auth | null>
+export function useAuth(options?: UseAuthOptions): UseSuspenseQueryResult<Auth>
+export function useAuth({ required }: UseAuthOptions = {}) {
   const { data, ...queries } = useSuspenseQuery({
     queryKey: ['auth'],
     queryFn: async () => {
@@ -27,8 +33,9 @@ export function useAuth() {
     },
     ...REFETCH_LOCK_OPTIONS
   });
-  console.log({data,})
-  assert(!!data, new AuthError());
+  if (required) {
+    assert(!!data, new AuthError());
+  }
 
   return { data, ...queries }
 }
@@ -37,6 +44,7 @@ export function getAuth() {
 
   return auth ?? null;
 }
+
 
 /** 앱 전체에서 한 번만 마운트해야 함 (root.tsx) */
 export function AuthStateSync() {
