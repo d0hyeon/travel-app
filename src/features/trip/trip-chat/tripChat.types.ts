@@ -5,6 +5,7 @@ export interface ChatMessage {
   tripId: string;
   userId: string;
   profile?: UserProfile;
+  userName: string;
   content: string;
   createdAt: string;
 }

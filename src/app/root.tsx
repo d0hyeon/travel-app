@@ -1,9 +1,10 @@
 import { Alert, AlertTitle, Button, CssBaseline, Fade, ThemeProvider, Typography } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider, } from '@tanstack/react-query'
 import { Suspense, useEffect } from 'react'
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router'
+import { Links, Meta, Outlet, Scripts } from 'react-router'
+import { Toaster } from 'sonner'
 import { registerSW } from 'virtual:pwa-register'
 import { queryClient } from '~app/query-client'
 import { AuthError } from '~features/auth/AuthError'
@@ -15,6 +16,8 @@ import { ErrorBoundary } from '~shared/components/ErrorBoundary'
 import { theme } from '~shared/config/theme'
 import { SearchParamProvider } from '~shared/hooks/urls/useSearchParams'
 import { OverlayProvider } from '~shared/hooks/useOverlay'
+
+
 import '~shared/index.css'
 
 
@@ -29,6 +32,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
         <script type="text/javascript" src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${import.meta.env.VITE_KAKAO_MAP_KEY}&autoload=false&libraries=services`} defer />
         <script src="https://unpkg.com/scheduler-polyfill" defer />
+
 
         <link href="https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/static/woff2/SUIT.css" rel="stylesheet" />
         <link rel="icon" type="image/svg+xml" href="/favicon.png" />
@@ -70,6 +74,8 @@ export default function Root() {
               <CssBaseline />
               {/* <TouchRippleOverlay /> */}
               <SearchParamProvider>
+
+
                 <Suspense
                   fallback={
                     <Fade in={true}>
@@ -91,6 +97,11 @@ export default function Root() {
 
                   <AuthStateSync />
                 </Suspense>
+                <Toaster
+                  toastOptions={{
+                    style: { justifyContent: 'space-between' }
+                  }}
+                />
               </SearchParamProvider>
               <Installer />
             </OverlayProvider>

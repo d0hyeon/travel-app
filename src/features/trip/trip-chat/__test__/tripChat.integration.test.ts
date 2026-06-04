@@ -101,6 +101,7 @@ describe('trip-chat 통합', () => {
         id: m.id,
         tripId: m.trip_id,
         userId: m.user_id,
+        userName: m.user_name,
         content: m.content,
         createdAt: m.created_at,
       })))
@@ -112,8 +113,8 @@ describe('trip-chat 통합', () => {
       const lastReadAt = getLastReadAt(MOCK_TRIP_ID)!
 
       const messages = [
-        { id: '1', tripId: MOCK_TRIP_ID, userId: 'u', content: 'old', createdAt: new Date(new Date(lastReadAt).getTime() - 1000).toISOString() },
-        { id: '2', tripId: MOCK_TRIP_ID, userId: 'u', content: 'new', createdAt: new Date(new Date(lastReadAt).getTime() + 1000).toISOString() },
+        { id: '1', tripId: MOCK_TRIP_ID, userId: 'u', userName: 'u', content: 'old', createdAt: new Date(new Date(lastReadAt).getTime() - 1000).toISOString() },
+        { id: '2', tripId: MOCK_TRIP_ID, userId: 'u', userName: 'u', content: 'new', createdAt: new Date(new Date(lastReadAt).getTime() + 1000).toISOString() },
       ]
       expect(getUnreadCount(MOCK_TRIP_ID, messages)).toBe(1)
     })

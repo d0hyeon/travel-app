@@ -6,30 +6,34 @@ import { queryClient } from '~app/query-client';
 import { updateProfile } from './auth.api';
 import { assert } from '~shared/utils/types';
 import { AuthError } from './AuthError';
+import { getUserProfileById } from '~features/user-profile/user-profile.api';
+import type { UserProfile } from '~features/user-profile/user-profile.type';
+
+export type Auth = User & {
+  profile: UserProfile;
+}
 
 export function useAuth() {
   const { data, ...queries } = useSuspenseQuery({
     queryKey: ['auth'],
     queryFn: async () => {
-      const {
-        data: { session },
-        error
-      } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user == null) return null;
 
-      if (error) {
-        throw error;
-      }
+      const profile = await getUserProfileById(session.user.id);
+      if (profile == null) return null;
 
-      return session?.user ?? null;
+      return { ...session.user, profile };
     },
     ...REFETCH_LOCK_OPTIONS
   });
+  console.log({data,})
   assert(!!data, new AuthError());
 
   return { data, ...queries }
 }
 export function getAuth() {
-  const auth = queryClient.getQueryData<User | null>(['auth']);
+  const auth = queryClient.getQueryData<Auth | null>(['auth']);
 
   return auth ?? null;
 }
@@ -41,10 +45,13 @@ export function AuthStateSync() {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth
       .onAuthStateChange(async (event, session) => {
-        queryClient.setQueryData<User | null>(['auth'], session?.user ?? null);
+        if (session?.user == null) return;
+        queryClient.setQueryData<User | null>(['auth'], (curr) => {
+          if (curr == null) return session.user;
+          return { ...curr, ...session.user }
+        });
         
         if (event === 'USER_UPDATED') {
-          if (session == null) return;
           const meta = session.user.user_metadata;
           const name = meta.nickname ?? meta.name ?? meta.full_name ?? '';
           const avatarUrl = meta.picture ?? meta.avatar_url ?? null;
