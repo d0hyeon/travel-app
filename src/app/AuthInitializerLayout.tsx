@@ -8,19 +8,15 @@ import { getActivedChatTripId } from '~features/trip/trip-chat/notification/useC
 import { useChatWebPushFallback as useChatBrowserPushFallback } from '~features/trip/trip-chat/notification/useChatWebPushFallback'
 import { useTripChatOverlay } from '~features/trip/trip-chat/useTripChatOverlay'
 
-export default function AuthGuardLayout() {
+export default function AuthInitializerLayout() {
   const { data: user } = useAuth()
-
-  if (!user) {
-    return <AuthNavigate />
-  }
 
   return (
     <>
+      <Outlet />
       <Suspense>
         <ChatInWebPush />
       </Suspense>
-      <Outlet />
     </>
   )
 }
