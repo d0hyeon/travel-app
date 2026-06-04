@@ -1,14 +1,12 @@
-import { useSnackbar } from 'notistack'
+import { Button } from '@mui/material'
 import { Suspense } from 'react'
 import { Outlet } from 'react-router'
+import { toast } from 'sonner'
 import { AuthNavigate } from '~features/auth/AuthNavigate'
 import { useAuth } from '~features/auth/useAuth'
 import { getActivedChatTripId } from '~features/trip/trip-chat/notification/useChatActivation'
 import { useChatWebPushFallback as useChatBrowserPushFallback } from '~features/trip/trip-chat/notification/useChatWebPushFallback'
-import { Toaster, toast } from 'sonner'
 import { useTripChatOverlay } from '~features/trip/trip-chat/useTripChatOverlay'
-import { Button } from '@mui/material'
-import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 
 export default function AuthGuardLayout() {
   const { data: user } = useAuth()
