@@ -7,6 +7,7 @@ describe('ChatMessage 타입', () => {
       id: 'msg-1',
       tripId: 'trip-1',
       userId: 'user-1',
+      userName: '테스트 유저',
       content: '안녕',
       createdAt: '2026-05-31T00:00:00Z',
     }

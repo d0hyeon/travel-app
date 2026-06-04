@@ -6,6 +6,7 @@ const makeMessage = (id: string, createdAt: string): ChatMessage => ({
   id,
   tripId: 'trip-1',
   userId: 'user-1',
+  userName: '테스트 유저',
   content: 'hello',
   createdAt,
 })

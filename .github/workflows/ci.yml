@@ -12,19 +12,22 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: yarn
+          node-version: 22
+          cache: 'yarn'
       - run: yarn install --frozen-lockfile
       - run: yarn ts-check
 
   test:
     name: Unit Tests
     runs-on: ubuntu-latest
+    env:
+      VITE_SUPABASE_URL: https://placeholder.supabase.co
+      VITE_SUPABASE_ANON_KEY: placeholder
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: yarn
+          node-version: 22
+          cache: 'yarn'
       - run: yarn install --frozen-lockfile
       - run: yarn test

@@ -16,6 +16,7 @@ export const MOCK_SESSION = {
     user_metadata: { name: '테스트 유저' },
     created_at: '2025-01-01T00:00:00Z',
     updated_at: '2025-01-01T00:00:00Z',
+    profile: { name: '테스트 유저' },
   },
 }
 

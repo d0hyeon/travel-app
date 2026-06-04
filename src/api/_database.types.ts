@@ -509,6 +509,7 @@ export type Database = {
           id: string
           trip_id: string
           user_id: string
+          user_name: string
         }
         Insert: {
           content: string
@@ -516,6 +517,7 @@ export type Database = {
           id?: string
           trip_id: string
           user_id: string
+          user_name: string
         }
         Update: {
           content?: string
@@ -523,6 +525,7 @@ export type Database = {
           id?: string
           trip_id?: string
           user_id?: string
+          user_name?: string
         }
         Relationships: [
           {

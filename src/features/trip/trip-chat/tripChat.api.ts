@@ -9,6 +9,7 @@ function toMessage(row: {
   id: string
   trip_id: string
   user_id: string
+  user_name: string
   content: string
   created_at: string
 }): ChatMessage {
@@ -16,6 +17,7 @@ function toMessage(row: {
     id: row.id,
     tripId: row.trip_id,
     userId: row.user_id,
+    userName: row.user_name,
     content: row.content,
     createdAt: row.created_at,
   }
@@ -47,6 +49,7 @@ export function subscribeTripMessages(
           id: row.id,
           tripId: row.trip_id,
           userId: row.user_id,
+          userName: row.user_name,
           content: row.content,
           createdAt: row.created_at,
         }
@@ -60,13 +63,35 @@ export function subscribeTripMessages(
   
 }
 
+export function subscribeAllTripMessages(
+  callback: (data: ChatMessage) => void
+) {
+  const channel = supabase
+    .channel('trip_messages:all')
+    .on<DataRaw<'trip_messages'>>(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'trip_messages' },
+      ({ new: row }) => callback({
+        id: row.id,
+        tripId: row.trip_id,
+        userId: row.user_id,
+        userName: row.user_name,
+        content: row.content,
+        createdAt: row.created_at,
+      })
+    )
+    .subscribe()
+
+  return () => { void supabase.removeChannel(channel) }
+}
+
 export async function sendChatMessage(tripId: string, content: string): Promise<ChatMessage> {
   const user = getAuth()
   if (!user) throw new Error('로그인이 필요합니다')
-
+    
   const { data, error } = await supabase
     .from('trip_messages')
-    .insert({ trip_id: tripId, user_id: user.id, content })
+    .insert({ trip_id: tripId, user_id: user.id, user_name: user.profile.name, content })
     .select()
     .single()
 
@@ -76,7 +101,7 @@ export async function sendChatMessage(tripId: string, content: string): Promise<
     body: {
       tripId,
       senderId: user.id,
-      body: `${user.user_metadata?.name ?? '알 수 없음'}: ${content.length > 50 ? content.slice(0, 50) + '…' : content}`,
+      body: `${user.profile.name }: ${content.length > 50 ? content.slice(0, 50) + '…' : content}`,
     },
   }).catch(() => {})
 
