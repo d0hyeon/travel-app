@@ -1,4 +1,4 @@
-import { Alert, AlertTitle, Button, CssBaseline, Fade, ThemeProvider, Typography } from '@mui/material'
+import { CssBaseline, ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { QueryClientProvider, } from '@tanstack/react-query'
@@ -6,20 +6,18 @@ import { Suspense, useEffect } from 'react'
 import { Links, Meta, Outlet, Scripts } from 'react-router'
 import { registerSW } from 'virtual:pwa-register'
 import { queryClient } from '~app/query-client'
-import { AuthError } from '~features/auth/AuthError'
-import { useAuthNavigate } from '~features/auth/AuthNavigate'
-import { AuthStateSync } from '~features/auth/useAuth'
-import { IntroFullScreenBanner } from '~features/intro/IntroFullScreenBanner'
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
-import { ErrorBoundary } from '~shared/components/ErrorBoundary'
 import { theme } from '~shared/config/theme'
 import { SearchParamProvider } from '~shared/hooks/urls/useSearchParams'
 import { OverlayProvider } from '~shared/hooks/useOverlay'
 
 
+import { AuthErrorBoundary } from '~features/auth/AuthErrorBoundary'
+import { CommonErrorBoundary } from '~shared/components/CommonErrorBoundary'
 import '~shared/index.css'
-import { ToastRenderer } from './ToastRenderer'
 import { AppInitializer } from './AppInitializer'
+import { SplashScreen } from './SplashScreen'
+import { ToastRenderer } from './ToastRenderer'
 
 
 
@@ -52,57 +50,26 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function Root() {
-  const login = useAuthNavigate();
 
   return (
     <ThemeProvider theme={theme}>
       <QueryClientProvider client={queryClient}>
         <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <ErrorBoundary
-            fallback={({ error, resetError }) => (
-              <Alert
-                color="error"
-                action={(<Button size="small" variant='contained' onClick={resetError}>재시도</Button>)}
-                sx={{ margin: 2, marginX: 1.5 }}
-              >
-                <AlertTitle>에러가 발생했어요!</AlertTitle>
-                <Typography variant="caption">{error.message}</Typography>
-              </Alert>
-            )}
-          >
+          <CommonErrorBoundary>
+            <CssBaseline />
             <OverlayProvider>
-              <CssBaseline />
-              {/* <TouchRippleOverlay /> */}
               <SearchParamProvider>
-
-
-                <Suspense
-                  fallback={
-                    <Fade in={true}>
-                      <div>
-                        <IntroFullScreenBanner />
-                      </div>
-                    </Fade>
-                  }
-                >
-                  <ErrorBoundary
-                    onError={async (_, resetError) => {
-                      await login()
-                      resetError();
-                    }}
-                    ignoreError={error => !AuthError.isAuthError(error)}
-                  >
+                <Suspense fallback={<SplashScreen />}>
+                  <AuthErrorBoundary>
                     <Outlet />
-                  </ErrorBoundary>
-
-                  <AuthStateSync />
+                  </AuthErrorBoundary>
                 </Suspense>
-                <ToastRenderer />
               </SearchParamProvider>
-              <Installer />
+
               <AppInitializer />
+              <ToastRenderer />
             </OverlayProvider>
-          </ErrorBoundary>
+          </CommonErrorBoundary>
         </LocalizationProvider>
       </QueryClientProvider>
     </ThemeProvider>

@@ -1,13 +1,27 @@
 import { Button, Stack, Typography } from "@mui/material";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { toast } from "sonner";
+import { registerSW } from "virtual:pwa-register";
 import { AuthStateSync, useAuth } from "~features/auth/useAuth";
 import { getActivedChatTripId } from "~features/trip/trip-chat/notification/useChatActivation";
 import { useChatWebPushFallback as useChatBrowserPushFallback } from '~features/trip/trip-chat/notification/useChatWebPushFallback';
 import { useTripChatOverlay } from "~features/trip/trip-chat/useTripChatOverlay";
+import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
 import { useIsMobile } from "~shared/hooks/env/useIsMobile";
 
 export function AppInitializer() {
+  const confirm = useConfirmDialog();
+
+  useEffect(() => {
+    const updateSW = registerSW({
+      // immediate: true,
+      async onNeedRefresh() {
+        const isConfirm = await confirm('새로운 버전이 출시되었어요.\n업데이트를 진행할게요');
+        if (isConfirm) updateSW(true);
+      },
+    })
+  }, []);
+
   const { data: auth } = useAuth({ required: false });
 
   return (
