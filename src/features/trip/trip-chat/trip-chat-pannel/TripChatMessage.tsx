@@ -1,6 +1,9 @@
 import { useAuth } from "~features/auth/useAuth"
 import type { ChatMessage } from "../tripChat.types"
 import { Avatar, Box, Stack, Typography } from "@mui/material";
+import { extractUrls, renderTextWithLinks } from "~shared/utils/urls";
+import { useOgPreview } from "~shared/hooks/useOgPreview";
+import { OgPreviewCard } from "~shared/components/OgPreviewCard";
 
 interface Props {
   message: ChatMessage
@@ -9,6 +12,8 @@ interface Props {
 export function TripChatMessage({ message }: Props) {
   const { data: { id } } = useAuth();
   const isMe = message.userId === id;
+  const firstUrl = extractUrls(message.content)[0] ?? null;
+  const { data: ogData, isLoading: ogLoading } = useOgPreview(firstUrl);
 
   return (
     <Stack direction={isMe ? 'row-reverse' : 'row'} alignItems="flex-end" gap={1}>
@@ -36,9 +41,14 @@ export function TripChatMessage({ message }: Props) {
           }}
         >
           <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-            {message.content}
+            {renderTextWithLinks(message.content)}
           </Typography>
         </Box>
+        {firstUrl && (
+          <Box width="100%">
+            <OgPreviewCard data={ogData} isLoading={ogLoading} />
+          </Box>
+        )}
         <Typography variant="caption" color="text.disabled" mt={0.25}>
           {new Date(message.createdAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}
         </Typography>
