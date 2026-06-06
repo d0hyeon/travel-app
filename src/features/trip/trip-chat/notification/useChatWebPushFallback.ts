@@ -4,16 +4,16 @@ import type { ChatMessage } from '../tripChat.types'
 import { subscribeAllTripMessages } from '../tripChat.api'
 
 export function useChatWebPushFallback(onFallback: (message: ChatMessage) => void) {
-  const { isEnabled } = useWebPushSubscription()
+  const { isEnabled, isSubscribed } = useWebPushSubscription()
 
   useEffect(() => {
-    if (isEnabled) return
+    if (isEnabled || isSubscribed) return
 
     const unsubscribe = subscribeAllTripMessages((message) => {
       onFallback(message)
     })
     
     return () => unsubscribe();
-  }, [isEnabled])
+  }, [isEnabled, isSubscribed])
 
 }
