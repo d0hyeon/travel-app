@@ -12,8 +12,7 @@ interface Props {
 export function TripChatMessage({ message }: Props) {
   const { data: { id } } = useAuth();
   const isMe = message.userId === id;
-  const firstUrl = extractUrls(message.content)[0] ?? null;
-  const { data: ogData, isLoading: ogLoading } = useOgPreview(firstUrl);
+  const externalLinks = extractUrls(message.content);
 
   return (
     <Stack direction={isMe ? 'row-reverse' : 'row'} alignItems="flex-end" gap={1}>
@@ -44,9 +43,9 @@ export function TripChatMessage({ message }: Props) {
             {renderTextWithLinks(message.content)}
           </Typography>
         </Box>
-        {firstUrl && (
-          <Box width="100%">
-            <OgPreviewCard data={ogData} isLoading={ogLoading} />
+        {externalLinks.length > 0 && (
+          <Box width="100%" marginTop={1}>
+            <OgPreviewCard url={externalLinks[0]} />
           </Box>
         )}
         <Typography variant="caption" color="text.disabled" mt={0.25}>
