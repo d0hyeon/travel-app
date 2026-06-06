@@ -7,9 +7,12 @@ import { Suspense } from 'react';
 import { generatePath, useNavigate, useParams } from 'react-router';
 import { AppRoute } from '~app/routes';
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog';
+import { OgPreviewCard } from '~shared/components/OgPreviewCard';
 import { PopMenu } from '~shared/components/PopMenu';
-import { useTripMemo } from './useTripMemo';
+import { useOgPreview } from '~shared/hooks/useOgPreview';
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile';
+import { extractUrls, renderTextWithLinks } from '~shared/utils/urls';
+import { useTripMemo } from './useTripMemo';
 import { formatDate } from 'date-fns';
 
 export default function TripMemoDetailPage() {
@@ -36,6 +39,9 @@ function Resolved() {
       </Stack>
     );
   }
+
+  const firstUrl = extractUrls(memo.content)[0] ?? null;
+  const { data: ogData, isLoading: ogLoading } = useOgPreview(firstUrl);
 
   return (
     <Stack height="100%">
@@ -86,8 +92,11 @@ function Resolved() {
           color={memo.title ? 'text.secondary' : 'text.primary'}
           sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
         >
-          {memo.content}
+          {renderTextWithLinks(memo.content)}
         </Typography>
+        {firstUrl && (
+          <OgPreviewCard data={ogData} isLoading={ogLoading} />
+        )}
       </Stack>
     </Stack>
   );
