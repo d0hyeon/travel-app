@@ -3,18 +3,16 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import { Box, Button, Dialog, DialogActions, DialogContent, IconButton, Skeleton, Stack, TextField, Typography, type DialogProps, type StackProps } from "@mui/material";
-import { ListItem } from "~shared/components/ListItem";
-import { PopMenu } from "~shared/components/PopMenu";
-import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
-import { useTripMemo } from "./useTripMemo";
-import { generatePath, Link } from 'react-router';
-import { AppRoute } from '~app/routes';
-import type { TripMemo } from './tripMemo.type';
-import { formatDate, set } from 'date-fns';
+import { formatDate } from 'date-fns';
 import { EditableText } from '~shared/components/EditableText';
-import { useOverlay } from '~shared/hooks/useOverlay';
+import { ListItem } from "~shared/components/ListItem";
+import { OgPreviewCard } from '~shared/components/OgPreviewCard';
+import { PopMenu } from "~shared/components/PopMenu";
 import { DialogTitle } from '~shared/components/confirm-dialog/DialogTitle';
-import { useState } from 'react';
+import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
+import { useOverlay } from '~shared/hooks/useOverlay';
+import { extractUrls } from '~shared/utils/urls';
+import { useTripMemo } from "./useTripMemo";
 
 interface Props extends StackProps {
   tripId: string;
@@ -89,6 +87,7 @@ TripMemo.Item = ({ tripId, id }: ItemProps) => {
   const overlay = useOverlay();
 
 
+
   return (
     <ListItem.Button
       onClick={() => {
@@ -97,13 +96,13 @@ TripMemo.Item = ({ tripId, id }: ItemProps) => {
         ))
       }}
       rightAddon={
-        <span onClick={(e) => e.stopPropagation()}>
+        <Box sx={{ flexShrink: 0 }} onClick={(e) => e.stopPropagation()}>
           <MemoMenu
             isPinned={memo.isPinned}
             onTogglePin={() => togglePin(id)}
             onDelete={handleDelete}
           />
-        </span>
+        </Box>
       }
       sx={{
         boxShadow: memo.isPinned ? '1px 2px 6px #ddd' : undefined,
@@ -121,7 +120,7 @@ TripMemo.Item = ({ tripId, id }: ItemProps) => {
         {title}
       </Typography>
       {!!previewText && (
-        <Typography variant="body2" color="textSecondary" sx={{ whiteSpace: 'nowrap', wordBreak: 'break-word' }}>
+        <Typography variant="body2" color="textSecondary" sx={{ whiteSpace: 'nowrap', wordBreak: 'break-word', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {previewText} {memo.content.length > PREVIEW_MAX_LENGTH && '...'}
         </Typography>
       )}
@@ -139,6 +138,8 @@ function MemoEditorDialog({ memoId, tripId, ...props }: EditorDialog) {
 
   const memo = memos.find((m) => m.id === memoId);
   if (!memo) return null;
+
+  const links = extractUrls(memo.content)
 
   return (
     <Dialog {...props}>
@@ -186,12 +187,16 @@ function MemoEditorDialog({ memoId, tripId, ...props }: EditorDialog) {
               width="100%"
               sx={{
                 whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word',
                 '.editable-text': { alignItems: 'start' },
                 '.editable-text-end-icon': { mt: 0.5 }
               }}
               onSubmit={(value) => update({ id: memo.id, content: value })}
             />
           </Box>
+          {links.length > 0 && (
+            <OgPreviewCard url={links[0]} sx={{ borderTop: 0 }} />
+          )}
           <Typography variant="caption" textAlign="right" >
             작성일 : {formatDate(memo.createdAt, 'yyyy-MM-dd')}
           </Typography>
