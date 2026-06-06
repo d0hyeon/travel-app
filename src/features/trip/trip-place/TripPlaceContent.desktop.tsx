@@ -37,7 +37,8 @@ export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
   const handleAddPlace = async () => {
     const place = await searchPlace();
     if (place == null) return;
-    create(place);
+    await create(place);
+    listRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }
 
   const handlePlaceClick = (place: TripPlace) => {
@@ -59,12 +60,12 @@ export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
   const [focusedId, setFocusedId] = useState<string | null>(null)
   const { openDialog: openDetailDialog } = useTripPlaceFormOverlay()
   const { openDialog: openRecommendedDialog } = useRecommendedPlaceDetailOverlay()
-
+  const listRef = useRef<HTMLDivElement>(null)
 
   return (
     <Box height="100%" sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
       {/* Left: List (30%) */}
-      <Box sx={{ width: '30%', borderRight: 1, borderColor: 'divider', overflow: 'auto', p: 2, scrollBehavior: 'smooth', scrollMarginBottom: 40 }}>
+      <Box ref={listRef} sx={{ width: '30%', borderRight: 1, borderColor: 'divider', overflow: 'auto', p: 2, scrollBehavior: 'smooth', scrollMarginBottom: 40 }}>
         <Stack height="100%" sx={{ scrollBehavior: 'smooth' }}>
           <Box flex="1 1 100%" paddingBottom={3}>
             <Typography variant="subtitle2" color="text.secondary" mb={1}>
