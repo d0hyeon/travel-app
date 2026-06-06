@@ -46,6 +46,10 @@
   ],
   "rewrites": [
     {
+      "source": "/api/og-preview",
+      "destination": "https://feubgswdgmxrbpbfbqje.supabase.co/functions/v1/og-preview"
+    },
+    {
       "source": "/((?!assets/|.*\\..*).*)",
       "destination": "/"
     }
