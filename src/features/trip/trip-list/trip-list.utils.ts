@@ -1,9 +1,13 @@
+import { set } from "date-fns"
+
 export type TripStatus = 'ongoing' | 'upcoming' | 'past'
 
+function resetTimes(date: string | Date | number) {
+  return set(date, { hours: 0, minutes: 0, seconds: 0, milliseconds: 0 })
+}
+
 function startOfToday(): Date {
-  const d = new Date()
-  d.setHours(0, 0, 0, 0)
-  return d
+  return resetTimes(Date.now())
 }
 
 function parseDate(iso: string): Date {
@@ -12,7 +16,7 @@ function parseDate(iso: string): Date {
 
 export function getTripStatus(startDate: string, endDate: string): TripStatus {
   const now = startOfToday()
-  const start = parseDate(startDate)
+  const start = resetTimes(startDate)
   const end = parseDate(endDate)
   end.setHours(23, 59, 59, 999)
   if (now >= start && now <= end) return 'ongoing'
