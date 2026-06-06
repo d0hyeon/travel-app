@@ -16,6 +16,15 @@ const config = {
   },
   build: {
     outDir: 'dist/client'
+  },
+  server: {
+    proxy: {
+      '/api/og-preview': {
+        target: 'https://feubgswdgmxrbpbfbqje.supabase.co',
+        changeOrigin: true,
+        rewrite: (path: string) => path.replace('/api/og-preview', '/functions/v1/og-preview'),
+      },
+    },
   }
 }
 
