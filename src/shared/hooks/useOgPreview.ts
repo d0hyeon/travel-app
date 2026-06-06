@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from './extends/useSuspenseQuery'
 
 export interface OgPreviewData {
   title: string | null
@@ -14,13 +15,11 @@ async function fetchOgPreview(url: string): Promise<OgPreviewData> {
   return res.json()
 }
 
-export function useOgPreview(url: string | null) {
-  return useQuery({
+export function useOgPreview(url: string) {
+  return useSuspenseQuery({
     queryKey: ['og-preview', url],
     queryFn: () => fetchOgPreview(url!),
-    enabled: !!url,
     staleTime: Infinity,
     retry: false,
-    throwOnError: false,
   })
 }

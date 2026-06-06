@@ -1,9 +1,9 @@
-import { Box, Card, CardActionArea, Skeleton, Stack, Typography } from '@mui/material'
-import type { OgPreviewData } from '~shared/hooks/useOgPreview'
+import { Box, Card, CardActionArea, Skeleton, Stack, Typography, type CardProps } from '@mui/material'
+import { Suspense } from 'react';
+import { useOgPreview, type OgPreviewData } from '~shared/hooks/useOgPreview'
 
 interface Props {
-  data: OgPreviewData | undefined
-  isLoading: boolean
+  url: string;
 }
 
 function getDomain(url: string): string {
@@ -14,26 +14,19 @@ function getDomain(url: string): string {
   }
 }
 
-export function OgPreviewCard({ data, isLoading }: Props) {
-  if (isLoading) {
-    return (
-      <Card variant="outlined" sx={{ mt: 1 }}>
-        <Stack direction="row" gap={1} p={1.5}>
-          <Skeleton variant="rectangular" width={80} height={60} sx={{ borderRadius: 1, flexShrink: 0 }} />
-          <Stack gap={0.5} flex={1}>
-            <Skeleton variant="text" width="80%" />
-            <Skeleton variant="text" width="60%" />
-            <Skeleton variant="text" width="40%" />
-          </Stack>
-        </Stack>
-      </Card>
-    )
-  }
+export function OgPreviewCard(props: Props & CardProps) {
+  return (
+    <Suspense fallback={<Pending {...props} />}>
+      <Resolved {...props} />
+    </Suspense>
+  )
+}
 
-  if (!data) return null
+function Resolved({ url, ...props }: Props & CardProps) {
+  const { data } = useOgPreview(url);
 
   return (
-    <Card variant="outlined" sx={{ mt: 1 }}>
+    <Card variant="outlined" {...props}>
       <CardActionArea
         component="a"
         href={data.url}
@@ -55,7 +48,7 @@ export function OgPreviewCard({ data, isLoading }: Props) {
                 bgcolor: 'grey.100',
               }}
               onError={(e) => {
-                ;(e.currentTarget as HTMLImageElement).style.display = 'none'
+                ; (e.currentTarget as HTMLImageElement).style.display = 'none'
               }}
             />
             <Stack gap={0.25} flex={1} minWidth={0}>
@@ -96,6 +89,20 @@ export function OgPreviewCard({ data, isLoading }: Props) {
           </Stack>
         )}
       </CardActionArea>
+    </Card>
+  )
+}
+function Pending(props: Props) {
+  return (
+    <Card variant="outlined" {...props}>
+      <Stack direction="row" gap={1} p={1.5}>
+        <Skeleton variant="rectangular" width={80} height={60} sx={{ borderRadius: 1, flexShrink: 0 }} />
+        <Stack gap={0.5} flex={1}>
+          <Skeleton variant="text" width="80%" />
+          <Skeleton variant="text" width="60%" />
+          <Skeleton variant="text" width="40%" />
+        </Stack>
+      </Stack>
     </Card>
   )
 }

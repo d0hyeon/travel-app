@@ -40,8 +40,8 @@ function Resolved() {
     );
   }
 
-  const firstUrl = extractUrls(memo.content)[0] ?? null;
-  const { data: ogData, isLoading: ogLoading } = useOgPreview(firstUrl);
+  const urls = extractUrls(memo.content);
+
 
   return (
     <Stack height="100%">
@@ -94,8 +94,8 @@ function Resolved() {
         >
           {renderTextWithLinks(memo.content)}
         </Typography>
-        {firstUrl && (
-          <OgPreviewCard data={ogData} isLoading={ogLoading} />
+        {urls.length > 0 && (
+          <OgPreviewCard url={urls[0]} sx={{ mt: 1 }} />
         )}
       </Stack>
     </Stack>
