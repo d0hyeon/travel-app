@@ -30,7 +30,7 @@ export function ListItem({
       direction="row"
       {...props}
     >
-      <Stack direction="row" gap={gap ?? 1} alignItems={alignItems} width="100%">
+      <Stack direction="row" gap={gap ?? 1} alignItems={alignItems} width="100%" minWidth={0}>
         {leftAddon}
         <Stack gap={0.5} flex={1} minWidth={0} width="100%">
           {children}
