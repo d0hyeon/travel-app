@@ -3,10 +3,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import EditIcon from '@mui/icons-material/Edit';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import VisibilityOnIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import WorkspacesIcon from '@mui/icons-material/Workspaces';
-import { Box, Button, Chip, IconButton, Stack, styled, Tab, Tabs, ToggleButton, Typography } from "@mui/material";
+import { Box, Button, Chip, IconButton, ListItemIcon, Menu, MenuItem, Stack, styled, Tab, Tabs, ToggleButton, Typography } from "@mui/material";
 import { Suspense, useMemo, useRef, useState } from "react";
 import { BottomArea } from '~shared/components/BottomArea';
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog';
@@ -21,7 +22,7 @@ import { PopMenu } from "../../../shared/components/PopMenu";
 import { useCurrentCoordinate } from "../../../shared/hooks/env/useCurrentCoordinate";
 import { useOverlay } from "../../../shared/hooks/useOverlay";
 import { formatDisplayDate, formatShortDate } from "../../../shared/utils/formats";
-import { PlaceCategoryColorCode } from "../../place/place.types";
+import { PlaceCategoryColorCode, type TripPlace } from "../../place/place.types";
 import { useRoadRoute } from "../../route/road-route/useRoadRoute";
 import { useTripPlaces } from "../trip-place/useTripPlaces";
 import { useTrip } from '../useTrip';
@@ -108,11 +109,41 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
   const overlay = useOverlay()
   const confirm = useConfirmDialog();
 
+  // 마커 클릭 메뉴: 지도 마커는 DOM 앵커를 주지 않으므로, 마지막 터치 좌표를 기억해 그 위치에 메뉴를 띄운다
+  const touchPositionRef = useRef<{ top: number; left: number } | null>(null);
+  const [markerMenu, setMarkerMenu] = useState<{ place: TripPlace; position: { top: number; left: number } } | null>(null);
+
+  const editPlace = async (place: TripPlace) => {
+    const updated = await getUpdatedPlace({ tripId, placeId: place.id, defaultValues: place });
+    if (updated) {
+      updatePlace({
+        ...updated,
+        id: place.id,
+        category: updated.category || undefined,
+        tags: updated.tags,
+      })
+    }
+  }
+
+  const toggleRoutePlace = (place: TripPlace) => {
+    if (!currentRoute) return
+    const isInRoute = currentRoute.placeIds.includes(place.id)
+    const placeIds = isInRoute
+      ? currentRoute.placeIds.filter((id) => id !== place.id)
+      : [...currentRoute.placeIds, place.id]
+    update({ routeId: currentRoute.id, placeIds })
+  }
+
+  const isMenuPlaceInRoute = markerMenu ? (currentRoute?.placeIds.includes(markerMenu.place.id) ?? false) : false
+
   return (
     <>
       <Box sx={{ flex: 1, position: 'relative' }}>
         {/* Map (전체) */}
-        <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `calc(${sheetRatio * 100}% - 10px)` }}>
+        <Box
+          sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `calc(${sheetRatio * 100}% - 10px)` }}
+          onPointerDownCapture={(e) => { touchPositionRef.current = { top: e.clientY, left: e.clientX } }}
+        >
           <Stack gap={1} padding={1} position="absolute" top={0} left={0} zIndex={8}>
 
             <ToggleButton
@@ -176,35 +207,10 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                   key={place.id}
                   label={isInCurrentRoute ? `${orderInRoute + 1}. ${place.name}` : place.name}
                   color={isInCurrentRoute && place.category ? PlaceCategoryColorCode[place.category] : "disabled"}
-                  onClick={async () => {
-                    if (isInCurrentRoute) {
-                      return setFocusedId(place.id)
-                    }
-
-                    const updated = await getUpdatedPlace({
-                      tripId,
-                      placeId: place.id,
-                      defaultValues: place,
-                      header: ({ onClose }) => {
-                        const handleAddRoute = () => {
-                          const payload = { routeId: currentRoute.id, placeIds: [...currentRoute.placeIds, place.id] };
-                          update(payload, { onSuccess: onClose })
-                        }
-                        return (
-                          <BottomSheet.Header rightElement={<Button onClick={handleAddRoute} size="small" variant="outlined">경로 추가</Button>}>
-                            <Typography variant="h6">{place.name}</Typography>
-                          </BottomSheet.Header>
-                        )
-                      }
-                    });
-
-                    if (updated) {
-                      updatePlace({
-                        ...updated,
-                        id: place.id,
-                        category: updated.category || undefined, tags: updated.tags
-                      })
-                    }
+                  onClick={() => {
+                    if (isInCurrentRoute) setFocusedId(place.id)
+                    const position = touchPositionRef.current
+                    if (position) setMarkerMenu({ place, position })
                   }}
                   {...place}
                 />
@@ -264,6 +270,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
             </Tabs>
           </BottomSheet.Header>
           <BottomSheet.Body gap={1} sx={{ p: 1.5 }}>
+            <BottomSheet.Scrollable>
             {/* 경로 선택 & 추가 */}
             <Stack direction="row" spacing={0.5} mb={1.5} alignItems="center">
               {routes.map((route, index) => (
@@ -323,16 +330,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                       )}
                       rightAddon={(
                         <PlaceMenu
-                          onEdit={async () => {
-                            const updated = await getUpdatedPlace({ tripId, placeId: place.id, defaultValues: place });
-                            if (updated) {
-                              updatePlace({
-                                ...updated,
-                                id: place.id,
-                                category: updated.category || undefined, tags: updated.tags
-                              })
-                            }
-                          }}
+                          onEdit={() => editPlace(place)}
                           onDelete={async () => {
                             if (!currentRoute || !(await confirm('정말로 삭제하시겠어요?'))) return
                             const newPlaceIds = currentRoute.placeIds.filter((id) => id !== place.id)
@@ -381,8 +379,41 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                 />
               </Stack>
             )}
+            </BottomSheet.Scrollable>
           </BottomSheet.Body>
         </BottomSheet>
+
+        <Menu
+          open={Boolean(markerMenu)}
+          onClose={() => setMarkerMenu(null)}
+          anchorReference="anchorPosition"
+          anchorPosition={markerMenu?.position}
+        >
+          <MenuItem
+            onClick={() => {
+              if (markerMenu) editPlace(markerMenu.place)
+              setMarkerMenu(null)
+            }}
+          >
+            <ListItemIcon><EditIcon fontSize="small" /></ListItemIcon>
+            장소 수정
+          </MenuItem>
+          {currentRoute && (
+            <MenuItem
+              onClick={() => {
+                if (markerMenu) toggleRoutePlace(markerMenu.place)
+                setMarkerMenu(null)
+              }}
+            >
+              <ListItemIcon>
+                {isMenuPlaceInRoute
+                  ? <RemoveCircleOutlineIcon fontSize="small" />
+                  : <AddIcon fontSize="small" />}
+              </ListItemIcon>
+              {isMenuPlaceInRoute ? '경로 제거' : '경로 추가'}
+            </MenuItem>
+          )}
+        </Menu>
       </Box>
       <BottomArea position="static">
         <Button
