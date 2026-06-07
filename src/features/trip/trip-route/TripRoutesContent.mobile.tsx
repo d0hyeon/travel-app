@@ -20,7 +20,7 @@ import { ListItem } from "../../../shared/components/ListItem";
 import { Map, type MapRef } from "../../../shared/components/Map";
 import { PopMenu } from "../../../shared/components/PopMenu";
 import { useCurrentCoordinate } from "../../../shared/hooks/env/useCurrentCoordinate";
-import { useAnchoredMenu } from "../../../shared/hooks/interaction/useAnchoredMenu";
+import { usePointerPosition } from "../../../shared/hooks/interaction/usePointerPosition";
 import { useOverlay } from "../../../shared/hooks/useOverlay";
 import { formatDisplayDate, formatShortDate } from "../../../shared/utils/formats";
 import { PlaceCategoryColorCode, type TripPlace } from "../../place/place.types";
@@ -110,8 +110,9 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
   const overlay = useOverlay()
   const confirm = useConfirmDialog();
 
-  // 마커 클릭 메뉴: 지도 마커는 DOM 앵커가 없어, 클릭 위치에 메뉴를 띄운다
-  const placeMenu = useAnchoredMenu<TripPlace, HTMLDivElement>();
+  // 마커 클릭 메뉴: 지도 마커는 DOM 앵커를 주지 않으므로, 마지막 터치 좌표를 기억해 그 위치에 메뉴를 띄운다
+  const { positionRef: touchPositionRef, onPointerDownCapture } = usePointerPosition<HTMLDivElement>();
+  const [markerMenu, setMarkerMenu] = useState<{ place: TripPlace; position: { top: number; left: number } } | null>(null);
 
   const editPlace = async (place: TripPlace) => {
     const updated = await getUpdatedPlace({ tripId, placeId: place.id, defaultValues: place });
@@ -134,7 +135,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
     update({ routeId: currentRoute.id, placeIds })
   }
 
-  const isMenuPlaceInRoute = placeMenu.target ? (currentRoute?.placeIds.includes(placeMenu.target.id) ?? false) : false
+  const isMenuPlaceInRoute = markerMenu ? (currentRoute?.placeIds.includes(markerMenu.place.id) ?? false) : false
 
   return (
     <>
@@ -142,7 +143,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
         {/* Map (전체) */}
         <Box
           sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `calc(${sheetRatio * 100}% - 10px)` }}
-          onPointerDownCapture={placeMenu.onPointerDownCapture}
+          onPointerDownCapture={onPointerDownCapture}
         >
           <Stack gap={1} padding={1} position="absolute" top={0} left={0} zIndex={8}>
 
@@ -209,7 +210,8 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                   color={isInCurrentRoute && place.category ? PlaceCategoryColorCode[place.category] : "disabled"}
                   onClick={() => {
                     if (isInCurrentRoute) setFocusedId(place.id)
-                    placeMenu.open(place)
+                    const position = touchPositionRef.current
+                    if (position) setMarkerMenu({ place, position })
                   }}
                   {...place}
                 />
@@ -382,11 +384,16 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
           </BottomSheet.Body>
         </BottomSheet>
 
-        <Menu {...placeMenu.menuProps}>
+        <Menu
+          open={Boolean(markerMenu)}
+          onClose={() => setMarkerMenu(null)}
+          anchorReference="anchorPosition"
+          anchorPosition={markerMenu?.position}
+        >
           <MenuItem
             onClick={() => {
-              if (placeMenu.target) editPlace(placeMenu.target)
-              placeMenu.close()
+              if (markerMenu) editPlace(markerMenu.place)
+              setMarkerMenu(null)
             }}
           >
             <ListItemIcon><EditIcon fontSize="small" /></ListItemIcon>
@@ -395,8 +402,8 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
           {currentRoute && (
             <MenuItem
               onClick={() => {
-                if (placeMenu.target) toggleRoutePlace(placeMenu.target)
-                placeMenu.close()
+                if (markerMenu) toggleRoutePlace(markerMenu.place)
+                setMarkerMenu(null)
               }}
             >
               <ListItemIcon>
