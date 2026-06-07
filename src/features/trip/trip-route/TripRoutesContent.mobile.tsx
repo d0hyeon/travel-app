@@ -20,6 +20,7 @@ import { ListItem } from "../../../shared/components/ListItem";
 import { Map, type MapRef } from "../../../shared/components/Map";
 import { PopMenu } from "../../../shared/components/PopMenu";
 import { useCurrentCoordinate } from "../../../shared/hooks/env/useCurrentCoordinate";
+import { usePointerPosition } from "../../../shared/hooks/interaction/usePointerPosition";
 import { useOverlay } from "../../../shared/hooks/useOverlay";
 import { formatDisplayDate, formatShortDate } from "../../../shared/utils/formats";
 import { PlaceCategoryColorCode, type TripPlace } from "../../place/place.types";
@@ -110,7 +111,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
   const confirm = useConfirmDialog();
 
   // 마커 클릭 메뉴: 지도 마커는 DOM 앵커를 주지 않으므로, 마지막 터치 좌표를 기억해 그 위치에 메뉴를 띄운다
-  const touchPositionRef = useRef<{ top: number; left: number } | null>(null);
+  const { positionRef: touchPositionRef, onPointerDownCapture } = usePointerPosition<HTMLDivElement>();
   const [markerMenu, setMarkerMenu] = useState<{ place: TripPlace; position: { top: number; left: number } } | null>(null);
 
   const editPlace = async (place: TripPlace) => {
@@ -142,7 +143,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
         {/* Map (전체) */}
         <Box
           sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `calc(${sheetRatio * 100}% - 10px)` }}
-          onPointerDownCapture={(e) => { touchPositionRef.current = { top: e.clientY, left: e.clientX } }}
+          onPointerDownCapture={onPointerDownCapture}
         >
           <Stack gap={1} padding={1} position="absolute" top={0} left={0} zIndex={8}>
 
