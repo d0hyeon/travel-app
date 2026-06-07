@@ -111,7 +111,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
   const confirm = useConfirmDialog();
 
   // 마커 클릭 메뉴: 지도 마커는 DOM 앵커를 주지 않으므로, 마지막 터치 좌표를 기억해 그 위치에 메뉴를 띄운다
-  const { positionRef: touchPositionRef, onPointerDownCapture } = usePointerPosition<HTMLDivElement>();
+  const { containerProps: pointerTracker, getPosition } = usePointerPosition<HTMLDivElement>();
   const [markerMenu, setMarkerMenu] = useState<{ place: TripPlace; position: { top: number; left: number } } | null>(null);
 
   const editPlace = async (place: TripPlace) => {
@@ -143,7 +143,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
         {/* Map (전체) */}
         <Box
           sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `calc(${sheetRatio * 100}% - 10px)` }}
-          onPointerDownCapture={onPointerDownCapture}
+          {...pointerTracker}
         >
           <Stack gap={1} padding={1} position="absolute" top={0} left={0} zIndex={8}>
 
@@ -210,7 +210,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                   color={isInCurrentRoute && place.category ? PlaceCategoryColorCode[place.category] : "disabled"}
                   onClick={() => {
                     if (isInCurrentRoute) setFocusedId(place.id)
-                    const position = touchPositionRef.current
+                    const position = getPosition()
                     if (position) setMarkerMenu({ place, position })
                   }}
                   {...place}
