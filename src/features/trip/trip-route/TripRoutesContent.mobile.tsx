@@ -110,9 +110,9 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
   const overlay = useOverlay()
   const confirm = useConfirmDialog();
 
-  // 마커 클릭 메뉴: 지도 마커는 DOM 앵커를 주지 않으므로, 마지막 터치 좌표를 기억해 그 위치에 메뉴를 띄운다
+  // 마커 클릭 메뉴: 지도 마커는 DOM 앵커를 주지 않으므로, 마지막 터치 좌표(getPosition)에 메뉴를 띄운다
   const { containerProps: pointerTracker, getPosition } = usePointerPosition<HTMLDivElement>();
-  const [markerMenu, setMarkerMenu] = useState<{ place: TripPlace; position: { top: number; left: number } } | null>(null);
+  const [selectedPlace, setSelectedPlace] = useState<TripPlace | null>(null);
 
   const editPlace = async (place: TripPlace) => {
     const updated = await getUpdatedPlace({ tripId, placeId: place.id, defaultValues: place });
@@ -135,7 +135,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
     update({ routeId: currentRoute.id, placeIds })
   }
 
-  const isMenuPlaceInRoute = markerMenu ? (currentRoute?.placeIds.includes(markerMenu.place.id) ?? false) : false
+  const isMenuPlaceInRoute = selectedPlace ? (currentRoute?.placeIds.includes(selectedPlace.id) ?? false) : false
 
   return (
     <>
@@ -210,8 +210,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                   color={isInCurrentRoute && place.category ? PlaceCategoryColorCode[place.category] : "disabled"}
                   onClick={() => {
                     if (isInCurrentRoute) setFocusedId(place.id)
-                    const position = getPosition()
-                    if (position) setMarkerMenu({ place, position })
+                    setSelectedPlace(place)
                   }}
                   {...place}
                 />
@@ -385,15 +384,15 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
         </BottomSheet>
 
         <Menu
-          open={Boolean(markerMenu)}
-          onClose={() => setMarkerMenu(null)}
+          open={Boolean(selectedPlace)}
+          onClose={() => setSelectedPlace(null)}
           anchorReference="anchorPosition"
-          anchorPosition={markerMenu?.position}
+          anchorPosition={getPosition() ?? undefined}
         >
           <MenuItem
             onClick={() => {
-              if (markerMenu) editPlace(markerMenu.place)
-              setMarkerMenu(null)
+              if (selectedPlace) editPlace(selectedPlace)
+              setSelectedPlace(null)
             }}
           >
             <ListItemIcon><EditIcon fontSize="small" /></ListItemIcon>
@@ -402,8 +401,8 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
           {currentRoute && (
             <MenuItem
               onClick={() => {
-                if (markerMenu) toggleRoutePlace(markerMenu.place)
-                setMarkerMenu(null)
+                if (selectedPlace) toggleRoutePlace(selectedPlace)
+                setSelectedPlace(null)
               }}
             >
               <ListItemIcon>
