@@ -19,6 +19,9 @@ export function useTripPhotos(tripId: string) {
     queryFn: () => getPhotosByTripId(tripId)
   })
 
+  
+
+
   const { mutateAsync: upload, isPending: isUploading } = useMutation({
     mutationFn: async (params: FileUploadParams) => {
       const { placeId } = params
@@ -26,16 +29,17 @@ export function useTripPhotos(tripId: string) {
         const resolvedPlaceId = placeId ?? await findNearestPlaceFromPhoto(targetFile, places)
         return uploadPhoto({ tripId, placeId: resolvedPlaceId, file: targetFile, isPublic: false })
       }
+      const files = 'file' in params ? [params.file] : params.files;
+      for (const file of files) { 
+        const uploaded = await uploadSingle(file);
 
-      if ('file' in params) return [await uploadSingle(params.file)]
-      return Promise.all(params.files.map(uploadSingle))
+        queryClient.setQueryData<Photo[]>(useTripPhotos.key(tripId), (curr) => {
+          if (curr == null) return [uploaded];
+          return [uploaded, ...curr];
+        })
+      }
     },
-    onSuccess: (data) => {
-      queryClient.setQueryData<Photo[]>(useTripPhotos.key(tripId), (curr) => {
-        if (curr == null) return data;
-        return [...data, ...curr];
-      })
-    }
+    onSuccess: () => refetch()
   })
 
   const { mutateAsync: remove } = useMutation({
