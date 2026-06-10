@@ -5,7 +5,7 @@ const PLACE_MATCH_DISTANCE_LIMIT = 500
 
 export async function findNearestPlaceFromPhoto(
   file: File,
-  places: Array<{ id: string; lat: number; lng: number }>
+  places: Array<{ placeId: string; lat: number; lng: number }>
 ): Promise<string | undefined> {
   const coord = await extractGps(file)
   if (!coord) return undefined
@@ -15,5 +15,5 @@ export async function findNearestPlaceFromPhoto(
     .filter(({ distance }) => distance <= PLACE_MATCH_DISTANCE_LIMIT)
     .toSorted((a, b) => a.distance - b.distance)[0]
 
-  return nearest?.place.id
+  return nearest?.place.placeId
 }
