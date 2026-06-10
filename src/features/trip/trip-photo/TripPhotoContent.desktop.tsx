@@ -31,7 +31,7 @@ export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
   }, [photos]);
 
   const placesWithPhotos = useMemo(() => {
-    return places.filter(place => photosByPlace[place.id]?.length > 0);
+    return places.filter(place => photosByPlace[place.placeId]?.length > 0);
   }, [places, photosByPlace]);
 
   const filteredPhotos = selectedPlaceId
@@ -51,8 +51,8 @@ export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
           <Chip
             key={place.id}
             label={place.name}
-            variant={selectedPlaceId === place.id ? 'filled' : 'outlined'}
-            onClick={() => setSelectedPlaceId(place.id)}
+            variant={selectedPlaceId === place.placeId ? 'filled' : 'outlined'}
+            onClick={() => setSelectedPlaceId(place.placeId)}
           />
         ))}
       </Stack>

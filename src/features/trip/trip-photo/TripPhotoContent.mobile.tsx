@@ -25,6 +25,7 @@ export default function TripPhotoContent({ tripId }: TripPhotoContentProps) {
   const { data: photos, upload, remove, updateVisibility } = useTripPhotos(tripId)
 
   const { data: places } = useTripPlaces(tripId);
+  console.log(places)
   const [selectedPlaceIds, setSelectedPlaceIds] = useState<string[]>([]);
   const [selectedPhotoIds, setSelectedPhotoIds] = useState<string[]>([]);
   const [isReadonly, setIsReadonly] = useState(true)
@@ -63,8 +64,8 @@ export default function TripPhotoContent({ tripId }: TripPhotoContentProps) {
             <MultiSelectDropdown
               placeholder="장소"
               options={places
-                .filter(x => isNotEmpty(photosByPlace[x.id]))
-                .map(x => ({ label: x.name, value: x.id }))
+                .filter(x => isNotEmpty(photosByPlace[x.placeId]))
+                .map(x => ({ label: x.name, value: x.placeId }))
               }
               value={selectedPlaceIds}
               onChange={setSelectedPlaceIds}
