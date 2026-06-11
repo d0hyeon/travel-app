@@ -9,7 +9,6 @@ import {
   type CurrencyCode
 } from "~features/expense/currency"
 import { formatCurrency } from "~features/expense/expense.utils"
-import { useExpenses } from "~features/expense/useExpenses"
 import { useTrip } from "../../useTrip"
 import { useExpenseCalculations } from "../useExpenseCalculations"
 
@@ -19,8 +18,7 @@ interface Props {
 
 export function ExpenseHeader({ tripId }: Props) {
   const { data: trip, update: updateTrip } = useTrip(tripId)
-  const { data: expenses } = useExpenses(tripId)
-  const { totalInKRW } = useExpenseCalculations(tripId)
+  const { totalInKRW, expenses } = useExpenseCalculations(tripId)
 
   const { exchangeRates } = trip
   const usedCurrencies = getUsedCurrencies(expenses)
