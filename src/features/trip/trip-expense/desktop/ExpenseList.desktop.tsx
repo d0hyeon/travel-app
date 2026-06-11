@@ -74,7 +74,10 @@ export function ExpenseList({ tripId }: ExpenseListProps) {
               <Stack direction="row" justifyContent="space-between" alignItems="center">
                 <Box flex={1}>
                   <Stack direction="row" alignItems="center" spacing={1}>
-                    <Typography fontWeight="medium">{expense.description}</Typography>
+                    <Typography fontWeight="medium">
+                      {!!expense.place && `[${expense.place.name}] `}
+                      {expense.description}
+                    </Typography>
                     {expense.date && (
                       <Typography variant="caption" color="text.secondary">
                         {formatShortDate(expense.date)}
