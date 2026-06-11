@@ -40,7 +40,7 @@ export function SettlementSummary({ tripId }: Props) {
 
       {/* 멤버별 잔액 미니 카드 */}
       {balances.map(({ memberId, balance }) => {
-        const member = members.find(member => member.id);
+        const member = members.find(member => member.id === memberId);
         if (!member) return null;
 
         return (
