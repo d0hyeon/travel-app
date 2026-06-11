@@ -238,15 +238,26 @@ src/
 │       │   ├── DateStep.tsx
 │       │   └── InfoStep.tsx
 │       ├── trip-expense/                  # 지출/정산 탭
-│       │   ├── ExpenseContent.mobile.tsx
-│       │   ├── ExpenseContent.desktop.tsx
 │       │   ├── ExpenseForm.tsx
 │       │   ├── ExpenseFormDeletationActions.tsx
-│       │   ├── SettlementSummary.tsx
-│       │   ├── RouteExpenseView.tsx
-│       │   ├── RouteExpenseView.mobile.tsx
+│       │   ├── TripExchangeRateSettingButton.tsx
+│       │   ├── routeExpenseView.utils.tsx  # ROUTE_COLORS, getRouteColor, RoutePath 공유
+│       │   ├── useExpenseSummary.ts        # balances/settlements/totalInKRW 계산
 │       │   ├── useExpenseFormOverlay.tsx
-│       │   └── useExpensesByPlace.ts
+│       │   ├── useExpensesByPlace.ts
+│       │   ├── desktop/
+│       │   │   ├── ExpenseContent.desktop.tsx
+│       │   │   ├── ExpenseList.desktop.tsx
+│       │   │   ├── ExpenseMemberSettlements.desktop.tsx
+│       │   │   ├── ExpenseSettlementGuideCard.desktop.tsx
+│       │   │   ├── RouteExpenseView.desktop.tsx
+│       │   │   └── SettlementSummary.desktop.tsx
+│       │   └── mobile/
+│       │       ├── ExpenseContent.mobile.tsx
+│       │       ├── ExpenseHeader.mobile.tsx    # 총지출 + 환율 편집 헤더
+│       │       ├── ExpenseList.mobile.tsx
+│       │       ├── RouteExpenseView.mobile.tsx
+│       │       └── SettlementSummary.tsx
 │       ├── trip-invite/                   # 여행 초대
 │       ├── trip-list/                     # 여행 목록 페이지
 │       │   ├── TripListPage.tsx
@@ -426,9 +437,10 @@ src/
 | 여행 채팅            | `features/trip/trip-chat/`, `features/trip/TripChatPage.tsx`      |
 | 안읽은 메시지 뱃지   | `features/trip/trip-chat/TripUnreadCountBadge.tsx`                |
 | 예정된 여행 목적지   | `features/trip/useScheduledTripDestinations.ts`                   |
-| 지출 내역 UI         | `features/trip/trip-expense/ExpenseContent.*.tsx`                 |
+| 지출 내역 UI         | `features/trip/trip-expense/desktop/`, `features/trip/trip-expense/mobile/` |
 | 정산 계산 로직       | `features/expense/expense.utils.ts`                               |
-| 정산 현황 UI         | `features/trip/trip-expense/SettlementSummary.tsx`                |
+| 정산 요약 훅         | `features/trip/trip-expense/useExpenseSummary.ts`                 |
+| 정산 현황 UI         | `features/trip/trip-expense/desktop/SettlementSummary.desktop.tsx`, `mobile/SettlementSummary.tsx` |
 | 멤버 관리            | `features/trip/trip-member/`                                      |
 | 일정/경로            | `features/trip/trip-route/`, `features/route/`                    |
 | 커뮤니티 경로        | `features/trip/trip-community-routes/`                            |
