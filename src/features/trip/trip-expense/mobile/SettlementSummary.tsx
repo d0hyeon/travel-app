@@ -3,7 +3,7 @@ import { Box, Card, CardContent, Divider, Stack, Typography } from "@mui/materia
 import { convertToKRW } from '~features/expense/currency'
 import { formatCurrency } from '~features/expense/expense.utils'
 import { MemberAvatar } from '../../trip-member/MemberAvatar'
-import { useExpenseCalculations } from '../useExpenseCalculations'
+import { useExpenseSummary } from '../useExpenseSummary'
 
 interface Props {
   tripId: string;
@@ -11,7 +11,7 @@ interface Props {
 }
 
 export function SettlementSummary({ tripId, formatAmount = formatCurrency }: Props) {
-  const { balances, settlements, members, expenses, exchangeRates } = useExpenseCalculations(tripId)
+  const { balances, settlements, members, expenses, exchangeRates } = useExpenseSummary(tripId)
   const memberMap = new Map(members.map(m => [m.id, m]))
 
   const memberPaidMap = new Map(

@@ -2,13 +2,13 @@ import { Box, Stack, Typography } from "@mui/material";
 import { convertToKRW } from "~features/expense/currency";
 import { formatCurrency } from "~features/expense/expense.utils";
 import { MemberAvatar } from "~features/trip/trip-member/MemberAvatar";
-import { useExpenseCalculations } from "../useExpenseCalculations";
+import { useExpenseSummary } from "../useExpenseSummary";
 
 interface Props {
   tripId: string;
 }
 export function ExpenseMemberSettlements({ tripId }: Props) {
-  const { balances, members, expenses, exchangeRates } = useExpenseCalculations(tripId)
+  const { balances, members, expenses, exchangeRates } = useExpenseSummary(tripId)
 
   return (
     <Stack spacing={1} >

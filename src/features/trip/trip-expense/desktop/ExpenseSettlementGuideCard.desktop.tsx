@@ -3,7 +3,7 @@ import { Box, Card, CardContent, Stack, Typography } from "@mui/material"
 import { type ReactNode } from "react"
 import { formatCurrency } from "~features/expense/expense.utils"
 import { AnimatedCountText } from "~shared/components/animation/AnimatedCountText"
-import { useExpenseCalculations } from "../useExpenseCalculations"
+import { useExpenseSummary } from "../useExpenseSummary"
 
 interface Props {
   tripId: string;
@@ -11,7 +11,7 @@ interface Props {
 }
 
 export function ExpenseSettlementGuideCard({ tripId, fallbackEmpty }: Props) {
-  const { settlements, members } = useExpenseCalculations(tripId)
+  const { settlements, members } = useExpenseSummary(tripId)
 
   if (settlements.length === 0 && fallbackEmpty != null) {
     return fallbackEmpty;

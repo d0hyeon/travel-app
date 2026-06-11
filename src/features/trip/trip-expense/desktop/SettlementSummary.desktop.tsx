@@ -2,14 +2,14 @@ import { Paper, Stack, Typography } from "@mui/material"
 import { formatCurrency } from "~features/expense/expense.utils";
 import { MemberAvatar } from "~features/trip/trip-member/MemberAvatar";
 import { AnimatedCountText } from "~shared/components/animation/AnimatedCountText"
-import { useExpenseCalculations } from "../useExpenseCalculations";
+import { useExpenseSummary } from "../useExpenseSummary";
 
 interface Props {
   tripId: string;
 }
 
 export function SettlementSummary({ tripId }: Props) {
-  const { totalInKRW, balances, members } = useExpenseCalculations(tripId)
+  const { totalInKRW, balances, members } = useExpenseSummary(tripId)
 
   return (
     <Stack direction="row" flex={0} spacing={2} flexWrap="wrap" useFlexGap>
