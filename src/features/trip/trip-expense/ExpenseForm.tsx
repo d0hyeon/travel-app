@@ -2,9 +2,6 @@ import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz'
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
   Autocomplete,
   Box,
   Button,
@@ -24,16 +21,18 @@ import {
   type ButtonProps
 } from "@mui/material"
 import { DatePicker } from '@mui/x-date-pickers'
-import { Suspense, useState, type ReactNode } from "react"
+import { Suspense, type ReactNode } from "react"
 import { Controller, FormProvider, useFieldArray, useForm, useFormContext, useWatch } from "react-hook-form"
+import { useAuth } from '~features/auth/useAuth'
 import { CurrencyCode as CurrencyCodeMap, getCurrenciesByDestinations, getCurrencyName, getUsedCurrencies, type CurrencyCode } from '~features/expense/currency'
 import { useExpenses } from '~features/expense/useExpenses'
-import { useTrip } from '~features/trip/useTrip'
 import { useTripMembers } from '~features/trip/trip-member/useTripMembers'
+import { useTrip } from '~features/trip/useTrip'
 import { PopMenu } from '~shared/components/PopMenu'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
-import { formatDisplayDate } from "../../../shared/utils/formats"
 import { SortCommand } from '~shared/utils/sorts'
+import { assert } from '~shared/utils/types'
+import { formatDisplayDate } from "../../../shared/utils/formats"
 import { useTripPlaces } from '../trip-place/useTripPlaces'
 
 export interface PaymentField {
@@ -48,10 +47,6 @@ export interface ExpenseFormValues {
   payments: PaymentField[];
   placeId?: string;
   splitAmong: string[];
-}
-
-interface InternalExpenseFormValues extends ExpenseFormValues {
-  totalAmount: number;
 }
 
 interface Props extends Omit<BoxProps<'form'>, 'defaultValues' | "onSubmit" | "action"> {
@@ -88,19 +83,19 @@ ExpenseForm.Resolved = ({
   // 사용된 통화 목록 (KRW 제외)
   const usedCurrencies = getUsedCurrencies(expenses);
 
+  const { data: { id: userId } } = useAuth();
+  const writer = members.find(x => x.userId === userId);
 
-  const methods = useForm<InternalExpenseFormValues>({
+  const methods = useForm<ExpenseFormValues>({
     mode: 'onChange',
     defaultValues: {
       ...defaultValues,
       currency: defaultValues?.currency ?? 'KRW',
-      payments: defaultValues?.payments ?? members.map(({ id }) => ({ amount: 0, memberId: id })),
+      payments: defaultValues?.payments ?? [{ amount: 0, memberId: writer!.id }],
       splitAmong: defaultValues?.splitAmong ?? members.map(m => m.id),
-      totalAmount: defaultValues?.payments?.reduce((acc, payment) => acc + payment.amount, 0) ?? 0
     },
   })
-  const { control, handleSubmit, setValue } = methods;
-
+  const { control, handleSubmit, register, setValue } = methods;
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'payments',
@@ -114,7 +109,7 @@ ExpenseForm.Resolved = ({
     setValue('splitAmong', members.map(m => m.id))
   }
 
-  const totalAmount = useWatch({ control, name: 'totalAmount' });
+  const totalAmount = payments.reduce((acc, item) => acc + item.amount, 0);
 
   const handleFormSubmit = handleSubmit((data) => {
     const payments = data.payments
@@ -128,202 +123,145 @@ ExpenseForm.Resolved = ({
     setValue('currency', code)
   }
 
-  const [visibleSplit, setVisibleSplit] = useState(totalAmount > 0);
   const isMobile = useIsMobile();
-  const theme = useTheme();
 
   return (
     <FormProvider {...methods}>
       <Box component="form" onSubmit={handleFormSubmit} {...props}>
         <Stack spacing={2}>
-          <Box>
-            <Controller
-              control={control}
-              name="totalAmount"
-              render={({ field: { value, onChange, ...props } }) => (
-                <Stack gap={0.5}>
-                  <Typography variant="subtitle2" fontSize="13px" color="textSecondary">
-                    <Box display="inline" color={theme.palette.primary.main}>*</Box>
-                    총 금액
-                  </Typography>
-                  <TextField
-                    variant="standard"
-                    value={value === 0 ? '' : value.toLocaleString()}
-                    onChange={({ target: { value } }) => {
-                      const price = value === '' ? 0 : Number(value.replace(/[^0-9]/g, ''));
-                      const splitedPrices = Math.ceil(price / payments.length);
+          <Stack gap={1}>
+            <Stack direction="row" alignItems="center" justifyContent="space-between" gap={0.5}>
+              <Typography variant="subtitle2">
+                결제 금액
+              </Typography>
+              <Button
+                size="small"
+                disabled={members.length === payments.length}
+                onClick={() => {
+                  const paymentMIds = payments.map(p => p.memberId);
+                  const nextMember = members.find(member => !paymentMIds.includes(member.id));
+                  assert(!!nextMember)
 
-                      onChange(price);
-                      payments.forEach((_, i) => setValue(`payments.${i}.amount`, splitedPrices))
-                    }}
-                    onBlur={(event) => {
-                      props.onBlur();
-                      if (event.target.value !== '') {
-                        setVisibleSplit(true);
-                      }
-                    }}
-                    size="small"
-                    fullWidth
-                    placeholder="금액"
-                    slotProps={{
-                      inputLabel: {
-                        sx: {
-                          '&::before': {
-                            content: '"*"',
-                            color: theme.palette.primary.main
-                          }
-                        }
-                      },
-                      input: {
-                        endAdornment:
-                          <PopMenu
-                            list={(
-                              <PopMenu.List>
-                                {availableCurrencies
-                                  .toSorted((a) => usedCurrencies.includes(a.code) ? SortCommand.Shift : SortCommand.Maintain)
-                                  .map(({ code }) => (
-                                    <PopMenu.Item
-                                      key={code}
-                                      onClick={() => handleCurrencySelect(code)}
+                  append({ memberId: nextMember.id, amount: 0 })
+                }}
+              >
+                추가
+              </Button>
+            </Stack>
+            <Stack spacing={1}>
+              {fields.map((field, index) => (
+                <Stack key={field.id} direction="row" spacing={1} alignItems="center">
+                  <Controller
+                    name={`payments.${index}.memberId`}
+                    control={control}
+                    render={({ field }) => (
+                      <FormControl size="small" sx={{ minWidth: 120 }}>
+                        <Select variant="standard" {...field}>
+                          {members.map(m => (
+                            <MenuItem key={m.id} value={m.id}>
+                              {m.name}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    )}
+                  />
+                  <Controller
+                    name={`payments.${index}.amount`}
+                    control={control}
+                    render={({ field: { value, onChange, ...field } }) => (
+                      <TextField
+                        {...field}
+                        variant="standard"
+                        value={value === 0 ? '' : value.toLocaleString()}
+                        onChange={({ target: { value } }) => onChange(value !== '' ? Number(value.replace(/\D/, '')) : 0)}
+                        size="small"
+                        placeholder="0"
+                        sx={{ flex: 1, textAlign: 'right' }}
+                        slotProps={{
+                          htmlInput: { sx: { textAlign: 'right' } },
+                          input: {
+                            endAdornment: (
+                              <InputAdornment position='end' sx={{ paddingBottom: 0.4 }}>
+                                {index === 0 ? (
+                                  <PopMenu
+                                    list={(
+                                      <PopMenu.List>
+                                        {availableCurrencies
+                                          .toSorted((a) => usedCurrencies.includes(a.code) ? SortCommand.Shift : SortCommand.Maintain)
+                                          .map(({ code }) => (
+                                            <PopMenu.Item
+                                              key={code}
+                                              onClick={() => handleCurrencySelect(code)}
+                                              sx={{ fontWeight: 700, color: code === selectedCurrency ? 'primary.main' : 'inherit' }}
+                                            >
+                                              {getCurrencyName(code)}
+                                              {usedCurrencies.includes(code) && (
+                                                <Chip size="small" label="사용됨" sx={{ ml: 1, height: 18, fontSize: 10 }} />
+                                              )}
+                                            </PopMenu.Item>
+                                          ))}
+                                        <Divider />
+                                        {otherCurrencies.map((code) => (
+                                          <PopMenu.Item
+                                            key={code}
+                                            onClick={() => handleCurrencySelect(code)}
+                                            sx={{
+                                              fontWeight: code === selectedCurrency ? 700 : 'normal',
+                                              color: code === selectedCurrency ? 'primary.main' : 'text.secondary',
+                                            }}
+                                          >
+                                            {getCurrencyName(code)}
+                                            {usedCurrencies.includes(code) && (
+                                              <Chip size="small" label="사용됨" sx={{ ml: 1, height: 18, fontSize: 10 }} />
+                                            )}
+                                          </PopMenu.Item>
+                                        ))}
+                                      </PopMenu.List>
+                                    )}
+                                  >
+
+                                    <Typography
+                                      variant="caption"
                                       sx={{
-                                        fontWeight: 700,
-                                        color: code === selectedCurrency ? 'primary.main' : 'inherit',
+                                        cursor: 'pointer',
+                                        userSelect: 'none',
+                                        color: 'primary.main',
+                                        fontWeight: 'medium',
+                                        '&:hover': { opacity: 0.7 },
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 0.25,
                                       }}
                                     >
-                                      {getCurrencyName(code)}
-                                      {usedCurrencies.includes(code) && (
-                                        <Chip size="small" label="사용됨" sx={{ ml: 1, height: 18, fontSize: 10 }} />
-                                      )}
-                                    </PopMenu.Item>
-                                  ))}
-                                <Divider />
-                                {otherCurrencies.map((code) => (
-                                  <PopMenu.Item
-                                    key={code}
-                                    onClick={() => handleCurrencySelect(code)}
-                                    sx={{
-                                      fontWeight: code === selectedCurrency ? 700 : 'normal',
-                                      color: code === selectedCurrency ? 'primary.main' : 'text.secondary',
-                                    }}
-                                  >
-                                    {getCurrencyName(code)}
-                                    {usedCurrencies.includes(code) && (
-                                      <Chip size="small" label="사용됨" sx={{ ml: 1, height: 18, fontSize: 10 }} />
-                                    )}
-                                  </PopMenu.Item>
-                                ))}
-                              </PopMenu.List>
-                            )}
-                          >
-                            <InputAdornment
-                              position="end"
-                              sx={{
-                                cursor: 'pointer',
-                                userSelect: 'none',
-                                color: 'primary.main',
-                                fontWeight: 'medium',
-                                '&:hover': { opacity: 0.7 },
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 0.25,
-                                paddingBottom: 0.5,
-                              }}
-                            >
-                              {currencyUnit}
-                              <SwapHorizIcon sx={{ fontSize: 16 }} />
-                            </InputAdornment>
-                          </PopMenu>
-                      }
-                    }}
-                  />
-                </Stack>
-              )}
-            />
-
-            <Accordion expanded={visibleSplit} sx={{ boxShadow: 'none', margin: '0 !important', '&::before': { display: 'none' } }}>
-              <AccordionSummary sx={theme => ({ height: 0, overflow: 'hidden', transition: 'height 300ms', fontSize: 12, padding: 0, paddingLeft: 0.5, boxShadow: 'none', minHeight: 'auto !important', color: theme.palette.text.secondary, '&.Mui-expanded': { color: theme.palette.primary.main } })} slotProps={{ content: { sx: { margin: '0 !important' } } }}>
-              </AccordionSummary>
-              <AccordionDetails sx={{ padding: 0, paddingX: 1, marginTop: 1 }}>
-                <Stack spacing={1}>
-                  {fields.map((field, index) => (
-                    <Stack key={field.id} direction="row" spacing={1} alignItems="center">
-                      <Controller
-                        name={`payments.${index}.memberId`}
-                        control={control}
-                        render={({ field }) => (
-                          <FormControl size="small" sx={{ minWidth: 120 }}>
-                            <Select variant="standard" {...field}>
-                              {members.map(m => (
-                                <MenuItem key={m.id} value={m.id}>
-                                  {m.name}
-                                </MenuItem>
-                              ))}
-                            </Select>
-                          </FormControl>
-                        )}
-                      />
-                      <Controller
-                        name={`payments.${index}.amount`}
-                        control={control}
-                        render={({ field: { value, onChange, ...field } }) => (
-                          <TextField
-                            {...field}
-                            variant="standard"
-                            value={value.toLocaleString()}
-                            onChange={({ target: { value } }) => {
-                              const price = value === '' ? 0 : Number(value.replace(/[^0-9]/g, ''));
-                              const restPrice = totalAmount - price;
-                              const splitedPrice = restPrice / (payments.length - 1);
-
-                              onChange(Math.min(price, totalAmount));
-                              payments.forEach((_, i) => {
-                                if (i === index) return;
-                                setValue(`payments.${i}.amount`, Math.max(0, splitedPrice))
-                              })
-                            }}
-                            size="small"
-                            placeholder="금액"
-                            sx={{ flex: 1 }}
-                          />
-                        )}
-                      />
-                      <IconButton
-                        size="small"
-                        onClick={() => {
-                          remove(index);
-                          const splitedPrice = Math.ceil(totalAmount / (payments.length - 1))
-                          setTimeout(() => {
-                            payments.forEach((_, i) => setValue(`payments.${i}.amount`, Math.max(0, splitedPrice)))
-                          })
+                                      {currencyUnit}
+                                      <SwapHorizIcon sx={{ fontSize: 16 }} />
+                                    </Typography>
+                                  </PopMenu>
+                                ) : (
+                                  <Typography variant="caption">{currencyUnit}</Typography>
+                                )}
+                              </InputAdornment>
+                            )
+                          }
                         }}
-                        disabled={fields.length === 1}
-                        sx={{ opacity: fields.length === 1 ? 0.3 : 1 }}
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </Stack>
-                  ))}
-                </Stack>
-                <Stack
-                  direction="row"
-                  justifyContent="end"
-                  alignItems="center"
-                  marginTop={0.5}
-                >
-                  <Button
+                      />
+                    )}
+                  />
+                  <IconButton
                     size="small"
-                    startIcon={<AddIcon />}
-                    disabled={members.length === payments.length}
-                    onClick={() => append({ memberId: members[0]?.id ?? '', amount: 0 })}
+                    onClick={() => remove(index)}
+                    disabled={fields.length === 1}
+                    sx={{ opacity: fields.length === 1 ? 0.3 : 1 }}
                   >
-                    추가
-                  </Button>
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
                 </Stack>
+              ))}
+            </Stack>
 
-              </AccordionDetails>
-            </Accordion>
 
-          </Box>
+          </Stack>
 
           {/* 설명 */}
           <Controller
@@ -460,7 +398,7 @@ ExpenseForm.Pending = ({
   action = <ExpenseForm.SubmitButton />,
   ...props
 }: Omit<Props, 'onSubmit'>) => {
-  const methods = useForm<InternalExpenseFormValues>({
+  const methods = useForm<ExpenseFormValues>({
     mode: 'onChange',
     defaultValues: defaultValues,
   })
@@ -473,61 +411,58 @@ ExpenseForm.Pending = ({
     <FormProvider {...methods}>
       <Box component="form" {...props}>
         <Stack spacing={2}>
-          <Box>
-            <Controller
-              control={control}
-              name="totalAmount"
-              render={({ field: { value } }) => (
-                <Stack gap={0.5}>
-                  <Typography variant="subtitle2" fontSize="13px" color="textSecondary">
-                    <Box display="inline" color={theme.palette.primary.main}>*</Box>
-                    총 금액
-                  </Typography>
-                  <TextField
-                    variant="standard"
-                    value={value === 0 ? '' : value.toLocaleString()}
-                    size="small"
-                    fullWidth
-                    placeholder="금액"
-                    disabled
-                    slotProps={{
-                      inputLabel: {
-                        sx: {
-                          '&::before': {
-                            content: '"*"',
-                            color: theme.palette.primary.main
-                          }
-                        }
-                      },
-                      input: {
-                        endAdornment:
-                          <PopMenu items={[]}>
-                            <InputAdornment
-                              position="end"
-                              sx={{
-                                cursor: 'pointer',
-                                userSelect: 'none',
-                                color: 'primary.main',
-                                fontWeight: 'medium',
-                                '&:hover': { opacity: 0.7 },
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 0.25,
-                                paddingBottom: 0.5,
-                              }}
-                            >
-                              원
-                              <SwapHorizIcon sx={{ fontSize: 16 }} />
-                            </InputAdornment>
-                          </PopMenu>
-                      }
-                    }}
-                  />
-                </Stack>
-              )}
-            />
+          <Stack gap={1}>
+            <Stack direction="row" alignItems="center" justifyContent="space-between" gap={0.5}>
+              <Typography variant="subtitle2">
+                결제 금액
+              </Typography>
+              <Typography
+                variant="caption"
+                sx={{
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                  color: 'primary.main',
+                  fontWeight: 'medium',
+                  '&:hover': { opacity: 0.7 },
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.25,
+                }}
+              >
+                원
+                <SwapHorizIcon sx={{ fontSize: 16 }} />
+              </Typography>
+            </Stack>
+            <Stack spacing={1}>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Select variant="standard" disabled>
+                  <MenuItem>Loading</MenuItem>
+                </Select>
+                <TextField
+                  variant="standard"
+                  size="small"
+                  placeholder="금액"
+                  disabled
+                  sx={{ flex: 1 }}
+                />
+                <IconButton size="small" disabled sx={{ opacity: 0.3 }}>
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </Stack>
 
-          </Box>
+            </Stack>
+            <Stack
+              direction="row"
+              justifyContent="end"
+              alignItems="center"
+              marginTop={0.5}
+            >
+              <Button size="small" startIcon={<AddIcon />} disabled>
+                추가
+              </Button>
+            </Stack>
+
+          </Stack>
 
           {/* 설명 */}
           <Controller
