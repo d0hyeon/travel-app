@@ -37,7 +37,7 @@ const TripRoutesContent = lazy(async () => {
 });
 
 const TripExpenseContent = lazy(async () => {
-  const module = await import('./trip-expense/ExpenseContent.desktop');
+  const module = await import('./trip-expense/desktop/ExpenseContent.desktop.tsx');
   return { default: module.ExpenseContent }
 });
 

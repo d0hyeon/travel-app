@@ -31,7 +31,7 @@ type TabType = 'Info' | 'Place' | 'Route' | 'Expense' | 'Photo';
 const TripPhotoContent = lazy(() => import('./trip-photo/TripPhotoContent.mobile.tsx'));
 const TripPlaceContent = lazy(() => import('./trip-place/TripPlaceContent.mobile'));
 const TripRoutesContent = lazy(() => import('./trip-route/TripRoutesContent.mobile'));
-const TripExpenseContent = lazy(() => import('./trip-expense/ExpenseContent.mobile'));
+const TripExpenseContent = lazy(() => import('./trip-expense/mobile/ExpenseContent.mobile.tsx'));
 
 
 export function TripDetailPageMobile() {
