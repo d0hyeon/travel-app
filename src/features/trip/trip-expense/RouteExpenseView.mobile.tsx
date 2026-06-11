@@ -65,6 +65,7 @@ export function RouteExpenseViewMobile({ tripId }: Props) {
       defaultValues: {
         placeId: place.id,
         description: place.name,
+        date: place.date,
         splitAmong: amongByPlaceId.get(place.id),
       },
       renderActions: ({ close }) => <ExpenseFormOverlayActions onCancel={close} />
@@ -80,13 +81,7 @@ export function RouteExpenseViewMobile({ tripId }: Props) {
     if (!expense) return;
 
     const data = await formBottomSheet.open({
-      defaultValues: {
-        placeId: place.id,
-        description: expense.description,
-        payments: expense.payments,
-        splitAmong: expense.splitAmong,
-        currency: expense.currency
-      },
+      defaultValues: expense,
       renderActions: ({ close }) => (
         <ExpenseFormDeletationActions tripId={tripId} expenseId={expenseId} onClose={close} />
       )

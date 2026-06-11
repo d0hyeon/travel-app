@@ -76,6 +76,7 @@ export function RouteExpenseView({ tripId }: Props) {
       defaultValues: {
         placeId: place.id,
         description: place.name,
+        date: place.date,
         splitAmong: amongByPlaceId.get(place.id),
       },
     });
@@ -91,12 +92,7 @@ export function RouteExpenseView({ tripId }: Props) {
 
     const data = await expenseFormOverlay.open({
       title: `${place.name} 지출 수정`,
-      defaultValues: {
-        placeId: place.id,
-        description: expense.description,
-        payments: expense.payments,
-        splitAmong: expense.splitAmong,
-      },
+      defaultValues: expense,
     });
     if (data == null) return;
     update({ expenseId, data });
