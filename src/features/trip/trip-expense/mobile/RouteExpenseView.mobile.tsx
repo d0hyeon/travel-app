@@ -1,4 +1,4 @@
-import AddIcon from '@mui/icons-material/Add'
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import { Box, IconButton, Stack, Typography } from "@mui/material"
 import { alpha, styled } from '@mui/system'
 import { useRef, useState } from "react"
@@ -16,6 +16,7 @@ import { ExpenseFormDeletationActions } from "../ExpenseFormDeletationActions"
 import { ExpenseFormOverlayActions, useExpenseFormBottomSheet } from "../useExpenseFormOverlay"
 import { useExpensesByPlace, type PlaceWithRoute } from "../useExpensesByPlace"
 import { getRouteColor, RoutePath } from "../routeExpenseView.utils"
+import { addDays, isSameDay } from 'date-fns';
 
 interface Props {
   tripId: string
@@ -147,8 +148,12 @@ export function RouteExpenseViewMobile({ tripId }: Props) {
             ) : (
               <Stack spacing={1}>
                 {placesByDay[dayIndex].map((place) => {
-                  const placeExpenses = expensesByPlaceId.get(place.id) ?? []
                   const totalAmount = amountByPlaceId.get(place.id)
+                  const visitedDate = addDays(trip.startDate, dayIndex);
+                  const placeExpenses = expensesByPlaceId.get(place.id)?.filter(x => {
+                    if (x.date == null) return true;
+                    return isSameDay(x.date, visitedDate)
+                  }) ?? [];
 
                   return (
                     <PlaceItem
@@ -176,7 +181,7 @@ export function RouteExpenseViewMobile({ tripId }: Props) {
                             handleAddExpense(place)
                           }}
                         >
-                          <AddIcon fontSize="small" />
+                          <PlaylistAddIcon fontSize="small" />
                         </IconButton>
                       </Stack>
 
@@ -197,11 +202,11 @@ export function RouteExpenseViewMobile({ tripId }: Props) {
                               <Typography variant="caption" color="text.secondary">
                                 {expense.payments.map(p => {
                                   const member = members.find(m => m.id === p.memberId)
-                                  return member ? member.name[0] ?? '' : ''
+                                  return member ? member.name ?? '' : ''
                                 }).join(' ')}
                               </Typography>
                               <Typography variant="caption" fontWeight="medium">
-                                {formatByCurrencyCode(expense.totalAmount, expense.currency)}
+                                +{formatByCurrencyCode(expense.totalAmount, expense.currency)}
                               </Typography>
                             </ExpenseItem>
                           ))}

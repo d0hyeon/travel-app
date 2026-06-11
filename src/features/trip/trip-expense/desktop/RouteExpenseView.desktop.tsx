@@ -1,8 +1,11 @@
-import AddIcon from '@mui/icons-material/Add'
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'
 import { Box, IconButton, Stack, Typography } from "@mui/material"
 import { styled } from '@mui/system'
+import { addDays, isSameDay } from 'date-fns'
 import { useRef, useState } from "react"
 import { useTripMembers } from "~features/trip/trip-member/useTripMembers"
+import { ResizeHandleHorizontal } from '~shared/components/split-view/SplitView'
+import { useResizableSplit } from '~shared/components/split-view/useResizableSplit'
 import { IntersectionArea } from "../../../../shared/components/IntersectionArea"
 import { Map, type MapRef } from "../../../../shared/components/Map"
 import { formatShortDate } from "../../../../shared/utils/formats"
@@ -12,11 +15,9 @@ import { PlaceCategoryColorCode } from "../../../place/place.types"
 import { useTripPlaces } from "../../trip-place/useTripPlaces"
 import { useTripRoutes } from "../../trip-route/useTripRoutes"
 import { useTrip } from "../../useTrip"
+import { getRouteColor, RoutePath } from "../routeExpenseView.utils"
 import { useExpenseFormOverlay } from "../useExpenseFormOverlay"
 import { type PlaceWithRoute, useExpensesByPlace } from "../useExpensesByPlace"
-import { useResizableSplit } from '~shared/components/split-view/useResizableSplit'
-import { ResizeHandleHorizontal } from '~shared/components/split-view/SplitView'
-import { getRouteColor, RoutePath } from "../routeExpenseView.utils"
 
 interface Props {
   tripId: string
@@ -114,8 +115,12 @@ export function RouteExpenseView({ tripId }: Props) {
               ) : (
                 <Stack spacing={1}>
                   {placesByDay[dayIndex].map((place) => {
-                    const placeExpenses = expensesByPlaceId.get(place.id) ?? []
-                    const totalAmount = amountByPlaceId.get(place.id)
+                    const totalAmount = amountByPlaceId.get(place.id);
+                    const visitedDate = addDays(trip.startDate, dayIndex);
+                    const placeExpenses = expensesByPlaceId.get(place.id)?.filter(x => {
+                      if (x.date == null) return true;
+                      return isSameDay(x.date, visitedDate)
+                    }) ?? [];
 
                     return (
                       <PlaceItem
@@ -143,7 +148,7 @@ export function RouteExpenseView({ tripId }: Props) {
                               handleAddExpense(place)
                             }}
                           >
-                            <AddIcon fontSize="small" />
+                            <PlaylistAddIcon fontSize="small" />
                           </IconButton>
                         </Stack>
 
@@ -164,11 +169,11 @@ export function RouteExpenseView({ tripId }: Props) {
                                 <Typography variant="caption" color="text.secondary">
                                   {expense.payments.map(p => {
                                     const member = members.find(m => m.id === p.memberId)
-                                    return member ? member.name[0] ?? '' : ''
+                                    return member ? member.name ?? '' : ''
                                   }).join(' ')}
                                 </Typography>
                                 <Typography variant="caption" fontWeight="medium">
-                                  {formatByCurrencyCode(expense.totalAmount, expense.currency)}
+                                  +{formatByCurrencyCode(expense.totalAmount, expense.currency)}
                                 </Typography>
                               </ExpenseItem>
                             ))}
@@ -247,6 +252,7 @@ const ListContainer = styled(Box)({
   flex: 1,
   overflow: 'auto',
   padding: 12,
+  paddingBottom: 50,
   height: '100%'
 })
 
