@@ -40,6 +40,7 @@ import { useTrip } from "../useTrip"
 import { RouteExpenseView } from "./RouteExpenseView.desktop"
 import { useExpenseFormOverlay } from "./useExpenseFormOverlay"
 import { AnimatedCountText } from '../../../shared/components/animation/AnimatedCountText'
+import { SwitchCase } from '~shared/components/SwitchCase'
 
 interface Props {
   tripId: string
@@ -53,10 +54,9 @@ export function ExpenseContent({ tripId }: Props) {
   })
 
   const { data: trip, update: updateTrip } = useTrip(tripId)
-  const { data: expenses, create, update, remove } = useExpenses(tripId)
+  const { data: expenses, create } = useExpenses(tripId)
   const { data: members } = useTripMembers(tripId)
   const expenseFormOverlay = useExpenseFormOverlay(tripId)
-  const confirm = useConfirmDialog()
 
   const exchangeRates = trip.exchangeRates
 
@@ -75,11 +75,6 @@ export function ExpenseContent({ tripId }: Props) {
     if (data) create(data);
   }
 
-  const handleDeleteExpense = async (expenseId: string) => {
-    if (await confirm('이 지출을 삭제하시겠습니까?')) {
-      remove(expenseId)
-    }
-  }
   const overlay = useOverlay();
   const [contentHeight, setContentHeight] = useState<number>();
 
@@ -256,130 +251,19 @@ export function ExpenseContent({ tripId }: Props) {
               </Button>
             )}
           </Stack>
-
-          {viewMode === 'list' ? (
-            // 목록 뷰
-            expenses.length === 0 ? (
-              <Box
-                sx={{
-                  py: 8,
-                  textAlign: 'center',
-                  color: 'text.secondary',
-                  bgcolor: 'grey.50',
-                  borderRadius: 2,
-                }}
-              >
-                <Typography variant="body1" mb={1}>아직 지출 내역이 없습니다</Typography>
-                <Typography variant="body2">지출 추가 버튼을 눌러 첫 지출을 기록해보세요</Typography>
-              </Box>
-            ) : (
-              <Stack spacing={1.5} sx={{ maxHeight: 450, overflow: 'auto' }}>
-                {expenses.map((expense) => {
-                  const splitedAmount = Math.ceil(expense.totalAmount / members.length);
-                  const peopleAmount = expense.payments.reduce<Record<string, number>>((acc, item) => ({
-                    ...acc,
-                    [item.memberId]: (acc[item.memberId] ?? 0) + item.amount
-                  }), {});
-
-                  const is엔빵 = members.every(member => {
-                    if (peopleAmount[member.id] == null) return false;
-                    return peopleAmount[member.id] === splitedAmount;
-                  })
-
-                  return (
-                    <Card
-                      key={expense.id}
-                      variant="outlined"
-                      sx={{
-                        '&:hover': { borderColor: 'primary.main', bgcolor: 'primary.50' },
-                        transition: 'all 0.2s',
-                        flex: '1 0 auto'
-                      }}
-                    >
-                      <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
-                        <Stack direction="row" justifyContent="space-between" alignItems="center">
-                          <Box flex={1}>
-                            <Stack direction="row" alignItems="center" spacing={1}>
-                              <Typography fontWeight="medium">{expense.description}</Typography>
-                              {expense.date && (
-                                <Typography variant="caption" color="text.secondary">
-                                  {formatShortDate(expense.date)}
-                                </Typography>
-                              )}
-                            </Stack>
-                            {expense.splitAmong.length < members.length && (
-                              <Stack direction="row" spacing={0.5} mt={0.5} flexWrap="wrap" useFlexGap>
-                                {expense.splitAmong.map(id => {
-                                  const member = memberMap.get(id);
-                                  return (
-                                    <Chip
-                                      key={id}
-                                      size="small"
-                                      variant="outlined"
-                                      label={`${member?.name}`}
-                                    />
-                                  )
-                                })}
-                              </Stack>
-                            )}
-                          </Box>
-                          <Stack direction="row" alignItems="center" spacing={1}>
-                            {!is엔빵 && (
-                              <Stack direction="row" spacing={0.5} mt={0.5} flexWrap="wrap" useFlexGap>
-                                {expense.payments.map(p => {
-                                  const member = memberMap.get(p.memberId)
-                                  return (
-                                    <Chip
-                                      key={p.memberId}
-                                      size="small"
-                                      variant="outlined"
-                                      label={`${member?.name}${p.amount === expense.totalAmount ? '' : ` ${formatByCurrencyCode(p.amount, expense.currency)}`}`}
-                                    />
-                                  )
-                                })}
-                              </Stack>
-                            )}
-                            <Typography variant="h6" color="primary.main" fontWeight="bold">
-                              {formatByCurrencyCode(expense.totalAmount, expense.currency)}
-                            </Typography>
-                            <Button
-                              size="small"
-                              variant="outlined"
-                              onClick={async () => {
-                                const data = await expenseFormOverlay.open({
-                                  title: '지출 수정',
-                                  defaultValues: expense
-                                });
-                                if (data) update({ expenseId: expense.id, data });
-                              }}
-                              sx={{ height: 30, paddingInline: 2 }}
-                            >
-                              수정
-                            </Button>
-                            <IconButton
-                              size="small"
-                              onClick={() => handleDeleteExpense(expense.id)}
-                              sx={{ opacity: 0.5, '&:hover': { opacity: 1, color: 'error.main' } }}
-                            >
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
-                          </Stack>
-                        </Stack>
-                      </CardContent>
-                    </Card>
-                  )
-                })}
-              </Stack>
-            )
-          ) : (
-            // 경로 뷰
-            <Box sx={{ mx: -3, mb: -3, mt: -1 }}>
-              <Suspense>
-                <RouteExpenseView tripId={tripId} />
-              </Suspense>
-            </Box>
-          )
-          }
+          <SwitchCase
+            value={viewMode}
+            cases={{
+              list: <ExpenseList tripId={tripId} />,
+              route: (
+                <Box sx={{ mx: -3, mb: -3, mt: -1 }}>
+                  <Suspense>
+                    <RouteExpenseView tripId={tripId} />
+                  </Suspense>
+                </Box>
+              )
+            }}
+          />
         </Paper >
 
         {/* 오른쪽: 정산 현황 */}
@@ -503,5 +387,138 @@ export function ExpenseContent({ tripId }: Props) {
         </Paper >
       </Stack >
     </Box >
+  )
+}
+
+interface ExpenseListProps {
+  tripId: string;
+}
+function ExpenseList({ tripId }: ExpenseListProps) {
+  const { data: expenses, create, update, remove } = useExpenses(tripId);
+  const { data: members } = useTripMembers(tripId);
+  const memberMap = useMemo(() => new Map(members.map(m => [m.id, m])), [members]);
+  const expenseFormOverlay = useExpenseFormOverlay(tripId)
+  const confirm = useConfirmDialog()
+
+
+  if (expenses.length === 0) {
+    return (
+      <Box
+        sx={{
+          py: 8,
+          textAlign: 'center',
+          color: 'text.secondary',
+          bgcolor: 'grey.50',
+          borderRadius: 2,
+        }}
+      >
+        <Typography variant="body1" mb={1}>아직 지출 내역이 없습니다</Typography>
+        <Typography variant="body2">지출 추가 버튼을 눌러 첫 지출을 기록해보세요</Typography>
+      </Box>
+    )
+  }
+
+  return (
+    <Stack spacing={1.5} sx={{ maxHeight: 450, overflow: 'auto' }}>
+      {expenses.map((expense) => {
+        const splitedAmount = Math.ceil(expense.totalAmount / members.length);
+        const peopleAmount = expense.payments.reduce<Record<string, number>>((acc, item) => ({
+          ...acc,
+          [item.memberId]: (acc[item.memberId] ?? 0) + item.amount
+        }), {});
+
+        const is엔빵 = members.every(member => {
+          if (peopleAmount[member.id] == null) return false;
+          return peopleAmount[member.id] === splitedAmount;
+        })
+
+        return (
+          <Card
+            key={expense.id}
+            variant="outlined"
+            sx={{
+              '&:hover': { borderColor: 'primary.main', bgcolor: 'primary.50' },
+              transition: 'all 0.2s',
+              flex: '1 0 auto'
+            }}
+          >
+            <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
+              <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Box flex={1}>
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <Typography fontWeight="medium">{expense.description}</Typography>
+                    {expense.date && (
+                      <Typography variant="caption" color="text.secondary">
+                        {formatShortDate(expense.date)}
+                      </Typography>
+                    )}
+                  </Stack>
+                  {expense.splitAmong.length < members.length && (
+                    <Stack direction="row" spacing={0.5} mt={0.5} flexWrap="wrap" useFlexGap>
+                      {expense.splitAmong.map(id => {
+                        const member = memberMap.get(id);
+                        return (
+                          <Chip
+                            key={id}
+                            size="small"
+                            variant="outlined"
+                            label={`${member?.name}`}
+                          />
+                        )
+                      })}
+                    </Stack>
+                  )}
+                </Box>
+                <Stack direction="row" alignItems="center" spacing={1}>
+                  {!is엔빵 && (
+                    <Stack direction="row" spacing={0.5} mt={0.5} flexWrap="wrap" useFlexGap>
+                      {expense.payments.map(p => {
+                        const member = memberMap.get(p.memberId)
+                        return (
+                          <Chip
+                            key={p.memberId}
+                            size="small"
+                            variant="outlined"
+                            label={`${member?.name}${p.amount === expense.totalAmount ? '' : ` ${formatByCurrencyCode(p.amount, expense.currency)}`}`}
+                          />
+                        )
+                      })}
+                    </Stack>
+                  )}
+                  <Typography variant="h6" color="primary.main" fontWeight="bold">
+                    {formatByCurrencyCode(expense.totalAmount, expense.currency)}
+                  </Typography>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    onClick={async () => {
+                      const data = await expenseFormOverlay.open({
+                        title: '지출 수정',
+                        defaultValues: expense
+                      });
+                      if (data) update({ expenseId: expense.id, data });
+                    }}
+                    sx={{ height: 30, paddingInline: 2 }}
+                  >
+                    수정
+                  </Button>
+                  <IconButton
+                    size="small"
+                    onClick={async () => {
+                      if (await confirm('이 지출을 삭제하시겠습니까?')) {
+                        remove(expense.id);
+                      }
+                    }}
+                    sx={{ opacity: 0.5, '&:hover': { opacity: 1, color: 'error.main' } }}
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </Stack>
+              </Stack>
+            </CardContent>
+          </Card>
+        )
+      })}
+    </Stack>
   )
 }
