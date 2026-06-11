@@ -62,7 +62,7 @@ export function ExpenseContent({ tripId }: Props) {
   return (
     <Container height={contentHeight}>
       <SettlementSummary tripId={tripId} />
-      <Stack direction="row" flex={0} padding={2}>
+      <Stack direction="row" flex={0} padding={1}>
         {trip.isOverseas && <TripExchangeRageSettingButton tripId={tripId} />}
       </Stack>
 
@@ -144,7 +144,7 @@ function Container(props: BoxProps<'div'>) {
     <Box display="flex"
       flexDirection="column"
       flex={1}
-      p={3}
+      p={2}
       bgcolor="grey.50"
       {...props}
     />

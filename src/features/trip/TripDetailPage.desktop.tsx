@@ -64,8 +64,6 @@ export function TripDetailPageDesktop() {
       <Box
         position="sticky"
         top={72}
-        paddingX={2}
-        paddingY={1}
         width="100%"
         bgcolor="background.paper"
         zIndex={10}
