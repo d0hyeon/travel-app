@@ -37,7 +37,7 @@ import { useExpenses } from "../../expense/useExpenses"
 import { MemberAvatar } from "../trip-member/MemberAvatar"
 import { useTripMembers } from "../trip-member/useTripMembers"
 import { useTrip } from "../useTrip"
-import { RouteExpenseView } from "./RouteExpenseView"
+import { RouteExpenseView } from "./RouteExpenseView.desktop"
 import { useExpenseFormOverlay } from "./useExpenseFormOverlay"
 import { AnimatedCountText } from '../../../shared/components/animation/AnimatedCountText'
 
