@@ -14,6 +14,9 @@ export interface ExploredPlace {
   lat: number
   lng: number
   visitorCount: number
+  photoCount: number
+  postCount: number
+  score: number
   destinations: string[]
   categories: PlaceCategoryTypeValue[]
   thumbnailUrl?: string
@@ -31,6 +34,9 @@ interface ExploredPlaceRow {
   lat: number
   lng: number
   visitor_count: number
+  photo_count: number
+  post_count: number
+  score: number
   destinations: string[]
   categories: PlaceCategoryTypeValue[]
   thumbnail_url: string | null
@@ -54,6 +60,9 @@ async function callExploredPlaces(sinceDate?: string): Promise<ExploredPlacesRes
     lat: row.lat,
     lng: row.lng,
     visitorCount: row.visitor_count,
+    photoCount: row.photo_count,
+    postCount: row.post_count,
+    score: row.score,
     destinations: row.destinations ?? [],
     categories: row.categories ?? [],
     thumbnailUrl: row.thumbnail_url ?? undefined,
