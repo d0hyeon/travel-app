@@ -89,6 +89,7 @@ AS $$
         JOIN posts p ON p.id = pph.post_id
         JOIN post_locations pl ON pl.post_id = p.id
         WHERE p.visibility = 'PUBLIC'
+          AND pph.is_public = true
           AND pl.place_id IN (SELECT place_id FROM visit_counts)
       ) all_photos
     ) ranked
