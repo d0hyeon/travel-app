@@ -31,9 +31,12 @@ export function PlaceListItem({ place, size = 'small', ...props }: Props) {
         bgcolor={accentColor ? `${accentColor}22` : 'grey.100'}
         sx={thumbnailStyles}
       >
-        {!place.thumbnailUrl && (
+        {place.thumbnailUrl ? (
+          <img src={place.thumbnailUrl} />
+        ) : (
           <LocationOnIcon sx={{ fontSize: 24, color: accentColor ?? 'text.disabled' }} />
         )}
+
       </Box>
 
       <Box flex={1} minWidth={0}>
