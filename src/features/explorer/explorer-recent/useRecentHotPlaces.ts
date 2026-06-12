@@ -17,11 +17,11 @@ export function useRecentHotPlaces({ inquiryMonths, ...params }: RecentHotPlaceO
     queryFn: async () => {
       const { places } = await getRecentHotPlaces(inquiryMonths)
       if (places.length === 0) return []
-      const maxVisitCount = Math.max(...places.map((p) => p.visitorCount))
-      const threshold = maxVisitCount / 2
+      const maxScore = Math.max(...places.map((p) => p.score))
+      const threshold = maxScore / 2
       return places
-        .filter((p) => p.visitorCount >= threshold)
-        .toSorted((a, b) => b.visitorCount - a.visitorCount)
+        .filter((p) => p.score >= threshold)
+        .toSorted((a, b) => b.score - a.score)
     },
   })
 
