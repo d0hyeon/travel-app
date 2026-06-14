@@ -1,6 +1,6 @@
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'
 import { Box, IconButton, Stack, Typography } from "@mui/material"
-import { styled } from '@mui/system'
+import { styled } from '@mui/material'
 import { addDays, isSameDay } from 'date-fns'
 import { useRef, useState } from "react"
 import { useTripMembers } from "~features/trip/trip-member/useTripMembers"

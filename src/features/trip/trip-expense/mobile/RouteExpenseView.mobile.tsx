@@ -1,6 +1,6 @@
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import { Box, IconButton, Stack, Typography } from "@mui/material"
-import { alpha, styled } from '@mui/system'
+import { alpha, styled } from '@mui/material'
 import { useRef, useState } from "react"
 import { IntersectionArea } from "../../../../shared/components/IntersectionArea"
 import { Map, type MapRef } from "../../../../shared/components/Map"

@@ -10,11 +10,12 @@ import {
   Chip,
   IconButton,
   Stack,
+  styled,
   ToggleButton,
   ToggleButtonGroup,
   Typography
 } from '@mui/material'
-import { styled } from '@mui/system'
+
 import { Suspense, useMemo, useRef, useState } from 'react'
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { SortableItem } from '../../../shared/components/dnd/SortableItem'

@@ -1,6 +1,6 @@
 import { supabase } from "~api/client";
 import type { TripMemo } from "./tripMemo.type";
-import type { DataRaw } from "~api/tables.types";
+import type { DataRaw, UpdateDataType } from "~api/tables.types";
 
 
 function toData(row: DataRaw<'memos'>): TripMemo {
@@ -56,7 +56,7 @@ export interface UpdateMemo {
 }
 
 export async function updateMemo({ id, ...data }: UpdateMemo): Promise<TripMemo> {
-  const payload: Record<string, unknown> = {};
+  const payload: UpdateDataType<'memos'> = {}
 
   if (data.title !== undefined) payload.title = data.title;
   if (data.content !== undefined) payload.content = data.content;
