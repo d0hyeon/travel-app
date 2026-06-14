@@ -5,11 +5,10 @@ import { AppRoute } from '~app/routes';
 import { ChattingNotificationMessageSchema, ChattingNotificationType } from './chatting-notification.types';
 import z, { type ZodSchema } from 'zod';
 
-const sw = self as unknown as ServiceWorkerGlobalScope
-
+declare const self: ServiceWorkerGlobalScope;
 const openChatTripIds = new Set<string>()
 
-sw.addEventListener('message', (event: ExtendableMessageEvent) => {
+self.addEventListener('message', (event: ExtendableMessageEvent) => {
   const { success, data } = ChattingNotificationMessageSchema.safeParse(event.data);
   if (!success) return;
 
@@ -36,7 +35,7 @@ const ChatPushEventDataSchema = z.object({
   tripId: z.string()
 }) satisfies ZodSchema<ChatPushEventPayload>;
 
-sw.addEventListener('push', (event: PushEvent) => {
+self.addEventListener('push', (event: PushEvent) => {
   const parsed = ChatPushEventDataSchema.safeParse(event.data?.json());
   if (!parsed.success) return;
   
@@ -44,7 +43,7 @@ sw.addEventListener('push', (event: PushEvent) => {
   if (openChatTripIds.has(tripId)) return;
 
   event.waitUntil(
-    sw.registration.showNotification(title, {
+    self.registration.showNotification(title, {
       body,
       icon: '/pwa-192x192.png',
       badge: '/pwa-192x192.png',
@@ -61,7 +60,7 @@ const ChatNotificationPayloadSchema = z.object({
 }) satisfies ZodSchema<ChatNotificationPayload>
 
 
-sw.addEventListener('notificationclick', (event: NotificationEvent) => {
+self.addEventListener('notificationclick', (event: NotificationEvent) => {
   const parsed = ChatNotificationPayloadSchema.safeParse(event.notification.data);
   if (!parsed.success) return;
   
@@ -70,11 +69,11 @@ sw.addEventListener('notificationclick', (event: NotificationEvent) => {
   const targetUrl = generatePath(AppRoute.여행_채팅, { tripId });
 
   event.waitUntil(
-    sw.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       if (clientList.length > 0) {
         return clientList[0].navigate(targetUrl)
       }
-      return sw.clients.openWindow(targetUrl)
+      return self.clients.openWindow(targetUrl)
     })
   )
 })
