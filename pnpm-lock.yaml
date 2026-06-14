@@ -50,9 +50,6 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.90.21
         version: 5.101.0(react@19.2.7)
-      '@toss/use-overlay':
-        specifier: ^1.4.2
-        version: 1.4.2(react@19.2.7)
       date-fns:
         specifier: ^4.1.0
         version: 4.4.0
@@ -62,9 +59,6 @@ importers:
       heic-to:
         specifier: ^1.4.2
         version: 1.5.2
-      isbot:
-        specifier: ^5
-        version: 5.1.42
       react:
         specifier: ^19.2.0
         version: 19.2.7
@@ -1937,12 +1931,6 @@ packages:
     engines: {node: '>=12', npm: '>=6'}
     peerDependencies:
       '@testing-library/dom': '>=7.21.4'
-
-  '@toss/use-overlay@1.4.2':
-    resolution: {integrity: sha512-OYJKSKkldho8qrJR0xMJLpz85H68+E+y6H3y/N0XUed/b0ytbfU+fuxcPd14uiC8H0xzliTGBlY8GQP9Z/lteQ==}
-    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
-    peerDependencies:
-      react: ^16.8 || ^17 || ^18
 
   '@trickfilm400/rollup-plugin-off-main-thread@3.0.0-pre1':
     resolution: {integrity: sha512-/67zpWDBLV+oYAEL682s1ktXL0HgqX76f6gaVGkGnVZlBbm1zd0v4Bz8MFF2GGhoX9rvfq3KSQHubFHwa6w6/Q==}
@@ -6412,10 +6400,6 @@ snapshots:
   '@testing-library/user-event@14.6.1(@testing-library/dom@10.4.1)':
     dependencies:
       '@testing-library/dom': 10.4.1
-
-  '@toss/use-overlay@1.4.2(react@19.2.7)':
-    dependencies:
-      react: 19.2.7
 
   '@trickfilm400/rollup-plugin-off-main-thread@3.0.0-pre1':
     dependencies:
