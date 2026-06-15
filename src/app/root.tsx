@@ -14,6 +14,7 @@ import { OverlayProvider } from '~shared/hooks/useOverlay'
 
 import { AuthErrorBoundary } from '~features/auth/AuthErrorBoundary'
 import { CommonErrorBoundary } from '~shared/components/CommonErrorBoundary'
+import '~shared/reset.css'
 import '~shared/index.css'
 import { AppInitializer } from './AppInitializer'
 import { SplashScreen } from './SplashScreen'
