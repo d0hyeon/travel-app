@@ -2,7 +2,8 @@ name: CI
 
 on:
   pull_request:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   ts-check:
@@ -15,9 +16,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
 
       - run: corepack enable
+      - run: corepack prepare pnpm@10.33.0 --activate
+      - run: pnpm --version
+
       - run: pnpm install --frozen-lockfile
       - run: pnpm ts-check
 
@@ -35,8 +38,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
 
       - run: corepack enable
+      - run: corepack prepare pnpm@10.33.0 --activate
+      - run: pnpm --version
+
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
