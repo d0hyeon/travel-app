@@ -8,26 +8,35 @@ jobs:
   ts-check:
     name: TypeScript Check
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: "pnpm"
+          cache: pnpm
+
+      - run: corepack enable
       - run: pnpm install --frozen-lockfile
       - run: pnpm ts-check
 
   test:
     name: Unit Tests
     runs-on: ubuntu-latest
+
     env:
       VITE_SUPABASE_URL: https://placeholder.supabase.co
       VITE_SUPABASE_ANON_KEY: placeholder
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: "pnpm"
+          cache: pnpm
+
+      - run: corepack enable
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
