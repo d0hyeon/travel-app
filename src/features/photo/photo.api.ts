@@ -82,7 +82,7 @@ const resizeImage = async (_file: File, quality: keyof typeof ResizeQualityOptio
 };
 
 async function uploadToStorage(storagePath: string, file: File): Promise<string> {
-  const { data, error } = await supabase.functions.invoke('r2-upload-url', {
+  const { data, error } = await supabase.functions.invoke('storage-upload-url', {
     body: { storagePath, contentType: file.type || 'image/webp' },
   })
   if (error) throw error
@@ -94,7 +94,7 @@ async function uploadToStorage(storagePath: string, file: File): Promise<string>
     body: file,
     headers: { 'Content-Type': file.type || 'image/webp' },
   })
-  if (!uploadRes.ok) throw new Error(`R2 upload failed: ${uploadRes.status}`)
+  if (!uploadRes.ok) throw new Error(`Storage upload failed: ${uploadRes.status}`)
 
   return publicUrl
 }
@@ -152,7 +152,7 @@ export async function createPhotoFileFromUrl(url: string, fileName = `${Date.now
 }
 
 export async function deletePhoto(photo: Photo): Promise<boolean> {
-  const { error: fnError } = await supabase.functions.invoke('r2-delete', {
+  const { error: fnError } = await supabase.functions.invoke('storage-delete', {
     body: { storagePaths: [photo.storagePath] },
   })
   if (fnError) throw fnError
@@ -183,6 +183,6 @@ export async function deletePhotosByTripId(tripId: string): Promise<void> {
 
   if (photos.length > 0) {
     const storagePaths = photos.map(p => p.storagePath)
-    await supabase.functions.invoke('r2-delete', { body: { storagePaths } })
+    await supabase.functions.invoke('storage-delete', { body: { storagePaths } })
   }
 }
