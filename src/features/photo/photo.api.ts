@@ -1,5 +1,5 @@
 import type { DataRaw } from '~api/tables.types';
-import { supabase } from '~api/client'
+import { apiClient, supabase } from '~api/client'
 import type { Photo, PhotoUploadParams } from './photo.types'
 import { heicTo, isHeic } from 'heic-to'
 import Resizer from 'react-image-file-resizer';
@@ -141,14 +141,15 @@ export async function uploadPostPhoto(tripId: string | null, file: File): Promis
 }
 
 export async function createPhotoFileFromUrl(url: string, fileName = `${Date.now()}.jpg`): Promise<File> {
-  const response = await fetch(url)
-  if (!response.ok) {
-    throw new Error('사진 파일을 다시 가져오지 못했어요')
-  }
+  const { data, contentType } = await apiClient.get('/functions/v1/file', {
+    params: { url },
+    parse: async (response) => {
+      const data = await response.blob();
+      return { data, contentType: response.headers.get('Content-Type') ?? 'image/jpeg' }
+    }
+  });
 
-  const blob = await response.blob()
-  const contentType = blob.type || 'image/jpeg'
-  return new File([blob], fileName, { type: contentType })
+  return new File([data], fileName, { type: contentType })
 }
 
 export async function deletePhoto(photo: Photo): Promise<boolean> {
