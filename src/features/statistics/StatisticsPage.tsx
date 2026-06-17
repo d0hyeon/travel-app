@@ -9,6 +9,12 @@ import { useStatisticsSummary } from './statistics-expense/useStatisticsSummary'
 
 type StatisticsTab = 'overview' | 'expense' | 'currency'
 
+export const meta = () => [
+  { title: '통계 — WayLog' },
+  { property: 'og:title', content: '통계 — WayLog' },
+  { property: 'og:description', content: '나의 여행 통계와 지출 현황을 확인해보세요.' },
+]
+
 export default function StatisticsPage() {
 
   const [currentTab, setCurrentTab] = useQueryParamState<StatisticsTab>('stats-tab', {

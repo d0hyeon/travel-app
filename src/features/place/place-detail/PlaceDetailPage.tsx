@@ -9,6 +9,12 @@ import { usePlaceId } from './usePlaceId'
 
 type ContentType = keyof typeof PlaceDetailContent;
 
+export const meta = () => [
+  { title: '장소 상세 — WayLog' },
+  { property: 'og:title', content: '장소 상세 — WayLog' },
+  { property: 'og:description', content: '이 장소를 방문한 여행자들의 기록을 확인해보세요.' },
+]
+
 export default function PlaceDetailPage() {
   const placeId = usePlaceId()
   const [currentTab, setCurrentTab] = useQueryParamState<ContentType>('tab', {

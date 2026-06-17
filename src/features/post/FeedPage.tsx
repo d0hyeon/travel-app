@@ -8,6 +8,12 @@ import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
 import { TopNavigation as DesktopNavigation } from '~shared/components/layout/TopNavigation.desktop'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 
+export const meta = () => [
+  { title: '피드 — WayLog' },
+  { property: 'og:title', content: '피드 — WayLog' },
+  { property: 'og:description', content: '다른 여행자들의 여행 포스트를 살펴보세요.' },
+]
+
 export default function FeedPage() {
 
 

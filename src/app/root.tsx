@@ -22,6 +22,18 @@ import { ToastRenderer } from './ToastRenderer'
 
 
 
+export const meta = () => [
+  { title: 'WayLog' },
+  { property: 'og:title', content: 'WayLog' },
+  { property: 'og:type', content: 'website' },
+  { property: 'og:url', content: 'https://waylog.me' },
+  { property: 'og:image', content: 'https://waylog.me/pwa-512x512.png' },
+  { name: 'twitter:card', content: 'summary' },
+  { name: 'twitter:title', content: 'WayLog' },
+  { name: 'twitter:image', content: 'https://waylog.me/pwa-512x512.png' },
+  { name: 'theme-color', content: '#ffffff' },
+]
+
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">

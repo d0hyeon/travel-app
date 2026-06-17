@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Allow: /feed
+Allow: /explorer
+Allow: /post/
+Allow: /place/
+Allow: /u/
+
+Disallow: /trip/
+Disallow: /statistics
+Disallow: /admin/
+
+Sitemap: https://waylog.me/sitemap.xml
