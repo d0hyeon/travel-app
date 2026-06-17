@@ -18,9 +18,9 @@ import { ChatPushNoticeCard } from '../ChatPushNoticeCard'
 import { useTripChatMessages } from '../useTripChatMessages'
 import { markAsRead } from '../useUnreadChatCount'
 import { TripChatMessage } from './TripChatMessage'
-import { TransitionGroup } from 'react-transition-group'
 import { useWebPushSubscription } from '~features/auth/useWebPushSubscription'
 import { arrayIncludes } from '~shared/utils/types'
+import { TransitionGroup } from 'react-transition-group';
 
 interface Props {
   tripId: string;
@@ -74,12 +74,6 @@ function Resolved({ tripId }: Props) {
   const form = useForm<{ content: string }>();
   const formRef = useRef<HTMLFormElement>(null);
 
-  const webPush = useWebPushSubscription();
-  const PresetCommand = {
-    알람끄기: webPush.unsubscribe,
-    알람켜기: webPush.subscribe,
-  }
-
   useChatActivation(tripId);
 
   return (
@@ -113,14 +107,6 @@ function Resolved({ tripId }: Props) {
           alignItems="flex-end"
           gap={1}
           onSubmit={form.handleSubmit(({ content }) => {
-            if (content.startsWith('/')) {
-              const command = content.replace('/', '');
-              if (arrayIncludes(COMMANDS, command)) {
-                form.reset();
-                return PresetCommand[command]();
-              }
-            }
-
             sendMessage(content)
             form.reset();
           })}
@@ -140,6 +126,7 @@ function Resolved({ tripId }: Props) {
           <IconButton
             color="primary"
             type="submit"
+            aria-label="메시지 전송"
             disabled={sendMessage.isPending}
           >
             <SendIcon fontSize="small" />

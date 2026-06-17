@@ -75,6 +75,7 @@ function Resolved({ tripId }: Props) {
       <Fab
         color="primary"
         size="medium"
+        aria-label="메모 추가"
         onClick={handleAdd}
         sx={{ position: 'absolute', bottom: 16, right: 16 }}
       >

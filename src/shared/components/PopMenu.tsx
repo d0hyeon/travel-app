@@ -43,7 +43,7 @@ export function PopMenu({ children, list, items }: MenuProps) {
       ? cloneElement(children as ReactElement<{ onClick?: (e: React.MouseEvent<HTMLElement>) => void }>, { onClick: handleOpen })
       : children
     : (
-      <IconButton size="small" onClick={handleOpen}>
+      <IconButton size="small" aria-label="더보기 메뉴" onClick={handleOpen}>
         <MoreVertIcon fontSize="small" />
       </IconButton>
     )

@@ -25,7 +25,7 @@ function ChatIconButtonBase({ tripId, unreadCount }: Props & { unreadCount: numb
   const { open } = useTripChatOverlay()
 
   return (
-    <IconButton onClick={() => open(tripId)} color="inherit">
+    <IconButton onClick={() => open(tripId)} color="inherit" aria-label="채팅 열기">
       <Badge badgeContent={unreadCount} color="error" max={99}>
         <ChatIcon fontSize="small" />
       </Badge>

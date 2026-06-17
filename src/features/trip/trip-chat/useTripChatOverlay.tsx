@@ -67,7 +67,7 @@ function TripChatOverlay({ tripId, isOpen, onClose }: OverlayProps) {
 
 function CloseIconButton(props: IconButtonProps) {
   return (
-    <IconButton size="small" {...props}>
+    <IconButton size="small" aria-label="채팅 닫기" {...props}>
       <CloseIcon fontSize="small" />
     </IconButton>
   )
