@@ -30,8 +30,8 @@ export default function HomeLayout() {
   const isMobile = useIsMobile();
   const [scrollElement, setScrollElement] = useState<HTMLDivElement | null>(null)
 
-  const { data: auth } = useAuth();
-  const mypagePath = generatePath(AppRoute.사용자_피드, { userId: auth.id })
+  const { data: auth } = useAuth({ required: false });
+  const mypagePath = auth != null ? generatePath(AppRoute.사용자_피드, { userId: auth.id }) : null
 
   if (isMobile) {
     return (
@@ -51,13 +51,15 @@ export default function HomeLayout() {
                 {label}
               </BottomNavigation.Menu>
             ))}
-            <BottomNavigation.Menu
-              icon={<ProfileIcon fontSize="small" color={location.pathname === mypagePath ? 'primary' : 'disabled'} />}
-              isActived={location.pathname === mypagePath}
-              onClick={() => navigate(mypagePath, { viewTransition: true })}
-            >
-              내 정보
-            </BottomNavigation.Menu>
+            {mypagePath != null && (
+              <BottomNavigation.Menu
+                icon={<ProfileIcon fontSize="small" color={location.pathname === mypagePath ? 'primary' : 'disabled'} />}
+                isActived={location.pathname === mypagePath}
+                onClick={() => navigate(mypagePath, { viewTransition: true })}
+              >
+                내 정보
+              </BottomNavigation.Menu>
+            )}
           </BottomNavigation>
         </Box>
         <Preload />

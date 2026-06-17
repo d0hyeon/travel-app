@@ -24,14 +24,16 @@ export const AppRoute = {
 
 export default [
   route(AppRoute.로그인, "../features/auth/LoginPage.tsx"),
-  layout('./AuthGuardLayout.tsx', [
-    layout("../app/HomeLayout.tsx", [
+  layout("../app/HomeLayout.tsx", [
+    layout('./AuthGuardLayout.tsx', { id: 'HOME_AUTH_LAYOUT'}, [
       index("../features/trip/trip-list/TripListPage.tsx"),
-      route(AppRoute.피드, "../features/post/FeedPage.tsx"),
       route(AppRoute.사용자_피드, "../features/user-profile/UserProfilePage.tsx"),
       route(AppRoute.통계, "../features/statistics/StatisticsPage.tsx"),
-      route(AppRoute.탐색, "../features/explorer/PlaceExplorerPage.tsx"),
     ]),
+    route(AppRoute.피드, "../features/post/FeedPage.tsx"),
+    route(AppRoute.탐색, "../features/explorer/PlaceExplorerPage.tsx"),
+  ]),
+  layout("./AuthGuardLayout.tsx", [
     route(AppRoute.여행_상세, "../features/trip/TripDetailPage.tsx"),
     route(AppRoute.여행_채팅, "../features/trip/TripChatPage.tsx"),
     route(AppRoute.여행_메모_상세, "../features/trip/trip-memo/TripMemoDetailPage.tsx"),

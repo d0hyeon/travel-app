@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.1"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       checklist: {
@@ -680,7 +705,10 @@ export type Database = {
           lat: number
           lng: number
           name: string
+          photo_count: number
           place_id: string
+          post_count: number
+          score: number
           thumbnail_url: string
           total_trips: number
           visitor_count: number
@@ -768,7 +796,7 @@ export type Database = {
       get_trips_by_destination: {
         Args: { p_destinations: string[]; p_exclude_trip_id: string }
         Returns: {
-          destinations: Json
+          destinations: string[]
           end_date: string
           id: string
           member_count: number
@@ -930,6 +958,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       post_visibility: ["PRIVATE", "MEMBERS", "PUBLIC"],
