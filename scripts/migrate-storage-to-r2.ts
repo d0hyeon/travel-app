@@ -2,9 +2,9 @@ import { S3Client, PutObjectCommand, ListObjectsV2Command } from '@aws-sdk/clien
 import { createClient } from '@supabase/supabase-js'
 import * as dotenv from 'dotenv'
 
-dotenv.config({ path: '.env.local' })
+dotenv.config({ path: '.env' })
 
-const SUPABASE_URL = process.env.SUPABASE_URL!
+const SUPABASE_URL = (process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL)!
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!
 const R2_ACCOUNT_ID = process.env.R2_ACCOUNT_ID!
 const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID!
@@ -58,10 +58,13 @@ async function countR2Objects(): Promise<number> {
 }
 
 async function migrate() {
+  const retryPaths = process.argv.slice(2)
   console.log('📦 DB에서 photos 목록 조회 중...')
-  const { data: photos, error } = await supabase
-    .from('photos')
-    .select('id, storage_path, url')
+  let query = supabase.from('photos').select('id, storage_path, url')
+  if (retryPaths.length > 0) {
+    query = query.in('storage_path', retryPaths)
+  }
+  const { data: photos, error } = await query
 
   if (error) throw error
   console.log(`총 ${photos.length}개 사진 발견`)
