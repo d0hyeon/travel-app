@@ -5,7 +5,6 @@ import { heicTo, isHeic } from 'heic-to'
 import Resizer from 'react-image-file-resizer';
 
 export const photoKey = 'photos'
-const BUCKET_NAME = 'photos'
 
 export function toPhoto(row: DataRaw<'photos'>): Photo {
   return {
@@ -83,17 +82,21 @@ const resizeImage = async (_file: File, quality: keyof typeof ResizeQualityOptio
 };
 
 async function uploadToStorage(storagePath: string, file: File): Promise<string> {
-  const { data: signedData, error: signedError } = await supabase.storage
-    .from(BUCKET_NAME)
-    .createSignedUploadUrl(storagePath)
-  if (signedError) throw signedError
+  const { data, error } = await supabase.functions.invoke('r2-upload-url', {
+    body: { storagePath, contentType: file.type || 'image/webp' },
+  })
+  if (error) throw error
 
-  const { error: uploadError } = await supabase.storage
-    .from(BUCKET_NAME)
-    .uploadToSignedUrl(storagePath, signedData.token, file, { cacheControl: String(60 * 60 * 24 * 365) })
-  if (uploadError) throw uploadError
+  const { url, publicUrl } = data as { url: string; publicUrl: string }
 
-  return supabase.storage.from(BUCKET_NAME).getPublicUrl(storagePath).data.publicUrl
+  const uploadRes = await fetch(url, {
+    method: 'PUT',
+    body: file,
+    headers: { 'Content-Type': file.type || 'image/webp' },
+  })
+  if (!uploadRes.ok) throw new Error(`R2 upload failed: ${uploadRes.status}`)
+
+  return publicUrl
 }
 
 export async function uploadPhoto({ tripId, placeId, file: _file, isPublic }: PhotoUploadParams): Promise<Photo> {
@@ -149,11 +152,10 @@ export async function createPhotoFileFromUrl(url: string, fileName = `${Date.now
 }
 
 export async function deletePhoto(photo: Photo): Promise<boolean> {
-  const { error: storageError } = await supabase.storage
-    .from(BUCKET_NAME)
-    .remove([photo.storagePath])
-
-  if (storageError) throw storageError
+  const { error: fnError } = await supabase.functions.invoke('r2-delete', {
+    body: { storagePaths: [photo.storagePath] },
+  })
+  if (fnError) throw fnError
 
   const { error: dbError } = await supabase
     .from('photos')
@@ -181,6 +183,6 @@ export async function deletePhotosByTripId(tripId: string): Promise<void> {
 
   if (photos.length > 0) {
     const storagePaths = photos.map(p => p.storagePath)
-    await supabase.storage.from(BUCKET_NAME).remove(storagePaths)
+    await supabase.functions.invoke('r2-delete', { body: { storagePaths } })
   }
 }

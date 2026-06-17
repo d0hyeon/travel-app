@@ -192,7 +192,7 @@ export async function deletePost(postId: string): Promise<void> {
 
   if (photos && photos.length > 0) {
     const storagePaths = photos.map((p) => p.storage_path)
-    await supabase.storage.from('photos').remove(storagePaths)
+    await supabase.functions.invoke('storage-delete', { body: { storagePaths } })
   }
 }
 
