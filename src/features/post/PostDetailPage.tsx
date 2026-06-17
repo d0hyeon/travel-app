@@ -9,7 +9,6 @@ import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
 export const meta = () => [
   { title: '포스트 — WayLog' },
   { property: 'og:title', content: '포스트 — WayLog' },
-  { property: 'og:description', content: '여행자의 포스트를 확인해보세요.' },
 ]
 
 export default function PostDetailPage() {

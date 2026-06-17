@@ -18,7 +18,6 @@ import { getDaysUntil, getTripStatus, getTripYear } from './trip-list.utils'
 export const meta = () => [
   { title: '내 여행 — WayLog' },
   { property: 'og:title', content: '내 여행 — WayLog' },
-  { property: 'og:description', content: '나의 여행 목록을 확인하고 새로운 여행을 계획해보세요.' },
 ]
 
 export default function TripListPage() {

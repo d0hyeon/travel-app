@@ -9,7 +9,6 @@ const PlaceExplorerPageDesktop = lazy(() =>
 export const meta = () => [
   { title: '장소 탐색 — WayLog' },
   { property: 'og:title', content: '장소 탐색 — WayLog' },
-  { property: 'og:description', content: '여행자들이 많이 방문한 장소를 지도로 탐색해보세요.' },
 ]
 
 export default function PlaceExplorerPage() {
