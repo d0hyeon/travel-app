@@ -1,6 +1,6 @@
 import { use, useEffect, useEffectEvent, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { type Country, type Location } from '~features/location'
-import type { Coordinate } from '~shared/model/coordinate.model'
+import type { Coordinate } from '~shared/types/coordinate'
 import { useAsyncEffect } from '~shared/hooks/extends/useAsyncEffect'
 import { useCleanup } from '~shared/hooks/extends/useCleanup'
 import { getPolygonFeatureStyle } from './polygon-layer.style'

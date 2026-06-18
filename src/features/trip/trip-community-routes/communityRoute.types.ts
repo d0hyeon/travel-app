@@ -1,4 +1,4 @@
-import type { Coordinate } from '~shared/model/coordinate.model'
+import type { Coordinate } from '~shared/types/coordinate'
 
 export interface PreviewRoute {
   scheduledDate?: string

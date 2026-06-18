@@ -1,6 +1,5 @@
 import type { ReactNode, Ref } from 'react';
-import type { Coordinate } from '~shared/model/coordinate.model';
-export type { Coordinate } from '~shared/model/coordinate.model';
+import type { Coordinate } from '~shared/types/coordinate';
 
 export type MapType = 'kakao' | 'google';
 

@@ -1,4 +1,4 @@
-import type { Coordinate } from '~shared/model/coordinate.model'
+import type { Coordinate } from '~shared/types/coordinate'
 import { Country } from '~features/location/country.model'
 import type { Location } from '~features/location/location.model'
 import {

@@ -1,5 +1,5 @@
 import { useEffectEvent, useState } from 'react';
-import type { Coordinate } from '~shared/model/coordinate.model';
+import type { Coordinate } from '~shared/types/coordinate';
 import { useAsyncEffect } from '../extends/useAsyncEffect';
 
 let permissionPromise: Promise<boolean> | null = null;

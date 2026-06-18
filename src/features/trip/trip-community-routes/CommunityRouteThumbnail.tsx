@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getLocationCoordinates } from '~shared/components/Map/polygon-layer.utils'
 import { Locations, type Location } from '~features/location'
-import type { Coordinate } from '~shared/model/coordinate.model'
+import type { Coordinate } from '~shared/types/coordinate'
 import type { PreviewRoute } from './communityRoute.types'
 
 const DOT_COLOR = '#1976d2'
