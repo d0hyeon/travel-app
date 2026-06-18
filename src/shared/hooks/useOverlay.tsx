@@ -1,11 +1,11 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 
-interface OverlayController {
-  isOpen: boolean
-  close: () => void
+export interface OverlayRenderProps {
+  isOpen: boolean;
+  close: () => void;
 }
 
-type OverlayElement = (controller: OverlayController) => ReactNode
+type OverlayElement = (controller: OverlayRenderProps) => ReactNode
 
 interface OverlayContextValue {
   mount: (id: string, element: OverlayElement) => void
@@ -56,7 +56,7 @@ function OverlayItem({
   }, [])
 
   const close = useCallback(() => {
-    setIsOpen(false)
+    setIsOpen(false);
     // 애니메이션 후 unmount
     setTimeout(onClose, 300)
   }, [onClose])

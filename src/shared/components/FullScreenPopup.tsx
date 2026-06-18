@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import { useState, type ReactNode } from "react";
+import { useState, type ReactNode, useImperativeHandle, type Ref } from "react";
 import { useAnimation, type AnimationSpec } from "~shared/hooks/animation/useAnimation";
 import { useAsyncEffect } from "~shared/hooks/extends/useAsyncEffect";
 import { useVariation } from "~shared/hooks/extends/useVariation";
@@ -9,14 +9,14 @@ export interface ScreenTransition {
 
 }
 
-interface Props {
+export interface FullScreenPopupProps {
   isOpen?: boolean;
   onClose?: () => void;
   children?: ReactNode;
   transition?: Partial<AnimationSpec>;
 }
 
-export function FullScreenPopup({ isOpen, onClose, transition, children }: Props) {
+export function FullScreenPopup({ isOpen, onClose, transition, children }: FullScreenPopupProps) {
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const animation = useAnimation({
     frames: [
@@ -24,7 +24,7 @@ export function FullScreenPopup({ isOpen, onClose, transition, children }: Props
       { transform: 'translateY(0)', opacity: 1 }
     ],
     duration: 250,
-    ...transition
+    ...transition,
   }, container);
   const [getCurrent, setCurrent] = useVariation('closed');
 
@@ -37,12 +37,12 @@ export function FullScreenPopup({ isOpen, onClose, transition, children }: Props
       return;
     }
     if (!isOpen && current === 'opened') {
-      await animation.reverse();
       setCurrent('closed');
+      await animation.reverse();
+
       onClose?.();
     }
-  }, [isOpen, container])
-
+  }, [isOpen, container]);
 
   return (
     <Box

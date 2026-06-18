@@ -1,27 +1,27 @@
 import CloseIcon from '@mui/icons-material/Close'
 import { Box, IconButton, Skeleton, Stack, Tab, Tabs, Typography } from '@mui/material'
-import { Suspense, useState } from 'react'
-import { FullScreenPopup } from '~shared/components/FullScreenPopup'
+import { Suspense, useEffect, useState } from 'react'
+import { FullScreenPopup, type FullScreenPopupProps } from '~shared/components/FullScreenPopup'
 import { SwitchCase } from '~shared/components/SwitchCase'
-import { PlaceDetailContent } from './PlaceDetailContent'
 import { usePlace } from '../usePlace'
+import { PlaceDetailContent } from './PlaceDetailContent'
 
 
 type ContentType = keyof typeof PlaceDetailContent;
 
-interface Props {
+interface Props extends FullScreenPopupProps {
   placeId: string
-  isOpen: boolean;
-  onClose: () => void;
 }
 
-export function PlaceFullScreenModal({ isOpen, placeId, onClose }: Props) {
+export function PlaceFullScreenModal({ isOpen: _isOpen = false, placeId, ...props }: Props) {
   const [currentTab, setCurrentTab] = useState<ContentType>('Info');
+  const [isOpen, setIsOpen] = useState(_isOpen);
+  useEffect(() => setIsOpen(_isOpen), [_isOpen])
 
   return (
-    <FullScreenPopup isOpen={isOpen} onClose={onClose}>
-      <Suspense fallback={<Header.Pending onClose={onClose} />}>
-        <Header placeId={placeId} onClose={onClose} />
+    <FullScreenPopup isOpen={isOpen} {...props}>
+      <Suspense fallback={<Header.Pending onClose={() => setIsOpen(false)} />}>
+        <Header placeId={placeId} onClose={() => setIsOpen(false)} />
       </Suspense>
       <Box sx={{ borderBottom: 1, borderColor: 'divider', flexShrink: 0 }}>
         <Tabs

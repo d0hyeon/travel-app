@@ -16,6 +16,10 @@ import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterPa
 import { PlaceListItem } from '../explorer-place-item/PlaceListItem'
 import { ExplorerViewToggleButton, useExplorerViewMode } from '../explorer-view/ExplorerViewToggleButton'
 import { useRecentHotPlaces } from './useRecentHotPlaces'
+import { useOverlayRoute, type OverlayRouteRenderProps } from '~shared/hooks/extends/useOverlayRoute'
+import { PlaceSidePanel } from '~features/place/place-detail/PlaceSidePanel'
+import { generatePath } from 'react-router'
+import { AppRoute } from '~app/routes'
 
 const PERIOD_OPTIONS = [
   { label: '3개월', value: 3 },
@@ -39,7 +43,7 @@ export default function RecentHotPage() {
         rightElement={<ExplorerViewToggleButton value={viewMode} onChange={setViewMode} />}
         sx={{ borderBottom: 'none', paddingBottom: 0 }}
       >
-        많이 저장된 곳
+        최근 핫플레이스
       </TopNavigation>
 
       <Stack direction="row" gap={1} alignItems="center" px={2} py={1} borderBottom={1} borderColor="divider" flexShrink={0}>
@@ -98,18 +102,26 @@ function RecentHotList({
   category?: PlaceCategoryType
 }) {
   const { data: places } = useRecentHotPlaces({ inquiryMonths: months, location, category })
-  const { openSideSheet } = useExplorerPlaceOverlay()
+  const { Link, back } = useOverlayRoute({
+    component: ({ state: placeId, isOpen, }: OverlayRouteRenderProps<string>) => (
+      <PlaceSidePanel placeId={placeId} onClose={back} isOpen={isOpen} />
+    )
+  });
 
   return (
     <Stack>
       {places.map((place) => (
-        <PlaceListItem
-          id={place.placeId}
-          place={{ ...place, countLabel: `${place.visitorCount}번 저장됨` }}
-          size="large"
-          onClick={() => openSideSheet(place)}
-        />
-
+        <Link
+          key={place.placeId}
+          state={place.placeId}
+          to={generatePath(AppRoute.장소_상세, { placeId: place.placeId })}
+        >
+          <PlaceListItem
+            id={place.placeId}
+            place={{ ...place, countLabel: `${place.visitorCount}번 저장됨` }}
+            size="large"
+          />
+        </Link>
       ))}
     </Stack>
   )
@@ -138,9 +150,13 @@ function RecentHotMap({
 }) {
 
   const { data: places } = useRecentHotPlaces({ inquiryMonths: months, category, location })
-  const isMobile = useIsMobile()
-  const { openFullScreen, openSideSheet } = useExplorerPlaceOverlay()
   const center = location ? getCoordinateByLocation(location) : undefined;
+
+  const { navigate, back } = useOverlayRoute({
+    component: ({ state: placeId, isOpen, }: OverlayRouteRenderProps<string>) => (
+      <PlaceSidePanel placeId={placeId} onClose={back} isOpen={isOpen} />
+    )
+  });
 
   return (
     <Map
@@ -160,7 +176,7 @@ function RecentHotMap({
           label={place.name}
           color={place.visitorCount >= 2 ? '#ff6b35' : '#1976d2'}
           thumbnailUrl={place.thumbnailUrl}
-          onClick={() => isMobile ? openFullScreen(place) : openSideSheet(place)}
+          onClick={() => navigate(generatePath(AppRoute.장소_상세, { placeId: place.placeId }), place.placeId)}
         />
       ))}
     </Map>

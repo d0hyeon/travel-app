@@ -1,12 +1,19 @@
 import AddIcon from '@mui/icons-material/Add'
-import { Box, Container, Fab, Typography } from '@mui/material'
-import { Link } from 'react-router'
+import { Box, Container, Fab, Stack, Typography } from '@mui/material'
+import { Suspense } from 'react'
+import { generatePath, Link } from 'react-router'
 import { AppRoute } from '~app/routes'
-import { PostFeed } from './PostFeed'
 import { BottomNavigation } from '~shared/components/BottomNavigation'
-import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
+import { FullScreenPopup } from '~shared/components/FullScreenPopup'
 import { TopNavigation as DesktopNavigation } from '~shared/components/layout/TopNavigation.desktop'
+import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
+import { useOverlayRoute, type OverlayRouteRenderProps } from '~shared/hooks/extends/useOverlayRoute'
+import { useIsMounted } from '~shared/hooks/useIsMounted'
+import { PostCard } from './PostCard'
+import { PostMenu } from './PostMenu'
+import { PostScreen } from './PostScreen'
+import { useFeed } from './useFeed'
 
 export const meta = () => [
   { title: '피드 — WayLog' },
@@ -14,8 +21,6 @@ export const meta = () => [
 ]
 
 export default function FeedPage() {
-
-
   return (
     <Box display="flex" flexDirection="column" position="relative">
       <Header />
@@ -25,7 +30,9 @@ export default function FeedPage() {
           disableGutters
           sx={theme => ({ paddingX: 2, flex: 1, bgcolor: theme.palette.grey[100] })}
         >
-          <PostFeed />
+          <Suspense>
+            <Contents />
+          </Suspense>
         </Container>
       </Box>
       <Fab
@@ -41,7 +48,42 @@ export default function FeedPage() {
   )
 }
 
-function Header() {
+function Contents() {
+  const { data: posts } = useFeed();
+
+  const isMounted = useIsMounted();
+  const { Link, back } = useOverlayRoute({
+    component: ({ state: postId, isOpen, close }: OverlayRouteRenderProps<string>) => (
+      <FullScreenPopup transition={{ duration: isMounted ? 250 : 0 }} isOpen={isOpen} onClose={back}>
+        <TopNavigation
+          leftElement={<TopNavigation.BackButton onClick={close} />}
+          rightElement={<PostMenu postId={postId} onDelete={close} />}
+          sx={{ position: 'sticky', borderBottom: 'none', bgcolor: 'transparent' }}
+        />
+        <Container maxWidth="sm" disableGutters sx={{ flex: 1 }}>
+          <PostScreen postId={postId} />
+        </Container>
+      </FullScreenPopup>
+    )
+  })
+
+  return (
+    <Stack spacing={2}>
+      {posts.map((post) => (
+        <Link
+          key={post.id}
+          to={generatePath(AppRoute.포스트_상세, { postId: post.id })}
+          state={post.id}
+        >
+          <PostCard post={post} />
+        </Link>
+      ))}
+    </Stack>
+  )
+}
+
+
+const Header = () => {
   const isMobile = useIsMobile();
 
   if (isMobile) {

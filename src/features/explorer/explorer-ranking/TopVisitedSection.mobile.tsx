@@ -1,7 +1,7 @@
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { Box, Button, Skeleton, Stack, Typography } from '@mui/material'
 import { useMemo } from 'react'
-import { useNavigate } from 'react-router'
+import { generatePath, useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
 import { useExplorerPlaceOverlay } from '../useExplorerPlaceOverlay'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
@@ -9,11 +9,12 @@ import { PlaceListItem } from '../explorer-place-item/PlaceListItem'
 import { buildExplorerDetailUrl } from '../explorer.utils'
 import { useExploredPlaces } from './useExploredPlaces'
 import { SECTION_LIMIT, MOBILE_SKELETON_ROWS, formatVisitorCount } from './topVisitedSection.constants'
+import { useOverlayRoute, type OverlayRouteRenderProps } from '~shared/hooks/extends/useOverlayRoute'
+import { PlaceFullScreenModal } from '~features/place/place-detail/PlaceFullScreenModal'
 
-export function TopVisitedSectionMobile() {
+export function TopVisitedSection() {
   const { location, category } = useExplorerFilterParams()
   const { data: places } = useExploredPlaces(location, category)
-  const { openFullScreen } = useExplorerPlaceOverlay()
   const navigate = useNavigate()
 
   const mostVisitedPlaces = useMemo(
@@ -21,6 +22,12 @@ export function TopVisitedSectionMobile() {
     [places],
   )
   const toDetailUrl = buildExplorerDetailUrl(AppRoute.장소_최다방문순, location, category)
+
+  const { Link, back } = useOverlayRoute<string>({
+    component: ({ state: placeId, isOpen }) => (
+      <PlaceFullScreenModal placeId={placeId} onClose={back} isOpen={isOpen} />
+    ),
+  });
 
   return (
     <Box>
@@ -46,18 +53,22 @@ export function TopVisitedSectionMobile() {
 
       <Stack>
         {mostVisitedPlaces.map((place) => (
-          <PlaceListItem
+          <Link
             key={place.placeId}
-            place={{ ...place, countLabel: formatVisitorCount(place.visitorCount) }}
-            onClick={() => openFullScreen(place)}
-          />
+            state={place.placeId}
+            to={generatePath(AppRoute.장소_상세, { placeId: place.placeId })}
+          >
+            <PlaceListItem
+              place={{ ...place, countLabel: formatVisitorCount(place.visitorCount) }}
+            />
+          </Link>
         ))}
       </Stack>
     </Box>
   )
 }
 
-TopVisitedSectionMobile.Skeleton = () => (
+TopVisitedSection.Skeleton = () => (
   <Box>
     <Skeleton variant="text" width={100} height={28} sx={{ mx: 2, mb: 1.5 }} />
     {Array.from({ length: MOBILE_SKELETON_ROWS }).map((_, i) => (

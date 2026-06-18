@@ -13,7 +13,7 @@ interface PlaceCardPlace {
   countLabel: string
 }
 
-export function PlaceCard({ place, onClick }: { place: PlaceCardPlace; onClick: () => void }) {
+export function PlaceCard({ place, onClick }: { place: PlaceCardPlace; onClick?: () => void }) {
   const accentColor = place.categories[0] ? PlaceCategoryColorCode[place.categories[0]] : undefined
 
   return (

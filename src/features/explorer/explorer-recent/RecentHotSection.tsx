@@ -1,7 +1,7 @@
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { Box, Button, Skeleton, Stack, Typography } from '@mui/material'
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router'
+import { generatePath, useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
@@ -11,21 +11,29 @@ import type { ExploredPlace } from '../explorer.api'
 import { buildExplorerDetailUrl } from '../explorer.utils'
 import { useExplorerPlaceOverlay } from '../useExplorerPlaceOverlay'
 import { useRecentHotPlaces } from './useRecentHotPlaces'
+import { useOverlayRoute, type OverlayRouteRenderProps } from '~shared/hooks/extends/useOverlayRoute'
+import { PlaceFullScreenModal } from '~features/place/place-detail/PlaceFullScreenModal'
+import { PlaceSidePanel } from '~features/place/place-detail/PlaceSidePanel'
 
 const SECTION_LIMIT = 10
 
 export function RecentHotSection() {
   const { location, category } = useExplorerFilterParams();
   const { data: places } = useRecentHotPlaces({ inquiryMonths: 3, location, category })
-  const isMobile = useIsMobile()
-  const { openFullScreen, openSideSheet } = useExplorerPlaceOverlay()
-  const openDetail = (place: ExploredPlace) =>
-    isMobile ? openFullScreen(place) : openSideSheet(place)
-  const navigate = useNavigate()
 
   const topHotPlaces = useMemo(() => places.slice(0, SECTION_LIMIT), [places])
   const toDetailUrl = buildExplorerDetailUrl(AppRoute.장소_급상승, location, category)
 
+  const isMobile = useIsMobile()
+  const { Link, back } = useOverlayRoute({
+    component: ({ state: placeId, isOpen }: OverlayRouteRenderProps<string>) => (
+      isMobile
+        ? <PlaceFullScreenModal placeId={placeId} onClose={back} isOpen={isOpen} />
+        : <PlaceSidePanel placeId={placeId} onClose={back} isOpen={isOpen} />
+    )
+  });
+
+  const navigate = useNavigate()
   const [scrollContainer, setScrollContainer] = useState<HTMLDivElement | null>(null)
   useScrollRestore({ element: scrollContainer });
 
@@ -53,7 +61,13 @@ export function RecentHotSection() {
         <Stack ref={setScrollContainer} width="100%" direction="row" gap={isMobile ? 1 : 2} px={2} pb={0.5} overflow="auto" sx={{ '&::-webkit-scrollbar': { display: 'none' } }}>
           {topHotPlaces.map((place) => (
             <Box key={place.placeId} sx={{ width: isMobile ? 140 : 200, flexShrink: 0 }}>
-              <PlaceCard place={{ ...place, countLabel: `${place.visitorCount}번 방문` }} onClick={() => openDetail(place)} />
+              <Link
+                key={place.placeId}
+                state={place.placeId}
+                to={generatePath(AppRoute.장소_상세, { placeId: place.placeId })}
+              >
+                <PlaceCard place={{ ...place, countLabel: `${place.visitorCount}번 방문` }} />
+              </Link>
             </Box>
           ))}
         </Stack>

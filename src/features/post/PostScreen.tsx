@@ -1,15 +1,18 @@
 import { Box, ImageList, ImageListItem, Skeleton, Stack, Typography } from '@mui/material'
 import { Suspense } from 'react'
+import { generatePath } from 'react-router'
+import { AppRoute } from '~app/routes'
+import { useAuth } from '~features/auth/useAuth'
+import { PlaceFullScreenModal } from '~features/place/place-detail/PlaceFullScreenModal'
 import { UserProfile } from '~features/user-profile/UserProfile'
 import { ListItem } from '~shared/components/ListItem'
 import { Map } from '~shared/components/Map'
+import { useOverlayRoute, type OverlayRouteRenderProps } from '~shared/hooks/extends/useOverlayRoute'
 import { isOverseasByCoordinate } from '~shared/utils/geo'
 import { PostLikeButton } from './PostLikeButton'
 import { usePost } from './usePost'
-import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
-import { generatePath, Link, useNavigate } from 'react-router'
-import { AppRoute } from '~app/routes'
-import { useAuth } from '~features/auth/useAuth'
+import { useIsMobile } from '~shared/hooks/env/useIsMobile'
+import { PlaceSidePanel } from '~features/place/place-detail/PlaceSidePanel'
 
 interface Props {
   postId: string
@@ -26,7 +29,13 @@ export function PostScreen(props: Props) {
 function Resolved({ postId }: Props) {
   const { data: post } = usePost(postId);
   const { data: auth } = useAuth({ required: false });
-  const navigate = useNavigate()
+
+  const isMobile = useIsMobile();
+  const { navigate: navigateInOverlay, Link: OverlayLink, back } = useOverlayRoute({
+    component: ({ state: placeId, isOpen }: OverlayRouteRenderProps<string>) => isMobile
+      ? <PlaceFullScreenModal placeId={placeId} onClose={back} isOpen={isOpen} />
+      : <PlaceSidePanel placeId={placeId} onClose={back} isOpen={isOpen} />
+  })
 
   return (
     <Stack spacing={2} px={2} py={2}>
@@ -67,18 +76,22 @@ function Resolved({ postId }: Props) {
                 variant="pin"
                 lat={place.lat}
                 lng={place.lng}
-                onClick={() => navigate(generatePath(AppRoute.장소_상세, { placeId: place.placeId }))}
+                onClick={() => navigateInOverlay(generatePath(AppRoute.장소_상세, { placeId: place.placeId }), place.placeId)}
               />
             ))}
           </Map>
           <Stack gap={1}>
             {post.places.map(place => (
-              <Link key={place.placeId} to={generatePath(AppRoute.장소_상세, { placeId: place.placeId })} viewTransition>
+              <OverlayLink
+                key={place.placeId}
+                state={place.placeId}
+                to={generatePath(AppRoute.장소_상세, { placeId: place.placeId })}
+              >
                 <ListItem key={place.placeId}>
                   <ListItem.Title>{place.name}</ListItem.Title>
                   <ListItem.Text>{place.address}</ListItem.Text>
                 </ListItem>
-              </Link>
+              </OverlayLink>
             ))}
           </Stack>
         </>

@@ -20,6 +20,10 @@ import { ExplorerViewToggleButton, useExplorerViewMode } from '../explorer-view/
 import { FilterNavigation } from '../explorer-view/FilterNavigation'
 import type { ExploredPlace } from '../explorer.api'
 import { useRecentHotPlaces } from './useRecentHotPlaces'
+import { useOverlayRoute, type OverlayRouteRenderProps } from '~shared/hooks/extends/useOverlayRoute'
+import { PlaceFullScreenModal } from '~features/place/place-detail/PlaceFullScreenModal'
+import { generatePath } from 'react-router'
+import { AppRoute } from '~app/routes'
 
 const PERIOD_OPTIONS = [
   { label: '3개월', value: 3 },
@@ -117,17 +121,25 @@ function RecentHotGrid({
   category?: PlaceCategoryType
 }) {
   const { data: places } = useRecentHotPlaces({ inquiryMonths: months, location, category })
-  const isMobile = useIsMobile()
-  const { openFullScreen, openSideSheet } = useExplorerPlaceOverlay()
-  const openDetail = (place: ExploredPlace) =>
-    isMobile ? openFullScreen(place) : openSideSheet(place)
+  const { Link, back } = useOverlayRoute({
+    component: ({ state: placeId, isOpen }: OverlayRouteRenderProps<string>) => (
+      <PlaceFullScreenModal placeId={placeId} onClose={back} isOpen={isOpen} />
+    )
+  });
+
 
   return (
 
     <Grid container spacing={1.5} columns={2}>
       {places.map((place) => (
         <Grid key={place.placeId} size={1}>
-          <PlaceCard place={{ ...place, countLabel: `${place.visitorCount}번 방문` }} onClick={() => openDetail(place)} />
+          <Link
+            key={place.placeId}
+            state={place.placeId}
+            to={generatePath(AppRoute.장소_상세, { placeId: place.placeId })}
+          >
+            <PlaceCard place={{ ...place, countLabel: `${place.visitorCount}번 방문` }} />
+          </Link>
         </Grid>
       ))}
     </Grid>
@@ -145,8 +157,11 @@ function RecentHotMap({
 }) {
 
   const { data: places } = useRecentHotPlaces({ inquiryMonths: months, category, location })
-  const isMobile = useIsMobile()
-  const { openFullScreen, openSideSheet } = useExplorerPlaceOverlay()
+  const { navigate, back } = useOverlayRoute({
+    component: ({ state: placeId, isOpen, }: OverlayRouteRenderProps<string>) => (
+      <PlaceFullScreenModal placeId={placeId} onClose={back} isOpen={isOpen} />
+    )
+  });
   const center = location ? getCoordinateByLocation(location) : undefined;
 
   return (
@@ -167,7 +182,7 @@ function RecentHotMap({
           label={place.name}
           color={place.visitorCount >= 2 ? '#ff6b35' : '#1976d2'}
           thumbnailUrl={place.thumbnailUrl}
-          onClick={() => isMobile ? openFullScreen(place) : openSideSheet(place)}
+          onClick={() => navigate(generatePath(AppRoute.장소_상세, { placeId: place.placeId }), place.placeId)}
         />
       ))}
     </Map>

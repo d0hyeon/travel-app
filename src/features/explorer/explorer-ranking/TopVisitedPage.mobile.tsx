@@ -16,6 +16,10 @@ import { ExplorerViewToggleButton, useExplorerViewMode } from '../explorer-view/
 import { FilterNavigation } from '../explorer-view/FilterNavigation'
 import type { ExploredPlace } from '../explorer.api'
 import { useExploredPlaces } from './useExploredPlaces'
+import { useOverlayRoute, type OverlayRouteRenderProps } from '~shared/hooks/extends/useOverlayRoute'
+import { PlaceFullScreenModal } from '~features/place/place-detail/PlaceFullScreenModal'
+import { generatePath } from 'react-router'
+import { AppRoute } from '~app/routes'
 
 
 export default function TopVisitedPage() {
@@ -90,10 +94,11 @@ function TopVisitedGrid({
   category?: PlaceCategoryType
 }) {
   const { data: places } = useExploredPlaces(location, category)
-  const isMobile = useIsMobile()
-  const { openFullScreen, openSideSheet } = useExplorerPlaceOverlay()
-  const openDetail = (place: ExploredPlace) =>
-    isMobile ? openFullScreen(place) : openSideSheet(place)
+  const { Link, back } = useOverlayRoute<string>({
+    component: ({ state: placeId, isOpen }) => (
+      <PlaceFullScreenModal placeId={placeId} onClose={back} isOpen={isOpen} />
+    ),
+  });
 
   const sorted = places.toSorted((a, b) => b.visitorCount - a.visitorCount)
 
@@ -102,7 +107,13 @@ function TopVisitedGrid({
     <Grid container spacing={1.5} columns={2}>
       {sorted.map((place) => (
         <Grid key={place.placeId} size={1}>
-          <PlaceCard place={{ ...place, countLabel: `${place.visitorCount}번 방문` }} onClick={() => openDetail(place)} />
+          <Link
+            key={place.placeId}
+            state={place.placeId}
+            to={generatePath(AppRoute.장소_상세, { placeId: place.placeId })}
+          >
+            <PlaceCard place={{ ...place, countLabel: `${place.visitorCount}번 방문` }} />
+          </Link>
         </Grid>
       ))}
     </Grid>
@@ -118,9 +129,13 @@ function TopVisitedMap({
   category?: PlaceCategoryType
 }) {
   const { data: places } = useExploredPlaces(location, category)
-  const isMobile = useIsMobile()
-  const { openFullScreen, openSideSheet } = useExplorerPlaceOverlay()
+  const { navigate, back } = useOverlayRoute({
+    component: ({ state: placeId, isOpen, }: OverlayRouteRenderProps<string>) => (
+      <PlaceFullScreenModal placeId={placeId} onClose={back} isOpen={isOpen} />
+    )
+  });
   const center = location ? getCoordinateByLocation(location) : undefined;
+
 
   return (
     <Map
@@ -140,7 +155,7 @@ function TopVisitedMap({
           label={place.name}
           color={place.visitorCount >= 2 ? '#ff6b35' : '#1976d2'}
           thumbnailUrl={place.thumbnailUrl}
-          onClick={() => isMobile ? openFullScreen(place) : openSideSheet(place)}
+          onClick={() => navigate(generatePath(AppRoute.장소_상세, { placeId: place.placeId }), place.placeId)}
         />
       ))}
     </Map>

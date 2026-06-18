@@ -10,7 +10,7 @@ import {
   Tabs,
   Typography
 } from '@mui/material'
-import { Suspense, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { usePlace } from '~features/place/usePlace'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { PlaceDetailContent } from './PlaceDetailContent'
@@ -21,15 +21,23 @@ interface Props {
   onClose: () => void
 }
 
-export function PlaceSidePanel({ placeId, isOpen = true, onClose }: Props) {
+export function PlaceSidePanel({ placeId, isOpen: _isOpen = true, onClose }: Props) {
   const [currentTab, changeTab] = useState<'basic' | 'feed'>('basic');
+  const [isOpen, setIsOpen] = useState(_isOpen);
+
+
+  const close = () => {
+    setIsOpen(false);
+    setTimeout(onClose, 300)
+  }
+  useEffect(() => setIsOpen(_isOpen), [_isOpen])
+
 
   return (
     <Drawer
-      className="가나다"
       anchor="right"
       open={isOpen}
-      onClose={onClose}
+      onClose={() => setIsOpen(false)}
       hideBackdrop
       sx={theme => ({ zIndex: theme.zIndex.drawer })}
       PaperProps={{
@@ -40,6 +48,7 @@ export function PlaceSidePanel({ placeId, isOpen = true, onClose }: Props) {
           flexDirection: 'column',
         },
       }}
+
     >
       {/* 헤더: 고정 */}
       <Stack
@@ -53,7 +62,7 @@ export function PlaceSidePanel({ placeId, isOpen = true, onClose }: Props) {
             <PlaceName placeId={placeId} />
           </Typography>
         </Suspense>
-        <IconButton size="small" onClick={onClose} sx={{ ml: 1 }}>
+        <IconButton size="small" onClick={close} sx={{ ml: 1 }}>
           <CloseIcon fontSize="small" />
         </IconButton>
       </Stack>

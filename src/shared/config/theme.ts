@@ -1,6 +1,10 @@
 import { createTheme } from "@mui/material";
 
 export const theme = createTheme({
+  zIndex: {
+    modal: 1300,
+    drawer: 1300,
+  },
   palette: {
     mode: 'light',
     primary: {
