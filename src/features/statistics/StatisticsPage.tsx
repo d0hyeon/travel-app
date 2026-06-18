@@ -9,6 +9,11 @@ import { useStatisticsSummary } from './statistics-expense/useStatisticsSummary'
 
 type StatisticsTab = 'overview' | 'expense' | 'currency'
 
+export const meta = () => [
+  { title: '통계 — WayLog' },
+  { property: 'og:title', content: '통계 — WayLog' },
+]
+
 export default function StatisticsPage() {
 
   const [currentTab, setCurrentTab] = useQueryParamState<StatisticsTab>('stats-tab', {

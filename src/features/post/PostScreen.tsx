@@ -9,6 +9,7 @@ import { usePost } from './usePost'
 import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
 import { generatePath, Link, useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
+import { useAuth } from '~features/auth/useAuth'
 
 interface Props {
   postId: string
@@ -24,6 +25,7 @@ export function PostScreen(props: Props) {
 
 function Resolved({ postId }: Props) {
   const { data: post } = usePost(postId);
+  const { data: auth } = useAuth({ required: false });
   const navigate = useNavigate()
 
   return (
@@ -82,7 +84,10 @@ function Resolved({ postId }: Props) {
         </>
       )}
       <Box>
-        <PostLikeButton postId={post.id} />
+        {auth == null
+          ? <PostLikeButton.Readonly postId={post.id} />
+          : <PostLikeButton postId={post.id} />
+        }
       </Box>
     </Stack>
   )

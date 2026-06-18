@@ -27,3 +27,20 @@ export function PostLikeButton({ postId, ...props }: Props) {
     </Stack>
   )
 }
+
+PostLikeButton.Readonly = ({ postId, ...props }: Props) => {
+  const { data: { count, liked } } = usePostLikes(postId)
+
+  return (
+    <Stack direction="row" alignItems="center" spacing={0.5} {...props}>
+      <IconButton size="small" disabled>
+        {liked ? (
+          <FavoriteIcon fontSize="small" color="error" />
+        ) : (
+          <FavoriteBorderIcon fontSize="small" />
+        )}
+      </IconButton>
+      <Typography variant="caption">{count}</Typography>
+    </Stack>
+  )
+}

@@ -6,6 +6,11 @@ const PlaceExplorerPageDesktop = lazy(() =>
   import('./PlaceExplorerPage.desktop').then((m) => ({ default: m.PlaceExplorerPageDesktop }))
 )
 
+export const meta = () => [
+  { title: '탐색 — WayLog' },
+  { property: 'og:title', content: '탐색 — WayLog' },
+]
+
 export default function PlaceExplorerPage() {
   const isMobile = useIsMobile()
 

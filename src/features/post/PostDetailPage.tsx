@@ -6,6 +6,11 @@ import { PostMenu } from './PostMenu'
 import { PostScreen } from './PostScreen'
 import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
 
+export const meta = () => [
+  { title: '포스트 — WayLog' },
+  { property: 'og:title', content: '포스트 — WayLog' },
+]
+
 export default function PostDetailPage() {
   const postId = usePostId();
   const navigate = useNavigate();
