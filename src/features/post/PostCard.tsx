@@ -14,12 +14,14 @@ import LockIcon from '@mui/icons-material/Lock';
 import 'swiper/css'
 // @ts-ignore
 import 'swiper/css/pagination'
+import { useAuth } from '~features/auth/useAuth'
 
 interface Props {
   post: Post
 }
 
 export function PostCard({ post }: Props) {
+  const { data: auth } = useAuth({ required: false });
 
   return (
     <Box key={post.id} bgcolor="white" borderRadius={4} overflow="hidden">
@@ -61,8 +63,10 @@ export function PostCard({ post }: Props) {
               </>
             )}
           </Stack>
-
-          <PostLikeButton postId={post.id} />
+          {auth == null
+            ? <PostLikeButton.Readonly postId={post.id} />
+            : <PostLikeButton postId={post.id} />
+          }
         </Stack>
         <Link to={generatePath(AppRoute.포스트_상세, { postId: post.id })} viewTransition>
 
