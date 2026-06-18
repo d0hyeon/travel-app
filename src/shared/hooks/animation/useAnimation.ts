@@ -3,7 +3,7 @@ import { useSyncableRef } from "../extends/useSyncableRef"
 
 type Frames = Keyframe[] | PropertyIndexedKeyframes
 
-type AnimationSpec = {
+export type AnimationSpec = {
   frames: Frames
   duration?: number
   easing?: string
