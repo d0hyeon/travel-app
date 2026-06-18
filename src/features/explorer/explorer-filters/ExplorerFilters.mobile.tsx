@@ -6,7 +6,7 @@ import { useLocationOverlay } from './useLocationOverlay'
 
 const CHIP_SX = { fontSize: 11, height: 26 } as const
 
-export const ExplorerFilterMobile = {
+export const ExplorerFilters = {
   LocationChip: () => {
     const { location, setLocation } = useExplorerFilterParams()
     const openLocationOverlay = useLocationOverlay()

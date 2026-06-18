@@ -4,7 +4,7 @@ import { Extrude } from '~shared/components/animation/Extrude'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { useScrollStatus } from '~shared/hooks/interaction/useScrollStatus'
-import { ExplorerFilterMobile } from './explorer-filters/ExplorerFilters.mobile'
+import { ExplorerFilters } from './explorer-filters/ExplorerFilters.mobile'
 import { ExplorerViewToggleButton, useExplorerViewMode } from './explorer-view/ExplorerViewToggleButton'
 import { FilterNavigation } from './explorer-view/FilterNavigation'
 import { ExplorerCatalog } from './ExplorerCatalog'
@@ -36,8 +36,8 @@ export function PlaceExplorerPageMobile() {
       >
         <Extrude active={isScrollDown} target={titleRef.current} axis="y">
           <Stack direction="row" gap={1} alignItems="center">
-            <ExplorerFilterMobile.LocationChip />
-            <ExplorerFilterMobile.CategoryChip />
+            <ExplorerFilters.LocationChip />
+            <ExplorerFilters.CategoryChip />
           </Stack>
         </Extrude>
       </FilterNavigation>

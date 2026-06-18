@@ -7,7 +7,7 @@ import { Map } from '~shared/components/Map'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useExplorerDetailOverlay } from '../explorer-detail/useExplorerDetailOverlay'
-import { ExplorerFilter } from '../explorer-filters/ExplorerFilters'
+import { ExplorerFilters } from '../explorer-filters/ExplorerFilters.desktop'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 import { PlaceListItem } from '../explorer-place-item/PlaceListItem'
 import { ExplorerViewToggleButton, useExplorerViewMode } from '../explorer-view/ExplorerViewToggleButton'
@@ -28,8 +28,8 @@ export default function MostSavedPage() {
       </TopNavigation>
 
       <Stack direction="row" gap={1} alignItems="center" px={2} py={1} borderBottom={1} borderColor="divider" flexShrink={0}>
-        <ExplorerFilter.LocationChip />
-        <ExplorerFilter.CategoryChip />
+        <ExplorerFilters.LocationChip />
+        <ExplorerFilters.CategoryChip />
       </Stack>
 
       <Box

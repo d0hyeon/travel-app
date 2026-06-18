@@ -13,7 +13,7 @@ import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useScrollStatus } from '~shared/hooks/interaction/useScrollStatus'
 import { useOverlay } from '~shared/hooks/useOverlay'
 import { useExplorerDetailOverlay } from '../explorer-detail/useExplorerDetailOverlay'
-import { ExplorerFilter } from '../explorer-filters/ExplorerFilters'
+import { ExplorerFilters } from '../explorer-filters/ExplorerFilters.mobile'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 import { PlaceCard } from '../explorer-place-item/PlaceCard'
 import { ExplorerViewToggleButton, useExplorerViewMode } from '../explorer-view/ExplorerViewToggleButton'
@@ -61,8 +61,8 @@ export default function RecentHotPage() {
       >
         <Extrude active={isScrollDown} target={titleRef.current}>
           <Stack direction="row" gap={1} alignItems="center">
-            <ExplorerFilter.LocationChip />
-            <ExplorerFilter.CategoryChip />
+            <ExplorerFilters.LocationChip />
+            <ExplorerFilters.CategoryChip />
             <Chip
               label={currentPeriodLabel}
               color={currentPeriodLabel ? 'primary' : 'default'}

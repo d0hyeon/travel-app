@@ -1,5 +1,5 @@
 import CheckIcon from '@mui/icons-material/Check'
-import { Box, Button, Chip, Container, Dialog, DialogActions, DialogContent, Grid, Skeleton, Stack } from '@mui/material'
+import { Box, Button, Chip, Container, Dialog, DialogActions, DialogContent, Stack } from '@mui/material'
 import { Suspense, useCallback, useState } from 'react'
 import { getCoordinateByLocation, type Location } from '~features/location'
 import type { PlaceCategoryType } from '~features/place/place.types'
@@ -11,13 +11,11 @@ import { SwitchCase } from '~shared/components/SwitchCase'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useOverlay } from '~shared/hooks/useOverlay'
 import { useExplorerDetailOverlay } from '../explorer-detail/useExplorerDetailOverlay'
-import { ExplorerFilter } from '../explorer-filters/ExplorerFilters'
+import { ExplorerFilters } from '../explorer-filters/ExplorerFilters.desktop'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
-import { PlaceCard } from '../explorer-place-item/PlaceCard'
-import { ExplorerViewToggleButton, useExplorerViewMode } from '../explorer-view/ExplorerViewToggleButton'
-import type { ExploredPlace } from '../explorer.api'
-import { useRecentHotPlaces } from './useRecentHotPlaces'
 import { PlaceListItem } from '../explorer-place-item/PlaceListItem'
+import { ExplorerViewToggleButton, useExplorerViewMode } from '../explorer-view/ExplorerViewToggleButton'
+import { useRecentHotPlaces } from './useRecentHotPlaces'
 
 const PERIOD_OPTIONS = [
   { label: '3개월', value: 3 },
@@ -45,8 +43,8 @@ export default function RecentHotPage() {
       </TopNavigation>
 
       <Stack direction="row" gap={1} alignItems="center" px={2} py={1} borderBottom={1} borderColor="divider" flexShrink={0}>
-        <ExplorerFilter.LocationChip />
-        <ExplorerFilter.CategoryChip />
+        <ExplorerFilters.LocationChip />
+        <ExplorerFilters.CategoryChip />
         <Chip
           label={currentPeriodLabel}
           color={currentPeriodLabel ? 'primary' : 'default'}

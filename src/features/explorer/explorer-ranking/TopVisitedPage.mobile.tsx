@@ -9,7 +9,7 @@ import { SwitchCase } from '~shared/components/SwitchCase'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useScrollStatus } from '~shared/hooks/interaction/useScrollStatus'
 import { useExplorerDetailOverlay } from '../explorer-detail/useExplorerDetailOverlay'
-import { ExplorerFilter } from '../explorer-filters/ExplorerFilters'
+import { ExplorerFilters } from '../explorer-filters/ExplorerFilters.mobile'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 import { PlaceCard } from '../explorer-place-item/PlaceCard'
 import { ExplorerViewToggleButton, useExplorerViewMode } from '../explorer-view/ExplorerViewToggleButton'
@@ -43,8 +43,8 @@ export default function TopVisitedPage() {
       >
         <Extrude active={isScrollDown} target={titleRef.current}>
           <Stack direction="row" gap={1} alignItems="center">
-            <ExplorerFilter.LocationChip />
-            <ExplorerFilter.CategoryChip />
+            <ExplorerFilters.LocationChip />
+            <ExplorerFilters.CategoryChip />
           </Stack>
         </Extrude>
       </FilterNavigation>
