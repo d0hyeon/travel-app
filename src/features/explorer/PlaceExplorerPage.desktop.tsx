@@ -7,7 +7,7 @@ import { ExplorerViewToggleButton, useExplorerViewMode } from './explorer-view/E
 import { ExplorerCatalog } from './ExplorerCatalog'
 import { ExplorerMap } from './ExplorerMap'
 
-export function PlaceExplorerPageDesktop() {
+export function PlaceExplorerPage() {
   const [viewMode, setViewMode] = useExplorerViewMode()
   const titleRef = useRef(null)
 

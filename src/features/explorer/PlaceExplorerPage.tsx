@@ -1,10 +1,8 @@
-import { lazy, Suspense } from 'react'
+import { Suspense } from 'react'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
-import { PlaceExplorerPageMobile } from './PlaceExplorerPage.mobile'
+import { PlaceExplorerPage as PlaceExplorerPageDesktop } from './PlaceExplorerPage.desktop'
+import { PlaceExplorerPage as PlaceExplorerPageMobile } from './PlaceExplorerPage.mobile'
 
-const PlaceExplorerPageDesktop = lazy(() =>
-  import('./PlaceExplorerPage.desktop').then((m) => ({ default: m.PlaceExplorerPageDesktop }))
-)
 
 export const meta = () => [
   { title: '탐색 — WayLog' },

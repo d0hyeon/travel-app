@@ -12,7 +12,7 @@ import { ExplorerMap } from './ExplorerMap'
 
 
 
-export function PlaceExplorerPageMobile() {
+export function PlaceExplorerPage() {
   const [viewMode, setViewMode] = useExplorerViewMode()
   const titleRef = useRef(null)
   const [container, setContainer] = useState<HTMLElement | null>(null)
