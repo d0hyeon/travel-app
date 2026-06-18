@@ -1,4 +1,6 @@
 import { Box, Skeleton, Stack } from '@mui/material'
+import { generatePath, Link } from 'react-router'
+import { AppRoute } from '~app/routes'
 import { PostCard } from '~features/post/PostCard'
 import { usePlaceFeed } from '../../post/place-feed/usePlaceFeed'
 import { PlaceInfoWidget } from '../PlaceInfoWIdget'
@@ -29,7 +31,9 @@ function PlaceFeed({ placeId }: Props) {
   return (
     <Stack gap={2} padding={2} bgcolor={(theme) => theme.palette.grey[200]}>
       {feed.map((post) => (
-        <PostCard key={post.id} post={post} />
+        <Link key={post.id} to={generatePath(AppRoute.포스트_상세, { postId: post.id })} viewTransition>
+          <PostCard post={post} />
+        </Link>
       ))}
     </Stack>
   )

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
-import { useExplorerDetailOverlay } from '../explorer-detail/useExplorerDetailOverlay'
+import { useExplorerPlaceOverlay } from '../useExplorerPlaceOverlay'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 import { PlaceCard } from '../explorer-place-item/PlaceCard'
 import type { MostSavedPlace } from '../explorer.api'
@@ -18,7 +18,7 @@ export function MostSavedSection() {
   const { location, category } = useExplorerFilterParams();
   const { data: places } = useMostSavedPlaces({ location, category })
   const isMobile = useIsMobile()
-  const { openFullScreen, openSideSheet } = useExplorerDetailOverlay()
+  const { openFullScreen, openSideSheet } = useExplorerPlaceOverlay()
   const openDetail = (place: MostSavedPlace) =>
     isMobile ? openFullScreen(place) : openSideSheet(place)
   const navigate = useNavigate()

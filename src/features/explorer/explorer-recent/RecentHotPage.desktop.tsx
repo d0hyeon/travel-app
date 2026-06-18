@@ -10,7 +10,7 @@ import { Map } from '~shared/components/Map'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useOverlay } from '~shared/hooks/useOverlay'
-import { useExplorerDetailOverlay } from '../explorer-detail/useExplorerDetailOverlay'
+import { useExplorerPlaceOverlay } from '../useExplorerPlaceOverlay'
 import { ExplorerFilters } from '../explorer-filters/ExplorerFilters.desktop'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 import { PlaceListItem } from '../explorer-place-item/PlaceListItem'
@@ -98,7 +98,7 @@ function RecentHotList({
   category?: PlaceCategoryType
 }) {
   const { data: places } = useRecentHotPlaces({ inquiryMonths: months, location, category })
-  const { openSideSheet } = useExplorerDetailOverlay()
+  const { openSideSheet } = useExplorerPlaceOverlay()
 
   return (
     <Stack>
@@ -139,7 +139,7 @@ function RecentHotMap({
 
   const { data: places } = useRecentHotPlaces({ inquiryMonths: months, category, location })
   const isMobile = useIsMobile()
-  const { openFullScreen, openSideSheet } = useExplorerDetailOverlay()
+  const { openFullScreen, openSideSheet } = useExplorerPlaceOverlay()
   const center = location ? getCoordinateByLocation(location) : undefined;
 
   return (

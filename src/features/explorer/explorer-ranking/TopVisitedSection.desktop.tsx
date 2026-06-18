@@ -3,7 +3,7 @@ import { Box, Button, Skeleton, Stack, Typography } from '@mui/material'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
-import { useExplorerDetailOverlay } from '../explorer-detail/useExplorerDetailOverlay'
+import { useExplorerPlaceOverlay } from '../useExplorerPlaceOverlay'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 import { PlaceListItem } from '../explorer-place-item/PlaceListItem'
 import { buildExplorerDetailUrl } from '../explorer.utils'
@@ -13,7 +13,7 @@ import { SECTION_LIMIT, DESKTOP_SKELETON_CARDS, formatVisitorCount } from './top
 export function TopVisitedSectionDesktop() {
   const { location, category } = useExplorerFilterParams()
   const { data: places } = useExploredPlaces(location, category)
-  const { openSideSheet } = useExplorerDetailOverlay()
+  const { openSideSheet } = useExplorerPlaceOverlay()
   const navigate = useNavigate()
 
   const mostVisitedPlaces = useMemo(

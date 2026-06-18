@@ -2,7 +2,7 @@ import { Box, type BoxProps } from "@mui/material";
 import { getCoordinateByLocation } from "~features/location";
 import { Map } from "~shared/components/Map";
 import { useIsMobile } from "~shared/hooks/env/useIsMobile";
-import { useExplorerDetailOverlay } from "./explorer-detail/useExplorerDetailOverlay";
+import { useExplorerPlaceOverlay } from "./useExplorerPlaceOverlay";
 import { useExplorerFilterParams } from "./explorer-filters/useExplorerFilterParams";
 import { useAttentionPlaces } from "./useAttentionPlaces";
 
@@ -33,7 +33,7 @@ export function ExplorerMap(props: BoxProps) {
   const places = useAttentionPlaces({ location, category });
 
   const isMobile = useIsMobile()
-  const { openFullScreen, openSideSheet } = useExplorerDetailOverlay();
+  const { openFullScreen, openSideSheet } = useExplorerPlaceOverlay();
 
   return (
     <Box {...props}>

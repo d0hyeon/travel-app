@@ -3,8 +3,8 @@ import { Box, IconButton, Skeleton, Stack, Tab, Tabs, Typography } from '@mui/ma
 import { Suspense, useState } from 'react'
 import { FullScreenPopup } from '~shared/components/FullScreenPopup'
 import { SwitchCase } from '~shared/components/SwitchCase'
-import { PlaceDetailContent } from '../../place/place-detail/PlaceDetailContent'
-import { usePlace } from '../../place/usePlace'
+import { PlaceDetailContent } from './PlaceDetailContent'
+import { usePlace } from '../usePlace'
 
 
 type ContentType = keyof typeof PlaceDetailContent;
@@ -15,7 +15,7 @@ interface Props {
   onClose: () => void;
 }
 
-export function PlaceExplorerDetailFullscreen({ isOpen, placeId, onClose }: Props) {
+export function PlaceFullScreenModal({ isOpen, placeId, onClose }: Props) {
   const [currentTab, setCurrentTab] = useState<ContentType>('Info');
 
   return (

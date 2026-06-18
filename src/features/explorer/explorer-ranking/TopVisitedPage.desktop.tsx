@@ -6,7 +6,7 @@ import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
 import { Map } from '~shared/components/Map'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
-import { useExplorerDetailOverlay } from '../explorer-detail/useExplorerDetailOverlay'
+import { useExplorerPlaceOverlay } from '../useExplorerPlaceOverlay'
 import { ExplorerFilters } from '../explorer-filters/ExplorerFilters.desktop'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 import { PlaceListItem } from '../explorer-place-item/PlaceListItem'
@@ -69,7 +69,7 @@ function TopVisiteList({
   location?: Location
   category?: PlaceCategoryType
 }) {
-  const { openSideSheet } = useExplorerDetailOverlay()
+  const { openSideSheet } = useExplorerPlaceOverlay()
   const { data: places } = useExploredPlaces(location, category)
   return (
     <Stack>
@@ -105,7 +105,7 @@ function TopVisitedMap({
 }) {
   const { data: places } = useExploredPlaces(location, category)
   const isMobile = useIsMobile()
-  const { openFullScreen, openSideSheet } = useExplorerDetailOverlay()
+  const { openFullScreen, openSideSheet } = useExplorerPlaceOverlay()
   const center = location ? getCoordinateByLocation(location) : undefined;
 
   return (

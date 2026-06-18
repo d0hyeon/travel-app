@@ -12,7 +12,7 @@ import { SwitchCase } from '~shared/components/SwitchCase'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useScrollStatus } from '~shared/hooks/interaction/useScrollStatus'
 import { useOverlay } from '~shared/hooks/useOverlay'
-import { useExplorerDetailOverlay } from '../explorer-detail/useExplorerDetailOverlay'
+import { useExplorerPlaceOverlay } from '../useExplorerPlaceOverlay'
 import { ExplorerFilters } from '../explorer-filters/ExplorerFilters.mobile'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 import { PlaceCard } from '../explorer-place-item/PlaceCard'
@@ -118,7 +118,7 @@ function RecentHotGrid({
 }) {
   const { data: places } = useRecentHotPlaces({ inquiryMonths: months, location, category })
   const isMobile = useIsMobile()
-  const { openFullScreen, openSideSheet } = useExplorerDetailOverlay()
+  const { openFullScreen, openSideSheet } = useExplorerPlaceOverlay()
   const openDetail = (place: ExploredPlace) =>
     isMobile ? openFullScreen(place) : openSideSheet(place)
 
@@ -146,7 +146,7 @@ function RecentHotMap({
 
   const { data: places } = useRecentHotPlaces({ inquiryMonths: months, category, location })
   const isMobile = useIsMobile()
-  const { openFullScreen, openSideSheet } = useExplorerDetailOverlay()
+  const { openFullScreen, openSideSheet } = useExplorerPlaceOverlay()
   const center = location ? getCoordinateByLocation(location) : undefined;
 
   return (

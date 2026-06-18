@@ -3,7 +3,7 @@ import { Box, Button, Skeleton, Stack, Typography } from '@mui/material'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
-import { useExplorerDetailOverlay } from '../explorer-detail/useExplorerDetailOverlay'
+import { useExplorerPlaceOverlay } from '../useExplorerPlaceOverlay'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 import { PlaceListItem } from '../explorer-place-item/PlaceListItem'
 import { buildExplorerDetailUrl } from '../explorer.utils'
@@ -13,7 +13,7 @@ import { SECTION_LIMIT, MOBILE_SKELETON_ROWS, formatVisitorCount } from './topVi
 export function TopVisitedSectionMobile() {
   const { location, category } = useExplorerFilterParams()
   const { data: places } = useExploredPlaces(location, category)
-  const { openFullScreen } = useExplorerDetailOverlay()
+  const { openFullScreen } = useExplorerPlaceOverlay()
   const navigate = useNavigate()
 
   const mostVisitedPlaces = useMemo(

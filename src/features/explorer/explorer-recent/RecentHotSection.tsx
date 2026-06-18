@@ -3,16 +3,14 @@ import { Box, Button, Skeleton, Stack, Typography } from '@mui/material'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
-import type { Location } from '~features/location'
-import type { PlaceCategoryType } from '~features/place/place.types'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
-import { useExplorerDetailOverlay } from '../explorer-detail/useExplorerDetailOverlay'
-import { PlaceCard } from '../explorer-place-item/PlaceCard'
-import { useRecentHotPlaces } from './useRecentHotPlaces'
-import type { ExploredPlace } from '../explorer.api'
 import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
-import { buildExplorerDetailUrl } from '../explorer.utils'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
+import { PlaceCard } from '../explorer-place-item/PlaceCard'
+import type { ExploredPlace } from '../explorer.api'
+import { buildExplorerDetailUrl } from '../explorer.utils'
+import { useExplorerPlaceOverlay } from '../useExplorerPlaceOverlay'
+import { useRecentHotPlaces } from './useRecentHotPlaces'
 
 const SECTION_LIMIT = 10
 
@@ -20,7 +18,7 @@ export function RecentHotSection() {
   const { location, category } = useExplorerFilterParams();
   const { data: places } = useRecentHotPlaces({ inquiryMonths: 3, location, category })
   const isMobile = useIsMobile()
-  const { openFullScreen, openSideSheet } = useExplorerDetailOverlay()
+  const { openFullScreen, openSideSheet } = useExplorerPlaceOverlay()
   const openDetail = (place: ExploredPlace) =>
     isMobile ? openFullScreen(place) : openSideSheet(place)
   const navigate = useNavigate()

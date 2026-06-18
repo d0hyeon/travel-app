@@ -8,7 +8,7 @@ import { Map } from '~shared/components/Map'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useScrollStatus } from '~shared/hooks/interaction/useScrollStatus'
-import { useExplorerDetailOverlay } from '../explorer-detail/useExplorerDetailOverlay'
+import { useExplorerPlaceOverlay } from '../useExplorerPlaceOverlay'
 import { ExplorerFilters } from '../explorer-filters/ExplorerFilters.mobile'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 import { PlaceCard } from '../explorer-place-item/PlaceCard'
@@ -88,7 +88,7 @@ function MostSavedGrid({
 }) {
   const { data: places } = useMostSavedPlaces({ location, category })
   const isMobile = useIsMobile()
-  const { openFullScreen, openSideSheet } = useExplorerDetailOverlay()
+  const { openFullScreen, openSideSheet } = useExplorerPlaceOverlay()
   const openDetail = (place: MostSavedPlace) =>
     isMobile ? openFullScreen(place) : openSideSheet(place)
 
@@ -112,7 +112,7 @@ function MostSavedMap({
 }) {
   const { data: places } = useMostSavedPlaces({ location, category })
   const isMobile = useIsMobile()
-  const { openFullScreen, openSideSheet } = useExplorerDetailOverlay()
+  const { openFullScreen, openSideSheet } = useExplorerPlaceOverlay()
   const center = location ? getCoordinateByLocation(location) : undefined
 
   return (

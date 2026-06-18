@@ -3,7 +3,7 @@ import { Box, Button, Skeleton, Stack, Typography } from '@mui/material'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
-import { useExplorerDetailOverlay } from '../explorer-detail/useExplorerDetailOverlay'
+import { useExplorerPlaceOverlay } from '../useExplorerPlaceOverlay'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 import { PlaceListItem } from '../explorer-place-item/PlaceListItem'
 import { buildExplorerDetailUrl } from '../explorer.utils'
@@ -14,7 +14,7 @@ import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 export function TopVisitedSection() {
   const { location, category } = useExplorerFilterParams()
   const { data: places } = useExploredPlaces(location, category)
-  const { openFullScreen, openSideSheet } = useExplorerDetailOverlay()
+  const { openFullScreen, openSideSheet } = useExplorerPlaceOverlay()
   const navigate = useNavigate()
 
   const mostVisitedPlaces = useMemo(
