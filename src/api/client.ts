@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from './_database.types'
+import { withQueryParams } from '~shared/utils/urls';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -26,10 +27,8 @@ export const apiClient = {
     path: string,
     { params, parse = parseData, headers, ...options }: BaseOptions<Data> = {}
   ): Promise<Data> => {
-    const baseURL = `${supabaseUrl}/${path}`
     const response = await fetch(
-      params ? `${baseURL}${toQueryParams(params)}` : baseURL,
-      // RequestInit 타입과 호환되도록 지정
+      withQueryParams(`${supabaseUrl}/${path}`, params),
       {
         headers: {
           ...headers,
@@ -48,22 +47,6 @@ export const apiClient = {
   }
 }
 
-// 3. Record<any, any> 대신 키 타입을 string으로 제한하여 에러 방지
-function toQueryParams(value: Record<string, unknown>) {
-  const stringfy = Object.entries(value).reduce((acc, [key, val]) => {
-    if (val == null) return acc;
-    if (typeof val === 'string' && URL.canParse(val)) {
-      return `${acc}&${key}=${encodeURI(val)}`;
-    }
-    if (Array.isArray(val)) {
-      return `${acc}&${key}=${val.join(',')}`;
-    }
-    return `${acc}&${key}=${String(val)}`;
-  }, '');
-
-  if (stringfy === '') return stringfy;
-  return `?${stringfy.slice(1)}`;
-}
 
 async function parseData(response: Response): Promise<any> {
   const contentType = response.headers.get('content-type') || '';
