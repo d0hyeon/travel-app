@@ -48,7 +48,7 @@ export const queryParams = {
     }, '');
 
     if (stringfy === '') return stringfy;
-    return stringfy.slice(1);
+    return `?${stringfy.slice(1)}`;
   },
   parse: (value: string) => {
     return value.split('&').reduce<Record<string, string | string[]>>((acc, qs) => {
@@ -71,6 +71,5 @@ export const queryParams = {
 export function withQueryParams(path: string, params: Record<string, any> = {}) {
   const queryString = queryParams.serialize(params);
 
-  if (queryString === '') return path;
-  return `${path}?${queryString}`;
+  return `${path}${queryString}`;
 }
