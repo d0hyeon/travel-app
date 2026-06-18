@@ -7,8 +7,8 @@ const PlaceExplorerPageDesktop = lazy(() =>
 )
 
 export const meta = () => [
-  { title: '장소 탐색 — WayLog' },
-  { property: 'og:title', content: '장소 탐색 — WayLog' },
+  { title: '탐색 — WayLog' },
+  { property: 'og:title', content: '탐색 — WayLog' },
 ]
 
 export default function PlaceExplorerPage() {
