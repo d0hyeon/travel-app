@@ -16,17 +16,18 @@ type RequestOptions<Data = any> = Omit<RequestInit, 'headers' | 'signal' | 'body
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
 export function createHttpClient({ baseUrl = '', beforeRequest }: Options = {}) {
-  function createRequestFn<Method extends HttpMethod , Data>(method: Method) {
-    return async (
+  function createRequestFn<Method extends HttpMethod>(method: Method) {
+    return async <Data = any>(
       path: string,
       requestOptions?: Method extends 'GET'
-        ? (RequestOptions<Data> & { body: never })
+        ? (RequestOptions<Data> & { body?: never })
         : RequestOptions<Data>
     ) => {
       const { params, body, parse = parseResponse } = requestOptions ?? {}
       const url = withQueryParams(`${baseUrl}${path}`, params);
       const request = new Request(url, {
         body: serializeBody(body),
+        method,
         ...requestOptions,
       });
       const response = await fetch(

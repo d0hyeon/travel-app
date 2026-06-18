@@ -1,6 +1,8 @@
 import type { ReactNode, Ref } from 'react';
 import type { Coordinate } from '~shared/types/coordinate';
 
+export type { Coordinate };
+
 export type MapType = 'kakao' | 'google';
 
 export type AutoFocus = 'marker' | 'path' | false;
