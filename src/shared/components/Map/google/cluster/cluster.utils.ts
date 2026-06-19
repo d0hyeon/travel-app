@@ -55,12 +55,10 @@ function renderSingleMarker(md: MarkerData, map: google.maps.Map) {
     opacity: markerOpacity,
   });
   if (md.onClick) {
-    const { remove } = marker.addListener('click', md.onClick)
-    cleanups.push(remove);
+    marker.addListener('click', md.onClick)
   }
   if (md.onContextMenu) {
-    const { remove } = marker.addListener('rightclick', md.onContextMenu);
-    cleanups.push(remove);
+    marker.addListener('rightclick', md.onContextMenu);
   }
   
   
