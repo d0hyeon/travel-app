@@ -2,7 +2,7 @@ import { useEffect, useEffectEvent, useMemo } from "react";
 import type { MarkerProps } from "../types";
 import { GoogleMapContext, useMapContext } from "../MapContext";
 import { resolveMarkerColor } from "../map.utils";
-import { createMarkerSvg, createThumbnailMarkerNode } from "./GoogleMap.utils";
+import { createLabelNode, createMarkerSvg, createPositionedOverlay, createThumbnailMarkerNode, createTooltipNode } from "./GoogleMap.utils";
 import { useRegisterClusterMarker } from "../useClusterRegistry";
 
 export default function GoogleMapMarker(props: MarkerProps) {
@@ -60,16 +60,7 @@ function ThumbnailMarker({ lat, lng, label, tooltip, variant, color, thumbnailUr
       node.addEventListener('mouseleave', () => { if (tooltipEl) tooltipEl.style.display = 'none'; });
     }
 
-    class ThumbnailOverlay extends google.maps.OverlayView {
-      onAdd() { this.getPanes()?.overlayMouseTarget.appendChild(node); }
-      draw() {
-        const pos = this.getProjection().fromLatLngToDivPixel(new google.maps.LatLng(lat, lng));
-        if (pos) { node.style.left = `${pos.x}px`; node.style.top = `${pos.y - 8}px`; }
-      }
-      onRemove() { node.parentNode?.removeChild(node); }
-    }
-
-    const overlay = new ThumbnailOverlay();
+    const overlay = createPositionedOverlay({ node, position: { lat, lng }, pane: 'overlayMouseTarget', offsetY: -8 });
     overlay.setMap(map);
 
     const cleanupLabel = label ? mountLabelOverlay({ map, lat, lng, label, markerColor, offsetPx: 56 }) : null;
@@ -134,24 +125,8 @@ function mountLabelOverlay({ map, lat, lng, label, markerColor, offsetPx }: {
   markerColor: string;
   offsetPx: number;
 }): () => void {
-  class LabelOverlay extends google.maps.OverlayView {
-    private div: HTMLDivElement | null = null;
-    onAdd() {
-      this.div = document.createElement('div');
-      this.div.style.cssText = `position:absolute; background:${markerColor}; color:white; padding:2px 6px; border-radius:10px; font-size:11px; font-weight:bold; white-space:nowrap; pointer-events:none; transform:translate(-50%,-100%); margin-top:-${offsetPx}px;`;
-      this.div.textContent = label;
-      this.getPanes()?.overlayLayer.appendChild(this.div);
-    }
-    draw() {
-      if (!this.div) return;
-      const pos = this.getProjection().fromLatLngToDivPixel(new google.maps.LatLng(lat, lng));
-      if (pos) { this.div.style.left = `${pos.x}px`; this.div.style.top = `${pos.y}px`; }
-    }
-    onRemove() {
-      if (this.div?.parentNode) { this.div.parentNode.removeChild(this.div); this.div = null; }
-    }
-  }
-  const overlay = new LabelOverlay();
+  const node = createLabelNode(label, markerColor, offsetPx);
+  const overlay = createPositionedOverlay({ node, position: { lat, lng }, pane: 'overlayLayer' });
   overlay.setMap(map);
   return () => overlay.setMap(null);
 }
@@ -162,34 +137,11 @@ function mountTooltipOverlay({ map, lat, lng, marker, tooltip }: {
   marker: google.maps.Marker;
   tooltip: string | string[];
 }): () => void {
-  const lines = Array.isArray(tooltip) ? tooltip : [tooltip];
-  const content = lines.map(l => `<div>${l}</div>`).join('');
-
-  class TooltipOverlay extends google.maps.OverlayView {
-    private div: HTMLDivElement | null = null;
-    onAdd() {
-      this.div = document.createElement('div');
-      this.div.style.cssText = 'position:absolute; background:white; color:#333; padding:6px 10px; border-radius:8px; font-size:12px; box-shadow:0 2px 8px rgba(0,0,0,0.15); white-space:nowrap; pointer-events:none; transform:translate(-50%,-100%); margin-top:-44px;';
-      this.div.innerHTML = content;
-      this.div.style.display = 'none';
-      this.getPanes()?.overlayLayer.appendChild(this.div);
-    }
-    draw() {
-      if (!this.div) return;
-      const pos = this.getProjection().fromLatLngToDivPixel(new google.maps.LatLng(lat, lng));
-      if (pos) { this.div.style.left = `${pos.x}px`; this.div.style.top = `${pos.y}px`; }
-    }
-    onRemove() {
-      if (this.div?.parentNode) { this.div.parentNode.removeChild(this.div); this.div = null; }
-    }
-    show() { if (this.div) this.div.style.display = 'block'; }
-    hide() { if (this.div) this.div.style.display = 'none'; }
-  }
-
-  const overlay = new TooltipOverlay();
+  const node = createTooltipNode(tooltip);
+  const overlay = createPositionedOverlay({ node, position: { lat, lng }, pane: 'overlayLayer' });
   overlay.setMap(map);
-  const show = () => overlay.show();
-  const hide = () => overlay.hide();
+  const show = () => { node.style.display = 'block'; };
+  const hide = () => { node.style.display = 'none'; };
   marker.addListener('mouseover', show);
   marker.addListener('mouseout', hide);
 

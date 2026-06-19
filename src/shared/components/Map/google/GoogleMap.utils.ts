@@ -1,4 +1,4 @@
-import type { MarkerProps } from '../types';
+import type { Coordinate, MarkerProps } from '../types';
 
 // ── 콘텐츠 생성 (렌더링용 문자열) ───────────────────────
 
@@ -56,5 +56,55 @@ export function createThumbnailMarkerNode({ thumbnailUrl, color, onClick, onCont
   }
 
   return { node, destroy: () => cleanups.forEach(cleanup => cleanup()) };
+}
+
+/** 마커 라벨 칩 DOM 노드를 만든다. offsetPx만큼 마커 위로 띄운다. */
+export function createLabelNode(label: string, markerColor: string, offsetPx: number): HTMLElement {
+  const node = document.createElement('div');
+  node.style.cssText = `position:absolute; background:${markerColor}; color:white; padding:2px 6px; border-radius:10px; font-size:11px; font-weight:bold; white-space:nowrap; pointer-events:none; transform:translate(-50%,-100%); margin-top:-${offsetPx}px;`;
+  node.textContent = label;
+  return node;
+}
+
+/** 마커 툴팁 DOM 노드를 만든다. 초기 상태는 숨김이며, 표시 토글은 호출부의 책임이다. */
+export function createTooltipNode(tooltip: string | string[]): HTMLElement {
+  const lines = Array.isArray(tooltip) ? tooltip : [tooltip];
+  const node = document.createElement('div');
+  node.style.cssText = 'position:absolute; background:white; color:#333; padding:6px 10px; border-radius:8px; font-size:12px; box-shadow:0 2px 8px rgba(0,0,0,0.15); white-space:nowrap; pointer-events:none; transform:translate(-50%,-100%); margin-top:-44px; display:none;';
+  node.innerHTML = lines.map(line => `<div>${line}</div>`).join('');
+  return node;
+}
+
+// ── 오버레이 마운트 (좌표 고정) ─────────────────────────
+
+interface PositionedOverlayParams {
+  node: HTMLElement;
+  position: Coordinate;
+  /** 클릭 가능한 노드는 overlayMouseTarget, 표시 전용은 overlayLayer */
+  pane: 'overlayLayer' | 'overlayMouseTarget';
+  offsetY?: number;
+}
+
+/**
+ * node를 지정한 좌표에 고정하고 지도 이동 시 위치를 따라가게 하는 OverlayView를 만든다.
+ * google 전역이 로드된 뒤(호출 시점)에 클래스를 정의하므로 모듈 최상단 선언을 피한다.
+ */
+export function createPositionedOverlay({ node, position, pane, offsetY = 0 }: PositionedOverlayParams): google.maps.OverlayView {
+  class PositionedOverlay extends google.maps.OverlayView {
+    onAdd() {
+      this.getPanes()?.[pane].appendChild(node);
+    }
+    draw() {
+      const point = this.getProjection().fromLatLngToDivPixel(new google.maps.LatLng(position.lat, position.lng));
+      if (point) {
+        node.style.left = `${point.x}px`;
+        node.style.top = `${point.y + offsetY}px`;
+      }
+    }
+    onRemove() {
+      node.parentNode?.removeChild(node);
+    }
+  }
+  return new PositionedOverlay();
 }
 

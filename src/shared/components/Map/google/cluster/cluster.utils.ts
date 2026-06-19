@@ -1,5 +1,5 @@
 import type { Coordinate, MarkerData } from '../../types';
-import { createThumbnailMarkerNode } from '../GoogleMap.utils';
+import { createLabelNode, createPositionedOverlay, createThumbnailMarkerNode } from '../GoogleMap.utils';
 
 export interface ClusterEntry {
   overlays: google.maps.OverlayView[];
@@ -35,15 +35,7 @@ function buildSingleMarkerEntry(md: MarkerData, map: google.maps.Map): ClusterEn
       onContextMenu: md.onContextMenu,
     });
     entry.cleanups.push(destroy);
-    class TOverlay extends google.maps.OverlayView {
-      onAdd() { this.getPanes()?.overlayMouseTarget.appendChild(node); }
-      draw() {
-        const pos = this.getProjection().fromLatLngToDivPixel(new google.maps.LatLng(md.position.lat, md.position.lng));
-        if (pos) { node.style.left = `${pos.x}px`; node.style.top = `${pos.y - 8}px`; }
-      }
-      onRemove() { node.parentNode?.removeChild(node); }
-    }
-    const overlay = new TOverlay();
+    const overlay = createPositionedOverlay({ node, position: md.position, pane: 'overlayMouseTarget', offsetY: -8 });
     overlay.setMap(map);
     entry.overlays.push(overlay);
     return entry;
@@ -73,24 +65,10 @@ function buildSingleMarkerEntry(md: MarkerData, map: google.maps.Map): ClusterEn
   entry.markers.push(marker);
 
   if (md.label) {
-    class LOverlay extends google.maps.OverlayView {
-      private div: HTMLDivElement | null = null;
-      onAdd() {
-        this.div = document.createElement('div');
-        this.div.style.cssText = `position:absolute; background:${markerColor}; color:white; padding:2px 6px; border-radius:10px; font-size:11px; font-weight:bold; white-space:nowrap; pointer-events:none; transform:translate(-50%,-100%); margin-top:-${isCircle ? 24 : 44}px;`;
-        this.div.textContent = md.label!;
-        this.getPanes()?.overlayLayer.appendChild(this.div);
-      }
-      draw() {
-        if (!this.div) return;
-        const pos = this.getProjection().fromLatLngToDivPixel(new google.maps.LatLng(md.position.lat, md.position.lng));
-        if (pos) { this.div.style.left = `${pos.x}px`; this.div.style.top = `${pos.y}px`; }
-      }
-      onRemove() { if (this.div?.parentNode) { this.div.parentNode.removeChild(this.div); this.div = null; } }
-    }
-    const lo = new LOverlay();
-    lo.setMap(map);
-    entry.overlays.push(lo);
+    const labelNode = createLabelNode(md.label, markerColor, isCircle ? 24 : 44);
+    const labelOverlay = createPositionedOverlay({ node: labelNode, position: md.position, pane: 'overlayLayer' });
+    labelOverlay.setMap(map);
+    entry.overlays.push(labelOverlay);
   }
 
   return entry;
@@ -110,15 +88,7 @@ function buildClusterGroupEntry(cluster: Cluster, map: google.maps.Map, onCluste
   el.addEventListener('click', clickHandler);
   entry.cleanups.push(() => el.removeEventListener('click', clickHandler));
 
-  class COverlay extends google.maps.OverlayView {
-    onAdd() { this.getPanes()?.overlayMouseTarget.appendChild(el); }
-    draw() {
-      const pos = this.getProjection().fromLatLngToDivPixel(new google.maps.LatLng(cluster.center.lat, cluster.center.lng));
-      if (pos) { el.style.left = `${pos.x}px`; el.style.top = `${pos.y}px`; }
-    }
-    onRemove() { el.parentNode?.removeChild(el); }
-  }
-  const overlay = new COverlay();
+  const overlay = createPositionedOverlay({ node: el, position: cluster.center, pane: 'overlayMouseTarget' });
   overlay.setMap(map);
   entry.overlays.push(overlay);
 
