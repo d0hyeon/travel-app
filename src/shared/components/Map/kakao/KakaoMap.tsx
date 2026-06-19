@@ -26,8 +26,6 @@ export default function KakaoMap({
 }: Props) {
   use(loadKakaoMap());
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
-  // map은 state여야 한다. ref로 두면 인스턴스 생성이 리렌더를 트리거하지 않아
-  // 컨텍스트로 전파되지 않고, 모바일 사파리 등에서 첫 마운트 시 마커가 표시되지 않는다.
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
 
   useEffect(() => {
