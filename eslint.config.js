@@ -37,6 +37,9 @@ export default defineConfig([
 
     rules: {
       'package/import': 'error',
+      // 외부 명령형 시스템(지도 SDK) 인스턴스를 effect에서 state로 끌어올려야 하는
+      // 정당한 케이스가 있어 error 대신 warning으로 둔다.
+      'react-hooks/set-state-in-effect': 'warn',
     },
   },
 ])
