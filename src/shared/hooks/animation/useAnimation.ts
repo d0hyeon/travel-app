@@ -1,5 +1,5 @@
-import { useRef, useState, useCallback } from "react"
-import { useSyncableRef } from "../extends/useSyncableRef"
+import { useCallback, useRef, useState } from "react"
+import { usePreservedValue } from "../extends/usePreservedValue"
 
 type Frames = Keyframe[] | PropertyIndexedKeyframes
 
@@ -61,7 +61,7 @@ export function useAnimation<T extends Element>(
   element?: T | null,
 ): UseAnimationReturnWithElement | UseAnimationReturnWithoutElement<T> {
   const animationRef = useRef<Animation | null>(null)
-  const baseSpecRef = useSyncableRef(baseSpec)
+  const getBaseSpec = usePreservedValue(baseSpec)
 
   const [isRunning, setRunning] = useState(false)
 
@@ -110,7 +110,7 @@ export function useAnimation<T extends Element>(
       const overrideElement = args.length === 2 ? args[0] : null;
       const overrideSpec = args.length === 2 ? args[1] : args[0];
 
-      const base = baseSpecRef.current
+      const base = getBaseSpec();
 
       const target = overrideElement ?? element
 
