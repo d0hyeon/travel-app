@@ -1,8 +1,8 @@
-import type { Coordinate, MarkerProps } from '../types';
+import type { Coordinate, MarkerData, MarkerProps } from '../types';
 
 // ── 콘텐츠 생성 (렌더링용 문자열) ───────────────────────
 
-export function createThumbnailContent(thumbnailUrl: string, color: string): string {
+function createThumbnailContent(thumbnailUrl: string, color: string): string {
   return `
     <div style="display:flex; flex-direction:column; align-items:center; filter:drop-shadow(0 3px 8px rgba(0,0,0,0.25));">
       <div style="width:48px; height:48px; border-radius:50%; border:3px solid ${color}; overflow:hidden; background:#eee;">
@@ -13,7 +13,7 @@ export function createThumbnailContent(thumbnailUrl: string, color: string): str
   `;
 }
 
-export function createMarkerSvg(variant: MarkerProps['variant'], color: string, opacity: number, outlined: boolean): string {
+function createMarkerSvg(variant: MarkerProps['variant'], color: string, opacity: number, outlined: boolean): string {
   if (variant === 'circle') {
     return outlined
       ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="white" fill-opacity="0.9" stroke="${color}" stroke-width="2.5"/></svg>`
@@ -24,7 +24,7 @@ export function createMarkerSvg(variant: MarkerProps['variant'], color: string, 
 
 // ── DOM 조립 (인터랙티브 노드) ──────────────────────────
 
-export interface MarkerElement {
+interface MarkerElement {
   node: HTMLElement;
   destroy: () => void;
 }
@@ -40,7 +40,7 @@ interface ThumbnailMarkerNodeParams {
  * 썸네일 콘텐츠를 클릭/컨텍스트메뉴가 바인딩된 DOM 노드로 만들고 정리 핸들을 반환한다.
  * overlay 마운트(OverlayView)는 호출부의 책임이다.
  */
-export function createThumbnailMarkerNode({ thumbnailUrl, color, onClick, onContextMenu }: ThumbnailMarkerNodeParams): MarkerElement {
+function createThumbnailMarkerNode({ thumbnailUrl, color, onClick, onContextMenu }: ThumbnailMarkerNodeParams): MarkerElement {
   const node = document.createElement('div');
   node.innerHTML = createThumbnailContent(thumbnailUrl, color);
   node.style.cssText = 'position:absolute; transform:translate(-50%, -100%); cursor:pointer;';
@@ -59,7 +59,7 @@ export function createThumbnailMarkerNode({ thumbnailUrl, color, onClick, onCont
 }
 
 /** 마커 라벨 칩 DOM 노드를 만든다. offsetPx만큼 마커 위로 띄운다. */
-export function createLabelNode(label: string, markerColor: string, offsetPx: number): HTMLElement {
+function createLabelNode(label: string, markerColor: string, offsetPx: number): HTMLElement {
   const node = document.createElement('div');
   node.style.cssText = `position:absolute; background:${markerColor}; color:white; padding:2px 6px; border-radius:10px; font-size:11px; font-weight:bold; white-space:nowrap; pointer-events:none; transform:translate(-50%,-100%); margin-top:-${offsetPx}px;`;
   node.textContent = label;
@@ -67,7 +67,7 @@ export function createLabelNode(label: string, markerColor: string, offsetPx: nu
 }
 
 /** 마커 툴팁 DOM 노드를 만든다. 초기 상태는 숨김이며, 표시 토글은 호출부의 책임이다. */
-export function createTooltipNode(tooltip: string | string[]): HTMLElement {
+function createTooltipNode(tooltip: string | string[]): HTMLElement {
   const lines = Array.isArray(tooltip) ? tooltip : [tooltip];
   const node = document.createElement('div');
   node.style.cssText = 'position:absolute; background:white; color:#333; padding:6px 10px; border-radius:8px; font-size:12px; box-shadow:0 2px 8px rgba(0,0,0,0.15); white-space:nowrap; pointer-events:none; transform:translate(-50%,-100%); margin-top:-44px; display:none;';
@@ -106,5 +106,85 @@ export function createPositionedOverlay({ node, position, pane, offsetY = 0 }: P
     }
   }
   return new PositionedOverlay();
+}
+
+// ── 마운트 (지도에 마커를 그리고 정리 함수 반환) ─────────
+
+type MarkerRenderData = Omit<MarkerData, 'id'>;
+
+/** 마커 데이터를 지도에 그리고 정리 함수를 반환한다. 썸네일/일반/라벨/툴팁 분기를 여기서 결정한다. */
+export function renderMarker(md: MarkerRenderData, map: google.maps.Map): VoidFunction {
+  if (md.thumbnailUrl) return renderThumbnailMarker(md, map);
+  return renderImageMarker(md, map);
+}
+
+function renderThumbnailMarker(md: MarkerRenderData, map: google.maps.Map): VoidFunction {
+  const { node, destroy } = createThumbnailMarkerNode({
+    thumbnailUrl: md.thumbnailUrl!,
+    color: md.color ?? '#ef5350',
+    onClick: md.onClick,
+    onContextMenu: md.onContextMenu,
+  });
+  const overlay = createPositionedOverlay({ node, position: md.position, pane: 'overlayMouseTarget', offsetY: -8 });
+  overlay.setMap(map);
+
+  return () => {
+    destroy();
+    overlay.setMap(null);
+  };
+}
+
+function renderImageMarker(md: MarkerRenderData, map: google.maps.Map): VoidFunction {
+  const cleanups: VoidFunction[] = [];
+
+  const markerColor = md.color ?? '#ef5350';
+  const markerOpacity = md.opacity ?? 1;
+  const isCircle = md.variant === 'circle';
+  const svg = createMarkerSvg(md.variant, markerColor, markerOpacity, md.outlined ?? false);
+
+  const tooltipText = Array.isArray(md.tooltip) ? md.tooltip.join('\n') : md.tooltip;
+  const marker = new google.maps.Marker({
+    position: { lat: md.position.lat, lng: md.position.lng },
+    map,
+    title: tooltipText,
+    icon: isCircle
+      ? { url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`, scaledSize: new google.maps.Size(20, 20), anchor: new google.maps.Point(8, 8) }
+      : { url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`, scaledSize: new google.maps.Size(24, 34), anchor: new google.maps.Point(12, 34) },
+    opacity: markerOpacity,
+  });
+  cleanups.push(() => marker.setMap(null));
+
+  if (md.onClick) {
+    const { remove } = marker.addListener('click', md.onClick);
+    cleanups.push(remove);
+  }
+  if (md.onContextMenu) {
+    const { remove } = marker.addListener('rightclick', md.onContextMenu);
+    cleanups.push(remove);
+  }
+
+  if (md.label) {
+    const labelNode = createLabelNode(md.label, markerColor, isCircle ? 20 : 38);
+    const labelOverlay = createPositionedOverlay({ node: labelNode, position: md.position, pane: 'overlayLayer' });
+    labelOverlay.setMap(map);
+    cleanups.push(() => labelOverlay.setMap(null));
+  }
+
+  if (md.tooltip != null) {
+    const tooltipNode = createTooltipNode(md.tooltip);
+    const overlay = createPositionedOverlay({ node: tooltipNode, position: md.position, pane: 'overlayLayer' });
+    overlay.setMap(map);
+    const show = () => { tooltipNode.style.display = 'block'; };
+    const hide = () => { tooltipNode.style.display = 'none'; };
+    const showL = marker.addListener('mouseover', show);
+    const hideL = marker.addListener('mouseout', hide);
+    cleanups.push(() => {
+      overlay.setMap(null);
+      showL.remove();
+      hideL.remove();
+    });
+  }
+
+  return () => cleanups.forEach(cleanup => cleanup());
 }
 

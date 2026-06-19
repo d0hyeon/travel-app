@@ -1,8 +1,102 @@
 import { ZOOM_SCALE_CONFIG } from "../map.constants";
 import { resolveMarkerColor } from "../map.utils";
-import type { MarkerColor, MarkerProps } from "../types";
+import type { MarkerColor, MarkerData, MarkerProps } from "../types";
 
-export function createTooltipContent(tooltip: string | string[], level: number = 8): string {
+
+type MarkerRenderData = Omit<MarkerData, 'id'>;
+
+/** 마커 데이터를 지도에 그리고 정리 함수를 반환한다. 썸네일/일반/라벨/툴팁 분기를 여기서 결정한다. */
+export function renderMarker(md: MarkerRenderData, map: kakao.maps.Map, zoom: number): VoidFunction {
+  const position = new kakao.maps.LatLng(md.position.lat, md.position.lng);
+
+  if (md.thumbnailUrl) return renderThumbnailMarker(md, map, position);
+  return renderDefaultMarker(md, map, zoom, position);
+}
+
+function renderThumbnailMarker(md: MarkerRenderData, map: kakao.maps.Map, position: kakao.maps.LatLng): VoidFunction {
+  const { node, destroy } = createThumbnailMarkerNode({
+    thumbnailUrl: md.thumbnailUrl!,
+    color: md.color,
+    onClick: md.onClick,
+    onContextMenu: md.onContextMenu,
+  });
+
+  const overlay = new kakao.maps.CustomOverlay({ position, content: node, yAnchor: 1.08, xAnchor: 0.5 });
+  overlay.setMap(map);
+
+  const labelOverlay = md.label
+    ? new kakao.maps.CustomOverlay({
+      position,
+      content: createLabelContent(md.label, md.variant, md.color),
+      yAnchor: 1 + 56 / 20,
+      xAnchor: 0.5,
+    })
+    : null;
+  labelOverlay?.setMap(map);
+
+  return () => {
+    destroy();
+    overlay.setMap(null);
+    labelOverlay?.setMap(null);
+  };
+}
+
+function renderDefaultMarker(md: MarkerRenderData, map: kakao.maps.Map, zoom: number, position: kakao.maps.LatLng): VoidFunction {
+  const cleanups: VoidFunction[] = [];
+
+  const marker = new kakao.maps.Marker({
+    position,
+    image: getMarkerImage(md.variant, md.color, md.opacity, zoom, md.outlined),
+  });
+  marker.setMap(map);
+  cleanups.push(() => marker.setMap(null));
+
+  if (md.onClick) {
+    const onClick = md.onClick;
+    kakao.maps.event.addListener(marker, 'click', onClick);
+    cleanups.push(() => kakao.maps.event.removeListener(marker, 'click', onClick));
+  }
+  if (md.onContextMenu) {
+    const onContextMenu = md.onContextMenu;
+    kakao.maps.event.addListener(marker, 'rightclick', onContextMenu);
+    cleanups.push(() => kakao.maps.event.removeListener(marker, 'rightclick', onContextMenu));
+  }
+
+  if (md.label) {
+    const scale = getZoomScale(zoom);
+    const markerHalfHeight = md.variant === 'circle' ? 8 * scale : 30 * scale;
+    const labelOverlay = new kakao.maps.CustomOverlay({
+      position,
+      content: createLabelContent(md.label, md.variant, md.color, md.opacity, zoom),
+      yAnchor: 1 + (markerHalfHeight + 4) / 20,
+    });
+    labelOverlay.setMap(map);
+    cleanups.push(() => labelOverlay.setMap(null));
+  }
+
+  if (md.tooltip != null) {
+    const scale = getZoomScale(zoom);
+    const markerHeight = md.variant === 'circle' ? 16 * scale : 30 * scale;
+    const tooltipOverlay = new kakao.maps.CustomOverlay({
+      position,
+      content: createTooltipContent(md.tooltip, zoom),
+      yAnchor: 1 + markerHeight / 30,
+    });
+    const showTooltip = () => tooltipOverlay.setMap(map);
+    const hideTooltip = () => tooltipOverlay.setMap(null);
+    kakao.maps.event.addListener(marker, 'mouseover', showTooltip);
+    kakao.maps.event.addListener(marker, 'mouseout', hideTooltip);
+    cleanups.push(() => {
+      tooltipOverlay.setMap(null);
+      kakao.maps.event.removeListener(marker, 'mouseover', showTooltip);
+      kakao.maps.event.removeListener(marker, 'mouseout', hideTooltip);
+    });
+  }
+
+  return () => cleanups.forEach(cleanup => cleanup());
+}
+
+function createTooltipContent(tooltip: string | string[], level: number = 8): string {
   const lines = Array.isArray(tooltip) ? tooltip : [tooltip];
   const content = lines.map(line => `<div>${line}</div>`).join('');
   const scale = getZoomScale(level);
@@ -36,7 +130,7 @@ export function createTooltipContent(tooltip: string | string[], level: number =
   `;
 }
 
-export function createThumbnailContent(thumbnailUrl: string, color?: string): string {
+function createThumbnailContent(thumbnailUrl: string, color?: string): string {
   const borderColor = color ?? '#ef5350';
   return `
     <div style="
@@ -66,43 +160,9 @@ export function createThumbnailContent(thumbnailUrl: string, color?: string): st
   `;
 }
 
-export function nomalizeBound (bound: kakao.maps.LatLngBounds) {
-  const sw = bound.getSouthWest();
-  const ne = bound.getNorthEast();
 
-  return {
-    north: ne.getLat(),
-    south: sw.getLat(),
-    east: ne.getLng(),
-    west: sw.getLng(),
-  }
-}
 
-export function createClusterContent(count: number, level: number): string {
-  const scale = getZoomScale(level);
-  const size = Math.round(40 * scale);
-  const fontSize = Math.round(14 * scale);
-  return `
-    <div style="
-      width: ${size}px;
-      height: ${size}px;
-      background: #1976d2;
-      border: 3px solid white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: ${fontSize}px;
-      font-weight: bold;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    ">${count}</div>
-  `;
-}
-
-export { resolveMarkerColor };
-
-export function createLabelContent(
+function createLabelContent(
   label: string,
   variant?: MarkerProps['variant'],
   color?: MarkerColor,
@@ -135,7 +195,7 @@ export function getZoomScale(level: number = 8): number {
   return Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale));
 }
 
-export function getMarkerImage(
+function getMarkerImage(
   variant?: MarkerProps['variant'],
   color?: MarkerColor,
   opacity = 1,
@@ -157,7 +217,7 @@ export function getMarkerImage(
       <circle cx="8" cy="8" r="6" fill="none" stroke="${resolvedColor}" fill-opacity="${opacity}" stroke-width="1" />
     </svg>
     `;
-    
+
     const encodedSvg = encodeURIComponent(svgCircle);
     const dataUrl = `data:image/svg+xml,${encodedSvg}`;
     return new kakao.maps.MarkerImage(
@@ -185,7 +245,7 @@ export function getMarkerImage(
 
 // ── DOM 조립 (인터랙티브 노드) ──────────────────────────
 
-export interface MarkerElement {
+interface MarkerElement {
   node: HTMLElement;
   destroy: () => void;
 }
@@ -201,7 +261,7 @@ interface ThumbnailMarkerNodeParams {
  * 썸네일 콘텐츠를 클릭/컨텍스트메뉴가 바인딩된 DOM 노드로 만들고 정리 핸들을 반환한다.
  * overlay 마운트(CustomOverlay)는 호출부의 책임이다.
  */
-export function createThumbnailMarkerNode({ thumbnailUrl, color, onClick, onContextMenu }: ThumbnailMarkerNodeParams): MarkerElement {
+function createThumbnailMarkerNode({ thumbnailUrl, color, onClick, onContextMenu }: ThumbnailMarkerNodeParams): MarkerElement {
   const node = document.createElement('div');
   node.innerHTML = createThumbnailContent(thumbnailUrl, color);
   node.style.cursor = 'pointer';
@@ -218,3 +278,5 @@ export function createThumbnailMarkerNode({ thumbnailUrl, color, onClick, onCont
 
   return { node, destroy: () => cleanups.forEach(cleanup => cleanup()) };
 }
+
+

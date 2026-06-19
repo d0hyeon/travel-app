@@ -1,4 +1,4 @@
-import type { ValueOf } from "./types";
+import { arrayIncludes, type ValueOf } from "./types";
 
 export function reverseKeyValue<T extends Record<string | number, string | number>>(
   value: T
@@ -18,4 +18,10 @@ export function arraySplit<T>(array: T[], condition: (item: T) => boolean): [T[]
     
     return acc;
   }, [[], []])
+}
+
+export function omit<T extends {}, Key extends keyof T>(obj: T, keys: Key[]) {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([key]) => !arrayIncludes(keys, key))
+  ) as Omit<T, Key>;
 }

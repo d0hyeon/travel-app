@@ -3,7 +3,7 @@
 
 import { clusterMarkers, type Cluster } from "../../cluster.core";
 import type { MarkerData } from "../../types";
-import { createClusterContent, createLabelContent, createThumbnailMarkerNode, getMarkerImage, getZoomScale } from "../kakaoMap.utils";
+import {  getZoomScale, renderMarker } from "../marker.renderers";
 
 export type { Cluster };
 
@@ -15,70 +15,11 @@ interface RenderClusterProps {
   onClick: (cluster: Cluster) => void;
 }
 export function renderCluster({ cluster, map, zoom, onClick }: RenderClusterProps) {
-  if (cluster.markers.length === 1) return renderSingleMarker(cluster.markers[0], map, zoom);
+  if (cluster.markers.length === 1) return renderMarker(cluster.markers[0], map, zoom);
   return renderClusterGroupEntry(cluster, map, zoom, onClick);
 }
 
-export function renderSingleMarker(md: MarkerData, map: kakao.maps.Map, zoom: number) {
-  if (md.thumbnailUrl) {
-    const { node, destroy } = createThumbnailMarkerNode({
-      thumbnailUrl: md.thumbnailUrl,
-      color: md.color,
-      onClick: md.onClick,
-      onContextMenu: md.onContextMenu,
-    });
-    
-    const overlay = new kakao.maps.CustomOverlay({
-      position: new kakao.maps.LatLng(md.position.lat, md.position.lng),
-      content: node,
-      yAnchor: 1.08,
-      xAnchor: 0.5,
-    });
-    overlay.setMap(map);
-
-    return () => {
-      destroy();
-      overlay.setMap(null);
-    }
-  }
-
-  const cleanups: VoidFunction[] = [];
-
-  const position = new kakao.maps.LatLng(md.position.lat, md.position.lng);
-  const marker = new kakao.maps.Marker({
-    position,
-    image: getMarkerImage(md.variant, md.color, md.opacity, zoom, md.outlined),
-  });
-  marker.setMap(map);
-  cleanups.push(() => marker.setMap(null))
-
-
-  if (md.onClick) {
-    const onClick = md.onClick;
-    kakao.maps.event.addListener(marker, 'click', onClick);
-    cleanups.push(() => kakao.maps.event.removeListener(marker, 'click', onClick));
-  }
-  if (md.onContextMenu) {
-    const onContextMenu = md.onContextMenu;
-    kakao.maps.event.addListener(marker, 'rightclick', onContextMenu);
-    cleanups.push(() => kakao.maps.event.removeListener(marker, 'rightclick', onContextMenu));
-  }
-
-  if (md.label) {
-    const scale = getZoomScale(zoom);
-    const labelOverlay = new kakao.maps.CustomOverlay({
-      position,
-      content: createLabelContent(md.label, md.variant, md.color, md.opacity, zoom),
-      yAnchor: 1 + (36 * scale + 4) / 20,
-    });
-    labelOverlay.setMap(map);
-    cleanups.push(() => labelOverlay.setMap(null));
-  }
-
-  return () => cleanups.forEach(cleanup => cleanup())
-}
-
-export function renderClusterGroupEntry(cluster: Cluster, map: kakao.maps.Map, zoom: number, onClick: (cluster: Cluster) => void) {
+function renderClusterGroupEntry(cluster: Cluster, map: kakao.maps.Map, zoom: number, onClick: (cluster: Cluster) => void) {
    
   const handler = () => onClick?.(cluster);
   const content = document.createElement('div');
@@ -102,6 +43,28 @@ export function renderClusterGroupEntry(cluster: Cluster, map: kakao.maps.Map, z
   
 }
 
+
+function createClusterContent(count: number, level: number): string {
+  const scale = getZoomScale(level);
+  const size = Math.round(40 * scale);
+  const fontSize = Math.round(14 * scale);
+  return `
+    <div style="
+      width: ${size}px;
+      height: ${size}px;
+      background: #1976d2;
+      border: 3px solid white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: ${fontSize}px;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    ">${count}</div>
+  `;
+}
 
 export function createClusters(markers: MarkerData[], map: kakao.maps.Map, gridSize: number): Cluster[] {
   const projection = map.getProjection();
