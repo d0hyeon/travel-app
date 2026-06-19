@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
+import { createContext, Fragment, startTransition, useCallback, useContext, useEffect, useImperativeHandle, useRef, useState, type ReactElement, type ReactNode, type Ref } from 'react';
 
 export interface OverlayRenderProps {
   isOpen: boolean;
@@ -8,16 +8,16 @@ export interface OverlayRenderProps {
 type OverlayElement = (controller: OverlayRenderProps) => ReactNode
 
 interface OverlayContextValue {
-  mount: (id: string, element: OverlayElement) => void
+  mount: (id: string, element: ReactElement) => void
   unmount: (id: string) => void
 }
 
 const OverlayContext = createContext<OverlayContextValue | null>(null)
 
 export function OverlayProvider({ children }: { children: ReactNode }) {
-  const [overlays, setOverlays] = useState<Map<string, OverlayElement>>(new Map())
+  const [overlays, setOverlays] = useState<Map<string, ReactElement>>(new Map())
 
-  const mount = useCallback((id: string, element: OverlayElement) => {
+  const mount = useCallback((id: string, element: ReactElement) => {
     setOverlays((prev) => new Map(prev).set(id, element))
   }, [])
 
@@ -33,33 +33,42 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
     <OverlayContext.Provider value={{ mount, unmount }}>
       {children}
       {Array.from(overlays.entries()).map(([id, element]) => (
-        <OverlayItem key={id} id={id} element={element} onClose={() => unmount(id)} />
+        <Fragment key={id}>{element}</Fragment>
       ))}
     </OverlayContext.Provider>
   )
 }
 
 
+type OverlayItemRef = {
+  close: () => void;
+}
 function OverlayItem({
-  id: _id,
   element,
   onClose,
+  ref
 }: {
-  id: string
   element: OverlayElement
   onClose: () => void
+  ref?: Ref<OverlayItemRef>
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    setIsOpen(true);
+    startTransition(() => setIsOpen(true));
   }, [])
 
   const close = useCallback(() => {
-    setIsOpen(false);
-    // 애니메이션 후 unmount
-    setTimeout(onClose, 300)
-  }, [onClose])
+    if (isOpen) {
+      setIsOpen(false);
+      // 애니메이션 후 unmount
+      setTimeout(onClose, 300)
+    }
+  }, [isOpen])
+
+  useImperativeHandle<OverlayItemRef, OverlayItemRef>(ref, () => ({
+    close
+  }), [close])
 
   return <>{element({ isOpen, close })}</>
 }
@@ -79,20 +88,23 @@ export function useOverlay() {
   const { mount, unmount } = context;
 
   const idRef = useRef<number | null>(null);
+  const ref = useRef<OverlayItemRef>(null);
 
   const open = useCallback(
     (element: OverlayElement) => {
       const id = getId();
       idRef.current = id;
-      mount(id.toString(), element);
-      return () => unmount(id.toString())
+      const overlayElement = <OverlayItem ref={ref} element={element} onClose={() => unmount(id.toString())} />
+      mount(id.toString(), overlayElement);
+
+      return () => ref.current?.close()
     },
     [id, mount, unmount]
   )
 
   const close = useCallback(() => {
-    if (idRef.current) unmount(idRef.current.toString());
-  }, [id, unmount])
+    ref.current?.close()
+  }, [])
 
   return { open, close }
 }
