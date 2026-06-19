@@ -7,6 +7,7 @@ import { KakaoMapClusterOverlays } from './cluster/KakaoMapClusterOverlays';
 import { useBoundsChangeListener, useViewportFit } from './KakaoMap.hooks';
 import { loadKakaoMap } from './loader';
 import { useMapZoomLevel } from './useMapZoomLevel';
+import { useVariation } from '~shared/hooks/extends/useVariation';
 
 
 const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 }
@@ -25,19 +26,20 @@ export default function KakaoMap({
   ...boxProps
 }: Props) {
   use(loadKakaoMap());
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [map, setMap] = useState<kakao.maps.Map | null>(null);
+  const [container, setContainer] = useState<HTMLDivElement | null>(null);
+  const [getMap, setMap] = useVariation<kakao.maps.Map | null>(null);
+  const map = getMap();
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!container) return;
     const coordinate = center ?? defaultCenter;
-    const mapInstance = new kakao.maps.Map(containerRef.current, {
+    const mapInstance = new kakao.maps.Map(container, {
       center: new kakao.maps.LatLng(coordinate.lat, coordinate.lng),
       level: 8,
     });
 
     setMap(mapInstance);
-  }, []);
+  }, [container]);
 
   useEffect(() => {
     if (map != null && center != null) {
@@ -67,7 +69,7 @@ export default function KakaoMap({
 
   return (
     <KakaoMapContext.Provider value={mapContextValue}>
-      <Box ref={containerRef} position="relative" {...boxProps} />
+      <Box ref={setContainer} position="relative" {...boxProps} />
       <Suspense>
         <ClusterProvider>
           <Renderer>{children}</Renderer>

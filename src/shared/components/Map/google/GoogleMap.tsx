@@ -7,6 +7,7 @@ import { GoogleMapClusterOverlays } from './cluster/GoogleMapClusterOverlays';
 import { loadGoogleMaps } from './loader';
 import { useMapZoomLevel } from './useMapZoomLevel';
 import { useBoundsChangeListener, useViewportFit } from './GoogleMap.hooks';
+import { useVariation } from '~shared/hooks/extends/useVariation';
 
 const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 };
 const ZOOM_MAX_LEVEL = 22;
@@ -53,20 +54,21 @@ export default function GoogleMap({
   ...boxProps
 }: Props) {
   use(loadGoogleMaps());
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [container, setContainer] = useState<HTMLDivElement | null>(null);
+  const [getMap, setMap] = useVariation<google.maps.Map | null>(null);
+  const map = getMap();
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!container) return;
     setMap(
-      new google.maps.Map(containerRef.current, {
+      new google.maps.Map(container, {
         center: center ?? defaultCenter,
         zoom: 10,
         disableDefaultUI: true,
         styles: PASTEL_MAP_STYLES,
       })
     )
-  }, []);
+  }, [container]);
 
   useEffect(() => {
     if (center != null) map?.setCenter(center);
@@ -97,7 +99,7 @@ export default function GoogleMap({
 
   return (
     <GoogleMapContext.Provider value={mapContextValue}>
-      <Box ref={containerRef} position="relative" {...boxProps} />
+      <Box ref={setContainer} position="relative" {...boxProps} />
       <Suspense>
         <ClusterProvider>
           <Resolved>{children}</Resolved>
