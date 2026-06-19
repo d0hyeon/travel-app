@@ -5,6 +5,7 @@
 import { useCallback, useEffect, useId, useMemo, type ReactNode } from "react";
 import { Link, useLocation, useNavigate, type LinkProps } from "react-router";
 import { useOverlay, type OverlayRenderProps as OverlayProps } from "../useOverlay";
+import { useCurrentValue } from "./useCurrentValue";
 import { usePreservedCallback } from "./usePreservedCallback";
 
 
@@ -21,21 +22,26 @@ export function useRouteOverlay<Data = never>(
   const { routeOverlayIds = [], data } = state ?? {};
 
   const isOpen = routeOverlayIds.includes(id);
+  const getIsOpen = useCurrentValue(isOpen)
+
   const overlay = useOverlay();
+  const navigate = useNavigate();
 
   const renderElement = usePreservedCallback(renderer);
   useEffect(() => {
-    if (routeOverlayIds.includes(id)) {
-      overlay.open(({ close, ...props }) => renderElement({
+    if (isOpen) {
+      overlay.open((props) => renderElement({
         ...props,
-        close: () => navigate(-1),
+        close: () => {
+          if (getIsOpen()) navigate(-1)
+        },
         data
       }))
       return () => overlay.close()
     }
   }, [isOpen]);
 
-  const navigate = useNavigate();
+
   const getPath = usePreservedCallback(
     (data: Data) => path instanceof Function ? path(data) : path
   );
