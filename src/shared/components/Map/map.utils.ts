@@ -1,4 +1,4 @@
-import type { MapBounds, MarkerColor, MarkerProps } from './types';
+import type { Coordinate, MapBounds, MarkerColor, MarkerProps } from './types';
 
 const SEMANTIC_COLORS: Record<string, string> = {
   default: '#ef5350',
@@ -23,4 +23,8 @@ export function isInMapBounds(lat: number, lng: number, bounds: MapBounds): bool
     lng >= bounds.west - lngPad &&
     lng <= bounds.east + lngPad
   );
+}
+
+export function serializeCoordinates(value: Coordinate[]) {
+  return value.map(coor => `${coor.lat}:${coor.lng}`).join(',');
 }
