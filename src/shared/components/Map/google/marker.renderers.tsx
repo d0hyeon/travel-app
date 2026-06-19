@@ -48,12 +48,12 @@ function renderDefaultMarker(md: MarkerRenderData, map: google.maps.Map): VoidFu
   cleanups.push(() => marker.setMap(null));
 
   if (md.onClick) {
-    const { remove } = marker.addListener('click', md.onClick);
-    cleanups.push(remove);
+    const listener = marker.addListener('click', md.onClick);
+    cleanups.push(() => listener.remove());
   }
   if (md.onContextMenu) {
-    const { remove } = marker.addListener('rightclick', md.onContextMenu);
-    cleanups.push(remove);
+    const listener = marker.addListener('rightclick', md.onContextMenu);
+    cleanups.push(() => listener.remove());
   }
 
   if (md.label) {
