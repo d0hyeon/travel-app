@@ -1,6 +1,5 @@
 import { Box, type BoxProps } from '@mui/material';
 import { Suspense, use, useEffect, useImperativeHandle, useMemo, useState } from 'react';
-import { useVariation } from '~shared/hooks/extends/useVariation';
 import { KakaoMapContext } from '../MapContext';
 import type { MapProps } from '../types';
 import { ClusterProvider } from '../useClusterRegistry';
@@ -27,8 +26,7 @@ export default function KakaoMap({
 }: Props) {
   use(loadKakaoMap());
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
-  const [getMap, setMap] = useVariation<kakao.maps.Map | null>(null);
-  const map = getMap();
+  const [map, setMap] = useState<kakao.maps.Map | null>(null);
 
   useEffect(() => {
     if (!container) return;
