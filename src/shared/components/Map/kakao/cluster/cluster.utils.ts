@@ -2,12 +2,12 @@
 // ── 내부 타입 ──────────────────────────────────────────
 
 import type { MarkerData } from "../../types";
-import { createClusterContent, createLabelContent, createThumbnailContent, getMarkerImage, getZoomScale } from "../kakaoMap.utils";
+import { createClusterContent, createLabelContent, createThumbnailMarkerNode, getMarkerImage, getZoomScale } from "../kakaoMap.utils";
 
 export interface ClusterEntry {
   overlays: kakao.maps.CustomOverlay[];
   markers: kakao.maps.Marker[];
-  domHandlers: Array<{ el: HTMLElement; type: string; handler: EventListener }>;
+  cleanups: Array<() => void>;
 }
 
 // ── 렌더링 ─────────────────────────────────────────────
@@ -18,23 +18,19 @@ export function buildEntry(cluster: Cluster, map: kakao.maps.Map, zoom: number, 
 }
 
 export function buildSingleMarkerEntry(md: MarkerData, map: kakao.maps.Map, zoom: number): ClusterEntry {
-  const entry: ClusterEntry = { overlays: [], markers: [], domHandlers: [] };
+  const entry: ClusterEntry = { overlays: [], markers: [], cleanups: [] };
 
   if (md.thumbnailUrl) {
-    const el = document.createElement('div');
-    el.innerHTML = createThumbnailContent(md.thumbnailUrl, md.color);
-    el.style.cursor = 'pointer';
-    if (md.onClick) {
-      el.addEventListener('click', md.onClick);
-      entry.domHandlers.push({ el, type: 'click', handler: md.onClick });
-    }
-    if (md.onContextMenu) {
-      el.addEventListener('contextmenu', md.onContextMenu);
-      entry.domHandlers.push({ el, type: 'contextmenu', handler: md.onContextMenu });
-    }
+    const { node, destroy } = createThumbnailMarkerNode({
+      thumbnailUrl: md.thumbnailUrl,
+      color: md.color,
+      onClick: md.onClick,
+      onContextMenu: md.onContextMenu,
+    });
+    entry.cleanups.push(destroy);
     const overlay = new kakao.maps.CustomOverlay({
       position: new kakao.maps.LatLng(md.position.lat, md.position.lng),
-      content: el,
+      content: node,
       yAnchor: 1.08,
       xAnchor: 0.5,
     });
@@ -51,8 +47,16 @@ export function buildSingleMarkerEntry(md: MarkerData, map: kakao.maps.Map, zoom
   marker.setMap(map);
   entry.markers.push(marker);
 
-  if (md.onClick) kakao.maps.event.addListener(marker, 'click', md.onClick);
-  if (md.onContextMenu) kakao.maps.event.addListener(marker, 'rightclick', md.onContextMenu);
+  if (md.onClick) {
+    const onClick = md.onClick;
+    kakao.maps.event.addListener(marker, 'click', onClick);
+    entry.cleanups.push(() => kakao.maps.event.removeListener(marker, 'click', onClick));
+  }
+  if (md.onContextMenu) {
+    const onContextMenu = md.onContextMenu;
+    kakao.maps.event.addListener(marker, 'rightclick', onContextMenu);
+    entry.cleanups.push(() => kakao.maps.event.removeListener(marker, 'rightclick', onContextMenu));
+  }
 
   if (md.label) {
     const scale = getZoomScale(zoom);
@@ -69,13 +73,13 @@ export function buildSingleMarkerEntry(md: MarkerData, map: kakao.maps.Map, zoom
 }
 
 export function buildClusterGroupEntry(cluster: Cluster, map: kakao.maps.Map, zoom: number, onClusterClick: () => void): ClusterEntry {
-  const entry: ClusterEntry = { overlays: [], markers: [], domHandlers: [] };
+  const entry: ClusterEntry = { overlays: [], markers: [], cleanups: [] };
 
   const content = document.createElement('div');
   content.innerHTML = createClusterContent(cluster.markers.length, zoom);
   content.style.cursor = 'pointer';
   content.addEventListener('click', onClusterClick);
-  entry.domHandlers.push({ el: content, type: 'click', handler: onClusterClick });
+  entry.cleanups.push(() => content.removeEventListener('click', onClusterClick));
 
   const overlay = new kakao.maps.CustomOverlay({
     position: cluster.center,
@@ -90,13 +94,9 @@ export function buildClusterGroupEntry(cluster: Cluster, map: kakao.maps.Map, zo
 }
 
 export function destroyEntry(entry: ClusterEntry) {
-  entry.domHandlers.forEach(({ el, type, handler }) => el.removeEventListener(type, handler));
+  entry.cleanups.forEach(cleanup => cleanup());
   entry.overlays.forEach(o => o.setMap(null));
-  entry.markers.forEach(m => {
-    kakao.maps.event.removeListener(m, 'click', () => { });
-    kakao.maps.event.removeListener(m, 'rightclick', () => { });
-    m.setMap(null);
-  });
+  entry.markers.forEach(m => m.setMap(null));
 }
 
 interface Cluster {

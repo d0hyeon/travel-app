@@ -2,7 +2,7 @@ import { useEffect, useEffectEvent, useMemo } from "react";
 import type { MarkerProps } from "../types";
 import { GoogleMapContext, useMapContext } from "../MapContext";
 import { resolveMarkerColor } from "../map.utils";
-import { createMarkerSvg, createThumbnailContent } from "./GoogleMap.utils";
+import { createMarkerSvg, createThumbnailMarkerNode } from "./GoogleMap.utils";
 import { useRegisterClusterMarker } from "../useClusterRegistry";
 
 export default function GoogleMapMarker(props: MarkerProps) {
@@ -43,10 +43,11 @@ function ThumbnailMarker({ lat, lng, label, tooltip, variant, color, thumbnailUr
   useEffect(() => {
     if (config.autoFocus === 'marker') extendBound({ lat, lng });
 
-    const el = document.createElement('div');
-    el.innerHTML = createThumbnailContent(thumbnailUrl!, markerColor);
-    el.style.cssText = 'position:absolute; transform:translate(-50%, -100%); cursor:pointer;';
-    el.addEventListener('click', handleClick);
+    const { node, destroy } = createThumbnailMarkerNode({
+      thumbnailUrl: thumbnailUrl!,
+      color: markerColor,
+      onClick: handleClick,
+    });
 
     let tooltipEl: HTMLDivElement | null = null;
     if (tooltip) {
@@ -54,18 +55,18 @@ function ThumbnailMarker({ lat, lng, label, tooltip, variant, color, thumbnailUr
       tooltipEl = document.createElement('div');
       tooltipEl.style.cssText = 'position:absolute; bottom:calc(100% + 28px); left:50%; transform:translateX(-50%); background:white; color:#333; padding:6px 10px; border-radius:8px; font-size:12px; box-shadow:0 2px 8px rgba(0,0,0,0.15); white-space:nowrap; pointer-events:none; display:none;';
       tooltipEl.innerHTML = lines.map(l => `<div>${l}</div>`).join('');
-      el.appendChild(tooltipEl);
-      el.addEventListener('mouseenter', () => { if (tooltipEl) tooltipEl.style.display = 'block'; });
-      el.addEventListener('mouseleave', () => { if (tooltipEl) tooltipEl.style.display = 'none'; });
+      node.appendChild(tooltipEl);
+      node.addEventListener('mouseenter', () => { if (tooltipEl) tooltipEl.style.display = 'block'; });
+      node.addEventListener('mouseleave', () => { if (tooltipEl) tooltipEl.style.display = 'none'; });
     }
 
     class ThumbnailOverlay extends google.maps.OverlayView {
-      onAdd() { this.getPanes()?.overlayMouseTarget.appendChild(el); }
+      onAdd() { this.getPanes()?.overlayMouseTarget.appendChild(node); }
       draw() {
         const pos = this.getProjection().fromLatLngToDivPixel(new google.maps.LatLng(lat, lng));
-        if (pos) { el.style.left = `${pos.x}px`; el.style.top = `${pos.y - 8}px`; }
+        if (pos) { node.style.left = `${pos.x}px`; node.style.top = `${pos.y - 8}px`; }
       }
-      onRemove() { el.parentNode?.removeChild(el); }
+      onRemove() { node.parentNode?.removeChild(node); }
     }
 
     const overlay = new ThumbnailOverlay();
@@ -74,7 +75,7 @@ function ThumbnailMarker({ lat, lng, label, tooltip, variant, color, thumbnailUr
     const cleanupLabel = label ? mountLabelOverlay({ map, lat, lng, label, markerColor, offsetPx: 56 }) : null;
 
     return () => {
-      el.removeEventListener('click', handleClick);
+      destroy();
       overlay.setMap(null);
       cleanupLabel?.();
     };

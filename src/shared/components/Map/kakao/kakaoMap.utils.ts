@@ -182,3 +182,39 @@ export function getMarkerImage(
     { offset: new kakao.maps.Point(10 * scale, 30 * scale) }
   );
 }
+
+// ── DOM 조립 (인터랙티브 노드) ──────────────────────────
+
+export interface MarkerElement {
+  node: HTMLElement;
+  destroy: () => void;
+}
+
+interface ThumbnailMarkerNodeParams {
+  thumbnailUrl: string;
+  color?: MarkerColor;
+  onClick?: () => void;
+  onContextMenu?: () => void;
+}
+
+/**
+ * 썸네일 콘텐츠를 클릭/컨텍스트메뉴가 바인딩된 DOM 노드로 만들고 정리 핸들을 반환한다.
+ * overlay 마운트(CustomOverlay)는 호출부의 책임이다.
+ */
+export function createThumbnailMarkerNode({ thumbnailUrl, color, onClick, onContextMenu }: ThumbnailMarkerNodeParams): MarkerElement {
+  const node = document.createElement('div');
+  node.innerHTML = createThumbnailContent(thumbnailUrl, color);
+  node.style.cursor = 'pointer';
+
+  const cleanups: Array<() => void> = [];
+  if (onClick) {
+    node.addEventListener('click', onClick);
+    cleanups.push(() => node.removeEventListener('click', onClick));
+  }
+  if (onContextMenu) {
+    node.addEventListener('contextmenu', onContextMenu);
+    cleanups.push(() => node.removeEventListener('contextmenu', onContextMenu));
+  }
+
+  return { node, destroy: () => cleanups.forEach(cleanup => cleanup()) };
+}

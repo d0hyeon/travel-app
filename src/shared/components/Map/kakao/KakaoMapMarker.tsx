@@ -3,7 +3,7 @@ import { assert } from "~shared/utils/types";
 import { KakaoMapContext, useMapContext } from "../MapContext";
 import type { MarkerProps } from "../types";
 import { useRegisterClusterMarker } from "../useClusterRegistry";
-import { createLabelContent, getMarkerImage, getZoomScale, resolveMarkerColor } from "./kakaoMap.utils";
+import { createLabelContent, createThumbnailMarkerNode, getMarkerImage, getZoomScale } from "./kakaoMap.utils";
 
 
 export default function KakaoMapMarker(props: MarkerProps) {
@@ -38,28 +38,27 @@ function ThumbnailMarker({ lat, lng, label, tooltip, variant, color, thumbnailUr
   assert(!!thumbnailUrl, 'ThumbnailMarker requires thumbnailUrl');
 
   useEffect(() => {
-    const el = document.createElement('div');
-    el.innerHTML = createThumbnailContent(thumbnailUrl, color);
-    el.style.cursor = 'pointer';
-    el.addEventListener('click', () => onClick({ lat, lng, label, variant }));
-    if (onContextMenu) {
-      el.addEventListener('contextmenu', () => onContextMenu({ lat, lng, label, variant }));
-    }
+    const { node, destroy } = createThumbnailMarkerNode({
+      thumbnailUrl,
+      color,
+      onClick: () => onClick({ lat, lng, label, variant }),
+      onContextMenu: onContextMenu ? () => onContextMenu({ lat, lng, label, variant }) : undefined,
+    });
 
     if (tooltip) {
       const lines = Array.isArray(tooltip) ? tooltip : [tooltip];
       const tooltipEl = document.createElement('div');
       tooltipEl.style.cssText = 'position:absolute; bottom:calc(100% + 28px); left:50%; transform:translateX(-50%); background:white; color:#333; padding:6px 10px; border-radius:8px; font-size:12px; box-shadow:0 2px 8px rgba(0,0,0,0.15); white-space:nowrap; pointer-events:none; display:none;';
       tooltipEl.innerHTML = lines.map(l => `<div>${l}</div>`).join('');
-      el.style.position = 'relative';
-      el.appendChild(tooltipEl);
-      el.addEventListener('mouseenter', () => { tooltipEl.style.display = 'block'; });
-      el.addEventListener('mouseleave', () => { tooltipEl.style.display = 'none'; });
+      node.style.position = 'relative';
+      node.appendChild(tooltipEl);
+      node.addEventListener('mouseenter', () => { tooltipEl.style.display = 'block'; });
+      node.addEventListener('mouseleave', () => { tooltipEl.style.display = 'none'; });
     }
 
     const overlay = new kakao.maps.CustomOverlay({
       position,
-      content: el,
+      content: node,
       yAnchor: 1.08,
       xAnchor: 0.5,
     });
@@ -78,6 +77,7 @@ function ThumbnailMarker({ lat, lng, label, tooltip, variant, color, thumbnailUr
     }
 
     return () => {
+      destroy();
       overlay.setMap(null);
       labelOverlay?.setMap(null);
     };
@@ -219,32 +219,3 @@ function createTooltipContent(tooltip: string | string[], level: number = 8): st
   `
 }
 
-function createThumbnailContent(thumbnailUrl: string, color?: MarkerProps['color']): string {
-  const borderColor = resolveMarkerColor(color);
-  return `
-    <div style="
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      filter: drop-shadow(0 3px 8px rgba(0,0,0,0.25));
-    ">
-      <div style="
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        border: 3px solid ${borderColor};
-        overflow: hidden;
-        background: #eee;
-      ">
-        <img src="${thumbnailUrl}" style="width:100%;height:100%;object-fit:cover;" />
-      </div>
-      <div style="
-        width: 0; height: 0;
-        border-left: 5px solid transparent;
-        border-right: 5px solid transparent;
-        border-top: 6px solid ${borderColor};
-        margin-top: -1px;
-      "></div>
-    </div>
-  `
-}

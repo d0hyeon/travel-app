@@ -1,10 +1,10 @@
-import { createThumbnailContent } from '../GoogleMap.utils';
 import type { Coordinate, MarkerData } from '../../types';
+import { createThumbnailMarkerNode } from '../GoogleMap.utils';
 
 export interface ClusterEntry {
   overlays: google.maps.OverlayView[];
   markers: google.maps.Marker[];
-  domHandlers: Array<{ el: HTMLElement; type: string; handler: EventListener }>;
+  cleanups: Array<() => void>;
 }
 
 export interface Cluster {
@@ -14,7 +14,7 @@ export interface Cluster {
 }
 
 export function destroyEntry(entry: ClusterEntry) {
-  entry.domHandlers.forEach(({ el, type, handler }) => el.removeEventListener(type, handler));
+  entry.cleanups.forEach(cleanup => cleanup());
   entry.overlays.forEach(o => o.setMap(null));
   entry.markers.forEach(m => m.setMap(null));
 }
@@ -25,27 +25,23 @@ export function buildEntry(cluster: Cluster, map: google.maps.Map, onClusterClic
 }
 
 function buildSingleMarkerEntry(md: MarkerData, map: google.maps.Map): ClusterEntry {
-  const entry: ClusterEntry = { overlays: [], markers: [], domHandlers: [] };
+  const entry: ClusterEntry = { overlays: [], markers: [], cleanups: [] };
 
   if (md.thumbnailUrl) {
-    const el = document.createElement('div');
-    el.innerHTML = createThumbnailContent(md.thumbnailUrl, md.color ?? '#ef5350');
-    el.style.cssText = 'position:absolute; transform:translate(-50%, -100%); cursor:pointer;';
-    if (md.onClick) {
-      el.addEventListener('click', md.onClick);
-      entry.domHandlers.push({ el, type: 'click', handler: md.onClick });
-    }
-    if (md.onContextMenu) {
-      el.addEventListener('contextmenu', md.onContextMenu);
-      entry.domHandlers.push({ el, type: 'contextmenu', handler: md.onContextMenu });
-    }
+    const { node, destroy } = createThumbnailMarkerNode({
+      thumbnailUrl: md.thumbnailUrl,
+      color: md.color ?? '#ef5350',
+      onClick: md.onClick,
+      onContextMenu: md.onContextMenu,
+    });
+    entry.cleanups.push(destroy);
     class TOverlay extends google.maps.OverlayView {
-      onAdd() { this.getPanes()?.overlayMouseTarget.appendChild(el); }
+      onAdd() { this.getPanes()?.overlayMouseTarget.appendChild(node); }
       draw() {
         const pos = this.getProjection().fromLatLngToDivPixel(new google.maps.LatLng(md.position.lat, md.position.lng));
-        if (pos) { el.style.left = `${pos.x}px`; el.style.top = `${pos.y - 8}px`; }
+        if (pos) { node.style.left = `${pos.x}px`; node.style.top = `${pos.y - 8}px`; }
       }
-      onRemove() { el.parentNode?.removeChild(el); }
+      onRemove() { node.parentNode?.removeChild(node); }
     }
     const overlay = new TOverlay();
     overlay.setMap(map);
@@ -101,7 +97,7 @@ function buildSingleMarkerEntry(md: MarkerData, map: google.maps.Map): ClusterEn
 }
 
 function buildClusterGroupEntry(cluster: Cluster, map: google.maps.Map, onClusterClick: () => void): ClusterEntry {
-  const entry: ClusterEntry = { overlays: [], markers: [], domHandlers: [] };
+  const entry: ClusterEntry = { overlays: [], markers: [], cleanups: [] };
 
   const el = document.createElement('div');
   el.innerHTML = `<div style="width:38px;height:38px;background:white;border:2px solid #bdbdbd;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#555;font-size:13px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.15);cursor:pointer;">${cluster.markers.length}</div>`;
@@ -112,7 +108,7 @@ function buildClusterGroupEntry(cluster: Cluster, map: google.maps.Map, onCluste
     onClusterClick();
   };
   el.addEventListener('click', clickHandler);
-  entry.domHandlers.push({ el, type: 'click', handler: clickHandler });
+  entry.cleanups.push(() => el.removeEventListener('click', clickHandler));
 
   class COverlay extends google.maps.OverlayView {
     onAdd() { this.getPanes()?.overlayMouseTarget.appendChild(el); }
