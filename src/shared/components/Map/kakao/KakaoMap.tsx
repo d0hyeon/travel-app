@@ -1,5 +1,6 @@
 import { Box, type BoxProps } from '@mui/material';
-import { Suspense, use, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { Suspense, use, useEffect, useImperativeHandle, useMemo, useState } from 'react';
+import { useVariation } from '~shared/hooks/extends/useVariation';
 import { KakaoMapContext } from '../MapContext';
 import type { MapProps } from '../types';
 import { ClusterProvider } from '../useClusterRegistry';
@@ -7,7 +8,6 @@ import { KakaoMapClusterOverlays } from './cluster/KakaoMapClusterOverlays';
 import { useBoundsChangeListener, useViewportFit } from './KakaoMap.hooks';
 import { loadKakaoMap } from './loader';
 import { useMapZoomLevel } from './useMapZoomLevel';
-import { useVariation } from '~shared/hooks/extends/useVariation';
 
 
 const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 }

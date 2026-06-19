@@ -140,8 +140,9 @@ export function createClusters(
     if (nearby.length >= 2) {
       const centerLat = nearby.reduce((s, m) => s + m.position.lat, 0) / nearby.length;
       const centerLng = nearby.reduce((s, m) => s + m.position.lng, 0) / nearby.length;
+      const stableId = nearby.map(m => m.id).toSorted().join(',');
       clusters.push({
-        id: `cluster_${marker.id}`,
+        id: `cluster_${stableId}`,
         center: new kakao.maps.LatLng(centerLat, centerLng),
         markers: nearby,
       });

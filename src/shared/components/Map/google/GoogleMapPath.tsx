@@ -1,4 +1,4 @@
-import { use, useEffect } from "react";
+import { useEffect } from "react";
 import { GoogleMapContext, useMapContext } from "../MapContext";
 import type { PathProps } from "../types";
 
