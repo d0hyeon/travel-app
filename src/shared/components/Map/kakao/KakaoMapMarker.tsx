@@ -2,31 +2,33 @@ import { useEffect, useEffectEvent, useMemo, useState } from "react";
 import { assert } from "~shared/utils/types";
 import { KakaoMapContext, useMapContext } from "../MapContext";
 import type { MarkerProps } from "../types";
-import { useClusterRegistry } from "../useClusterRegistry";
+import { useRegisterClusterMarker } from "../useClusterRegistry";
 import { createLabelContent, getMarkerImage, getZoomScale, resolveMarkerColor } from "./kakaoMap.utils";
 
+
 export default function KakaoMapMarker(props: MarkerProps) {
-  const markerId = useMemo(() => `${props.lat}_${props.lng}`, [props.lat, props.lng]);
-  const handleMarkerClick = useEffectEvent(() => props.onClick?.(props));
-  const handleMarkerContextMenu = useEffectEvent(() => props.onContextMenu?.(props));
+  useRegisterClusterMarker({
+    ...props,
+    position: { lat: props.lat, lng: props.lng },
+    onClick: () => props.onClick?.(props),
+    onContextMenu: () => props.onContextMenu?.(props),
+  })
+  const { config, extendBound } = useMapContext(KakaoMapContext);
 
-  const { registerMarker, unregisterMarker } = useClusterRegistry();
   useEffect(() => {
-    registerMarker({
-      ...props,
-      id: markerId,
-      position: { lat: props.lat, lng: props.lng },
-      onClick: handleMarkerClick,
-      onContextMenu: handleMarkerContextMenu,
-    });
+    if (config.autoFocus === 'marker') {
+      extendBound(props);
+    }
+  }, [])
 
-    return () => unregisterMarker(markerId);
-  }, [markerId, props.lat, props.lng, props.label, props.variant, props.color, props.opacity, props.outlined, props.thumbnailUrl]);
+  if (config.clustering) {
+    return null;
+  }
 
-  const { config } = useMapContext(KakaoMapContext)
+  if (props.thumbnailUrl) {
+    return <ThumbnailMarker {...props} />;
+  }
 
-  if (config.clustering) return null;
-  if (props.thumbnailUrl) return <ThumbnailMarker {...props} />;
   return <Marker {...props} />;
 }
 

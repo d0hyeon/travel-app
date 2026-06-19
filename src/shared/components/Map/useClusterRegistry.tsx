@@ -1,18 +1,18 @@
-import { createContext, use, useCallback, useMemo, useRef, useState, type PropsWithChildren } from 'react';
+import { createContext, use, useCallback, useEffect, useMemo, useRef, useState, type PropsWithChildren } from 'react';
 import { useBatchedCallback } from '~shared/hooks/useBatchedCallback';
 import { assert } from '~shared/utils/types';
 import type { MarkerData } from './types';
 
 interface ClusterContextValue {
-  registryRef: React.RefObject<Map<string, MarkerData>>;
   version: number;
-  registerMarker: (data: MarkerData) => void;
+  getRegistry: () => Map<string, MarkerData>;
+  registerMarker: (data: Omit<MarkerData, 'id'>) => string;
   unregisterMarker: (id: string) => void;
 }
 
 const ClusterContext = createContext<ClusterContextValue | null>(null);
 
-export function useClusterRegistry() {
+function useClusterRegistry() {
   const context = use(ClusterContext);
   assert(!!context, 'context가 초기화되지 않았습니다.');
 
@@ -20,13 +20,23 @@ export function useClusterRegistry() {
   return { registerMarker, unregisterMarker };
 }
 
+export function useRegisterClusterMarker(props: Omit<MarkerData, 'id'>) {
+  const { registerMarker, unregisterMarker } = useClusterRegistry();
+
+  useEffect(() => {
+    const id = registerMarker(props);
+
+    return () => unregisterMarker(id);
+  }, Object.values(props))
+}
+
 export function useRegisteredMarker() {
   const context = use(ClusterContext);
   assert(!!context, 'context가 초기화되지 않았습니다.');
 
-  const { version, registryRef } = context;
+  const { version, getRegistry } = context;
   // version을 key로 삼아 Map 스냅샷을 반환 — Ref 참조 동일성 문제로 useMemo가 깨지지 않던 버그 수정
-  const snapshot = useMemo(() => new Map(registryRef.current), [version]);
+  const snapshot = useMemo(() => new Map(getRegistry()), [version]);
   return { version, data: snapshot };
 }
 
@@ -38,9 +48,12 @@ export function ClusterProvider({ children }: PropsWithChildren) {
     setVersion(curr => curr + 1);
   });
 
-  const registerMarker = useCallback((data: MarkerData) => {
-    registryRef.current.set(data.id, data);
+  const registerMarker = useCallback((data: Omit<MarkerData, 'id'>) => {
+    const id = Date.now().toString();
+    registryRef.current.set(id, { ...data, id });
     incrementVersion();
+
+    return id;
   }, []);
 
   const unregisterMarker = useCallback((id: string) => {
@@ -48,8 +61,10 @@ export function ClusterProvider({ children }: PropsWithChildren) {
     incrementVersion();
   }, []);
 
+  const getRegistry = useCallback(() => registryRef.current, [])
+
   const value = useMemo(() => (
-    { registryRef, version, registerMarker, unregisterMarker }
+    { version, getRegistry, registerMarker, unregisterMarker }
   ), [version]);
 
   return (
