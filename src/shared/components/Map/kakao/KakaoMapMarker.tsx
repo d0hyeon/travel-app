@@ -7,13 +7,15 @@ import { createLabelContent, createThumbnailMarkerNode, getMarkerImage, getZoomS
 
 
 export default function KakaoMapMarker(props: MarkerProps) {
+  const { config, extendBound } = useMapContext(KakaoMapContext);
+
   useRegisterClusterMarker({
     ...props,
     position: { lat: props.lat, lng: props.lng },
     onClick: () => props.onClick?.(props),
     onContextMenu: () => props.onContextMenu?.(props),
-  })
-  const { config, extendBound } = useMapContext(KakaoMapContext);
+  }, [config.clustering])
+
 
   useEffect(() => {
     if (config.autoFocus === 'marker') {

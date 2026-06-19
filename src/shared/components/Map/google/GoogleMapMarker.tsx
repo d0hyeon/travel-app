@@ -1,24 +1,21 @@
 import { useEffect, useEffectEvent, useMemo } from "react";
-import type { MarkerProps } from "../types";
 import { GoogleMapContext, useMapContext } from "../MapContext";
 import { resolveMarkerColor } from "../map.utils";
-import { createLabelNode, createMarkerSvg, createPositionedOverlay, createThumbnailMarkerNode, createTooltipNode } from "./GoogleMap.utils";
+import type { MarkerProps } from "../types";
 import { useRegisterClusterMarker } from "../useClusterRegistry";
+import { createLabelNode, createMarkerSvg, createPositionedOverlay, createThumbnailMarkerNode, createTooltipNode } from "./GoogleMap.utils";
 
 export default function GoogleMapMarker(props: MarkerProps) {
   const { config, extendBound } = useMapContext(GoogleMapContext);
-
   const markerColor = useMemo(() => resolveMarkerColor(props.color, props.variant), [props.color, props.variant]);
-  const handleClick = useEffectEvent(() => props.onClick?.({ lat: props.lat, lng: props.lng, label: props.label, variant: props.variant }));
-  const handleContextMenu = useEffectEvent(() => props.onContextMenu?.({ lat: props.lat, lng: props.lng, label: props.label, variant: props.variant }));
 
   useRegisterClusterMarker({
     ...props,
     position: { lat: props.lat, lng: props.lng },
     color: markerColor,
-    onClick: handleClick,
-    onContextMenu: handleContextMenu,
-  })
+    onClick: () => props.onClick?.(props),
+    onContextMenu: () => props.onContextMenu?.(props),
+  }, [config.clustering])
 
   useEffect(() => {
     if (config.autoFocus === 'marker') {

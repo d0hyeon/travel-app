@@ -1,4 +1,4 @@
-import { createContext, use, useCallback, useEffect, useMemo, useRef, useState, type PropsWithChildren } from 'react';
+import { createContext, use, useCallback, useEffect, useMemo, useRef, useState, type DependencyList, type PropsWithChildren } from 'react';
 import { useBatchedCallback } from '~shared/hooks/useBatchedCallback';
 import { assert } from '~shared/utils/types';
 import type { MarkerData } from './types';
@@ -20,14 +20,17 @@ function useClusterRegistry() {
   return { registerMarker, unregisterMarker };
 }
 
-export function useRegisterClusterMarker(props: Omit<MarkerData, 'id'>) {
+export function useRegisterClusterMarker(
+  props: Omit<MarkerData, 'id'>,
+  dependencies?: DependencyList
+) {
   const { registerMarker, unregisterMarker } = useClusterRegistry();
 
   useEffect(() => {
     const id = registerMarker(props);
 
     return () => unregisterMarker(id);
-  }, Object.values(props))
+  }, dependencies)
 }
 
 export function useRegisteredMarker() {
@@ -49,7 +52,7 @@ export function ClusterProvider({ children }: PropsWithChildren) {
   });
 
   const registerMarker = useCallback((data: Omit<MarkerData, 'id'>) => {
-    const id = Date.now().toString();
+    const id = `${data.position.lat}:${data.position.lng}`
     registryRef.current.set(id, { ...data, id });
     incrementVersion();
 
