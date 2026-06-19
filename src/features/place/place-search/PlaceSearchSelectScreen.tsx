@@ -7,8 +7,7 @@ import { Map, type Coordinate, type MapBounds, type MapRef } from "~shared/compo
 import { SplitView, } from "~shared/components/split-view/SplitView";
 import { calcDistance } from "~shared/utils/geo";
 import { usePlaceSearch, type PlaceResult } from "./usePlaceSearch";
-import { useVariation } from "~shared/hooks/extends/useVariation";
-import { usePrevValue } from "~shared/hooks/extends/usePrevValue";
+import { usePreservedValue } from "~shared/hooks/extends/usePreservedValue";
 
 const COLORS = ['#66BB6A', '#EB5757', '#5DADE2', '#7986CB']
 
@@ -62,8 +61,8 @@ export function PlaceSearchSelectScreen({
 
 
   const [mapBoundsCenter, setMapBoundsCenter] = useState<Coordinate | null>(null);
-  const lastSearchedCenter = usePrevValue(mapBoundsCenter);
-  const isFarLastSearch = mapBoundsCenter != null && isFarEnough(mapBoundsCenter, lastSearchedCenter);
+  const getLastSearchedCenter = usePreservedValue(mapBoundsCenter);
+  const isFarLastSearch = mapBoundsCenter != null && isFarEnough(mapBoundsCenter, getLastSearchedCenter());
 
   const [isPendingApply, startTransition] = useTransition();
 
