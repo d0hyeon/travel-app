@@ -1,6 +1,86 @@
 import type { Coordinate, MarkerData, MarkerProps } from '../types';
 
-// ── 콘텐츠 생성 (렌더링용 문자열) ───────────────────────
+
+type MarkerRenderData = Omit<MarkerData, 'id'>;
+
+/** 마커 데이터를 지도에 그리고 정리 함수를 반환한다. 썸네일/일반/라벨/툴팁 분기를 여기서 결정한다. */
+export function renderMarker(md: MarkerRenderData, map: google.maps.Map): VoidFunction {
+  if (md.thumbnailUrl) return renderThumbnailMarker(md, map);
+  return renderDefaultMarker(md, map);
+}
+
+
+
+function renderThumbnailMarker(md: MarkerRenderData, map: google.maps.Map): VoidFunction {
+  const { node, destroy } = createThumbnailMarkerNode({
+    thumbnailUrl: md.thumbnailUrl!,
+    color: md.color ?? '#ef5350',
+    onClick: md.onClick,
+    onContextMenu: md.onContextMenu,
+  });
+  const overlay = createPositionedOverlay({ node, position: md.position, pane: 'overlayMouseTarget', offsetY: -8 });
+  overlay.setMap(map);
+
+  return () => {
+    destroy();
+    overlay.setMap(null);
+  };
+}
+
+function renderDefaultMarker(md: MarkerRenderData, map: google.maps.Map): VoidFunction {
+  const cleanups: VoidFunction[] = [];
+
+  const markerColor = md.color ?? '#ef5350';
+  const markerOpacity = md.opacity ?? 1;
+  const isCircle = md.variant === 'circle';
+  const svg = createMarkerSvg(md.variant, markerColor, markerOpacity, md.outlined ?? false);
+
+  const tooltipText = Array.isArray(md.tooltip) ? md.tooltip.join('\n') : md.tooltip;
+  const marker = new google.maps.Marker({
+    position: { lat: md.position.lat, lng: md.position.lng },
+    map,
+    title: tooltipText,
+    icon: isCircle
+      ? { url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`, scaledSize: new google.maps.Size(20, 20), anchor: new google.maps.Point(8, 8) }
+      : { url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`, scaledSize: new google.maps.Size(24, 34), anchor: new google.maps.Point(12, 34) },
+    opacity: markerOpacity,
+  });
+  cleanups.push(() => marker.setMap(null));
+
+  if (md.onClick) {
+    const { remove } = marker.addListener('click', md.onClick);
+    cleanups.push(remove);
+  }
+  if (md.onContextMenu) {
+    const { remove } = marker.addListener('rightclick', md.onContextMenu);
+    cleanups.push(remove);
+  }
+
+  if (md.label) {
+    const labelNode = createLabelNode(md.label, markerColor, isCircle ? 20 : 38);
+    const labelOverlay = createPositionedOverlay({ node: labelNode, position: md.position, pane: 'overlayLayer' });
+    labelOverlay.setMap(map);
+    cleanups.push(() => labelOverlay.setMap(null));
+  }
+
+  if (md.tooltip != null) {
+    const tooltipNode = createTooltipNode(md.tooltip);
+    const overlay = createPositionedOverlay({ node: tooltipNode, position: md.position, pane: 'overlayLayer' });
+    overlay.setMap(map);
+    const show = () => { tooltipNode.style.display = 'block'; };
+    const hide = () => { tooltipNode.style.display = 'none'; };
+    const showL = marker.addListener('mouseover', show);
+    const hideL = marker.addListener('mouseout', hide);
+    cleanups.push(() => {
+      overlay.setMap(null);
+      showL.remove();
+      hideL.remove();
+    });
+  }
+
+  return () => cleanups.forEach(cleanup => cleanup());
+}
+
 
 function createThumbnailContent(thumbnailUrl: string, color: string): string {
   return `
@@ -107,84 +187,3 @@ export function createPositionedOverlay({ node, position, pane, offsetY = 0 }: P
   }
   return new PositionedOverlay();
 }
-
-// ── 마운트 (지도에 마커를 그리고 정리 함수 반환) ─────────
-
-type MarkerRenderData = Omit<MarkerData, 'id'>;
-
-/** 마커 데이터를 지도에 그리고 정리 함수를 반환한다. 썸네일/일반/라벨/툴팁 분기를 여기서 결정한다. */
-export function renderMarker(md: MarkerRenderData, map: google.maps.Map): VoidFunction {
-  if (md.thumbnailUrl) return renderThumbnailMarker(md, map);
-  return renderImageMarker(md, map);
-}
-
-function renderThumbnailMarker(md: MarkerRenderData, map: google.maps.Map): VoidFunction {
-  const { node, destroy } = createThumbnailMarkerNode({
-    thumbnailUrl: md.thumbnailUrl!,
-    color: md.color ?? '#ef5350',
-    onClick: md.onClick,
-    onContextMenu: md.onContextMenu,
-  });
-  const overlay = createPositionedOverlay({ node, position: md.position, pane: 'overlayMouseTarget', offsetY: -8 });
-  overlay.setMap(map);
-
-  return () => {
-    destroy();
-    overlay.setMap(null);
-  };
-}
-
-function renderImageMarker(md: MarkerRenderData, map: google.maps.Map): VoidFunction {
-  const cleanups: VoidFunction[] = [];
-
-  const markerColor = md.color ?? '#ef5350';
-  const markerOpacity = md.opacity ?? 1;
-  const isCircle = md.variant === 'circle';
-  const svg = createMarkerSvg(md.variant, markerColor, markerOpacity, md.outlined ?? false);
-
-  const tooltipText = Array.isArray(md.tooltip) ? md.tooltip.join('\n') : md.tooltip;
-  const marker = new google.maps.Marker({
-    position: { lat: md.position.lat, lng: md.position.lng },
-    map,
-    title: tooltipText,
-    icon: isCircle
-      ? { url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`, scaledSize: new google.maps.Size(20, 20), anchor: new google.maps.Point(8, 8) }
-      : { url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`, scaledSize: new google.maps.Size(24, 34), anchor: new google.maps.Point(12, 34) },
-    opacity: markerOpacity,
-  });
-  cleanups.push(() => marker.setMap(null));
-
-  if (md.onClick) {
-    const { remove } = marker.addListener('click', md.onClick);
-    cleanups.push(remove);
-  }
-  if (md.onContextMenu) {
-    const { remove } = marker.addListener('rightclick', md.onContextMenu);
-    cleanups.push(remove);
-  }
-
-  if (md.label) {
-    const labelNode = createLabelNode(md.label, markerColor, isCircle ? 20 : 38);
-    const labelOverlay = createPositionedOverlay({ node: labelNode, position: md.position, pane: 'overlayLayer' });
-    labelOverlay.setMap(map);
-    cleanups.push(() => labelOverlay.setMap(null));
-  }
-
-  if (md.tooltip != null) {
-    const tooltipNode = createTooltipNode(md.tooltip);
-    const overlay = createPositionedOverlay({ node: tooltipNode, position: md.position, pane: 'overlayLayer' });
-    overlay.setMap(map);
-    const show = () => { tooltipNode.style.display = 'block'; };
-    const hide = () => { tooltipNode.style.display = 'none'; };
-    const showL = marker.addListener('mouseover', show);
-    const hideL = marker.addListener('mouseout', hide);
-    cleanups.push(() => {
-      overlay.setMap(null);
-      showL.remove();
-      hideL.remove();
-    });
-  }
-
-  return () => cleanups.forEach(cleanup => cleanup());
-}
-
