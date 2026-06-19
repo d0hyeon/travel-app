@@ -9,9 +9,8 @@ import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterPa
 import { PlaceCard } from '../explorer-place-item/PlaceCard'
 import type { ExploredPlace } from '../explorer.api'
 import { buildExplorerDetailUrl } from '../explorer.utils'
-import { useExplorerPlaceOverlay } from '../useExplorerPlaceOverlay'
 import { useRecentHotPlaces } from './useRecentHotPlaces'
-import { useOverlayRoute, type OverlayRouteRenderProps } from '~shared/hooks/extends/useOverlayRoute'
+import { useRouteOverlay } from '~shared/hooks/extends/useRouteOverlay'
 import { PlaceFullScreenModal } from '~features/place/place-detail/PlaceFullScreenModal'
 import { PlaceSidePanel } from '~features/place/place-detail/PlaceSidePanel'
 
@@ -25,13 +24,14 @@ export function RecentHotSection() {
   const toDetailUrl = buildExplorerDetailUrl(AppRoute.장소_급상승, location, category)
 
   const isMobile = useIsMobile()
-  const { Link, back } = useOverlayRoute({
-    component: ({ state: placeId, isOpen }: OverlayRouteRenderProps<string>) => (
+  const { Link: PlaceOverlayLink } = useRouteOverlay(
+    (placeId: string) => generatePath(AppRoute.장소_상세, { placeId }),
+    ({ isOpen, close, data: placeId }) => (
       isMobile
-        ? <PlaceFullScreenModal placeId={placeId} onClose={back} isOpen={isOpen} />
-        : <PlaceSidePanel placeId={placeId} onClose={back} isOpen={isOpen} />
+        ? <PlaceFullScreenModal placeId={placeId} onClose={close} isOpen={isOpen} />
+        : <PlaceSidePanel placeId={placeId} onClose={close} isOpen={isOpen} />
     )
-  });
+  );
 
   const navigate = useNavigate()
   const [scrollContainer, setScrollContainer] = useState<HTMLDivElement | null>(null)
@@ -61,13 +61,9 @@ export function RecentHotSection() {
         <Stack ref={setScrollContainer} width="100%" direction="row" gap={isMobile ? 1 : 2} px={2} pb={0.5} overflow="auto" sx={{ '&::-webkit-scrollbar': { display: 'none' } }}>
           {topHotPlaces.map((place) => (
             <Box key={place.placeId} sx={{ width: isMobile ? 140 : 200, flexShrink: 0 }}>
-              <Link
-                key={place.placeId}
-                state={place.placeId}
-                to={generatePath(AppRoute.장소_상세, { placeId: place.placeId })}
-              >
+              <PlaceOverlayLink key={place.placeId} data={place.placeId}>
                 <PlaceCard place={{ ...place, countLabel: `${place.visitorCount}번 방문` }} />
-              </Link>
+              </PlaceOverlayLink>
             </Box>
           ))}
         </Stack>

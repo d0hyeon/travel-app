@@ -1,16 +1,14 @@
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { Box, Button, Skeleton, Stack, Typography } from '@mui/material'
 import { useMemo } from 'react'
-import { generatePath, useNavigate } from 'react-router'
+import { useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
-import { useExplorerPlaceOverlay } from '../useExplorerPlaceOverlay'
+import { useExplorerPlaceSidePannel } from '../useExplorerPlaceOverlay'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 import { PlaceListItem } from '../explorer-place-item/PlaceListItem'
 import { buildExplorerDetailUrl } from '../explorer.utils'
 import { useExploredPlaces } from './useExploredPlaces'
 import { SECTION_LIMIT, DESKTOP_SKELETON_CARDS, formatVisitorCount } from './topVisitedSection.constants'
-import { useOverlayRoute, type OverlayRouteRenderProps } from '~shared/hooks/extends/useOverlayRoute'
-import { PlaceSidePanel } from '~features/place/place-detail/PlaceSidePanel'
 
 export function TopVisitedSection() {
   const { location, category } = useExplorerFilterParams()
@@ -22,11 +20,7 @@ export function TopVisitedSection() {
     [places],
   )
   const toDetailUrl = buildExplorerDetailUrl(AppRoute.장소_최다방문순, location, category)
-  const { Link, back } = useOverlayRoute({
-    component: ({ state: placeId, isOpen }: OverlayRouteRenderProps<string>) => (
-      <PlaceSidePanel placeId={placeId} onClose={back} isOpen={isOpen} />
-    )
-  });
+  const { Trigger } = useExplorerPlaceSidePannel();
 
   return (
     <Box>
@@ -52,15 +46,11 @@ export function TopVisitedSection() {
 
       <Stack>
         {mostVisitedPlaces.map((place) => (
-          <Link
-            key={place.placeId}
-            state={place.placeId}
-            to={generatePath(AppRoute.장소_상세, { placeId: place.placeId })}
-          >
+          <Trigger key={place.placeId} placeId={place.placeId}>
             <PlaceListItem
               place={{ ...place, countLabel: formatVisitorCount(place.visitorCount) }}
             />
-          </Link>
+          </Trigger>
         ))}
       </Stack>
     </Box>

@@ -1,24 +1,20 @@
 import { Box, Container, Grid, Skeleton, Stack } from '@mui/material'
 import { Suspense, useRef, useState } from 'react'
 import { getCoordinateByLocation, type Location } from '~features/location'
-import { PlaceFullScreenModal } from '~features/place/place-detail/PlaceFullScreenModal'
 import type { PlaceCategoryType } from '~features/place/place.types'
 import { Extrude } from '~shared/components/animation/Extrude'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
 import { Map } from '~shared/components/Map'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
-import { useOverlayRoute, type OverlayRouteRenderProps } from '~shared/hooks/extends/useOverlayRoute'
 import { useScrollStatus } from '~shared/hooks/interaction/useScrollStatus'
 import { ExplorerFilters } from '../explorer-filters/ExplorerFilters.mobile'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 import { PlaceCard } from '../explorer-place-item/PlaceCard'
 import { ExplorerViewToggleButton, useExplorerViewMode } from '../explorer-view/ExplorerViewToggleButton'
 import { FilterNavigation } from '../explorer-view/FilterNavigation'
-import { useExplorerPlaceOverlay } from '../useExplorerPlaceOverlay'
+import { useExplorerPlaceModal } from '../useExplorerPlaceOverlay'
 import { useMostSavedPlaces } from './useMostSavedPlaces'
-import { generatePath } from 'react-router'
-import { AppRoute } from '~app/routes'
 
 export default function MostSavedPage() {
   const { location, category } = useExplorerFilterParams()
@@ -91,23 +87,15 @@ function MostSavedGrid({
 }) {
   const { data: places } = useMostSavedPlaces({ location, category })
 
-  const { Link, back } = useOverlayRoute({
-    component: ({ state: placeId, isOpen, }: OverlayRouteRenderProps<string>) => (
-      <PlaceFullScreenModal placeId={placeId} onClose={back} isOpen={isOpen} />
-    )
-  });
+  const { Trigger } = useExplorerPlaceModal();
 
   return (
     <Grid container spacing={1.5} columns={2}>
       {places.map((place) => (
         <Grid key={place.placeId} size={1}>
-          <Link
-            key={place.placeId}
-            state={place.placeId}
-            to={generatePath(AppRoute.장소_상세, { placeId: place.placeId })}
-          >
+          <Trigger key={place.placeId} placeId={place.placeId}>
             <PlaceCard place={{ ...place, countLabel: `${place.saveCount}번 저장됨` }} />
-          </Link>
+          </Trigger>
         </Grid>
       ))}
     </Grid>
@@ -122,11 +110,7 @@ function MostSavedMap({
   category?: PlaceCategoryType
 }) {
   const { data: places } = useMostSavedPlaces({ location, category })
-  const { navigate, back } = useOverlayRoute({
-    component: ({ state: placeId, isOpen, }: OverlayRouteRenderProps<string>) => (
-      <PlaceFullScreenModal placeId={placeId} onClose={back} isOpen={isOpen} />
-    )
-  });
+  const { open: openPlaceModal } = useExplorerPlaceModal();
 
   const center = location ? getCoordinateByLocation(location) : undefined
 
@@ -148,7 +132,7 @@ function MostSavedMap({
           label={place.name}
           color={place.saveCount >= 2 ? '#ff6b35' : '#1976d2'}
           thumbnailUrl={place.thumbnailUrl}
-          onClick={() => navigate(generatePath(AppRoute.장소_상세, { placeId: place.placeId }), place.placeId)}
+          onClick={() => openPlaceModal(place.placeId)}
         />
       ))}
     </Map>

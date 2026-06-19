@@ -1,28 +1,35 @@
-import { useCallback, useEffect } from "react"
+import type { ReactNode } from "react"
+import { generatePath } from "react-router"
+import { AppRoute } from "~app/routes"
 import { PlaceFullScreenModal } from "~features/place/place-detail/PlaceFullScreenModal"
 import { PlaceSidePanel } from "~features/place/place-detail/PlaceSidePanel"
-import { useOverlay } from "~shared/hooks/useOverlay"
+import { useRouteOverlay } from "~shared/hooks/extends/useRouteOverlay"
 
-type PlaceRef = { placeId: string; name: string }
+interface TriggerProps {
+  placeId: string;
+  children?: ReactNode;
+}
 
-export function useExplorerPlaceOverlay() {
-  const overlay = useOverlay();
+export function useExplorerPlaceModal() {
+  const { Link, ...overlay } = useRouteOverlay(
+    (placeId: string) => generatePath(AppRoute.장소_상세, { placeId }),
+    ({ isOpen, close, data: placeId }) => <PlaceFullScreenModal isOpen={isOpen} placeId={placeId} onClose={close} />
+  )
 
-  const openFullScreen = useCallback((place: PlaceRef) => {
-    overlay.open(({ isOpen, close }) => (
-      <PlaceFullScreenModal isOpen={isOpen} placeId={place.placeId} onClose={close} />
-    ))
-  }, [])
+  return {
+    Trigger: ({ placeId, children }: TriggerProps) => <Link data={placeId}>{children}</Link>,
+    ...overlay
+  }
+}
 
-  const openSideSheet = useCallback((place: PlaceRef) => {
-    overlay.open(({ isOpen, close }) => (
-      <PlaceSidePanel isOpen={isOpen} placeId={place.placeId} onClose={close} />
-    ))
-  }, [])
+export function useExplorerPlaceSidePannel() {
+  const { Link, ...overlay } = useRouteOverlay(
+    (placeId: string) => generatePath(AppRoute.장소_상세, { placeId }),
+    ({ isOpen, close, data: placeId }) => <PlaceSidePanel isOpen={isOpen} placeId={placeId} onClose={close} />
+  )
 
-  useEffect(() => {
-    return () => overlay.close();
-  }, [])
-
-  return { openFullScreen, openSideSheet }
+  return {
+    Trigger: ({ placeId, children }: TriggerProps) => <Link data={placeId}>{children}</Link>,
+    ...overlay
+  }
 }

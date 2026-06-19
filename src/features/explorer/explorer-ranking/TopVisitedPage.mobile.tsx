@@ -8,7 +8,7 @@ import { Map } from '~shared/components/Map'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useScrollStatus } from '~shared/hooks/interaction/useScrollStatus'
-import { useExplorerPlaceOverlay } from '../useExplorerPlaceOverlay'
+import { useExplorerPlaceModal, useExplorerPlaceSidePannel } from '../useExplorerPlaceOverlay'
 import { ExplorerFilters } from '../explorer-filters/ExplorerFilters.mobile'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 import { PlaceCard } from '../explorer-place-item/PlaceCard'
@@ -16,10 +16,10 @@ import { ExplorerViewToggleButton, useExplorerViewMode } from '../explorer-view/
 import { FilterNavigation } from '../explorer-view/FilterNavigation'
 import type { ExploredPlace } from '../explorer.api'
 import { useExploredPlaces } from './useExploredPlaces'
-import { useOverlayRoute, type OverlayRouteRenderProps } from '~shared/hooks/extends/useOverlayRoute'
-import { PlaceFullScreenModal } from '~features/place/place-detail/PlaceFullScreenModal'
-import { generatePath } from 'react-router'
+import { useRouteOverlay } from '~shared/hooks/extends/useRouteOverlay'
 import { AppRoute } from '~app/routes'
+import { generatePath } from 'react-router';
+import { PlaceFullScreenModal } from '~features/place/place-detail/PlaceFullScreenModal'
 
 
 export default function TopVisitedPage() {
@@ -94,11 +94,11 @@ function TopVisitedGrid({
   category?: PlaceCategoryType
 }) {
   const { data: places } = useExploredPlaces(location, category)
-  const { Link, back } = useOverlayRoute<string>({
-    component: ({ state: placeId, isOpen }) => (
-      <PlaceFullScreenModal placeId={placeId} onClose={back} isOpen={isOpen} />
-    ),
-  });
+  const isMobile = useIsMobile()
+  const { open: openPlaceModal } = useExplorerPlaceModal()
+  const { open: openPlaceSidePanel } = useExplorerPlaceSidePannel()
+  const openDetail = (place: ExploredPlace) =>
+    isMobile ? openPlaceModal(place.placeId) : openPlaceSidePanel(place.placeId)
 
   const sorted = places.toSorted((a, b) => b.visitorCount - a.visitorCount)
 
@@ -107,13 +107,7 @@ function TopVisitedGrid({
     <Grid container spacing={1.5} columns={2}>
       {sorted.map((place) => (
         <Grid key={place.placeId} size={1}>
-          <Link
-            key={place.placeId}
-            state={place.placeId}
-            to={generatePath(AppRoute.장소_상세, { placeId: place.placeId })}
-          >
-            <PlaceCard place={{ ...place, countLabel: `${place.visitorCount}번 방문` }} />
-          </Link>
+          <PlaceCard place={{ ...place, countLabel: `${place.visitorCount}번 방문` }} onClick={() => openDetail(place)} />
         </Grid>
       ))}
     </Grid>
@@ -129,13 +123,12 @@ function TopVisitedMap({
   category?: PlaceCategoryType
 }) {
   const { data: places } = useExploredPlaces(location, category)
-  const { navigate, back } = useOverlayRoute({
-    component: ({ state: placeId, isOpen, }: OverlayRouteRenderProps<string>) => (
-      <PlaceFullScreenModal placeId={placeId} onClose={back} isOpen={isOpen} />
-    )
-  });
   const center = location ? getCoordinateByLocation(location) : undefined;
 
+  const { open } = useRouteOverlay(
+    (placeId: string) => generatePath(AppRoute.장소_상세, { placeId }),
+    ({ isOpen, close, data: placeId }) => <PlaceFullScreenModal placeId={placeId} isOpen={isOpen} onClose={close} />
+  );
 
   return (
     <Map
@@ -144,7 +137,7 @@ function TopVisitedMap({
       autoFocus="marker"
       clustering
       clusterGridSize={60}
-      defaultCenter={center}
+      center={center}
     >
       {places.map((place) => (
         <Map.Marker
@@ -155,7 +148,7 @@ function TopVisitedMap({
           label={place.name}
           color={place.visitorCount >= 2 ? '#ff6b35' : '#1976d2'}
           thumbnailUrl={place.thumbnailUrl}
-          onClick={() => navigate(generatePath(AppRoute.장소_상세, { placeId: place.placeId }), place.placeId)}
+          onClick={() => open(place.placeId)}
         />
       ))}
     </Map>

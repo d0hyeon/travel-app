@@ -10,16 +10,12 @@ import { Map } from '~shared/components/Map'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useOverlay } from '~shared/hooks/useOverlay'
-import { useExplorerPlaceOverlay } from '../useExplorerPlaceOverlay'
+import { useExplorerPlaceSidePannel } from '../useExplorerPlaceOverlay'
 import { ExplorerFilters } from '../explorer-filters/ExplorerFilters.desktop'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 import { PlaceListItem } from '../explorer-place-item/PlaceListItem'
 import { ExplorerViewToggleButton, useExplorerViewMode } from '../explorer-view/ExplorerViewToggleButton'
 import { useRecentHotPlaces } from './useRecentHotPlaces'
-import { useOverlayRoute, type OverlayRouteRenderProps } from '~shared/hooks/extends/useOverlayRoute'
-import { PlaceSidePanel } from '~features/place/place-detail/PlaceSidePanel'
-import { generatePath } from 'react-router'
-import { AppRoute } from '~app/routes'
 
 const PERIOD_OPTIONS = [
   { label: '3개월', value: 3 },
@@ -102,26 +98,18 @@ function RecentHotList({
   category?: PlaceCategoryType
 }) {
   const { data: places } = useRecentHotPlaces({ inquiryMonths: months, location, category })
-  const { Link, back } = useOverlayRoute({
-    component: ({ state: placeId, isOpen, }: OverlayRouteRenderProps<string>) => (
-      <PlaceSidePanel placeId={placeId} onClose={back} isOpen={isOpen} />
-    )
-  });
+  const { Trigger } = useExplorerPlaceSidePannel();
 
   return (
     <Stack>
       {places.map((place) => (
-        <Link
-          key={place.placeId}
-          state={place.placeId}
-          to={generatePath(AppRoute.장소_상세, { placeId: place.placeId })}
-        >
+        <Trigger key={place.placeId} placeId={place.placeId}>
           <PlaceListItem
             id={place.placeId}
             place={{ ...place, countLabel: `${place.visitorCount}번 저장됨` }}
             size="large"
           />
-        </Link>
+        </Trigger>
       ))}
     </Stack>
   )
@@ -152,11 +140,7 @@ function RecentHotMap({
   const { data: places } = useRecentHotPlaces({ inquiryMonths: months, category, location })
   const center = location ? getCoordinateByLocation(location) : undefined;
 
-  const { navigate, back } = useOverlayRoute({
-    component: ({ state: placeId, isOpen, }: OverlayRouteRenderProps<string>) => (
-      <PlaceSidePanel placeId={placeId} onClose={back} isOpen={isOpen} />
-    )
-  });
+  const { open: openPlaceSidePanel } = useExplorerPlaceSidePannel();
 
   return (
     <Map
@@ -176,7 +160,7 @@ function RecentHotMap({
           label={place.name}
           color={place.visitorCount >= 2 ? '#ff6b35' : '#1976d2'}
           thumbnailUrl={place.thumbnailUrl}
-          onClick={() => navigate(generatePath(AppRoute.장소_상세, { placeId: place.placeId }), place.placeId)}
+          onClick={() => openPlaceSidePanel(place.placeId)}
         />
       ))}
     </Map>

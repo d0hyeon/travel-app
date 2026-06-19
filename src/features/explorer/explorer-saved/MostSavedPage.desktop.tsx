@@ -1,14 +1,11 @@
 import { Box, Container, Stack } from '@mui/material'
 import { Suspense } from 'react'
-import { generatePath } from 'react-router'
-import { AppRoute } from '~app/routes'
 import { getCoordinateByLocation, type Location } from '~features/location'
-import { PlaceSidePanel } from '~features/place/place-detail/PlaceSidePanel'
 import type { PlaceCategoryType } from '~features/place/place.types'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
 import { Map } from '~shared/components/Map'
 import { SwitchCase } from '~shared/components/SwitchCase'
-import { useOverlayRoute, type OverlayRouteRenderProps } from '~shared/hooks/extends/useOverlayRoute'
+import { useExplorerPlaceSidePannel } from '../useExplorerPlaceOverlay'
 import { ExplorerFilters } from '../explorer-filters/ExplorerFilters.desktop'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 import { PlaceListItem } from '../explorer-place-item/PlaceListItem'
@@ -71,26 +68,18 @@ function MostSavedList({
   category?: PlaceCategoryType
 }) {
   const { data: places } = useMostSavedPlaces({ location, category })
-  const { Link, back } = useOverlayRoute({
-    component: ({ state: placeId, isOpen, }: OverlayRouteRenderProps<string>) => (
-      <PlaceSidePanel placeId={placeId} onClose={back} isOpen={isOpen} />
-    )
-  });
+  const { Trigger } = useExplorerPlaceSidePannel();
 
   return (
     <Stack>
       {places.map((place) => (
-        <Link
-          key={place.placeId}
-          state={place.placeId}
-          to={generatePath(AppRoute.장소_상세, { placeId: place.placeId })}
-        >
+        <Trigger key={place.placeId} placeId={place.placeId}>
           <PlaceListItem
             id={place.placeId}
             place={{ ...place, countLabel: `${place.saveCount}번 저장됨` }}
             size="large"
           />
-        </Link>
+        </Trigger>
 
       ))}
     </Stack>
@@ -115,11 +104,7 @@ function MostSavedMap({
   category?: PlaceCategoryType
 }) {
   const { data: places } = useMostSavedPlaces({ location, category });
-  const { navigate, back } = useOverlayRoute({
-    component: ({ state: placeId, isOpen, }: OverlayRouteRenderProps<string>) => (
-      <PlaceSidePanel placeId={placeId} onClose={back} isOpen={isOpen} />
-    )
-  });
+  const { open: openPlaceSidePanel } = useExplorerPlaceSidePannel();
   const center = location ? getCoordinateByLocation(location) : undefined
 
   return (
@@ -140,7 +125,7 @@ function MostSavedMap({
           label={place.name}
           color={place.saveCount >= 2 ? '#ff6b35' : '#1976d2'}
           thumbnailUrl={place.thumbnailUrl}
-          onClick={() => navigate(generatePath(AppRoute.장소_상세, { placeId: place.placeId }), place.placeId)}
+          onClick={() => openPlaceSidePanel(place.placeId)}
         />
       ))}
     </Map>

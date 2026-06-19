@@ -7,7 +7,7 @@ import { PlaceFullScreenModal } from '~features/place/place-detail/PlaceFullScre
 import { UserProfile } from '~features/user-profile/UserProfile'
 import { ListItem } from '~shared/components/ListItem'
 import { Map } from '~shared/components/Map'
-import { useOverlayRoute, type OverlayRouteRenderProps } from '~shared/hooks/extends/useOverlayRoute'
+import { useRouteOverlay } from '~shared/hooks/extends/useRouteOverlay'
 import { isOverseasByCoordinate } from '~shared/utils/geo'
 import { PostLikeButton } from './PostLikeButton'
 import { usePost } from './usePost'
@@ -31,11 +31,12 @@ function Resolved({ postId }: Props) {
   const { data: auth } = useAuth({ required: false });
 
   const isMobile = useIsMobile();
-  const { navigate: navigateInOverlay, Link: OverlayLink, back } = useOverlayRoute({
-    component: ({ state: placeId, isOpen }: OverlayRouteRenderProps<string>) => isMobile
-      ? <PlaceFullScreenModal placeId={placeId} onClose={back} isOpen={isOpen} />
-      : <PlaceSidePanel placeId={placeId} onClose={back} isOpen={isOpen} />
-  })
+  const { open: openPlaceOverlay, Link: OverlayLink } = useRouteOverlay(
+    (placeId: string) => generatePath(AppRoute.장소_상세, { placeId }),
+    ({ isOpen, close, data: placeId }) => isMobile
+      ? <PlaceFullScreenModal placeId={placeId} onClose={close} isOpen={isOpen} />
+      : <PlaceSidePanel placeId={placeId} onClose={close} isOpen={isOpen} />
+  )
 
   return (
     <Stack spacing={2} px={2} py={2}>
@@ -76,17 +77,13 @@ function Resolved({ postId }: Props) {
                 variant="pin"
                 lat={place.lat}
                 lng={place.lng}
-                onClick={() => navigateInOverlay(generatePath(AppRoute.장소_상세, { placeId: place.placeId }), place.placeId)}
+                onClick={() => openPlaceOverlay(place.placeId)}
               />
             ))}
           </Map>
           <Stack gap={1}>
             {post.places.map(place => (
-              <OverlayLink
-                key={place.placeId}
-                state={place.placeId}
-                to={generatePath(AppRoute.장소_상세, { placeId: place.placeId })}
-              >
+              <OverlayLink key={place.placeId} data={place.placeId}>
                 <ListItem key={place.placeId}>
                   <ListItem.Title>{place.name}</ListItem.Title>
                   <ListItem.Text>{place.address}</ListItem.Text>

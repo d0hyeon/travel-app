@@ -5,13 +5,12 @@ import { generatePath, useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
-import { useExplorerPlaceOverlay } from '../useExplorerPlaceOverlay'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 import { PlaceCard } from '../explorer-place-item/PlaceCard'
 import type { MostSavedPlace } from '../explorer.api'
 import { buildExplorerDetailUrl } from '../explorer.utils'
 import { useMostSavedPlaces } from './useMostSavedPlaces'
-import { useOverlayRoute, type OverlayRouteRenderProps } from '~shared/hooks/extends/useOverlayRoute'
+import { useRouteOverlay } from '~shared/hooks/extends/useRouteOverlay'
 import { PlaceSidePanel } from '~features/place/place-detail/PlaceSidePanel'
 import { PlaceFullScreenModal } from '~features/place/place-detail/PlaceFullScreenModal'
 
@@ -21,13 +20,14 @@ export function MostSavedSection() {
   const { location, category } = useExplorerFilterParams();
   const { data: places } = useMostSavedPlaces({ location, category })
   const isMobile = useIsMobile()
-  const { Link, back } = useOverlayRoute({
-    component: ({ state: placeId, isOpen }: OverlayRouteRenderProps<string>) => (
+  const { Link: PlaceOverlayLink } = useRouteOverlay(
+    (placeId: string) => generatePath(AppRoute.장소_상세, { placeId }),
+    ({ isOpen, close, data: placeId }) => (
       isMobile
-        ? <PlaceFullScreenModal placeId={placeId} onClose={back} isOpen={isOpen} />
-        : <PlaceSidePanel placeId={placeId} onClose={back} isOpen={isOpen} />
+        ? <PlaceFullScreenModal placeId={placeId} onClose={close} isOpen={isOpen} />
+        : <PlaceSidePanel placeId={placeId} onClose={close} isOpen={isOpen} />
     )
-  });
+  );
   const navigate = useNavigate()
 
   const topSaved = useMemo(() => places.slice(0, SECTION_LIMIT), [places])
@@ -69,15 +69,11 @@ export function MostSavedSection() {
         >
           {topSaved.map((place) => (
             <Box key={place.placeId} sx={{ width: isMobile ? 140 : 200, flexShrink: 0 }}>
-              <Link
-                key={place.placeId}
-                state={place.placeId}
-                to={generatePath(AppRoute.장소_상세, { placeId: place.placeId })}
-              >
+              <PlaceOverlayLink key={place.placeId} data={place.placeId}>
                 <PlaceCard
                   place={{ ...place, countLabel: `${place.saveCount}번 저장됨` }}
                 />
-              </Link>
+              </PlaceOverlayLink>
             </Box>
           ))}
         </Stack>

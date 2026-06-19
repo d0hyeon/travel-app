@@ -8,7 +8,7 @@ import { FullScreenPopup } from '~shared/components/FullScreenPopup'
 import { TopNavigation as DesktopNavigation } from '~shared/components/layout/TopNavigation.desktop'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
-import { useOverlayRoute, type OverlayRouteRenderProps } from '~shared/hooks/extends/useOverlayRoute'
+import { useRouteOverlay } from '~shared/hooks/extends/useRouteOverlay'
 import { useIsMounted } from '~shared/hooks/useIsMounted'
 import { PostCard } from './PostCard'
 import { PostMenu } from './PostMenu'
@@ -52,9 +52,10 @@ function Contents() {
   const { data: posts } = useFeed();
 
   const isMounted = useIsMounted();
-  const { Link, back } = useOverlayRoute({
-    component: ({ state: postId, isOpen, close }: OverlayRouteRenderProps<string>) => (
-      <FullScreenPopup transition={{ duration: isMounted ? 250 : 0 }} isOpen={isOpen} onClose={back}>
+  const { Link: PostLink } = useRouteOverlay(
+    (postId: string) => generatePath(AppRoute.포스트_상세, { postId }),
+    ({ isOpen, close, data: postId }) => (
+      <FullScreenPopup transition={{ duration: isMounted ? 250 : 0 }} isOpen={isOpen} onClose={close}>
         <TopNavigation
           leftElement={<TopNavigation.BackButton onClick={close} />}
           rightElement={<PostMenu postId={postId} onDelete={close} />}
@@ -65,18 +66,14 @@ function Contents() {
         </Container>
       </FullScreenPopup>
     )
-  })
+  )
 
   return (
     <Stack spacing={2}>
       {posts.map((post) => (
-        <Link
-          key={post.id}
-          to={generatePath(AppRoute.포스트_상세, { postId: post.id })}
-          state={post.id}
-        >
+        <PostLink key={post.id} data={post.id}>
           <PostCard post={post} />
-        </Link>
+        </PostLink>
       ))}
     </Stack>
   )
