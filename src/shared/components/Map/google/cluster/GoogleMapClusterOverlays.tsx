@@ -3,7 +3,7 @@ import { isInMapBounds } from '../../map.utils';
 import { GoogleMapContext, useMapContext } from '../../MapContext';
 import { useMapViewport } from '../useMapViewport';
 import { renderCluster, createClusters, type Cluster } from './cluster.utils';
-import { useReconcileClusterEntries } from '../../useReconcileClusterEntries';
+import { useReconcileClusters } from '../../useReconcileClusters';
 import { useRegisteredMarker } from '../../useClusterRegistry';
 import { useMapZoomLevel } from '../useMapZoomLevel';
 
@@ -31,7 +31,7 @@ export function GoogleMapClusterOverlays({ gridSize }: Props) {
   }, [registry, version, zoom, gridSize, bounds]);
 
 
-  useReconcileClusterEntries(
+  useReconcileClusters(
     clusters,
     cluster => renderCluster({ cluster, map, onClick: handleClick })
   );

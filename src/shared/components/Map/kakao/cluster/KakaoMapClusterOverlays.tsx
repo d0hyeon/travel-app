@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { isInMapBounds } from '../../map.utils';
 import { KakaoMapContext, useMapContext } from '../../MapContext';
-import { useReconcileClusterEntries } from '../../useReconcileClusterEntries';
+import { useReconcileClusters } from '../../useReconcileClusters';
 import { useRegisteredMarker } from '../../useClusterRegistry';
 import { useMapViewport } from '../useMapViewport';
 import { useMapZoomLevel } from '../useMapZoomLevel';
@@ -33,7 +33,7 @@ export function KakaoMapClusterOverlays({ gridSize }: Props) {
     map.setBounds(bounds);
   }, [map]);
 
-  useReconcileClusterEntries(
+  useReconcileClusters(
     clusters,
     cluster => renderCluster({ cluster, map, zoom, onClick: handleClick })
   );

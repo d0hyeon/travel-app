@@ -6,7 +6,7 @@ type CleanupFunction = VoidFunction;
  * 클러스터 목록을 id 기준으로 동기화한다. 사라진 클러스터는 cleanup으로 정리하고
  * 새 클러스터만 renderCluster로 그리며, 언마운트 시 전체를 정리한다.
  */
-export function useReconcileClusterEntries(clusters: Cluster[], renderCluster: (cluster: Cluster) => CleanupFunction) {
+export function useReconcileClusters(clusters: Cluster[], renderCluster: (cluster: Cluster) => CleanupFunction) {
   const entriesRef = useRef<Map<string, CleanupFunction>>(new Map());
   const renderEntry = useEffectEvent(renderCluster);
 
