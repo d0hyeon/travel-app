@@ -1,8 +1,9 @@
-import { useEffect, useEffectEvent, useMemo, useRef } from 'react';
+import { useCallback, useMemo } from 'react';
 import { isInMapBounds } from '../../map.utils';
 import { GoogleMapContext, useMapContext } from '../../MapContext';
 import { useMapViewport } from '../useMapViewport';
-import { buildEntry, createClusters, destroyEntry, type ClusterEntry } from './cluster.utils';
+import { renderCluster, createClusters, type Cluster } from './cluster.utils';
+import { useReconcileClusterEntries } from '../../useReconcileClusterEntries';
 import { useRegisteredMarker } from '../../useClusterRegistry';
 import { useMapZoomLevel } from '../useMapZoomLevel';
 
@@ -16,11 +17,11 @@ export function GoogleMapClusterOverlays({ gridSize }: Props) {
 
   const zoom = useMapZoomLevel();
   const bounds = useMapViewport();
-  const handleClick = useEffectEvent((markers: { position: { lat: number; lng: number } }[]) => {
+  const handleClick = useCallback((cluster: Cluster) => {
     const bounds = new google.maps.LatLngBounds();
-    markers.forEach(m => bounds.extend({ lat: m.position.lat, lng: m.position.lng }));
+    cluster.markers.forEach(m => bounds.extend({ lat: m.position.lat, lng: m.position.lng }));
     map.fitBounds(bounds);
-  });
+  }, [map]);
 
   const clusters = useMemo(() => {
     const allMarkers = Array.from(registry.values());
@@ -29,30 +30,11 @@ export function GoogleMapClusterOverlays({ gridSize }: Props) {
     return allClusters.filter(c => isInMapBounds(c.center.lat, c.center.lng, bounds));
   }, [registry, version, zoom, gridSize, bounds]);
 
-  const entriesRef = useRef<Map<string, ClusterEntry>>(new Map());
 
-  useEffect(() => {
-    const newClusterMap = new Map(clusters.map(c => [c.id, c]));
-
-    for (const [id, entry] of entriesRef.current) {
-      if (!newClusterMap.has(id)) {
-        destroyEntry(entry);
-        entriesRef.current.delete(id);
-      }
-    }
-
-    for (const [id, cluster] of newClusterMap) {
-      if (entriesRef.current.has(id)) continue;
-      entriesRef.current.set(id, buildEntry(cluster, map, () => handleClick(cluster.markers)));
-    }
-  }, [clusters]);
-
-  useEffect(() => {
-    return () => {
-      for (const entry of entriesRef.current.values()) destroyEntry(entry);
-      entriesRef.current.clear();
-    };
-  }, []);
+  useReconcileClusterEntries(
+    clusters,
+    cluster => renderCluster({ cluster, map, onClick: handleClick })
+  );
 
   return null;
 }

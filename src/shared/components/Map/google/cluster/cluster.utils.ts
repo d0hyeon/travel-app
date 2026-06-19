@@ -1,31 +1,21 @@
+import { clusterMarkers, type Cluster, type Pixel } from '../../cluster.core';
 import type { Coordinate, MarkerData } from '../../types';
 import { createLabelNode, createPositionedOverlay, createThumbnailMarkerNode } from '../GoogleMap.utils';
 
-export interface ClusterEntry {
-  overlays: google.maps.OverlayView[];
-  markers: google.maps.Marker[];
-  cleanups: Array<() => void>;
+export type { Cluster };
+  
+interface RenderClusterProps {
+  cluster: Cluster;
+  map: google.maps.Map,
+  onClick: (cluster: Cluster) => void;
 }
 
-export interface Cluster {
-  id: string;
-  center: Coordinate;
-  markers: MarkerData[];
+export function renderCluster({ cluster, map, onClick }: RenderClusterProps) {
+  if (cluster.markers.length === 1) return renderSingleMarker(cluster.markers[0], map);
+  return renderClusterGroupEntry(cluster, map, onClick);
 }
 
-export function destroyEntry(entry: ClusterEntry) {
-  entry.cleanups.forEach(cleanup => cleanup());
-  entry.overlays.forEach(o => o.setMap(null));
-  entry.markers.forEach(m => m.setMap(null));
-}
-
-export function buildEntry(cluster: Cluster, map: google.maps.Map, onClusterClick: () => void): ClusterEntry {
-  if (cluster.markers.length === 1) return buildSingleMarkerEntry(cluster.markers[0], map);
-  return buildClusterGroupEntry(cluster, map, onClusterClick);
-}
-
-function buildSingleMarkerEntry(md: MarkerData, map: google.maps.Map): ClusterEntry {
-  const entry: ClusterEntry = { overlays: [], markers: [], cleanups: [] };
+function renderSingleMarker(md: MarkerData, map: google.maps.Map) {
 
   if (md.thumbnailUrl) {
     const { node, destroy } = createThumbnailMarkerNode({
@@ -34,12 +24,16 @@ function buildSingleMarkerEntry(md: MarkerData, map: google.maps.Map): ClusterEn
       onClick: md.onClick,
       onContextMenu: md.onContextMenu,
     });
-    entry.cleanups.push(destroy);
     const overlay = createPositionedOverlay({ node, position: md.position, pane: 'overlayMouseTarget', offsetY: -8 });
     overlay.setMap(map);
-    entry.overlays.push(overlay);
-    return entry;
+    
+    return () => {
+      destroy();
+      overlay.setMap(null)
+    }
   }
+
+  const cleanups: VoidFunction[] = [];
 
   const markerColor = md.color ?? '#ef5350';
   const markerOpacity = md.opacity ?? 1;
@@ -60,22 +54,30 @@ function buildSingleMarkerEntry(md: MarkerData, map: google.maps.Map): ClusterEn
       : { url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`, scaledSize: new google.maps.Size(28, 40), anchor: new google.maps.Point(14, 40) },
     opacity: markerOpacity,
   });
-  if (md.onClick) marker.addListener('click', md.onClick);
-  if (md.onContextMenu) marker.addListener('rightclick', md.onContextMenu);
-  entry.markers.push(marker);
+  if (md.onClick) {
+    const { remove } = marker.addListener('click', md.onClick)
+    cleanups.push(remove);
+  }
+  if (md.onContextMenu) {
+    const { remove } = marker.addListener('rightclick', md.onContextMenu);
+    cleanups.push(remove);
+  }
+  
+  
+  cleanups.push(() => marker.setMap(null));
 
   if (md.label) {
     const labelNode = createLabelNode(md.label, markerColor, isCircle ? 24 : 44);
     const labelOverlay = createPositionedOverlay({ node: labelNode, position: md.position, pane: 'overlayLayer' });
     labelOverlay.setMap(map);
-    entry.overlays.push(labelOverlay);
+    cleanups.push(() => labelOverlay.setMap(null));
   }
 
-  return entry;
+  return () => cleanups.forEach(cleanup => cleanup())
 }
 
-function buildClusterGroupEntry(cluster: Cluster, map: google.maps.Map, onClusterClick: () => void): ClusterEntry {
-  const entry: ClusterEntry = { overlays: [], markers: [], cleanups: [] };
+function renderClusterGroupEntry(cluster: Cluster, map: google.maps.Map, onClusterClick: (clsuter: Cluster) => void) {
+  const cleanups: VoidFunction[] = []
 
   const el = document.createElement('div');
   el.innerHTML = `<div style="width:38px;height:38px;background:white;border:2px solid #bdbdbd;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#555;font-size:13px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.15);cursor:pointer;">${cluster.markers.length}</div>`;
@@ -83,19 +85,19 @@ function buildClusterGroupEntry(cluster: Cluster, map: google.maps.Map, onCluste
 
   const clickHandler: EventListener = (e) => {
     e.stopPropagation();
-    onClusterClick();
+    onClusterClick(cluster);
   };
   el.addEventListener('click', clickHandler);
-  entry.cleanups.push(() => el.removeEventListener('click', clickHandler));
+  cleanups.push(() => el.removeEventListener('click', clickHandler));
 
   const overlay = createPositionedOverlay({ node: el, position: cluster.center, pane: 'overlayMouseTarget' });
   overlay.setMap(map);
-  entry.overlays.push(overlay);
+  cleanups.push(() => overlay.setMap(null));
 
-  return entry;
+  return () => cleanups.forEach(cleanup => cleanup())
 }
 
-function latLngToPixel(lat: number, lng: number, zoom: number): { x: number; y: number } {
+function latLngToPixel({ lat, lng }: Coordinate, zoom: number): Pixel {
   const scale = Math.pow(2, zoom);
   const x = (lng + 180) / 360 * scale * 256;
   const sinLat = Math.sin(lat * Math.PI / 180);
@@ -104,41 +106,5 @@ function latLngToPixel(lat: number, lng: number, zoom: number): { x: number; y: 
 }
 
 export function createClusters(markers: MarkerData[], zoom: number, gridSize: number): Cluster[] {
-  if (markers.length === 0) return [];
-
-  const markerPixels = markers.map(m => ({
-    marker: m,
-    pixel: latLngToPixel(m.position.lat, m.position.lng, zoom),
-  }));
-
-  const processed = new Set<string>();
-  const clusters: Cluster[] = [];
-
-  markerPixels.forEach(({ marker, pixel }) => {
-    if (processed.has(marker.id)) return;
-
-    const nearby: MarkerData[] = [marker];
-    processed.add(marker.id);
-
-    markerPixels.forEach(({ marker: other, pixel: op }) => {
-      if (processed.has(other.id)) return;
-      const dx = pixel.x - op.x;
-      const dy = pixel.y - op.y;
-      if (Math.sqrt(dx * dx + dy * dy) <= gridSize) {
-        nearby.push(other);
-        processed.add(other.id);
-      }
-    });
-
-    if (nearby.length >= 2) {
-      const centerLat = nearby.reduce((s, m) => s + m.position.lat, 0) / nearby.length;
-      const centerLng = nearby.reduce((s, m) => s + m.position.lng, 0) / nearby.length;
-      const stableId = nearby.map(m => m.id).toSorted().join(',');
-      clusters.push({ id: `cluster_${stableId}`, center: { lat: centerLat, lng: centerLng }, markers: nearby });
-    } else {
-      clusters.push({ id: `single_${marker.id}`, center: marker.position, markers: [marker] });
-    }
-  });
-
-  return clusters;
+  return clusterMarkers(markers, coord => latLngToPixel(coord, zoom), gridSize);
 }
