@@ -1,12 +1,12 @@
 import { Box, type BoxProps } from '@mui/material';
-import { Suspense, use, useEffect, useImperativeHandle, useMemo, useState } from 'react';
+import { Suspense, use, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { GoogleMapContext } from '../MapContext';
 import type { MapProps } from '../types';
-import { loadGoogleMaps } from './loader';
 import { ClusterProvider } from '../useClusterRegistry';
 import { GoogleMapClusterOverlays } from './cluster/GoogleMapClusterOverlays';
-import { useViewportFit } from './useViewportFit';
+import { loadGoogleMaps } from './loader';
 import { useMapZoomLevel } from './useMapZoomLevel';
+import { useBoundsChangeListener, useViewportFit } from './GoogleMap.hooks';
 
 const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 };
 const ZOOM_MAX_LEVEL = 22;
@@ -53,39 +53,23 @@ export default function GoogleMap({
   ...boxProps
 }: Props) {
   use(loadGoogleMaps());
-
-  const [container, setContainer] = useState<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
 
   useEffect(() => {
-    if (!container) return;
-    const coordinate = center ?? defaultCenter;
-    const mapInstance = new google.maps.Map(container, {
-      center: { lat: coordinate.lat, lng: coordinate.lng },
-      zoom: 10,
-      disableDefaultUI: true,
-      styles: PASTEL_MAP_STYLES,
-    });
-
-    setMap(mapInstance);
-  }, [container]);
-
-  useEffect(() => {
-    if (!map || !onBoundsChange) return;
-    const listener = map.addListener('bounds_changed', () => {
-      const bounds = map.getBounds();
-      if (!bounds) return;
-      const ne = bounds.getNorthEast();
-      const sw = bounds.getSouthWest();
-      onBoundsChange({ north: ne.lat(), south: sw.lat(), east: ne.lng(), west: sw.lng() });
-    });
-    return () => { google.maps.event.removeListener(listener); };
-  }, [map, onBoundsChange]);
+    if (!containerRef.current) return;
+    setMap(
+      new google.maps.Map(containerRef.current, {
+        center: center ?? defaultCenter,
+        zoom: 10,
+        disableDefaultUI: true,
+        styles: PASTEL_MAP_STYLES,
+      })
+    )
+  }, []);
 
   useEffect(() => {
-    if (map != null && center != null) {
-      map.setCenter(center);
-    }
+    if (center != null) map?.setCenter(center);
   }, [map, center?.lat, center?.lng]);
 
   const { extend: extendBound, fit: focusBounds } = useViewportFit(map);
@@ -109,12 +93,14 @@ export default function GoogleMap({
     config: { autoFocus, clustering, gridSize: clusterGridSize },
   }), [map, extendBound, autoFocus, clustering, clusterGridSize]);
 
+  useBoundsChangeListener(map, onBoundsChange);
+
   return (
     <GoogleMapContext.Provider value={mapContextValue}>
-      <Box ref={setContainer} position="relative" {...boxProps} />
+      <Box ref={containerRef} position="relative" {...boxProps} />
       <Suspense>
         <ClusterProvider>
-          <Renderer>{children}</Renderer>
+          <Resolved>{children}</Resolved>
           {clustering && <GoogleMapClusterOverlays gridSize={clusterGridSize} />}
         </ClusterProvider>
       </Suspense>
@@ -122,7 +108,8 @@ export default function GoogleMap({
   );
 }
 
-function Renderer({ children }: Pick<Props, 'children'>) {
+
+function Resolved({ children }: Props) {
   const zoom = useMapZoomLevel();
 
   if (typeof children === 'function') return children({ zoom: ZOOM_MAX_LEVEL - zoom });

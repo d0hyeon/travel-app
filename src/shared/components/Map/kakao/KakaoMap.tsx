@@ -1,12 +1,12 @@
 import { Box, type BoxProps } from '@mui/material';
-import { Suspense, use, useEffect, useImperativeHandle, useMemo, useState } from 'react';
+import { Suspense, use, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { KakaoMapContext } from '../MapContext';
 import type { MapProps } from '../types';
-import { KakaoMapClusterOverlays } from './cluster/KakaoMapClusterOverlays';
 import { ClusterProvider } from '../useClusterRegistry';
+import { KakaoMapClusterOverlays } from './cluster/KakaoMapClusterOverlays';
+import { useBoundsChangeListener, useViewportFit } from './KakaoMap.hooks';
 import { loadKakaoMap } from './loader';
 import { useMapZoomLevel } from './useMapZoomLevel';
-import { useViewportFit } from './useViewportFit';
 
 
 const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 }
@@ -25,30 +25,19 @@ export default function KakaoMap({
   ...boxProps
 }: Props) {
   use(loadKakaoMap());
-  const [container, setContainer] = useState<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
 
   useEffect(() => {
-    if (!container) return;
+    if (!containerRef.current) return;
     const coordinate = center ?? defaultCenter;
-    const mapInstance = new kakao.maps.Map(container, {
+    const mapInstance = new kakao.maps.Map(containerRef.current, {
       center: new kakao.maps.LatLng(coordinate.lat, coordinate.lng),
       level: 8,
     });
-    setMap(mapInstance);
-  }, [container]);
 
-  useEffect(() => {
-    if (!map || !onBoundsChange) return;
-    const handler = () => {
-      const bounds = map.getBounds();
-      const ne = bounds.getNorthEast();
-      const sw = bounds.getSouthWest();
-      onBoundsChange({ north: ne.getLat(), south: sw.getLat(), east: ne.getLng(), west: sw.getLng() });
-    };
-    kakao.maps.event.addListener(map, 'bounds_changed', handler);
-    return () => { kakao.maps.event.removeListener(map, 'bounds_changed', handler); };
-  }, [map, onBoundsChange]);
+    setMap(mapInstance);
+  }, []);
 
   useEffect(() => {
     if (map != null && center != null) {
@@ -74,9 +63,11 @@ export default function KakaoMap({
     config: { autoFocus, clustering },
   }), [map, extendBound, autoFocus, clustering]);
 
+  useBoundsChangeListener(map, onBoundsChange);
+
   return (
     <KakaoMapContext.Provider value={mapContextValue}>
-      <Box ref={setContainer} position="relative" {...boxProps} />
+      <Box ref={containerRef} position="relative" {...boxProps} />
       <Suspense>
         <ClusterProvider>
           <Renderer>{children}</Renderer>
@@ -96,3 +87,4 @@ function Renderer(props: Pick<Props, 'children'>) {
 
   return props.children;
 }
+
