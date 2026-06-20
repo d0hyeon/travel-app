@@ -7,6 +7,7 @@ import { MultiSelectDropdown } from '~shared/components/MultiSelectDropdown';
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog';
 import { PhotoBottomSheet } from '~shared/components/photo/PhotoBottomSheet';
 import { PhotoUploader } from '~shared/components/photo/PhotoUploader';
+import { PhotoVisibilityBadge } from '~shared/components/photo/PhotoVisibilityBadge';
 import { useOverlay } from '~shared/hooks/useOverlay';
 import { PhotoThunbnail } from '../../../shared/components/photo/PhotoThumbnail';
 import type { Photo } from '../../photo/photo.types';
@@ -22,10 +23,10 @@ export function preload(tripId: string) {
 }
 
 export default function TripPhotoContent({ tripId }: TripPhotoContentProps) {
-  const { data: photos, upload, remove, updateVisibility } = useTripPhotos(tripId)
+  const { data: photos, upload, remove, update } = useTripPhotos(tripId)
 
   const { data: places } = useTripPlaces(tripId);
-  console.log(places)
+  const placeOptions = useMemo(() => places.map((place) => ({ placeId: place.placeId, name: place.name })), [places]);
   const [selectedPlaceIds, setSelectedPlaceIds] = useState<string[]>([]);
   const [selectedPhotoIds, setSelectedPhotoIds] = useState<string[]>([]);
   const [isReadonly, setIsReadonly] = useState(true)
@@ -99,9 +100,10 @@ export default function TripPhotoContent({ tripId }: TripPhotoContentProps) {
                         <PhotoBottomSheet
                           isOpen={isOpen}
                           onClose={close}
-                          photos={photos}
+                          photos={filteredPhotos}
                           onDelete={remove}
-                          onUpdateVisibility={(photo, isPublic) => updateVisibility({ photoId: photo.id, isPublic })}
+                          onUpdate={(photo, patch) => update({ photoId: photo.id, ...patch })}
+                          places={placeOptions}
                           initialIndex={i}
                         />
                       ));
@@ -117,6 +119,9 @@ export default function TripPhotoContent({ tripId }: TripPhotoContentProps) {
                     <Box position="absolute" display="flex" justifyContent="end" alignItems="end" right={0} top={0} padding={1} borderRadius={3} zIndex={5} width="100%" height="100%" sx={isSelected ? { backgroundColor: 'rgba(0, 0, 0, 0.4)' } : {}}>
                       {isSelected && <CheckIcon color="primary" sx={{ fill: '#fff', color: '#fff' }} />}
                     </Box>
+                  )}
+                  {x.isPublic && (
+                    <PhotoVisibilityBadge sx={{ position: 'absolute', top: 4, left: 4, zIndex: 1 }} />
                   )}
                   <PhotoThunbnail key={x.id} src={x.url} />
                 </Box>

@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query"
-import { deletePhoto, getPhotosByPlaceId, photoKey, updatePhotoVisibility, uploadPhoto } from "~features/photo/photo.api"
+import { deletePhoto, getPhotosByPlaceId, photoKey, updatePhoto, uploadPhoto, type PhotoUpdate } from "~features/photo/photo.api"
 import type { Photo } from "~features/photo/photo.types"
 import { useTripPhotos } from "../trip-photo/useTripPhotos";
 
@@ -43,8 +43,8 @@ export function usePlacePhotos(placeId: string) {
     }
   })
 
-  const { mutateAsync: updateVisibility } = useMutation({
-    mutationFn: ({ photoId, isPublic }: { photoId: string; isPublic: boolean; tripId: string }) => updatePhotoVisibility(photoId, isPublic),
+  const { mutateAsync: update } = useMutation({
+    mutationFn: ({ photoId, ...patch }: { photoId: string; tripId: string } & PhotoUpdate) => updatePhoto(photoId, patch),
     onSuccess: (updatedPhoto, { tripId }) => {
       queryClient.setQueryData<Photo[]>(usePlacePhotos.key(placeId), (curr) => (
         curr?.map((photo) => photo.id === updatedPhoto.id ? updatedPhoto : photo) ?? [updatedPhoto]
@@ -55,7 +55,7 @@ export function usePlacePhotos(placeId: string) {
     }
   })
 
-  return { data, remove, upload, updateVisibility, isUploading, refetch, ...queries }
+  return { data, remove, upload, update, isUploading, refetch, ...queries }
 }
 
 usePlacePhotos.key = (placeId: string) => [photoKey, 'place', placeId]

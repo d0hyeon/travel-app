@@ -2,7 +2,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import { Alert, AlertTitle, Box, CircularProgress, Container, IconButton, Stack, Typography } from '@mui/material'
 import { Suspense, useState, type PropsWithChildren } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
-import { createPhotoFileFromUrl, updatePhotoVisibility, uploadPostPhoto } from '~features/photo/photo.api'
+import { createPhotoFileFromUrl, updatePhoto, uploadPostPhoto } from '~features/photo/photo.api'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState'
 import { lazy } from '~shared/utils/react'
@@ -205,5 +205,5 @@ function TopNavigation(props: PropsWithChildren) {
 }
 
 function publishPhoto(photoId: string) {
-  updatePhotoVisibility(photoId, true)
+  updatePhoto(photoId, { isPublic: true })
 }

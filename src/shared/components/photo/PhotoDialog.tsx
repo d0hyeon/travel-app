@@ -8,23 +8,26 @@ import { forwardRef, useRef, useState, type ComponentProps } from "react";
 import { Mousewheel } from 'swiper/modules';
 import { Swiper, SwiperSlide, type SwiperRef } from "swiper/react";
 import type { Photo } from "~features/photo/photo.types";
+import type { PhotoUpdate } from "~features/photo/photo.api";
 import { useConfirmDialog } from "../../components/confirm-dialog/useConfirmDialog";
 
-// @ts-ignore
 import 'swiper/css';
 import { ZoomArea } from "../ZoomArea";
 import type { TransitionProps } from '@mui/material/transitions';
+import { PhotoVisibilityBadge } from "./PhotoVisibilityBadge";
+import { PhotoPlaceSelect, type PhotoPlaceOption } from "./PhotoPlaceSelect";
 
 type Props = {
   photos: Photo[];
   onDelete?: (photo: Photo) => void;
-  onUpdateVisibility?: (photo: Photo, isPublic: boolean) => Promise<unknown>;
+  onUpdate?: (photo: Photo, patch: PhotoUpdate) => Promise<unknown>;
+  places?: PhotoPlaceOption[];
   initialIndex?: number
   onClose: () => void;
 } & Omit<ComponentProps<typeof Dialog>, 'onClose'>;
 
 
-export function PhotoDialog({ photos: _photos, onDelete, onUpdateVisibility, initialIndex = 0, onClose, ...props }: Props) {
+export function PhotoDialog({ photos: _photos, onDelete, onUpdate, places, initialIndex = 0, onClose, ...props }: Props) {
   const [index, setIndex] = useState(initialIndex);
   const [photos, setPhotos] = useState(_photos);
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
@@ -55,7 +58,19 @@ export function PhotoDialog({ photos: _photos, onDelete, onUpdateVisibility, ini
       item.id === photo.id ? { ...item, isPublic } : item
     )));
     setMenuAnchorEl(null);
-    await onUpdateVisibility?.(photo, isPublic);
+    await onUpdate?.(photo, { isPublic });
+  }
+
+  const handleChangePlace = async (placeId: string | null) => {
+    const photo = photos.at(index);
+    if (!photo || photo.placeId === placeId) {
+      return;
+    }
+
+    setPhotos((current) => current.map((item) => (
+      item.id === photo.id ? { ...item, placeId } : item
+    )));
+    await onUpdate?.(photo, { placeId });
   }
 
   const swiperRef = useRef<SwiperRef>(null);
@@ -101,7 +116,7 @@ export function PhotoDialog({ photos: _photos, onDelete, onUpdateVisibility, ini
             </IconButton>
           )}
           <Stack direction="row" spacing={1}>
-            {onUpdateVisibility && (
+            {onUpdate && (
               <>
                 <IconButton onClick={(event) => setMenuAnchorEl(event.currentTarget)} sx={{ color: 'white' }}>
                   <MoreVertIcon />
@@ -163,6 +178,9 @@ export function PhotoDialog({ photos: _photos, onDelete, onUpdateVisibility, ini
             </IconButton>
           </Stack>
         </Stack>
+        {photos[index]?.isPublic && (
+          <PhotoVisibilityBadge sx={{ position: 'absolute', top: 56, left: 16, zIndex: 1 }} />
+        )}
         <Box
           display="flex"
           alignItems="center"
@@ -200,6 +218,19 @@ export function PhotoDialog({ photos: _photos, onDelete, onUpdateVisibility, ini
           </Swiper>
 
         </Box>
+        {places && onUpdate && (
+          <Stack
+            direction="row"
+            justifyContent="center"
+            sx={{ position: 'absolute', bottom: 16, left: 0, right: 0, zIndex: 1 }}
+          >
+            <PhotoPlaceSelect
+              value={photos[index]?.placeId ?? null}
+              options={places}
+              onChange={(placeId) => void handleChangePlace(placeId)}
+            />
+          </Stack>
+        )}
       </Stack>
     </Dialog>
   )
@@ -207,7 +238,7 @@ export function PhotoDialog({ photos: _photos, onDelete, onUpdateVisibility, ini
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
-    children: React.ReactElement<any, any>;
+    children: React.ReactElement;
   },
   ref: React.Ref<unknown>,
 ) {

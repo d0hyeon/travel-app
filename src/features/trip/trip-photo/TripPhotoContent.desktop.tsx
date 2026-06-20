@@ -2,6 +2,7 @@ import { Box, Chip, Stack } from '@mui/material';
 import { useMemo, useState } from 'react';
 import { PhotoDialog } from '~shared/components/photo/PhotoDialog';
 import { PhotoUploader } from '~shared/components/photo/PhotoUploader';
+import { PhotoVisibilityBadge } from '~shared/components/photo/PhotoVisibilityBadge';
 import { useOverlay } from '~shared/hooks/useOverlay';
 import { PhotoThunbnail } from '../../../shared/components/photo/PhotoThumbnail';
 import type { Photo } from '../../photo/photo.types';
@@ -14,8 +15,9 @@ interface TripPhotoContentProps {
 
 export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
   const overlay = useOverlay();
-  const { data: photos, remove, upload, updateVisibility } = useTripPhotos(tripId);
+  const { data: photos, remove, upload, update } = useTripPhotos(tripId);
   const { data: places } = useTripPlaces(tripId);
+  const placeOptions = useMemo(() => places.map((place) => ({ placeId: place.placeId, name: place.name })), [places]);
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
 
   const photosByPlace = useMemo(() => {
@@ -71,23 +73,28 @@ export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
           />
         </Box>
         {filteredPhotos.map((x, i) => (
-          <PhotoThunbnail
-            key={x.id}
-            src={x.url}
-            sx={{ width: 120, height: 120, margin: 0.5 }}
-            onClick={() => {
-              overlay.open(({ isOpen, close }) => (
-                <PhotoDialog
-                  initialIndex={i}
-                  photos={filteredPhotos}
-                  open={isOpen}
-                  onClose={close}
-                  onDelete={remove}
-                  onUpdateVisibility={(photo, isPublic) => updateVisibility({ photoId: photo.id, isPublic })}
-                />
-              ))
-            }}
-          />
+          <Box key={x.id} position="relative" sx={{ width: 120, height: 120, margin: 0.5 }}>
+            <PhotoThunbnail
+              src={x.url}
+              sx={{ width: '100%', height: '100%' }}
+              onClick={() => {
+                overlay.open(({ isOpen, close }) => (
+                  <PhotoDialog
+                    initialIndex={i}
+                    photos={filteredPhotos}
+                    open={isOpen}
+                    onClose={close}
+                    onDelete={remove}
+                    onUpdate={(photo, patch) => update({ photoId: photo.id, ...patch })}
+                    places={placeOptions}
+                  />
+                ))
+              }}
+            />
+            {x.isPublic && (
+              <PhotoVisibilityBadge sx={{ position: 'absolute', top: 4, left: 4, zIndex: 1 }} />
+            )}
+          </Box>
         ))}
       </Stack>
     </Stack>
