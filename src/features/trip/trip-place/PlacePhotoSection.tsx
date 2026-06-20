@@ -1,5 +1,4 @@
-import { Box, ImageList, Stack, Typography } from '@mui/material';
-import { Suspense } from 'react';
+import { ImageList, Stack, Typography } from '@mui/material';
 import { useIsMobile } from '~shared/hooks/env/useIsMobile';
 import { useOverlay } from '~shared/hooks/useOverlay';
 import { PhotoBottomSheet } from '~shared/components/photo/PhotoBottomSheet';
@@ -16,14 +15,14 @@ interface PlacePhotoSectionProps {
 }
 
 export function PlacePhotoSection({ tripId, placeId }: PlacePhotoSectionProps) {
+  // Suspense 경계를 두지 않고 상위(오버레이) 경계로 버블시킨다.
+  // 사진까지 로드된 완성 상태로 시트가 마운트되어 자동 높이 측정이 정확해진다.
   return (
     <Stack spacing={2} mt={2}>
       <Typography variant="subtitle2" fontWeight={600}>
         사진
       </Typography>
-      <Suspense fallback={<Box height={80} />}>
-        <PlacePhotoContent tripId={tripId} placeId={placeId} />
-      </Suspense>
+      <PlacePhotoContent tripId={tripId} placeId={placeId} />
     </Stack>
   );
 }
