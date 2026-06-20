@@ -7,6 +7,7 @@ import { getActivedChatTripId } from "~features/trip/trip-chat/notification/useC
 import { useChatWebPushFallback as useChatBrowserPushFallback } from '~features/trip/trip-chat/notification/useChatWebPushFallback';
 import { useTripChatOverlay } from "~features/trip/trip-chat/useTripChatOverlay";
 import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
+import { BFCacheListener } from "~shared/hooks/dom/useIsBFCacheRestore";
 import { useIsMobile } from "~shared/hooks/env/useIsMobile";
 import { useSkipBackNavigationTransition } from "~shared/hooks/interaction/useSkipBackNavigationTransition";
 
@@ -31,16 +32,17 @@ export function AppInitializer() {
   return (
     <>
       <AuthStateSync />
+      <BFCacheListener />
       {auth != null && (
         <Suspense>
-          <InWebPush />
+          <InWebPushGlobalRenderer />
         </Suspense>
       )}
     </>
   )
 }
 
-function InWebPush() {
+function InWebPushGlobalRenderer() {
   const { open } = useTripChatOverlay();
   const isMobile = useIsMobile();
 

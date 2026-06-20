@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect } from 'react';
 import { useLocation } from 'react-router';
 import { useScrollEventListener } from './useScrollEventListener';
+import { useIsBFCacheRestore } from '../dom/useIsBFCacheRestore';
 
 /**
  * 커스텀 스크롤 컨테이너의 스크롤 위치를 복원한다.
@@ -49,8 +50,9 @@ export function useScrollRestore<E extends HTMLElement>(options: RestoreOptions<
     }
   })
 
+  const isRestoredScroll = useIsBFCacheRestore();
   useEffect(() => {
-    if (!target) return;
+    if (!target || isRestoredScroll) return;
     const saved = sessionStorage.getItem(storageKey);
     if (saved == null) return;
 
