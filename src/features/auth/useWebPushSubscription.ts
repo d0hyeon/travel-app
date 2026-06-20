@@ -6,6 +6,9 @@ import { useAuth } from "./useAuth";
 
 let promise: Promise<ServiceWorkerRegistration | undefined> | null = null;
 function getRegistration() {
+  if (navigator?.serviceWorker?.getRegistration == null) {
+    return Promise.resolve(null);
+  }
   if (promise == null) {
     promise = navigator.serviceWorker.getRegistration();
   }
