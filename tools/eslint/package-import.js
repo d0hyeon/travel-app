@@ -59,8 +59,39 @@ const RESOLVE_EXTS = [
   '/index.jsx',
 ];
 
-function resolveImport(importPath, importerFile) {
-  const base = path.resolve(path.dirname(importerFile), importPath);
+// alias import(`~shared/...`)도 같은 디스크 파일을 가리키므로 패키지
+// 경계 검사 대상이다. 표기 방식(상대 vs alias)으로 룰이 뚫리면 안 된다.
+// aliases: { '~': '<absolute>/src' } 형태. importPath가 prefix로 시작하면
+// 그 디렉토리 기준으로 변환한다.
+function toAbsoluteBase(importPath, importerFile, aliases) {
+  if (importPath.startsWith('.')) {
+    return path.resolve(path.dirname(importerFile), importPath);
+  }
+
+  for (const [prefix, target] of aliases) {
+    if (importPath === prefix || importPath.startsWith(prefix)) {
+      const rest = importPath.slice(prefix.length).replace(/^\//, '');
+      return path.resolve(target, rest);
+    }
+  }
+
+  return null;
+}
+
+// 옵션: { aliases: { '~': './src' } }. 기본값은 없다. 미지정 시 alias
+// import는 해석하지 않으며(상대경로 검사는 그대로 동작), target은 cwd
+// 기준 절대경로로 정규화한다.
+function resolveAliases(options, cwd) {
+  const map = options?.aliases ?? {};
+  return Object.entries(map).map(([prefix, target]) => [
+    prefix,
+    path.resolve(cwd, target),
+  ]);
+}
+
+function resolveImport(importPath, importerFile, aliases) {
+  const base = toAbsoluteBase(importPath, importerFile, aliases);
+  if (!base) return null;
 
   for (const ext of RESOLVE_EXTS) {
     const candidate = `${base}${ext}`;
@@ -119,6 +150,10 @@ function buildSymbolDirectives(filePath) {
     return directives;
   }
 
+  // .tsx/.jsx는 jsx 파싱을 켜야 한다. 반대로 .ts에서 jsx를 켜면
+  // 제네릭(<T>)이 JSX로 오인되므로 확장자로 분기한다.
+  const jsx = /\.(tsx|jsx)$/.test(filePath);
+
   let ast;
   let comments;
   try {
@@ -126,6 +161,7 @@ function buildSymbolDirectives(filePath) {
       comment: true,
       loc: true,
       range: true,
+      ecmaFeatures: { jsx },
     });
     ast = result.ast;
     comments = result.ast.comments ?? [];
@@ -236,7 +272,18 @@ export default {
       description:
         '@package로 선언된 export는 같은 패키지(선언 파일의 디렉토리) 안에서만 import할 수 있다',
     },
-    schema: [],
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          aliases: {
+            type: 'object',
+            additionalProperties: { type: 'string' },
+          },
+        },
+        additionalProperties: false,
+      },
+    ],
     messages: {
       outsidePackage:
         "'{{symbol}}'은(는) @package로 선언되어 패키지 외부에서 import할 수 없습니다.",
@@ -249,15 +296,14 @@ export default {
     const importerFile = normalize(
       context.physicalFilename ?? context.filename,
     );
+    const aliases = resolveAliases(context.options[0], context.cwd);
 
     return {
       ImportDeclaration(node) {
         const importSource = node.source.value;
-        if (typeof importSource !== 'string' || !importSource.startsWith('.')) {
-          return;
-        }
+        if (typeof importSource !== 'string') return;
 
-        const targetFile = resolveImport(importSource, importerFile);
+        const targetFile = resolveImport(importSource, importerFile, aliases);
         if (!targetFile) return;
 
         const directives = getSymbolDirectives(targetFile);

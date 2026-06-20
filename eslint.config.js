@@ -36,7 +36,9 @@ export default defineConfig([
     },
 
     rules: {
-      'package/import': 'error',
+      'package/import': ['error', {
+        aliases: { '~': './src' }
+      }],
       'react-hooks/set-state-in-effect': 'warn',
     },
   },
