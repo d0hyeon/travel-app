@@ -51,7 +51,10 @@ export function PhotoStep({ tripId, defaultValue, onNext }: Props) {
               return (
                 <SwiperSlide key={photo.id} >
                   <Box overflow="hidden" sx={{ aspectRatio: '1 / 1' }}>
-                    <img src={photo.url} />
+                    <img
+                      src={photo.url}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
+                    />
                   </Box>
                 </SwiperSlide>
               )
