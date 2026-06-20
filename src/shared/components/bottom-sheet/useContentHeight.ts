@@ -21,22 +21,20 @@ export function useContentHeight({ content, enabled }: UseContentHeightOptions) 
   }, [enabled]);
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || !content) return;
 
     // 초기 측정 (렌더링 후)
     const timer = setTimeout(measure, 20);
 
-    // ResizeObserver로 컨텐츠 크기 변화 감지
+    // ResizeObserver로 컨텐츠 크기 변화 감지 (이미지/폼 등 비동기 로딩 후 재측정)
     const observer = new ResizeObserver(measure);
-    if (contentRef.current) {
-      observer.observe(contentRef.current);
-    }
+    observer.observe(content);
 
     return () => {
       clearTimeout(timer);
       observer.disconnect();
     };
-  }, [enabled, measure]);
+  }, [enabled, measure, content]);
 
   return { contentHeight, measure, isMeasuring: enabled && contentHeight == null };
 }
