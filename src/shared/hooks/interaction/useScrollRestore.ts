@@ -59,7 +59,7 @@ export function useScrollRestore<E extends HTMLElement>(options: RestoreOptions<
   }, [storageKey, target])
 }
 
-function objectHasByKey<T extends {}, Key extends keyof T>(obj: T, key: Key): obj is T & Record<Key, Omit<T[Key], 'undefined'>> {
+function objectHasByKey<T extends object, Key extends keyof T>(obj: T, key: Key): obj is T & Record<Key, Omit<T[Key], 'undefined'>> {
   return Object.hasOwn(obj, key) 
 }
 

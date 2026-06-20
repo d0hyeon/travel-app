@@ -8,9 +8,11 @@ import { useChatWebPushFallback as useChatBrowserPushFallback } from '~features/
 import { useTripChatOverlay } from "~features/trip/trip-chat/useTripChatOverlay";
 import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
 import { useIsMobile } from "~shared/hooks/env/useIsMobile";
+import { useSkipBackNavigationTransition } from "~shared/hooks/interaction/useSkipBackNavigationTransition";
 
 export function AppInitializer() {
   const confirm = useConfirmDialog();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const updateSW = registerSW({
@@ -21,6 +23,8 @@ export function AppInitializer() {
       },
     })
   }, []);
+
+  useSkipBackNavigationTransition({ enabled: isMobile });
 
   const { data: auth } = useAuth({ required: false });
 
