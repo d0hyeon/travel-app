@@ -10,21 +10,25 @@ import { Swiper, SwiperSlide, type SwiperRef } from "swiper/react";
 import type { Photo } from "~features/photo/photo.types";
 import { useConfirmDialog } from "../../components/confirm-dialog/useConfirmDialog";
 
-// @ts-ignore
+// @ts-expect-error swiper CSS는 타입 선언이 없다
 import 'swiper/css';
 import { ZoomArea } from "../ZoomArea";
 import type { TransitionProps } from '@mui/material/transitions';
+import { PhotoVisibilityBadge } from "./PhotoVisibilityBadge";
+import { PhotoPlaceBar, type PhotoPlaceOption } from "./PhotoPlaceBar";
 
 type Props = {
   photos: Photo[];
   onDelete?: (photo: Photo) => void;
   onUpdateVisibility?: (photo: Photo, isPublic: boolean) => Promise<unknown>;
+  places?: PhotoPlaceOption[];
+  onUpdatePlace?: (photo: Photo, placeId: string | null) => Promise<unknown>;
   initialIndex?: number
   onClose: () => void;
 } & Omit<ComponentProps<typeof Dialog>, 'onClose'>;
 
 
-export function PhotoDialog({ photos: _photos, onDelete, onUpdateVisibility, initialIndex = 0, onClose, ...props }: Props) {
+export function PhotoDialog({ photos: _photos, onDelete, onUpdateVisibility, places, onUpdatePlace, initialIndex = 0, onClose, ...props }: Props) {
   const [index, setIndex] = useState(initialIndex);
   const [photos, setPhotos] = useState(_photos);
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
@@ -56,6 +60,18 @@ export function PhotoDialog({ photos: _photos, onDelete, onUpdateVisibility, ini
     )));
     setMenuAnchorEl(null);
     await onUpdateVisibility?.(photo, isPublic);
+  }
+
+  const handleChangePlace = async (placeId: string | null) => {
+    const photo = photos.at(index);
+    if (!photo || photo.placeId === placeId) {
+      return;
+    }
+
+    setPhotos((current) => current.map((item) => (
+      item.id === photo.id ? { ...item, placeId } : item
+    )));
+    await onUpdatePlace?.(photo, placeId);
   }
 
   const swiperRef = useRef<SwiperRef>(null);
@@ -163,6 +179,9 @@ export function PhotoDialog({ photos: _photos, onDelete, onUpdateVisibility, ini
             </IconButton>
           </Stack>
         </Stack>
+        {photos[index]?.isPublic && (
+          <PhotoVisibilityBadge sx={{ position: 'absolute', top: 56, left: 16, zIndex: 1 }} />
+        )}
         <Box
           display="flex"
           alignItems="center"
@@ -200,6 +219,19 @@ export function PhotoDialog({ photos: _photos, onDelete, onUpdateVisibility, ini
           </Swiper>
 
         </Box>
+        {places && onUpdatePlace && (
+          <Stack
+            direction="row"
+            justifyContent="center"
+            sx={{ position: 'absolute', bottom: 16, left: 0, right: 0, zIndex: 1 }}
+          >
+            <PhotoPlaceBar
+              placeId={photos[index]?.placeId ?? null}
+              places={places}
+              onChange={(placeId) => void handleChangePlace(placeId)}
+            />
+          </Stack>
+        )}
       </Stack>
     </Dialog>
   )
@@ -207,7 +239,7 @@ export function PhotoDialog({ photos: _photos, onDelete, onUpdateVisibility, ini
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
-    children: React.ReactElement<any, any>;
+    children: React.ReactElement;
   },
   ref: React.Ref<unknown>,
 ) {

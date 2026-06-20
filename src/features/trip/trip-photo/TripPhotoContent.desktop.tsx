@@ -14,8 +14,9 @@ interface TripPhotoContentProps {
 
 export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
   const overlay = useOverlay();
-  const { data: photos, remove, upload, updateVisibility } = useTripPhotos(tripId);
+  const { data: photos, remove, upload, updateVisibility, updatePlace } = useTripPhotos(tripId);
   const { data: places } = useTripPlaces(tripId);
+  const placeOptions = useMemo(() => places.map((place) => ({ placeId: place.placeId, name: place.name })), [places]);
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
 
   const photosByPlace = useMemo(() => {
@@ -74,6 +75,7 @@ export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
           <PhotoThunbnail
             key={x.id}
             src={x.url}
+            isPublic={x.isPublic}
             sx={{ width: 120, height: 120, margin: 0.5 }}
             onClick={() => {
               overlay.open(({ isOpen, close }) => (
@@ -84,6 +86,8 @@ export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
                   onClose={close}
                   onDelete={remove}
                   onUpdateVisibility={(photo, isPublic) => updateVisibility({ photoId: photo.id, isPublic })}
+                  places={placeOptions}
+                  onUpdatePlace={(photo, placeId) => updatePlace({ photoId: photo.id, placeId })}
                 />
               ))
             }}

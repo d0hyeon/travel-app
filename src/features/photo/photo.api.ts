@@ -179,6 +179,18 @@ export async function updatePhotoVisibility(photoId: string, isPublic: boolean):
   return toPhoto(data)
 }
 
+export async function updatePhotoPlace(photoId: string, placeId: string | null): Promise<Photo> {
+  const { data, error } = await supabase
+    .from('photos')
+    .update({ place_id: placeId })
+    .eq('id', photoId)
+    .select()
+    .single()
+
+  if (error) throw error
+  return toPhoto(data)
+}
+
 export async function deletePhotosByTripId(tripId: string): Promise<void> {
   const photos = await getPhotosByTripId(tripId)
 

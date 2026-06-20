@@ -8,24 +8,28 @@ import type { Photo } from "~features/photo/photo.types";
 import { BottomSheet } from "~shared/components/bottom-sheet/BottomSheet";
 import DownloadIcon from '@mui/icons-material/Downloading';
 
-// @ts-ignore
+// @ts-expect-error swiper CSS는 타입 선언이 없다
 import 'swiper/css';
-// @ts-ignore
+// @ts-expect-error swiper CSS는 타입 선언이 없다
 import 'swiper/css/virtual';
 
 import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
 import { ZoomArea } from "../ZoomArea";
 import { Virtual } from 'swiper/modules';
+import { PhotoVisibilityBadge } from "./PhotoVisibilityBadge";
+import { PhotoPlaceBar, type PhotoPlaceOption } from "./PhotoPlaceBar";
 
 
 type SheetProps = {
   photos: Photo[];
   onDelete?: (photo: Photo) => void;
   onUpdateVisibility?: (photo: Photo, isPublic: boolean) => Promise<unknown>;
+  places?: PhotoPlaceOption[];
+  onUpdatePlace?: (photo: Photo, placeId: string | null) => Promise<unknown>;
   initialIndex?: number
 } & Omit<ComponentProps<typeof BottomSheet>, 'children'>;
 
-export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, onUpdateVisibility, onClose, ...props }: SheetProps) {
+export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, onUpdateVisibility, places, onUpdatePlace, onClose, ...props }: SheetProps) {
   const [index, setIndex] = useState(initialIndex);
   const [photos, setPhotos] = useState(_photos);
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
@@ -70,6 +74,18 @@ export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, 
     await onUpdateVisibility?.(photo, isPublic);
   }
 
+  const handleChangePlace = async (placeId: string | null) => {
+    const photo = photos.at(index);
+    if (!photo || photo.placeId === placeId) {
+      return;
+    }
+
+    setPhotos((current) => current.map((item) => (
+      item.id === photo.id ? { ...item, placeId } : item
+    )));
+    await onUpdatePlace?.(photo, placeId);
+  }
+
   useGestureStart(() => swiperRef.current?.swiper.disable())
 
   return (
@@ -81,6 +97,9 @@ export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, 
       {...props}
     >
       <BottomSheet.Header alignItems="center" justifyContent="center" position="relative" marginBottom={1}>
+        {photos[index]?.isPublic && (
+          <PhotoVisibilityBadge sx={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)' }} />
+        )}
         <Typography variant="body2" color="#fff" fontWeight={800}>
           {index + 1} / {photos.length}
         </Typography>
@@ -182,6 +201,15 @@ export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, 
 
         </BottomSheet.Scrollable>
       </BottomSheet.Body>
+      {places && onUpdatePlace && (
+        <Stack alignItems="center" pb={1}>
+          <PhotoPlaceBar
+            placeId={photos[index]?.placeId ?? null}
+            places={places}
+            onChange={(placeId) => void handleChangePlace(placeId)}
+          />
+        </Stack>
+      )}
       <BottomSheet.BottomActions>
         {onDelete && (
           <Button

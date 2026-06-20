@@ -22,10 +22,10 @@ export function preload(tripId: string) {
 }
 
 export default function TripPhotoContent({ tripId }: TripPhotoContentProps) {
-  const { data: photos, upload, remove, updateVisibility } = useTripPhotos(tripId)
+  const { data: photos, upload, remove, updateVisibility, updatePlace } = useTripPhotos(tripId)
 
   const { data: places } = useTripPlaces(tripId);
-  console.log(places)
+  const placeOptions = useMemo(() => places.map((place) => ({ placeId: place.placeId, name: place.name })), [places]);
   const [selectedPlaceIds, setSelectedPlaceIds] = useState<string[]>([]);
   const [selectedPhotoIds, setSelectedPhotoIds] = useState<string[]>([]);
   const [isReadonly, setIsReadonly] = useState(true)
@@ -102,6 +102,8 @@ export default function TripPhotoContent({ tripId }: TripPhotoContentProps) {
                           photos={photos}
                           onDelete={remove}
                           onUpdateVisibility={(photo, isPublic) => updateVisibility({ photoId: photo.id, isPublic })}
+                          places={placeOptions}
+                          onUpdatePlace={(photo, placeId) => updatePlace({ photoId: photo.id, placeId })}
                           initialIndex={i}
                         />
                       ));
@@ -118,7 +120,7 @@ export default function TripPhotoContent({ tripId }: TripPhotoContentProps) {
                       {isSelected && <CheckIcon color="primary" sx={{ fill: '#fff', color: '#fff' }} />}
                     </Box>
                   )}
-                  <PhotoThunbnail key={x.id} src={x.url} />
+                  <PhotoThunbnail key={x.id} src={x.url} isPublic={x.isPublic} />
                 </Box>
               )
             })}
