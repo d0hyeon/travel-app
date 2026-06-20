@@ -57,7 +57,7 @@ BottomNavigation.Menu = function Menu({ icon, isActived, children, ...props }: M
       flex={1}
       paddingTop={1}
       sx={{
-        paddingBottom: 'env(safe-area-inset-bottom)',
+        paddingBottom: 'max(env(safe-area-inset-bottom), 8px)',
       }}
       {...props}
     >
