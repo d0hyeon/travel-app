@@ -1,14 +1,12 @@
 import { ImageListItem, type ImageListItemProps } from '@mui/material';
-import { PhotoVisibilityBadge } from './PhotoVisibilityBadge';
 
 
 
 type ItemProps = {
   src: string;
-  isPublic?: boolean;
 } & ImageListItemProps;
 
-export function PhotoThunbnail({ src, isPublic = false, sx, ...props }: ItemProps) {
+export function PhotoThunbnail({ src, children, sx, ...props }: ItemProps) {
   return (
     <ImageListItem
       sx={[
@@ -24,7 +22,7 @@ export function PhotoThunbnail({ src, isPublic = false, sx, ...props }: ItemProp
         loading="lazy"
         style={{ aspectRatio: '1', objectFit: 'cover' }}
       />
-      {isPublic && <PhotoVisibilityBadge sx={{ position: 'absolute', top: 4, left: 4, zIndex: 1 }} />}
+      {children}
     </ImageListItem>
   )
 }

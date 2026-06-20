@@ -167,22 +167,19 @@ export async function deletePhoto(photo: Photo): Promise<boolean> {
   return true
 }
 
-export async function updatePhotoVisibility(photoId: string, isPublic: boolean): Promise<Photo> {
-  const { data, error } = await supabase
-    .from('photos')
-    .update({ is_public: isPublic })
-    .eq('id', photoId)
-    .select()
-    .single()
-
-  if (error) throw error
-  return toPhoto(data)
+export interface PhotoUpdate {
+  isPublic?: boolean
+  placeId?: string | null
 }
 
-export async function updatePhotoPlace(photoId: string, placeId: string | null): Promise<Photo> {
+export async function updatePhoto(photoId: string, patch: PhotoUpdate): Promise<Photo> {
+  const update: { is_public?: boolean; place_id?: string | null } = {}
+  if (patch.isPublic !== undefined) update.is_public = patch.isPublic
+  if (patch.placeId !== undefined) update.place_id = patch.placeId
+
   const { data, error } = await supabase
     .from('photos')
-    .update({ place_id: placeId })
+    .update(update)
     .eq('id', photoId)
     .select()
     .single()

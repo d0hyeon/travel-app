@@ -1,18 +1,17 @@
 import PublicIcon from '@mui/icons-material/Public';
-import { Stack, Typography, type StackProps } from '@mui/material';
+import { Box, type BoxProps } from '@mui/material';
 
-/** 공개 상태 사진에 표시하는 작은 뱃지. 좌측 상단 등에 배치해서 사용한다. */
-export function PhotoVisibilityBadge({ sx, ...props }: StackProps) {
+/** 공개 상태 사진에 표시하는 작은 아이콘 뱃지. 좌측 상단 등에 배치해서 사용한다. */
+export function PhotoVisibilityBadge({ sx, ...props }: BoxProps) {
   return (
-    <Stack
-      direction="row"
-      alignItems="center"
-      spacing={0.25}
+    <Box
       sx={[
         {
-          px: 0.5,
-          py: 0.125,
-          borderRadius: 1,
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          p: 0.375,
+          borderRadius: '50%',
           bgcolor: 'rgba(0, 0, 0, 0.55)',
           color: '#fff',
           backdropFilter: 'blur(2px)',
@@ -22,10 +21,7 @@ export function PhotoVisibilityBadge({ sx, ...props }: StackProps) {
       ]}
       {...props}
     >
-      <PublicIcon sx={{ fontSize: 12 }} />
-      <Typography component="span" sx={{ fontSize: 10, fontWeight: 700, lineHeight: 1.4 }}>
-        공개
-      </Typography>
-    </Stack>
+      <PublicIcon sx={{ fontSize: 14 }} />
+    </Box>
   );
 }

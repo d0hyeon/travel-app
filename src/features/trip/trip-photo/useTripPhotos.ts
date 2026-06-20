@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { deletePhoto, getPhotosByTripId, photoKey, updatePhotoPlace, updatePhotoVisibility, uploadPhoto } from "~features/photo/photo.api";
+import { deletePhoto, getPhotosByTripId, photoKey, updatePhoto, uploadPhoto, type PhotoUpdate } from "~features/photo/photo.api";
 import { findNearestPlaceFromPhoto } from "~features/photo/photo.utils";
 import type { Photo } from "~features/photo/photo.types";
 import { tripKey } from "../trip.api";
@@ -47,8 +47,8 @@ export function useTripPhotos(tripId: string) {
     onSuccess: () => refetch()
   })
 
-  const { mutateAsync: updateVisibility } = useMutation({
-    mutationFn: ({ photoId, isPublic }: { photoId: string; isPublic: boolean }) => updatePhotoVisibility(photoId, isPublic),
+  const { mutateAsync: update } = useMutation({
+    mutationFn: ({ photoId, ...patch }: { photoId: string } & PhotoUpdate) => updatePhoto(photoId, patch),
     onSuccess: (updatedPhoto) => {
       queryClient.setQueryData<Photo[]>(useTripPhotos.key(tripId), (curr) => (
         curr?.map((photo) => photo.id === updatedPhoto.id ? updatedPhoto : photo) ?? [updatedPhoto]
@@ -56,16 +56,7 @@ export function useTripPhotos(tripId: string) {
     }
   })
 
-  const { mutateAsync: updatePlace } = useMutation({
-    mutationFn: ({ photoId, placeId }: { photoId: string; placeId: string | null }) => updatePhotoPlace(photoId, placeId),
-    onSuccess: (updatedPhoto) => {
-      queryClient.setQueryData<Photo[]>(useTripPhotos.key(tripId), (curr) => (
-        curr?.map((photo) => photo.id === updatedPhoto.id ? updatedPhoto : photo) ?? [updatedPhoto]
-      ))
-    }
-  })
-
-  return { data, upload, remove, updateVisibility, updatePlace, refetch, isUploading, ...queries }
+  return { data, upload, remove, update, refetch, isUploading, ...queries }
 }
 
 useTripPhotos.key = (tripId: string) => [tripKey, photoKey, tripId];

@@ -33,7 +33,7 @@ function PlacePhotoContent({ tripId, placeId }: PlacePhotoSectionProps) {
     data: photos,
     remove,
     upload,
-    updateVisibility,
+    update,
     isUploading
   } = usePlacePhotos(placeId);
 
@@ -65,7 +65,7 @@ function PlacePhotoContent({ tripId, placeId }: PlacePhotoSectionProps) {
                       onClose={close}
                       photos={photos}
                       onDelete={handleDelete}
-                      onUpdateVisibility={(photo, isPublic) => updateVisibility({ photoId: photo.id, isPublic, tripId })}
+                      onUpdate={(photo, patch) => update({ photoId: photo.id, tripId, ...patch })}
                       initialIndex={i}
                     />
                   )
@@ -76,7 +76,7 @@ function PlacePhotoContent({ tripId, placeId }: PlacePhotoSectionProps) {
                     onClose={close}
                     photos={photos}
                     onDelete={handleDelete}
-                    onUpdateVisibility={(photo, isPublic) => updateVisibility({ photoId: photo.id, isPublic, tripId })}
+                    onUpdate={(photo, patch) => update({ photoId: photo.id, tripId, ...patch })}
                     initialIndex={i}
                   />
                 )

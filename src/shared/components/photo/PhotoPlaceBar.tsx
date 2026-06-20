@@ -10,19 +10,19 @@ export interface PhotoPlaceOption {
 }
 
 interface Props {
-  placeId: string | null;
-  places: PhotoPlaceOption[];
-  onChange: (placeId: string | null) => void;
+  value: string | null;
+  options: PhotoPlaceOption[];
+  onChange: (value: string | null) => void;
 }
 
 /** 사진 상세 오버레이 하단의 장소 이름 + 편집(장소 변경) 바. */
-export function PhotoPlaceBar({ placeId, places, onChange }: Props) {
+export function PhotoPlaceBar({ value, options, onChange }: Props) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const currentName = places.find((place) => place.placeId === placeId)?.name;
+  const currentName = options.find((option) => option.placeId === value)?.name;
 
   const handleSelect = (nextPlaceId: string | null) => {
     setAnchorEl(null);
-    if (nextPlaceId !== placeId) {
+    if (nextPlaceId !== value) {
       onChange(nextPlaceId);
     }
   };
@@ -60,24 +60,24 @@ export function PhotoPlaceBar({ placeId, places, onChange }: Props) {
         transformOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         slotProps={{ paper: { sx: { minWidth: 200, maxHeight: 320 } } }}
       >
-        {places.map((place) => (
+        {options.map((option) => (
           <MenuItem
-            key={place.placeId}
-            onClick={() => handleSelect(place.placeId)}
+            key={option.placeId}
+            onClick={() => handleSelect(option.placeId)}
             sx={{ minHeight: 40 }}
           >
             <Stack direction="row" alignItems="center" justifyContent="space-between" width="100%" gap={1}>
               <Box sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {place.name}
+                {option.name}
               </Box>
-              {place.placeId === placeId && <CheckIcon fontSize="small" />}
+              {option.placeId === value && <CheckIcon fontSize="small" />}
             </Stack>
           </MenuItem>
         ))}
         <MenuItem onClick={() => handleSelect(null)} sx={{ minHeight: 40 }}>
           <Stack direction="row" alignItems="center" justifyContent="space-between" width="100%" gap={1}>
             <Box sx={{ color: 'text.secondary' }}>장소 미지정</Box>
-            {placeId === null && <CheckIcon fontSize="small" />}
+            {value === null && <CheckIcon fontSize="small" />}
           </Stack>
         </MenuItem>
       </Menu>

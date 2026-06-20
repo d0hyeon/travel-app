@@ -2,6 +2,7 @@ import { Box, Chip, Stack } from '@mui/material';
 import { useMemo, useState } from 'react';
 import { PhotoDialog } from '~shared/components/photo/PhotoDialog';
 import { PhotoUploader } from '~shared/components/photo/PhotoUploader';
+import { PhotoVisibilityBadge } from '~shared/components/photo/PhotoVisibilityBadge';
 import { useOverlay } from '~shared/hooks/useOverlay';
 import { PhotoThunbnail } from '../../../shared/components/photo/PhotoThumbnail';
 import type { Photo } from '../../photo/photo.types';
@@ -14,7 +15,7 @@ interface TripPhotoContentProps {
 
 export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
   const overlay = useOverlay();
-  const { data: photos, remove, upload, updateVisibility, updatePlace } = useTripPhotos(tripId);
+  const { data: photos, remove, upload, update } = useTripPhotos(tripId);
   const { data: places } = useTripPlaces(tripId);
   const placeOptions = useMemo(() => places.map((place) => ({ placeId: place.placeId, name: place.name })), [places]);
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
@@ -75,7 +76,6 @@ export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
           <PhotoThunbnail
             key={x.id}
             src={x.url}
-            isPublic={x.isPublic}
             sx={{ width: 120, height: 120, margin: 0.5 }}
             onClick={() => {
               overlay.open(({ isOpen, close }) => (
@@ -85,13 +85,16 @@ export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
                   open={isOpen}
                   onClose={close}
                   onDelete={remove}
-                  onUpdateVisibility={(photo, isPublic) => updateVisibility({ photoId: photo.id, isPublic })}
+                  onUpdate={(photo, patch) => update({ photoId: photo.id, ...patch })}
                   places={placeOptions}
-                  onUpdatePlace={(photo, placeId) => updatePlace({ photoId: photo.id, placeId })}
                 />
               ))
             }}
-          />
+          >
+            {x.isPublic && (
+              <PhotoVisibilityBadge sx={{ position: 'absolute', top: 4, left: 4, zIndex: 1 }} />
+            )}
+          </PhotoThunbnail>
         ))}
       </Stack>
     </Stack>

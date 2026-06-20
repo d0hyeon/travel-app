@@ -5,12 +5,11 @@ import { Menu, MenuItem, Stack } from "@mui/material";
 import { useEffect, useEffectEvent, useRef, useState, type ComponentProps } from "react";
 import { Swiper, SwiperSlide, type SwiperRef } from 'swiper/react';
 import type { Photo } from "~features/photo/photo.types";
+import type { PhotoUpdate } from "~features/photo/photo.api";
 import { BottomSheet } from "~shared/components/bottom-sheet/BottomSheet";
 import DownloadIcon from '@mui/icons-material/Downloading';
 
-// @ts-expect-error swiper CSS는 타입 선언이 없다
 import 'swiper/css';
-// @ts-expect-error swiper CSS는 타입 선언이 없다
 import 'swiper/css/virtual';
 
 import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
@@ -23,13 +22,12 @@ import { PhotoPlaceBar, type PhotoPlaceOption } from "./PhotoPlaceBar";
 type SheetProps = {
   photos: Photo[];
   onDelete?: (photo: Photo) => void;
-  onUpdateVisibility?: (photo: Photo, isPublic: boolean) => Promise<unknown>;
+  onUpdate?: (photo: Photo, patch: PhotoUpdate) => Promise<unknown>;
   places?: PhotoPlaceOption[];
-  onUpdatePlace?: (photo: Photo, placeId: string | null) => Promise<unknown>;
   initialIndex?: number
 } & Omit<ComponentProps<typeof BottomSheet>, 'children'>;
 
-export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, onUpdateVisibility, places, onUpdatePlace, onClose, ...props }: SheetProps) {
+export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, onUpdate, places, onClose, ...props }: SheetProps) {
   const [index, setIndex] = useState(initialIndex);
   const [photos, setPhotos] = useState(_photos);
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
@@ -71,7 +69,7 @@ export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, 
       item.id === photo.id ? { ...item, isPublic } : item
     )));
     setMenuAnchorEl(null);
-    await onUpdateVisibility?.(photo, isPublic);
+    await onUpdate?.(photo, { isPublic });
   }
 
   const handleChangePlace = async (placeId: string | null) => {
@@ -83,7 +81,7 @@ export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, 
     setPhotos((current) => current.map((item) => (
       item.id === photo.id ? { ...item, placeId } : item
     )));
-    await onUpdatePlace?.(photo, placeId);
+    await onUpdate?.(photo, { placeId });
   }
 
   useGestureStart(() => swiperRef.current?.swiper.disable())
@@ -104,7 +102,7 @@ export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, 
           {index + 1} / {photos.length}
         </Typography>
         <Stack direction="row" spacing={0.5} sx={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)' }}>
-          {onUpdateVisibility && (
+          {onUpdate && (
             <>
               <IconButton onClick={(event) => setMenuAnchorEl(event.currentTarget)}>
                 <MoreVertIcon sx={{ color: '#fff' }} />
@@ -201,11 +199,11 @@ export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, 
 
         </BottomSheet.Scrollable>
       </BottomSheet.Body>
-      {places && onUpdatePlace && (
+      {places && onUpdate && (
         <Stack alignItems="center" pb={1}>
           <PhotoPlaceBar
-            placeId={photos[index]?.placeId ?? null}
-            places={places}
+            value={photos[index]?.placeId ?? null}
+            options={places}
             onChange={(placeId) => void handleChangePlace(placeId)}
           />
         </Stack>

@@ -8,9 +8,9 @@ import { forwardRef, useRef, useState, type ComponentProps } from "react";
 import { Mousewheel } from 'swiper/modules';
 import { Swiper, SwiperSlide, type SwiperRef } from "swiper/react";
 import type { Photo } from "~features/photo/photo.types";
+import type { PhotoUpdate } from "~features/photo/photo.api";
 import { useConfirmDialog } from "../../components/confirm-dialog/useConfirmDialog";
 
-// @ts-expect-error swiper CSS는 타입 선언이 없다
 import 'swiper/css';
 import { ZoomArea } from "../ZoomArea";
 import type { TransitionProps } from '@mui/material/transitions';
@@ -20,15 +20,14 @@ import { PhotoPlaceBar, type PhotoPlaceOption } from "./PhotoPlaceBar";
 type Props = {
   photos: Photo[];
   onDelete?: (photo: Photo) => void;
-  onUpdateVisibility?: (photo: Photo, isPublic: boolean) => Promise<unknown>;
+  onUpdate?: (photo: Photo, patch: PhotoUpdate) => Promise<unknown>;
   places?: PhotoPlaceOption[];
-  onUpdatePlace?: (photo: Photo, placeId: string | null) => Promise<unknown>;
   initialIndex?: number
   onClose: () => void;
 } & Omit<ComponentProps<typeof Dialog>, 'onClose'>;
 
 
-export function PhotoDialog({ photos: _photos, onDelete, onUpdateVisibility, places, onUpdatePlace, initialIndex = 0, onClose, ...props }: Props) {
+export function PhotoDialog({ photos: _photos, onDelete, onUpdate, places, initialIndex = 0, onClose, ...props }: Props) {
   const [index, setIndex] = useState(initialIndex);
   const [photos, setPhotos] = useState(_photos);
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
@@ -59,7 +58,7 @@ export function PhotoDialog({ photos: _photos, onDelete, onUpdateVisibility, pla
       item.id === photo.id ? { ...item, isPublic } : item
     )));
     setMenuAnchorEl(null);
-    await onUpdateVisibility?.(photo, isPublic);
+    await onUpdate?.(photo, { isPublic });
   }
 
   const handleChangePlace = async (placeId: string | null) => {
@@ -71,7 +70,7 @@ export function PhotoDialog({ photos: _photos, onDelete, onUpdateVisibility, pla
     setPhotos((current) => current.map((item) => (
       item.id === photo.id ? { ...item, placeId } : item
     )));
-    await onUpdatePlace?.(photo, placeId);
+    await onUpdate?.(photo, { placeId });
   }
 
   const swiperRef = useRef<SwiperRef>(null);
@@ -117,7 +116,7 @@ export function PhotoDialog({ photos: _photos, onDelete, onUpdateVisibility, pla
             </IconButton>
           )}
           <Stack direction="row" spacing={1}>
-            {onUpdateVisibility && (
+            {onUpdate && (
               <>
                 <IconButton onClick={(event) => setMenuAnchorEl(event.currentTarget)} sx={{ color: 'white' }}>
                   <MoreVertIcon />
@@ -219,15 +218,15 @@ export function PhotoDialog({ photos: _photos, onDelete, onUpdateVisibility, pla
           </Swiper>
 
         </Box>
-        {places && onUpdatePlace && (
+        {places && onUpdate && (
           <Stack
             direction="row"
             justifyContent="center"
             sx={{ position: 'absolute', bottom: 16, left: 0, right: 0, zIndex: 1 }}
           >
             <PhotoPlaceBar
-              placeId={photos[index]?.placeId ?? null}
-              places={places}
+              value={photos[index]?.placeId ?? null}
+              options={places}
               onChange={(placeId) => void handleChangePlace(placeId)}
             />
           </Stack>
