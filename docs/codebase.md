@@ -339,7 +339,7 @@ src/
     │   ├── dnd/                # 드래그 앤 드롭 (@dnd-kit)
     │   ├── layout/             # TopNavigation (mobile / desktop)
     │   ├── notification-card/
-    │   ├── photo/              # PhotoUploader, PhotoDialog, PhotoThumbnail, PhotoBottomSheet
+    │   ├── photo/              # PhotoUploader, PhotoDialog, PhotoThumbnail, PhotoBottomSheet, PhotoVisibilityBadge, PhotoPlaceBar
     │   ├── split-view/         # SplitView, useResizableSplit
     │   ├── statistics/         # StatisticsBarChart, StatisticsColumnChart, StatisticsDonutChart
     │   ├── BottomArea.tsx
@@ -455,6 +455,9 @@ src/
 | 통계                 | `features/statistics/StatisticsPage.tsx`                          |
 | 지도 (공통)          | `shared/components/Map/` (kakao / google 구현 분기)               |
 | 사진 업로드          | `shared/components/photo/PhotoUploader.tsx`                       |
+| 사진 상세 뷰어       | `shared/components/photo/PhotoBottomSheet.tsx`(모바일), `PhotoDialog.tsx`(데스크탑) |
+| 사진 공개 뱃지/장소 변경 | `shared/components/photo/PhotoVisibilityBadge.tsx`, `PhotoPlaceBar.tsx` |
+| 여행 사진 탭         | `features/trip/trip-photo/TripPhotoContent.*.tsx`                 |
 | 체크리스트           | `features/trip/trip-checklist/`                                   |
 | 오버레이/모달        | `shared/hooks/useOverlay.tsx`                                     |
 | 웹 푸시              | `features/auth/useWebPushSubscription.ts`                         |
