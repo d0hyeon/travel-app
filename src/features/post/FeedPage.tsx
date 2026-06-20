@@ -54,8 +54,8 @@ function Contents() {
   const isMounted = useIsMounted();
   const { Link: PostLink } = useRouteOverlay(
     (postId: string) => generatePath(AppRoute.포스트_상세, { postId }),
-    ({ isOpen, close, data: postId }) => (
-      <FullScreenPopup transition={{ duration: isMounted ? 250 : 0 }} isOpen={isOpen} onClose={close}>
+    ({ isOpen, close, onClose, data: postId }) => (
+      <FullScreenPopup transition={{ duration: isMounted ? 250 : 0 }} isOpen={isOpen} onClose={onClose}>
         <TopNavigation
           leftElement={<TopNavigation.BackButton onClick={close} />}
           rightElement={<PostMenu postId={postId} onDelete={close} />}
