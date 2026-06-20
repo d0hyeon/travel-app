@@ -43,7 +43,7 @@ export default defineConfig({
   // 테스트 실행 전 dev 서버를 자동으로 띄운다
   webServer: {
     // --mode test → Vite가 .env.test를 로드 → VITE_MSW=true 주입
-    command: 'yarn dev --mode test',
+    command: 'pnpm dev --mode test',
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
     timeout: 30_000,

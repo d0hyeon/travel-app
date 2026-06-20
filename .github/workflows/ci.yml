@@ -33,3 +33,16 @@ jobs:
     steps:
       - uses: ./.github/actions/setup
       - run: pnpm test
+
+  e2e-test:
+    name: End to End Tests
+    runs-on: ubuntu-latest
+
+    env:
+      VITE_SUPABASE_URL: https://placeholder.supabase.co
+      VITE_SUPABASE_ANON_KEY: placeholder
+
+    steps:
+      - uses: ./.github/actions/setup
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
