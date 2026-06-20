@@ -128,7 +128,7 @@ src/
 │   │   ├── PlaceMap.tsx
 │   │   ├── PlacePhotoList.tsx
 │   │   ├── PlaceInfoWidget.tsx
-│   │   ├── place-detail/       # 장소 상세 (페이지 / 사이드시트·바텀시트 오버레이: usePlaceDetailOverlay)
+│   │   ├── place-detail/       # 장소 상세 (페이지 / 사이드시트·풀스크린 오버레이: usePlaceDetailOverlay)
 │   │   └── place-search/       # 장소 검색 (BottomSheet / Dialog)
 │   │
 │   ├── post/                   # 포스트/피드 도메인
