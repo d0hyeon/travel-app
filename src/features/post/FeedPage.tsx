@@ -51,11 +51,10 @@ export default function FeedPage() {
 function Contents() {
   const { data: posts } = useFeed();
 
-  const isMounted = useIsMounted();
   const { Link: PostLink } = useRouteOverlay(
     (postId: string) => generatePath(AppRoute.포스트_상세, { postId }),
     ({ isOpen, close, onClose, data: postId }) => (
-      <FullScreenPopup transition={{ duration: isMounted ? 250 : 0 }} isOpen={isOpen} onClose={onClose}>
+      <FullScreenPopup isOpen={isOpen} onClose={onClose}>
         <TopNavigation
           leftElement={<TopNavigation.BackButton onClick={close} />}
           rightElement={<PostMenu postId={postId} onDelete={close} />}
