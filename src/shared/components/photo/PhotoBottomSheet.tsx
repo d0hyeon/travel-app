@@ -16,7 +16,7 @@ import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDi
 import { ZoomArea } from "../ZoomArea";
 import { Virtual } from 'swiper/modules';
 import { PhotoVisibilityBadge } from "./PhotoVisibilityBadge";
-import { PhotoPlaceBar, type PhotoPlaceOption } from "./PhotoPlaceBar";
+import { PhotoPlaceSelect, type PhotoPlaceOption } from "./PhotoPlaceSelect";
 
 
 type SheetProps = {
@@ -201,7 +201,7 @@ export function PhotoBottomSheet({ photos: _photos, initialIndex = 0, onDelete, 
       </BottomSheet.Body>
       {places && onUpdate && (
         <Stack alignItems="center" pb={1}>
-          <PhotoPlaceBar
+          <PhotoPlaceSelect
             value={photos[index]?.placeId ?? null}
             options={places}
             onChange={(placeId) => void handleChangePlace(placeId)}

@@ -120,11 +120,10 @@ export default function TripPhotoContent({ tripId }: TripPhotoContentProps) {
                       {isSelected && <CheckIcon color="primary" sx={{ fill: '#fff', color: '#fff' }} />}
                     </Box>
                   )}
-                  <PhotoThunbnail key={x.id} src={x.url}>
-                    {x.isPublic && (
-                      <PhotoVisibilityBadge sx={{ position: 'absolute', top: 4, left: 4, zIndex: 1 }} />
-                    )}
-                  </PhotoThunbnail>
+                  {x.isPublic && (
+                    <PhotoVisibilityBadge sx={{ position: 'absolute', top: 4, left: 4, zIndex: 1 }} />
+                  )}
+                  <PhotoThunbnail key={x.id} src={x.url} />
                 </Box>
               )
             })}

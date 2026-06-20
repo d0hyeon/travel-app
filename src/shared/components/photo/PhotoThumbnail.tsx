@@ -6,11 +6,11 @@ type ItemProps = {
   src: string;
 } & ImageListItemProps;
 
-export function PhotoThunbnail({ src, children, sx, ...props }: ItemProps) {
+export function PhotoThunbnail({ src, sx, ...props }: ItemProps) {
   return (
     <ImageListItem
       sx={[
-        { cursor: 'pointer', borderRadius: 3, overflow: 'hidden', position: 'relative' },
+        { cursor: 'pointer', borderRadius: 3, overflow: 'hidden' },
         ({ palette }) => ({ border: `1px solid ${palette.divider}` }),
         ...(Array.isArray(sx) ? sx : [sx])
       ]}
@@ -22,7 +22,6 @@ export function PhotoThunbnail({ src, children, sx, ...props }: ItemProps) {
         loading="lazy"
         style={{ aspectRatio: '1', objectFit: 'cover' }}
       />
-      {children}
     </ImageListItem>
   )
 }

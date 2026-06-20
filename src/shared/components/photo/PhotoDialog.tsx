@@ -15,7 +15,7 @@ import 'swiper/css';
 import { ZoomArea } from "../ZoomArea";
 import type { TransitionProps } from '@mui/material/transitions';
 import { PhotoVisibilityBadge } from "./PhotoVisibilityBadge";
-import { PhotoPlaceBar, type PhotoPlaceOption } from "./PhotoPlaceBar";
+import { PhotoPlaceSelect, type PhotoPlaceOption } from "./PhotoPlaceSelect";
 
 type Props = {
   photos: Photo[];
@@ -224,7 +224,7 @@ export function PhotoDialog({ photos: _photos, onDelete, onUpdate, places, initi
             justifyContent="center"
             sx={{ position: 'absolute', bottom: 16, left: 0, right: 0, zIndex: 1 }}
           >
-            <PhotoPlaceBar
+            <PhotoPlaceSelect
               value={photos[index]?.placeId ?? null}
               options={places}
               onChange={(placeId) => void handleChangePlace(placeId)}

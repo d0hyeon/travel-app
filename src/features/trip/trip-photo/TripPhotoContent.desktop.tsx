@@ -73,28 +73,28 @@ export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
           />
         </Box>
         {filteredPhotos.map((x, i) => (
-          <PhotoThunbnail
-            key={x.id}
-            src={x.url}
-            sx={{ width: 120, height: 120, margin: 0.5 }}
-            onClick={() => {
-              overlay.open(({ isOpen, close }) => (
-                <PhotoDialog
-                  initialIndex={i}
-                  photos={filteredPhotos}
-                  open={isOpen}
-                  onClose={close}
-                  onDelete={remove}
-                  onUpdate={(photo, patch) => update({ photoId: photo.id, ...patch })}
-                  places={placeOptions}
-                />
-              ))
-            }}
-          >
+          <Box key={x.id} position="relative" sx={{ width: 120, height: 120, margin: 0.5 }}>
+            <PhotoThunbnail
+              src={x.url}
+              sx={{ width: '100%', height: '100%' }}
+              onClick={() => {
+                overlay.open(({ isOpen, close }) => (
+                  <PhotoDialog
+                    initialIndex={i}
+                    photos={filteredPhotos}
+                    open={isOpen}
+                    onClose={close}
+                    onDelete={remove}
+                    onUpdate={(photo, patch) => update({ photoId: photo.id, ...patch })}
+                    places={placeOptions}
+                  />
+                ))
+              }}
+            />
             {x.isPublic && (
               <PhotoVisibilityBadge sx={{ position: 'absolute', top: 4, left: 4, zIndex: 1 }} />
             )}
-          </PhotoThunbnail>
+          </Box>
         ))}
       </Stack>
     </Stack>

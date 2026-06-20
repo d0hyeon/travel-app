@@ -15,8 +15,8 @@ interface Props {
   onChange: (value: string | null) => void;
 }
 
-/** 사진 상세 오버레이 하단의 장소 이름 + 편집(장소 변경) 바. */
-export function PhotoPlaceBar({ value, options, onChange }: Props) {
+/** 사진 상세 오버레이 하단에서 사진의 장소를 선택/변경하는 Select. */
+export function PhotoPlaceSelect({ value, options, onChange }: Props) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const currentName = options.find((option) => option.placeId === value)?.name;
 
