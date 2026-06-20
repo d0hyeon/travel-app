@@ -7,6 +7,7 @@ import { Link, useLocation, useNavigate, type LinkProps } from "react-router";
 import { useOverlay, type OverlayRenderProps as OverlayProps } from "../useOverlay";
 import { usePreservedCallback } from "./usePreservedCallback";
 import { usePreservedValue } from "./usePreservedValue";
+import { useIsMobile } from "../env/useIsMobile";
 
 
 export interface RouteOverlayRenderProps<Data = never> extends OverlayProps {
@@ -18,41 +19,44 @@ export function useRouteOverlay<Data = never>(
   renderer: (props: RouteOverlayRenderProps<Data>) => ReactNode
 ) {
   const id = useId()
+  const isMobile = useIsMobile();
   const { state, pathname } = useLocation();
-  const { routeOverlayIds = [], data } = state ?? {};
+  const { routeOverlayActivedIds = [], data } = state ?? {};
 
-  const isOpen = routeOverlayIds.includes(id);
+  const isOpen = routeOverlayActivedIds.includes(id);
   const getIsOpen = usePreservedValue(isOpen)
 
   const overlay = useOverlay();
   const navigate = useNavigate();
-
   const renderElement = usePreservedCallback(renderer);
+
   useEffect(() => {
-    if (isOpen) {
-      overlay.open((props) => renderElement({
-        ...props,
-        close: () => {
-          if (getIsOpen()) navigate(-1)
-        },
-        data
-      }))
-      return () => overlay.close()
+    const handleClose = () => {
+      if (getIsOpen()) navigate(-1)
     }
-  }, [isOpen]);
+    if (isOpen) {
+      overlay.open(
+        (props) => renderElement({ ...props, close: handleClose, data })
+      )
+
+      return () => {
+        // 모바일은 뒤로가기 제스처 모션과 충돌할 수 있어 즉시 unmount 한다.
+        if (isMobile) overlay.unmount();
+        else overlay.close(); // (close: 상태변경(모션) 후 unmount)
+      }
+    }
+  }, [isOpen, isMobile]);
 
 
   const getPath = usePreservedCallback(
     (data: Data) => path instanceof Function ? path(data) : path
   );
   const open = useCallback((data: Data) => {
-    const path = getPath(data);
+    const maskPath = getPath(data);
+    const state = { data, routeOverlayActivedIds: [...routeOverlayActivedIds, id] }
 
-    return navigate(
-      { pathname, hash: id },
-      { mask: path, state: { data, routeOverlayIds: [...routeOverlayIds, id] } }
-    )
-  }, [routeOverlayIds, id]);
+    return navigate({ pathname, hash: id }, { mask: maskPath, state })
+  }, [routeOverlayActivedIds, id]);
 
   const close = useCallback(() => {
     if (isOpen) {
@@ -69,7 +73,7 @@ export function useRouteOverlay<Data = never>(
         {...props}
         mask={getPath(props.data)}
         to={{ pathname, hash: id }}
-        state={{ data: props.data, routeOverlayIds: [...routeOverlayIds, id] }}
+        state={{ data: props.data, routeOverlayActivedIds: [...routeOverlayActivedIds, id] }}
       />
     )
   }), [id, close, open])
