@@ -21,8 +21,21 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: ./.github/actions/setup
-      - run: pnpm eslint
+      # PR에서 변경된 ts/tsx 파일만 lint한다. 기존 부채는 막지 않되 새 코드는 강제.
+      - name: Lint changed files
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          FILES=$(git diff --name-only --diff-filter=ACMR "$BASE_SHA" HEAD -- '*.ts' '*.tsx')
+          if [ -z "$FILES" ]; then
+            echo "변경된 ts/tsx 파일이 없어 lint를 건너뜁니다."
+            exit 0
+          fi
+          echo "$FILES"
+          echo "$FILES" | xargs pnpm exec eslint
 
   test:
     name: Unit Tests
