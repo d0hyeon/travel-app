@@ -128,7 +128,7 @@ src/
 │   │   ├── PlaceMap.tsx
 │   │   ├── PlacePhotoList.tsx
 │   │   ├── PlaceInfoWidget.tsx
-│   │   ├── place-detail/       # 장소 상세 페이지
+│   │   ├── place-detail/       # 장소 상세 (페이지 / 사이드시트·바텀시트 오버레이: usePlaceDetailOverlay)
 │   │   └── place-search/       # 장소 검색 (BottomSheet / Dialog)
 │   │
 │   ├── post/                   # 포스트/피드 도메인
@@ -447,7 +447,7 @@ src/
 | 메모 목록/상세/편집  | `features/trip/trip-memo/`                                        |
 | 장소 탭              | `features/trip/trip-place/TripPlaceContent.tsx`                   |
 | 장소 검색            | `features/place/place-search/`                                    |
-| 장소 상세            | `features/place/place-detail/PlaceDetailPage.tsx`                 |
+| 장소 상세            | `features/place/place-detail/PlaceDetailPage.tsx` (오버레이: `usePlaceDetailOverlay`) |
 | 추천 장소            | `features/trip/trip-recommend/`                                   |
 | 장소 탐색 (Explorer) | `features/explorer/PlaceExplorerPage.tsx`                         |
 | 피드/포스트          | `features/post/FeedPage.tsx`, `features/post/post-form/`          |
