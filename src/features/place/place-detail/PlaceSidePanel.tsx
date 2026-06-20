@@ -19,9 +19,11 @@ interface Props {
   placeId: string;
   isOpen?: boolean
   onClose: () => void
+  /** 다른 오버레이 위에 띄울 때 z-index를 높인다 (미제공 시 drawer 기본값) */
+  zIndex?: number
 }
 
-export function PlaceSidePanel({ placeId, isOpen: _isOpen = true, onClose }: Props) {
+export function PlaceSidePanel({ placeId, isOpen: _isOpen = true, onClose, zIndex }: Props) {
   const [currentTab, changeTab] = useState<'basic' | 'feed'>('basic');
   const [isOpen, setIsOpen] = useState(_isOpen);
 
@@ -39,7 +41,7 @@ export function PlaceSidePanel({ placeId, isOpen: _isOpen = true, onClose }: Pro
       open={isOpen}
       onClose={() => setIsOpen(false)}
       hideBackdrop
-      sx={theme => ({ zIndex: theme.zIndex.drawer })}
+      sx={theme => ({ zIndex: zIndex ?? theme.zIndex.drawer })}
       PaperProps={{
         sx: {
           width: 480,

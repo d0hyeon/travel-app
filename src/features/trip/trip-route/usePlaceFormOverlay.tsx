@@ -1,9 +1,11 @@
-import { Button, Chip, Dialog, DialogActions, DialogContent, Stack, Typography } from "@mui/material";
+import { Button, Chip, Dialog, DialogActions, DialogContent, Stack } from "@mui/material";
 import { useCallback, useId, type ReactNode } from "react";
 import { PlaceForm, type PlaceFormValues } from "~features/trip/trip-place/trip-place-form/PlaceForm";
+import { PlaceTitleButton } from "~features/trip/trip-place/trip-place-form/PlaceTitleButton";
 import { BottomSheet } from "~shared/components/bottom-sheet/BottomSheet";
 import { useOverlay } from "~shared/hooks/useOverlay";
 import { DialogTitle } from "~shared/components/confirm-dialog/DialogTitle";
+import { usePlaceDetailOverlay } from "~features/place/place-detail/usePlaceDetailOverlay";
 import { useTripPlaces } from "../trip-place/useTripPlaces";
 import { assert } from "~shared/utils/types";
 import { PlacePhotoSection } from "~features/trip/trip-place/PlacePhotoSection";
@@ -11,7 +13,6 @@ import { PlacePhotoSection } from "~features/trip/trip-place/PlacePhotoSection";
 interface PlaceFormOverlayProps {
   placeId: string;
   tripId: string;
-  title?: ReactNode;
   defaultValues?: Partial<PlaceFormValues>
   isOpen: boolean
   onClose?: () => void
@@ -75,7 +76,6 @@ interface PlaceFormSheetProps extends PlaceFormOverlayProps {
 function PlaceFormSheet({
   placeId,
   tripId,
-  title = '장소 정보',
   header,
   defaultValues,
   isOpen,
@@ -86,6 +86,7 @@ function PlaceFormSheet({
   const { data: places } = useTripPlaces(tripId);
   const place = places.find(x => x.id === placeId);
   assert(!!place, '존재하지 않는 장소입니다.');
+  const placeDetail = usePlaceDetailOverlay();
 
   const handleSubmit = (data: PlaceFormValues) => {
     onSubmit?.(data)
@@ -99,11 +100,11 @@ function PlaceFormSheet({
     >
       {header != null ? (
         <>{header({ onClose })}</>
-      ) : title != null ?
+      ) : (
         <BottomSheet.Header>
-          <Typography variant="h6">{title}</Typography>
+          <PlaceTitleButton name={place.name} onClick={() => placeDetail.open(place.placeId)} />
         </BottomSheet.Header>
-        : null}
+      )}
       <BottomSheet.Body>
         <Stack direction="row" mt={1} mb={2} gap={1}>
           <a href={`https://search.naver.com/search.naver?query=${place.name}`} target="_blank">
@@ -132,11 +133,12 @@ function PlaceFormSheet({
 }
 
 
-function PlaceFormDialog({ tripId, placeId, title = '장소 정보', defaultValues, isOpen, onClose, onSubmit }: PlaceFormOverlayProps) {
+function PlaceFormDialog({ tripId, placeId, defaultValues, isOpen, onClose, onSubmit }: PlaceFormOverlayProps) {
   const formId = useId();
   const { data: places } = useTripPlaces(tripId);
   const place = places.find(x => x.id === placeId);
   assert(!!place, '존재하지 않는 장소입니다.');
+  const placeDetail = usePlaceDetailOverlay();
 
   const handleSubmit = (data: PlaceFormValues) => {
     onSubmit?.(data)
@@ -145,9 +147,9 @@ function PlaceFormDialog({ tripId, placeId, title = '장소 정보', defaultValu
 
   return (
     <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth>
-      {typeof title === 'string' ? (
-        <DialogTitle>{title}</DialogTitle>
-      ) : title}
+      <DialogTitle>
+        <PlaceTitleButton name={place.name} onClick={() => placeDetail.open(place.placeId)} />
+      </DialogTitle>
 
       <DialogContent sx={{ paddingTop: '0px !important' }}>
         <Stack direction="row" mb={2} gap={1}>

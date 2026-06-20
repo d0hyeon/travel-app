@@ -1,13 +1,15 @@
 
 
-import { Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Stack, Typography } from '@mui/material'
+import { Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Stack } from '@mui/material'
 import { BottomSheet } from '../../../../shared/components/bottom-sheet/BottomSheet'
 import { PlaceForm } from './PlaceForm'
+import { PlaceTitleButton } from './PlaceTitleButton'
 import { useCallback } from 'react';
 import { useOverlay } from '../../../../shared/hooks/useOverlay';
 import { useTripPlaces } from '../useTripPlaces';
 import { assert } from '~shared/utils/types';
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog';
+import { usePlaceDetailOverlay } from '~features/place/place-detail/usePlaceDetailOverlay';
 import { PlacePhotoSection } from '../PlacePhotoSection';
 
 interface PlaceFormOverlayProps {
@@ -63,6 +65,7 @@ export function PlaceFormSheet({ placeId, tripId, isOpen, onClose }: PlaceFormOv
 
   assert(!!place, '해당 장소가 존재하지 않습니다.');
   const confirm = useConfirmDialog();
+  const placeDetail = usePlaceDetailOverlay();
 
   return (
     <BottomSheet
@@ -70,7 +73,7 @@ export function PlaceFormSheet({ placeId, tripId, isOpen, onClose }: PlaceFormOv
       onClose={onClose}
     >
       <BottomSheet.Header direction="row" justifyContent="space-between">
-        <Typography variant='h6'>{place.name}</Typography>
+        <PlaceTitleButton name={place.name} onClick={() => placeDetail.open(place.placeId)} />
         <Button
           type="button"
           variant="outlined"
@@ -129,12 +132,15 @@ function PlaceFormDialog({ tripId, placeId, isOpen, onClose }: PlaceFormOverlayP
 
   assert(!!place, '해당 장소가 존재하지 않습니다.')
   const confirm = useConfirmDialog();
+  const placeDetail = usePlaceDetailOverlay();
 
 
   return (
     <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth>
       <Stack direction="row" alignItems="center" justifyContent="space-between" paddingRight={2}>
-        <DialogTitle>{place.name}</DialogTitle>
+        <DialogTitle>
+          <PlaceTitleButton name={place.name} onClick={() => placeDetail.open(place.placeId)} />
+        </DialogTitle>
         <Button
           type="button"
           variant="contained"
