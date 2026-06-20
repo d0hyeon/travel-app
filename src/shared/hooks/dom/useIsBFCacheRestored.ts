@@ -19,6 +19,6 @@ export function BFCacheListener() {
   return null;
 }
 
-export function useIsBFCacheRestore() {
+export function useIsBFCacheRestored() {
   return isResotred;
 }
