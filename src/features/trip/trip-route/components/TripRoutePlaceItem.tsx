@@ -1,55 +1,27 @@
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import VisibilityOnIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { Box, IconButton } from '@mui/material';
+import type { ReactNode } from 'react';
+import type { TripPlace } from '~features/place/place.types';
 import { ListItem } from '~shared/components/ListItem';
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog';
 import { useTripPlaces } from '../../trip-place/useTripPlaces';
-import { NoteEditor } from '../RouteNoteList';
-import { Dot } from '../RouteTimeline';
 import { useDayTripRoutes } from '../useDayTripRoutes';
 import { usePlaceFormOverlay } from '../usePlaceFormOverlay';
 
 type ListItemProps = Parameters<typeof ListItem>[0];
 
 interface TripRoutePlaceItemProps extends ListItemProps {
-  tripId: string;
-  date: string;
-  routeId: string;
-  placeId: string;
-  order: number;
+  data: TripPlace;
+  title?: ReactNode;
 }
 
-// 경로 내 한 장소의 행. 순서·이름·주소·메모·노트와 노출 토글을 보여준다.
-// 정렬 핸들·클릭 등 외부 맥락은 ListItem props로 주입받고, 수정/삭제는 Actions 컴파운드로 위임한다.
-export function TripRoutePlaceItem({ tripId, date, routeId, placeId, order, ...listItemProps }: TripRoutePlaceItemProps) {
-  const { data: { routes }, updateNotes, toggleVisible } = useDayTripRoutes({ tripId, date });
+export function TripRoutePlaceItem({ data: place, title, children, ...listItemProps }: TripRoutePlaceItemProps) {
 
-  const route = routes.find(x => x.id === routeId);
-  const place = route?.places.find(x => x.id === placeId);
-  if (!route || !place) return null;
-
-  const isHidden = route.hiddenPlaces.includes(place.id);
 
   return (
     <ListItem {...listItemProps}>
-      <ListItem.Title
-        leftAddon={<Dot>{order}</Dot>}
-        rightAddon={(
-          <IconButton
-            size="small"
-            onClick={(event) => {
-              event.stopPropagation();
-              toggleVisible({ routeId, placeId: place.id });
-            }}
-          >
-            {isHidden ? <VisibilityOffIcon fontSize="small" sx={{ opacity: 0.7 }} /> : <VisibilityOnIcon fontSize="small" />}
-          </IconButton>
-        )}
-      >
-        {place.name}
-      </ListItem.Title>
+      {title ?? <ListItem.Title>{place.name}</ListItem.Title>}
       {place.address && (
         <ListItem.Text variant="body2" color="text.secondary" fontSize={12}>
           {place.address}
@@ -60,10 +32,7 @@ export function TripRoutePlaceItem({ tripId, date, routeId, placeId, order, ...l
           {place.memo}
         </ListItem.Text>
       )}
-      <NoteEditor
-        notes={place.routeNotes ?? []}
-        onChange={(memos) => updateNotes({ placeId: place.id, routeId, memos })}
-      />
+      {children}
     </ListItem>
   );
 }
