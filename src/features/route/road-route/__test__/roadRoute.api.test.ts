@@ -18,6 +18,7 @@ const wp = (lat: number, lng: number) => ({ lat, lng })
 const twoPoints = [wp(37.5, 127.0), wp(37.6, 127.1)]
 const successData = {
   coordinates: [wp(37.5, 127.0), wp(37.55, 127.05), wp(37.6, 127.1)],
+  legs: [{ duration: 720, distance: 4200, coordinates: [wp(37.5, 127.0), wp(37.55, 127.05), wp(37.6, 127.1)] }],
 }
 
 beforeEach(() => mockInvoke.mockReset())
@@ -25,14 +26,14 @@ beforeEach(() => mockInvoke.mockReset())
 describe('getRoadDirections', () => {
   it('waypoints가 1개면 그대로 반환', async () => {
     const result = await getRoadDirections([wp(37.5, 127.0)], 'korea')
-    expect(result).toEqual([wp(37.5, 127.0)])
+    expect(result).toEqual({ coordinates: [wp(37.5, 127.0)], legs: [] })
     expect(mockInvoke).not.toHaveBeenCalled()
   })
 
-  it('성공 시 coordinates 반환', async () => {
+  it('성공 시 coordinates와 legs 반환', async () => {
     mockInvoke.mockResolvedValue({ data: successData, error: null })
     const result = await getRoadDirections(twoPoints, 'korea')
-    expect(result).toEqual(successData.coordinates)
+    expect(result).toEqual(successData)
   })
 
   it('region=korea로 요청', async () => {
@@ -51,10 +52,13 @@ describe('getRoadDirections', () => {
     })
   })
 
-  it('API 오류 시 원본 waypoints 반환', async () => {
+  it('API 오류 시 원본 waypoints를 leg 없이 반환', async () => {
     mockInvoke.mockResolvedValue({ data: null, error: new Error('fail') })
     const result = await getRoadDirections(twoPoints, 'korea')
-    expect(result).toEqual(twoPoints)
+    expect(result).toEqual({
+      coordinates: twoPoints,
+      legs: [{ duration: 0, distance: 0, transport: 'car', coordinates: [twoPoints[0], twoPoints[1]] }],
+    })
   })
 
   it('7개 초과 waypoints는 구간 분할 후 병합', async () => {

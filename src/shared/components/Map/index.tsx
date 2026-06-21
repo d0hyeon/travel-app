@@ -5,7 +5,8 @@ import { arrayIncludes } from '~shared/utils/types';
 import { SwitchCase } from '../SwitchCase';
 import { MapTypeContext } from './MapTypeContext';
 import { Polygon, PolygonLayer, Region } from './PolygonLayer';
-import type { MapProps, MarkerProps, PathProps } from './types';
+import { PolylineContext } from './PolylineContext';
+import type { MapProps, MarkerProps, PathProps, PolylineLineProps, PolylineProps } from './types';
 
 const KakaoMap = lazy(() => import('./kakao/KakaoMap'));
 const KakaoMarker = lazy(() => import('./kakao/KakaoMapMarker'));
@@ -14,6 +15,9 @@ const KakaoPath = lazy(() => import('./kakao/KakaoMapPath'));
 const GoogleMap = lazy(() => import('./google/GoogleMap'));
 const GoogleMarker = lazy(() => import('./google/GoogleMapMarker'));
 const GooglePath = lazy(() => import('./google/GoogleMapPath'));
+
+const KakaoPolylineLine = lazy(() => import('./kakao/KakaoMapPolylineLine'));
+const GooglePolylineLine = lazy(() => import('./google/GoogleMapPolylineLine'));
 
 interface Props extends MapProps, Omit<BoxProps, 'autoFocus' | 'ref' | 'children'> {
   type: 'kakao' | 'google';
@@ -83,8 +87,36 @@ function Path(props: PathProps) {
   )
 }
 
+// 여러 Line을 한 경로로 묶고 공통 선 스타일을 자식에 전달한다
+function Polyline({ children, strokeColor, strokeWeight, strokeOpacity, strokeStyle }: PolylineProps) {
+  return (
+    <PolylineContext.Provider value={{ strokeColor, strokeWeight, strokeOpacity, strokeStyle }}>
+      {children}
+    </PolylineContext.Provider>
+  );
+}
+
+function PolylineLine(props: PolylineLineProps) {
+  const type = use(MapTypeContext);
+
+  return (
+    <Suspense>
+      <SwitchCase
+        value={type}
+        cases={{
+          kakao: () => <KakaoPolylineLine {...props} />,
+          google: () => <GooglePolylineLine {...props} />,
+        }}
+      />
+    </Suspense>
+  )
+}
+
+Polyline.Line = PolylineLine;
+
 Map.Marker = Marker;
 Map.Path = Path;
+Map.Polyline = Polyline;
 Map.PolygonLayer = PolygonLayer;
 Map.RegionLayer = PolygonLayer;
 Map.Polygon = Polygon;

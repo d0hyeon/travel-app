@@ -10,13 +10,12 @@ import {
   Chip,
   IconButton,
   Stack,
-  styled,
   ToggleButton,
   ToggleButtonGroup,
   Typography
 } from '@mui/material'
 
-import { Suspense, useMemo, useRef, useState } from 'react'
+import { Fragment, Suspense, useMemo, useRef, useState } from 'react'
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { SortableItem } from '../../../shared/components/dnd/SortableItem'
 import { SortableList } from '../../../shared/components/dnd/SortableList'
@@ -24,9 +23,10 @@ import { ListItem } from '../../../shared/components/ListItem'
 import { Map, type MapRef } from '../../../shared/components/Map'
 import { useQueryParamState } from '../../../shared/hooks/urls/useQueryParamState'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
-import { formatDisplayDate, formatShortDate } from '../../../shared/utils/formats'
+import { formatDisplayDate, formatDuration, formatShortDate } from '../../../shared/utils/formats'
 import { PlaceSearchDialog, type PlaceSearchResult } from '../../place/place-search/PlaceSearchDialog'
 import { PlaceCategoryColorCode } from '../../place/place.types'
+import { TransportTypeLabel } from '../../route/route.types'
 import { useRoadRoute } from '../../route/road-route/useRoadRoute'
 import { useTripPlaceFormOverlay } from '../trip-place/trip-place-form/useTripPlaceFormOverlay'
 import { useTripPlaces } from '../trip-place/useTripPlaces'
@@ -34,6 +34,7 @@ import { useTrip } from '../useTrip'
 import { NoteEditor } from './RouteNoteList'
 import { useDayTripRoutes } from './useDayTripRoutes'
 import { usePlaceFormOverlay } from './usePlaceFormOverlay'
+import { Dot, RouteLegConnector } from './RouteTimeline'
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = [
@@ -180,81 +181,93 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
                   onSort={(changed) => {
                     update({ routeId: currentRoute.id, placeIds: changed.items.map(x => x.id) })
                   }}
-                  renderItem={(place, idx) => (
-                    <ListItem
-                      leftAddon={(
-                        <SortableItem.Handle id={place.id}>
-                          <DragIcon />
-                        </SortableItem.Handle>
-                      )}
-                      rightAddon={(
-                        <Box flexShrink={0}>
+                >
+                  {currentRoute.places.map((place, idx) => (
+                    <Fragment key={place.id}>
+                      <Suspense>
+                        <RouteLegConnector
+                          waypoints={currentRoute.places.filter(x => !currentRoute.hiddenPlaces.includes(x.id))}
+                          arrivalPlaceId={place.id}
+                          paddingY={1}
+                        />
+                      </Suspense>
+                      <SortableList.Item id={place.id}>
+                        <ListItem
+                          leftAddon={(
+                            <SortableItem.Handle id={place.id}>
+                              <DragIcon />
+                            </SortableItem.Handle>
+                          )}
+                          rightAddon={(
+                            <Box flexShrink={0}>
 
-                          <IconButton
-                            size="small"
-                            onClick={async () => {
-                              const updated = await getUpdatedPlace({ tripId, placeId: place.id, defaultValues: place });
-                              if (updated) {
-                                updatePlace({
-                                  ...updated,
-                                  id: place.id,
-                                  category: updated.category || undefined, tags: updated.tags,
-                                })
-                              }
-                            }}
-                          >
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                          <IconButton
-                            size="small"
-                            color="error"
-                            onClick={() => {
-                              if (!currentRoute) return
-                              const newPlaceIds = currentRoute.placeIds.filter((id) => id !== place.id)
-                              update({ routeId: currentRoute.id, placeIds: newPlaceIds })
-                            }}
-                          >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </Box>
-                      )}
-                      onClick={() => mapRef.current?.panTo(place.lat, place.lng)}
-                    >
+                              <IconButton
+                                size="small"
+                                onClick={async () => {
+                                  const updated = await getUpdatedPlace({ tripId, placeId: place.id, defaultValues: place });
+                                  if (updated) {
+                                    updatePlace({
+                                      ...updated,
+                                      id: place.id,
+                                      category: updated.category || undefined, tags: updated.tags,
+                                    })
+                                  }
+                                }}
+                              >
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                              <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() => {
+                                  if (!currentRoute) return
+                                  const newPlaceIds = currentRoute.placeIds.filter((id) => id !== place.id)
+                                  update({ routeId: currentRoute.id, placeIds: newPlaceIds })
+                                }}
+                              >
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </Box>
+                          )}
+                          onClick={() => mapRef.current?.panTo(place.lat, place.lng)}
+                        >
 
-                      <ListItem.Title
-                        leftAddon={<Dot>{idx + 1}</Dot>}
-                        rightAddon={(
-                          <IconButton
-                            size="small"
-                            sx={{}}
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              toggleVisible({ routeId: currentRoute.id, placeId: place.id })
-                            }}
+                          <ListItem.Title
+                            leftAddon={<Dot>{idx + 1}</Dot>}
+                            rightAddon={(
+                              <IconButton
+                                size="small"
+                                sx={{}}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  toggleVisible({ routeId: currentRoute.id, placeId: place.id })
+                                }}
+                              >
+                                {currentRoute.hiddenPlaces.includes(place.id) ? <VisibilityOffIcon fontSize="small" sx={{ opacity: 0.7 }} /> : <VisibilityOnIcon fontSize="small" />}
+                              </IconButton>
+                            )}
                           >
-                            {currentRoute.hiddenPlaces.includes(place.id) ? <VisibilityOffIcon fontSize="small" sx={{ opacity: 0.7 }} /> : <VisibilityOnIcon fontSize="small" />}
-                          </IconButton>
-                        )}
-                      >
-                        {place.name}
-                      </ListItem.Title>
-                      {place.address && (
-                        <ListItem.Text variant="body2" color="text.secondary" fontSize={12}>
-                          {place.address}
-                        </ListItem.Text>
-                      )}
-                      {place.memo && (
-                        <ListItem.Text variant="body2" color="text.secondary" fontSize={12}>
-                          {place.memo}
-                        </ListItem.Text>
-                      )}
-                      <NoteEditor
-                        notes={place.routeNotes ?? []}
-                        onChange={(memos) => updateNotes({ placeId: place.id, routeId: currentRoute.id, memos })}
-                      />
-                    </ListItem>
-                  )}
-                />
+                            {place.name}
+                          </ListItem.Title>
+                          {place.address && (
+                            <ListItem.Text variant="body2" color="text.secondary" fontSize={12}>
+                              {place.address}
+                            </ListItem.Text>
+                          )}
+                          {place.memo && (
+                            <ListItem.Text variant="body2" color="text.secondary" fontSize={12}>
+                              {place.memo}
+                            </ListItem.Text>
+                          )}
+                          <NoteEditor
+                            notes={place.routeNotes ?? []}
+                            onChange={(memos) => updateNotes({ placeId: place.id, routeId: currentRoute.id, memos })}
+                          />
+                        </ListItem>
+                      </SortableList.Item>
+                    </Fragment>
+                  ))}
+                </SortableList>
 
               </Stack>
             )}
@@ -385,22 +398,6 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
   )
 }
 
-const Dot = styled(Box)(({ theme }) => ({
-  minWidth: 18,
-  minHeight: 18,
-  borderRadius: '50%',
-  backgroundColor: theme.palette.primary.main,
-  color: 'white',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontSize: 10,
-  fontWeight: 'bold',
-  flexShrink: 0,
-}))
-
-
-
 function DragIcon() {
   return (
     <svg
@@ -427,16 +424,24 @@ interface RoutePathProps {
 }
 
 function RoutePath({ waypoints, color, isSelected }: RoutePathProps) {
-  const coordinates = useRoadRoute({ waypoints })
+  const { legs } = useRoadRoute({ waypoints })
 
-  if (!coordinates || coordinates.length < 2) return null
+  if (legs.length === 0) return null
 
   return (
-    <Map.Path
-      coordinates={coordinates}
+    <Map.Polyline
       strokeColor={color}
       strokeWeight={isSelected ? 5 : 3}
       strokeOpacity={isSelected ? 1 : 0.6}
-    />
+    >
+      {legs.map((leg, index) => (
+        <Map.Polyline.Line
+          key={index}
+          coordinates={leg.coordinates}
+          label={isSelected && leg.duration > 0 ? `${TransportTypeLabel[leg.transport]} ${formatDuration(leg.duration)}` : undefined}
+        />
+      ))}
+    </Map.Polyline>
   )
 }
+

@@ -54,6 +54,7 @@ export function SortableList<T extends { id: UniqueIdentifier }>({ items: _items
     </DndContext>
   );
 }
+SortableList.Item = SortableItem;
 
 type SortableData = {
   data: { current: { sortable: { index: number } } };

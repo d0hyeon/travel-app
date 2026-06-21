@@ -21,7 +21,7 @@ interface RoutePathProps {
 }
 
 export function RoutePath({ waypoints, color, isActive }: RoutePathProps) {
-  const coordinates = useRoadRoute({ waypoints })
+  const { coordinates } = useRoadRoute({ waypoints })
 
   if (!coordinates || coordinates.length < 2) return null
 

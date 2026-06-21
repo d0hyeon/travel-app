@@ -7,8 +7,8 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import VisibilityOnIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import WorkspacesIcon from '@mui/icons-material/Workspaces';
-import { Box, Button, Chip, IconButton, ListItemIcon, Menu, MenuItem, Stack, styled, Tab, Tabs, ToggleButton, Typography } from "@mui/material";
-import { Suspense, useMemo, useRef, useState } from "react";
+import { Box, Button, Chip, IconButton, ListItemIcon, Menu, MenuItem, Stack, Tab, Tabs, ToggleButton, Typography } from "@mui/material";
+import { Fragment, Suspense, useMemo, useRef, useState } from "react";
 import { BottomArea } from '~shared/components/BottomArea';
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog';
 import { useVariation } from '~shared/hooks/extends/useVariation';
@@ -22,7 +22,7 @@ import { PopMenu } from "../../../shared/components/PopMenu";
 import { useCurrentCoordinate } from "../../../shared/hooks/env/useCurrentCoordinate";
 import { usePointerPosition } from "../../../shared/hooks/interaction/usePointerPosition";
 import { useOverlay } from "../../../shared/hooks/useOverlay";
-import { formatDisplayDate, formatShortDate } from "../../../shared/utils/formats";
+import { formatDisplayDate, formatDuration, formatShortDate } from "../../../shared/utils/formats";
 import { PlaceCategoryColorCode, type TripPlace } from "../../place/place.types";
 import { useRoadRoute } from "../../route/road-route/useRoadRoute";
 import { useTripPlaces } from "../trip-place/useTripPlaces";
@@ -31,7 +31,9 @@ import { PlaceSelectSheet } from "./PlaceSelectSheet";
 import { NoteEditor } from './RouteNoteList';
 import { useDayTripRoutes } from './useDayTripRoutes';
 import { usePlaceFormOverlay } from './usePlaceFormOverlay';
+import { Dot, RouteLegConnector } from './RouteTimeline';
 import { useTripViewConfig } from './useTripViewConfig';
+import { TransportTypeLabel } from '~features/route/route.types';
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = [
@@ -271,114 +273,129 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
           </BottomSheet.Header>
           <BottomSheet.Body gap={1} sx={{ p: 1.5 }}>
             <BottomSheet.Scrollable>
-            {/* 경로 선택 & 추가 */}
-            <Stack direction="row" spacing={0.5} mb={1.5} alignItems="center">
-              {routes.map((route, index) => (
-                <Chip
-                  key={route.id}
-                  label={`경로 ${index + 1}`}
-                  variant={currentRoute?.id === route.id ? 'filled' : 'outlined'}
-                  color={currentRoute?.id === route.id ? 'primary' : 'default'}
-                  size="small"
-                  sx={{ fontSize: 11 }}
-                  onClick={() => setSelectedRouteId(route.id)}
-                  onDelete={async () => {
-                    if (await confirm('정말로 삭제하시겠어요?')) {
-                      removeRoute(route.id)
-                      if (currentRoute?.id === route.id) {
-                        setSelectedRouteId(null)
+              {/* 경로 선택 & 추가 */}
+              <Stack direction="row" spacing={0.5} mb={1.5} alignItems="center">
+                {routes.map((route, index) => (
+                  <Chip
+                    key={route.id}
+                    label={`경로 ${index + 1}`}
+                    variant={currentRoute?.id === route.id ? 'filled' : 'outlined'}
+                    color={currentRoute?.id === route.id ? 'primary' : 'default'}
+                    size="small"
+                    sx={{ fontSize: 11 }}
+                    onClick={() => setSelectedRouteId(route.id)}
+                    onDelete={async () => {
+                      if (await confirm('정말로 삭제하시겠어요?')) {
+                        removeRoute(route.id)
+                        if (currentRoute?.id === route.id) {
+                          setSelectedRouteId(null)
+                        }
                       }
-                    }
+                    }}
+                  />
+                ))}
+                <IconButton
+                  size="small"
+                  onClick={() => {
+                    createRoute({
+                      tripId,
+                      name: `${formatShortDate(selectedDate)} 경로 ${routes.length + 1}`,
+                      scheduledDate: selectedDate,
+                    })
                   }}
-                />
-              ))}
-              <IconButton
-                size="small"
-                onClick={() => {
-                  createRoute({
-                    tripId,
-                    name: `${formatShortDate(selectedDate)} 경로 ${routes.length + 1}`,
-                    scheduledDate: selectedDate,
-                  })
-                }}
-                color="primary"
-                sx={{ p: 0.5 }}
-              >
-                <AddIcon fontSize="small" />
-              </IconButton>
-              <Box flex={1} />
-            </Stack>
-
-            {currentRoute.places.length === 0 ? (
-              <Typography variant="caption" color="text.secondary">
-                지도에서 장소를 클릭하여 경로에 추가하세요
-              </Typography>
-            ) : (
-              <Stack spacing={0.5}>
-                <SortableList
-                  items={currentRoute.places}
-                  onSort={(changed) => {
-                    update({ routeId: currentRoute.id, placeIds: changed.items.map(x => x.id) })
-                  }}
-                  renderItem={(place, idx) => (
-                    <ListItem.Button
-                      sx={{ scrollMarginTop: 50 }}
-                      leftAddon={(
-                        <SortableItem.Handle id={place.id}>
-                          <DragIndicatorIcon />
-                        </SortableItem.Handle>
-                      )}
-                      rightAddon={(
-                        <PlaceMenu
-                          onEdit={() => editPlace(place)}
-                          onDelete={async () => {
-                            if (!currentRoute || !(await confirm('정말로 삭제하시겠어요?'))) return
-                            const newPlaceIds = currentRoute.placeIds.filter((id) => id !== place.id)
-                            update({ routeId: currentRoute.id, placeIds: newPlaceIds })
-                          }}
-                        />
-                      )}
-                      onClick={() => mapRef.current?.panTo(place.lat, place.lng)}
-                      focused={focusedId === place.id}
-                    >
-                      <Stack direction="row" alignItems="center" gap={0.5}>
-                        <Dot>{idx + 1}</Dot>
-                        <ListItem.Title>{place.name}</ListItem.Title>
-                        <IconButton
-                          size="small"
-                          sx={{}}
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            toggleVisible({ routeId: currentRoute.id, placeId: place.id })
-                          }}
-                        >
-                          {currentRoute.hiddenPlaces.includes(place.id) ? <VisibilityOffIcon fontSize="small" sx={{ opacity: 0.7 }} /> : <VisibilityOnIcon fontSize="small" />}
-                        </IconButton>
-                      </Stack>
-                      <Box>
-                        {place.address && (
-                          <ListItem.Text variant="body2" color="text.secondary" fontSize={12}>
-                            {place.address}
-                          </ListItem.Text>
-                        )}
-                        {place.memo && (
-                          <ListItem.Text variant="body2" color="text.secondary" fontSize={12}>
-                            {place.memo}
-                          </ListItem.Text>
-                        )}
-
-                        <NoteEditor
-                          notes={place.routeNotes ?? []}
-                          onChange={(memos) => updateNotes({ placeId: place.id, routeId: currentRoute.id, memos })}
-                          action="dialog"
-                          marginTop={1}
-                        />
-                      </Box>
-                    </ListItem.Button>
-                  )}
-                />
+                  color="primary"
+                  sx={{ p: 0.5 }}
+                >
+                  <AddIcon fontSize="small" />
+                </IconButton>
+                <Box flex={1} />
               </Stack>
-            )}
+
+              {currentRoute.places.length === 0 ? (
+                <Typography variant="caption" color="text.secondary">
+                  지도에서 장소를 클릭하여 경로에 추가하세요
+                </Typography>
+              ) : (
+                <Stack spacing={0.5}>
+                  <SortableList
+                    items={currentRoute.places}
+                    onSort={(changed) => {
+                      update({ routeId: currentRoute.id, placeIds: changed.items.map(x => x.id) })
+                    }}
+                  >
+                    {currentRoute.places.map((place, idx) => (
+                      <Fragment key={place.id}>
+                        <Suspense>
+                          <RouteLegConnector
+                            waypoints={currentRoute.places.filter(x => !currentRoute.hiddenPlaces.includes(x.id))}
+                            arrivalPlaceId={place.id}
+                            paddingY={1}
+                            marginBottom={0.5}
+                          />
+                        </Suspense>
+
+                        <SortableList.Item id={place.id}>
+                          <ListItem.Button
+                            sx={{ scrollMarginTop: 50 }}
+                            leftAddon={(
+                              <SortableItem.Handle id={place.id}>
+                                <DragIndicatorIcon />
+                              </SortableItem.Handle>
+                            )}
+                            rightAddon={(
+                              <PlaceMenu
+                                onEdit={() => editPlace(place)}
+                                onDelete={async () => {
+                                  if (!currentRoute || !(await confirm('정말로 삭제하시겠어요?'))) return
+                                  const newPlaceIds = currentRoute.placeIds.filter((id) => id !== place.id)
+                                  update({ routeId: currentRoute.id, placeIds: newPlaceIds })
+                                }}
+                              />
+                            )}
+                            onClick={() => mapRef.current?.panTo(place.lat, place.lng)}
+                            focused={focusedId === place.id}
+                          >
+                            <Stack direction="row" alignItems="center" gap={0.5}>
+                              <Dot>{idx + 1}</Dot>
+                              <ListItem.Title>{place.name}</ListItem.Title>
+                              <IconButton
+                                size="small"
+                                sx={{}}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  toggleVisible({ routeId: currentRoute.id, placeId: place.id })
+                                }}
+                              >
+                                {currentRoute.hiddenPlaces.includes(place.id) ? <VisibilityOffIcon fontSize="small" sx={{ opacity: 0.7 }} /> : <VisibilityOnIcon fontSize="small" />}
+                              </IconButton>
+                            </Stack>
+                            <Box>
+                              {place.address && (
+                                <ListItem.Text variant="body2" color="text.secondary" fontSize={12}>
+                                  {place.address}
+                                </ListItem.Text>
+                              )}
+                              {place.memo && (
+                                <ListItem.Text variant="body2" color="text.secondary" fontSize={12}>
+                                  {place.memo}
+                                </ListItem.Text>
+                              )}
+
+                              <NoteEditor
+                                notes={place.routeNotes ?? []}
+                                onChange={(memos) => updateNotes({ placeId: place.id, routeId: currentRoute.id, memos })}
+                                action="dialog"
+                                marginTop={1}
+                              />
+                            </Box>
+                          </ListItem.Button>
+                        </SortableList.Item>
+                      </Fragment>
+                    ))}
+
+                  </SortableList>
+                </Stack>
+              )}
             </BottomSheet.Scrollable>
           </BottomSheet.Body>
         </BottomSheet>
@@ -446,21 +463,6 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
   )
 }
 
-const Dot = styled(Box)(({ theme }) => ({
-  minWidth: 18,
-  minHeight: 18,
-  borderRadius: '50%',
-  backgroundColor: theme.palette.primary.main,
-  color: 'white',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontSize: 10,
-  fontWeight: 'bold',
-  flexShrink: 0,
-}))
-
-
 interface RoutePathProps {
   waypoints: { lat: number; lng: number }[]
   color: string
@@ -490,16 +492,23 @@ function PlaceMenu({ onEdit, onDelete }: PlaceMenuProps) {
 }
 
 function RoutePath({ waypoints, color, isSelected }: RoutePathProps) {
-  const coordinates = useRoadRoute({ waypoints })
+  const { legs } = useRoadRoute({ waypoints })
 
-  if (!coordinates || coordinates.length < 2) return null
+  if (legs.length === 0) return null
 
   return (
-    <Map.Path
-      coordinates={coordinates}
+    <Map.Polyline
       strokeColor={color}
       strokeWeight={isSelected ? 5 : 3}
       strokeOpacity={isSelected ? 1 : 0.6}
-    />
+    >
+      {legs.map((leg, index) => (
+        <Map.Polyline.Line
+          key={index}
+          coordinates={leg.coordinates}
+          label={isSelected && leg.duration > 0 ? `${TransportTypeLabel[leg.transport]} ${formatDuration(leg.duration)}` : undefined}
+        />
+      ))}
+    </Map.Polyline>
   )
 }

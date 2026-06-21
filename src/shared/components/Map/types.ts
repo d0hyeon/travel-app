@@ -64,6 +64,29 @@ export interface PathProps {
   strokeStyle?: string;
 }
 
+// 여러 간선(Line)을 하나의 논리적 경로로 묶는 그룹. 선 스타일을 소유해 자식 Line에 전달한다.
+export interface PolylineProps {
+  children?: ReactNode;
+  strokeColor?: string;
+  strokeWeight?: number;
+  strokeOpacity?: number;
+  strokeStyle?: string;
+}
+
+// Polyline 그룹 안의 개별 간선. 자기 좌표열로 폴리라인을 그리고 좌표열 중앙에 라벨을 띄운다.
+export interface PolylineLineProps {
+  coordinates: Coordinate[];
+  label?: string;
+}
+
+// Polyline이 자식 Line에 전달하는 공통 선 스타일
+export interface PolylineStyle {
+  strokeColor?: string;
+  strokeWeight?: number;
+  strokeOpacity?: number;
+  strokeStyle?: string;
+}
+
 // 내부 마커 레지스트리용
 /** @package */
 export interface MarkerData {
