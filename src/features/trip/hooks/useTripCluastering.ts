@@ -1,5 +1,5 @@
-import { useStorageState } from "~shared/hooks/useStorageState";
+import { useStorageStore } from "~shared/hooks/useStorageStore";
 
 export function useTripCluastering() {
-  return useStorageState<boolean>('trip-cluastering', false);
+  return useStorageStore<boolean>('trip-cluastering', false);
 }
