@@ -6,16 +6,16 @@ import { ToggleButton, ToggleButtonGroup } from '@mui/material';
 const FLOATING_BG = 'rgba(255, 255, 255, 0.7)';
 
 interface MarkerVisibilityToggleProps {
-  showAllMarkers: boolean;
-  onChange: (showAll: boolean) => void;
+  value: boolean;
+  onChange: (value: boolean) => void;
 }
 
 // 경로 외 장소 마커를 모두 보일지 토글한다.
-export function MarkerVisibilityToggle({ showAllMarkers, onChange }: MarkerVisibilityToggleProps) {
+export function MarkerVisibilityToggle({ value, onChange }: MarkerVisibilityToggleProps) {
   return (
     <ToggleButtonGroup
       orientation="vertical"
-      value={showAllMarkers}
+      value={value}
       exclusive
       size="small"
       sx={{ backgroundColor: FLOATING_BG }}
@@ -31,17 +31,17 @@ export function MarkerVisibilityToggle({ showAllMarkers, onChange }: MarkerVisib
 }
 
 interface ClusteringToggleProps {
-  clustering: boolean;
-  onChange: (clustering: boolean) => void;
+  value: boolean;
+  onChange: (value: boolean) => void;
 }
 
 // 마커 클러스터링을 토글한다.
-export function ClusteringToggle({ clustering, onChange }: ClusteringToggleProps) {
+export function ClusteringToggle({ value, onChange }: ClusteringToggleProps) {
   return (
     <ToggleButton
       value="clustering"
-      selected={clustering}
-      onChange={() => onChange(!clustering)}
+      selected={value}
+      onChange={() => onChange(!value)}
       size="small"
       sx={{ backgroundColor: FLOATING_BG }}
     >

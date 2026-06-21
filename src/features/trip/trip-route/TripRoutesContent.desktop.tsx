@@ -1,5 +1,6 @@
 import { Box, Stack, styled, Typography } from '@mui/material'
 import { Suspense, useMemo, useRef, useState } from 'react'
+import { SortableItem } from '../../../shared/components/dnd/SortableItem'
 import { SortableList } from '../../../shared/components/dnd/SortableList'
 import { Map, type MapRef } from '../../../shared/components/Map'
 import { useQueryParamState } from '../../../shared/hooks/urls/useQueryParamState'
@@ -8,9 +9,11 @@ import { PlaceCategoryColorCode } from '../../place/place.types'
 import { useTripPlaceFormOverlay } from '../trip-place/trip-place-form/useTripPlaceFormOverlay'
 import { useTripPlaces } from '../trip-place/useTripPlaces'
 import { useTrip } from '../useTrip'
+import { DragIcon } from './components/DragIcon'
+import { FloatingControl } from './components/FloatingControl'
 import { ClusteringToggle, MarkerVisibilityToggle } from './components/MapViewToggles'
 import { RoutePath } from './components/RoutePath'
-import { TripDateSelector } from './components/TripDateSelector'
+import { TripDateToggleGroup } from './components/TripDateToggleGroup'
 import { TripRoutePlaceItem } from './components/TripRoutePlaceItem'
 import { TripRouteSelector } from './components/TripRouteSelector'
 import { TripRutePlaceAddButton } from './components/TripRoutePlaceAddButton'
@@ -81,7 +84,7 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
       <SidePanel>
         <Stack height="100%">
           <Stack gap={2} flex="1 1 100%" paddingBottom={5}>
-            <TripDateSelector
+            <TripDateToggleGroup
               tripId={tripId}
               value={selectedDate}
               onChange={(date) => {
@@ -131,7 +134,20 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
                             routeId={currentRoute.id}
                             placeId={place.id}
                             order={idx + 1}
-                            onFocus={() => mapRef.current?.panTo(place.lat, place.lng)}
+                            onClick={() => mapRef.current?.panTo(place.lat, place.lng)}
+                            leftAddon={(
+                              <SortableItem.Handle id={place.id}>
+                                <DragIcon />
+                              </SortableItem.Handle>
+                            )}
+                            rightAddon={(
+                              <TripRoutePlaceItem.Actions
+                                tripId={tripId}
+                                date={selectedDate}
+                                routeId={currentRoute.id}
+                                placeId={place.id}
+                              />
+                            )}
                           />
                         </SortableList.Item>
                       </Stack>
@@ -149,11 +165,11 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
 
       {/* Right: Map */}
       <Box sx={{ flex: 1, position: 'relative' }}>
-        <FloatingControl sx={{ top: 0, left: 0 }}>
-          <MarkerVisibilityToggle showAllMarkers={isVisibleOtherMarkers} onChange={setIsVisibleOtherMarkers} />
+        <FloatingControl corner="top-left" zIndex={1000}>
+          <MarkerVisibilityToggle value={isVisibleOtherMarkers} onChange={setIsVisibleOtherMarkers} />
         </FloatingControl>
-        <FloatingControl sx={{ top: 0, right: 0 }}>
-          <ClusteringToggle clustering={clustering} onChange={setClustering} />
+        <FloatingControl corner="top-right" zIndex={1000}>
+          <ClusteringToggle value={clustering} onChange={setClustering} />
         </FloatingControl>
         <Map
           type={trip.isOverseas ? 'google' : 'kakao'}
@@ -231,11 +247,4 @@ const BottomBar = styled(Box)({
   position: 'sticky',
   bottom: 0,
   background: '#fff',
-})
-
-const FloatingControl = styled(Stack)({
-  position: 'absolute',
-  zIndex: 1000,
-  gap: 8,
-  padding: 8,
 })

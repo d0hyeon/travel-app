@@ -1,15 +1,17 @@
 import MyLocationIcon from '@mui/icons-material/MyLocation';
 import AddIcon from '@mui/icons-material/Add';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import EditIcon from '@mui/icons-material/Edit';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import WorkspacesIcon from '@mui/icons-material/Workspaces';
-import { Box, Button, IconButton, ListItemIcon, Menu, MenuItem, Stack, styled, Tab, Tabs, ToggleButton, Typography } from "@mui/material";
+import { Box, Button, IconButton, ListItemIcon, Menu, MenuItem, Stack, Tab, Tabs, ToggleButton, Typography } from "@mui/material";
 import { Fragment, Suspense, useMemo, useRef, useState } from "react";
 import { BottomArea } from '~shared/components/BottomArea';
 import { useVariation } from '~shared/hooks/extends/useVariation';
 import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState';
 import { BottomSheet } from "../../../shared/components/bottom-sheet/BottomSheet";
+import { SortableItem } from "../../../shared/components/dnd/SortableItem";
 import { SortableList } from "../../../shared/components/dnd/SortableList";
 import { Map, type MapRef } from "../../../shared/components/Map";
 import { useCurrentCoordinate } from "../../../shared/hooks/env/useCurrentCoordinate";
@@ -19,6 +21,7 @@ import { formatDisplayDate, formatShortDate } from "../../../shared/utils/format
 import { PlaceCategoryColorCode, type TripPlace } from "../../place/place.types";
 import { useTripPlaces } from "../trip-place/useTripPlaces";
 import { useTrip } from '../useTrip';
+import { FloatingControl } from "./components/FloatingControl";
 import { RoutePath } from "./components/RoutePath";
 import { TripRoutePlaceListItem } from "./components/TripRoutePlaceListItem";
 import { TripRouteSelector } from "./components/TripRouteSelector";
@@ -137,7 +140,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
           sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `calc(${sheetRatio * 100}% - 10px)` }}
           {...pointerTracker}
         >
-          <FloatingControl sx={{ top: 0, left: 0 }}>
+          <FloatingControl corner="top-left" zIndex={8}>
             <ToggleButton
               value="check"
               aria-label="경로 마커만 표시"
@@ -150,7 +153,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
               <VisibilityOffIcon fontSize="small" />
             </ToggleButton>
           </FloatingControl>
-          <FloatingControl sx={{ top: 0, right: 0 }}>
+          <FloatingControl corner="top-right" zIndex={8}>
             <ToggleButton
               value="check"
               selected={viewConfig.isCluasterlingView}
@@ -162,7 +165,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
               <WorkspacesIcon />
             </ToggleButton>
           </FloatingControl>
-          <FloatingControl sx={{ bottom: 8, right: 0 }}>
+          <FloatingControl corner="bottom-right" zIndex={8}>
             {currentCoordinate && (
               <IconButton
                 onClick={() => mapRef.current?.panTo(currentCoordinate.lat, currentCoordinate.lng)}
@@ -295,7 +298,20 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                               placeId={place.id}
                               order={idx + 1}
                               focused={focusedId === place.id}
-                              onFocus={() => mapRef.current?.panTo(place.lat, place.lng)}
+                              onClick={() => mapRef.current?.panTo(place.lat, place.lng)}
+                              leftAddon={(
+                                <SortableItem.Handle id={place.id}>
+                                  <DragIndicatorIcon />
+                                </SortableItem.Handle>
+                              )}
+                              rightAddon={(
+                                <TripRoutePlaceListItem.Actions
+                                  tripId={tripId}
+                                  date={selectedDate}
+                                  routeId={currentRoute.id}
+                                  placeId={place.id}
+                                />
+                              )}
                             />
                           </SortableList.Item>
                         </Fragment>
@@ -369,10 +385,3 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
     </>
   )
 }
-
-const FloatingControl = styled(Stack)({
-  position: 'absolute',
-  zIndex: 8,
-  gap: 8,
-  padding: 8,
-})

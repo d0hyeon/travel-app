@@ -2,14 +2,14 @@ import { ToggleButton, ToggleButtonGroup, type ToggleButtonGroupProps } from '@m
 import { formatShortDate } from '~shared/utils/formats';
 import { useTripRoutes } from '../useTripRoutes';
 
-interface TripDateSelectorProps extends Omit<ToggleButtonGroupProps, 'value' | 'onChange'> {
+interface TripDateToggleGroupProps extends Omit<ToggleButtonGroupProps, 'value' | 'onChange'> {
   tripId: string;
   value: string;
   onChange: (date: string) => void;
 }
 
-// 여행 일자를 토글로 선택한다. 일자 목록은 내부에서 조회한다.
-export function TripDateSelector({ tripId, value, onChange, ...props }: TripDateSelectorProps) {
+// 여행 일자를 토글 그룹으로 선택한다. 일자 목록은 내부에서 조회한다.
+export function TripDateToggleGroup({ tripId, value, onChange, ...props }: TripDateToggleGroupProps) {
   const { data: { tripDates } } = useTripRoutes(tripId);
 
   return (
