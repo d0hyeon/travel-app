@@ -16,4 +16,7 @@ export const roadRouteSchema = defineStore('roadRoutes', {
       lng: t.number(),
     })).array(),
   })).array(),
+}).addMigration('reset-for-legs', (db, transition) => {
+  const store = transition.objectStore('roadRoutes');
+  store.clear();
 })
