@@ -1,5 +1,5 @@
 import { openDB } from "schema-idb";
-import { roadRouteSchema } from "./roadRoute.schema";
+import { roadRouteSchema } from "../features/route/road-route/roadRoute.schema";
 
 export const clientDatabase = openDB({
   name: 'travel-app',

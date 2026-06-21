@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { clientDatabase } from '~features/route/road-route/client-database';
+import { clientDatabase } from '~app/client-database';
 import { isOverseasByCoordinate } from '~shared/utils/geo';
 import type { Coordinate } from '../../../shared/components/Map/types';
 import type { RoadRoute } from '../route.types';
