@@ -1,5 +1,6 @@
-import { Box, Stack, styled, Typography } from '@mui/material'
+import { Box, IconButton, Stack, styled, Typography } from '@mui/material'
 import { Suspense, useMemo, useRef, useState } from 'react'
+import { ListItem } from '~shared/components/ListItem'
 import { SortableItem } from '../../../shared/components/dnd/SortableItem'
 import { SortableList } from '../../../shared/components/dnd/SortableList'
 import { Map, type MapRef } from '../../../shared/components/Map'
@@ -10,16 +11,20 @@ import { useTripPlaceFormOverlay } from '../trip-place/trip-place-form/useTripPl
 import { useTripPlaces } from '../trip-place/useTripPlaces'
 import { useTrip } from '../useTrip'
 import { DragIcon } from './components/DragIcon'
-import { FloatingControl } from './components/FloatingControl'
-import { ClusteringToggle, MarkerVisibilityToggle } from './components/MapViewToggles'
 import { RoutePath } from './components/RoutePath'
 import { TripDateToggleGroup } from './components/TripDateToggleGroup'
+import { TripRutePlaceAddButton } from './components/TripRoutePlaceAddButton'
 import { TripRoutePlaceItem } from './components/TripRoutePlaceItem'
 import { TripRouteSelector } from './components/TripRouteSelector'
-import { TripRutePlaceAddButton } from './components/TripRoutePlaceAddButton'
-import { RouteLegItem } from './RouteTimeline'
+import { Dot, RouteLegItem } from './RouteTimeline'
 import { useDayTripRoutes } from './useDayTripRoutes'
 import { useRouteLegs } from './useRouteLegs'
+
+import VisibilityOnIcon from '@mui/icons-material/Visibility'
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
+import { TripRouteMapFloatingControls } from './components/TripRouteMapFloatingControls'
+import { NoteEditor } from './RouteNoteList'
+import { useTripViewConfigValue } from './useTripViewConfig'
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = ['#1976d2', '#e53935', '#43a047', '#fb8c00', '#8e24aa', '#00acc1']
@@ -48,6 +53,8 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
     create: createRoute,
     update,
     remove: removeRoute,
+    toggleVisible,
+    updateNotes
   } = useDayTripRoutes({ tripId, date: selectedDate })
   const { data: places } = useTripPlaces(tripId)
 
@@ -68,14 +75,7 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
 
   const detailOverlay = useTripPlaceFormOverlay();
 
-  const [isVisibleOtherMarkers, setIsVisibleOtherMarkers] = useQueryParamState('marker', {
-    defaultValue: true,
-    parse: x => x === 'true'
-  })
-  const [clustering, setClustering] = useQueryParamState('cluaster', {
-    defaultValue: false,
-    parse: value => value === 'true'
-  })
+  const mapViewConfig = useTripViewConfigValue();
   const mapRef = useRef<MapRef>(null)
 
   return (
@@ -122,6 +122,8 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
                 >
                   {currentRoute.places.map((place, idx) => {
                     const inboundLeg = legByArrivalPlaceId.get(place.id)
+                    const isHidden = currentRoute.hiddenPlaces.includes(place.id);
+
                     return (
                       <Stack key={place.id}>
                         {inboundLeg && inboundLeg.duration > 0 && (
@@ -129,12 +131,26 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
                         )}
                         <SortableList.Item id={place.id}>
                           <TripRoutePlaceItem
-                            tripId={tripId}
-                            date={selectedDate}
-                            routeId={currentRoute.id}
-                            placeId={place.id}
-                            order={idx + 1}
+                            data={place}
                             onClick={() => mapRef.current?.panTo(place.lat, place.lng)}
+                            title={
+                              <ListItem.Title
+                                leftAddon={<Dot>{idx}</Dot>}
+                                rightAddon={(
+                                  <IconButton
+                                    size="small"
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      toggleVisible({ routeId: currentRoute.id, placeId: place.id });
+                                    }}
+                                  >
+                                    {isHidden ? <VisibilityOffIcon fontSize="small" sx={{ opacity: 0.7 }} /> : <VisibilityOnIcon fontSize="small" />}
+                                  </IconButton>
+                                )}
+                              >
+                                {place.name}
+                              </ListItem.Title>
+                            }
                             leftAddon={(
                               <SortableItem.Handle id={place.id}>
                                 <DragIcon />
@@ -148,7 +164,12 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
                                 placeId={place.id}
                               />
                             )}
-                          />
+                          >
+                            <NoteEditor
+                              notes={place.routeNotes ?? []}
+                              onChange={(memos) => updateNotes({ placeId: place.id, routeId: currentRoute.id, memos })}
+                            />
+                          </TripRoutePlaceItem>
                         </SortableList.Item>
                       </Stack>
                     )
@@ -165,19 +186,14 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
 
       {/* Right: Map */}
       <Box sx={{ flex: 1, position: 'relative' }}>
-        <FloatingControl corner="top-left" zIndex={1000}>
-          <MarkerVisibilityToggle value={isVisibleOtherMarkers} onChange={setIsVisibleOtherMarkers} />
-        </FloatingControl>
-        <FloatingControl corner="top-right" zIndex={1000}>
-          <ClusteringToggle value={clustering} onChange={setClustering} />
-        </FloatingControl>
+        <TripRouteMapFloatingControls />
         <Map
           type={trip.isOverseas ? 'google' : 'kakao'}
           ref={mapRef}
           defaultCenter={trip}
           autoFocus="path"
           height="100%"
-          clustering={clustering}
+          clustering={mapViewConfig.isCluasterlingView}
           clusterGridSize={60}
         >
           {places.map((place) => {
@@ -185,7 +201,7 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
 
             const isInCurrentRoute = currentRoute?.placeIds.includes(place.id) ?? false
             const orderInRoute = currentRoute?.placeIds.indexOf(place.id) ?? -1
-            if (!isInCurrentRoute && !isVisibleOtherMarkers) return null
+            if (!isInCurrentRoute && !mapViewConfig.isVisibleAllMarkers) return null
 
             return (
               <Map.Marker

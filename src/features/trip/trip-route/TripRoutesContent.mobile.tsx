@@ -1,13 +1,15 @@
-import MyLocationIcon from '@mui/icons-material/MyLocation';
 import AddIcon from '@mui/icons-material/Add';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import EditIcon from '@mui/icons-material/Edit';
+import MyLocationIcon from '@mui/icons-material/MyLocation';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import VisibilityOnIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import WorkspacesIcon from '@mui/icons-material/Workspaces';
-import { Box, Button, IconButton, ListItemIcon, Menu, MenuItem, Stack, Tab, Tabs, ToggleButton, Typography } from "@mui/material";
+import { Box, Button, IconButton, ListItemIcon, Menu, MenuItem, Stack, Tab, Tabs, Typography } from "@mui/material";
 import { Fragment, Suspense, useMemo, useRef, useState } from "react";
+import { Dot } from 'recharts';
 import { BottomArea } from '~shared/components/BottomArea';
+import { ListItem } from '~shared/components/ListItem';
 import { useVariation } from '~shared/hooks/extends/useVariation';
 import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState';
 import { BottomSheet } from "../../../shared/components/bottom-sheet/BottomSheet";
@@ -23,14 +25,16 @@ import { useTripPlaces } from "../trip-place/useTripPlaces";
 import { useTrip } from '../useTrip';
 import { FloatingControl } from "./components/FloatingControl";
 import { RoutePath } from "./components/RoutePath";
+import { TripRouteMapFloatingControls } from './components/TripRouteMapFloatingControls';
 import { TripRoutePlaceListItem } from "./components/TripRoutePlaceListItem";
 import { TripRouteSelector } from "./components/TripRouteSelector";
 import { PlaceSelectSheet } from "./PlaceSelectSheet";
+import { NoteEditor } from './RouteNoteList';
 import { RouteLegItem } from './RouteTimeline';
 import { useDayTripRoutes } from './useDayTripRoutes';
 import { usePlaceFormOverlay } from './usePlaceFormOverlay';
 import { useRouteLegs } from './useRouteLegs';
-import { useTripViewConfig } from './useTripViewConfig';
+import { useTripViewConfigValue } from './useTripViewConfig';
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = ['#1976d2', '#e53935', '#43a047', '#fb8c00', '#8e24aa', '#00acc1']
@@ -65,6 +69,8 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
     create: createRoute,
     update,
     remove: removeRoute,
+    toggleVisible,
+    updateNotes
   } = useDayTripRoutes({ tripId, date: selectedDate });
 
 
@@ -85,7 +91,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
 
   const { openBottomsheet: getUpdatedPlace } = usePlaceFormOverlay();
 
-  const [viewConfig, setViewConfig] = useTripViewConfig();
+  const viewConfig = useTripViewConfigValue();
   const [sheetRatio, setSheetRatio] = useState(DEFAULT_BOTTOM_SHEET_RATIO);
   const [focusedId, setFocusedId] = useState<string | null>(null)
 
@@ -140,33 +146,9 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
           sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `calc(${sheetRatio * 100}% - 10px)` }}
           {...pointerTracker}
         >
-          <FloatingControl corner="top-left" zIndex={8}>
-            <ToggleButton
-              value="check"
-              aria-label="경로 마커만 표시"
-              onClick={() => setViewConfig({ isVisibleAllMarkers: !viewConfig.isVisibleAllMarkers })}
-              selected={viewConfig.isVisibleAllMarkers}
-              size="small"
-              color="primary"
-              sx={{ backgroundColor: 'rgba(255, 255, 255, 0.7) !important' }}
-            >
-              <VisibilityOffIcon fontSize="small" />
-            </ToggleButton>
-          </FloatingControl>
-          <FloatingControl corner="top-right" zIndex={8}>
-            <ToggleButton
-              value="check"
-              selected={viewConfig.isCluasterlingView}
-              onChange={() => setViewConfig({ isCluasterlingView: !viewConfig.isCluasterlingView })}
-              size="small"
-              color="primary"
-              sx={{ backgroundColor: 'rgba(255, 255, 255, 0.7) !important' }}
-            >
-              <WorkspacesIcon />
-            </ToggleButton>
-          </FloatingControl>
-          <FloatingControl corner="bottom-right" zIndex={8}>
-            {currentCoordinate && (
+          <TripRouteMapFloatingControls />
+          {currentCoordinate && (
+            <FloatingControl corner="bottom-right" zIndex={8}>
               <IconButton
                 onClick={() => mapRef.current?.panTo(currentCoordinate.lat, currentCoordinate.lng)}
                 size="small"
@@ -174,8 +156,8 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
               >
                 <MyLocationIcon />
               </IconButton>
-            )}
-          </FloatingControl>
+            </FloatingControl>
+          )}
           <Map
             type={trip.isOverseas ? 'google' : 'kakao'}
             ref={mapRef}
@@ -292,13 +274,24 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                           )}
                           <SortableList.Item id={place.id}>
                             <TripRoutePlaceListItem
-                              tripId={tripId}
-                              date={selectedDate}
-                              routeId={currentRoute.id}
-                              placeId={place.id}
-                              order={idx + 1}
-                              focused={focusedId === place.id}
-                              onClick={() => mapRef.current?.panTo(place.lat, place.lng)}
+                              data={place}
+                              title={(
+                                <Stack direction="row" alignItems="center" gap={0.5}>
+                                  <Dot>{idx}</Dot>
+                                  <ListItem.Title>{place.name}</ListItem.Title>
+                                  <IconButton
+                                    size="small"
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      toggleVisible({ routeId: currentRoute.id, placeId: place.id });
+                                    }}
+                                  >
+                                    {currentRoute.hiddenPlaces.includes(place.id)
+                                      ? <VisibilityOffIcon fontSize="small" sx={{ opacity: 0.7 }} />
+                                      : <VisibilityOnIcon fontSize="small" />}
+                                  </IconButton>
+                                </Stack>
+                              )}
                               leftAddon={(
                                 <SortableItem.Handle id={place.id}>
                                   <DragIndicatorIcon />
@@ -312,7 +305,16 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                                   placeId={place.id}
                                 />
                               )}
-                            />
+                              focused={focusedId === place.id}
+                              onClick={() => mapRef.current?.panTo(place.lat, place.lng)}
+                            >
+                              <NoteEditor
+                                notes={place.routeNotes ?? []}
+                                onChange={(memos) => updateNotes({ placeId: place.id, routeId: currentRoute.id, memos })}
+                                action="dialog"
+                                marginTop={1}
+                              />
+                            </TripRoutePlaceListItem>
                           </SortableList.Item>
                         </Fragment>
                       )
@@ -385,3 +387,4 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
     </>
   )
 }
+
