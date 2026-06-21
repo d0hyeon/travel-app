@@ -1,27 +1,18 @@
 import { Box, Stack, styled, Typography, type StackProps } from '@mui/material';
-import type { TripPlace } from '../../place/place.types';
+import type { RouteLeg } from '../../route/route.types';
 import { formatDistance, formatDuration } from '../../../shared/utils/formats';
 import { TransportIcon } from './TransportIcon';
-import { useRouteLegs } from './useRouteLegs';
 
 // 경로 순서를 나타내는 번호 원. 연결선이 이 폭의 중심에 정렬되도록 크기를 공유한다.
 const DOT_SIZE = 18;
 
 
-interface RouteLegConnectorProps extends StackProps {
-  waypoints: (TripPlace & { id: string })[];
-  arrivalPlaceId: string;
+interface RouteLegItemProps extends StackProps {
+  leg: RouteLeg;
 }
 
-
-
-// 직전 방문 장소에서 이 장소까지를 잇는 세로 연결선과 이동 예상시간·거리를 표시한다.
-export function RouteLegConnector({ waypoints, arrivalPlaceId, ...props }: RouteLegConnectorProps) {
-  const legByArrivalPlaceId = useRouteLegs(waypoints);
-  const leg = legByArrivalPlaceId.get(arrivalPlaceId);
-
-  if (!leg || leg.duration === 0) return null;
-
+// 한 구간(leg)의 이동수단·예상시간·거리를 세로 연결선과 함께 표시하는 타임라인 항목.
+export function RouteLegItem({ leg, ...props }: RouteLegItemProps) {
   return (
     <Container {...props}>
       <Line />
