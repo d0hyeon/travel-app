@@ -162,7 +162,7 @@ function createThumbnailContent(thumbnailUrl: string, color?: string): string {
 
 
 
-function createLabelContent(
+export function createLabelContent(
   label: string,
   variant?: MarkerProps['variant'],
   color?: MarkerColor,

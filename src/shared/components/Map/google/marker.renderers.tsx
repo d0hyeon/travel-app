@@ -139,7 +139,7 @@ function createThumbnailMarkerNode({ thumbnailUrl, color, onClick, onContextMenu
 }
 
 /** 마커 라벨 칩 DOM 노드를 만든다. offsetPx만큼 마커 위로 띄운다. */
-function createLabelNode(label: string, markerColor: string, offsetPx: number): HTMLElement {
+export function createLabelNode(label: string, markerColor: string, offsetPx: number): HTMLElement {
   const node = document.createElement('div');
   node.style.cssText = `position:absolute; background:${markerColor}; color:white; padding:2px 6px; border-radius:10px; font-size:11px; font-weight:bold; white-space:nowrap; pointer-events:none; transform:translate(-50%,-100%); margin-top:-${offsetPx}px;`;
   node.textContent = label;

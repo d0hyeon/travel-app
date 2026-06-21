@@ -252,7 +252,7 @@ function PlaceRow({ place, index, tripId, alreadyAdded }: PlaceRowProps) {
 }
 
 function RoadPath({ waypoints }: { waypoints: Coordinate[] }) {
-  const coordinates = useRoadRoute({ waypoints })
+  const { coordinates } = useRoadRoute({ waypoints })
   if (!coordinates || coordinates.length < 2) return null
   return (
     <Map.Path

@@ -1,6 +1,6 @@
-import { useStorageState } from "~shared/hooks/useStorageState";
-import { useTripCluastering } from "../hooks/useTripCluastering";
 import { useCallback, useMemo } from "react";
+import { useStorageStore } from "~shared/hooks/useStorageStore";
+import { useTripCluastering } from "../hooks/useTripCluastering";
 
 interface TripViewConfig {
   isCluasterlingView: boolean;
@@ -23,9 +23,14 @@ export function useTripViewConfig() {
     
     return [config, setConfig] as const
   }, [isCluasterlingView, isVisibleAllMarkers])
+}
 
+export function useTripViewConfigValue() {
+  const [state] = useTripViewConfig();
+  
+  return state;
 }
 
 function useIsVisibleAllMarkers() {
-  return useStorageState('trip-is-visible-markers', false)
+  return useStorageStore('trip-is-visible-markers', false)
 }

@@ -1,4 +1,6 @@
 import { supabase } from '~api/client'
+import { TransportType } from '../route.types'
+import type { RoadRoute } from '../route.types'
 
 interface Coordinate {
   lat: number
@@ -16,33 +18,45 @@ function splitIntoSegments(waypoints: Coordinate[], maxSize: number): Coordinate
   return segments
 }
 
-function mergeSegments(segments: Coordinate[][]): Coordinate[] {
-  if (segments.length === 0) return []
-  if (segments.length === 1) return segments[0]
-  const result = [...segments[0]]
-  for (let i = 1; i < segments.length; i++) {
-    result.push(...segments[i].slice(1))
-  }
-  return result
+function mergeRoadRoutes(routes: RoadRoute[]): RoadRoute {
+  if (routes.length === 0) return { coordinates: [], legs: [] }
+  return routes.reduce((merged, route) => ({
+    coordinates: [...merged.coordinates, ...route.coordinates.slice(1)],
+    legs: [...merged.legs, ...route.legs],
+  }))
 }
 
-async function fetchSegment(waypoints: Coordinate[], region: 'korea' | 'global'): Promise<Coordinate[]> {
+// 도로 경로를 못 구한 구간은 시간 추정 없이 0으로 둔다 (소비자가 미표시 처리)
+// fallback leg는 해당 구간의 시작·끝 두 점을 coordinates로 갖는다
+function fallbackRoadRoute(waypoints: Coordinate[]): RoadRoute {
+  return {
+    coordinates: waypoints,
+    legs: Array.from({ length: Math.max(waypoints.length - 1, 0) }, (_, i) => ({
+      duration: 0,
+      distance: 0,
+      transport: TransportType.차량,
+      coordinates: [waypoints[i], waypoints[i + 1]],
+    })),
+  }
+}
+
+async function fetchSegment(waypoints: Coordinate[], region: 'korea' | 'global'): Promise<RoadRoute> {
   try {
     const { data, error } = await supabase.functions.invoke('road-directions', {
       body: { waypoints, region },
     })
-    if (error) return waypoints
-    return data?.coordinates ?? waypoints
+    if (error || !data?.coordinates) return fallbackRoadRoute(waypoints)
+    return { coordinates: data.coordinates, legs: data.legs ?? [] }
   } catch {
-    return waypoints
+    return fallbackRoadRoute(waypoints)
   }
 }
 
-export async function getRoadDirections(waypoints: Coordinate[], region: 'korea' | 'global'): Promise<Coordinate[]> {
-  if (waypoints.length < 2) return waypoints
+export async function getRoadDirections(waypoints: Coordinate[], region: 'korea' | 'global'): Promise<RoadRoute> {
+  if (waypoints.length < 2) return fallbackRoadRoute(waypoints)
   if (waypoints.length <= 7) return fetchSegment(waypoints, region)
 
   const segments = splitIntoSegments(waypoints, 7)
   const results = await Promise.all(segments.map((s) => fetchSegment(s, region)))
-  return mergeSegments(results)
+  return mergeRoadRoutes(results)
 }

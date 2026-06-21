@@ -69,6 +69,7 @@ declare global {
       map?: Map
       yAnchor?: number
       xAnchor?: number
+      zIndex?: number
     }
 
     interface PolylineOptions {

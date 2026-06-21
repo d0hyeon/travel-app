@@ -18,10 +18,10 @@ export function SortableList<T extends { id: UniqueIdentifier }>({ items: _items
 
   useEffect(() => setItems(_items), [_items])
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(TouchSensor),
-  );
+  const pointerSencor = useSensor(PointerSensor);
+  const touchSensor = useSensor(TouchSensor);
+
+  const sensors = useSensors(pointerSencor, touchSensor);
 
   return (
     <DndContext
@@ -42,7 +42,7 @@ export function SortableList<T extends { id: UniqueIdentifier }>({ items: _items
       }}
     >
       <SortableContext items={items} strategy={strategy} disabled={disabled}>
-        {!!renderItem
+        {renderItem != null
           ? items.map((item, idx) => (
             <SortableItem key={item.id} id={item.id}>
               {renderItem(item, idx)}
@@ -54,6 +54,7 @@ export function SortableList<T extends { id: UniqueIdentifier }>({ items: _items
     </DndContext>
   );
 }
+SortableList.Item = SortableItem;
 
 type SortableData = {
   data: { current: { sortable: { index: number } } };
