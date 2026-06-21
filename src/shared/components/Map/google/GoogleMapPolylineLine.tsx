@@ -9,6 +9,8 @@ const DEFAULT_STROKE_WEIGHT = 4;
 const DEFAULT_STROKE_OPACITY = 0.8;
 // 라벨이 라인 위에 겹치지 않도록 위로 띄운다 (createLabelNode가 margin-top:-offset으로 올림)
 const LABEL_OFFSET_PX = 14;
+// 폴리라인보다 위에 그려지도록 z-index를 올린다
+const LABEL_Z_INDEX = 100;
 
 export default function GoogleMapPolylineLine({ coordinates, label }: PolylineLineProps) {
   const { map, config, extendBound } = useMapContext(GoogleMapContext);
@@ -41,6 +43,7 @@ export default function GoogleMapPolylineLine({ coordinates, label }: PolylineLi
     const midIndex = Math.floor(coordinates.length / 2);
     const midCoord = coordinates[midIndex];
     const labelNode = createLabelNode(label, strokeColor, LABEL_OFFSET_PX);
+    labelNode.style.zIndex = String(LABEL_Z_INDEX);
     const labelOverlay = createPositionedOverlay({ node: labelNode, position: midCoord, pane: 'overlayLayer' });
     labelOverlay.setMap(map);
 

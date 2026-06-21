@@ -34,6 +34,8 @@ export default function KakaoMapPolylineLine({ coordinates, label }: PolylineLin
         // 라벨이 라인 위에 겹치지 않도록 위로 더 띄운다
         yAnchor: 1,
         xAnchor: 1,
+        // 폴리라인보다 위에 그려지도록 z-index를 올린다
+        zIndex: 100,
       })
       : null;
     labelOverlay?.setMap(map);
