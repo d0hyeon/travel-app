@@ -44,7 +44,7 @@ export default function KakaoMapPolylineLine({ coordinates, label }: PolylineLin
       polyline.setMap(null);
       labelOverlay?.setMap(null);
     };
-  }, [serializeCoordinates(coordinates), config.autoFocus, extendBound]);
+  }, [serializeCoordinates(coordinates), config.autoFocus, label, extendBound]);
 
   return null;
 }
