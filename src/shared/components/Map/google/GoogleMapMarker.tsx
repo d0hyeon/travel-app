@@ -22,11 +22,13 @@ export default function GoogleMapMarker(props: MarkerProps) {
 
   useRegisterClusterMarker(markerData, [config.clustering]);
 
-  const renderDependencies = Object.values(omit(props, ['onClick', 'onContextMenu']));
+  const renderDependencies = Object.values(omit(props, ['onClick', 'onContextMenu', 'tooltip']));
+  const tooltip = Array.isArray(props.tooltip) ? props.tooltip.join() : props.tooltip;
+
   useEffect(() => {
     if (config.clustering || map == null) return;
     return renderMarker(markerData, map);
-  }, [config.clustering, map, ...renderDependencies]);
+  }, [config.clustering, tooltip, ...renderDependencies]);
 
   useEffect(() => {
     if (config.autoFocus === 'marker') {
