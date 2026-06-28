@@ -12,16 +12,7 @@ export type BaseQueryOptions<
   QueryError = Error,
   Data = QueryData,
   Key extends QueryKey = QueryKey,
-> = Pick<
-  UseBaseQueryOptions<QueryData, QueryError, Data, Key>,
-  'gcTime' | 'retryOnMount' | 'retry' | 'retryDelay' | 'notifyOnChangeProps' | 'throwOnError'
-> & {
-  refetchInterval?: Exclude<UseBaseQueryOptions['refetchInterval'], Function>;
-  refetchIntervalInBackground?: Exclude<UseBaseQueryOptions['refetchIntervalInBackground'], Function>;
-  refetchOnWindowFocus?: Exclude<UseBaseQueryOptions['refetchOnWindowFocus'], Function>;
-  staleTime?: Exclude<UseBaseQueryOptions['staleTime'], Function>;
-  refetchOnMount?: Exclude<UseBaseQueryOptions['refetchOnMount'], Function>;
-};
+  > = UseBaseQueryOptions<QueryData, QueryError, Data, Key>;
 
 export type UseSuspenseQueryOptions<
   QueryData = unknown,
