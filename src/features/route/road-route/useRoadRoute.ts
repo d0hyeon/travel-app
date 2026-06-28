@@ -1,18 +1,20 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
 import { clientDatabase } from '~app/client-database';
+import { useQuery } from '~shared/hooks/extends/useQuery';
 import { isOverseasByCoordinate } from '~shared/utils/geo';
 import type { Coordinate } from '../../../shared/components/Map/types';
 import type { RoadRoute } from '../route.types';
 import { getRoadDirections } from './roadRoute.api';
+import { keepPreviousData } from '@tanstack/react-query';
 
 interface UseDirectionsOptions {
   waypoints: Coordinate[];
+  suspense?: boolean;
 }
 
-export function useRoadRoute({ waypoints }: UseDirectionsOptions): RoadRoute {
+export function useRoadRoute({ waypoints, suspense = true }: UseDirectionsOptions) {
   const serialized = waypoints?.map((p) => `${p.lat},${p.lng}`).join('|');
 
-  const { data } = useSuspenseQuery({
+  const query =  useQuery({
     queryKey: ['directions', serialized],
     queryFn: async (): Promise<RoadRoute> => {
       const localData = await clientDatabase.roadRoutes.get(serialized);
@@ -32,7 +34,9 @@ export function useRoadRoute({ waypoints }: UseDirectionsOptions): RoadRoute {
     gcTime: 1000 * 60 * 30,
     refetchInterval: false,
     refetchOnMount: false,
+    placeholderData: keepPreviousData,
+    suspense,
   });
 
-  return data ?? { coordinates: waypoints, legs: [] };
+  return { ...query, data: query.data ?? { coordinates: waypoints, legs: []}  }
 }

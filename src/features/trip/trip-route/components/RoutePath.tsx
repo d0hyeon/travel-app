@@ -13,8 +13,9 @@ interface RoutePathProps {
 
 // 경로를 구간(leg)별 폴리라인으로 그리고, 선택된 경로는 구간마다 이동수단·예상시간 라벨을 표시한다.
 export function RoutePath({ waypoints, color, isSelected }: RoutePathProps) {
-  const { legs } = useRoadRoute({ waypoints });
+  const { data: { legs } } = useRoadRoute({ waypoints, suspense: false });
   const zoomLevel = useMapZoomLevel();
+
 
   if (legs.length === 0) return null;
 
@@ -28,7 +29,7 @@ export function RoutePath({ waypoints, color, isSelected }: RoutePathProps) {
         <Map.Polyline.Line
           key={index}
           coordinates={leg.coordinates}
-          label={zoomLevel < 10 && isSelected && leg.duration > 0 ? `${TransportTypeLabel[leg.transport]} ${formatDuration(leg.duration)}` : undefined}
+          label={zoomLevel < 10 && isSelected && leg.duration > 0 ? `${index + 1}. ${TransportTypeLabel[leg.transport]} ${formatDuration(leg.duration)}` : undefined}
         />
       ))}
     </Map.Polyline>
