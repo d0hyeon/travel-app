@@ -227,14 +227,7 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
               />
             )
           })}
-          <Suspense
-            fallback={routes.map(route => (
-              <Map.Path
-                key={route.id}
-                coordinates={route.places.filter(x => !route.hiddenPlaces.includes(x.id))}
-              />
-            ))}
-          >
+          <Suspense>
             {routes.map((route, index) => (
               <RoutePath
                 key={route.id}
@@ -263,4 +256,5 @@ const BottomBar = styled(Box)({
   position: 'sticky',
   bottom: 0,
   background: '#fff',
+  zIndex: 10
 })
