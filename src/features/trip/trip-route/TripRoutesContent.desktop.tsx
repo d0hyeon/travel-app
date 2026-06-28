@@ -125,7 +125,7 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
                     const isHidden = currentRoute.hiddenPlaces.includes(place.id);
 
                     return (
-                      <Stack key={place.id}>
+                      <Stack key={place.id} gap={1}>
                         {inboundLeg && inboundLeg.duration > 0 && (
                           <RouteLegItem leg={inboundLeg} paddingY={1} />
                         )}
@@ -135,7 +135,7 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
                             onClick={() => mapRef.current?.panTo(place.lat, place.lng)}
                             title={
                               <ListItem.Title
-                                leftAddon={<Dot>{idx}</Dot>}
+                                leftAddon={<Dot>{idx + 1}</Dot>}
                                 rightAddon={(
                                   <IconButton
                                     size="small"
