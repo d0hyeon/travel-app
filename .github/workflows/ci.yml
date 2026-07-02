@@ -57,6 +57,8 @@ jobs:
     env:
       VITE_SUPABASE_URL: https://placeholder.supabase.co
       VITE_SUPABASE_ANON_KEY: placeholder
+      # 유효한 형식의 더미 VAPID 공개키. 없으면 useWebPushSubscription 모듈 로드가 크래시해 dev 서버가 뜨지 않는다.
+      VITE_VAPID_PUBLIC_KEY: BPDxNunbdwN4Qm0rY62q0QYPrh5PW9MeXCfBx8XSvKLD_daagykMCkmx3Zbn5jddQAA8zx3IRG8P6me0xfaaGVM
 
     steps:
       - uses: actions/checkout@v4
