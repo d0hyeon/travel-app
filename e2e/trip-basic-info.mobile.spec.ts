@@ -13,8 +13,18 @@ const TRIP_URL = `/trip/${MOCK_TRIP_ID}`
 const INFO_URL = `${TRIP_URL}?content=Info`
 
 async function waitForAppLoad(page: Page) {
-  // 헤더의 여행 이름 버튼이 렌더되면 앱과 인증이 모두 준비된 상태
-  await expect(page.getByRole('button', { name: '도쿄 여행' })).toBeVisible()
+  // [CI-DEBUG] 앱 로드 실패 시 페이지 상태를 CI 로그에 출력
+  page.on('console', (m) => console.log(`[browser:${m.type()}] ${m.text()}`))
+  page.on('pageerror', (e) => console.log(`[pageerror] ${e.message}`))
+  page.on('requestfailed', (r) => console.log(`[reqfail] ${r.url()} :: ${r.failure()?.errorText}`))
+  try {
+    // 헤더의 여행 이름 버튼이 렌더되면 앱과 인증이 모두 준비된 상태
+    await expect(page.getByRole('button', { name: '도쿄 여행' })).toBeVisible()
+  } catch (e) {
+    console.log('[CI-DEBUG] url =', page.url())
+    console.log('[CI-DEBUG] body =', (await page.locator('body').innerText().catch(() => '<none>')).slice(0, 800))
+    throw e
+  }
 }
 
 test.describe('TripBasicInfoContent — 기본정보탭 (모바일)', () => {
