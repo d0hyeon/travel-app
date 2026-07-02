@@ -1586,3 +1586,17 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TAB
 
 
 
+drop extension if exists "pg_net";
+
+drop policy "profiles_select" on "public"."user_profiles";
+
+
+  create policy "profiles_select"
+  on "public"."user_profiles"
+  as permissive
+  for select
+  to anon, authenticated
+using (true);
+
+
+
