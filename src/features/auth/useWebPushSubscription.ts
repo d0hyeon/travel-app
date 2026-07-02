@@ -1,11 +1,11 @@
 import { use, useCallback, useEffect, useMemo } from "react";
 import { useSuspenseQuery } from "~shared/hooks/extends/useSuspenseQuery";
 import { assert } from "~shared/utils/types";
-import { addPushSubscription, getPushSubscriptionEndpoint, removePushSubscription } from "./auth.api";
+import { addPushSubscription, findPushSubscription, removePushSubscription } from "./auth.api";
 import { useAuth } from "./useAuth";
 
 let promise: Promise<ServiceWorkerRegistration | undefined> | null = null;
-function getRegistration() {
+function getSWRegistration() {
   if (navigator?.serviceWorker?.getRegistration == null) {
     return Promise.resolve(null);
   }
@@ -16,7 +16,7 @@ function getRegistration() {
 }
 
 let promisedBrowserSubscription: Promise<PushSubscription | null> | null = null;
-function getLocalSubscription(registration: ServiceWorkerRegistration | undefined, vapidKey: Uint8Array) {
+function restoreLocalSubscription(registration: ServiceWorkerRegistration | undefined, vapidKey: Uint8Array) {
   if (promisedBrowserSubscription == null) {
     promisedBrowserSubscription = (async () => {
       if (!registration?.pushManager) return null;
@@ -31,31 +31,31 @@ function getLocalSubscription(registration: ServiceWorkerRegistration | undefine
 }
 
 const pushSubscriptionKey = (userId: string, endpoint: string | undefined) => ['push_subscriptions', userId, endpoint];
+const vapidKey = urlBase64ToUint8Array(import.meta.env.VITE_VAPID_PUBLIC_KEY);
 
 export function useWebPushSubscription() {
   const { data: currentUser } = useAuth();
 
-  const registration = use(getRegistration());
+  const registration = use(getSWRegistration());
   const isEnabled = registration != null && registration.pushManager != null;
+  const localSubscription = isEnabled ? use(restoreLocalSubscription(registration, vapidKey)) : undefined;
 
-  const vapidKey = urlBase64ToUint8Array(import.meta.env.VITE_VAPID_PUBLIC_KEY);
-  const localSubscription = isEnabled ? use(getLocalSubscription(registration, vapidKey)) : undefined;
-
-  const { data: subscriptionEndpoint, refetch } = useSuspenseQuery({
+  const { data: registeredSubscription, refetch } = useSuspenseQuery({
     queryKey: pushSubscriptionKey(currentUser.id, localSubscription?.endpoint),
     queryFn: () => {
       if (localSubscription == null) return null;
-      return getPushSubscriptionEndpoint(currentUser.id, localSubscription.endpoint);
+      return findPushSubscription(currentUser.id, localSubscription.endpoint);
     },
   });
 
-  const isSubscribed = subscriptionEndpoint != null;
+  const isSubscribed = registeredSubscription != null;
+  const hasStaleLocalSubscription = localSubscription != null && registeredSubscription == null;
 
   useEffect(() => {
-    if (!isSubscribed && localSubscription != null) {
+    if (hasStaleLocalSubscription) {
       localSubscription.unsubscribe();
     }
-  }, [isSubscribed])
+  }, [hasStaleLocalSubscription, localSubscription])
 
   const subscribe = useCallback(async () => {
     assert(isEnabled, 'Service worker registration is required to subscribe to push notifications');
@@ -71,9 +71,10 @@ export function useWebPushSubscription() {
 
   const unsubscribe = useCallback(async () => {
     assert(isSubscribed, 'Not subscribed to push notifications');
-    await removePushSubscription(currentUser.id, subscriptionEndpoint);
+    assert(localSubscription != null, 'Local subscription is required to unsubscribe');
+    await removePushSubscription(currentUser.id, localSubscription.endpoint);
     await refetch();
-  }, [currentUser, subscriptionEndpoint]);
+  }, [currentUser, localSubscription, isSubscribed, refetch]);
 
   const hasPermission = typeof Notification !== 'undefined' && Notification.permission === 'granted';
   const requestPermission = useCallback(async () => {

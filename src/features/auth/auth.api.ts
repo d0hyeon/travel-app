@@ -1,5 +1,5 @@
 import { supabase } from '~api/client'
-import type { CreateDataType, Json } from '~api/tables.types'
+import type { CreateDataType, DataRaw, Json } from '~api/tables.types'
 
 interface SignInWIthKakaoOptions {
   redirectTo?: string;
@@ -63,13 +63,13 @@ export async function removePushSubscription(userId: string, endpoint: string) {
   if (error) throw error
 }
 
-export async function getPushSubscriptionEndpoint(userId: string, endpoint: string): Promise<string | null> {
+export async function findPushSubscription(userId: string, endpoint: string): Promise<DataRaw<'push_subscriptions'> | null> {
   const { data, error } = await supabase
     .from('push_subscriptions')
-    .select('endpoint')
+    .select('*')
     .eq('user_id', userId)
     .eq('endpoint', endpoint)
     .maybeSingle()
   if (error) throw error
-  return data?.endpoint ?? null
+  return data
 }
