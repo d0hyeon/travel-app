@@ -34,7 +34,7 @@ export function MostSavedSection() {
   const toDetailUrl = buildExplorerDetailUrl(AppRoute.장소_저장순, location, category)
 
   const [scrollContainer, setScrollContainer] = useState<HTMLDivElement | null>(null)
-  useScrollRestore({ element: scrollContainer })
+  useScrollRestore({ element: scrollContainer, key: `most-saved-section:${location}:${category}` })
 
   return (
     <Box mb={3}>
