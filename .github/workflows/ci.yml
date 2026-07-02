@@ -55,10 +55,15 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      VITE_SUPABASE_URL: https://placeholder.supabase.co
+      # 실제 요청은 MSW가 모두 가로챈다. 단 URL의 project ref는 supabase-js가
+      # localStorage 인증 키(sb-<ref>-auth-token)를 조회하는 데 쓰이므로,
+      # auth-setup이 세션을 심는 ref(feubgswdgmxrbpbfbqje)와 일치해야 인증 상태가 복원된다.
+      VITE_SUPABASE_URL: https://feubgswdgmxrbpbfbqje.supabase.co
       VITE_SUPABASE_ANON_KEY: placeholder
       # 유효한 형식의 더미 VAPID 공개키. 없으면 useWebPushSubscription 모듈 로드가 크래시해 dev 서버가 뜨지 않는다.
       VITE_VAPID_PUBLIC_KEY: BPDxNunbdwN4Qm0rY62q0QYPrh5PW9MeXCfBx8XSvKLD_daagykMCkmx3Zbn5jddQAA8zx3IRG8P6me0xfaaGVM
+      # 카카오맵 JS 키(더미). SDK 로드는 실패해도 앱 렌더는 진행된다.
+      VITE_KAKAO_MAP_KEY: placeholder
 
     steps:
       - uses: actions/checkout@v4
