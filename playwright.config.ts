@@ -7,7 +7,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   reporter: 'html',
   globalSetup: './e2e/helpers/auth-setup.ts',
-  workers: 5,
+  workers: process.env.CI ? 2 : 4,
   timeout: 15_000,
 
   use: {
@@ -21,6 +21,8 @@ export default defineConfig({
   projects: [
     {
       name: 'mobile',
+      // mobile + 공통 스펙만 실행 (desktop 전용 스펙은 제외)
+      testIgnore: /\.desktop\.spec\.ts$/,
       use: {
         // iPhone 14 viewport, Chromium 엔진으로 실행 (webkit 별도 설치 불필요)
         browserName: 'chromium',
@@ -34,6 +36,8 @@ export default defineConfig({
     },
     {
       name: 'desktop',
+      // desktop + 공통 스펙만 실행 (mobile 전용 스펙은 제외)
+      testIgnore: /\.mobile\.spec\.ts$/,
       use: {
         ...devices['Desktop Chrome'],
       },

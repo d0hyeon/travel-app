@@ -17,6 +17,15 @@ const config = {
   build: {
     outDir: 'dist/client'
   },
+  // 서버 기동 시 앱 진입점을 스캔해 의존성을 한 번에 사전 번들한다.
+  // 지정하지 않으면 런타임 중 새 의존성을 만날 때마다 재번들되어,
+  // 병렬 요청이 이전 청크를 참조하다 504(Outdated Optimize Dep)로 깨진다.
+  // msw는 브라우저에서 워커로만 동작하므로 사전 번들 대상에서 제외한다.
+  optimizeDeps: {
+    // 테스트 파일은 msw/node(@mswjs/interceptors) 같은 Node 전용 모듈을 import하므로
+    // 브라우저 사전 번들 스캔에서 제외한다. 스캔 대상은 실제 앱 코드로 한정한다.
+    entries: ['src/app/root.tsx', 'src/**/*.{ts,tsx}', '!src/**/*.test.{ts,tsx}', '!src/**/__test__/**'],
+  },
   server: {
     proxy: {
       '/api/og-preview': {
