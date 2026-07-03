@@ -7,7 +7,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   reporter: 'html',
   globalSetup: './e2e/helpers/auth-setup.ts',
-  workers: 10,
+  workers: process.env.CI ? 2 : 4,
   timeout: 15_000,
 
   use: {
