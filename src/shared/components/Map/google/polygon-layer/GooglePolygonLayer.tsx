@@ -11,6 +11,7 @@ import {
 import type { MapPolygonProps, PolygonStyleProps } from '../../polygon-layer.types'
 import type { GeoJsonFeatureCollection } from '../boundary/boundary.types'
 import { GoogleMapContext } from '../../MapContext'
+import { usePreservedCallback } from '~shared/hooks/extends/usePreservedCallback'
 
 export interface GooglePolygonLayerProps {
   children?: ReactNode
@@ -77,7 +78,7 @@ function usePolygonFeatures() {
   const context = use(GoogleMapContext)
   const featureRefs = useRef<google.maps.Data.Feature[]>([])
 
-  const clearFeatures = useEffectEvent(() => {
+  const clearFeatures = usePreservedCallback(() => {
     const map = context?.map
     if (!map) return
 
@@ -85,7 +86,7 @@ function usePolygonFeatures() {
     featureRefs.current = []
   })
 
-  const replaceFeatures = useEffectEvent((collection: GeoJsonFeatureCollection) => {
+  const replaceFeatures = usePreservedCallback((collection: GeoJsonFeatureCollection) => {
     const map = context?.map
     if (!map) return
 

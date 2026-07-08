@@ -159,7 +159,7 @@ export default function PostFormPage() {
                 trip: () => <TripStep defaultValue={tripId} onNext={handleTripNext} />,
                 photo: () => (
                   <PhotoStep
-                    tripId={tripId}
+                    tripId={tripId ?? undefined}
                     defaultValue={form.photos ?? []}
                     onNext={handlePhotoNext}
                   />

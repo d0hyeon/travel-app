@@ -12,7 +12,7 @@ export function mergeRef<T>(...refs: Ref<T>[]) {
 export function mergeProps<T extends Record<string, any>>(base: T, override: Partial<T>) {
   return Object.entries(override).reduce((acc, [key, value]) => {
     if (value instanceof Function) {
-      const originMethod = acc[key] as Function;
+      const originMethod = acc[key] as (...args: unknown[]) => unknown;
       const overridedMethod = (...args: any) => {
         originMethod?.(...args);
         return value?.(...args);

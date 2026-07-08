@@ -1,4 +1,4 @@
-// src/shared/utils/urls.ts
+
 import type { ReactNode } from 'react'
 
 const URL_REGEX = /https?:\/\/[^\s]+/g
@@ -34,7 +34,7 @@ export function renderTextWithLinks(text: string): ReactNode {
 }
 
 export const queryParams = {
-  serialize: (value: Record<string, any>) => {
+  serialize: (value: Record<string, unknown>) => {
     const stringfy = Object.entries(value).reduce((acc, [key, value]) => {
       if (value == null) return acc;
       if (typeof value === 'string' && URL.canParse(value)) {
@@ -68,7 +68,7 @@ export const queryParams = {
   }
 }
 
-export function withQueryParams(path: string, params: Record<string, any> = {}) {
+export function withQueryParams(path: string, params: Record<string, unknown> = {}) {
   const queryString = queryParams.serialize(params);
 
   return `${path}${queryString}`;

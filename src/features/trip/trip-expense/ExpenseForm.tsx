@@ -62,13 +62,14 @@ export function ExpenseForm(props: Props) {
     </Suspense>
   )
 }
-ExpenseForm.Resolved = ({
+ExpenseForm.Resolved = Resolved;
+function Resolved({
   tripId,
   defaultValues,
   action = <ExpenseForm.SubmitButton />,
   onSubmit,
   ...props
-}: Props) => {
+}: Props) {
   const { data: trip } = useTrip(tripId);
   const { data: members } = useTripMembers(tripId);
   const { data: places } = useTripPlaces(tripId);
@@ -392,12 +393,12 @@ ExpenseForm.Resolved = ({
     </FormProvider>
   )
 }
-
-ExpenseForm.Pending = ({
+ExpenseForm.Pending = Pending;
+function Pending({
   defaultValues,
   action = <ExpenseForm.SubmitButton />,
   ...props
-}: Omit<Props, 'onSubmit'>) => {
+}: Omit<Props, 'onSubmit'>) {
   const methods = useForm<ExpenseFormValues>({
     mode: 'onChange',
     defaultValues: defaultValues,
@@ -545,7 +546,9 @@ ExpenseForm.Pending = ({
   )
 }
 
-ExpenseForm.SubmitButton = (props: Omit<ButtonProps, 'type'>) => {
+ExpenseForm.SubmitButton = SubmitButton;
+
+function SubmitButton(props: Omit<ButtonProps, 'type'>) {
   const { formState: { isValid } } = useFormContext<ExpenseFormValues>();
   return (
     <Button

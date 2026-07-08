@@ -13,8 +13,8 @@ export function SortableItem({ children, ...props }: PropsWithChildren<UseSortab
     </Box>
   );
 }
-
-SortableItem.Handle = ({ children, id, sx, ...props }: Omit<BoxProps, 'id'> & { id: number | string }) => {
+SortableItem.Handle = Handle;
+function Handle({ children, id, sx, ...props }: Omit<BoxProps, 'id'> & { id: number | string }) {
   const { attributes, listeners, setActivatorNodeRef } = useSortable({ id });
 
   return (

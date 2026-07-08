@@ -1,7 +1,5 @@
-import { useEffect, useEffectEvent, useMemo } from "react";
+import { useEffect, useEffectEvent } from "react";
 import { useVariation } from "../extends/useVariation";
-import { debounce } from "@mui/material";
-import { throttle } from "~shared/utils/throttle";
 
 type Hooks = {
   onScroll?: (event: Event) => void;

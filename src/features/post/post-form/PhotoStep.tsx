@@ -14,14 +14,14 @@ import type { Photo } from '~features/photo/photo.types'
 import 'swiper/css'
 
 interface Props {
-  tripId: string | null
+  tripId?: string
   defaultValue: DraftPostPhoto[]
   onNext: (photos: DraftPostPhoto[]) => void
 }
 
-const DEFAULT_TRIP_PHOTOS: { data: Photo[] } = { data: [] };
+
 export function PhotoStep({ tripId, defaultValue, onNext }: Props) {
-  const { data: photos, add: addRecord } = useRecordPhotos(tripId ?? undefined)
+  const { data: photos, add: addRecord } = useRecordPhotos(tripId)
   const [selectedIds, setSelectedIds] = useState<string[]>(defaultValue.map((photo) => photo.id))
 
   const photoById = useMemo(() => (
@@ -111,7 +111,10 @@ export function PhotoStep({ tripId, defaultValue, onNext }: Props) {
 
 function useRecordPhotos(tripId?: string) {
   const { data: localPhotos, save } = useLocalPhotoStore();
-  const { data: tripPhotos } = tripId != null ? useTripPhotos(tripId) : DEFAULT_TRIP_PHOTOS;
+  const { data: tripPhotos } = useTripPhotos(tripId ?? '', {
+    enabled: tripId != null,
+    placeholderData: [],
+  })
 
   const data: DraftPostPhoto[] = [
     ...localPhotos.map(x => ({ ...x, source: 'local', placeId: null, id: x.url })) satisfies DraftPostPhoto[],

@@ -46,7 +46,8 @@ interface ButtonProps extends Props {
   focused?: boolean;
 }
 
-ListItem.Button = ({ focused, sx, ...props }: ButtonProps) => {
+ListItem.Button = ListItemButton;
+function ListItemButton({ focused, sx, ...props }: ButtonProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

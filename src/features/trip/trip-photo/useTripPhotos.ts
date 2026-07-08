@@ -1,26 +1,27 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deletePhoto, getPhotosByTripId, photoKey, updatePhoto, uploadPhoto, type PhotoUpdate } from "~features/photo/photo.api";
 import { findNearestPlaceFromPhoto } from "~features/photo/photo.utils";
 import type { Photo } from "~features/photo/photo.types";
 import { tripKey } from "../trip.api";
 import { useTripPlaces } from "../trip-place/useTripPlaces";
 import { queryClient } from "~app/query-client";
+import { useSuspenseQuery, type UseSuspenseQueryOptions } from "~shared/hooks/extends/useSuspenseQuery";
 
 type FileUploadParams =
   | { files: File[]; placeId?: string }
   | { file: File; placeId?: string };
 
-export function useTripPhotos(tripId: string) {
+type QueryOptions = UseSuspenseQueryOptions<Photo[], Error, Photo[], string[]>
+
+export function useTripPhotos(tripId: string, options?: Omit<QueryOptions, 'queryKey' | 'queryFn'>) {
   const queryClient = useQueryClient();
   const { data: places } = useTripPlaces(tripId);
 
   const { data, refetch, ...queries } = useSuspenseQuery({
     queryKey: useTripPhotos.key(tripId),
-    queryFn: () => getPhotosByTripId(tripId)
+    queryFn: () => getPhotosByTripId(tripId),
+    ...options
   })
-
-  
-
 
   const { mutateAsync: upload, isPending: isUploading } = useMutation({
     mutationFn: async (params: FileUploadParams) => {

@@ -70,8 +70,9 @@ export function RecentHotSection() {
     </Box>
   )
 }
+RecentHotSection.Skeleton = RecentHotSectionSkeleton;
 
-RecentHotSection.Skeleton = () => {
+function RecentHotSectionSkeleton() {
   const isMobile = useIsMobile();
 
   return (

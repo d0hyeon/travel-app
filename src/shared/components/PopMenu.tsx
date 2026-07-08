@@ -82,8 +82,8 @@ export function PopMenu({ children, list, items }: MenuProps) {
     </>
   )
 }
-
-PopMenu.List = (props: MenuListProps) => {
+PopMenu.List = List;
+function List(props: MenuListProps) {
   const { close } = use(MenuContext);
 
   return (

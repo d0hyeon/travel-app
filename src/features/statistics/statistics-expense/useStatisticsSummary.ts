@@ -352,6 +352,7 @@ export function useStatisticsSummary(): StatisticsSummary {
         return dateA.localeCompare(dateB)
       })
       .map((summary) => {
+        // eslint-disable-next-line react-hooks/immutability
         cumulativeAmountInKRW += summary.totalAmountInKRW
         return {
           tripId: summary.trip.id,

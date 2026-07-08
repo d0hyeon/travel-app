@@ -27,8 +27,8 @@ export function PostLikeButton({ postId, ...props }: Props) {
     </Stack>
   )
 }
-
-PostLikeButton.Readonly = ({ postId, ...props }: Props) => {
+PostLikeButton.Readonly = Readonly;
+function Readonly({ postId, ...props }: Props) {
   const { data: { count, liked } } = usePostLikes(postId)
 
   return (

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useScrollEventListener } from "./useScrollEventListener";
-import { usePrevValue } from "../extends/usePrevValue";
 import { useVariation } from "../extends/useVariation";
+import { useScrollEventListener } from "./useScrollEventListener";
 
 export function useScrollStatus<T extends HTMLElement>(target: T | null) {
   const [isScrolling, setIsScrolling] = useState(false);

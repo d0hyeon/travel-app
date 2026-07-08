@@ -90,7 +90,8 @@ export function LocationForm(props: (Props | MultipleProps) & FormAttributes) {
   )
 }
 
-LocationForm.SubmitButton = (props: ButtonProps) => {
+LocationForm.SubmitButton = SubmitButton;
+function SubmitButton(props: ButtonProps) {
   const { formState: { isValid } } = useFormContext()
   return (
     <Button

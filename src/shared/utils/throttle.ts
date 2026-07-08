@@ -2,14 +2,14 @@
 
 
 
-export function throttle<T extends (...args: any[]) => any>(
+export function throttle<T extends (...args: unknown[]) => unknown>(
   fn: T,
   wait: number,
 ) {
   let timerId: ReturnType<typeof setTimeout> | null = null;
   let lastCallTime = 0;
   let lastArgs: Parameters<T> | null = null;
-  let lastThis: any;
+  let lastThis: unknown;
 
   const invoke = (time: number) => {
     lastCallTime = time;
@@ -17,7 +17,7 @@ export function throttle<T extends (...args: any[]) => any>(
     lastArgs = lastThis = null;
   };
 
-  const throttled = function (this: any, ...args: Parameters<T>) {
+  const throttled = function (this: unknown, ...args: Parameters<T>) {
     const now = Date.now();
 
     if (!lastCallTime) {
@@ -28,6 +28,7 @@ export function throttle<T extends (...args: any[]) => any>(
     const remaining = wait - (now - lastCallTime);
 
     lastArgs = args;
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     lastThis = this;
 
     if (remaining <= 0) {

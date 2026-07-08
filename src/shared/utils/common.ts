@@ -20,7 +20,7 @@ export function arraySplit<T>(array: T[], condition: (item: T) => boolean): [T[]
   }, [[], []])
 }
 
-export function omit<T extends {}, Key extends keyof T>(obj: T, keys: Key[]) {
+export function omit<T extends Record<any, any>, Key extends keyof T>(obj: T, keys: Key[]) {
   return Object.fromEntries(
     Object.entries(obj).filter(([key]) => !arrayIncludes(keys, key))
   ) as Omit<T, Key>;

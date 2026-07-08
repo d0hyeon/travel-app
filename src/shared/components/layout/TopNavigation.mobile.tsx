@@ -50,7 +50,8 @@ export function TopNavigation({
   )
 }
 TopNavigation.HEIGHT = 50
-TopNavigation.BackButton = (props: IconButtonProps) => {
+TopNavigation.BackButton = BackButton;
+function BackButton(props: IconButtonProps) {
   const navigate = useNavigate();
 
 

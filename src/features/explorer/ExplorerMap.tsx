@@ -56,7 +56,8 @@ export function ExplorerMap(props: BoxProps) {
             color={scoreToColor(place.score)}
             thumbnailUrl={place.thumbnailUrl}
             onClick={() => {
-              isMobile ? openPlaceModal(place.placeId) : openPlaceSidePanel(place.placeId)
+              if (isMobile) openPlaceModal(place.placeId)
+              else openPlaceSidePanel(place.placeId)
             }}
           />
         ))}

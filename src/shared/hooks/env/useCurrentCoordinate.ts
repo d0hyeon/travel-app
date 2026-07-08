@@ -56,6 +56,7 @@ export function useCurrentCoordinate({
           setLocation(value)
           onChange?.(value);
         },
+        // eslint-disable-next-line react-hooks/rules-of-hooks
         handleError,
         { enableHighAccuracy: true }
       );
@@ -67,6 +68,7 @@ export function useCurrentCoordinate({
         setLocation(value)
         onChange?.(value);
       },
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       handleError,
       { enableHighAccuracy: true }
     )

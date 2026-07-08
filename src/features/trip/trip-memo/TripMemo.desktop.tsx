@@ -67,10 +67,11 @@ interface ItemProps {
 }
 
 const PREVIEW_MAX_LENGTH = 100
-
-TripMemo.Item = ({ tripId, id }: ItemProps) => {
+TripMemo.Item = TripMemoItem;
+function TripMemoItem({ tripId, id }: ItemProps) {
   const { data: { memos }, togglePin, remove } = useTripMemo(tripId);
   const confirm = useConfirmDialog();
+  const overlay = useOverlay();
 
   const memo = memos.find((m) => m.id === id);
   if (!memo) return null;
@@ -84,8 +85,6 @@ TripMemo.Item = ({ tripId, id }: ItemProps) => {
       await remove(id);
     }
   };
-  const overlay = useOverlay();
-
 
 
   return (

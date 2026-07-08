@@ -57,12 +57,14 @@ function Resolved({ tripId }: Props) {
   )
 }
 
+TripChecklist.Item = TripChecklistItem;
 interface ItemProps extends ComponentProps<typeof ListItem> {
   tripId: string;
   id: string;
 }
 
-TripChecklist.Item = ({ tripId, id, ...props }: ItemProps) => {
+
+function TripChecklistItem({ tripId, id, ...props }: ItemProps) {
   const { data: { checklist }, update } = useTripChecklist(tripId);
   const value = checklist.find(x => x.id === id);
   assert(!!value, '존재하지 않는 항목입니다.')
@@ -77,8 +79,8 @@ TripChecklist.Item = ({ tripId, id, ...props }: ItemProps) => {
     return '시간 초과';
   }, [value])
 
-  const startTimeText = !!value.startedAt ? `${formatDate(value.startedAt, 'MM/dd HH:mm')}` : undefined;
-  const endTimeText = !!value.endedAt ? formatDate(value.endedAt, 'MM/dd HH:mm') : undefined;
+  const startTimeText = value.startedAt ? `${formatDate(value.startedAt, 'MM/dd HH:mm')}` : undefined;
+  const endTimeText = value.endedAt ? formatDate(value.endedAt, 'MM/dd HH:mm') : undefined;
 
   const 담당자 = members.find(member => member.id === value.memberId);
   const remainDays = value.endedAt ? differenceInDays(value.endedAt, now) : undefined;
@@ -169,8 +171,8 @@ TripChecklist.Item = ({ tripId, id, ...props }: ItemProps) => {
 }
 
 
-
-TripChecklist.ReadonlyItem = ({ id, tripId, ...props }: ItemProps) => {
+TripChecklist.ReadonlyItem = ReadonlyItem;
+function ReadonlyItem({ id, tripId, ...props }: ItemProps) {
   const { data: { checklist } } = useTripChecklist(tripId);
   const value = checklist.find(x => x.id === id);
   assert(!!value, '존재하지 않는 항목입니다.');
@@ -279,8 +281,9 @@ function TripChecklistMenu({ id, tripId }: CheckMenuProps) {
                 >
                   <MenuItem
                     onClick={() => {
-                      isMobile ? openModifyBottomSheet(id) : openModifyDialog(id);
                       close();
+                      if (isMobile) return openModifyBottomSheet(id)
+                      openModifyDialog(id);
                     }}
                   >
                     수정
