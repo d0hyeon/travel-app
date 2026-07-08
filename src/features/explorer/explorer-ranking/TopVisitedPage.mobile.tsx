@@ -16,7 +16,7 @@ import { ExplorerViewToggleButton, useExplorerViewMode } from '../explorer-view/
 import { FilterNavigation } from '../explorer-view/FilterNavigation'
 import type { ExploredPlace } from '../explorer.api'
 import { useExploredPlaces } from './useExploredPlaces'
-import { useRouteOverlay } from '~shared/hooks/extends/useRouteOverlay'
+import { useRouteOverlay } from '~shared/hooks/extends/route-overlay/useRouteOverlay'
 import { AppRoute } from '~app/routes'
 import { generatePath } from 'react-router';
 import { PlaceFullScreenModal } from '~features/place/place-detail/PlaceFullScreenModal'

@@ -1,19 +1,15 @@
 import AddIcon from '@mui/icons-material/Add'
 import { Box, Container, Fab, Stack, Typography } from '@mui/material'
 import { Suspense } from 'react'
-import { generatePath, Link } from 'react-router'
+import { Link } from 'react-router'
 import { AppRoute } from '~app/routes'
 import { BottomNavigation } from '~shared/components/BottomNavigation'
-import { FullScreenPopup } from '~shared/components/FullScreenPopup'
 import { TopNavigation as DesktopNavigation } from '~shared/components/layout/TopNavigation.desktop'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
-import { useRouteOverlay } from '~shared/hooks/extends/useRouteOverlay'
-import { useIsMounted } from '~shared/hooks/useIsMounted'
 import { PostCard } from './PostCard'
-import { PostMenu } from './PostMenu'
-import { PostScreen } from './PostScreen'
 import { useFeed } from './useFeed'
+import { usePostOverlay } from './usePostOverlay'
 
 export const meta = () => [
   { title: '피드 — WayLog' },
@@ -50,27 +46,12 @@ export default function FeedPage() {
 
 function Contents() {
   const { data: posts } = useFeed();
-
-  const { Link: PostLink } = useRouteOverlay(
-    (postId: string) => generatePath(AppRoute.포스트_상세, { postId }),
-    ({ isOpen, close, onClose, data: postId }) => (
-      <FullScreenPopup isOpen={isOpen} onClose={onClose}>
-        <TopNavigation
-          leftElement={<TopNavigation.BackButton onClick={close} />}
-          rightElement={<PostMenu postId={postId} onDelete={close} />}
-          sx={{ position: 'sticky', borderBottom: 'none', bgcolor: 'transparent' }}
-        />
-        <Container maxWidth="sm" disableGutters sx={{ flex: 1 }}>
-          <PostScreen postId={postId} />
-        </Container>
-      </FullScreenPopup>
-    )
-  )
+  const { Trigger: PostLink } = usePostOverlay()
 
   return (
     <Stack spacing={2}>
       {posts.map((post) => (
-        <PostLink key={post.id} data={post.id}>
+        <PostLink key={post.id} postId={post.id}>
           <PostCard post={post} />
         </PostLink>
       ))}
