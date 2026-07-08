@@ -6,9 +6,14 @@ import { TopNavigation } from "~shared/components/layout/TopNavigation.mobile";
 import { useRouteOverlay } from "~shared/hooks/extends/route-overlay/useRouteOverlay";
 import { PostScreen } from "./PostScreen";
 import { PostMenu } from "./PostMenu";
+import type { ReactNode } from "react";
 
+interface TriggerProps {
+  postId: string;
+  children?: ReactNode;
+}
 export function usePostOverlay() {
-  const { Link: Trigger, ...overlay } = useRouteOverlay(
+  const { Link, ...overlay } = useRouteOverlay(
     (postId: string) => generatePath(AppRoute.포스트_상세, { postId }),
     ({ isOpen, close, onClose, data: postId }) => (
       <FullScreenPopup isOpen={isOpen} onClose={onClose}>
@@ -24,5 +29,8 @@ export function usePostOverlay() {
     )
   )
 
-  return { Trigger, ...overlay };
+  return {
+    Trigger: ({ postId, ...props }: TriggerProps) => <Link data={postId} {...props} />,
+    ...overlay
+  };
 }

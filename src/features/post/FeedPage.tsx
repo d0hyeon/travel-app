@@ -51,7 +51,7 @@ function Contents() {
   return (
     <Stack spacing={2}>
       {posts.map((post) => (
-        <PostLink key={post.id} data={post.id}>
+        <PostLink key={post.id} postId={post.id}>
           <PostCard post={post} />
         </PostLink>
       ))}

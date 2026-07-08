@@ -33,7 +33,7 @@ function PlaceFeed({ placeId }: Props) {
   return (
     <Stack gap={2} padding={2} bgcolor={(theme) => theme.palette.grey[200]}>
       {feed.map((post) => (
-        <Trigger key={post.id} data={post.id}>
+        <Trigger key={post.id} postId={post.id}>
           <PostCard post={post} />
         </Trigger>
       ))}
