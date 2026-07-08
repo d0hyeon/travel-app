@@ -6,33 +6,46 @@ import {
 } from '../routeOverlayStore'
 
 describe('routeOverlayStore', () => {
-  it('등록한 renderer를 id로 조회할 수 있다', () => {
+  it('등록한 renderer를 kind로 조회할 수 있다', () => {
     const renderer = () => null
-    registerRouteOverlay('overlay-a', renderer)
+    registerRouteOverlay('kind-a', renderer)
 
-    expect(getRouteOverlay('overlay-a')).toBe(renderer)
+    expect(getRouteOverlay('kind-a')).toBe(renderer)
   })
 
-  it('같은 id로 다시 등록하면 최신 renderer로 덮어쓴다', () => {
+  it('같은 kind로 다른 renderer를 등록하면 최신으로 덮어쓴다', () => {
     const first = () => null
     const second = () => null
-    registerRouteOverlay('overlay-b', first)
-    registerRouteOverlay('overlay-b', second)
+    registerRouteOverlay('kind-b', first)
+    registerRouteOverlay('kind-b', second)
 
-    expect(getRouteOverlay('overlay-b')).toBe(second)
+    expect(getRouteOverlay('kind-b')).toBe(second)
   })
 
-  it('등록되지 않은 id는 undefined를 반환한다', () => {
+  it('등록되지 않은 kind는 undefined를 반환한다', () => {
     expect(getRouteOverlay('never-registered')).toBeUndefined()
   })
 
-  it('register가 발생하면 구독자에게 통지한다', () => {
+  it('새 renderer 등록 시 구독자에게 통지한다', () => {
     const listener = vi.fn()
     const unsubscribe = subscribeRouteOverlay(listener)
 
-    registerRouteOverlay('overlay-c', () => null)
+    registerRouteOverlay('kind-c', () => null)
 
     expect(listener).toHaveBeenCalledTimes(1)
+    unsubscribe()
+  })
+
+  it('같은 kind에 동일 renderer 참조를 재등록하면 통지하지 않는다 (렌더 폭풍 방지)', () => {
+    const renderer = () => null
+    registerRouteOverlay('kind-d', renderer)
+
+    const listener = vi.fn()
+    const unsubscribe = subscribeRouteOverlay(listener)
+
+    registerRouteOverlay('kind-d', renderer)
+
+    expect(listener).not.toHaveBeenCalled()
     unsubscribe()
   })
 
@@ -41,7 +54,7 @@ describe('routeOverlayStore', () => {
     const unsubscribe = subscribeRouteOverlay(listener)
     unsubscribe()
 
-    registerRouteOverlay('overlay-d', () => null)
+    registerRouteOverlay('kind-e', () => null)
 
     expect(listener).not.toHaveBeenCalled()
   })

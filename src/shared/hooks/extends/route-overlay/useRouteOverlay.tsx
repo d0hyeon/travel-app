@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useId, useMemo, useState, type ReactNode } from "react";
 import { Link, useLocation, useNavigate, type LinkProps } from "react-router";
 import { usePreservedCallback } from "../usePreservedCallback";
 import { registerRouteOverlay, type RouteOverlayRenderProps } from "./routeOverlayStore";
@@ -7,6 +7,7 @@ export type { RouteOverlayRenderProps };
 
 interface RouteOverlayEntry {
   id: string;
+  kind: string;
   data: unknown;
 }
 
@@ -14,56 +15,67 @@ export function useRouteOverlay<Data = never>(
   path: string | ((params: Data) => string),
   renderer: (props: RouteOverlayRenderProps<Data>) => ReactNode
 ) {
-  const id = useRouteId();
+  // kind는 이 훅 호출 지점(오버레이 종류)의 식별자다. 렌더 간 안정적이고,
+  // store에 남아 있어 호출 컴포넌트가 언마운트된 뒤에도 복원에 쓰인다.
+  const kind = useId();
   const { pathname, state } = useLocation();
   const { routeOverlays = [] } = (state ?? {}) as { routeOverlays?: RouteOverlayEntry[] };
 
-  const isOpen = routeOverlays.some((entry) => entry.id === id);
-
-  // 렌더 주체는 root의 RouteOverlayRenderer. 여기서는 renderer 등록만 한다.
-  // 등록해두면 이 훅을 소유한 컴포넌트가 언마운트된 뒤에도 복원이 가능하다.
-  registerRouteOverlay<Data>(id, renderer);
+  // renderer를 안정 참조로 고정해 매 렌더 재등록/통지(렌더 폭풍)를 막는다.
+  const renderElement = usePreservedCallback(renderer);
+  registerRouteOverlay<Data>(kind, renderElement);
 
   const getPath = usePreservedCallback(
     (data: Data) => (path instanceof Function ? path(data) : path)
   );
-
   const navigate = useNavigate();
 
-  const open = useCallback((data: Data) => {
-    const maskPath = getPath(data);
-    const nextState = { routeOverlays: [...routeOverlays, { id, data }] };
-    return navigate({ pathname, hash: id }, { mask: maskPath, state: nextState });
-  }, [routeOverlays, id]);
+  // 열린 오버레이 인스턴스를 구분하는 유니크 엔트리 id. 같은 kind를 여러 번 열어도
+  // 서로 다른 id를 가지므로 스택/렌더 key 충돌이 없다.
+  const openWith = usePreservedCallback((entryId: string, data: Data) => {
+    const entry: RouteOverlayEntry = { id: entryId, kind, data };
+    return navigate(
+      { pathname, hash: entryId },
+      { mask: getPath(data), state: { routeOverlays: [...routeOverlays, entry] } }
+    );
+  });
 
-  const close = useCallback(() => {
-    if (isOpen) navigate(-1);
-  }, [isOpen]);
+  const open = useCallback((data: Data) => {
+    return openWith(crypto.randomUUID(), data);
+  }, [openWith]);
 
   return useMemo(() => ({
-    isOpen,
-    close,
     open,
     Link: (props: Omit<LinkProps, 'to' | 'mask' | 'state'> & { data: Data }) => (
-      <Link
+      <RouteOverlayLink
         {...props}
+        pathname={pathname}
+        entry={{ kind, data: props.data }}
+        routeOverlays={routeOverlays}
         mask={getPath(props.data)}
-        to={{ pathname, hash: id }}
-        state={{ routeOverlays: [...routeOverlays, { id, data: props.data }] }}
       />
     )
-  }), [id, close, open]);
+  }), [open, kind, pathname, routeOverlays, getPath]);
 }
 
-function useRouteId() {
-  const { pathname, search, mask, hash } = useLocation();
+interface RouteOverlayLinkProps extends Omit<LinkProps, 'to' | 'mask' | 'state'> {
+  pathname: string;
+  entry: { kind: string; data: unknown };
+  routeOverlays: RouteOverlayEntry[];
+  mask: string;
+}
 
-  // 최초 렌더의 location 기준으로 id를 고정한다. 오버레이가 열린 뒤
-  // 히스토리 이동이 있어도 이 오버레이의 식별자는 바뀌지 않아야 한다.
-  const [id] = useState(() => mask != null
-    ? `${mask.pathname}?${mask.search.toString()}#${hash}`
-    : `${pathname}?${search.toString()}#${hash}`
+function RouteOverlayLink({ pathname, entry, routeOverlays, mask, ...linkProps }: RouteOverlayLinkProps) {
+  // 각 Link 인스턴스는 자신의 엔트리 id를 한 번만 생성해 렌더 간 고정한다.
+  const [entryId] = useState(() => crypto.randomUUID());
+  const nextEntry: RouteOverlayEntry = { id: entryId, ...entry };
+
+  return (
+    <Link
+      {...linkProps}
+      mask={mask}
+      to={{ pathname, hash: entryId }}
+      state={{ routeOverlays: [...routeOverlays, nextEntry] }}
+    />
   );
-
-  return id;
 }
