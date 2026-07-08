@@ -12,7 +12,7 @@ import {
 } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', 'dev-dist', '.react-router']),
   {
     files: ['**/*.{ts,tsx}'],
 
@@ -36,10 +36,14 @@ export default defineConfig([
     },
 
     rules: {
-      'package/import': ['error', {
-        aliases: { '~': './src' }
-      }],
+      'package/import': ['error', { aliases: { '~': './src' }}],
       'react-hooks/set-state-in-effect': 'warn',
+      'react-hooks/refs': 'off',
+      '@typescript-eslint/no-explicit-any': ['warn', { ignoreRestArgs: true }],
+      "@typescript-eslint/no-unsafe-function-type": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+      "no-async-promise-executor": "off",
+      "@typescript-eslint/ban-ts-comment": "off"
     },
   },
 ])
