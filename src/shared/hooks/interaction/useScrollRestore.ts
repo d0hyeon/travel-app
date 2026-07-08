@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect } from 'react';
 import { useLocation } from 'react-router';
 import { useScrollEventListener } from './useScrollEventListener';
 import { useIsBFCacheRestored } from '../dom/useIsBFCacheRestored';
+import { APP_ROOT_NODE_CLASS } from '~app/constants';
 
 /**
  * 커스텀 스크롤 컨테이너의 스크롤 위치를 복원한다.
@@ -24,7 +25,7 @@ export function useScrollContainer() {
   const context = useContext(ScrollContainerContext);
   
   if (context == null) {
-    return document.querySelector('.app-root') as HTMLElement;
+    return document.querySelector(`.${APP_ROOT_NODE_CLASS}`) as HTMLElement;
   }
   return context ?? null;
 }
