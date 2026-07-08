@@ -8,6 +8,7 @@ import { queryClient } from '~app/query-client'
 import { theme } from '~shared/config/theme'
 import { SearchParamProvider } from '~shared/hooks/urls/useSearchParams'
 import { OverlayProvider } from '~shared/hooks/useOverlay.context'
+import { RouteOverlayRenderer } from '~shared/hooks/extends/route-overlay/RouteOverlayRenderer'
 
 
 import { AuthErrorBoundary } from '~features/auth/AuthErrorBoundary'
@@ -77,6 +78,7 @@ export default function Root() {
 
               <AppInitializer />
               <ToastRenderer />
+              <RouteOverlayRenderer />
             </OverlayProvider>
           </CommonErrorBoundary>
         </LocalizationProvider>
