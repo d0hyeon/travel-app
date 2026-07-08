@@ -1,16 +1,15 @@
-import { Box, Stack, Typography, Container } from '@mui/material'
-import { Suspense, useRef, useState } from 'react'
+import { Box, Container, Stack, Typography } from '@mui/material'
+import { Suspense, useState } from 'react'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.desktop'
 import { SwitchCase } from '~shared/components/SwitchCase'
+import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
 import { ExplorerFilters } from './explorer-filters/ExplorerFilters.desktop'
 import { ExplorerViewToggleButton, useExplorerViewMode } from './explorer-view/ExplorerViewToggleButton'
 import { ExplorerCatalog } from './ExplorerCatalog'
 import { ExplorerMap } from './ExplorerMap'
-import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
 
 export function PlaceExplorerPage() {
   const [viewMode, setViewMode] = useExplorerViewMode()
-  const titleRef = useRef(null);
   const [container, setContainer] = useState<HTMLElement | null>(null);
 
   useScrollRestore({ element: container });
@@ -22,7 +21,7 @@ export function PlaceExplorerPage() {
         rightElement={<ExplorerViewToggleButton value={viewMode} onChange={setViewMode} />}
         sx={{ borderBottom: 0, paddingBottom: 0 }}
       >
-        <Typography ref={titleRef} variant="subtitle1" fontWeight={600}>탐색</Typography>
+        <Typography variant="subtitle1" fontWeight={600}>탐색</Typography>
       </TopNavigation>
 
       <Stack direction="row" gap={1} alignItems="center" px={2} py={1} borderBottom={1} borderColor="divider" flexShrink={0}>
