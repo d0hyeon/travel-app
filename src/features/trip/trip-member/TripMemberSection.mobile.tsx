@@ -45,7 +45,7 @@ function Resolved({ tripId }: Props) {
               key={member.id}
               leftAddon={<MemberAvatar member={member} size={28} />}
             >
-              <Link to={generatePath(AppRoute.사용자_피드, { userId: member.userId })} viewTransition>
+              <Link to={generatePath(AppRoute.유저_프로필, { userId: member.userId })} viewTransition>
                 <Stack direction="row" alignItems="center" gap={0.5}>
                   <Typography variant="body2">
                     {member.name || '(이름 없음)'}

@@ -31,7 +31,7 @@ export default function HomeLayout() {
   const [scrollElement, setScrollElement] = useState<HTMLDivElement | null>(null)
 
   const { data: auth } = useAuth({ required: false });
-  const mypagePath = auth != null ? generatePath(AppRoute.사용자_피드, { userId: auth.id }) : null
+  const mypagePath = auth != null ? generatePath(AppRoute.유저_프로필, { userId: auth.id }) : null
 
   if (isMobile) {
     return (

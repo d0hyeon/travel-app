@@ -40,7 +40,7 @@ function Resolved({ postId }: Props) {
 
   return (
     <Stack spacing={2} px={2} py={2}>
-      <Link to={generatePath(AppRoute.사용자_피드, { userId: post.authorId })}>
+      <Link to={generatePath(AppRoute.유저_프로필, { userId: post.authorId })}>
         <UserProfile id={post.authorId} />
       </Link>
       {post.title && (

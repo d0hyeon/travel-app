@@ -13,7 +13,7 @@ export const AppRoute = {
   로그인: '/login',
   피드: '/feed',
   장소_상세: '/place/:placeId',
-  사용자_피드: '/u/:userId',
+  유저_프로필: '/u/:userId',
   포스트_생성: '/post/new',
   포스트_상세: '/post/:postId',
   어드민_여행_목록: '/admin/trips',
@@ -27,7 +27,7 @@ export default [
   layout("../app/HomeLayout.tsx", [
     layout('./AuthGuardLayout.tsx', { id: 'HOME_AUTH_LAYOUT'}, [
       index("../features/trip/trip-list/TripListPage.tsx"),
-      route(AppRoute.사용자_피드, "../features/user-profile/UserProfilePage.tsx"),
+      route(AppRoute.유저_프로필, "../features/user-profile/UserProfilePage.tsx"),
       route(AppRoute.통계, "../features/statistics/StatisticsPage.tsx"),
     ]),
     route(AppRoute.피드, "../features/post/FeedPage.tsx"),
