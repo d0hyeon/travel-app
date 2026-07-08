@@ -2,7 +2,7 @@
 
 
 
-import { useCallback, useEffect, useId, useMemo, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, type ReactNode } from "react";
 import { Link, useLocation, useNavigate, type LinkProps } from "react-router";
 import { useOverlay, type OverlayRenderProps as OverlayProps } from "../useOverlay";
 import { usePreservedCallback } from "./usePreservedCallback";
@@ -18,12 +18,15 @@ export function useRouteOverlay<Data = never>(
   path: string | ((params: Data) => string),
   renderer: (props: RouteOverlayRenderProps<Data>) => ReactNode
 ) {
-  const id = useId()
+  const id = useRouteId()
   const isMobile = useIsMobile();
   const { state, pathname } = useLocation();
-  const { routeOverlayActivedIds = [], data } = state ?? {};
+  const { routeOverlays = [] } = state ?? {};
 
-  const isOpen = routeOverlayActivedIds.includes(id);
+
+  const currentOverlay = routeOverlays.find(x => x.id === id);
+  const isOpen = !!currentOverlay;
+
   const getIsOpen = usePreservedValue(isOpen)
 
   const overlay = useOverlay();
@@ -36,7 +39,7 @@ export function useRouteOverlay<Data = never>(
     }
     if (isOpen) {
       overlay.open(
-        (props) => renderElement({ ...props, close: handleClose, data })
+        (props) => renderElement({ ...props, close: handleClose, data: currentOverlay.data })
       )
 
       return () => {
@@ -53,10 +56,10 @@ export function useRouteOverlay<Data = never>(
   );
   const open = useCallback((data: Data) => {
     const maskPath = getPath(data);
-    const state = { data, routeOverlayActivedIds: [...routeOverlayActivedIds, id] }
+    const state = { routeOverlays: [...routeOverlays, { id, data }] }
 
     return navigate({ pathname, hash: id }, { mask: maskPath, state })
-  }, [routeOverlayActivedIds, id]);
+  }, [routeOverlays, id]);
 
   const close = useCallback(() => {
     if (isOpen) {
@@ -73,8 +76,18 @@ export function useRouteOverlay<Data = never>(
         {...props}
         mask={getPath(props.data)}
         to={{ pathname, hash: id }}
-        state={{ data: props.data, routeOverlayActivedIds: [...routeOverlayActivedIds, id] }}
+        state={{ routeOverlays: [...routeOverlays, { id, data: props.data }] }}
       />
     )
   }), [id, close, open])
+}
+
+function useRouteId() {
+  const location = useLocation();
+  const { pathname, search, mask, hash } = location;
+
+  return useRef(mask != null
+    ? `${mask.pathname}?${mask.search.toString()}#${hash}`
+    : `${pathname}?${search.toString()}#${hash}`
+  ).current
 }
