@@ -46,6 +46,9 @@ function RouteOverlaySlot({ id, data }: RouteOverlayEntry) {
       if (isMobile) overlay.unmount();
       else overlay.close(); // (close: 상태변경(모션) 후 unmount)
     };
+    // 슬롯은 key={id}로 격리되어 data/navigate/overlay는 이 슬롯 생명주기 동안 고정이다.
+    // renderer(늦은 등록)와 isMobile 변경 시에만 재마운트한다.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [renderer, isMobile]);
 
   return null;
