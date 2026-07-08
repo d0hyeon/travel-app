@@ -14,6 +14,7 @@ import { Suspense, useEffect, useState } from 'react'
 import { usePlace } from '~features/place/usePlace'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { PlaceDetailContent } from './PlaceDetailContent'
+import { APP_ROOT_NODE_CLASS } from '~app/constants'
 
 interface Props {
   placeId: string;
@@ -42,6 +43,7 @@ export function PlaceSidePanel({ placeId, isOpen: _isOpen = true, onClose, zInde
       onClose={() => setIsOpen(false)}
       hideBackdrop
       sx={theme => ({ zIndex: zIndex ?? theme.zIndex.drawer })}
+      container={() => document.querySelector(`.${APP_ROOT_NODE_CLASS}`)}
       PaperProps={{
         sx: {
           width: 480,
