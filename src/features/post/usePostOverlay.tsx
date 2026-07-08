@@ -3,7 +3,7 @@ import { generatePath } from "react-router";
 import { AppRoute } from "~app/routes";
 import { FullScreenPopup } from "~shared/components/FullScreenPopup";
 import { TopNavigation } from "~shared/components/layout/TopNavigation.mobile";
-import { useRouteOverlay } from "~shared/hooks/extends/useRouteOverlay";
+import { useRouteOverlay } from "~shared/hooks/extends/route-overlay/useRouteOverlay";
 import { PostScreen } from "./PostScreen";
 import { PostMenu } from "./PostMenu";
 

@@ -7,7 +7,7 @@ import { PlaceFullScreenModal } from '~features/place/place-detail/PlaceFullScre
 import { UserProfile } from '~features/user-profile/UserProfile'
 import { ListItem } from '~shared/components/ListItem'
 import { Map } from '~shared/components/Map'
-import { useRouteOverlay } from '~shared/hooks/extends/useRouteOverlay'
+import { useRouteOverlay } from '~shared/hooks/extends/route-overlay/useRouteOverlay'
 import { isOverseasByCoordinate } from '~shared/utils/geo'
 import { PostLikeButton } from './PostLikeButton'
 import { usePost } from './usePost'
