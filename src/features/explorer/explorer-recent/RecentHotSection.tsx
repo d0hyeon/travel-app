@@ -1,7 +1,7 @@
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { Box, Button, Skeleton, Stack, Typography } from '@mui/material'
 import { useMemo, useState } from 'react'
-import { generatePath, useNavigate } from 'react-router'
+import { generatePath, Link } from 'react-router'
 import { AppRoute } from '~app/routes'
 import { PlaceFullScreenModal } from '~features/place/place-detail/PlaceFullScreenModal'
 import { PlaceSidePanel } from '~features/place/place-detail/PlaceSidePanel'
@@ -32,7 +32,6 @@ export function RecentHotSection() {
     )
   );
 
-  const navigate = useNavigate()
   const [scrollContainer, setScrollContainer] = useState<HTMLDivElement | null>(null)
   useScrollRestore({ element: scrollContainer, key: `recent-hot-section:${location}:${category}` });
 
@@ -45,8 +44,10 @@ export function RecentHotSection() {
           variant="text"
           color="inherit"
           endIcon={<ChevronRightIcon sx={{ fontSize: '16px !important' }} />}
-          onClick={() => navigate(toDetailUrl)}
+          component={Link}
+          to={toDetailUrl}
           sx={{ minWidth: 0, fontSize: 12, color: 'text.secondary' }}
+          viewTransition
         >
           더보기
         </Button>

@@ -1,17 +1,17 @@
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { Box, Button, Skeleton, Stack, Typography } from '@mui/material'
 import { useMemo, useState } from 'react'
-import { generatePath, useNavigate } from 'react-router'
+import { generatePath, Link } from 'react-router'
 import { AppRoute } from '~app/routes'
+import { PlaceFullScreenModal } from '~features/place/place-detail/PlaceFullScreenModal'
+import { PlaceSidePanel } from '~features/place/place-detail/PlaceSidePanel'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
+import { useRouteOverlay } from '~shared/hooks/extends/route-overlay/useRouteOverlay'
 import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 import { PlaceCard } from '../explorer-place-item/PlaceCard'
 import { buildExplorerDetailUrl } from '../explorer.utils'
 import { useMostSavedPlaces } from './useMostSavedPlaces'
-import { useRouteOverlay } from '~shared/hooks/extends/route-overlay/useRouteOverlay'
-import { PlaceSidePanel } from '~features/place/place-detail/PlaceSidePanel'
-import { PlaceFullScreenModal } from '~features/place/place-detail/PlaceFullScreenModal'
 
 const SECTION_LIMIT = 10
 
@@ -27,7 +27,6 @@ export function MostSavedSection() {
         : <PlaceSidePanel placeId={placeId} onClose={close} isOpen={isOpen} />
     )
   );
-  const navigate = useNavigate()
 
   const topSaved = useMemo(() => places.slice(0, SECTION_LIMIT), [places])
   const toDetailUrl = buildExplorerDetailUrl(AppRoute.장소_저장순, location, category)
@@ -43,9 +42,11 @@ export function MostSavedSection() {
           size="small"
           variant="text"
           color="inherit"
+          component={Link}
+          to={toDetailUrl}
           endIcon={<ChevronRightIcon sx={{ fontSize: '16px !important' }} />}
-          onClick={() => navigate(toDetailUrl)}
           sx={{ minWidth: 0, fontSize: 12, color: 'text.secondary' }}
+          viewTransition
         >
           더보기
         </Button>

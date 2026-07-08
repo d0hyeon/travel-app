@@ -1,19 +1,18 @@
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { Box, Button, Skeleton, Stack, Typography } from '@mui/material'
 import { useMemo } from 'react'
-import { useNavigate } from 'react-router'
+import { Link } from 'react-router'
 import { AppRoute } from '~app/routes'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 import { PlaceListItem } from '../explorer-place-item/PlaceListItem'
 import { buildExplorerDetailUrl } from '../explorer.utils'
-import { useExploredPlaces } from './useExploredPlaces'
-import { SECTION_LIMIT, MOBILE_SKELETON_ROWS, formatVisitorCount } from './topVisitedSection.constants'
 import { useExplorerPlaceModal } from '../useExplorerPlaceOverlay'
+import { MOBILE_SKELETON_ROWS, SECTION_LIMIT, formatVisitorCount } from './topVisitedSection.constants'
+import { useExploredPlaces } from './useExploredPlaces'
 
 export function TopVisitedSection() {
   const { location, category } = useExplorerFilterParams()
   const { data: places } = useExploredPlaces(location, category)
-  const navigate = useNavigate()
 
   const mostVisitedPlaces = useMemo(
     () => places.toSorted((a, b) => b.visitorCount - a.visitorCount).slice(0, SECTION_LIMIT),
@@ -32,8 +31,10 @@ export function TopVisitedSection() {
           variant="text"
           color="inherit"
           endIcon={<ChevronRightIcon sx={{ fontSize: '16px !important' }} />}
-          onClick={() => navigate(toDetailUrl)}
+          component={Link}
+          to={toDetailUrl}
           sx={{ minWidth: 0, fontSize: 12, color: 'text.secondary' }}
+          viewTransition
         >
           더보기
         </Button>
