@@ -9,6 +9,7 @@ import { ExplorerViewToggleButton, useExplorerViewMode } from './explorer-view/E
 import { FilterNavigation } from './explorer-view/FilterNavigation'
 import { ExplorerCatalog } from './ExplorerCatalog'
 import { ExplorerMap } from './ExplorerMap'
+import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
 
 
 
@@ -16,7 +17,9 @@ export function PlaceExplorerPage() {
   const [viewMode, setViewMode] = useExplorerViewMode()
   const titleRef = useRef(null)
   const [container, setContainer] = useState<HTMLElement | null>(null)
-  const { isScrollDown } = useScrollStatus(container)
+  const { isScrollDown } = useScrollStatus(container);
+
+  useScrollRestore({ element: container });
 
   return (
     <Box height="100%" display="flex" flexDirection="column" bgcolor="background.paper">
