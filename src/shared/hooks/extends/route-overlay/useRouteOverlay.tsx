@@ -7,33 +7,37 @@ export type { RouteOverlayRenderProps };
 
 interface RouteOverlayEntry {
   id: string;
-  kind: string;
+  templateId: string;
   data: unknown;
+}
+
+interface RouteOverlayState {
+  routeOverlays?: RouteOverlayEntry[];
 }
 
 export function useRouteOverlay<Data = never>(
   path: string | ((params: Data) => string),
   renderer: (props: RouteOverlayRenderProps<Data>) => ReactNode
 ) {
-  // kind는 이 훅 호출 지점(오버레이 종류)의 식별자다. 렌더 간 안정적이고,
+  // templateId는 이 훅 호출 지점(오버레이 종류)의 식별자다. 렌더 간 안정적이고,
   // store에 남아 있어 호출 컴포넌트가 언마운트된 뒤에도 복원에 쓰인다.
-  const kind = useId();
+  const templateId = useId();
   const { pathname, state } = useLocation();
-  const { routeOverlays = [] } = (state ?? {}) as { routeOverlays?: RouteOverlayEntry[] };
+  const { routeOverlays = [] }: RouteOverlayState = state ?? {};
 
   // renderer를 안정 참조로 고정해 매 렌더 재등록/통지(렌더 폭풍)를 막는다.
   const renderElement = usePreservedCallback(renderer);
-  registerRouteOverlay<Data>(kind, renderElement);
+  registerRouteOverlay<Data>(templateId, renderElement);
 
   const getPath = usePreservedCallback(
     (data: Data) => (path instanceof Function ? path(data) : path)
   );
   const navigate = useNavigate();
 
-  // 열린 오버레이 인스턴스를 구분하는 유니크 엔트리 id. 같은 kind를 여러 번 열어도
+  // 열린 오버레이 인스턴스를 구분하는 유니크 엔트리 id. 같은 templateId를 여러 번 열어도
   // 서로 다른 id를 가지므로 스택/렌더 key 충돌이 없다.
   const openWith = usePreservedCallback((entryId: string, data: Data) => {
-    const entry: RouteOverlayEntry = { id: entryId, kind, data };
+    const entry: RouteOverlayEntry = { id: entryId, templateId, data };
     return navigate(
       { pathname, hash: entryId },
       { mask: getPath(data), state: { routeOverlays: [...routeOverlays, entry] } }
@@ -50,17 +54,17 @@ export function useRouteOverlay<Data = never>(
       <RouteOverlayLink
         {...props}
         pathname={pathname}
-        entry={{ kind, data: props.data }}
+        entry={{ templateId, data: props.data }}
         routeOverlays={routeOverlays}
         mask={getPath(props.data)}
       />
     )
-  }), [open, kind, pathname, routeOverlays, getPath]);
+  }), [open, templateId, pathname, routeOverlays, getPath]);
 }
 
 interface RouteOverlayLinkProps extends Omit<LinkProps, 'to' | 'mask' | 'state'> {
   pathname: string;
-  entry: { kind: string; data: unknown };
+  entry: { templateId: string; data: unknown };
   routeOverlays: RouteOverlayEntry[];
   mask: string;
 }

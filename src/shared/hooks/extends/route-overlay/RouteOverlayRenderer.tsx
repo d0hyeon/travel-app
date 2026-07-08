@@ -6,7 +6,7 @@ import { getRouteOverlay, subscribeRouteOverlay } from "./routeOverlayStore";
 
 interface RouteOverlayEntry {
   id: string;
-  kind: string;
+  templateId: string;
   data: unknown;
 }
 
@@ -22,20 +22,20 @@ export function RouteOverlayRenderer() {
   return (
     <>
       {routeOverlays.map((entry) => (
-        <RouteOverlaySlot key={entry.id} kind={entry.kind} data={entry.data} />
+        <RouteOverlaySlot key={entry.id} templateId={entry.templateId} data={entry.data} />
       ))}
     </>
   );
 }
 
-function RouteOverlaySlot({ kind, data }: Pick<RouteOverlayEntry, 'kind' | 'data'>) {
+function RouteOverlaySlot({ templateId, data }: Pick<RouteOverlayEntry, 'templateId' | 'data'>) {
   const overlay = useOverlay();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
   // 복원 직후 renderer가 아직 등록되지 않았을 수 있으므로 store를 구독한다.
-  // renderer는 kind당 안정 참조로 등록되므로 이 구독은 폭풍을 일으키지 않는다.
-  const renderer = useSyncExternalStore(subscribeRouteOverlay, () => getRouteOverlay(kind));
+  // renderer는 templateId당 안정 참조로 등록되므로 이 구독은 폭풍을 일으키지 않는다.
+  const renderer = useSyncExternalStore(subscribeRouteOverlay, () => getRouteOverlay(templateId));
 
   useEffect(() => {
     if (!renderer) return;

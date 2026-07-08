@@ -6,23 +6,23 @@ import {
 } from '../routeOverlayStore'
 
 describe('routeOverlayStore', () => {
-  it('등록한 renderer를 kind로 조회할 수 있다', () => {
+  it('등록한 renderer를 templateId로 조회할 수 있다', () => {
     const renderer = () => null
-    registerRouteOverlay('kind-a', renderer)
+    registerRouteOverlay('template-a', renderer)
 
-    expect(getRouteOverlay('kind-a')).toBe(renderer)
+    expect(getRouteOverlay('template-a')).toBe(renderer)
   })
 
-  it('같은 kind로 다른 renderer를 등록하면 최신으로 덮어쓴다', () => {
+  it('같은 templateId로 다른 renderer를 등록하면 최신으로 덮어쓴다', () => {
     const first = () => null
     const second = () => null
-    registerRouteOverlay('kind-b', first)
-    registerRouteOverlay('kind-b', second)
+    registerRouteOverlay('template-b', first)
+    registerRouteOverlay('template-b', second)
 
-    expect(getRouteOverlay('kind-b')).toBe(second)
+    expect(getRouteOverlay('template-b')).toBe(second)
   })
 
-  it('등록되지 않은 kind는 undefined를 반환한다', () => {
+  it('등록되지 않은 templateId는 undefined를 반환한다', () => {
     expect(getRouteOverlay('never-registered')).toBeUndefined()
   })
 
@@ -30,20 +30,20 @@ describe('routeOverlayStore', () => {
     const listener = vi.fn()
     const unsubscribe = subscribeRouteOverlay(listener)
 
-    registerRouteOverlay('kind-c', () => null)
+    registerRouteOverlay('template-c', () => null)
 
     expect(listener).toHaveBeenCalledTimes(1)
     unsubscribe()
   })
 
-  it('같은 kind에 동일 renderer 참조를 재등록하면 통지하지 않는다 (렌더 폭풍 방지)', () => {
+  it('같은 templateId에 동일 renderer 참조를 재등록하면 통지하지 않는다 (렌더 폭풍 방지)', () => {
     const renderer = () => null
-    registerRouteOverlay('kind-d', renderer)
+    registerRouteOverlay('template-d', renderer)
 
     const listener = vi.fn()
     const unsubscribe = subscribeRouteOverlay(listener)
 
-    registerRouteOverlay('kind-d', renderer)
+    registerRouteOverlay('template-d', renderer)
 
     expect(listener).not.toHaveBeenCalled()
     unsubscribe()
@@ -54,7 +54,7 @@ describe('routeOverlayStore', () => {
     const unsubscribe = subscribeRouteOverlay(listener)
     unsubscribe()
 
-    registerRouteOverlay('kind-e', () => null)
+    registerRouteOverlay('template-e', () => null)
 
     expect(listener).not.toHaveBeenCalled()
   })
