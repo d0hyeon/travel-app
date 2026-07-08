@@ -1,6 +1,6 @@
 import { Box, ImageList, ImageListItem, Skeleton, Stack, Typography } from '@mui/material'
 import { Suspense } from 'react'
-import { generatePath } from 'react-router'
+import { generatePath, Link } from 'react-router'
 import { AppRoute } from '~app/routes'
 import { useAuth } from '~features/auth/useAuth'
 import { PlaceFullScreenModal } from '~features/place/place-detail/PlaceFullScreenModal'
@@ -40,7 +40,9 @@ function Resolved({ postId }: Props) {
 
   return (
     <Stack spacing={2} px={2} py={2}>
-      <UserProfile id={post.authorId} />
+      <Link to={generatePath(AppRoute.사용자_피드, { userId: post.authorId })}>
+        <UserProfile id={post.authorId} />
+      </Link>
       {post.title && (
         <Typography variant="h6">{post.title}</Typography>
       )}
