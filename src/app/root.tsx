@@ -18,6 +18,7 @@ import '~shared/reset.css'
 import { AppInitializer } from './AppInitializer'
 import { SplashScreen } from './SplashScreen'
 import { ToastRenderer } from './ToastRenderer'
+import { APP_ROOT_NODE_CLASS } from './constants'
 
 export const meta = () => [
   { title: 'WayLog' },
@@ -50,7 +51,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <main className="app-root">
+        <main className={APP_ROOT_NODE_CLASS}>
           {children}
         </main>
         <Scripts />
