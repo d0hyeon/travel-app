@@ -1,8 +1,8 @@
 import { Box, Container, Stack, Typography } from '@mui/material'
-import { Suspense, useState } from 'react'
+import { Suspense } from 'react'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.desktop'
+import { Scrollable } from '~shared/components/Scrollable'
 import { SwitchCase } from '~shared/components/SwitchCase'
-import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
 import { ExplorerFilters } from './explorer-filters/ExplorerFilters.desktop'
 import { ExplorerViewToggleButton, useExplorerViewMode } from './explorer-view/ExplorerViewToggleButton'
 import { ExplorerCatalog } from './ExplorerCatalog'
@@ -10,9 +10,6 @@ import { ExplorerMap } from './ExplorerMap'
 
 export function PlaceExplorerPage() {
   const [viewMode, setViewMode] = useExplorerViewMode()
-  const [container, setContainer] = useState<HTMLElement | null>(null);
-
-  useScrollRestore({ element: container });
 
   return (
     <Box height="100%" display="flex" flexDirection="column" bgcolor="background.paper">
@@ -31,7 +28,7 @@ export function PlaceExplorerPage() {
         </Suspense>
       </Stack>
 
-      <Box ref={setContainer} flex={1} overflow="auto" sx={{ overscrollBehaviorY: 'none' }}>
+      <Scrollable.Vertical flex={1} sx={{ overscrollBehaviorY: 'none' }} restorable>
         <Suspense>
           <SwitchCase
             value={viewMode}
@@ -45,7 +42,7 @@ export function PlaceExplorerPage() {
             }}
           />
         </Suspense>
-      </Box>
+      </Scrollable.Vertical>
     </Box>
   )
 }

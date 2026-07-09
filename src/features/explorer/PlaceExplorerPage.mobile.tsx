@@ -1,7 +1,8 @@
-import { Box, Stack } from '@mui/material'
+import { Box, Stack, styled } from '@mui/material'
 import { Suspense, useRef, useState } from 'react'
 import { Extrude } from '~shared/components/animation/Extrude'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
+import { Scrollable } from '~shared/components/Scrollable'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { useScrollStatus } from '~shared/hooks/interaction/useScrollStatus'
 import { ExplorerFilters } from './explorer-filters/ExplorerFilters.mobile'
@@ -9,7 +10,6 @@ import { ExplorerViewToggleButton, useExplorerViewMode } from './explorer-view/E
 import { FilterNavigation } from './explorer-view/FilterNavigation'
 import { ExplorerCatalog } from './ExplorerCatalog'
 import { ExplorerMap } from './ExplorerMap'
-import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
 
 
 
@@ -18,8 +18,6 @@ export function PlaceExplorerPage() {
   const titleRef = useRef(null)
   const [container, setContainer] = useState<HTMLElement | null>(null)
   const { isScrollDown } = useScrollStatus(container);
-
-  useScrollRestore({ element: container });
 
   return (
     <Box height="100%" display="flex" flexDirection="column" bgcolor="background.paper">
@@ -45,15 +43,7 @@ export function PlaceExplorerPage() {
         </Extrude>
       </FilterNavigation>
 
-      <Box
-        ref={setContainer}
-        flex={1}
-        height="100%"
-        position="relative"
-        paddingTop={`${FilterNavigation.height}px`}
-        overflow="auto"
-        sx={{ overscrollBehaviorY: 'none' }}
-      >
+      <Body ref={setContainer} paddingTop={`${FilterNavigation.height}px`} restorable>
         <Suspense>
           <SwitchCase
             value={viewMode}
@@ -63,7 +53,14 @@ export function PlaceExplorerPage() {
             }}
           />
         </Suspense>
-      </Box>
+      </Body>
     </Box>
   )
 }
+
+const Body = styled(Scrollable.Vertical)({
+  height: '100%',
+  position: 'relative',
+  overscrollBehaviorY: 'none',
+  flex: 1
+})

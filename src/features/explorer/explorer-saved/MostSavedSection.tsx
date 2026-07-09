@@ -1,13 +1,13 @@
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
-import { Box, Button, Skeleton, Stack, Typography } from '@mui/material'
-import { useMemo, useState } from 'react'
+import { Box, Button, Skeleton, Stack, Typography, type ButtonProps } from '@mui/material'
+import { useMemo } from 'react'
 import { generatePath, Link } from 'react-router'
 import { AppRoute } from '~app/routes'
 import { PlaceFullScreenModal } from '~features/place/place-detail/PlaceFullScreenModal'
 import { PlaceSidePanel } from '~features/place/place-detail/PlaceSidePanel'
+import { Scrollable } from '~shared/components/Scrollable'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useRouteOverlay } from '~shared/hooks/extends/route-overlay/useRouteOverlay'
-import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 import { PlaceCard } from '../explorer-place-item/PlaceCard'
 import { buildExplorerDetailUrl } from '../explorer.utils'
@@ -29,27 +29,12 @@ export function MostSavedSection() {
   );
 
   const topSaved = useMemo(() => places.slice(0, SECTION_LIMIT), [places])
-  const toDetailUrl = buildExplorerDetailUrl(AppRoute.장소_저장순, location, category)
-
-  const [scrollContainer, setScrollContainer] = useState<HTMLDivElement | null>(null)
-  useScrollRestore({ element: scrollContainer, key: `most-saved-section:${location}:${category}` })
 
   return (
     <Box mb={3}>
       <Stack direction="row" alignItems="center" justifyContent="space-between" px={2} mb={1.5}>
         <Typography variant="subtitle1">많이 저장된 곳이에요</Typography>
-        <Button
-          size="small"
-          variant="text"
-          color="inherit"
-          component={Link}
-          to={toDetailUrl}
-          endIcon={<ChevronRightIcon sx={{ fontSize: '16px !important' }} />}
-          sx={{ minWidth: 0, fontSize: 12, color: 'text.secondary' }}
-          viewTransition
-        >
-          더보기
-        </Button>
+        <MoreButtonLink>더보기</MoreButtonLink>
       </Stack>
 
       {topSaved.length === 0 ? (
@@ -57,16 +42,15 @@ export function MostSavedSection() {
           자료를 찾을 수 없어요
         </Typography>
       ) : (
-        <Stack
-          ref={setScrollContainer}
+        <Scrollable.Horizontal
           width="100%"
-          direction="row"
           gap={isMobile ? 1 : 2}
           px={2}
           pb={0.5}
-          overflow="auto"
           sx={{ '&::-webkit-scrollbar': { display: 'none' } }}
+          restorable={`most-saved-section:${location}:${category}`}
         >
+
           {topSaved.map((place) => (
             <Box key={place.placeId} sx={{ width: isMobile ? 140 : 200, flexShrink: 0 }}>
               <PlaceOverlayLink key={place.placeId} data={place.placeId}>
@@ -76,13 +60,32 @@ export function MostSavedSection() {
               </PlaceOverlayLink>
             </Box>
           ))}
-        </Stack>
+        </Scrollable.Horizontal>
       )}
     </Box>
   )
 }
-MostSavedSection.Skeleton = MostSavedSectionSkeleton;
 
+function MoreButtonLink(props: ButtonProps) {
+  const { location, category } = useExplorerFilterParams();
+
+  return (
+    <Button
+      size="small"
+      variant="text"
+      color="inherit"
+      component={Link}
+      to={buildExplorerDetailUrl(AppRoute.장소_저장순, location, category)}
+      endIcon={<ChevronRightIcon sx={{ fontSize: '16px !important' }} />}
+      sx={{ minWidth: 0, fontSize: 12, color: 'text.secondary' }}
+      viewTransition
+      {...props}
+    />
+  )
+}
+
+
+MostSavedSection.Skeleton = MostSavedSectionSkeleton;
 function MostSavedSectionSkeleton() {
   const isMobile = useIsMobile()
 
