@@ -22,7 +22,7 @@ export function useRouteOverlay<Data = never>(
   // templateId는 이 훅 호출 지점(오버레이 종류)의 식별자다. 렌더 간 안정적이고,
   // store에 남아 있어 호출 컴포넌트가 언마운트된 뒤에도 복원에 쓰인다.
   const templateId = useId();
-  const { pathname, state } = useLocation();
+  const { pathname, state, search } = useLocation();
   const { routeOverlays = [] }: RouteOverlayState = state ?? {};
 
   // renderer를 안정 참조로 고정해 매 렌더 재등록/통지(렌더 폭풍)를 막는다.
@@ -39,7 +39,7 @@ export function useRouteOverlay<Data = never>(
   const openWith = usePreservedCallback((entryId: string, data: Data) => {
     const entry: RouteOverlayEntry = { id: entryId, templateId, data };
     return navigate(
-      { pathname, hash: entryId },
+      { pathname, hash: entryId, search: search.toString() },
       { mask: getPath(data), state: { routeOverlays: [...routeOverlays, entry] } }
     );
   });
