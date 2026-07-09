@@ -33,6 +33,7 @@ export function useScrollContainer() {
 type RestoreOptions<E extends HTMLElement> = {
   element?: E | null;
   key?: string;
+  enabled?: boolean;
 }
 
 export function useScrollRestore<E extends HTMLElement>(options: RestoreOptions<E> = {}) {
@@ -48,18 +49,19 @@ export function useScrollRestore<E extends HTMLElement>(options: RestoreOptions<
         const value = [event.target.scrollTop, event.target.scrollLeft].join(', ')
         sessionStorage.setItem(storageKey, value);
       }
-    }
+    },
+    enabled: options.enabled
   })
 
   const isRestoredScroll = useIsBFCacheRestored();
   useEffect(() => {
-    if (!target || isRestoredScroll) return;
+    if (!target || isRestoredScroll || options.enabled === false) return;
     const saved = sessionStorage.getItem(storageKey);
     if (saved == null) return;
 
     const [top, left] = saved.split(',').map(Number);
     target.scrollTo({ top, left })
-  }, [storageKey, target])
+  }, [storageKey, target, options.enabled])
 }
 
 function objectHasByKey<T extends object, Key extends keyof T>(obj: T, key: Key): obj is T & Record<Key, Omit<T[Key], 'undefined'>> {

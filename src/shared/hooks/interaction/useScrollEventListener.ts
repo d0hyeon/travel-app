@@ -1,31 +1,36 @@
 import { useEffect, useEffectEvent } from "react";
 import { useVariation } from "../extends/useVariation";
 
-type Hooks = {
+interface Handlers {
   onScroll?: (event: Event) => void;
   onScrollStart?: (event: Event) => void;
   onScrollEnd?: (event: Event) => void;
 }
-export function useScrollEventListener<T extends HTMLElement>(target: T | Window | null, hooks: Hooks) {
+
+interface Options extends Handlers {
+  enabled?: boolean;
+}
+
+export function useScrollEventListener<T extends HTMLElement>(target: T | Window | null, options: Options) {
   const [getIsStart, setIsStart] = useVariation(false);
   const handleScroll = useEffectEvent((event: Event) => {
     if (getIsStart()) {
-      hooks?.onScroll?.(event);
+      options?.onScroll?.(event);
       return;
     }
 
     setIsStart(true);
-    hooks.onScrollStart?.(event);
+    options.onScrollStart?.(event);
   });
 
   
 
   const handleScrollEnd = useEffectEvent((event: Event) => {
-    hooks.onScrollEnd?.(event);
+    options.onScrollEnd?.(event);
   })
 
   useEffect(() => {
-    if (target) {
+    if (target && options.enabled !== false) {
       target.addEventListener('scroll', handleScroll);
       target.addEventListener('scrollend', handleScrollEnd);
 
@@ -34,5 +39,5 @@ export function useScrollEventListener<T extends HTMLElement>(target: T | Window
         target.removeEventListener('scrollend', handleScrollEnd);
       }
     }
-  }, [target])
+  }, [target, options.enabled])
 }
