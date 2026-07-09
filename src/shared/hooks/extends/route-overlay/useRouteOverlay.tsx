@@ -54,22 +54,24 @@ export function useRouteOverlay<Data = never>(
       <RouteOverlayLink
         {...props}
         pathname={pathname}
+        search={search.toString()}
         entry={{ templateId, data: props.data }}
         routeOverlays={routeOverlays}
         mask={getPath(props.data)}
       />
     )
-  }), [open, templateId, pathname, routeOverlays, getPath]);
+  }), [open, templateId, pathname, search, routeOverlays, getPath]);
 }
 
 interface RouteOverlayLinkProps extends Omit<LinkProps, 'to' | 'mask' | 'state'> {
   pathname: string;
+  search: string;
   entry: { templateId: string; data: unknown };
   routeOverlays: RouteOverlayEntry[];
   mask: string;
 }
 
-function RouteOverlayLink({ pathname, entry, routeOverlays, mask, ...linkProps }: RouteOverlayLinkProps) {
+function RouteOverlayLink({ pathname, search, entry, routeOverlays, mask, ...linkProps }: RouteOverlayLinkProps) {
   // 각 Link 인스턴스는 자신의 엔트리 id를 한 번만 생성해 렌더 간 고정한다.
   const [entryId] = useState(() => crypto.randomUUID());
   const nextEntry: RouteOverlayEntry = { id: entryId, ...entry };
@@ -78,7 +80,7 @@ function RouteOverlayLink({ pathname, entry, routeOverlays, mask, ...linkProps }
     <Link
       {...linkProps}
       mask={mask}
-      to={{ pathname, hash: entryId }}
+      to={{ pathname, hash: entryId, search }}
       state={{ routeOverlays: [...routeOverlays, nextEntry] }}
     />
   );
