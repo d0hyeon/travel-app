@@ -6,11 +6,11 @@ import { AppRoute } from '~app/routes'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 import { PlaceListItem } from '../explorer-place-item/PlaceListItem'
 import { buildExplorerDetailUrl } from '../explorer.utils'
-import { useExplorerPlaceModal } from '../useExplorerPlaceOverlay'
-import { MOBILE_SKELETON_ROWS, SECTION_LIMIT, formatVisitorCount } from './topVisitedSection.constants'
+import { useExplorerPlaceSidePannel } from '../useExplorerPlaceOverlay'
+import { DESKTOP_SKELETON_CARDS, formatVisitorCount, SECTION_LIMIT } from './topVisitedSection.constants'
 import { useExploredPlaces } from './useExploredPlaces'
 
-export function TopVisitedSection() {
+export function TopVisitedSummarySection() {
   const { location, category } = useExplorerFilterParams()
   const { data: places } = useExploredPlaces(location, category)
 
@@ -19,8 +19,7 @@ export function TopVisitedSection() {
     [places],
   )
   const toDetailUrl = buildExplorerDetailUrl(AppRoute.장소_최다방문순, location, category)
-
-  const { Trigger } = useExplorerPlaceModal();
+  const { Trigger } = useExplorerPlaceSidePannel();
 
   return (
     <Box>
@@ -59,10 +58,10 @@ export function TopVisitedSection() {
   )
 }
 
-TopVisitedSection.Skeleton = () => (
+TopVisitedSummarySection.Skeleton = () => (
   <Box>
     <Skeleton variant="text" width={100} height={28} sx={{ mx: 2, mb: 1.5 }} />
-    {Array.from({ length: MOBILE_SKELETON_ROWS }).map((_, i) => (
+    {Array.from({ length: DESKTOP_SKELETON_CARDS }).map((_, i) => (
       <Stack key={i} direction="row" gap={1.5} px={2} py={1.25} alignItems="center">
         <Skeleton variant="rounded" width={64} height={64} sx={{ borderRadius: 2, flexShrink: 0 }} />
         <Box flex={1}>
