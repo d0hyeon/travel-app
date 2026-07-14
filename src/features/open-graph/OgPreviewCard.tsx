@@ -1,18 +1,12 @@
-import { Box, Card, CardActionArea, Skeleton, Stack, Typography, type CardProps } from '@mui/material'
+import { Box, Card, CardActionArea, Skeleton, Stack, Typography, type CardProps } from '@mui/material';
 import { Suspense } from 'react';
-import { useOgPreview, type OgPreviewData } from '~shared/hooks/useOgPreview'
+import { useOpenGraph } from './useOpenGraph';
 
 interface Props {
   url: string;
 }
 
-function getDomain(url: string): string {
-  try {
-    return new URL(url).hostname
-  } catch {
-    return url
-  }
-}
+
 
 export function OgPreviewCard(props: Props & CardProps) {
   return (
@@ -23,7 +17,7 @@ export function OgPreviewCard(props: Props & CardProps) {
 }
 
 function Resolved({ url, ...props }: Props & CardProps) {
-  const { data } = useOgPreview(url);
+  const { data } = useOpenGraph(url);
 
   return (
     <Card variant="outlined" {...props}>
@@ -92,6 +86,8 @@ function Resolved({ url, ...props }: Props & CardProps) {
     </Card>
   )
 }
+
+
 function Pending(props: Props) {
   return (
     <Card variant="outlined" {...props}>
@@ -105,4 +101,12 @@ function Pending(props: Props) {
       </Stack>
     </Card>
   )
+}
+
+function getDomain(url: string): string {
+  try {
+    return new URL(url).hostname
+  } catch {
+    return url
+  }
 }

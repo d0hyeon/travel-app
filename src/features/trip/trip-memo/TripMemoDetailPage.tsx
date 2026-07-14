@@ -3,17 +3,16 @@ import EditIcon from '@mui/icons-material/Edit';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import { Skeleton, Stack, Typography } from '@mui/material';
+import { formatDate } from 'date-fns';
 import { Suspense } from 'react';
 import { generatePath, useNavigate, useParams } from 'react-router';
 import { AppRoute } from '~app/routes';
+import { OgPreviewCard } from '~features/open-graph/OgPreviewCard';
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog';
-import { OgPreviewCard } from '~shared/components/OgPreviewCard';
-import { PopMenu } from '~shared/components/PopMenu';
-import { useOgPreview } from '~shared/hooks/useOgPreview';
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile';
+import { PopMenu } from '~shared/components/PopMenu';
 import { extractUrls, renderTextWithLinks } from '~shared/utils/urls';
 import { useTripMemo } from './useTripMemo';
-import { formatDate } from 'date-fns';
 
 export default function TripMemoDetailPage() {
   return (

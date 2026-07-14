@@ -6,13 +6,13 @@ import { Box, Button, Dialog, DialogActions, DialogContent, IconButton, Skeleton
 import { formatDate } from 'date-fns';
 import { EditableText } from '~shared/components/EditableText';
 import { ListItem } from "~shared/components/ListItem";
-import { OgPreviewCard } from '~shared/components/OgPreviewCard';
 import { PopMenu } from "~shared/components/PopMenu";
 import { DialogTitle } from '~shared/components/confirm-dialog/DialogTitle';
 import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
 import { useOverlay } from '~shared/hooks/useOverlay';
 import { extractUrls } from '~shared/utils/urls';
 import { useTripMemo } from "./useTripMemo";
+import { OgPreviewCard } from '~features/open-graph/OgPreviewCard';
 
 interface Props extends StackProps {
   tripId: string;

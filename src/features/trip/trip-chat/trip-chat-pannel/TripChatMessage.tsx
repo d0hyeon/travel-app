@@ -2,8 +2,7 @@ import { useAuth } from "~features/auth/useAuth"
 import type { ChatMessage } from "../tripChat.types"
 import { Avatar, Box, Stack, Typography } from "@mui/material";
 import { extractUrls, renderTextWithLinks } from "~shared/utils/urls";
-import { useOgPreview } from "~shared/hooks/useOgPreview";
-import { OgPreviewCard } from "~shared/components/OgPreviewCard";
+import { OgPreviewCard } from "~features/open-graph/OgPreviewCard";
 
 interface Props {
   message: ChatMessage
