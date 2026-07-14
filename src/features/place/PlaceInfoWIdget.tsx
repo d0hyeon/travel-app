@@ -54,7 +54,9 @@ function Resolved({ placeId, ...props }: Props) {
       <PlacePhotoList direction="row" placeId={place.id} sx={{ overflowX: 'auto', paddingX: 1.5 }} />
       {scheduledTrips.length > 0 && (
         <BottomArea position="absolute" left={0}>
-          <TripAddPlaceButton placeId={place.id} />
+          <AddTripButton placeId={place.id} variant="contained" size="large" fullWidth>
+            내 여행에 담기
+          </AddTripButton>
         </BottomArea>
       )}
     </Stack>
@@ -76,10 +78,10 @@ function Pending() {
   )
 }
 
-interface TripAddPlaceButtonProps extends ButtonProps {
+interface AddTripButtonProps extends ButtonProps {
   placeId: string;
 }
-function TripAddPlaceButton({ placeId, onClick, children = '내 여행에 담기', ...props }: TripAddPlaceButtonProps) {
+function AddTripButton({ placeId, onClick, ...props }: AddTripButtonProps) {
   const { data: place } = usePlace(placeId);
   const { data: scheduledTrips } = useScheduledTrips();
 
@@ -92,8 +94,6 @@ function TripAddPlaceButton({ placeId, onClick, children = '내 여행에 담기
 
   return (
     <Button
-      variant="contained"
-      size="large"
       onClick={async (event) => {
         const targetTrip = await getTargetTrip();
         if (targetTrip) {
@@ -104,8 +104,6 @@ function TripAddPlaceButton({ placeId, onClick, children = '내 여행에 담기
       }}
       fullWidth
       {...props}
-    >
-      {children}
-    </Button>
+    />
   )
 }
