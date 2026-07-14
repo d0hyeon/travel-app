@@ -1,20 +1,13 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { getAllTrips, tripKey } from './trip.api'
-import { getTripStatus } from './trip-list/trip-list.utils'
-import { isLocation } from '~features/location'
-import type { Location } from '~features/location'
+import type { Location } from '~features/location';
+import { isLocation } from '~features/location';
+import { useScheduledTrips } from './useScheduledTrips';
 
 export function useScheduledTripDestinations(): Location[] {
-  const { data: trips } = useSuspenseQuery({
-    queryKey: [tripKey],
-    queryFn: getAllTrips,
-  })
+  const { data: scheduledTrips } = useScheduledTrips();
 
-  const scheduled =
-    trips.find((trip) => getTripStatus(trip.startDate, trip.endDate) === 'ongoing') ??
-    trips.find((trip) => getTripStatus(trip.startDate, trip.endDate) === 'upcoming')
-
+  const scheduled = scheduledTrips.at(0);
+  
   if (!scheduled) return []
-
   return scheduled.destinations.filter(isLocation)
 }
+
