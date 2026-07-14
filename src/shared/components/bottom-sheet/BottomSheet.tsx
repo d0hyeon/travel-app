@@ -1,10 +1,11 @@
 import { Box, Fade, Stack, type BoxProps } from '@mui/material';
-import { useCallback, useEffect, useImperativeHandle, useState, type ReactNode, type Ref } from 'react';
+import { useCallback, useEffect, useImperativeHandle, useMemo, useState, type ReactNode, type Ref } from 'react';
 import { BottomSheetProvider } from './BottomSheetContext';
 import { Body, BottomActions, Header, Scrollable } from './compounds';
 import { useContentHeight } from './useContentHeight';
 import { DRAG_HANDLE_HEIGHT, useSheetDrag } from './useSheetDrag';
 import { useSheetStatus } from './useSheetStatus';
+import { useAnimation } from '~shared/hooks/animation/useAnimation';
 
 export type BottomSheetRef = {
   snap: number;
@@ -50,10 +51,13 @@ export function BottomSheet({
   const needsAutoSnapIndex = defaultSnapPoints !== undefined && defaultSnapIndex === undefined;
   const isAutoMode = needsAutoHeight || needsAutoSnapIndex;
 
+  // 모달 애니메이션 상태
+  const { isModalMode, isVisible, isAnimating } = useSheetStatus({ isOpen });
+
   // 컨텐츠 높이 측정
   const { contentHeight, isMeasuring } = useContentHeight({
     content,
-    enabled: isAutoMode,
+    enabled: isAutoMode && isVisible && !isAnimating,
   });
 
   // 시트 드래그 (snap 계산 + 상태 + 드래그 핸들러 모두 포함)
@@ -74,8 +78,7 @@ export function BottomSheet({
     onClose,
   });
 
-  // 모달 애니메이션 상태
-  const { isModalMode, isVisible, isAnimating } = useSheetStatus({ isOpen });
+
 
   // ref 노출
   useImperativeHandle(ref, () => ({
@@ -89,6 +92,13 @@ export function BottomSheet({
 
   // 높이 계산 (모달 애니메이션 적용)
   const currentHeight = isModalMode && !isAnimating ? 0 : dragHeight;
+  const closeAnimation = useAnimation({
+    frames: [
+      { height: currentHeight },
+      { height: 0 }
+    ],
+    duration: Math.min(Math.max((currentHeight / containerHeight) * 300, 120), 450)
+  }, container);
 
   // 렌더링 조건
   if (isModalMode && !isVisible && !isOpen) {
@@ -106,13 +116,17 @@ export function BottomSheet({
       {isModalMode && backdrop && (
         <Fade in={isOpen}>
           <Box
-            onClick={onClose}
-            sx={{
+            onClick={async () => {
+
+              await closeAnimation.play();
+              onClose?.();
+            }}
+            sx={theme => ({
               position: 'fixed',
               inset: 0,
               bgcolor: 'rgba(0, 0, 0, 0.5)',
-              zIndex: 1299,
-            }}
+              zIndex: theme.zIndex.modal,
+            })}
           />
         </Fade>
       )}
