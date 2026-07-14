@@ -19,6 +19,9 @@ export const theme = createTheme({
     info: {
       main: '#333'
     },
+    success: {
+      main: '#66BB6A'
+    }
   },
   typography: {
     fontFamily: "'SUIT', sans-serif",
