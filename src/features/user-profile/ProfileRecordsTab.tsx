@@ -1,5 +1,5 @@
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
-import { Box, CircularProgress, Stack, ToggleButton, Typography } from '@mui/material'
+import { Box, CircularProgress, Container, Stack, ToggleButton, Typography } from '@mui/material'
 import { Suspense, useMemo, useState } from 'react'
 import { useLocationsCoordinates } from '~features/explorer/useLocationsCoordinates'
 import { Country } from '~features/location/country.model'
@@ -118,7 +118,7 @@ export function ProfileRecordsTab({ userId }: Props) {
       </Box>
       <BottomSheet
         isOpen={!!selected}
-        snapPoints={[0.5, 0.8]}
+        snapPoints={[0.6, 0.8]}
         defaultSnapIndex={0}
         onClose={() => selectLocation(null)}
         backdrop={false}
@@ -126,20 +126,23 @@ export function ProfileRecordsTab({ userId }: Props) {
         {selected && (
           <>
             <BottomSheet.Header>
-              <LocationMetaInfo value={selected} />
+              <Container maxWidth="md">
+                <LocationMetaInfo value={selected} />
+              </Container>
             </BottomSheet.Header>
             <BottomSheet.Body>
-              <Stack spacing={1}>
-                {selected.trips.map((trip) => (
-                  <Stack gap={1}>
-                    <Typography variant="body2">{trip.name}</Typography>
-                    <Suspense fallback={<CircularProgress />}>
-                      <UserTripPhotoList tripId={trip.id} />
-                    </Suspense>
-                  </Stack>
-                ))}
-              </Stack>
-
+              <Container maxWidth="md">
+                <Stack spacing={1}>
+                  {selected.trips.map((trip) => (
+                    <Stack gap={1}>
+                      <Typography variant="body2">{trip.name}</Typography>
+                      <Suspense fallback={<CircularProgress />}>
+                        <UserTripPhotoList tripId={trip.id} />
+                      </Suspense>
+                    </Stack>
+                  ))}
+                </Stack>
+              </Container>
             </BottomSheet.Body>
           </>
         )}
