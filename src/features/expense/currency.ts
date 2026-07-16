@@ -28,7 +28,8 @@ export const CurrencyCode = {
   코루나: 'CZK',
   프랑: 'CHF',
   '멕시코 페소': 'MXN',
-} as const
+  포린트: 'HUF', // 헝가리 화폐
+} as const;
 export type CurrencyCode = ValueOf<typeof CurrencyCode>;
 export const CurrencyCodes = Object.keys(CurrencyCode) as CurrencyCode[];
 export const CurrencyCodeLabel = reverseKeyValue(CurrencyCode);
@@ -42,19 +43,30 @@ export const CountryCurrencyCode = {
   [Country.인도네시아]: [CurrencyCode.루피아],
   [Country.필리핀]: [CurrencyCode['필리핀 페소']],
   [Country.말레이시아]: [CurrencyCode.링깃],
+  
+  // 중화권 및 동아시아
   [Country.중국]: [CurrencyCode.위안],
   [Country.대만]: [CurrencyCode['대만 달러']],
+  [Country.홍콩]: [CurrencyCode['홍콩 달러']],
+
+  // 유럽
   [Country.프랑스]: [CurrencyCode.유로],
   [Country.영국]: [CurrencyCode.파운드],
   [Country.이탈리아]: [CurrencyCode.유로],
   [Country.스페인]: [CurrencyCode.유로],
-  [Country.체코]: [CurrencyCode.코루나],
+  [Country.포르투갈]: [CurrencyCode.유로],
+  [Country.오스트리아]: [CurrencyCode.유로],
+  [Country.체코]: [CurrencyCode.코루나, CurrencyCode.유로], 
+  [Country.헝가리]: [CurrencyCode.포린트, CurrencyCode.유로], 
   [Country.네덜란드]: [CurrencyCode.유로],
-  [Country.스위스]: [CurrencyCode.프랑, CurrencyCode.유로], // 공식 화폐 + 통용
+  [Country.스위스]: [CurrencyCode.프랑, CurrencyCode.유로], 
+
+  // 아메리카
   [Country.미국]: [CurrencyCode.달러],
   [Country.멕시코]: [CurrencyCode['멕시코 페소']],
   [Country.캐나다]: [CurrencyCode['캐나다 달러']]
 } satisfies Record<Country, CurrencyCode[]>;
+
 
 export interface CurrencyInfo {
   code: CurrencyCode;
