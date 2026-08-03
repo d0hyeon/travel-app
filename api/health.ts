@@ -1,18 +1,13 @@
-import { supabase } from "~api/client";
+import { apiClient } from "~api/client";
 
 export default async function handler() {
-  const { error } = await supabase.functions.invoke("health");
-  if (error != null) {
-    console.error("Supabase health check failed:", error);
+  try {
+    await apiClient.get("/functions/v1/health");
 
-    return Response.json(
-      { ok: false, message: error.message },
-      { status: 500 },
-    );
+    return Response.json({ ok: true, checkedAt: new Date().toISOString() });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "unknown error";
+
+    return Response.json({ ok: false, message }, { status: 500 });
   }
-
-  return Response.json({
-    ok: true,
-    checkedAt: new Date().toISOString(),
-  });
 }
