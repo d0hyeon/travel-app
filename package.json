@@ -70,6 +70,7 @@
     "@types/react-dom": "^19.2.3",
     "@types/react-transition-group": "^4.4.12",
     "@types/web": "^0.0.340",
+    "@vercel/config": "^0.5.5",
     "@vercel/node": "^5.8.9",
     "@vitejs/plugin-react": "^5.1.1",
     "@vitest/ui": "3",
