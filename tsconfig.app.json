@@ -27,6 +27,6 @@
       "~*": ["./src/*"],
     }
   },
-  "include": ["src", "api", "e2e", "./node_modules/@types/web/index.d.ts"],
+  "include": ["src", "e2e", "./node_modules/@types/web/index.d.ts"],
   "exclude": ["src/app/**/*.sw.ts"]
 }
