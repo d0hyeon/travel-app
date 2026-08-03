@@ -51,6 +51,10 @@ export const config: VercelConfig = {
       destination: `${process.env.VITE_SUPABASE_URL}/functions/v1/og-preview`,
     },
     {
+      source: "/api/health",
+      destination: `${process.env.VITE_SUPABASE_URL}/functions/v1/health`,
+    },
+    {
       source: "/((?!assets/|.*\\..*).*)",
       destination: "/",
     },
