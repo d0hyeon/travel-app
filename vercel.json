@@ -53,5 +53,11 @@
       "source": "/((?!assets/|.*\\..*).*)",
       "destination": "/"
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/health",
+      "schedule": "0 0 * * *"
+    }
   ]
 }
