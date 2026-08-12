@@ -2,9 +2,10 @@ import { Box, Skeleton, Stack, Typography, useTheme, type BoxProps } from "@mui/
 import { useDailyWeatherForecast, type UseDailyWeatherForecastParams } from "./useDailyWeatherForecast";
 import { WeatherIcon } from "./WeatherIcon";
 import { Suspense } from "react";
+import type { DayPart } from "./weather.types";
 
 interface Props extends UseDailyWeatherForecastParams, BoxProps {
-  dayPart?: 'morning' | 'afternoon';
+  dayPart?: DayPart;
 }
 
 export function DailyWeatherInfoBox(props: Props) {
@@ -21,11 +22,9 @@ function Resolved({ coordinate, date, dayPart, ...props }: Props) {
 
   if (weatherForecast == null) return null;
 
-  const forecast = dayPart === 'afternoon'
-    ? weatherForecast.forecast.periods.afternoon
-    : dayPart === 'morning'
-      ? weatherForecast.forecast.periods.morning
-      : weatherForecast.forecast.summary
+  const forecast = dayPart
+    ? weatherForecast.forecast.periods[dayPart]
+    : weatherForecast.forecast.summary
 
   return (
     <Box {...props}>

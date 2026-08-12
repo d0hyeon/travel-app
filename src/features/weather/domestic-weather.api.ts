@@ -484,11 +484,11 @@ function createDailyWeatherForecast({
     shortTermItems,
   });
 
-  const morningHourly = hourly.filter(
+  const amHourly = hourly.filter(
     ({ forecastAt }) => getForecastHour(forecastAt) < 12,
   );
 
-  const afternoonHourly = hourly.filter(
+  const pmHourly = hourly.filter(
     ({ forecastAt }) => getForecastHour(forecastAt) >= 12,
   );
 
@@ -510,8 +510,8 @@ function createDailyWeatherForecast({
     },
 
     periods: {
-      morning: createWeatherSummary(morningHourly),
-      afternoon: createWeatherSummary(afternoonHourly),
+      am: createWeatherSummary(amHourly),
+      pm: createWeatherSummary(pmHourly),
     },
 
     hourly,

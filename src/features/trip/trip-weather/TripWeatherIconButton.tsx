@@ -70,15 +70,15 @@ function Resolved({ tripId, ...props }: Props) {
             <ErrorBoundary>
               <Box width="100%">
                 <Typography variant="subtitle2" marginBottom={0.5} paddingX={1}>오전</Typography>
-                <DailyWeatherInfoBox coordinate={trip} date={activedTripDate} dayPart="morning" />
-                <HourlyForecastList coordinate={trip} date={activedTripDate} scope={"AM"} paddingX={0.5} marginTop={2} />
+                <DailyWeatherInfoBox coordinate={trip} date={activedTripDate} dayPart="am" />
+                <HourlyForecastList coordinate={trip} date={activedTripDate} dayPart="am" paddingX={0.5} marginTop={2} />
               </Box>
             </ErrorBoundary>
             <ErrorBoundary>
               <Box width="100%" minHeight="500px">
                 <Typography variant="subtitle2" marginBottom={0.5} paddingX={1}>오후</Typography>
-                <DailyWeatherInfoBox coordinate={trip} date={activedTripDate} dayPart="afternoon" />
-                <HourlyForecastList coordinate={trip} date={activedTripDate} scope={"PM"} paddingX={0.5} marginTop={2} />
+                <DailyWeatherInfoBox coordinate={trip} date={activedTripDate} dayPart="pm" />
+                <HourlyForecastList coordinate={trip} date={activedTripDate} dayPart="pm" paddingX={0.5} marginTop={2} />
 
               </Box>
             </ErrorBoundary>

@@ -167,11 +167,11 @@ function mapOpenMeteoForecast(
   }
 
   const dailyWeatherCode = data.daily.weather_code[dailyIndex] ?? null;
-  const morningHourly = hourly.filter(
+  const amHourly = hourly.filter(
     ({ forecastAt }) => getForecastHour(forecastAt) < 12,
   );
 
-  const afternoonHourly = hourly.filter(
+  const pmHourly = hourly.filter(
     ({ forecastAt }) => getForecastHour(forecastAt) >= 12,
   );
 
@@ -188,8 +188,8 @@ function mapOpenMeteoForecast(
       maximumTemperature: data.daily.temperature_2m_max[dailyIndex] ?? null,
     },
     periods: {
-      afternoon: createWeatherSummary(afternoonHourly),
-      morning: createWeatherSummary(morningHourly),
+      am: createWeatherSummary(amHourly),
+      pm: createWeatherSummary(pmHourly),
     },
     hourly,
   };

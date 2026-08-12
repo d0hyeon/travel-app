@@ -4,11 +4,12 @@ import { ko } from 'date-fns/locale';
 import { Suspense, useMemo } from "react";
 import { useCurrentTime } from "~shared/hooks/env/useCurrentTime";
 import { HourlyForecastItem } from "./HourlyForecastItem";
-import { useHourlyForecast, type HourlyForecastScope } from "./useHourlyForecast";
+import { useHourlyForecast } from "./useHourlyForecast";
 import { type UseDailyWeatherForecastParams } from "./useDailyWeatherForecast";
+import type { DayPart } from "./weather.types";
 
 interface Props extends UseDailyWeatherForecastParams, StackProps {
-  scope?: HourlyForecastScope
+  dayPart?: DayPart
 }
 
 export function HourlyForecastList(props: Props) {
@@ -19,13 +20,13 @@ export function HourlyForecastList(props: Props) {
   )
 }
 
-export function Resolved({ coordinate, date, scope, ...props }: Props) {
-  const { forecast, hourly } = useHourlyForecast({ coordinate, date, scope });
+export function Resolved({ coordinate, date, dayPart, ...props }: Props) {
+  const { forecast, hourly } = useHourlyForecast({ coordinate, date, dayPart });
 
   // 오전은 늦은 시각이 위로 오도록 뒤집어 보여준다.
   const orderedHourly = useMemo(
-    () => scope === 'AM' ? hourly.toReversed() : hourly,
-    [scope, hourly],
+    () => dayPart === "am" ? hourly.toReversed() : hourly,
+    [dayPart, hourly],
   );
 
   if (forecast == null) {
@@ -46,10 +47,10 @@ export function Resolved({ coordinate, date, scope, ...props }: Props) {
 }
 HourlyForecastList.Skeleton = HourlyForecastListSkeleton;
 
-function HourlyForecastListSkeleton({ date, scope, ...props }: Props) {
+function HourlyForecastListSkeleton({ date, dayPart, ...props }: Props) {
   const isToday = getIsToday(date)
-  const startHours = scope === 'PM' ? 12 : 0;
-  const endHours = scope === 'AM' ? 12 : 24;
+  const startHours = dayPart === "pm" ? 12 : 0;
+  const endHours = dayPart === "am" ? 12 : 24;
 
 
   const hours = useMemo(() => {
@@ -57,11 +58,11 @@ function HourlyForecastListSkeleton({ date, scope, ...props }: Props) {
       isToday ? getHours(date) : startHours,
       endHours
     )
-    if (scope === 'AM') {
+    if (dayPart === "am") {
       return hours.toReversed();
     }
     return hours
-  }, [])
+  }, [date, dayPart, endHours, isToday, startHours])
   const theme = useTheme();
   const now = useCurrentTime();
 

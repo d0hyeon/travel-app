@@ -5,7 +5,7 @@ import { Swiper, SwiperSlide, type SwiperRef } from "swiper/react";
 import { DailyWeatherInfoBox } from "~features/weather/DailyWeatherInfoBox";
 import { HourlyForecastList } from "~features/weather/HourlyForecastList";
 import { useDailyWeatherForecast } from "~features/weather/useDailyWeatherForecast";
-import type { HourlyForecastScope } from "~features/weather/useHourlyForecast";
+import type { DayPart } from "~features/weather/weather.types";
 import { BottomSheet } from "~shared/components/bottom-sheet/BottomSheet";
 import { ErrorBoundary } from "~shared/components/ErrorBoundary";
 import { useCurrentTime } from "~shared/hooks/env/useCurrentTime";
@@ -16,9 +16,9 @@ import { useTrip } from "../useTrip";
 import "swiper/css";
 
 const DAY_PARTS = [
-  { scope: 'AM', dayPart: 'morning', label: '오전' },
-  { scope: 'PM', dayPart: 'afternoon', label: '오후' },
-] as const;
+  { dayPart: "am", label: "오전" },
+  { dayPart: "pm", label: "오후" },
+] satisfies Array<{ dayPart: DayPart; label: string }>;
 
 const AFTERNOON_START_HOUR = 12;
 
@@ -94,22 +94,37 @@ function DayPartForecast({ coordinate, date }: { coordinate: Coordinate; date: s
   const { data: weatherForecast } = useDailyWeatherForecast({ coordinate, date });
   const swiperRef = useRef<SwiperRef>(null);
   const now = useCurrentTime();
-  const [activeIndex, setActiveIndex] = useState(() => getInitialDayPartIndex(date, now));
+  const [activeDayPart, setActiveDayPart] = useState<DayPart>(
+    () => DAY_PARTS[getInitialDayPartIndex(date, now)].dayPart,
+  );
 
   if (weatherForecast == null) return <ForecastUnavailable />;
 
-  const selectDayPart = (scope: HourlyForecastScope) => {
-    const index = DAY_PARTS.findIndex(x => x.scope === scope);
-    setActiveIndex(index);
+  const availableDayParts = DAY_PARTS.filter(({ dayPart }) =>
+    weatherForecast.forecast.hourly.some(({ forecastAt }) =>
+      dayPart === "am"
+        ? getHours(forecastAt) < AFTERNOON_START_HOUR
+        : getHours(forecastAt) >= AFTERNOON_START_HOUR,
+    ),
+  );
+  const selectedDayPart =
+    availableDayParts.find(({ dayPart }) => dayPart === activeDayPart) ??
+    availableDayParts[0];
+
+  if (!selectedDayPart) return <ForecastUnavailable />;
+
+  const selectDayPart = (dayPart: DayPart) => {
+    const index = availableDayParts.findIndex(x => x.dayPart === dayPart);
+    setActiveDayPart(dayPart);
     swiperRef.current?.swiper.slideTo(index);
   };
 
   return (
     <Stack gap={1}>
       <ToggleButtonGroup
-        value={DAY_PARTS[activeIndex].scope}
+        value={selectedDayPart.dayPart}
         exclusive
-        onChange={(_, scope: HourlyForecastScope | null) => scope && selectDayPart(scope)}
+        onChange={(_, dayPart: DayPart | null) => dayPart && selectDayPart(dayPart)}
         size="small"
         sx={(theme) => ({
           alignSelf: 'end',
@@ -131,25 +146,35 @@ function DayPartForecast({ coordinate, date }: { coordinate: Coordinate; date: s
           '.MuiButtonBase-root': { borderRadius: '6px' },
         })}
       >
-        {DAY_PARTS.map(({ scope, label }) => (
-          <ToggleButton key={scope} value={scope}>{label}</ToggleButton>
+        {availableDayParts.map(({ dayPart, label }) => (
+          <ToggleButton key={dayPart} value={dayPart}>{label}</ToggleButton>
         ))}
       </ToggleButtonGroup>
 
       <Swiper
+        key={`${date}-${availableDayParts.map(({ dayPart }) => dayPart).join("-")}`}
         ref={swiperRef}
-        initialSlide={activeIndex}
-        onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
+        initialSlide={availableDayParts.indexOf(selectedDayPart)}
+        onSlideChange={(swiper) => {
+          const dayPart = availableDayParts[swiper.activeIndex];
+          if (dayPart) setActiveDayPart(dayPart.dayPart);
+        }}
         data-prevent-sheet="true"
         style={{ width: '100%' }}
       >
-        {DAY_PARTS.map(({ scope, dayPart }) => (
-          <SwiperSlide key={scope}>
-            <Stack gap={1} paddingX={1.5}>
-              <DailyWeatherInfoBox coordinate={coordinate} date={date} dayPart={dayPart} />
-              <HourlyForecastList coordinate={coordinate} date={date} scope={scope} marginTop={1} />
-            </Stack>
-          </SwiperSlide>
+        {availableDayParts.map(({ dayPart }) => (
+          <ErrorBoundary key={`${date}-${dayPart}`} resetKeys={[date, dayPart]}>
+            <SwiperSlide key={dayPart}>
+              <Stack gap={1} paddingX={1.5}>
+                <ErrorBoundary key={`${dayPart}-summary`} resetKeys={[date, dayPart]}>
+                  <DailyWeatherInfoBox coordinate={coordinate} date={date} dayPart={dayPart} />
+                </ErrorBoundary>
+                <ErrorBoundary key={`${dayPart}-hourly`} resetKeys={[date, dayPart]}>
+                  <HourlyForecastList coordinate={coordinate} date={date} dayPart={dayPart} marginTop={1} />
+                </ErrorBoundary>
+              </Stack>
+            </SwiperSlide>
+          </ErrorBoundary>
         ))}
       </Swiper>
     </Stack>

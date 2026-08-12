@@ -234,7 +234,7 @@ src/
 │       │   ├── notification/              # 푸시 알림
 │       │   └── trip-chat-pannel/          # 채팅 패널 UI
 │       ├── trip-weather/                  # 여행 날짜별 날씨 UI
-│       │   ├── TripWeatherForecastSheet.tsx
+│       │   ├── TripWeatherForecastSheet.tsx # DayPart(am/pm) 중 실제 시간별 데이터가 있는 구간만 노출
 │       │   └── TripWeatherIconButton.tsx
 │       ├── trip-checklist/                # 체크리스트 탭
 │       ├── trip-community-routes/         # 커뮤니티 경로 탭

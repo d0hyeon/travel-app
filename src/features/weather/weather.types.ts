@@ -18,6 +18,7 @@ export const PrecipitationType = {
   눈날림: "snowFlurry",
 } as const;
 export type PrecipitationType = ValueOf<typeof PrecipitationType>;
+export type DayPart = "am" | "pm";
 export const PRECIPITATION_SNOW_TYPES = [
   PrecipitationType.눈,
   PrecipitationType.눈날림,
@@ -62,8 +63,8 @@ export type DailyWeatherForecast = {
 
   summary: SummaryForecast;
   periods: {
-    morning: SummaryForecast;
-    afternoon: SummaryForecast;
+    am: SummaryForecast;
+    pm: SummaryForecast;
   };
 
   hourly: HourlyWeatherForecast[];
