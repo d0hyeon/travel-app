@@ -9,7 +9,8 @@ export function TripRouteMapFloatingControls() {
 
   return (
     <>
-      <FloatingControl corner="top-left" zIndex={8}>
+
+      <FloatingControl corner="top-right" zIndex={8}>
         <ToggleButton
           value="check"
           aria-label="경로 마커만 표시"
@@ -21,8 +22,6 @@ export function TripRouteMapFloatingControls() {
         >
           <VisibilityOffIcon fontSize="small" />
         </ToggleButton>
-      </FloatingControl>
-      <FloatingControl corner="top-right" zIndex={8}>
         <ToggleButton
           value="check"
           selected={viewConfig.isCluasterlingView}

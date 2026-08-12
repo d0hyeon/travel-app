@@ -35,6 +35,7 @@ import { useDayTripRoutes } from './useDayTripRoutes';
 import { usePlaceFormOverlay } from './usePlaceFormOverlay';
 import { useRouteLegs } from './useRouteLegs';
 import { useTripViewConfigValue } from './useTripViewConfig';
+import { TripWeatherIconButton } from '../trip-weather/TripWeatherIconButton';
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = ['#1976d2', '#e53935', '#43a047', '#fb8c00', '#8e24aa', '#00acc1']
@@ -146,6 +147,9 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
           sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `calc(${sheetRatio * 100}% - 10px)` }}
           {...pointerTracker}
         >
+          <FloatingControl corner='top-left' zIndex={8}>
+            <TripWeatherIconButton tripId={tripId} />
+          </FloatingControl>
           <TripRouteMapFloatingControls />
           {currentCoordinate && (
             <FloatingControl corner="bottom-right" zIndex={8}>

@@ -25,6 +25,10 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
 import { TripRouteMapFloatingControls } from './components/TripRouteMapFloatingControls'
 import { NoteEditor } from './RouteNoteList'
 import { useTripViewConfigValue } from './useTripViewConfig'
+import { useActiveTripDay } from './useActiveTripDay'
+import { FloatingControl } from './components/FloatingControl'
+import { TripWeatherIconButton } from '../trip-weather/TripWeatherIconButton'
+import { theme } from '~shared/config/theme'
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = ['#1976d2', '#e53935', '#43a047', '#fb8c00', '#8e24aa', '#00acc1']
@@ -39,15 +43,11 @@ interface TripRoutesContentProps {
 
 export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
   const { data: trip } = useTrip(tripId);
-  const [selectedDate, setSelectedDate] = useQueryParamState<string>('days', {
-    defaultValue: () => {
-      const today = new Date().toISOString().split('T')[0]
-      if (today >= trip.startDate && today <= trip.endDate) {
-        return formatDisplayDate(today)
-      }
-      return formatDisplayDate(trip.startDate)
-    }
-  })
+  const {
+    value: selectedDate,
+    update: setSelectedDate
+  } = useActiveTripDay(tripId);
+
   const {
     data: { routes },
     create: createRoute,
@@ -57,7 +57,6 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
     updateNotes
   } = useDayTripRoutes({ tripId, date: selectedDate })
   const { data: places } = useTripPlaces(tripId)
-
   const [selectedRouteId, setSelectedRouteId] = useState<string | null>(routes?.[0].id ?? null);
 
   const currentRoute = useMemo(() => {
@@ -186,6 +185,12 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
 
       {/* Right: Map */}
       <Box sx={{ flex: 1, position: 'relative' }}>
+        <FloatingControl corner="top-left" zIndex={8}>
+          <TripWeatherIconButton
+            tripId={tripId}
+            sx={{ backgroundColor: theme.alpha('#fff', 0.5), backdropFilter: 'blur(3px)', boxShadow: theme.shadows[10] }}
+          />
+        </FloatingControl>
         <TripRouteMapFloatingControls />
         <Map
           type={trip.isOverseas ? 'google' : 'kakao'}
@@ -242,6 +247,7 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
     </Box>
   )
 }
+
 
 const SidePanel = styled(Stack)(({ theme }) => ({
   width: '30%',

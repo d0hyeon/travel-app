@@ -174,6 +174,13 @@ src/
 │   ├── tracking/               # 위치 추적
 │   │   └── tracking.types.ts
 │   │
+│   ├── weather/                # 국내·해외 일별/시간별 날씨 예보
+│   │   ├── domestic-weather.api.ts # 기상청 예보 어댑터
+│   │   ├── weather.api.ts      # Open-Meteo 예보 어댑터
+│   │   ├── weather.types.ts
+│   │   ├── useDailyWeatherForecast.ts
+│   │   └── useHourlyForecast.ts
+│   │
 │   ├── user-profile/           # 사용자 프로필
 │   │   ├── user-profile.api.ts
 │   │   ├── user-profile.type.ts
@@ -226,6 +233,9 @@ src/
 │       │   ├── TripUnreadCountBadge.tsx
 │       │   ├── notification/              # 푸시 알림
 │       │   └── trip-chat-pannel/          # 채팅 패널 UI
+│       ├── trip-weather/                  # 여행 날짜별 날씨 UI
+│       │   ├── TripWeatherForecastSheet.tsx
+│       │   └── TripWeatherIconButton.tsx
 │       ├── trip-checklist/                # 체크리스트 탭
 │       ├── trip-community-routes/         # 커뮤니티 경로 탭
 │       │   ├── communityRoute.api.ts
