@@ -8,7 +8,7 @@
 
 | 분류      | 기술                               |
 | --------- | ---------------------------------- |
-| Framework | React 19 + React Router 7 (SSR)    |
+| Framework | React 19 + React Router 7 (CSR, `ssr: false`) |
 | Language  | TypeScript 5.9                     |
 | Build     | Vite 7                             |
 | UI        | Material-UI 7 + Tailwind CSS       |
@@ -45,6 +45,10 @@
 ```
 
 **파일 위치:** `src/app/routes.ts` — `AppRoute` 상수로 라우트 경로 관리
+
+**렌더링 모드:** `react-router.config.ts`의 `ssr: false` — 서버 렌더링 없는 CSR(SPA)이다.
+서버에서 실행되는 코드가 없으므로 hydration 불일치를 고려할 필요가 없고,
+`new Date()`·`window`·`localStorage`를 모듈 최상위에서 써도 안전하다.
 
 레이아웃 구조:
 
