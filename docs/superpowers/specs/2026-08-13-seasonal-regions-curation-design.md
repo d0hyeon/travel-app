@@ -1,0 +1,349 @@
+# 탐색 탭 계절 인기 지역 큐레이션 설계
+
+**날짜:** 2026-08-13
+**상태:** 승인됨
+
+---
+
+## 배경
+
+탐색 탭의 기존 큐레이션 세 섹션(급상승·저장순·최다방문)은 모두 **우리 앱 내부 방문 기록** 기반이며 단위가 **장소(Place)** 다. 앱 데이터만으로는 "전국에서 실제로 어디가 뜨는지"를 알 수 없다.
+
+공공 관광 통계를 도입해 **지역(Location) 단위**의 계절 방문 추이 큐레이션을 추가한다. 기존 섹션과 겹치지 않는 새로운 축이다.
+
+| | 기존 급상승 | 신규 계절 인기 지역 |
+| --- | --- | --- |
+| 데이터 | Supabase 내부 방문 기록 | 공공 관광 통계 |
+| 단위 | 장소(Place) | 지역(Location) |
+| 기간 | 최근 N개월 | 계절(3개월) |
+| 증감 | 없음 (score만) | 작년 동계절 대비 절대 증감 + 증가율 |
+
+### 왜 "최근 N개월"이 아니라 "계절"인가
+
+초기 설계는 전월 대비 증가율이었으나 계절 기준으로 변경했다. 근거는 셋이다.
+
+1. **시차가 무효화된다** — 데이터는 약 1개월 지연되므로 "최근 한 달"은 항상 과거를 가리킨다. 사용자는 "지금" 갈 곳을 고민하는데 화면은 지난달을 보여준다. 계절 큐레이션은 **작년 같은 계절** 데이터를 쓰므로 지연이 약점이 아니라 무관한 요소가 된다.
+2. **계획 맥락에 맞는다** — 이 앱은 여행을 계획하는 앱이다. `useScheduledTripDestinations`를 필터 기본값으로 쓸 만큼 계획 중심이다. "지난달 뭐가 떴나"보다 "이 계절엔 어디가 좋나"가 계획에 직접 쓰인다.
+3. **전월 대비는 사실상 계절을 한 박자 늦게 보여줄 뿐이다** — 8월에 전월 대비로 정렬하면 해수욕장이 상단을 채우고, 9월이면 같은 지역이 전부 마이너스로 뒤집힌다. 정보가 "지금 여름이네요"로 수렴한다.
+
+---
+
+## 데이터 소스
+
+**[한국관광공사_관광빅데이터 정보서비스](https://www.data.go.kr/data/15101972/openapi.do)** (`data.go.kr` 15101972)
+
+| 항목 | 내용 |
+| --- | --- |
+| 원천 | KT(내국인) + SKT(외국인) 이동통신 데이터 |
+| 방문자 정의 | 일상생활권을 벗어나 체류한 사람. 일자별 순방문자 |
+| 제공 시작 | 2020년 1월 |
+| 갱신 | 매월 17일, 전월분 공개 |
+| 조회 한도 | 월간 조회 시 최대 18개월 |
+| 트래픽 | 개발계정 1,000회/일 (자동승인) |
+
+기존 `governmentApi`(`~api/governmentApi`)와 `VITE_DATA_GO_SERVICE_KEY`를 재사용한다. `marine-activity`와 동일한 인프라이므로 신규 서버·DB 테이블·CORS 우회가 필요 없다.
+
+### 엔드포인트 — 레벨별로 분리되어 있다
+
+| 엔드포인트 | 키 필드 | 레벨 |
+| --- | --- | --- |
+| `metcoRegnVisitrDDList` | `areaCode` / `areaNm` | 광역 (시도) |
+| `locgoRegnVisitrDDList` | `signguCode` / `signguNm` | 기초 (시군구) |
+
+광역과 기초는 집계 기준이 달라 합산할 수 없는데, 엔드포인트 자체가 분리되어 있으므로 `Location`마다 어느 쪽을 호출할지 카탈로그에 지정해 해결한다.
+
+- `metco` — 서울, 부산, 대구, 인천, 광주, 대전, 울산, 제주
+- `locgo` — 강릉, 양양, 경주, 여수, 가평 등 시군구 단위
+
+### 응답 스키마
+
+```jsonc
+// locgoRegnVisitrDDList
+{
+  "baseYmd": "20250701",   // 일 단위
+  "signguCode": "51150",
+  "signguNm": "강릉시",
+  "daywkDivCd": "1",       // 요일 구분
+  "daywkDivNm": "월요일",
+  "touDivCd": "2",         // 방문자 구분 — 현지인/외지인/외국인
+  "touDivNm": "외지인",
+  "touNum": "123456"       // 문자열로 내려온다
+}
+```
+
+`metcoRegnVisitrDDList`는 `signguCode`/`signguNm` 자리에 `areaCode`/`areaNm`이 온다. 그 외 필드는 동일하다.
+
+`item` 바깥 래퍼는 `governmentApi`의 표준 구조(`response.header.resultCode` / `response.body.items.item`)를 따른다. `marineActivity.api.ts`가 `items.item`이 배열/단일/누락 세 형태로 오는 것을 방어하고 있으므로 같은 방식으로 정규화한다.
+
+### 스키마에서 파생되는 제약
+
+1. **일별 데이터다** — 엔드포인트명의 `DD`와 `baseYmd`가 일 단위다. 계절 합계는 **우리가 집계**해야 한다. 3개월치는 약 92일 × 방문자 구분 × 요일 구분이므로 레코드가 수천 건이다. `numOfRows`를 충분히 크게 잡거나 페이지네이션이 필요하다.
+2. **`touNum`이 문자열이다** — 숫자 변환과 파싱 실패 방어가 필요하다.
+3. **`touDivCd` 필터링이 필수다** — 아래 참조.
+4. **국내 한정** — 해외 `Location`은 커버리지에 없어 후보에서 제외된다. `marineActivityEligibility`가 국내 해안만 판정하는 것과 같은 구조다.
+
+### `touDivCd` — 현지인을 반드시 제외한다
+
+`touDivCd`는 방문자 구분(현지인 / 외지인 / 외국인)이다. **구분 없이 `touNum`을 전부 더하면 "관광객 수"가 아니라 "유동인구"가 된다.** 서울 현지인 수백만 명이 그대로 포함되어 대도시가 압도적 상위를 차지하고 관광 큐레이션으로서 의미를 잃는다.
+
+집계 대상은 **외지인 + 외국인**이며 현지인은 제외한다.
+
+> **미확정** — `touDivCd`의 실제 코드값은 확인되지 않았다. 구현 첫 태스크에서 실제 응답을 확인해 코드 상수를 확정한다. 확인 전까지 `touDivNm` 문자열 매칭에 의존하지 않고 코드 기반으로 설계한다.
+
+`daywkDivCd`(요일 구분)는 필터링하지 않고 **전부 합산**한다. 월 총합이 목적이므로 모든 요일 레코드가 합계에 들어가야 한다.
+
+---
+
+## 계절 모델
+
+```ts
+const Season = { Spring: 'spring', Summer: 'summer', Autumn: 'autumn', Winter: 'winter' }
+```
+
+| 계절 | 월 |
+| --- | --- |
+| 봄 | 3–5 |
+| 여름 | 6–8 |
+| 가을 | 9–11 |
+| 겨울 | 12–2 |
+
+겨울은 연도를 걸치므로 12월은 다음 해 겨울로 귀속시킨다. `2025-12` ~ `2026-02`가 하나의 겨울이다. 이 경계 처리는 순수 함수로 분리해 단위 테스트로 덮는다.
+
+### 기준 계절 — 항상 작년 같은 계절
+
+올해 계절은 아직 진행 중이거나 데이터가 미완성이므로 쓰지 않는다. **작년 같은 계절의 완결 데이터**를 기준으로 하고, 그 직전 해 같은 계절과 비교한다.
+
+오늘이 2026년 8월(여름)이면:
+
+- 기준: **2025년 여름** (2025-06 ~ 2025-08)
+- 비교: **2024년 여름** (2024-06 ~ 2024-08)
+
+두 구간 합계 6개월이며 API가 18개월까지 지원하므로 **`Location`당 1회 호출**로 끝난다.
+
+---
+
+## 랭킹 규칙
+
+### 정렬 — 작년 동계절 대비 증가율
+
+같은 계절끼리 비교하므로 계절성이 자동으로 제거된다. "여름 인기 지역"이면서 동시에 "작년보다 뜨고 있는 곳"이라는 두 정보가 한 카드에 담긴다.
+
+직전 계절(봄→여름) 대비는 채택하지 않는다. 계절 전환 효과가 그대로 나와 전월 대비와 같은 문제를 반복한다.
+
+인구 정규화와 Z-score도 검토했으나 도입하지 않는다. 전자는 정적 순위가 되어 증가량 요구와 어긋나고 인구 API가 추가로 필요하다. 후자는 "평소 대비 이례적"을 재는데 이는 사용자가 묻는 질문이 아니다.
+
+### 게이트 — 중앙값
+
+증가율만으로 정렬하면 방문자 수가 적은 지역이 독식한다.
+
+| 지역 | 작년 여름 | 재작년 여름 | 증가율 |
+| --- | ---: | ---: | ---: |
+| 진안 | 4,000 | 2,000 | +100% |
+| 강릉 | 1,040,000 | 800,000 | +30% |
+
+진안이 1위가 되지만 축제 하나로도 흔들리는 노이즈다. 기준 계절 방문자 수가 후보 전체의 중앙값 미만인 지역을 제외한 뒤 증가율로 정렬한다.
+
+상수 임계값 대신 중앙값을 쓰는 이유는 지역 규모 분포에 자동으로 적응하기 때문이다. 기존 `useRecentHotPlaces`가 `maxScore / 2`를 쓰는 것과 같은 정신이다. 계절 합산은 3개월치라 단발성 노이즈가 이미 희석되므로 게이트 의존도는 전월 대비보다 낮다.
+
+적용 순서를 명시한다.
+
+1. 매핑된 국내 `Location`을 조회해 후보를 만든다
+2. 비교 계절 방문자가 0 이하인 후보를 제외한다 (증가율 발산 방지)
+3. 남은 후보의 기준 계절 `visitorCount` 중앙값을 구한다
+4. 중앙값 미만인 후보를 제외한다
+5. `growthRate` 내림차순으로 정렬한다
+
+후보가 1개 이하이면 중앙값 게이트를 건너뛴다. 증가율이 음수인 지역은 정렬 하단에 남지만 섹션은 상위 10개만 노출하므로 실질적으로 표시되지 않는다.
+
+### 표시 규칙
+
+절대 증감이 주, 증가율이 괄호 보조다. `+32%`는 추상적이지만 `21만 명 증가`는 그림이 그려진다. 반대로 정렬까지 절대값으로 하면 서울·부산이 상단에 고정되어 순위가 죽으므로, **정렬은 증가율 / 표시는 절대값 우선**으로 역할을 나눈다.
+
+- 증가율은 소수점 없이 정수 `%`. 공공 통계에서 소수점은 과잉 정밀도로 읽힌다.
+- 방문자 수는 한국어 단위로 축약한다. `1,040,000` → `104만`, 만 미만은 원본 유지.
+
+---
+
+## 아키텍처
+
+### 계층
+
+```text
+UI      SeasonalRegionsSummarySection, RegionTrendCard
+ ↓
+Data    useRegionTourismTrends
+ ↓
+Domain  tourismTrend.types / tourismTrend.utils / season.ts / tourismTrendRegions
+ ↓
+Adapter tourismTrend.api  →  governmentApi
+```
+
+### 도메인 모델
+
+```ts
+interface RegionTourismTrend {
+  location: Location;
+  visitorCount: number;         // 기준 계절 방문자 수
+  previousVisitorCount: number; // 작년 같은 계절
+  visitorGrowth: number;        // 절대 증감
+  growthRate: number;           // 증가율 (0.3 === +30%)
+  season: Season;
+  referenceYear: number;        // 기준 계절의 연도
+}
+```
+
+`Location`을 그대로 쓰고 API의 `areaCode`/`signguCode`는 도메인 모델에 노출하지 않는다. 코드 체계는 어댑터와 카탈로그 안에 가둔다.
+
+### 순수 함수 분리
+
+집계·게이트·정렬 규칙을 전부 `tourismTrend.utils.ts`에 모으고 단위 테스트로 덮는다. `expense.utils.ts`가 `calculateBalancesInKRW`를 훅과 분리한 것과 같은 구조이며, 이 기능에서 테스트 가치가 가장 높은 지점이다.
+
+```ts
+sumSeasonVisitors(items, season, year): number   // 일별 → 계절 합계, 현지인 제외
+toRegionTourismTrend(current, previous): RegionTourismTrend | null
+sortByVisitorGrowth(trends): RegionTourismTrend[]  // 중앙값 게이트 + 증가율 정렬
+```
+
+`limit` 슬라이싱은 소비자 몫이므로 인터페이스에 넣지 않는다.
+
+계절 경계 계산은 `season.ts`로 분리한다. 겨울의 연도 귀속 처리가 들어가므로 독립 테스트가 필요하다.
+
+```ts
+getCurrentSeason(date): Season
+getSeasonMonthRange(season, year): { startYmd: string; endYmd: string }
+```
+
+### 네이밍
+
+훅 이름에 소비자 맥락을 담지 않는다. "Popular"나 "Seasonal"은 탐색 큐레이션의 판단이고, 훅의 책임은 "지역별 관광 추이"다.
+
+```ts
+// ✗
+useSeasonalPopularRegions()
+
+// ✓
+useRegionTourismTrends({ season, year })
+```
+
+---
+
+## UI
+
+### 배치
+
+`ExplorerCatalog`의 **최상단**에 추가한다. 나머지 세 섹션은 장소 단위인데 이것만 지역 단위이므로, 넓은 단위에서 좁은 단위로 내려가는 순서가 자연스럽다.
+
+### 카피
+
+계절에 따라 제목이 바뀐다.
+
+| 계절 | 카피 |
+| --- | --- |
+| 봄 | 봄에 사람들이 몰리는 지역 |
+| 여름 | 여름에 사람들이 몰리는 지역 |
+| 가을 | 가을에 사람들이 몰리는 지역 |
+| 겨울 | 겨울에 사람들이 몰리는 지역 |
+
+제목 옆에 기준 연도(`2025년 여름 기준`)를 작게 명시한다. 작년 데이터를 쓴다는 사실을 숨기지 않는다.
+
+### 카드
+
+기존 `PlaceCard`는 장소 사진 기반이라 재사용할 수 없다(지역은 대표 사진이 없다). `RegionTrendCard`를 신규로 만들되 가로 스크롤·카드 폭·`Scrollable.Horizontal` 등 레이아웃 관습은 `RecentHotSummarySection`을 따른다.
+
+```text
+┌─────────────────┐
+│  1              │  순위
+│  양양            │  Location
+│  강원도          │  LocationRegion
+│  87만 명 방문     │  기준 계절 방문자
+│  ▲ 21만 (+32%)  │  절대 증감(주) + 증가율(보조)
+└─────────────────┘
+```
+
+- 증감은 `success.main` 계열 + `▲`
+- `AnimatedCountText`로 카운트업 (`shared/components/animation`)
+- 순위는 카드가 계산하지 않고 소비자가 넘긴다: `<RegionTrendCard trend={trend} rank={index + 1} />`
+
+### 인터랙션
+
+카드를 탭하면 **해당 지역으로 탐색 필터를 적용**한다. 지역 상세 페이지는 만들지 않는다.
+
+```ts
+const { setLocation } = useExplorerFilterParams();
+```
+
+"양양이 좋구나" → 탭 → 양양의 장소들이 보인다. 기존 필터 인프라를 그대로 쓰므로 구현 비용이 거의 없고, 큐레이션에서 탐색으로 이어지는 동선이 완성된다.
+
+### 더보기 페이지
+
+만들지 않는다. 국내 `Location`이 30개뿐이라 상위 10개면 의미 있는 건 거의 다 나온다. 전용 페이지는 라우트와 모바일/데스크탑 분기까지 파일이 6개 늘어나는데 담을 내용이 부족하다. 필요해지면 그때 추가한다.
+
+### 빈 상태
+
+게이트 통과 지역이 0개이거나 API가 실패하면 기존 관습대로 `자료를 찾을 수 없어요`를 표시한다. 섹션 전체를 `Suspense`로 감싸고 `.Skeleton`을 제공한다 — 기존 세 섹션과 동일하다.
+
+---
+
+## 파일 구조
+
+```text
+src/features/tourism-trend/                        # 신규 — 데이터 도메인
+├── tourismTrend.api.ts
+├── tourismTrend.types.ts
+├── tourismTrend.utils.ts
+├── tourismTrendRegions.ts
+├── season.ts
+├── useRegionTourismTrends.ts
+└── __tests__/
+    ├── tourismTrend.utils.test.ts
+    └── season.test.ts
+
+src/features/explorer/explorer-seasonal-regions/   # 신규 — UI
+├── SeasonalRegionsSummarySection.tsx
+└── RegionTrendCard.tsx
+```
+
+| 파일 | 변경 유형 |
+| --- | --- |
+| `src/features/tourism-trend/*` | 신규 (8) |
+| `src/features/explorer/explorer-seasonal-regions/*` | 신규 (2) |
+| `src/features/explorer/ExplorerCatalog.tsx` | 섹션 추가 |
+| `src/shared/utils/formats.ts` | `formatKoreanCount` 추가 |
+
+### 위치 근거
+
+데이터 도메인을 `explorer` 밖에 두는 이유는 공공 관광 통계가 탐색 탭 전용 개념이 아니기 때문이다. 소유 주체는 관광 통계 도메인이고 탐색은 소비처다. `marine-activity`(도메인)와 `trip-marine-activity`(UI)가 분리된 것과 같은 패턴이며, 여행 생성 시 목적지 추천 등에 재사용할 여지가 있다.
+
+`formatKoreanCount`는 도메인과 무관한 순수 함수이므로 `shared/utils/formats.ts`에 둔다.
+
+`season.ts`는 계절 개념이 관광 추이 도메인 안에서만 쓰이므로 `tourism-trend` 내부에 둔다. 다른 도메인이 계절을 필요로 하게 되면 그때 `shared`로 승격한다.
+
+예상 변경 규모는 450줄 안쪽으로, 브랜치당 500줄 목표에 들어온다.
+
+---
+
+## 구현 순서
+
+1. **API 프로브** — 실제 응답으로 `touDivCd` 코드값과 래퍼 구조를 확정한다. 서비스 키 등록 상태 확인이 선행되어야 한다(아래 참조).
+2. `season.ts` + 테스트 — 외부 의존이 없어 먼저 확정 가능하다
+3. `tourismTrend.types.ts` / `tourismTrendRegions.ts` — 지자체 코드 카탈로그
+4. `tourismTrend.api.ts` — 어댑터
+5. `tourismTrend.utils.ts` + 테스트 — 집계·게이트·정렬
+6. `useRegionTourismTrends.ts`
+7. `formatKoreanCount`
+8. UI 2종 + `ExplorerCatalog` 연결
+
+---
+
+## 미해결 이슈
+
+**서비스 키가 동작하지 않는다.** `.env`의 `VITE_DATA_GO_SERVICE_KEY`로 호출하면 `SERVICE_KEY_IS_NOT_REGISTERED_ERROR`가 반환된다. 신규 서비스 미신청 문제가 아니라 **이미 연동된 해양 지수 API에서도 동일하게 실패**하므로, 키 만료·회전이거나 `.env` 값의 인코딩 형태(`%2B` 등) 문제로 보인다. 구현 1단계 전에 해소되어야 한다.
+
+---
+
+## 고려사항
+
+- 방문자 수는 **일자별 순방문자 합**이다. 2박 3일 방문자는 3명으로 집계되므로 "명"은 연인원 개념이다. 카피에서 실인원처럼 읽히지 않도록 `87만 명 방문` 정도로 절제한다.
+- 계절 경계에서 큐레이션이 한 번에 교체된다. 8월 31일과 9월 1일의 내용이 완전히 달라지는데, 이는 "가을 큐레이션이 열렸다"는 신선함으로 활용할 수 있다.
+- `tourismTrendRegions`의 지자체 코드는 수동 카탈로그다. `Location`이 추가되면 함께 갱신해야 하며, 매핑이 없는 `Location`은 조용히 후보에서 제외된다.
+- 개발계정 트래픽 1,000회/일은 개발 중에는 충분하지만, 배포 후 사용자가 늘면 운영계정 전환(활용사례 등록)이 필요하다. `staleTime`을 길게(하루 이상) 잡는다 — 계절 데이터는 사실상 정적이므로 캐시 수명을 매우 길게 가져갈 수 있다.
