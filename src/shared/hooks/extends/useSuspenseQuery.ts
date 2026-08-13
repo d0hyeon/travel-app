@@ -5,14 +5,14 @@ import {
   type UseSuspenseQueryOptions as _UseSuspenseQueryOptions,
   type UseSuspenseQueryResult,
   type UseBaseQueryOptions,
-} from '@tanstack/react-query';
+} from "@tanstack/react-query";
 
 export type BaseQueryOptions<
   QueryData = unknown,
   QueryError = Error,
   Data = QueryData,
   Key extends QueryKey = QueryKey,
-  > = UseBaseQueryOptions<QueryData, QueryError, Data, Key>;
+> = UseBaseQueryOptions<QueryData, QueryError, Data, Key>;
 
 export type UseSuspenseQueryOptions<
   QueryData = unknown,
@@ -42,7 +42,9 @@ export function useSuspenseQuery<
   Data = QueryFnData,
   Key extends QueryKey = QueryKey,
 >(
-  options: _UseSuspenseQueryOptions<QueryFnData, QueryError, Data, Key> & { enabled: false },
+  options: _UseSuspenseQueryOptions<QueryFnData, QueryError, Data, Key> & {
+    enabled: false;
+  },
 ): UseSuspenseQueryResult<undefined, QueryError>;
 
 export function useSuspenseQuery<
@@ -51,7 +53,9 @@ export function useSuspenseQuery<
   Data = QueryFnData,
   Key extends QueryKey = QueryKey,
 >(
-  options: _UseSuspenseQueryOptions<QueryFnData, QueryError, Data, Key> & { enabled: true },
+  options: _UseSuspenseQueryOptions<QueryFnData, QueryError, Data, Key> & {
+    enabled: true;
+  },
 ): UseSuspenseQueryResult<Data, QueryError>;
 
 export function useSuspenseQuery<
@@ -60,7 +64,9 @@ export function useSuspenseQuery<
   Data = QueryFnData,
   Key extends QueryKey = QueryKey,
 >(
-  options: _UseSuspenseQueryOptions<QueryFnData, QueryError, Data, Key> & { enabled: boolean },
+  options: _UseSuspenseQueryOptions<QueryFnData, QueryError, Data, Key> & {
+    enabled: boolean;
+  },
 ): UseSuspenseQueryResult<Data | undefined, QueryError>;
 
 export function useSuspenseQuery<
@@ -68,7 +74,9 @@ export function useSuspenseQuery<
   QueryError = DefaultError,
   Data = QueryFnData,
   Key extends QueryKey = QueryKey,
->(options: UseSuspenseQueryOptions<QueryFnData, QueryError, Data, Key>): UseSuspenseQueryResult<Data, QueryError>;
+>(
+  options: UseSuspenseQueryOptions<QueryFnData, QueryError, Data, Key>,
+): UseSuspenseQueryResult<Data, QueryError>;
 
 export function useSuspenseQuery<
   QueryFnData = unknown,
@@ -83,8 +91,11 @@ export function useSuspenseQuery<
   ...options
 }: UseSuspenseQueryOptions<QueryFnData, QueryError, Data, Key>) {
   const result = _useSuspenseQuery<QueryFnData, QueryError, Data, Key>({
-    queryKey: enabled ? queryKey : (DISABLED_QUERY_KEY as Key),
-    queryFn: enabled ? queryFn : () => Promise.resolve((placeholderData ?? null) as unknown as QueryFnData),
+    queryKey: ["disabled", ...queryKey] as unknown as Key,
+    queryFn: enabled
+      ? queryFn
+      : () =>
+          Promise.resolve((placeholderData ?? null) as unknown as QueryFnData),
     ...options,
   });
 
@@ -100,8 +111,8 @@ export function useSuspenseQuery<
     isError: false,
     isFetching: false,
     isPaused: true,
-    fetchStatus: 'idle',
+    fetchStatus: "idle",
   } as UseSuspenseQueryResult<Data | undefined, QueryError>;
 }
 
-const DISABLED_QUERY_KEY: QueryKey = ['DISABLED'];
+const DISABLED_QUERY_KEY: QueryKey = ["DISABLED"];
