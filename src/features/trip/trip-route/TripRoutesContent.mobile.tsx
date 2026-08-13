@@ -36,6 +36,7 @@ import { usePlaceFormOverlay } from './usePlaceFormOverlay';
 import { useRouteLegs } from './useRouteLegs';
 import { useTripViewConfigValue } from './useTripViewConfig';
 import { TripWeatherIconButton } from '../trip-weather/TripWeatherIconButton';
+import { TripMarineActivityMapMarkers } from '../trip-marine-activity/TripMarineActivityMapMarkers';
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = ['#1976d2', '#e53935', '#43a047', '#fb8c00', '#8e24aa', '#00acc1']
@@ -171,6 +172,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
             clustering={viewConfig.isCluasterlingView}
             clusterGridSize={50}
           >
+            <TripMarineActivityMapMarkers trip={trip} selectedDate={selectedDate} />
             {isOngoingTrip && currentCoordinate && (
               <Map.Marker variant="circle" {...currentCoordinate} />
             )}
@@ -391,4 +393,3 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
     </>
   )
 }
-

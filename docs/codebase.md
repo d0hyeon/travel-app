@@ -174,6 +174,13 @@ src/
 │   ├── tracking/               # 위치 추적
 │   │   └── tracking.types.ts
 │   │
+│   ├── marine-activity/        # 해양 활동 지수 (해수욕/스킨스쿠버)
+│   │   ├── marineActivity.api.ts          # 국립해양조사원 지수 어댑터
+│   │   ├── marineActivity.types.ts        # 정규화 타입/등급/비활성 사유
+│   │   ├── marineActivityEligibility.ts   # 국내 섬/해안 목적지 판정
+│   │   ├── marineActivityPlaces.ts        # placeCode 카탈로그/최근접 장소 선택
+│   │   └── useDailyMarineActivityIndices.ts
+│   │
 │   ├── weather/                # 국내·해외 일별/시간별 날씨 예보
 │   │   ├── domestic-weather.api.ts # 기상청 예보 어댑터
 │   │   ├── weather.api.ts      # Open-Meteo 예보 어댑터
@@ -233,6 +240,7 @@ src/
 │       │   ├── TripUnreadCountBadge.tsx
 │       │   ├── notification/              # 푸시 알림
 │       │   └── trip-chat-pannel/          # 채팅 패널 UI
+│       ├── trip-marine-activity/          # 여행 계획 탭용 해양 활동 지수 바/상세
 │       ├── trip-weather/                  # 여행 날짜별 날씨 UI
 │       │   ├── TripWeatherForecastSheet.tsx # DayPart(am/pm) 중 실제 시간별 데이터가 있는 구간만 노출
 │       │   └── TripWeatherIconButton.tsx
@@ -324,7 +332,7 @@ src/
 │           ├── useTripViewConfig.ts
 │           ├── usePlaceFormOverlay.tsx
 │           ├── PlaceSelectSheet.tsx
-│           └── RouteNoteList.tsx
+│           └── RouteNoteList.tsx          # 날짜 토글 아래에 해양 지수 바를 함께 배치
 │
 └── shared/                     # 공통 모듈
     ├── components/
@@ -453,6 +461,7 @@ src/
 | 정산 현황 UI         | `features/trip/trip-expense/desktop/SettlementSummary.desktop.tsx`, `mobile/SettlementSummary.tsx` |
 | 멤버 관리            | `features/trip/trip-member/`                                      |
 | 일정/경로            | `features/trip/trip-route/`, `features/route/`                    |
+| 해양 활동 지수       | `features/marine-activity/`, `features/trip/trip-marine-activity/` |
 | 커뮤니티 경로        | `features/trip/trip-community-routes/`                            |
 | 메모 목록/상세/편집  | `features/trip/trip-memo/`                                        |
 | 장소 탭              | `features/trip/trip-place/TripPlaceContent.tsx`                   |
