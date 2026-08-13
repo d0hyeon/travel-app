@@ -1,3 +1,5 @@
+import type { Coordinate } from "~shared/types/coordinate";
+
 export const MarineActivityType = {
   Beach: "beach",
   SkinScuba: "skinScuba",
@@ -28,11 +30,6 @@ export const MarineActivityDisableReason = {
 export type MarineActivityDisableReason =
   (typeof MarineActivityDisableReason)[keyof typeof MarineActivityDisableReason];
 
-export interface MarineActivityCoordinate {
-  lat: number;
-  lng: number;
-}
-
 export interface MarineActivityMetrics {
   waterTemperatureCelsius: number | null;
   waveHeightMeters: number | null;
@@ -47,7 +44,7 @@ export interface MarineActivityIndex {
   date: string;
   placeCode: string;
   placeName: string;
-  coordinate: MarineActivityCoordinate;
+  coordinate: Coordinate;
   distanceMeters: number;
   grade: MarineActivityGrade;
   gradeLabel: string;
@@ -58,14 +55,14 @@ export interface MarineActivityIndex {
 
 export interface DailyMarineActivityIndices {
   date: string;
-  coordinate: MarineActivityCoordinate;
+  coordinate: Coordinate;
   indices: MarineActivityIndex[];
 }
 
 export interface MarineActivityMarkerItem {
   placeCode: string;
   placeName: string;
-  coordinate: MarineActivityCoordinate;
+  coordinate: Coordinate;
   indices: MarineActivityIndex[];
 }
 

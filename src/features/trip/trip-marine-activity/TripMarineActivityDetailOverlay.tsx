@@ -10,6 +10,7 @@ import { useIsMobile } from "~shared/hooks/env/useIsMobile";
 import { useOverlay } from "~shared/hooks/useOverlay";
 import { formatDisplayDate, formatShortDate } from "~shared/utils/formats";
 import type { Trip } from "../trip.types";
+import { useTrip } from "../useTrip";
 
 interface TripMarineActivityDetailOverlayProps {
   trip: Trip;
@@ -22,16 +23,17 @@ interface TripMarineActivityDetailOverlayProps {
 
 type OpenTripMarineActivityDetailParams = Omit<
   TripMarineActivityDetailOverlayProps,
-  "isOpen" | "onClose"
+  "isOpen" | "onClose" | "trip"
 >;
 
-export function useTripMarineActivityDetailOverlay() {
+export function useTripMarineActivityDetailOverlay(tripId: string) {
   const overlay = useOverlay();
+  const { data: trip } = useTrip(tripId);
 
   const open = useCallback(
     (params: OpenTripMarineActivityDetailParams) => {
       return overlay.open(({ isOpen, close }) => (
-        <TripMarineActivityDetailOverlay {...params} isOpen={isOpen} onClose={close} />
+        <TripMarineActivityDetailOverlay {...params} trip={trip} isOpen={isOpen} onClose={close} />
       ));
     },
     [overlay],
@@ -135,11 +137,11 @@ interface ContentProps extends Omit<TripMarineActivityDetailOverlayProps, "place
 }
 
 function TripMarineActivityDetailContent({
-  trip,
+  trip: { lat, lng },
   placeCode,
   date,
 }: ContentProps) {
-  const { data } = useDailyMarineActivityIndices({ trip, date });
+  const { data } = useDailyMarineActivityIndices({ coordinate: { lat, lng }, date });
   const selectedIndex = data?.indices?.find?.((index) => index.placeCode === placeCode);
 
   return (

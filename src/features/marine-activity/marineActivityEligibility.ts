@@ -1,9 +1,10 @@
 import { isOverseasByCoordinate } from "~shared/utils/geo";
 import {
   MarineActivityDisableReason,
-  type MarineActivityCoordinate,
   type MarineActivityEligibility,
 } from "./marineActivity.types";
+import { getCoordinateByLocation } from "~features/location";
+import type { Coordinate } from "~shared/types/coordinate";
 
 const islandDestinationNames = [
   "제주",
@@ -38,11 +39,41 @@ const koreanMarineActivityAreas = [
   { name: "jeju", minLat: 33.1, maxLat: 33.7, minLng: 126.1, maxLng: 127.1 },
   { name: "busan", minLat: 35.0, maxLat: 35.4, minLng: 128.9, maxLng: 129.4 },
   { name: "incheon", minLat: 37.2, maxLat: 37.8, minLng: 126.1, maxLng: 126.9 },
-  { name: "gangwon-east", minLat: 37.0, maxLat: 38.6, minLng: 128.6, maxLng: 129.3 },
-  { name: "south-jeolla-coast", minLat: 34.2, maxLat: 35.3, minLng: 126.0, maxLng: 127.9 },
-  { name: "south-gyeongsang-coast", minLat: 34.5, maxLat: 35.4, minLng: 127.7, maxLng: 129.2 },
-  { name: "north-gyeongsang-coast", minLat: 35.6, maxLat: 37.2, minLng: 128.8, maxLng: 129.7 },
-  { name: "west-coast", minLat: 35.6, maxLat: 37.3, minLng: 125.9, maxLng: 126.9 },
+  {
+    name: "gangwon-east",
+    minLat: 37.0,
+    maxLat: 38.6,
+    minLng: 128.6,
+    maxLng: 129.3,
+  },
+  {
+    name: "south-jeolla-coast",
+    minLat: 34.2,
+    maxLat: 35.3,
+    minLng: 126.0,
+    maxLng: 127.9,
+  },
+  {
+    name: "south-gyeongsang-coast",
+    minLat: 34.5,
+    maxLat: 35.4,
+    minLng: 127.7,
+    maxLng: 129.2,
+  },
+  {
+    name: "north-gyeongsang-coast",
+    minLat: 35.6,
+    maxLat: 37.2,
+    minLng: 128.8,
+    maxLng: 129.7,
+  },
+  {
+    name: "west-coast",
+    minLat: 35.6,
+    maxLat: 37.3,
+    minLng: 125.9,
+    maxLng: 126.9,
+  },
 ] satisfies ReadonlyArray<{
   name: string;
   minLat: number;
@@ -53,11 +84,13 @@ const koreanMarineActivityAreas = [
 
 export function isIslandDestinationName(destinationName: string): boolean {
   const normalizedName = destinationName.replaceAll(/\s/g, "");
-  return islandDestinationNames.some((keyword) => normalizedName.includes(keyword));
+  return islandDestinationNames.some((keyword) =>
+    normalizedName.includes(keyword),
+  );
 }
 
 export function isCoordinateInMarineActivityArea(
-  coordinate: MarineActivityCoordinate,
+  coordinate: Coordinate,
 ): boolean {
   return koreanMarineActivityAreas.some((area) => {
     const isWithinLatitude =
@@ -69,27 +102,25 @@ export function isCoordinateInMarineActivityArea(
 }
 
 interface GetTripMarineActivityEligibilityParams {
-  destinations: string[];
-  coordinate: MarineActivityCoordinate | null;
+  coordinate: Coordinate;
 }
 
 export function getTripMarineActivityEligibility({
-  destinations,
   coordinate,
 }: GetTripMarineActivityEligibilityParams): MarineActivityEligibility {
-  if (coordinate && isOverseasByCoordinate(coordinate)) {
+  if (isOverseasByCoordinate(coordinate)) {
     return {
       isEligible: false,
       reason: MarineActivityDisableReason.OverseasDestination,
     };
   }
 
-  const hasIslandDestination = destinations.some(isIslandDestinationName);
-  if (hasIslandDestination) {
-    return { isEligible: true, reason: null };
-  }
+  // const hasIslandDestination = destinations.some(isIslandDestinationName);
+  // if (hasIslandDestination) {
+  //   return { isEligible: true, reason: null };
+  // }
 
-  if (coordinate && isCoordinateInMarineActivityArea(coordinate)) {
+  if (isCoordinateInMarineActivityArea(coordinate)) {
     return { isEligible: true, reason: null };
   }
 

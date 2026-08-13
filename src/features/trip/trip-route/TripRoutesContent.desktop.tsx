@@ -202,7 +202,7 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
           clustering={mapViewConfig.isCluasterlingView}
           clusterGridSize={60}
         >
-          <TripMarineActivityMapMarkers trip={trip} selectedDate={selectedDate} />
+          <TripMarineActivityMapMarkers tripId={trip.id} />
           {places.map((place) => {
             if (currentRoute.hiddenPlaces.includes(place.id)) return null
 

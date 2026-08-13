@@ -4,13 +4,13 @@ import {
   MarineActivityGrade,
   MarineActivityType,
   type DailyMarineActivityIndices,
-  type MarineActivityCoordinate,
   type MarineActivityGrade as MarineActivityGradeValue,
   type MarineActivityIndex,
   type MarineActivityMarkerItem,
   type MarineActivityType as MarineActivityTypeValue,
 } from "./marineActivity.types";
 import { getDistanceMeters } from "./marineActivityPlaces";
+import type { Coordinate } from "~shared/types/coordinate";
 
 const marineActivityEndpoint = {
   [MarineActivityType.Beach]: "/1192136/fcstBeachv2/GetFcstBeachApiServicev2",
@@ -22,9 +22,11 @@ type MarineActivityRawItem = Record<string, unknown>;
 
 type MarineActivityResponseBody = {
   item?: MarineActivityRawItem | MarineActivityRawItem[];
-  items?: {
-    item?: MarineActivityRawItem | MarineActivityRawItem[];
-  } | MarineActivityRawItem[];
+  items?:
+    | {
+        item?: MarineActivityRawItem | MarineActivityRawItem[];
+      }
+    | MarineActivityRawItem[];
 };
 
 type MarineActivityApiEnvelope =
@@ -36,12 +38,12 @@ type MarineActivityApiEnvelope =
 
 interface GetMarineActivityIndicesParams {
   activityType: MarineActivityTypeValue;
-  coordinate: MarineActivityCoordinate;
+  coordinate: Coordinate;
   date: string;
 }
 
 interface GetDailyMarineActivityIndicesParams {
-  coordinate: MarineActivityCoordinate;
+  coordinate: Coordinate;
   date: string;
 }
 
@@ -114,15 +116,16 @@ export async function getMarineActivityIndices({
   coordinate,
   date,
 }: GetMarineActivityIndicesParams): Promise<MarineActivityIndex[]> {
-  const responseEnvelope = await governmentApi.get<
-    MarineActivityApiEnvelope
-  >(marineActivityEndpoint[activityType], {
-    params: {
-      type: "json",
-      reqDate: toMarineActivityRequestDate(date),
-      numOfRows: marineActivityPageSize,
+  const responseEnvelope = await governmentApi.get<MarineActivityApiEnvelope>(
+    marineActivityEndpoint[activityType],
+    {
+      params: {
+        type: "json",
+        reqDate: toMarineActivityRequestDate(date),
+        numOfRows: marineActivityPageSize,
+      },
     },
-  });
+  );
 
   const response = unwrapMarineActivityResponse(responseEnvelope);
 
@@ -151,8 +154,9 @@ export async function getMarineActivityIndices({
     .toSorted((left, right) => left.distanceMeters - right.distanceMeters);
 
   const marineActivityIndices = parsedMarineActivityIndices
-    .filter((marineActivityIndex) =>
-      marineActivityIndex.distanceMeters <= marineActivitySearchRadiusMeters,
+    .filter(
+      (marineActivityIndex) =>
+        marineActivityIndex.distanceMeters <= marineActivitySearchRadiusMeters,
     )
     .toSorted((left, right) => left.distanceMeters - right.distanceMeters);
 
@@ -264,10 +268,20 @@ function getSelectedDateMarineActivityItems(
 
   const groupedItems = selectedDateItems.reduce((itemMap, rawItem) => {
     const placeName =
-      readStringField(rawItem, ["bbchNm", "skscExpcnRgnNm", "placeName", "name"]) ??
-      "알 수 없는 지점";
+      readStringField(rawItem, [
+        "bbchNm",
+        "skscExpcnRgnNm",
+        "placeName",
+        "name",
+      ]) ?? "알 수 없는 지점";
     const latitude = readNumberField(rawItem, ["lat", "latitude", "la"]);
-    const longitude = readNumberField(rawItem, ["lot", "lon", "lng", "longitude", "lo"]);
+    const longitude = readNumberField(rawItem, [
+      "lot",
+      "lon",
+      "lng",
+      "longitude",
+      "lo",
+    ]);
     const placeKey = `${placeName}:${latitude ?? "unknown"}:${longitude ?? "unknown"}`;
     const existingItem = itemMap.get(placeKey);
 
@@ -276,7 +290,9 @@ function getSelectedDateMarineActivityItems(
       return itemMap;
     }
 
-    const shouldReplace = getPredictedTimePriority(rawItem) > getPredictedTimePriority(existingItem);
+    const shouldReplace =
+      getPredictedTimePriority(rawItem) >
+      getPredictedTimePriority(existingItem);
     if (shouldReplace) {
       itemMap.set(placeKey, rawItem);
     }
@@ -290,7 +306,11 @@ function getSelectedDateMarineActivityItems(
 function getPredictedTimePriority(rawItem: MarineActivityRawItem) {
   const predictedTime = readStringField(rawItem, ["predcNoonSeCd"]);
   if (!predictedTime) return 0;
-  return predictedTimePriority[predictedTime as keyof typeof predictedTimePriority] ?? 0;
+  return (
+    predictedTimePriority[
+      predictedTime as keyof typeof predictedTimePriority
+    ] ?? 0
+  );
 }
 
 function toMarineActivityIndex({
@@ -302,7 +322,7 @@ function toMarineActivityIndex({
   rawItem: MarineActivityRawItem;
   activityType: MarineActivityTypeValue;
   date: string;
-  tripCoordinate: MarineActivityCoordinate;
+  tripCoordinate: Coordinate;
 }): MarineActivityIndex {
   const score = readNumberField(rawItem, [
     "score",
@@ -414,7 +434,7 @@ function toMarineActivityIndex({
 
 function readMarineActivityCoordinate(
   rawItem: MarineActivityRawItem,
-): MarineActivityCoordinate {
+): Coordinate {
   const latitude = readNumberField(rawItem, ["lat", "latitude", "la"]);
   const longitude = readNumberField(rawItem, [
     "lon",

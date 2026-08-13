@@ -5,34 +5,24 @@ import {
   getIsMarineActivityForecastAvailability,
 } from "./marineActivity.api";
 import { useSuspenseQuery } from "~shared/hooks/extends/useSuspenseQuery";
+import type { Coordinate } from "~shared/types/coordinate";
 
 interface UseDailyMarineActivityIndicesParams {
-  trip: Trip | undefined;
-  date: string | null;
+  coordinate: Coordinate;
+  date: string;
 }
 
 export function useDailyMarineActivityIndices({
-  trip,
+  coordinate,
   date,
 }: UseDailyMarineActivityIndicesParams) {
-  const tripCoordinate = trip ? { lat: trip.lat, lng: trip.lng } : null;
-  const eligibility = getTripMarineActivityEligibility({
-    destinations: trip?.destinations ?? [],
-    coordinate: tripCoordinate,
-  });
-  const isForecastDateAvailable = date
-    ? getIsMarineActivityForecastAvailability(date)
-    : false;
-  const isQueryEnabled = Boolean(
-    trip && date && eligibility.isEligible && isForecastDateAvailable,
-  );
+  const eligibility = getTripMarineActivityEligibility({ coordinate });
+  const isForecastDateAvailable = getIsMarineActivityForecastAvailability(date);
+  const isQueryEnabled = eligibility.isEligible && isForecastDateAvailable;
 
   return useSuspenseQuery({
-    queryKey: ["daily-marine-activity-indices", trip?.id, date],
-    queryFn: () => getDailyMarineActivityIndices({
-      coordinate: { lat: trip!.lat, lng: trip!.lng },
-      date: date!,
-    }),
+    queryKey: ["daily-marine-activity-indices", coordinate, date],
+    queryFn: () => getDailyMarineActivityIndices({ coordinate, date }),
     enabled: isQueryEnabled,
     meta: {
       disabledReason: eligibility.isEligible

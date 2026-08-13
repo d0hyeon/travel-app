@@ -5,23 +5,24 @@ import { Map } from "~shared/components/Map";
 import type { Trip } from "../trip.types";
 import { createMarineActivityMarkerIcon } from "./MarineActivityMarkerIcon";
 import { useTripMarineActivityDetailOverlay } from "./TripMarineActivityDetailOverlay";
+import { useActiveTripDay } from "../trip-route/useActiveTripDay";
+import { useTrip } from "../useTrip";
 
 interface TripMarineActivityMapMarkersProps {
-  trip: Trip;
-  selectedDate: string | null;
+  tripId: string;
 }
 
-export function TripMarineActivityMapMarkers({
-  trip,
-  selectedDate,
-}: TripMarineActivityMapMarkersProps) {
-  const detailOverlay = useTripMarineActivityDetailOverlay();
-  const { data } = useDailyMarineActivityIndices({ trip, date: selectedDate });
+export function TripMarineActivityMapMarkers({ tripId }: TripMarineActivityMapMarkersProps) {
+  const detailOverlay = useTripMarineActivityDetailOverlay(tripId);
+  const { data: { lat, lng } } = useTrip(tripId);
+  const { value: activedTripDate } = useActiveTripDay(tripId);
+  const { data } = useDailyMarineActivityIndices({ coordinate: { lat, lng }, date: activedTripDate });
 
   const markerItems = useMemo(() => {
     if (!data) return [];
     return getMarineActivityMarkerItems(data);
   }, [data]);
+
   return (
     <Fragment>
       {markerItems.map((markerItem) => (
@@ -36,12 +37,11 @@ export function TripMarineActivityMapMarkers({
           })}
           thumbnailUrl={createMarineActivityMarkerIcon(markerItem)}
           onClick={() => {
-            if (!selectedDate) return;
+            if (!activedTripDate) return;
             detailOverlay.open({
-              trip,
               placeCode: markerItem.placeCode,
               placeName: markerItem.placeName,
-              initialDate: selectedDate,
+              initialDate: activedTripDate,
             });
           }}
         />

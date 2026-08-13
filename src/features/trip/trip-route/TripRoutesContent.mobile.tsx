@@ -172,7 +172,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
             clustering={viewConfig.isCluasterlingView}
             clusterGridSize={50}
           >
-            <TripMarineActivityMapMarkers trip={trip} selectedDate={selectedDate} />
+            <TripMarineActivityMapMarkers tripId={trip.id} />
             {isOngoingTrip && currentCoordinate && (
               <Map.Marker variant="circle" {...currentCoordinate} />
             )}
