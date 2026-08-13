@@ -56,24 +56,27 @@ export function toRegionTourismTrend({
 }
 
 // 증가율만으로 정렬하면 규모가 작은 지역이 순위를 독식한다.
-// 기준 계절 방문자 수 중앙값 미만인 지역을 걸러낸 뒤 증가율로 정렬한다.
+// 방문자 수 하위 25%를 걸러낸 뒤 증가율로 정렬한다.
+// 중앙값으로 자르면 광역시가 상위를 독점하고 강릉·속초 같은 여행지가 밀려난다.
+// 방문자가 줄어든 지역은 "인기 여행지"가 아니므로 제외한다.
 export function sortByVisitorGrowth(trends: RegionTourismTrend[]) {
-  if (trends.length <= 1) return [...trends]
+  if (trends.length <= 1) {
+    return trends.filter((trend) => trend.growthRate > 0)
+  }
 
-  const visitorCountThreshold = getMedian(
+  const visitorCountThreshold = getFirstQuartile(
     trends.map((trend) => trend.visitorCount),
   )
 
   return trends
     .filter((trend) => trend.visitorCount >= visitorCountThreshold)
+    .filter((trend) => trend.growthRate > 0)
     .toSorted((left, right) => right.growthRate - left.growthRate)
 }
 
-function getMedian(values: number[]) {
+function getFirstQuartile(values: number[]) {
   const sorted = values.toSorted((left, right) => left - right)
-  const middle = Math.floor(sorted.length / 2)
+  const quartileIndex = Math.floor(sorted.length / 4)
 
-  return sorted.length % 2 === 0
-    ? (sorted[middle - 1] + sorted[middle]) / 2
-    : sorted[middle]
+  return sorted[quartileIndex]
 }

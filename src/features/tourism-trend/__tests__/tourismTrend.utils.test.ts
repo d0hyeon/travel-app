@@ -125,14 +125,33 @@ describe('toRegionTourismTrend', () => {
 })
 
 describe('sortByVisitorGrowth', () => {
-  it('중앙값 미만 지역을 제외한다', () => {
-    // 방문자 수: 100, 500, 1000 → 중앙값 500
+  it('방문자 수 하위 25% 지역을 제외한다', () => {
+    // 방문자 수 정렬: 100, 500, 800, 1000 → 1사분위 인덱스 1 → 임계 500
     const result = sortByVisitorGrowth([
-      trend('진안', 100, 50),      // +100%, 중앙값 미만 → 제외
+      trend('진안', 100, 50),      // +100%, 임계 미만 → 제외
       trend('강릉', 500, 400),     // +25%
+      trend('경주', 800, 700),     // +14%
       trend('부산', 1000, 900),    // +11%
     ])
-    expect(result.map((t) => t.location)).toEqual(['강릉', '부산'])
+    expect(result.map((t) => t.location)).toEqual(['강릉', '경주', '부산'])
+  })
+
+  it('중앙값이 아닌 하위 25%로 잘라 여행지가 밀려나지 않게 한다', () => {
+    // 방문자 수 정렬: 500, 600, 700, 800, 1000
+    // 중앙값(700)으로 자르면 속초·강릉이 탈락하지만, 하위 25%(인덱스 1 → 600)면 강릉이 남는다
+    const result = sortByVisitorGrowth([
+      trend('속초', 500, 400),     // +25%, 임계 미만 → 제외
+      trend('강릉', 600, 550),     // +9%,  중앙값이었다면 탈락했을 지역
+      trend('경주', 700, 660),     // +6%
+      trend('부산', 800, 770),     // +4%
+      trend('서울', 1000, 970),    // +3%
+    ])
+    expect(result.map((t) => t.location)).toEqual([
+      '강릉',
+      '경주',
+      '부산',
+      '서울',
+    ])
   })
 
   it('증가율 내림차순으로 정렬한다', () => {
@@ -144,9 +163,18 @@ describe('sortByVisitorGrowth', () => {
     expect(result.map((t) => t.location)).toEqual(['강릉', '경주', '부산'])
   })
 
-  it('후보가 1개면 게이트를 건너뛴다', () => {
-    const result = sortByVisitorGrowth([trend('강릉', 100, 50)])
-    expect(result).toHaveLength(1)
+  it('방문자가 줄어든 지역은 제외한다', () => {
+    const result = sortByVisitorGrowth([
+      trend('강릉', 1000, 800),    // +25%
+      trend('가평', 1000, 1010),   // -1% → 제외
+      trend('경주', 1000, 900),    // +11%
+    ])
+    expect(result.map((t) => t.location)).toEqual(['강릉', '경주'])
+  })
+
+  it('후보가 1개면 게이트를 건너뛰되 증가한 경우만 남긴다', () => {
+    expect(sortByVisitorGrowth([trend('강릉', 100, 50)])).toHaveLength(1)
+    expect(sortByVisitorGrowth([trend('가평', 100, 200)])).toHaveLength(0)
   })
 
   it('빈 배열은 빈 배열을 반환한다', () => {
