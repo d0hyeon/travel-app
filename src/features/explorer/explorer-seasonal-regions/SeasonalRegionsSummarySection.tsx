@@ -7,7 +7,7 @@ import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 import { RegionTrendCard } from './RegionTrendCard'
 
-const SECTION_LIMIT = 10
+const SECTION_LIMIT = 20
 
 export function SeasonalRegionsSummarySection() {
   const { data: trends, season, referenceYear } = useRegionTourismTrends()
