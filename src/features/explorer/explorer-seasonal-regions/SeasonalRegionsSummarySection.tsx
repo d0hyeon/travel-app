@@ -27,7 +27,7 @@ export function SeasonalRegionsSummarySection() {
         gap={1}
       >
         <Typography variant="subtitle1">
-          {SeasonLabel[season]}에 사람들이 몰리는 지역
+          이번 {SeasonLabel[season]} 인기 여행지
         </Typography>
         <Typography variant="caption" color="text.secondary" flexShrink={0}>
           {referenceYear}년 {SeasonLabel[season]} 기준
@@ -94,10 +94,10 @@ function SeasonalRegionsSectionSkeleton() {
               p: 2,
             }}
           >
-            <Skeleton variant="text" width={16} height={16} />
             <Skeleton variant="text" width="70%" height={24} />
-            <Skeleton variant="text" width="50%" height={16} />
-            <Skeleton variant="text" width="80%" height={20} sx={{ mt: 1 }} />
+            <Skeleton variant="text" width="45%" height={32} sx={{ mt: 1.5 }} />
+            <Skeleton variant="text" width="60%" height={16} />
+            <Skeleton variant="text" width="55%" height={16} sx={{ mt: 1 }} />
           </Box>
         ))}
       </Stack>

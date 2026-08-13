@@ -1,5 +1,5 @@
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
-import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp'
+import TrendingDownIcon from '@mui/icons-material/TrendingDown'
+import TrendingUpIcon from '@mui/icons-material/TrendingUp'
 import { Box, Stack, Typography } from '@mui/material'
 import { LocationRegion } from '~features/location/location.model'
 import type { RegionTourismTrend } from '~features/tourism-trend/tourismTrend.types'
@@ -12,44 +12,72 @@ interface RegionTrendCardProps {
 
 export function RegionTrendCard({ trend, rank }: RegionTrendCardProps) {
   const isRising = trend.visitorGrowth >= 0
-  const growthColor = isRising ? 'success.main' : 'text.secondary'
-  const GrowthIcon = isRising ? ArrowDropUpIcon : ArrowDropDownIcon
+  const trendColor = isRising ? 'primary.main' : 'text.disabled'
+  const TrendIcon = isRising ? TrendingUpIcon : TrendingDownIcon
   const growthPercent = Math.round(Math.abs(trend.growthRate) * 100)
+  const regionLabel = getRegionLabel(trend.location)
 
   return (
     <Stack
-      gap={0.5}
       p={2}
       height="100%"
       borderRadius={3}
       border={1}
       borderColor="divider"
+      position="relative"
+      overflow="hidden"
       sx={{ bgcolor: 'background.paper' }}
     >
-      <Typography variant="caption" color="text.secondary" fontWeight={700}>
+      {/* 증가율을 배경 워터마크로 깔아 카드마다 다른 인상을 만든다 */}
+      <Box
+        aria-hidden
+        position="absolute"
+        top={-8}
+        right={-4}
+        fontSize={64}
+        fontWeight={800}
+        lineHeight={1}
+        color={trendColor}
+        sx={{ opacity: 0.07, pointerEvents: 'none' }}
+      >
         {rank}
-      </Typography>
+      </Box>
 
-      <Box>
-        <Typography variant="subtitle1" fontWeight={600} noWrap>
+      <Stack direction="row" alignItems="baseline" gap={0.75}>
+        <Typography variant="subtitle1" fontWeight={700} noWrap>
           {trend.location}
         </Typography>
-        <Typography variant="caption" color="text.secondary" noWrap>
-          {LocationRegion[trend.location]}
-        </Typography>
-      </Box>
-
-      <Box mt={0.5}>
-        <Typography variant="body2" color="text.secondary" noWrap>
-          {formatKoreanCount(trend.visitorCount)}명 방문
-        </Typography>
-        <Stack direction="row" alignItems="center" color={growthColor}>
-          <GrowthIcon sx={{ fontSize: 18 }} />
-          <Typography variant="body2" fontWeight={600} noWrap>
-            {formatKoreanCount(Math.abs(trend.visitorGrowth))} ({growthPercent}%)
+        {regionLabel && (
+          <Typography variant="caption" color="text.secondary" noWrap>
+            {regionLabel}
           </Typography>
-        </Stack>
-      </Box>
+        )}
+      </Stack>
+
+      <Stack direction="row" alignItems="center" gap={0.5} mt={1.5} color={trendColor}>
+        <TrendIcon sx={{ fontSize: 20 }} />
+        <Typography variant="h6" fontWeight={800} lineHeight={1.2}>
+          {isRising ? '+' : '-'}
+          {growthPercent}%
+        </Typography>
+      </Stack>
+
+      <Typography variant="caption" color="text.secondary" noWrap>
+        {formatKoreanCount(Math.abs(trend.visitorGrowth))}명{' '}
+        {isRising ? '증가' : '감소'}
+      </Typography>
+
+      <Typography variant="caption" color="text.disabled" mt="auto" pt={1} noWrap>
+        {formatKoreanCount(trend.visitorCount)}명 방문
+      </Typography>
     </Stack>
   )
+}
+
+// 광역시는 지역명과 상위 지역이 같고(서울/서울), 제주는 포함 관계라 중복이다.
+function getRegionLabel(location: RegionTourismTrend['location']) {
+  const region = LocationRegion[location]
+  if (region === location) return null
+  if (region.startsWith(location)) return null
+  return region
 }
