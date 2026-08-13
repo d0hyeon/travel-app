@@ -19,6 +19,7 @@ type Props = Omit<TextFieldProps, 'onChange' | 'value' | 'defaultValue'> & {
   endAdornment?: ReactNode;
   defaultOpen?: boolean;
   onClosePicker?: () => void;
+  allowSingleDay?: boolean;
 };
 
 export const DateRangePicker = ({
@@ -32,6 +33,7 @@ export const DateRangePicker = ({
   endAdornment,
   defaultOpen = false,
   onClosePicker,
+  allowSingleDay,
   ...props
 }: Props) => {
   const { palette } = useTheme();
@@ -119,6 +121,7 @@ export const DateRangePicker = ({
               onClosePicker?.()
             }}
             onChange={handleChange}
+            allowSingleDay={allowSingleDay}
           />
         </Dialog>
       ) : (
@@ -137,6 +140,7 @@ export const DateRangePicker = ({
               onClosePicker?.()
             }}
             onChange={handleChange}
+            allowSingleDay={allowSingleDay}
           />
         </Popover>
       )}

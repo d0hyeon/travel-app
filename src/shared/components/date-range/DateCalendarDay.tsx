@@ -9,9 +9,10 @@ function getLastDateOfMonth(date: Date) {
 
 type DayProps = Omit<PickersDayProps, 'value' | 'onClick'> & {
   value: [Date | null, Date | null];
+  singable?: boolean;
 };
 
-export function DateCalendarDay({ day, value, onDaySelect, outsideCurrentMonth, ...props }: DayProps) {
+export function DateCalendarDay({ day, value, onDaySelect, outsideCurrentMonth, singable, ...props }: DayProps) {
   const [startDate, endDate] = value ?? [];
 
   const isStartDate = startDate ? isSameDay(startDate, day) : false;
@@ -48,8 +49,9 @@ export function DateCalendarDay({ day, value, onDaySelect, outsideCurrentMonth, 
         cursor: 'pointer',
         borderTopLeftRadius: isStartDate || (isRange && isFirstColumn) ? '50%' : 0,
         borderBottomLeftRadius: isStartDate || (isRange && isFirstColumn) ? '50%' : 0,
-        borderTopRightRadius: isEndDate || (isRange && isLastColumn) ? '50%' : 0,
-        borderBottomRightRadius: isEndDate || (isRange && isLastColumn) ? '50%' : 0,
+        borderTopRightRadius:
+          isEndDate || (isRange && isLastColumn) || singable ? '50%' : 0,
+        borderBottomRightRadius: isEndDate || singable || (isRange && isLastColumn) ? '50%' : 0,
       }}
       onClick={() => onDaySelect(day)}
       {...props}

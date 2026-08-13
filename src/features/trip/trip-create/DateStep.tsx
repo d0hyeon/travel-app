@@ -44,6 +44,7 @@ export function DateStep({ defaultValue, onNext }: Props) {
           '&:last-child': { borderTop: 0 },
         }
       }}
+      allowSingleDay
     />
   )
 }

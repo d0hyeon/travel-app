@@ -11,12 +11,14 @@ import { DateCalendarHeader } from './DateCalendarHeader';
 import Menu from './Menu';
 import { type DateRange } from './type';
 import { useIsMobile } from '~shared/hooks/env/useIsMobile';
+import { assert } from '~shared/utils/types';
 
 type Props = {
   defaultValue?: DateRange;
   onClose?: () => void;
   onChange?: (value: DateRange) => void;
   renderActions?: (params: RenderActionsParams) => ReactNode;
+  allowSingleDay?: boolean;
 } & Omit<PaperProps, 'defaultValue' | 'onChange'>;
 
 type RenderActionsParams = {
@@ -26,7 +28,7 @@ type RenderActionsParams = {
 
 const today = set(Date.now(), { hours: 0, minutes: 0, seconds: 0, milliseconds: 0 });
 const differenceFromToday = (date: Date | string | number) => differenceInDays(today, date);
-const setEndTime = (date: Date) => set(date, { hours: 23, minutes: 59, seconds: 59, milliseconds: 999 });
+const toMidnight = (date: Date) => set(date, { hours: 23, minutes: 59, seconds: 59, milliseconds: 999 });
 
 export const DateCalendarBoard = ({
   defaultValue,
@@ -34,6 +36,7 @@ export const DateCalendarBoard = ({
   onClose,
   renderActions,
   sx,
+  allowSingleDay,
   ...props
 }: Props) => {
   const { palette } = useTheme();
@@ -50,10 +53,17 @@ export const DateCalendarBoard = ({
     setDisplayDate(today);
   };
 
+  const isInvalid = allowSingleDay ? startDate == null : (startDate == null || endDate == null);
   const handleClickUpdate = () => {
-    if (startDate == null || endDate == null) return;
+    if (isInvalid) return;
+    assert(startDate != null, '올바른 조건식이 아닙니다. (startDate is null)')
 
-    onChange?.([startDate, setEndTime(endDate)]);
+    if (allowSingleDay && endDate == null) {
+      onChange?.([startDate, toMidnight(startDate)]);
+    } else {
+      assert(endDate != null, '올바른 조건식이 아닙니다. (endDate is null)');
+      onChange?.([startDate, toMidnight(endDate)]);
+    }
   };
 
   const handleClickPicker = (date: PickerValue) => {
@@ -92,7 +102,7 @@ export const DateCalendarBoard = ({
         <DateCalendar
           value={isMobile ? displayDate : subMonths(displayDate, 1)}
           slots={{
-            day: (props) => <DateCalendarDay {...props} value={[startDate, endDate]} />,
+            day: (props) => <DateCalendarDay {...props} value={[startDate, endDate]} singable={allowSingleDay} />,
             calendarHeader: isMobile ? undefined : DateCalendarHeader.Readonly,
           }}
           slotProps={{
@@ -110,7 +120,7 @@ export const DateCalendarBoard = ({
         <DateCalendar
           value={isMobile ? addMonths(displayDate, 1) : displayDate}
           slots={{
-            day: (props) => <DateCalendarDay {...props} value={[startDate, endDate]} />,
+            day: (props) => <DateCalendarDay {...props} value={[startDate, endDate]} singable={allowSingleDay} />,
             calendarHeader: isMobile ? DateCalendarHeader.Readonly : undefined
           }}
           slotProps={{
@@ -153,13 +163,14 @@ export const DateCalendarBoard = ({
           }}
         >
           <Button onClick={onClose}>취소</Button>
-          <Button variant="contained" onClick={handleClickUpdate} disabled={startDate == null || endDate == null}>
+          <Button variant="contained" onClick={handleClickUpdate} disabled={isInvalid}>
             확인
           </Button>
         </Stack>
-      )}
+      )
+      }
 
-    </Paper>
+    </Paper >
   );
 };
 

@@ -120,6 +120,7 @@ export function TripFormDialog({ open, onClose, onSubmit, initialData }: Props) 
               setStartDate(formatDate(start, 'yyyy-MM-dd'))
               setEndDate(formatDate(end, 'yyyy-MM-dd'))
             }}
+            allowSingleDay
             fullWidth
           />
         </Stack>
