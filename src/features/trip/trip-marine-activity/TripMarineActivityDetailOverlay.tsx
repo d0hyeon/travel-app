@@ -164,10 +164,10 @@ function TripMarineActivityDetailContent({
 function MarineActivityGrade({ index }: { index: MarineActivityIndex }) {
   return (
     <Stack direction="row" justifyContent="space-between" alignItems="center" gap={2}>
-      <Typography variant="body2" color="text.secondary" fontWeight={700}>
+      <Typography variant="body2" fontWeight={700}>
         {index.type === MarineActivityType.Beach ? "해수욕 지수" : "스킨스쿠버 지수"}
       </Typography>
-      <Typography variant="h5" fontWeight={800} lineHeight={1.15} color={getGradeColor(index.grade)}>
+      <Typography variant="h6" fontWeight={800} lineHeight={1.15} color={getGradeColor(index.grade)}>
         {index.gradeLabel}
       </Typography>
     </Stack>
@@ -177,9 +177,7 @@ function MarineActivityGrade({ index }: { index: MarineActivityIndex }) {
 function MarineActivityMetrics({ index }: { index: MarineActivityIndex }) {
   return (
     <Stack gap={1.25}>
-      <Typography variant="subtitle2" fontWeight={700}>
-        상세 지표
-      </Typography>
+
       <InfoRow label="수온" value={formatMetricValue(index.metrics.waterTemperatureCelsius, "℃")} />
       <InfoRow label="파고" value={formatMetricValue(index.metrics.waveHeightMeters, "m")} />
       <InfoRow label="풍속" value={formatMetricValue(index.metrics.windSpeedMetersPerSecond, "m/s")} />
@@ -209,8 +207,8 @@ function formatMetricValue(value: number | null, unit: string) {
 }
 
 function getGradeColor(grade: MarineActivityIndex["grade"]) {
-  if (grade === "veryGood" || grade === "good") return "success.main";
-  if (grade === "normal") return "warning.main";
-  if (grade === "bad" || grade === "veryBad") return "error.main";
+  if (grade === "veryGood" || grade === "good") return "primary";
+  if (grade === "normal") return "textPrimary";
+  if (grade === "bad" || grade === "veryBad") return "warning";
   return "text.primary";
 }
