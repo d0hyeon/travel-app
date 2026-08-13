@@ -24,26 +24,24 @@ export function RegionTrendCard({ trend, rank }: RegionTrendCardProps) {
       borderRadius={3}
       border={1}
       borderColor="divider"
-      position="relative"
-      overflow="hidden"
       sx={{ bgcolor: 'background.paper' }}
     >
-      {/* 증가율을 배경 워터마크로 깔아 카드마다 다른 인상을 만든다 */}
-      <Box
-        aria-hidden
-        position="absolute"
-        top={-8}
-        right={-4}
-        fontSize={64}
-        fontWeight={800}
-        lineHeight={1}
-        color={trendColor}
-        sx={{ opacity: 0.07, pointerEvents: 'none' }}
-      >
-        {rank}
-      </Box>
-
-      <Stack direction="row" alignItems="baseline" gap={0.75}>
+      <Stack direction="row" alignItems="center" gap={0.75}>
+        <Box
+          flexShrink={0}
+          minWidth={20}
+          px={0.5}
+          borderRadius={1}
+          border={1}
+          borderColor="primary.main"
+          color="primary.main"
+          fontSize={11}
+          fontWeight={700}
+          lineHeight="18px"
+          textAlign="center"
+        >
+          {rank}
+        </Box>
         <Typography variant="subtitle1" fontWeight={700} noWrap>
           {trend.location}
         </Typography>

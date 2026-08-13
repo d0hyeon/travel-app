@@ -94,7 +94,10 @@ function SeasonalRegionsSectionSkeleton() {
               p: 2,
             }}
           >
-            <Skeleton variant="text" width="70%" height={24} />
+            <Stack direction="row" alignItems="center" gap={0.75}>
+              <Skeleton variant="rounded" width={20} height={18} />
+              <Skeleton variant="text" width="55%" height={24} />
+            </Stack>
             <Skeleton variant="text" width="45%" height={32} sx={{ mt: 1.5 }} />
             <Skeleton variant="text" width="60%" height={16} />
             <Skeleton variant="text" width="55%" height={16} sx={{ mt: 1 }} />
