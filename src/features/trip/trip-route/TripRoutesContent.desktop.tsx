@@ -29,6 +29,7 @@ import { useActiveTripDay } from './useActiveTripDay'
 import { FloatingControl } from './components/FloatingControl'
 import { TripWeatherIconButton } from '../trip-weather/TripWeatherIconButton'
 import { theme } from '~shared/config/theme'
+import { TripMarineActivityIndexBar } from '../trip-marine-activity/TripMarineActivityIndexBar'
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = ['#1976d2', '#e53935', '#43a047', '#fb8c00', '#8e24aa', '#00acc1']
@@ -91,6 +92,13 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
                 setSelectedRouteId(null)
               }}
             />
+
+            {trip && (
+              <TripMarineActivityIndexBar
+                trip={trip}
+                selectedDate={selectedDate}
+              />
+            )}
 
             <TripRouteSelector.Chip
               tripId={tripId}
