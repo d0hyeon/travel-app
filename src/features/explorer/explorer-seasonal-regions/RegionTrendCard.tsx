@@ -29,15 +29,14 @@ export function RegionTrendCard({ trend, rank }: RegionTrendCardProps) {
       <Stack direction="row" alignItems="center" gap={0.75}>
         <Box
           flexShrink={0}
-          minWidth={20}
-          px={0.5}
-          borderRadius={1}
-          border={1}
-          borderColor="primary.main"
-          color="primary.main"
-          fontSize={11}
+          width={20}
+          height={20}
+          borderRadius="50%"
+          bgcolor="primary.main"
+          color="common.white"
+          fontSize={12}
           fontWeight={700}
-          lineHeight="18px"
+          lineHeight="20px"
           textAlign="center"
         >
           {rank}
