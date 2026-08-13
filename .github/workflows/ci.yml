@@ -42,6 +42,9 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      # 러너 기본값은 UTC다. 국내 서비스라 날짜·시간 로직이 KST를 전제하므로
+      # 개발 환경과 동일한 타임존으로 맞춘다. (예: 오전/오후 예보 구간 판정)
+      TZ: Asia/Seoul
       VITE_SUPABASE_URL: https://placeholder.supabase.co
       VITE_SUPABASE_ANON_KEY: placeholder
 
@@ -55,6 +58,9 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      # 유닛 테스트와 동일하게 KST로 고정한다. 러너 기본값(UTC)에서는
+      # 날짜 경계와 오전/오후 판정이 로컬 개발 환경과 달라진다.
+      TZ: Asia/Seoul
       # 실제 요청은 MSW가 모두 가로챈다. 단 URL의 project ref는 supabase-js가
       # localStorage 인증 키(sb-<ref>-auth-token)를 조회하는 데 쓰이므로,
       # auth-setup이 세션을 심는 ref(feubgswdgmxrbpbfbqje)와 일치해야 인증 상태가 복원된다.
