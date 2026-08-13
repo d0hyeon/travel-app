@@ -104,6 +104,7 @@ src/
 │   │   ├── explorer-ranking/   # 최다 방문 순위
 │   │   ├── explorer-recent/    # 급상승 장소
 │   │   ├── explorer-saved/     # 저장 순위
+│   │   ├── explorer-seasonal-regions/ # 계절 인기 지역 큐레이션
 │   │   └── explorer-view/      # 뷰 모드 토글
 │   │
 │   ├── intro/                  # 인트로 배너
@@ -180,6 +181,14 @@ src/
 │   │   ├── marineActivityEligibility.ts   # 국내 섬/해안 목적지 판정
 │   │   ├── marineActivityPlaces.ts        # placeCode 카탈로그/최근접 장소 선택
 │   │   └── useDailyMarineActivityIndices.ts
+│   │
+│   ├── tourism-trend/          # 공공 관광 통계 (계절별 지역 방문 추이)
+│   │   ├── tourismTrend.api.ts        # 한국관광공사 관광빅데이터 어댑터
+│   │   ├── tourismTrend.types.ts      # 도메인 모델/지역 레벨/방문자 구분
+│   │   ├── tourismTrend.utils.ts      # 집계·중앙값 게이트·증가율 정렬
+│   │   ├── tourismTrendRegions.ts     # Location → 지자체 코드 카탈로그
+│   │   ├── season.ts                  # 계절 판정/날짜 범위
+│   │   └── useRegionTourismTrends.ts
 │   │
 │   ├── weather/                # 국내·해외 일별/시간별 날씨 예보
 │   │   ├── domestic-weather.api.ts # 기상청 예보 어댑터
@@ -469,6 +478,7 @@ src/
 | 장소 상세            | `features/place/place-detail/PlaceDetailPage.tsx` (오버레이: `usePlaceDetailOverlay`) |
 | 추천 장소            | `features/trip/trip-recommend/`                                   |
 | 장소 탐색 (Explorer) | `features/explorer/PlaceExplorerPage.tsx`                         |
+| 계절 인기 지역       | `features/tourism-trend/`, `features/explorer/explorer-seasonal-regions/` |
 | 피드/포스트          | `features/post/FeedPage.tsx`, `features/post/post-form/`          |
 | 사용자 프로필        | `features/user-profile/UserProfilePage.tsx`                       |
 | 통계                 | `features/statistics/StatisticsPage.tsx`                          |
