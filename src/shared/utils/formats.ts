@@ -63,3 +63,17 @@ export function formatRemainTime(
 
   return textInMinute;
 }
+
+const TEN_THOUSAND = 10_000
+
+// 방문자 수처럼 큰 수를 "104만" 형태로 축약한다. 만 미만은 원본을 유지한다.
+export function formatKoreanCount(value: number): string {
+  const magnitude = Math.abs(value)
+  const sign = value < 0 ? '-' : ''
+
+  if (magnitude < TEN_THOUSAND) {
+    return `${sign}${magnitude.toLocaleString('ko-KR')}`
+  }
+
+  return `${sign}${Math.round(magnitude / TEN_THOUSAND).toLocaleString('ko-KR')}만`
+}
