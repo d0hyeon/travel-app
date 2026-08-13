@@ -2,9 +2,8 @@ import { Close } from "@mui/icons-material";
 import { Box, Dialog, DialogContent, IconButton, Stack, Tab, Tabs, Typography } from "@mui/material";
 import { eachDayOfInterval } from "date-fns";
 import { Suspense, useCallback, useMemo, useState } from "react";
-import { getMarineActivityMarkerItems } from "~features/marine-activity/marineActivity.api";
-import { useDailyMarineActivityIndices } from "~features/marine-activity/useDailyMarineActivityIndices";
 import { MarineActivityType, type MarineActivityIndex } from "~features/marine-activity/marineActivity.types";
+import { useDailyMarineActivityIndices } from "~features/marine-activity/useDailyMarineActivityIndices";
 import { BottomSheet } from "~shared/components/bottom-sheet/BottomSheet";
 import { DialogTitle } from "~shared/components/confirm-dialog/DialogTitle";
 import { useIsMobile } from "~shared/hooks/env/useIsMobile";
@@ -51,8 +50,15 @@ function TripMarineActivityDetailDialog({
   placeName,
   isOpen,
   onClose,
+  initialDate,
   ...detailParams
 }: TripMarineActivityDetailOverlayProps) {
+  const [selectedDate, selectDate] = useState(initialDate);
+  const tripDates = useMemo(
+    () => eachDayOfInterval({ start: detailParams.trip.startDate, end: detailParams.trip.endDate }).map(formatDisplayDate),
+    [detailParams.trip],
+  );
+
   return (
     <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="sm">
       <Stack direction="row" justifyContent="space-between" alignItems="center" paddingRight={1}>
@@ -62,9 +68,22 @@ function TripMarineActivityDetailDialog({
         </IconButton>
       </Stack>
       <DialogContent sx={{ paddingTop: 0 }}>
-        <Suspense>
-          <TripMarineActivityDetailContent {...detailParams} />
-        </Suspense>
+        <Stack gap={1}>
+          <Tabs
+            value={selectedDate}
+            onChange={(_, date: string) => selectDate(date)}
+            sx={{ width: "100%", minHeight: 24, height: 40, overflow: "hidden" }}
+            variant="scrollable"
+            slotProps={{ list: { sx: { height: "100%" } } }}
+          >
+            {tripDates.map((date) => (
+              <Tab key={date} value={date} label={formatShortDate(date)} sx={{ minHeight: 40 }} />
+            ))}
+          </Tabs>
+          <Suspense>
+            <TripMarineActivityDetailContent date={selectedDate} {...detailParams} />
+          </Suspense>
+        </Stack>
       </DialogContent>
     </Dialog>
   );
@@ -74,8 +93,16 @@ function TripMarineActivityDetailSheet({
   placeName,
   isOpen,
   onClose,
+  initialDate,
   ...detailParams
 }: TripMarineActivityDetailOverlayProps) {
+  const [selectedDate, selectDate] = useState(initialDate);
+  const tripDates = useMemo(
+    () => eachDayOfInterval({ start: detailParams.trip.startDate, end: detailParams.trip.endDate }).map(formatDisplayDate),
+    [detailParams.trip],
+  );
+
+
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} snapPoints={[0.9]} defaultSnapIndex={0}>
       <BottomSheet.Header direction="row" justifyContent="space-between">
@@ -84,56 +111,53 @@ function TripMarineActivityDetailSheet({
         </Typography>
       </BottomSheet.Header>
       <BottomSheet.Body sx={{ paddingX: 0 }}>
+        <Tabs
+          value={selectedDate}
+          onChange={(_, date: string) => selectDate(date)}
+          sx={{ width: "100%", minHeight: 24, height: 40, overflow: "hidden" }}
+          variant="scrollable"
+          slotProps={{ list: { sx: { height: "100%" } } }}
+        >
+          {tripDates.map((date) => (
+            <Tab key={date} value={date} label={formatShortDate(date)} sx={{ minHeight: 40 }} />
+          ))}
+        </Tabs>
         <Suspense>
-          <TripMarineActivityDetailContent {...detailParams} />
+          <TripMarineActivityDetailContent date={selectedDate} {...detailParams} />
         </Suspense>
       </BottomSheet.Body>
     </BottomSheet>
   );
 }
 
+interface ContentProps extends Omit<TripMarineActivityDetailOverlayProps, "placeName" | "isOpen" | "onClose" | 'initialDate'> {
+  date: string;
+}
+
 function TripMarineActivityDetailContent({
   trip,
   placeCode,
-  initialDate,
-}: Omit<TripMarineActivityDetailOverlayProps, "placeName" | "isOpen" | "onClose">) {
-  const [selectedDate, selectDate] = useState(initialDate);
-  const { data } = useDailyMarineActivityIndices({ trip, date: selectedDate });
-  const tripDates = useMemo(
-    () => eachDayOfInterval({ start: trip.startDate, end: trip.endDate }).map(formatDisplayDate),
-    [trip.endDate, trip.startDate],
-  );
+  date,
+}: ContentProps) {
+  const { data } = useDailyMarineActivityIndices({ trip, date });
   const selectedIndex = data?.indices?.find?.((index) => index.placeCode === placeCode);
 
   return (
-    <Stack gap={1}>
-      <Tabs
-        value={selectedDate}
-        onChange={(_, date: string) => selectDate(date)}
-        sx={{ width: "100%", minHeight: 24, height: 40, overflow: "hidden" }}
-        variant="scrollable"
-        slotProps={{ list: { sx: { height: "100%" } } }}
-      >
-        {tripDates.map((date) => (
-          <Tab key={date} value={date} label={formatShortDate(date)} sx={{ minHeight: 40 }} />
-        ))}
-      </Tabs>
 
-      <Box paddingX={2} paddingTop={1.5} paddingBottom={2}>
-        {selectedIndex ? (
-          <Stack gap={2}>
-            <MarineActivityGrade index={selectedIndex} />
-            <MarineActivityMetrics index={selectedIndex} />
-          </Stack>
-        ) : (
-          <Stack alignItems="center" paddingY={6}>
-            <Typography variant="body2" color="text.secondary">
-              선택 날짜에 제공되는 해양 지수가 없어요
-            </Typography>
-          </Stack>
-        )}
-      </Box>
-    </Stack>
+    <Box paddingX={2} paddingTop={1.5} paddingBottom={2}>
+      {selectedIndex ? (
+        <Stack gap={2}>
+          <MarineActivityGrade index={selectedIndex} />
+          <MarineActivityMetrics index={selectedIndex} />
+        </Stack>
+      ) : (
+        <Stack alignItems="center" paddingY={6}>
+          <Typography variant="body2" color="text.secondary">
+            선택 날짜에 제공되는 해양 지수가 없어요
+          </Typography>
+        </Stack>
+      )}
+    </Box>
   );
 }
 
