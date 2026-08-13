@@ -27,7 +27,7 @@ export function SeasonalRegionsSummarySection() {
         gap={1}
       >
         <Typography variant="subtitle1">
-          이번 {SeasonLabel[season]} 인기 여행지
+          이번 {SeasonLabel[season]} 국내 인기 여행지
         </Typography>
         <Typography variant="caption" color="text.secondary" flexShrink={0}>
           {referenceYear}년 {SeasonLabel[season]} 기준
