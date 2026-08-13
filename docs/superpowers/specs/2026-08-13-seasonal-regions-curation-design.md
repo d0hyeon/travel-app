@@ -73,24 +73,51 @@
 
 `metcoRegnVisitrDDList`는 `signguCode`/`signguNm` 자리에 `areaCode`/`areaNm`이 온다. 그 외 필드는 동일하다.
 
-`item` 바깥 래퍼는 `governmentApi`의 표준 구조(`response.header.resultCode` / `response.body.items.item`)를 따른다. `marineActivity.api.ts`가 `items.item`이 배열/단일/누락 세 형태로 오는 것을 방어하고 있으므로 같은 방식으로 정규화한다.
+`item` 바깥 래퍼는 `governmentApi`의 표준 구조(`response.header.resultCode` / `response.body.items.item`)를 따른다. 성공 코드는 `"0000"`이다 — `marine-activity`의 `"00"`과 다르므로 주의한다. `marineActivity.api.ts`가 `items.item`의 배열/단일/누락 세 형태를 방어하고 있으므로 같은 방식으로 정규화한다.
+
+베이스 URL은 `https://apis.data.go.kr/B551011/DataLabService/` 이며 기존 `governmentApi`의 `baseUrl`(`https://apis.data.go.kr`) 아래에 그대로 들어간다.
+
+### 실측으로 확인된 사실
+
+2026-08-13 실제 API 호출로 아래를 검증했다.
+
+| 항목 | 결과 |
+| --- | --- |
+| `touDivCd` | `1`=현지인(a), `2`=외지인(b), `3`=외국인(c) |
+| 지역 필터 파라미터 | **지원하지 않음** — `signguCd`/`signguCode`/`areaCd`/`areaCode` 모두 `INVALID_REQUEST_PARAMETER_ERROR` |
+| 하루치 레코드 수 | `locgo` 792건 / 전 지역 |
+| 한 계절(92일) | `locgo` **72,864건 / 12.6MB / 9.4초** · `metco` 4,692건 / 806KB / 0.8초 |
+| gzip | **지원함.** `locgo` 한 계절 12.6MB → **808KB / 1.5초** (15.6배 압축) |
+| `numOfRows=100000` | 단일 호출로 전량 반환 (페이지네이션 불필요) |
+
+### 호출 전략 — 계절당 1회, 전 지역 일괄
+
+지역 필터가 없으므로 `Location`당 호출은 **불가능**하다. 대신 전 지역을 한 번에 받아 클라이언트에서 필요한 지역만 골라낸다. 결과적으로 호출 수가 30회에서 **레벨당 2회(기준 계절 + 비교 계절), 총 4회**로 줄어든다.
+
+`Accept-Encoding: gzip`이 필수다. 압축 없이는 두 계절에 25MB / 19초가 들어 사용 불가다. 압축 시 약 1.6MB / 3초로 떨어진다. `fetch`는 브라우저가 자동으로 gzip을 요청하므로 별도 설정이 필요 없으나, 응답 크기가 여전히 크므로 `staleTime`을 길게 잡아 재요청을 막는 것이 중요하다.
+
+> `metco`는 806KB / 0.8초로 가볍다. `locgo`가 무거우므로, 초기 구현에서 체감 성능이 문제되면 `metco`만 먼저 노출하고 `locgo`를 지연 로드하는 선택지가 있다.
 
 ### 스키마에서 파생되는 제약
 
-1. **일별 데이터다** — 엔드포인트명의 `DD`와 `baseYmd`가 일 단위다. 계절 합계는 **우리가 집계**해야 한다. 3개월치는 약 92일 × 방문자 구분 × 요일 구분이므로 레코드가 수천 건이다. `numOfRows`를 충분히 크게 잡거나 페이지네이션이 필요하다.
-2. **`touNum`이 문자열이다** — 숫자 변환과 파싱 실패 방어가 필요하다.
+1. **일별 데이터다** — 엔드포인트명의 `DD`와 `baseYmd`가 일 단위다. 계절 합계는 **우리가 집계**해야 한다. 한 지역당 한 계절에 약 276건(92일 × 방문자 구분 3종)이 나온다.
+2. **`touNum`이 실수 문자열이다** — `"191744.0"`, `"24391.06000000001"` 형태다. `Number` 변환 후 반올림하며 파싱 실패를 방어한다.
 3. **`touDivCd` 필터링이 필수다** — 아래 참조.
 4. **국내 한정** — 해외 `Location`은 커버리지에 없어 후보에서 제외된다. `marineActivityEligibility`가 국내 해안만 판정하는 것과 같은 구조다.
 
 ### `touDivCd` — 현지인을 반드시 제외한다
 
-`touDivCd`는 방문자 구분(현지인 / 외지인 / 외국인)이다. **구분 없이 `touNum`을 전부 더하면 "관광객 수"가 아니라 "유동인구"가 된다.** 서울 현지인 수백만 명이 그대로 포함되어 대도시가 압도적 상위를 차지하고 관광 큐레이션으로서 의미를 잃는다.
+**구분 없이 `touNum`을 전부 더하면 "관광객 수"가 아니라 "유동인구"가 된다.** 실측 예시(종로구, 2025-07-01)를 보면 현지인 18.5만 / 외지인 35.3만 / 외국인 2.4만으로, 현지인이 전체의 약 33%를 차지한다. 대도시일수록 이 비중이 커져 순위가 왜곡된다.
 
-집계 대상은 **외지인 + 외국인**이며 현지인은 제외한다.
+집계 대상은 **외지인(`2`) + 외국인(`3`)** 이며 현지인(`1`)은 제외한다.
 
-> **미확정** — `touDivCd`의 실제 코드값은 확인되지 않았다. 구현 첫 태스크에서 실제 응답을 확인해 코드 상수를 확정한다. 확인 전까지 `touDivNm` 문자열 매칭에 의존하지 않고 코드 기반으로 설계한다.
+```ts
+const VisitorDivision = { Local: '1', Domestic: '2', Foreign: '3' } as const
+```
 
-`daywkDivCd`(요일 구분)는 필터링하지 않고 **전부 합산**한다. 월 총합이 목적이므로 모든 요일 레코드가 합계에 들어가야 한다.
+`daywkDivCd`(요일 구분)는 필터링하지 않고 **전부 합산**한다. 계절 총합이 목적이므로 모든 요일 레코드가 합계에 들어가야 한다.
+
+검증 샘플: 강릉시 2025년 여름 외지인+외국인 합계 = **10,495,210명**(연인원). 276건이 정상 수신됐다.
 
 ---
 
@@ -118,7 +145,7 @@ const Season = { Spring: 'spring', Summer: 'summer', Autumn: 'autumn', Winter: '
 - 기준: **2025년 여름** (2025-06 ~ 2025-08)
 - 비교: **2024년 여름** (2024-06 ~ 2024-08)
 
-두 구간 합계 6개월이며 API가 18개월까지 지원하므로 **`Location`당 1회 호출**로 끝난다.
+지역 필터가 없어 전 지역을 일괄 수신하므로, 호출은 **레벨(`metco`/`locgo`) × 계절(기준/비교) = 4회**다.
 
 ---
 
@@ -199,10 +226,12 @@ interface RegionTourismTrend {
 집계·게이트·정렬 규칙을 전부 `tourismTrend.utils.ts`에 모으고 단위 테스트로 덮는다. `expense.utils.ts`가 `calculateBalancesInKRW`를 훅과 분리한 것과 같은 구조이며, 이 기능에서 테스트 가치가 가장 높은 지점이다.
 
 ```ts
-sumSeasonVisitors(items, season, year): number   // 일별 → 계절 합계, 현지인 제외
+sumVisitorsByRegionCode(items): Map<string, number>  // 일별 전 지역 → 지역코드별 합계, 현지인 제외
 toRegionTourismTrend(current, previous): RegionTourismTrend | null
-sortByVisitorGrowth(trends): RegionTourismTrend[]  // 중앙값 게이트 + 증가율 정렬
+sortByVisitorGrowth(trends): RegionTourismTrend[]    // 중앙값 게이트 + 증가율 정렬
 ```
+
+`sumVisitorsByRegionCode`가 전 지역 응답을 지역코드 기준으로 한 번에 접는다. 7만 건을 순회하므로 단일 패스로 처리하고, `Location` 매핑은 그 뒤에 적용해 필요한 지역만 남긴다.
 
 `limit` 슬라이싱은 소비자 몫이므로 인터페이스에 넣지 않는다.
 
@@ -324,7 +353,7 @@ src/features/explorer/explorer-seasonal-regions/   # 신규 — UI
 
 ## 구현 순서
 
-1. **API 프로브** — 실제 응답으로 `touDivCd` 코드값과 래퍼 구조를 확정한다. 서비스 키 등록 상태 확인이 선행되어야 한다(아래 참조).
+1. ~~API 프로브~~ — 완료(2026-08-13). `touDivCd` 코드값·래퍼 구조·호출 전략 확정됨
 2. `season.ts` + 테스트 — 외부 의존이 없어 먼저 확정 가능하다
 3. `tourismTrend.types.ts` / `tourismTrendRegions.ts` — 지자체 코드 카탈로그
 4. `tourismTrend.api.ts` — 어댑터
@@ -335,15 +364,11 @@ src/features/explorer/explorer-seasonal-regions/   # 신규 — UI
 
 ---
 
-## 미해결 이슈
-
-**서비스 키가 동작하지 않는다.** `.env`의 `VITE_DATA_GO_SERVICE_KEY`로 호출하면 `SERVICE_KEY_IS_NOT_REGISTERED_ERROR`가 반환된다. 신규 서비스 미신청 문제가 아니라 **이미 연동된 해양 지수 API에서도 동일하게 실패**하므로, 키 만료·회전이거나 `.env` 값의 인코딩 형태(`%2B` 등) 문제로 보인다. 구현 1단계 전에 해소되어야 한다.
-
----
-
 ## 고려사항
 
 - 방문자 수는 **일자별 순방문자 합**이다. 2박 3일 방문자는 3명으로 집계되므로 "명"은 연인원 개념이다. 카피에서 실인원처럼 읽히지 않도록 `87만 명 방문` 정도로 절제한다.
 - 계절 경계에서 큐레이션이 한 번에 교체된다. 8월 31일과 9월 1일의 내용이 완전히 달라지는데, 이는 "가을 큐레이션이 열렸다"는 신선함으로 활용할 수 있다.
 - `tourismTrendRegions`의 지자체 코드는 수동 카탈로그다. `Location`이 추가되면 함께 갱신해야 하며, 매핑이 없는 `Location`은 조용히 후보에서 제외된다.
-- 개발계정 트래픽 1,000회/일은 개발 중에는 충분하지만, 배포 후 사용자가 늘면 운영계정 전환(활용사례 등록)이 필요하다. `staleTime`을 길게(하루 이상) 잡는다 — 계절 데이터는 사실상 정적이므로 캐시 수명을 매우 길게 가져갈 수 있다.
+- 개발계정 트래픽 1,000회/일은 충분하다. 호출이 4회뿐이고 계절 데이터는 사실상 정적이므로 `staleTime`을 매우 길게(하루 이상) 잡는다. 오히려 중요한 것은 호출 수가 아니라 **응답 크기**다.
+- **서비스 키는 `.env`에 이미 URL 인코딩된 상태로 저장되어 있다**(`%3D`로 끝난다). 재인코딩하면 `%253D`가 되어 `SERVICE_KEY_IS_NOT_REGISTERED_ERROR`가 난다. `queryParams.serialize`는 키를 `String(value)`로 그대로 붙이므로(URL 형태가 아니라 `encodeURI` 분기를 타지 않는다) 기존 `governmentApi`를 그대로 써도 안전하다 — 검증 완료. 별도 인코딩 로직을 추가하지 않는다.
+- `locgo` 응답은 압축 후에도 약 800KB다. 모바일 회선에서 체감이 나쁘면 `metco`(806KB 비압축, 훨씬 가벼움)만 우선 노출하는 단계적 접근을 고려한다.
