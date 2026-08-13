@@ -19,7 +19,9 @@ export function ToastRenderer() {
             paddingBlock: '12px !important;',
             fontFamily: theme.typography.fontFamily,
             [theme.breakpoints.up('md')]: {
-              paddingBlock: '8px !important;',
+              paddingBlock: '16px !important;',
+              borderRadius: '20px !important',
+              fontSize: '14px !important'
             }
           },
           '.warning-message .toast-icon': {
@@ -35,7 +37,7 @@ export function ToastRenderer() {
             icon: 'toast-icon'
           },
         }}
-        position={isMobile ? 'top-center' : 'top-right'}
+        position="top-center"
         icons={{
           info: <InfoIcon fontSize="small" />,
           success: <CheckIcon fontSize="small" color="success" />,
