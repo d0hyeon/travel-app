@@ -36,7 +36,7 @@ import { usePlaceFormOverlay } from './usePlaceFormOverlay';
 import { useRouteLegs } from './useRouteLegs';
 import { useTripViewConfigValue } from './useTripViewConfig';
 import { TripWeatherIconButton } from '../trip-weather/TripWeatherIconButton';
-import { TripMarineActivityIndexBar } from '../trip-marine-activity/TripMarineActivityIndexBar';
+import { TripMarineActivityMapMarkers } from '../trip-marine-activity/TripMarineActivityMapMarkers';
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = ['#1976d2', '#e53935', '#43a047', '#fb8c00', '#8e24aa', '#00acc1']
@@ -172,6 +172,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
             clustering={viewConfig.isCluasterlingView}
             clusterGridSize={50}
           >
+            <TripMarineActivityMapMarkers trip={trip} selectedDate={selectedDate} />
             {isOngoingTrip && currentCoordinate && (
               <Map.Marker variant="circle" {...currentCoordinate} />
             )}
@@ -222,31 +223,25 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
           }}
         >
           <BottomSheet.Header>
-            <Stack gap={1}>
-              <Tabs
-                value={selectedDate}
-                sx={{ width: '100%', minHeight: 24, height: 40, overflow: "hidden" }}
-                variant="scrollable"
-                slotProps={{ list: { sx: { height: '100%' } } }}
-              >
-                {tripDates.map((date) => (
-                  <Tab
-                    key={date}
-                    value={date}
-                    label={formatShortDate(date)}
-                    onClick={() => {
-                      setSelectedDate(date)
-                      setSelectedRouteId(null)
-                    }}
-                    sx={{ flex: 1, minHeight: 40 }}
-                  />
-                ))}
-              </Tabs>
-              <TripMarineActivityIndexBar
-                trip={trip}
-                selectedDate={selectedDate}
-              />
-            </Stack>
+            <Tabs
+              value={selectedDate}
+              sx={{ width: '100%', minHeight: 24, height: 40, overflow: "hidden" }}
+              variant="scrollable"
+              slotProps={{ list: { sx: { height: '100%' } } }}
+            >
+              {tripDates.map((date) => (
+                <Tab
+                  key={date}
+                  value={date}
+                  label={formatShortDate(date)}
+                  onClick={() => {
+                    setSelectedDate(date)
+                    setSelectedRouteId(null)
+                  }}
+                  sx={{ flex: 1, minHeight: 40 }}
+                />
+              ))}
+            </Tabs>
           </BottomSheet.Header>
           <BottomSheet.Body gap={1} sx={{ p: 1.5 }}>
             <BottomSheet.Scrollable>

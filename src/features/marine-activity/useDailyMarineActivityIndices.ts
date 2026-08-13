@@ -1,7 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
 import type { Trip } from "~features/trip/trip.types";
 import { getTripMarineActivityEligibility } from "./marineActivityEligibility";
-import { getDailyMarineActivityIndices, getIsMarineActivityForecastAvailability } from "./marineActivity.api";
+import {
+  getDailyMarineActivityIndices,
+  getIsMarineActivityForecastAvailability,
+} from "./marineActivity.api";
+import { useSuspenseQuery } from "~shared/hooks/extends/useSuspenseQuery";
 
 interface UseDailyMarineActivityIndicesParams {
   trip: Trip | undefined;
@@ -20,15 +23,17 @@ export function useDailyMarineActivityIndices({
   const isForecastDateAvailable = date
     ? getIsMarineActivityForecastAvailability(date)
     : false;
+  const isQueryEnabled = Boolean(
+    trip && date && eligibility.isEligible && isForecastDateAvailable,
+  );
 
-  return useQuery({
+  return useSuspenseQuery({
     queryKey: ["daily-marine-activity-indices", trip?.id, date],
-    queryFn: () =>
-      getDailyMarineActivityIndices({
-        coordinate: { lat: trip!.lat, lng: trip!.lng },
-        date: date!,
-      }),
-    enabled: Boolean(trip && date && eligibility.isEligible && isForecastDateAvailable),
+    queryFn: () => getDailyMarineActivityIndices({
+      coordinate: { lat: trip!.lat, lng: trip!.lng },
+      date: date!,
+    }),
+    enabled: isQueryEnabled,
     meta: {
       disabledReason: eligibility.isEligible
         ? isForecastDateAvailable

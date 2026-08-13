@@ -29,7 +29,7 @@ import { useActiveTripDay } from './useActiveTripDay'
 import { FloatingControl } from './components/FloatingControl'
 import { TripWeatherIconButton } from '../trip-weather/TripWeatherIconButton'
 import { theme } from '~shared/config/theme'
-import { TripMarineActivityIndexBar } from '../trip-marine-activity/TripMarineActivityIndexBar'
+import { TripMarineActivityMapMarkers } from '../trip-marine-activity/TripMarineActivityMapMarkers'
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = ['#1976d2', '#e53935', '#43a047', '#fb8c00', '#8e24aa', '#00acc1']
@@ -92,13 +92,6 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
                 setSelectedRouteId(null)
               }}
             />
-
-            {trip && (
-              <TripMarineActivityIndexBar
-                trip={trip}
-                selectedDate={selectedDate}
-              />
-            )}
 
             <TripRouteSelector.Chip
               tripId={tripId}
@@ -209,6 +202,7 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
           clustering={mapViewConfig.isCluasterlingView}
           clusterGridSize={60}
         >
+          <TripMarineActivityMapMarkers trip={trip} selectedDate={selectedDate} />
           {places.map((place) => {
             if (currentRoute.hiddenPlaces.includes(place.id)) return null
 

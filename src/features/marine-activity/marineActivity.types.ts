@@ -47,6 +47,7 @@ export interface MarineActivityIndex {
   date: string;
   placeCode: string;
   placeName: string;
+  coordinate: MarineActivityCoordinate;
   distanceMeters: number;
   grade: MarineActivityGrade;
   gradeLabel: string;
@@ -57,6 +58,13 @@ export interface MarineActivityIndex {
 
 export interface DailyMarineActivityIndices {
   date: string;
+  coordinate: MarineActivityCoordinate;
+  indices: MarineActivityIndex[];
+}
+
+export interface MarineActivityMarkerItem {
+  placeCode: string;
+  placeName: string;
   coordinate: MarineActivityCoordinate;
   indices: MarineActivityIndex[];
 }

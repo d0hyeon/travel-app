@@ -7,6 +7,7 @@ export const governmentApi = createHttpClient({
   beforeRequest: (request) => {
     const url = withQueryParams(request.url, {
       ServiceKey: GOVERNMENT_API_SERVICE_KEY,
+      serviceKey: GOVERNMENT_API_SERVICE_KEY,
     });
     return new Request(url, request);
   },
