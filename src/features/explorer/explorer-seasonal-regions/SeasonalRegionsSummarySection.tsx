@@ -1,0 +1,106 @@
+import { Box, ButtonBase, Skeleton, Stack, Typography } from '@mui/material'
+import { useMemo } from 'react'
+import { SeasonLabel } from '~features/tourism-trend/season'
+import { useRegionTourismTrends } from '~features/tourism-trend/useRegionTourismTrends'
+import { Scrollable } from '~shared/components/Scrollable'
+import { useIsMobile } from '~shared/hooks/env/useIsMobile'
+import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
+import { RegionTrendCard } from './RegionTrendCard'
+
+const SECTION_LIMIT = 10
+
+export function SeasonalRegionsSummarySection() {
+  const { data: trends, season, referenceYear } = useRegionTourismTrends()
+  const topTrends = useMemo(() => trends.slice(0, SECTION_LIMIT), [trends])
+
+  const isMobile = useIsMobile()
+  const { setLocation } = useExplorerFilterParams()
+
+  return (
+    <Box mb={3}>
+      <Stack
+        direction="row"
+        alignItems="baseline"
+        justifyContent="space-between"
+        px={2}
+        mb={1.5}
+        gap={1}
+      >
+        <Typography variant="subtitle1">
+          {SeasonLabel[season]}에 사람들이 몰리는 지역
+        </Typography>
+        <Typography variant="caption" color="text.secondary" flexShrink={0}>
+          {referenceYear}년 {SeasonLabel[season]} 기준
+        </Typography>
+      </Stack>
+
+      {topTrends.length === 0 ? (
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          px={2}
+          py={4}
+          textAlign="center"
+        >
+          자료를 찾을 수 없어요
+        </Typography>
+      ) : (
+        <Scrollable.Horizontal
+          width="100%"
+          gap={isMobile ? 1 : 2}
+          px={2}
+          pb={0.5}
+          sx={{ '&::-webkit-scrollbar': { display: 'none' } }}
+          restorable={`seasonal-regions-section:${season}:${referenceYear}`}
+        >
+          {topTrends.map((trend, index) => (
+            <ButtonBase
+              key={trend.location}
+              onClick={() => setLocation(trend.location)}
+              sx={{
+                width: isMobile ? 150 : 200,
+                flexShrink: 0,
+                textAlign: 'left',
+                borderRadius: 3,
+                display: 'block',
+              }}
+            >
+              <RegionTrendCard trend={trend} rank={index + 1} />
+            </ButtonBase>
+          ))}
+        </Scrollable.Horizontal>
+      )}
+    </Box>
+  )
+}
+SeasonalRegionsSummarySection.Skeleton = SeasonalRegionsSectionSkeleton
+
+function SeasonalRegionsSectionSkeleton() {
+  const isMobile = useIsMobile()
+
+  return (
+    <Box mb={3}>
+      <Skeleton variant="text" width={200} height={28} sx={{ mx: 2, mb: 1.5 }} />
+      <Stack direction="row" gap={isMobile ? 1 : 2} px={2}>
+        {Array.from({ length: 4 }).map((_, index) => (
+          <Box
+            key={index}
+            sx={{
+              width: isMobile ? 150 : 200,
+              flexShrink: 0,
+              borderRadius: 3,
+              border: 1,
+              borderColor: 'divider',
+              p: 2,
+            }}
+          >
+            <Skeleton variant="text" width={16} height={16} />
+            <Skeleton variant="text" width="70%" height={24} />
+            <Skeleton variant="text" width="50%" height={16} />
+            <Skeleton variant="text" width="80%" height={20} sx={{ mt: 1 }} />
+          </Box>
+        ))}
+      </Stack>
+    </Box>
+  )
+}
