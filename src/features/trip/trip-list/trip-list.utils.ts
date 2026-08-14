@@ -2,7 +2,7 @@ import { set } from "date-fns"
 
 export type TripStatus = 'ongoing' | 'upcoming' | 'past'
 
-function resetTimes(date: string | Date | number) {
+function resetTimes(date: Date | number) {
   return set(date, { hours: 0, minutes: 0, seconds: 0, milliseconds: 0 })
 }
 
@@ -10,13 +10,16 @@ function startOfToday(): Date {
   return resetTimes(Date.now())
 }
 
+// new Date('YYYY-MM-DD')는 date-only 문자열을 UTC 자정으로 해석하므로
+// 음수 UTC 오프셋 타임존에서는 로컬 날짜가 하루 당겨진다. 연/월/일을 직접 조합해 로컬 자정으로 만든다.
 function parseDate(iso: string): Date {
-  return new Date(iso)
+  const [year, month, day] = iso.split('-').map(Number)
+  return new Date(year, month - 1, day)
 }
 
 export function getTripStatus(startDate: string, endDate: string): TripStatus {
   const now = startOfToday()
-  const start = resetTimes(startDate)
+  const start = parseDate(startDate)
   const end = parseDate(endDate)
   end.setHours(23, 59, 59, 999)
   if (now >= start && now <= end) return 'ongoing'
@@ -29,7 +32,7 @@ export function getDaysUntil(startDate: string): number {
 }
 
 export function getTripProgress(startDate: string, endDate: string): number {
-  const start = resetTimes(startDate).getTime()
+  const start = parseDate(startDate).getTime()
   const end = parseDate(endDate)
   end.setHours(23, 59, 59, 999)
   const now = Date.now()

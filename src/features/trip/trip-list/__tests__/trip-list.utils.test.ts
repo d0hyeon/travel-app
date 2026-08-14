@@ -77,4 +77,34 @@ describe('getTripProgress', () => {
 
     expect(progress).toBe(100)
   })
+
+  describe('UTC보다 느린 타임존(America/Los_Angeles)', () => {
+    const originalTZ = process.env.TZ
+
+    beforeEach(() => {
+      process.env.TZ = 'America/Los_Angeles'
+    })
+
+    afterEach(() => {
+      process.env.TZ = originalTZ
+    })
+
+    it('당일 여행이 하루 밀려 항상 100%로 고정되지 않는다', () => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date(2026, 7, 14, 0, 30, 0))
+
+      const progress = getTripProgress('2026-08-14', '2026-08-14')
+
+      expect(progress).toBeCloseTo((0.5 / 24) * 100, 0)
+    })
+
+    it('여러 날 여행 진행률이 하루 밀리지 않는다', () => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date(2026, 7, 15, 0, 0, 0))
+
+      const progress = getTripProgress('2026-08-14', '2026-08-16')
+
+      expect(progress).toBeCloseTo((24 / 72) * 100, 0)
+    })
+  })
 })
