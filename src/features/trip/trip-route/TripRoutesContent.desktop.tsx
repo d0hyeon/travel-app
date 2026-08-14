@@ -1,9 +1,12 @@
+import MyLocationIcon from '@mui/icons-material/MyLocation'
 import { Box, IconButton, Stack, styled, Typography } from '@mui/material'
 import { Suspense, useMemo, useRef, useState } from 'react'
 import { ListItem } from '~shared/components/ListItem'
+import { useVariation } from '~shared/hooks/extends/useVariation'
 import { SortableItem } from '../../../shared/components/dnd/SortableItem'
 import { SortableList } from '../../../shared/components/dnd/SortableList'
 import { Map, type MapRef } from '../../../shared/components/Map'
+import { useCurrentCoordinate } from '../../../shared/hooks/env/useCurrentCoordinate'
 import { useQueryParamState } from '../../../shared/hooks/urls/useQueryParamState'
 import { formatDisplayDate, formatShortDate } from '../../../shared/utils/formats'
 import { PlaceCategoryColorCode } from '../../place/place.types'
@@ -77,6 +80,19 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
 
   const mapViewConfig = useTripViewConfigValue();
   const mapRef = useRef<MapRef>(null)
+
+  const today = formatDisplayDate(new Date());
+  const isOngoingTrip = trip.startDate <= today && today <= trip.endDate
+
+  const [getIsInitialed, setIsInitialed] = useVariation(false);
+  const currentCoordinate = useCurrentCoordinate({
+    enabled: isOngoingTrip,
+    onChange: (coordinate) => {
+      if (getIsInitialed()) return;
+      mapRef.current?.panTo(coordinate.lat, coordinate.lng);
+      setIsInitialed(true);
+    }
+  });
 
   return (
     <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
@@ -193,16 +209,30 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
           />
         </FloatingControl>
         <TripRouteMapFloatingControls />
+        {currentCoordinate && (
+          <FloatingControl corner="bottom-right" zIndex={8}>
+            <IconButton
+              onClick={() => mapRef.current?.panTo(currentCoordinate.lat, currentCoordinate.lng)}
+              size="small"
+              sx={{ backgroundColor: 'rgba(255, 255, 255, 0.7) !important' }}
+            >
+              <MyLocationIcon />
+            </IconButton>
+          </FloatingControl>
+        )}
         <Map
           type={trip.isOverseas ? 'google' : 'kakao'}
           ref={mapRef}
-          defaultCenter={trip}
+          defaultCenter={currentCoordinate ?? trip}
           autoFocus="path"
           height="100%"
           clustering={mapViewConfig.isCluasterlingView}
           clusterGridSize={60}
         >
           <TripMarineActivityMapMarkers tripId={trip.id} />
+          {isOngoingTrip && currentCoordinate && (
+            <Map.Marker variant="circle" {...currentCoordinate} />
+          )}
           {places.map((place) => {
             if (currentRoute.hiddenPlaces.includes(place.id)) return null
 

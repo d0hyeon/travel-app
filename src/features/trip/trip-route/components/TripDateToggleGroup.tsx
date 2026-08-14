@@ -12,6 +12,8 @@ interface TripDateToggleGroupProps extends Omit<ToggleButtonGroupProps, 'value' 
 export function TripDateToggleGroup({ tripId, value, onChange, ...props }: TripDateToggleGroupProps) {
   const { data: { tripDates } } = useTripRoutes(tripId);
 
+  if (tripDates.length <= 1) return null;
+
   return (
     <ToggleButtonGroup color="primary" value={value} exclusive sx={{ overflowX: 'auto' }} {...props}>
       {tripDates.map((date) => (

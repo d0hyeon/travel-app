@@ -222,27 +222,29 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
             }
           }}
         >
-          <BottomSheet.Header>
-            <Tabs
-              value={selectedDate}
-              sx={{ width: '100%', minHeight: 24, height: 40, overflow: "hidden" }}
-              variant="scrollable"
-              slotProps={{ list: { sx: { height: '100%' } } }}
-            >
-              {tripDates.map((date) => (
-                <Tab
-                  key={date}
-                  value={date}
-                  label={formatShortDate(date)}
-                  onClick={() => {
-                    setSelectedDate(date)
-                    setSelectedRouteId(null)
-                  }}
-                  sx={{ flex: 1, minHeight: 40 }}
-                />
-              ))}
-            </Tabs>
-          </BottomSheet.Header>
+          {tripDates.length > 1 && (
+            <BottomSheet.Header>
+              <Tabs
+                value={selectedDate}
+                sx={{ width: '100%', minHeight: 24, height: 40, overflow: "hidden" }}
+                variant="scrollable"
+                slotProps={{ list: { sx: { height: '100%' } } }}
+              >
+                {tripDates.map((date) => (
+                  <Tab
+                    key={date}
+                    value={date}
+                    label={formatShortDate(date)}
+                    onClick={() => {
+                      setSelectedDate(date)
+                      setSelectedRouteId(null)
+                    }}
+                    sx={{ flex: 1, minHeight: 40 }}
+                  />
+                ))}
+              </Tabs>
+            </BottomSheet.Header>
+          )}
           <BottomSheet.Body gap={1} sx={{ p: 1.5 }}>
             <BottomSheet.Scrollable>
               <TripRouteSelector.Chip
