@@ -5,17 +5,10 @@ import { useAsyncEffect } from '../extends/useAsyncEffect';
 let permissionPromise: Promise<boolean> | null = null;
 const getPermission = () => {
   if (permissionPromise) return permissionPromise;
-  
-  permissionPromise = new Promise<boolean>(async (resolve) => {
-    const status = await navigator.permissions.query({ name: 'geolocation' })
-    
-    if (status.state === 'prompt') {
-      status.addEventListener('change', async () => {
-        resolve(status.state === 'granted');
-      })
-    }
-    resolve(status.state === 'granted')
-  })
+
+  permissionPromise = navigator.permissions
+    .query({ name: 'geolocation' })
+    .then((status) => status.state !== 'denied');
 
   return permissionPromise;
 }
