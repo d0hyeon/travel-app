@@ -29,10 +29,11 @@ export function getDaysUntil(startDate: string): number {
 }
 
 export function getTripProgress(startDate: string, endDate: string): number {
-  const start = parseDate(startDate).getTime()
-  const end = parseDate(endDate).getTime()
+  const start = resetTimes(startDate).getTime()
+  const end = parseDate(endDate)
+  end.setHours(23, 59, 59, 999)
   const now = Date.now()
-  return Math.min(100, Math.max(0, ((now - start) / (end - start)) * 100))
+  return Math.min(100, Math.max(0, ((now - start) / (end.getTime() - start)) * 100))
 }
 
 export function getTripDuration(startDate: string, endDate: string): { nights: number; days: number } {
