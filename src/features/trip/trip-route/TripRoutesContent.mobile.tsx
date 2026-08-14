@@ -6,7 +6,7 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import VisibilityOnIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { Box, Button, IconButton, ListItemIcon, Menu, MenuItem, Stack, Tab, Tabs, Typography } from "@mui/material";
-import { Fragment, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, Suspense, useMemo, useRef, useState } from "react";
 import { Dot } from 'recharts';
 import { BottomArea } from '~shared/components/BottomArea';
 import { ListItem } from '~shared/components/ListItem';
@@ -97,32 +97,25 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
   const viewConfig = useTripViewConfigValue();
   const [sheetRatio, setSheetRatio] = useState(DEFAULT_BOTTOM_SHEET_RATIO);
   const [focusedId, setFocusedId] = useState<string | null>(null)
-  const [hasFocusedNearestPlace, setHasFocusedNearestPlace] = useState(false)
 
   const today = formatDisplayDate(new Date());
   const isOngoingTrip = trip.startDate <= today && today <= trip.endDate
 
   const [getIsInitialed, setIsInitialed] = useVariation(false);
-  const currentCoordinate = useCurrentCoordinate({ enabled: isOngoingTrip });
+  const currentCoordinate = useCurrentCoordinate({
+    enabled: isOngoingTrip,
+    onChange: (coordinate) => {
+      if (getIsInitialed()) return;
+      mapRef.current?.panTo(coordinate.lat, coordinate.lng);
+      if (selectedDate === today) {
+        const nearestPlace = findNearestPlace(coordinate, currentRoute?.places ?? []);
+        if (nearestPlace) setFocusedId(nearestPlace.id);
+      }
+      setIsInitialed(true);
+    }
+  });
 
   const mapRef = useRef<MapRef>(null);
-
-  // 최초 좌표 확보 시 1회만 지도 패닝. 이후 좌표 갱신은 무시한다.
-  useEffect(() => {
-    if (!currentCoordinate || getIsInitialed()) return;
-    mapRef.current?.panTo(currentCoordinate.lat, currentCoordinate.lng);
-    setIsInitialed(true);
-  }, [currentCoordinate])
-
-  // 최초 좌표 확보 시 1회만 최근접 장소 포커스. 렌더 중 상태 조정이라 항상 최신 selectedDate/currentRoute를 읽는다.
-  if (currentCoordinate && !hasFocusedNearestPlace) {
-    setHasFocusedNearestPlace(true);
-    if (selectedDate === today) {
-      const nearestPlace = findNearestPlace(currentCoordinate, currentRoute?.places ?? []);
-      if (nearestPlace) setFocusedId(nearestPlace.id);
-    }
-  }
-
   const overlay = useOverlay()
 
   // 마커 클릭 메뉴: 지도 마커는 DOM 앵커를 주지 않으므로, 마지막 터치 좌표(getPosition)에 메뉴를 띄운다
