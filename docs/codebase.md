@@ -462,6 +462,13 @@ src/
   `prompt` 상태에서는 이 호출 자체가 브라우저 권한 팝업을 띄우는 트리거가 된다.
 - `denied`일 때만 호출을 건너뛴다.
 
+### 날짜 전용 문자열(`YYYY-MM-DD`) 파싱
+
+- `new Date('YYYY-MM-DD')`는 UTC 자정으로 해석된다. UTC보다 느린(음수 오프셋) 타임존에서는 로컬 날짜가 하루 당겨져, 자정 기준 계산(당일 여부, 진행률 등)이 틀어진다.
+- 여행 시작/종료일처럼 날짜 전용 값의 자정 경계가 필요하면 연/월/일을 직접 조합해 로컬 자정 `Date`를 만든다.
+- 참고 구현: `features/trip/trip-list/trip-list.utils.ts`의 `parseDate` — `getTripStatus`/`getTripProgress`/`getDaysUntil`/`getTripDuration`이 공유
+- 여행 진행률(`getTripProgress`)은 시작일 00:00:00 ~ 종료일 23:59:59.999를 기준으로 현재 시각까지의 경과 비율을 계산한다. 당일 여행(시작일 = 종료일)도 하루(24시간) 안에서 시각에 따라 채워지며, 100%로 고정되지 않는다.
+
 ---
 
 ## 기능별 탐색 가이드
@@ -469,6 +476,7 @@ src/
 | 기능                 | 핵심 파일                                                         |
 | -------------------- | ----------------------------------------------------------------- |
 | 여행 목록            | `features/trip/trip-list/TripListPage.tsx`                        |
+| 여행 상태/진행률 계산 | `features/trip/trip-list/trip-list.utils.ts` (`getTripStatus`, `getTripProgress`) |
 | 여행 생성            | `features/trip/trip-create/`                                      |
 | 위치 vocabulary      | `features/location/location.model.ts`, `location.utils.ts`        |
 | 여행 상세 레이아웃   | `features/trip/TripDetailPage.*.tsx`                              |
