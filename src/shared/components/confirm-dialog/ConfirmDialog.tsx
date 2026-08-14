@@ -39,7 +39,7 @@ export function ConfirmDialog({ title, description, isOpen, confirmLabel = 'í™•ì
       aria-labelledby="custom-dialog-title"
       aria-describedby="custom-dialog-description"
     >
-      <DialogTitle id="custom-dialog-title" sx={{ whiteSpace: 'pre-wrap' }}>
+      <DialogTitle id="custom-dialog-title" sx={{ whiteSpace: 'pre-wrap', fontSize: 14 }}>
         {title}
       </DialogTitle>
       {description && (
