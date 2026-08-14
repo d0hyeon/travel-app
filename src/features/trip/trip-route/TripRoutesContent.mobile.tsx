@@ -31,6 +31,7 @@ import { TripRouteSelector } from "./components/TripRouteSelector";
 import { PlaceSelectSheet } from "./PlaceSelectSheet";
 import { NoteEditor } from './RouteNoteList';
 import { RouteLegItem } from './RouteTimeline';
+import { findNearestPlace } from './findNearestPlace.utils';
 import { useDayTripRoutes } from './useDayTripRoutes';
 import { usePlaceFormOverlay } from './usePlaceFormOverlay';
 import { useRouteLegs } from './useRouteLegs';
@@ -106,6 +107,10 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
     onChange: (coordinate) => {
       if (getIsInitialed()) return;
       mapRef.current?.panTo(coordinate.lat, coordinate.lng);
+      if (selectedDate === today) {
+        const nearestPlace = findNearestPlace(coordinate, currentRoute?.places ?? []);
+        if (nearestPlace) setFocusedId(nearestPlace.id);
+      }
       setIsInitialed(true);
     }
   });
