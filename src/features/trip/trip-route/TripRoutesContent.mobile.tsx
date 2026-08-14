@@ -222,8 +222,8 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
             }
           }}
         >
-          <BottomSheet.Header>
-            {tripDates.length > 1 && (
+          {tripDates.length > 1 && (
+            <BottomSheet.Header>
               <Tabs
                 value={selectedDate}
                 sx={{ width: '100%', minHeight: 24, height: 40, overflow: "hidden" }}
@@ -243,8 +243,8 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                   />
                 ))}
               </Tabs>
-            )}
-          </BottomSheet.Header>
+            </BottomSheet.Header>
+          )}
           <BottomSheet.Body gap={1} sx={{ p: 1.5 }}>
             <BottomSheet.Scrollable>
               <TripRouteSelector.Chip
