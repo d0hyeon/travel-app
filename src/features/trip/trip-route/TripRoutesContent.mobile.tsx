@@ -38,6 +38,7 @@ import { useRouteLegs } from './useRouteLegs';
 import { useTripViewConfigValue } from './useTripViewConfig';
 import { TripWeatherIconButton } from '../trip-weather/TripWeatherIconButton';
 import { TripMarineActivityMapMarkers } from '../trip-marine-activity/TripMarineActivityMapMarkers';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = ['#1976d2', '#e53935', '#43a047', '#fb8c00', '#8e24aa', '#00acc1']
@@ -185,7 +186,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
               const isInCurrentRoute = currentRoute?.placeIds.includes(place.id) ?? false;
               const orderInRoute = currentRoute?.placeIds.indexOf(place.id) ?? -1;
 
-              if (viewConfig.isVisibleAllMarkers && !isInCurrentRoute) {
+              if (!viewConfig.isVisibleAllMarkers && !isInCurrentRoute) {
                 return null;
               }
 

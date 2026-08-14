@@ -1,24 +1,23 @@
 import AddIcon from '@mui/icons-material/Add'
-import WorkspacesIcon from '@mui/icons-material/Workspaces'
 import {
   Box,
   Button,
   Stack,
-  ToggleButton,
   Typography
 } from '@mui/material'
 import { Suspense, useMemo, useRef, useState } from 'react'
-import { Map, type MapBounds, type MapRef } from '../../../shared/components/Map'
+import { Map, type MapRef } from '../../../shared/components/Map'
 import { usePlaceSearchDialog } from '../../place/place-search/usePlaceSearchDialog'
 import { PlaceCategoryColorCode, type TripPlace } from '../../place/place.types'
 import { useTripCluastering } from '../hooks/useTripCluastering'
+import { RecommendedMarkers } from '../trip-recommend/RecommendedMarkers'
+import { useRecommendedPlaceDetailOverlay } from '../trip-recommend/RecommendedPlaceDetailOverlay'
 import { useTripRoutes } from '../trip-route/useTripRoutes'
 import { useTrip } from '../useTrip'
-import { useRecommendedPlaceDetailOverlay } from '../trip-recommend/RecommendedPlaceDetailOverlay'
 import { TripPlaceItemButton } from './TripPlaceItemButton'
+import { TripPlaceMapFloatingControls } from './TripPlaceMapFloatingControls'
 import { useTripPlaceFormOverlay } from './trip-place-form/useTripPlaceFormOverlay'
 import { useTripPlaces } from './useTripPlaces'
-import { RecommendedMarkers } from '../trip-recommend/RecommendedMarkers'
 
 const MICRO_ZOOM_LEVEL = 8;
 interface TripPlaceContentProps {
@@ -56,7 +55,7 @@ export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
   const confirmedPlaces = places.filter((p) => confirmedPlaceIds.has(p.id))
   const wishedPlaces = places.filter((p) => !confirmedPlaceIds.has(p.id))
 
-  const [cluastering, setCluastering] = useTripCluastering();
+  const [cluastering] = useTripCluastering();
   const [focusedId, setFocusedId] = useState<string | null>(null)
   const { openDialog: openDetailDialog } = useTripPlaceFormOverlay()
   const { openDialog: openRecommendedDialog } = useRecommendedPlaceDetailOverlay()
@@ -124,17 +123,7 @@ export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
 
       {/* Right: Map (70%) */}
       <Box sx={{ flex: 1, position: 'relative' }}>
-        <Stack gap={1} padding={1} position="absolute" top={0} right={0} zIndex={1000}>
-          <ToggleButton
-            value="check"
-            selected={cluastering}
-            onChange={() => setCluastering(!cluastering)}
-            size="small"
-            sx={{ backgroundColor: 'rgba(255, 255, 255, 0.7)' }}
-          >
-            <WorkspacesIcon />
-          </ToggleButton>
-        </Stack>
+        <TripPlaceMapFloatingControls />
         <Map
           type={mapType}
           ref={mapRef}

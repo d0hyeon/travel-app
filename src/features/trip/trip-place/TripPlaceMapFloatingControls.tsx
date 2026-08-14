@@ -4,11 +4,12 @@ import type { ReactNode } from "react";
 import { DialogTitle } from "~shared/components/confirm-dialog/DialogTitle";
 import { useIsMobile } from "~shared/hooks/env/useIsMobile";
 import { useOverlay } from "~shared/hooks/useOverlay";
-import { useTripViewConfig } from "../useTripViewConfig";
-import { FloatingControl } from "./FloatingControl";
+import { useTripCluastering } from '../hooks/useTripCluastering';
+import { FloatingControl } from '../trip-route/components/FloatingControl';
 
-export function TripRouteMapFloatingControls() {
-  const [viewConfig, setViewConfig] = useTripViewConfig();
+
+export function TripPlaceMapFloatingControls() {
+  const [isClusteringView, setCluastering] = useTripCluastering();
   const overlay = useOverlay();
   const isMobile = useIsMobile()
 
@@ -20,15 +21,8 @@ export function TripRouteMapFloatingControls() {
           <Typography variant={isMobile ? "caption" : "body2"} marginBottom={1} color="textSecondary" display="block">마커</Typography>
           <Row label="접어 보기" description="거리가 가까운 마커끼리 합쳐져 노출돼요">
             <Switch
-              defaultChecked={viewConfig.isCluasterlingView}
-              onChange={(_, checked) => setViewConfig({ isCluasterlingView: checked })}
-              sx={{ marginRight: -1 }}
-            />
-          </Row>
-          <Row label="계획된 장소만 보기">
-            <Switch
-              defaultChecked={!viewConfig.isVisibleAllMarkers}
-              onChange={(_, checked) => setViewConfig({ isVisibleAllMarkers: !checked })}
+              defaultChecked={isClusteringView}
+              onChange={(_, checked) => setCluastering(checked)}
               sx={{ marginRight: -1 }}
             />
           </Row>

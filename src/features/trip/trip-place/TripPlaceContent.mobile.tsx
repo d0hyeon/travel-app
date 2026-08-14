@@ -1,5 +1,4 @@
-import WorkspacesIcon from '@mui/icons-material/Workspaces';
-import { Box, Stack, ToggleButton, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import { Suspense, useMemo, useRef, useState } from "react";
 import { BottomArea } from '~shared/components/BottomArea';
 import { arraySplit } from '~shared/utils/common';
@@ -13,6 +12,7 @@ import { useTripRoutes } from "../trip-route/useTripRoutes";
 import { useTrip } from "../useTrip";
 import { TripPlaceAdditionButton } from './TripPlaceAdditionButton';
 import { TripPlaceItemButton } from './TripPlaceItemButton';
+import { TripPlaceMapFloatingControls } from './TripPlaceMapFloatingControls';
 import { useTripPlaces } from "./useTripPlaces";
 
 const MICRO_ZOOM_LEVEL = 8;
@@ -45,7 +45,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
     arraySplit(places, place => planedPlaceIds.has(place.id))
   ), [places, planedPlaceIds])
 
-  const [isCluastering, setIsCluastering] = useTripCluastering();
+  const [isCluastering] = useTripCluastering();
   const [sheetRatio, setSheetRatio] = useState(DEFAULT_BOTTOM_SHEET_RATIO);
 
   const [focusedId, setFocusedId] = useState<string | null>(null)
@@ -54,18 +54,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
   return (
     <>
       <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
-        <Stack gap={1} padding={1} position="absolute" top={0} right={0} zIndex={8}>
-          <ToggleButton
-            value="check"
-            selected={isCluastering}
-            onChange={() => setIsCluastering(!isCluastering)}
-            size="small"
-            color="primary"
-            sx={{ backgroundColor: 'rgba(255, 255, 255, 0.7) !important' }}
-          >
-            <WorkspacesIcon />
-          </ToggleButton>
-        </Stack>
+        <TripPlaceMapFloatingControls />
         {/* Map (전체) */}
         <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `calc(${sheetRatio * 100}% - 10px)` }}>
           <Map
