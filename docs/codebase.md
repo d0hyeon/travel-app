@@ -345,7 +345,8 @@ src/
 │           ├── useTripViewConfig.ts
 │           ├── usePlaceFormOverlay.tsx
 │           ├── PlaceSelectSheet.tsx
-│           └── RouteNoteList.tsx          # 날짜 토글 아래에 해양 지수 바를 함께 배치
+│           ├── RouteNoteList.tsx          # 날짜 토글 아래에 해양 지수 바를 함께 배치
+│           └── findNearestPlace.utils.ts  # 좌표 기준 최근접 장소 탐색 (순수 함수)
 │
 └── shared/                     # 공통 모듈
     ├── components/
