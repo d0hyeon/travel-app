@@ -455,6 +455,13 @@ src/
 - 원천 타입: `src/shared/model/coordinate.model.ts`
 - `shared/components/Map/types.ts`는 이를 re-export만 함
 
+### 현재 위치 조회 (`useCurrentCoordinate`)
+
+- `src/shared/hooks/env/useCurrentCoordinate.ts`
+- 위치 권한이 `denied`가 아니면(`granted`·`prompt` 모두) `navigator.geolocation`을 호출한다.
+  `prompt` 상태에서는 이 호출 자체가 브라우저 권한 팝업을 띄우는 트리거가 된다.
+- `denied`일 때만 호출을 건너뛴다.
+
 ---
 
 ## 기능별 탐색 가이드
