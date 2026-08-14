@@ -97,6 +97,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
   const viewConfig = useTripViewConfigValue();
   const [sheetRatio, setSheetRatio] = useState(DEFAULT_BOTTOM_SHEET_RATIO);
   const [focusedId, setFocusedId] = useState<string | null>(null)
+  const [hasFocusedNearestPlace, setHasFocusedNearestPlace] = useState(false)
 
   const today = formatDisplayDate(new Date());
   const isOngoingTrip = trip.startDate <= today && today <= trip.endDate
@@ -106,16 +107,21 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
 
   const mapRef = useRef<MapRef>(null);
 
-  // 최초 좌표 확보 시 1회만 지도 패닝 + 최근접 장소 포커스. 이후 좌표 갱신은 무시한다.
+  // 최초 좌표 확보 시 1회만 지도 패닝. 이후 좌표 갱신은 무시한다.
   useEffect(() => {
     if (!currentCoordinate || getIsInitialed()) return;
     mapRef.current?.panTo(currentCoordinate.lat, currentCoordinate.lng);
+    setIsInitialed(true);
+  }, [currentCoordinate])
+
+  // 최초 좌표 확보 시 1회만 최근접 장소 포커스. 렌더 중 상태 조정이라 항상 최신 selectedDate/currentRoute를 읽는다.
+  if (currentCoordinate && !hasFocusedNearestPlace) {
+    setHasFocusedNearestPlace(true);
     if (selectedDate === today) {
       const nearestPlace = findNearestPlace(currentCoordinate, currentRoute?.places ?? []);
       if (nearestPlace) setFocusedId(nearestPlace.id);
     }
-    setIsInitialed(true);
-  }, [currentCoordinate])
+  }
 
   const overlay = useOverlay()
 
