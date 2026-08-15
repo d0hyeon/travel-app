@@ -50,8 +50,8 @@ export function DateCalendarDay({ day, value, onDaySelect, outsideCurrentMonth, 
         borderTopLeftRadius: isStartDate || (isRange && isFirstColumn) ? '50%' : 0,
         borderBottomLeftRadius: isStartDate || (isRange && isFirstColumn) ? '50%' : 0,
         borderTopRightRadius:
-          isEndDate || (isRange && isLastColumn) || singable ? '50%' : 0,
-        borderBottomRightRadius: isEndDate || singable || (isRange && isLastColumn) ? '50%' : 0,
+          isEndDate || (isRange && isLastColumn) || (singable && endDate == null) ? '50%' : 0,
+        borderBottomRightRadius: isEndDate || (singable && endDate == null) || (isRange && isLastColumn) ? '50%' : 0,
       }}
       onClick={() => onDaySelect(day)}
       {...props}
