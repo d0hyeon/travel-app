@@ -129,20 +129,18 @@ export default function TripListPage() {
         )}
       </Container>
 
-      {isMobile && (
-        <Fab
-          color="primary"
-          onClick={() => navigate(AppRoute.여행_생성)}
-          aria-label="새 여행"
-          sx={{
-            position: 'fixed',
-            right: 16,
-            bottom: `calc(${BottomNavigation.HEIGHT + 24}px + env(safe-area-inset-bottom))`,
-          }}
-        >
-          <AddIcon />
-        </Fab>
-      )}
+      <Fab
+        color="primary"
+        onClick={() => navigate(AppRoute.여행_생성)}
+        aria-label="새 여행"
+        sx={{
+          position: 'fixed',
+          right: 16,
+          bottom: isMobile ? `calc(${BottomNavigation.HEIGHT + 24}px + env(safe-area-inset-bottom))` : 16,
+        }}
+      >
+        <AddIcon />
+      </Fab>
     </>
   )
 }
