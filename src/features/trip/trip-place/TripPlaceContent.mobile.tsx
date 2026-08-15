@@ -40,7 +40,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
     mapRef.current?.panTo(place.lat, place.lng)
   }
 
-  const planedPlaceIds = useMemo(() => new Set(routes.flatMap(route => route.id)), [routes])
+  const planedPlaceIds = useMemo(() => new Set(routes.flatMap(route => route.placeIds)), [routes])
   const [planedPlaces, candidatePlaces] = useMemo(() => (
     arraySplit(places, place => planedPlaceIds.has(place.id))
   ), [places, planedPlaceIds])
