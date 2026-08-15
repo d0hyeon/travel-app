@@ -209,14 +209,14 @@ export function RouteExpenseView({ tripId }: Props) {
                 lng={place.lng}
                 label={`${place.orderInRoute + 1}. ${place.name}`}
                 color={place.category ? PlaceCategoryColorCode[place.category as keyof typeof PlaceCategoryColorCode] : getRouteColor(dayIndex)}
-                opacity={activeDayIndex === dayIndex ? 1 : 0.5}
+                opacity={activeDayIndex === dayIndex ? 1 : 0.4}
                 onClick={() => handleAddExpense(place)}
               />
             ))
           )}
 
           {/* 모든 경로 */}
-          {routes.map((route, index) => {
+          {routes.map((route) => {
             const dayIndex = tripDates.indexOf(route.scheduledDate ?? '')
             const routePlaces = route.placeIds
               .map(id => places.find(p => p.id === id))
@@ -226,7 +226,7 @@ export function RouteExpenseView({ tripId }: Props) {
               <RoutePath
                 key={route.id}
                 waypoints={routePlaces}
-                color={getRouteColor(dayIndex >= 0 ? dayIndex : index)}
+                color={getRouteColor(dayIndex)}
                 isActive={activeDayIndex === dayIndex}
               />
             )
