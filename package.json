@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build:sw": "vite build --config vite.sw.config.ts",
-    "build": "yarn build:sw && react-router build",
+    "build": "pnpm build:sw && react-router build",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
