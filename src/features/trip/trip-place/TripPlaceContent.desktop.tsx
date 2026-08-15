@@ -44,7 +44,7 @@ export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
     mapRef.current?.panTo(place.lat, place.lng)
   }
 
-  const confirmedPlaceIds = useMemo(() => {
+  const plannedPlaceIds = useMemo(() => {
     const ids = new Set<string>()
     routes.forEach((route) => {
       route.placeIds.forEach((id) => ids.add(id))
@@ -52,8 +52,8 @@ export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
     return ids
   }, [routes])
 
-  const confirmedPlaces = places.filter((p) => confirmedPlaceIds.has(p.id))
-  const wishedPlaces = places.filter((p) => !confirmedPlaceIds.has(p.id))
+  const plannedPlaces = places.filter((p) => plannedPlaceIds.has(p.id))
+  const candidatePlaces = places.filter((p) => !plannedPlaceIds.has(p.id))
 
   const [cluastering] = useTripCluastering();
   const [focusedId, setFocusedId] = useState<string | null>(null)
@@ -68,15 +68,15 @@ export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
         <Stack height="100%" sx={{ scrollBehavior: 'smooth' }}>
           <Box flex="1 1 100%" paddingBottom={3}>
             <Typography variant="subtitle2" color="text.secondary" mb={1}>
-              확정된 장소 ({confirmedPlaces.length})
+              확정된 장소 ({plannedPlaces.length})
             </Typography>
-            {confirmedPlaces.length === 0 ? (
+            {plannedPlaces.length === 0 ? (
               <Typography variant="body2" color="text.secondary" mb={3}>
                 아직 확정된 장소가 없어요
               </Typography>
             ) : (
               <Stack spacing={1} mb={3}>
-                {confirmedPlaces.map((place) => (
+                {plannedPlaces.map((place) => (
                   <TripPlaceItemButton
                     key={place.id}
                     place={place}
@@ -89,15 +89,15 @@ export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
             )}
 
             <Typography variant="subtitle2" color="text.secondary" mb={1}>
-              희망 장소 ({wishedPlaces.length})
+              희망 장소 ({candidatePlaces.length})
             </Typography>
-            {wishedPlaces.length === 0 ? (
+            {candidatePlaces.length === 0 ? (
               <Typography variant="body2" color="text.secondary">
                 희망 장소를 추가해보세요
               </Typography>
             ) : (
               <Stack spacing={1}>
-                {wishedPlaces.map((place) => (
+                {candidatePlaces.map((place) => (
                   <TripPlaceItemButton
                     key={place.id}
                     place={place}

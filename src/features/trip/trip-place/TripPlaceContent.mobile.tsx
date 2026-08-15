@@ -40,10 +40,10 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
     mapRef.current?.panTo(place.lat, place.lng)
   }
 
-  const planedPlaceIds = useMemo(() => new Set(routes.flatMap(route => route.placeIds)), [routes])
-  const [planedPlaces, candidatePlaces] = useMemo(() => (
-    arraySplit(places, place => planedPlaceIds.has(place.id))
-  ), [places, planedPlaceIds])
+  const plannedPlaceIds = useMemo(() => new Set(routes.flatMap(route => route.placeIds)), [routes])
+  const [plannedPlaces, candidatePlaces] = useMemo(() => (
+    arraySplit(places, place => plannedPlaceIds.has(place.id))
+  ), [places, plannedPlaceIds])
 
   const [isCluastering] = useTripCluastering();
   const [sheetRatio, setSheetRatio] = useState(DEFAULT_BOTTOM_SHEET_RATIO);
@@ -75,7 +75,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
                     lng={place.lng}
                     color={place.category
                       ? PlaceCategoryColorCode[place.category]
-                      : planedPlaceIds.has(place.id) ? 'selected' : 'default'
+                      : plannedPlaceIds.has(place.id) ? 'selected' : 'default'
                     }
                     variant={zoom > MICRO_ZOOM_LEVEL ? 'circle' : 'pin'}
                     onClick={() => setFocusedId(place.id)}
@@ -109,11 +109,11 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
         >
           <BottomSheet.Body paddingBottom={5} sx={{ scrollBehavior: 'smooth' }}>
             <Typography variant="caption" color="text.secondary" fontWeight="medium" mb={0.5} display="block">
-              확정 ({planedPlaces.length}) / 후보 ({candidatePlaces.length})
+              확정 ({plannedPlaces.length}) / 후보 ({candidatePlaces.length})
             </Typography>
 
             <Stack spacing={0.75}>
-              {planedPlaces.map((place) => (
+              {plannedPlaces.map((place) => (
                 <TripPlaceItemButton
                   key={place.id}
                   place={place}
