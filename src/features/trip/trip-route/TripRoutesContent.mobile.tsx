@@ -39,6 +39,7 @@ import { useTripViewConfigValue } from './useTripViewConfig';
 import { TripWeatherIconButton } from '../trip-weather/TripWeatherIconButton';
 import { TripMarineActivityMapMarkers } from '../trip-marine-activity/TripMarineActivityMapMarkers';
 import SettingsIcon from '@mui/icons-material/Settings';
+import { assert } from '~shared/utils/types';
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = ['#1976d2', '#e53935', '#43a047', '#fb8c00', '#8e24aa', '#00acc1']
@@ -122,29 +123,12 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
   // 마커 클릭 메뉴: 지도 마커는 DOM 앵커를 주지 않으므로, 마지막 터치 좌표(getPosition)에 메뉴를 띄운다
   const { containerProps: pointerTracker, getPosition } = usePointerPosition<HTMLDivElement>();
   const [selectedPlace, setSelectedPlace] = useState<TripPlace | null>(null);
+  const getIsInRoute = (place: TripPlace) => {
+    assert(currentRoute != null, 'route가 설정되지 않았습니다.')
+    return currentRoute?.placeIds.includes(place.id)
+  };
 
-  const editPlace = async (place: TripPlace) => {
-    const updated = await getUpdatedPlace({ tripId, placeId: place.id, defaultValues: place });
-    if (updated) {
-      updatePlace({
-        ...updated,
-        id: place.id,
-        category: updated.category || undefined,
-        tags: updated.tags,
-      })
-    }
-  }
 
-  const toggleRoutePlace = (place: TripPlace) => {
-    if (!currentRoute) return
-    const isInRoute = currentRoute.placeIds.includes(place.id)
-    const placeIds = isInRoute
-      ? currentRoute.placeIds.filter((id) => id !== place.id)
-      : [...currentRoute.placeIds, place.id]
-    update({ routeId: currentRoute.id, placeIds })
-  }
-
-  const isMenuPlaceInRoute = selectedPlace ? (currentRoute?.placeIds.includes(selectedPlace.id) ?? false) : false
 
   return (
     <>
@@ -346,28 +330,38 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
           anchorReference="anchorPosition"
           anchorPosition={getPosition() ?? undefined}
         >
-          <MenuItem
-            onClick={() => {
-              if (selectedPlace) editPlace(selectedPlace)
-              setSelectedPlace(null)
-            }}
-          >
-            <ListItemIcon><EditIcon fontSize="small" /></ListItemIcon>
-            장소 수정
-          </MenuItem>
-          {currentRoute && (
+          {selectedPlace && (
             <MenuItem
-              onClick={() => {
-                if (selectedPlace) toggleRoutePlace(selectedPlace)
+              onClick={async () => {
                 setSelectedPlace(null)
+                const updated = await getUpdatedPlace({ tripId, placeId: selectedPlace.id, defaultValues: selectedPlace });
+                console.log(updated)
+                if (updated) await updatePlace({ ...selectedPlace, ...updated });
+
+              }}
+            >
+              <ListItemIcon><EditIcon fontSize="small" /></ListItemIcon>
+              장소 수정
+            </MenuItem>
+          )}
+          {selectedPlace && currentRoute && (
+            <MenuItem
+              onClick={async () => {
+                setSelectedPlace(null)
+                update({
+                  routeId: currentRoute.id,
+                  placeIds: getIsInRoute(selectedPlace)
+                    ? currentRoute.placeIds.filter((id) => id !== selectedPlace.id)
+                    : [...currentRoute.placeIds, selectedPlace.id]
+                })
               }}
             >
               <ListItemIcon>
-                {isMenuPlaceInRoute
+                {getIsInRoute(selectedPlace)
                   ? <RemoveCircleOutlineIcon fontSize="small" />
                   : <AddIcon fontSize="small" />}
               </ListItemIcon>
-              {isMenuPlaceInRoute ? '경로 제거' : '경로 추가'}
+              {getIsInRoute(selectedPlace) ? '경로 제거' : '경로 추가'}
             </MenuItem>
           )}
         </Menu>

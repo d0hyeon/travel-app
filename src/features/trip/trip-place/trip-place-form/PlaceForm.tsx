@@ -19,11 +19,14 @@ import { PlaceCategoryColorCode, PlaceCategoryTypeLabel, PlaceCategoryTypes, typ
 export interface PlaceFormValues {
   name: string;
   address: string;
-  category: PlaceCategoryType | ''
+  category?: PlaceCategoryType;
   memo: string
   tags: string[]
 }
 
+interface InnerValue extends Omit<PlaceFormValues, 'category'> {
+  category: PlaceCategoryType | 'none'
+}
 export interface PlaceFormProps extends Omit<BoxProps<'form'>, 'onSubmit'> {
   defaultValues?: Partial<PlaceFormValues>;
   onSubmit: (data: PlaceFormValues) => void
@@ -38,7 +41,7 @@ export function PlaceForm({
   actions = false,
   ...props
 }: PlaceFormProps) {
-  const { control, handleSubmit, setValue, watch } = useForm<PlaceFormValues>({
+  const { control, handleSubmit, setValue, watch } = useForm<InnerValue>({
     defaultValues: defaultValues,
   })
 
@@ -65,7 +68,10 @@ export function PlaceForm({
   }
 
   const handleFormSubmit = handleSubmit((data) => {
-    onSubmit(data)
+    onSubmit({
+      ...data,
+      category: data.category === 'none' ? undefined : data.category
+    })
   })
 
   return (
@@ -90,8 +96,8 @@ export function PlaceForm({
           render={({ field }) => (
             <FormControl fullWidth size="small">
               <InputLabel>카테고리</InputLabel>
-              <Select {...field} label="카테고리">
-                <MenuItem value="">
+              <Select label="카테고리" {...field}>
+                <MenuItem value="none">
                   <em>선택 안함</em>
                 </MenuItem>
                 {PlaceCategoryTypes.map((category) => (
