@@ -131,7 +131,7 @@ export async function updateRoute(id: string, data: Partial<Omit<Route, 'id' | '
   if (data.placeMemos !== undefined) updateData.place_memos = data.placeMemos
   if (data.isMain !== undefined) updateData.is_main = data.isMain
   if (data.scheduledDate !== undefined) updateData.scheduled_date = data.scheduledDate ?? null
-  if(data.hiddenPlaces !== null) updateData.hidden_places = data.hiddenPlaces ?? undefined
+  if (data.hiddenPlaces !== undefined) updateData.hidden_places = data.hiddenPlaces
 
   const { data: updated, error } = await supabase
     .from('routes')

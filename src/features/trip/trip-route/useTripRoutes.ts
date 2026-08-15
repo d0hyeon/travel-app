@@ -7,6 +7,7 @@ import { useMemo } from "react";
 import { addDays, differenceInDays } from "date-fns";
 import { formatDisplayDate } from "../../../shared/utils/formats";
 import { queryClient } from "~app/query-client";
+import { TRIP_PLAN_REFETCH } from "./tripPlanRefetch";
 
 export function useTripRoutes(id: string) {
   const queryClient = useQueryClient();
@@ -19,6 +20,7 @@ export function useTripRoutes(id: string) {
       assert(!!data, '데이터를 찾을수 없습니다.');
       return data;
     },
+    ...TRIP_PLAN_REFETCH,
   });
   
   const dates = useMemo(() => {
