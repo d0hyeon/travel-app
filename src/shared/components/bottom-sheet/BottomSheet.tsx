@@ -51,13 +51,10 @@ export function BottomSheet({
   const needsAutoSnapIndex = defaultSnapPoints !== undefined && defaultSnapIndex === undefined;
   const isAutoMode = needsAutoHeight || needsAutoSnapIndex;
 
-  // 모달 애니메이션 상태
-  const { isModalMode, isVisible, isAnimating } = useSheetStatus({ isOpen });
-
-  // 컨텐츠 높이 측정
+  const { isModalMode, isAnimating, isVisible } = useSheetStatus({ isOpen });
   const { contentHeight, isMeasuring } = useContentHeight({
     content,
-    enabled: isAutoMode && isVisible && !isAnimating,
+    enabled: isAutoMode && isVisible,
   });
 
   // 시트 드래그 (snap 계산 + 상태 + 드래그 핸들러 모두 포함)
@@ -75,9 +72,11 @@ export function BottomSheet({
     containerHeight,
     minHeight,
     isOpen,
-    onClose,
+    onClose: async () => {
+      await closeAnimation.play();
+      onClose?.()
+    },
   });
-
 
 
   // ref 노출
@@ -117,7 +116,6 @@ export function BottomSheet({
         <Fade in={isOpen}>
           <Box
             onClick={async () => {
-
               await closeAnimation.play();
               onClose?.();
             }}

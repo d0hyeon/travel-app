@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useVariation } from "~shared/hooks/extends/useVariation";
 
 // ============================================================
 // Constants
@@ -35,11 +36,15 @@ function calculateSnapPoints({
   containerHeight,
 }: CalculateSnapPointsInput): CalculateSnapPointsOutput {
   const needsAutoHeight = defaultSnapPoints === undefined;
-  const needsAutoSnapIndex = defaultSnapPoints !== undefined && defaultSnapIndex === undefined;
+  const needsAutoSnapIndex =
+    defaultSnapPoints !== undefined && defaultSnapIndex === undefined;
 
   // Case 1: snapPoints 미지정 → contentHeight 기반 단일 snap
   if (needsAutoHeight && contentHeight !== null) {
-    const contentRatio = Math.min(0.95, (contentHeight + DRAG_HANDLE_HEIGHT) / containerHeight);
+    const contentRatio = Math.min(
+      0.95,
+      (contentHeight + DRAG_HANDLE_HEIGHT) / containerHeight,
+    );
     return {
       snapPoints: [contentRatio],
       initialSnapIndex: 0,
@@ -83,7 +88,12 @@ interface SnapToHeightInput {
 /**
  * snap index → 픽셀 높이 변환
  */
-function snapToHeight({ snapIndex, snapPoints, containerHeight, minHeight }: SnapToHeightInput): number {
+function snapToHeight({
+  snapIndex,
+  snapPoints,
+  containerHeight,
+  minHeight,
+}: SnapToHeightInput): number {
   return Math.max(minHeight, containerHeight * snapPoints[snapIndex]);
 }
 
@@ -98,7 +108,12 @@ interface HeightToSnapInput {
  * 픽셀 높이 → 가장 가까운 snap index 변환
  * @returns snap index. allowClose가 true이고 충분히 아래로 드래그하면 -1 (닫기 신호)
  */
-function heightToSnap({ height, snapPoints, containerHeight, allowClose }: HeightToSnapInput): number {
+function heightToSnap({
+  height,
+  snapPoints,
+  containerHeight,
+  allowClose,
+}: HeightToSnapInput): number {
   const ratio = height / containerHeight;
 
   // 닫기 임계값 체크
@@ -166,8 +181,14 @@ export function useSheetDrag({
 
   // --- Snap 계산 ---
   const { snapPoints, initialSnapIndex } = useMemo(
-    () => calculateSnapPoints({ defaultSnapPoints, defaultSnapIndex, contentHeight, containerHeight }),
-    [defaultSnapPoints, defaultSnapIndex, contentHeight, containerHeight]
+    () =>
+      calculateSnapPoints({
+        defaultSnapPoints,
+        defaultSnapIndex,
+        contentHeight,
+        containerHeight,
+      }),
+    [defaultSnapPoints, defaultSnapIndex, contentHeight, containerHeight],
   );
 
   // --- Snap 상태 ---
@@ -189,24 +210,35 @@ export function useSheetDrag({
 
   // --- 높이 계산 ---
   const getHeightForSnap = useCallback(
-    (index: number) => snapToHeight({ snapIndex: index, snapPoints, containerHeight, minHeight }),
-    [snapPoints, containerHeight, minHeight]
+    (index: number) =>
+      snapToHeight({
+        snapIndex: index,
+        snapPoints,
+        containerHeight,
+        minHeight,
+      }),
+    [snapPoints, containerHeight, minHeight],
   );
 
+  const [getIsClosed, setIsClosed] = useVariation(false);
   const baseHeight = getHeightForSnap(snapIndex);
-  const currentHeight = isDragging
-    ? Math.max(0, Math.min(containerHeight, baseHeight + dragOffset))
-    : baseHeight;
+  const currentHeight =
+    isDragging || getIsClosed()
+      ? Math.max(0, Math.min(containerHeight, baseHeight + dragOffset))
+      : baseHeight;
 
   // --- Drag 핸들러 ---
-  const handleDragStart = useCallback((clientY: number) => {
-    dragState.current = {
-      isDragging: true,
-      startY: clientY,
-      startHeight: getHeightForSnap(snapIndex),
-    };
-    setIsDragging(true);
-  }, [snapIndex, getHeightForSnap]);
+  const handleDragStart = useCallback(
+    (clientY: number) => {
+      dragState.current = {
+        isDragging: true,
+        startY: clientY,
+        startHeight: getHeightForSnap(snapIndex),
+      };
+      setIsDragging(true);
+    },
+    [snapIndex, getHeightForSnap],
+  );
 
   const handleDragMove = useCallback((clientY: number) => {
     if (!dragState.current.isDragging) return;
@@ -216,10 +248,13 @@ export function useSheetDrag({
   const handleDragEnd = useCallback(() => {
     if (!dragState.current.isDragging) return;
 
-    const newHeight = Math.max(0, Math.min(
-      containerHeight * 0.95,
-      dragState.current.startHeight + dragOffset
-    ));
+    const newHeight = Math.max(
+      0,
+      Math.min(
+        containerHeight * 0.95,
+        dragState.current.startHeight + dragOffset,
+      ),
+    );
 
     const newSnapIndex = heightToSnap({
       height: newHeight,
@@ -230,14 +265,14 @@ export function useSheetDrag({
 
     dragState.current.isDragging = false;
     setIsDragging(false);
-    setDragOffset(0);
-
     if (newSnapIndex === -1) {
+      setIsClosed(true);
       onClose?.();
     } else {
       setSnapIndex(newSnapIndex);
+      setDragOffset(0);
     }
-  }, [dragOffset, snapPoints, containerHeight, isModalMode, onClose]);
+  }, [dragOffset, snapPoints, containerHeight, isModalMode]);
 
   // --- Document level 마우스 이벤트 ---
   useEffect(() => {
@@ -246,12 +281,12 @@ export function useSheetDrag({
     const onMouseMove = (e: MouseEvent) => handleDragMove(e.clientY);
     const onMouseUp = () => handleDragEnd();
 
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
 
     return () => {
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
     };
   }, [isDragging, handleDragMove, handleDragEnd]);
 
