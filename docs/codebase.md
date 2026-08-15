@@ -237,7 +237,7 @@ src/
 │       │   ├── TripLeaveButton.tsx
 │       │   └── TripLeavePopMenuItem.tsx
 │       ├── hooks/                          # 여행 공통 훅
-│       │   └── useTripClustering.ts
+│       │   └── useTripCluastering.ts
 │       │
 │       ├── trip-basic-info/               # 기본 정보 탭
 │       ├── trip-chat/                     # 채팅 기능
@@ -329,6 +329,7 @@ src/
 │       │   ├── TripPlaceContent.desktop.tsx
 │       │   ├── TripPlaceAdditionButton.tsx
 │       │   ├── TripPlaceItemButton.tsx
+│       │   ├── TripPlaceMapFloatingControls.tsx
 │       │   ├── PlacePhotoSection.tsx
 │       │   └── trip-place-form/           # 장소 추가/수정 폼 & 오버레이
 │       ├── trip-recommend/                # 추천 장소
