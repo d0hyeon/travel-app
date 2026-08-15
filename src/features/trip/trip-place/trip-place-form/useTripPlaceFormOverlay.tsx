@@ -137,7 +137,7 @@ function PlaceFormDialog({ tripId, placeId, isOpen, onClose }: PlaceFormOverlayP
   return (
     <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth>
       <Stack direction="row" alignItems="center" justifyContent="space-between" paddingRight={2}>
-        <DialogTitle>
+        <DialogTitle sx={{ flex: '1 1 auto' }}>
           <PlaceTitleButton name={place.name} onClick={() => placeDetail.open(place.placeId)} />
         </DialogTitle>
         <Button
