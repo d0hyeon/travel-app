@@ -6,6 +6,7 @@ import type {
   PlaceStatus,
   TripPlace,
 } from "./place.types";
+import { toTripPlacePatch, type TripPlacePatchInput } from "./place.utils";
 
 export const placeKey = "places";
 
@@ -214,13 +215,9 @@ export async function createTripPlace(params: {
 
 export async function updateTripPlace(
   id: string,
-  data: Partial<Pick<TripPlace, "status" | "memo" | "category" | "tags">>,
+  data: TripPlacePatchInput,
 ): Promise<TripPlace | undefined> {
-  const patch: Record<string, unknown> = {};
-  if (data.status !== undefined) patch.status = data.status;
-  if (data.memo !== undefined) patch.memo = data.memo || null;
-  if (data.tags !== undefined) patch.tags = data.tags;
-  patch.category = data.category || null;
+  const patch = toTripPlacePatch(data);
 
   const { data: row, error } = await supabase
     .from("trip_places")

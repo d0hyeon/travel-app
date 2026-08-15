@@ -19,7 +19,8 @@ import { PlaceCategoryColorCode, PlaceCategoryTypeLabel, PlaceCategoryTypes, typ
 export interface PlaceFormValues {
   name: string;
   address: string;
-  category?: PlaceCategoryType;
+  /** null은 미설정. 필드를 생략하면 서버가 기존 값을 유지한다 */
+  category: PlaceCategoryType | null;
   memo: string
   tags: string[]
 }
@@ -42,7 +43,10 @@ export function PlaceForm({
   ...props
 }: PlaceFormProps) {
   const { control, handleSubmit, setValue, watch } = useForm<InnerValue>({
-    defaultValues: defaultValues,
+    defaultValues: {
+      ...defaultValues,
+      category: defaultValues?.category ?? 'none',
+    },
   })
 
   const [tagInput, setTagInput] = useState('')
@@ -70,7 +74,7 @@ export function PlaceForm({
   const handleFormSubmit = handleSubmit((data) => {
     onSubmit({
       ...data,
-      category: data.category === 'none' ? undefined : data.category
+      category: data.category === 'none' ? null : data.category
     })
   })
 

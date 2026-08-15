@@ -10,11 +10,13 @@ import {
 import type { PlaceCategoryType, PlaceStatus, TripPlace } from "../../place/place.types";
 import { tripKey } from "../trip.api";
 import { queryClient } from "~app/query-client";
+import { TRIP_PLAN_REFETCH } from "../trip-route/tripPlanRefetch";
 
 export function useTripPlaces(tripId: string) {
   const { data, refetch, ...queries } = useSuspenseQuery({
     queryKey: useTripPlaces.key(tripId),
     queryFn: () => getTripPlacesByTripId(tripId),
+    ...TRIP_PLAN_REFETCH,
   })
 
   const create = useAddTripPlace(tripId, {
@@ -33,7 +35,8 @@ export function useTripPlaces(tripId: string) {
       id?: string
       /** @deprecated trip place 식별자는 id를 사용. 구 호출부 호환용 */
       placeId?: string
-      category?: PlaceCategoryType
+      /** null은 미설정. 생략하면 기존 값을 유지한다 */
+      category?: PlaceCategoryType | null
       memo?: string
       tags?: string[]
       status?: PlaceStatus

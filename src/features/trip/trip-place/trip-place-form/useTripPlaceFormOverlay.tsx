@@ -108,7 +108,6 @@ export function PlaceFormSheet({ placeId, tripId, isOpen, onClose }: PlaceFormOv
             update({
               ...data,
               id: place.id,
-              category: data.category || undefined,
             })
             onClose()
           }}
@@ -175,9 +174,6 @@ function PlaceFormDialog({ tripId, placeId, isOpen, onClose }: PlaceFormOverlayP
             await update({
               ...data,
               id: place.id,
-              category: data.category || undefined,
-              memo: data.memo,
-              tags: data.tags,
             })
             onClose()
           }}
