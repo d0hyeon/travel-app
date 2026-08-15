@@ -24,7 +24,7 @@ export default function KakaoMapPath({ coordinates, strokeColor, strokeWeight, s
     }
     polyline.setMap(map);
     return () => polyline.setMap(null);
-  }, [serializeCoordinates(coordinates), config.autoFocus, extendBound]);
+  }, [serializeCoordinates(coordinates), strokeWeight, strokeColor, strokeOpacity, strokeStyle, config.autoFocus, extendBound]);
 
   return null;
 }
