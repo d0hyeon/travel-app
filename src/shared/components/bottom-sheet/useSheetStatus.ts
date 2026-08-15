@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 interface UseSheetStatusOptions {
   isOpen: boolean | undefined;
@@ -19,8 +19,7 @@ export function useSheetStatus({ isOpen }: UseSheetStatusOptions) {
 
     if (isOpen) {
       setIsVisible(true);
-      // 브라우저가 렌더링할 틈을 주기 위해 최소 지연
-      const timer = setTimeout(() => setIsAnimating(true), 10);
+      const timer = setTimeout(() => setIsAnimating(true), 60);
       return () => clearTimeout(timer);
     } else {
       setIsAnimating(false);
