@@ -463,6 +463,26 @@ src/
   `prompt` 상태에서는 이 호출 자체가 브라우저 권한 팝업을 띄우는 트리거가 된다.
 - `denied`일 때만 호출을 건너뛴다.
 
+### 계획 탭 동시 편집
+
+`routes.place_ids` / `place_memos` / `hidden_places`는 blob 컬럼이며, 클라이언트가 배열 전체를 만들어 `updateRoute`로 덮어쓴다. 여러 명이 동시에 편집하면 유실이 발생할 수 있다.
+
+- 현재 대응: 갱신 주기 단축 (`trip-route/tripPlanRefetch.ts`의 `TRIP_PLAN_REFETCH`를 `useTripRoutes`·`useTripPlaces`가 공유)
+- 단계별 전략: `docs/strategies/plan-tab-concurrency.md`
+
+계획 탭 쓰기 경로를 수정할 때는 위 문서를 먼저 읽는다.
+
+### 부분 업데이트 patch — undefined와 null의 구분
+
+`updateTripPlace`처럼 일부 필드만 수정하는 API는 두 의도를 구분해야 한다.
+
+- `undefined` — 이 필드를 수정하지 않음 (patch에 키를 만들지 않는다)
+- `null` — 값을 비움 (미설정으로 지정)
+
+키를 무조건 만들면 다른 사람이 방금 설정한 값을 덮어쓴다. patch 생성은 순수 함수로 분리해 검증한다 (`place.utils.ts`의 `toTripPlacePatch`).
+
+폼 내부 표현(`'none'`)은 경계에서 `null`로 변환한다. 옵셔널(`category?:`)로 두면 "안 보냄"과 "미설정"이 같은 값이 되어 구분이 불가능해진다.
+
 ### 날짜 전용 문자열(`YYYY-MM-DD`) 파싱
 
 - `new Date('YYYY-MM-DD')`는 UTC 자정으로 해석된다. UTC보다 느린(음수 오프셋) 타임존에서는 로컬 날짜가 하루 당겨져, 자정 기준 계산(당일 여부, 진행률 등)이 틀어진다.
@@ -490,6 +510,7 @@ src/
 | 정산 현황 UI         | `features/trip/trip-expense/desktop/SettlementSummary.desktop.tsx`, `mobile/SettlementSummary.tsx` |
 | 멤버 관리            | `features/trip/trip-member/`                                      |
 | 일정/경로            | `features/trip/trip-route/`, `features/route/`                    |
+| 계획 탭 동시 편집     | `features/trip/trip-route/tripPlanRefetch.ts`, `docs/strategies/plan-tab-concurrency.md` |
 | 해양 활동 지수       | `features/marine-activity/`, `features/trip/trip-marine-activity/` |
 | 커뮤니티 경로        | `features/trip/trip-community-routes/`                            |
 | 메모 목록/상세/편집  | `features/trip/trip-memo/`                                        |
