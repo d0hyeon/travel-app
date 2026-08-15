@@ -28,17 +28,18 @@ export default function TripListPage() {
   useScrollRestore()
 
   const openCreationPopup = () => {
-    overlay.open(({ isOpen, close }) => (
+    overlay.open(({ isOpen, close, onClose }) => (
       <TripFormDialog
         open={isOpen}
-        onClose={close}
+        onClose={onClose}
         onSubmit={async (data) => {
           const trip = await create({
             ...data,
             exchangeRate: null,
             exchangeRates: null,
           })
-          navigate(`/trip/${trip.id}`)
+          await navigate(`/trip/${trip.id}`)
+          close();
         }}
       />
     ))
