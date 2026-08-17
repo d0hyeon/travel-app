@@ -1,6 +1,6 @@
 import MyLocationIcon from '@mui/icons-material/MyLocation'
 import { Box, IconButton, Stack, styled, Typography } from '@mui/material'
-import { Suspense, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { ListItem } from '~shared/components/ListItem'
 import { useVariation } from '~shared/hooks/extends/useVariation'
 import { SortableItem } from '../../../shared/components/dnd/SortableItem'
@@ -264,16 +264,14 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
               />
             )
           })}
-          <Suspense>
-            {routes.map((route, index) => (
-              <RoutePath
-                key={route.id}
-                waypoints={route.places.filter(x => !route.hiddenPlaces.includes(x.id))}
-                color={getRouteColor(index)}
-                isSelected={route.id === currentRoute?.id}
-              />
-            ))}
-          </Suspense>
+          {routes.map((route, index) => (
+            <RoutePath
+              key={route.id}
+              waypoints={route.places.filter(x => !route.hiddenPlaces.includes(x.id))}
+              color={getRouteColor(index)}
+              isSelected={route.id === currentRoute?.id}
+            />
+          ))}
         </Map>
       </Box>
     </Box>

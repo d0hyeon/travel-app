@@ -6,7 +6,7 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import VisibilityOnIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { Box, Button, IconButton, ListItemIcon, Menu, MenuItem, Stack, Tab, Tabs, Typography } from "@mui/material";
-import { Fragment, Suspense, useMemo, useRef, useState } from "react";
+import { Fragment, useMemo, useRef, useState } from "react";
 import { Dot } from 'recharts';
 import { BottomArea } from '~shared/components/BottomArea';
 import { ListItem } from '~shared/components/ListItem';
@@ -189,14 +189,12 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
             })}
 
             {routes.map((route, index) => (
-              <Suspense key={route.id}>
-                <RoutePath
-                  key={route.id}
-                  waypoints={route.places.filter(x => !route.hiddenPlaces.includes(x.id))}
-                  color={getRouteColor(index)}
-                  isSelected={route.id === currentRoute?.id}
-                />
-              </Suspense>
+              <RoutePath
+                key={route.id}
+                waypoints={route.places.filter(x => !route.hiddenPlaces.includes(x.id))}
+                color={getRouteColor(index)}
+                isSelected={route.id === currentRoute?.id}
+              />
             ))}
           </Map>
         </Box>
