@@ -19,7 +19,7 @@ export function TripPlaceMapFloatingControls() {
         <DialogTitle>지도 설정</DialogTitle>
         <DialogContent>
           <Typography variant={isMobile ? "caption" : "body2"} marginBottom={1} color="textSecondary" display="block">마커</Typography>
-          <Row label="접어 보기" description="거리가 가까운 마커끼리 합쳐져 노출돼요">
+          <Row label="접어 보기" description="거리가 가까운 마커끼리 합쳐서 보여져요">
             <Switch
               defaultChecked={isClusteringView}
               onChange={(_, checked) => setCluastering(checked)}
