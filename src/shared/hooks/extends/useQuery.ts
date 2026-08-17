@@ -53,6 +53,14 @@ export function useQuery<
 >(
   options: SuspenseQueryOptions<Data, Error, QueryKey> & {
     enabled?: true;
+    // 항상 활성이라 데이터가 비는 구간이 없다. placeholderData 는 형태를 가리지 않고
+    // 반환 타입에 영향을 주지 않는다(keepPreviousData 같은 함수 형태 포함).
+    placeholderData?: UseQueryOptions<
+      Data,
+      Error,
+      Data,
+      QueryKey
+    >["placeholderData"];
   },
 ): UseSuspenseQueryResult<Data, Error>;
 
