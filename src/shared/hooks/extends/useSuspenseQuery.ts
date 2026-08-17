@@ -26,7 +26,8 @@ export type UseSuspenseQueryOptions<
   enabled?: boolean;
   // enabled: false 일 때 queryFn 이 돌려줄 대체 값. suspense 쿼리에는 원래 없는 옵션이라
   // 이 래퍼가 자체적으로 정의한다.
-  placeholderData?: Data;
+  // queryFn 의 반환값 자리에 들어가므로 select 이후 타입(Data)이 아닌 QueryData 다.
+  placeholderData?: QueryData;
 };
 
 export function useSuspenseQuery<
