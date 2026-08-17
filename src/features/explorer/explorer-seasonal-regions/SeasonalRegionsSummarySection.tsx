@@ -1,4 +1,5 @@
-import { Box, ButtonBase, Skeleton, Stack, Typography } from '@mui/material'
+import HelpIcon from '@mui/icons-material/Help'
+import { Box, ButtonBase, Skeleton, Stack, Tooltip, Typography } from '@mui/material'
 import { useMemo } from 'react'
 import { SeasonLabel } from '~features/tourism-trend/season'
 import { useRegionTourismTrends } from '~features/tourism-trend/useRegionTourismTrends'
@@ -29,9 +30,14 @@ export function SeasonalRegionsSummarySection() {
         <Typography variant="subtitle1">
           이번 {SeasonLabel[season]} 국내 인기 여행지
         </Typography>
-        <Typography variant="caption" color="text.secondary" flexShrink={0}>
-          {referenceYear}년 {SeasonLabel[season]} 기준
-        </Typography>
+        <Stack direction="row" gap={0.5} alignItems="center">
+          <Typography variant="caption" color="text.secondary" flexShrink={0}>
+            {referenceYear}년 {SeasonLabel[season]} 기준
+          </Typography>
+          <Tooltip title="출처: 공공 데이터 포털">
+            <HelpIcon fontSize="small" />
+          </Tooltip>
+        </Stack>
       </Stack>
 
       {topTrends.length === 0 ? (
