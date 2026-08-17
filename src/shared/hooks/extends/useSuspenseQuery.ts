@@ -7,6 +7,9 @@ import {
   type UseBaseQueryOptions,
 } from "@tanstack/react-query";
 
+// 비활성 상태의 캐시를 실제 데이터와 분리하기 위한 키 접두사
+const DISABLED_QUERY_KEY = ["DISABLED"] as const;
+
 export type BaseQueryOptions<
   QueryData = unknown,
   QueryError = Error,
@@ -21,6 +24,8 @@ export type UseSuspenseQueryOptions<
   Key extends QueryKey = QueryKey,
 > = _UseSuspenseQueryOptions<QueryData, QueryError, Data, Key> & {
   enabled?: boolean;
+  // enabled: false 일 때 queryFn 이 돌려줄 대체 값. suspense 쿼리에는 원래 없는 옵션이라
+  // 이 래퍼가 자체적으로 정의한다.
   placeholderData?: Data;
 };
 
@@ -90,8 +95,14 @@ export function useSuspenseQuery<
   placeholderData,
   ...options
 }: UseSuspenseQueryOptions<QueryFnData, QueryError, Data, Key>) {
+  // 비활성 상태는 실제 데이터가 아닌 placeholder 를 캐시에 쓴다.
+  // 같은 키를 공유하면 enabled 가 꺼질 때 받아둔 데이터를 placeholder 가 덮어쓰므로 키를 분리한다.
+  const resolvedQueryKey = enabled
+    ? queryKey
+    : ([...DISABLED_QUERY_KEY, ...queryKey] as unknown as Key);
+
   const result = _useSuspenseQuery<QueryFnData, QueryError, Data, Key>({
-    queryKey: ["disabled", ...queryKey] as unknown as Key,
+    queryKey: resolvedQueryKey,
     queryFn: enabled
       ? queryFn
       : () =>
@@ -114,5 +125,3 @@ export function useSuspenseQuery<
     fetchStatus: "idle",
   } as UseSuspenseQueryResult<Data | undefined, QueryError>;
 }
-
-const DISABLED_QUERY_KEY: QueryKey = ["DISABLED"];
