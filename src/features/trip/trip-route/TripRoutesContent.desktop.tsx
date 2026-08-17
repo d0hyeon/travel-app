@@ -1,13 +1,12 @@
 import MyLocationIcon from '@mui/icons-material/MyLocation'
 import { Box, IconButton, Stack, styled, Typography } from '@mui/material'
-import { useMemo, useRef, useState } from 'react'
+import { startTransition, useMemo, useOptimistic, useRef, useState } from 'react'
 import { ListItem } from '~shared/components/ListItem'
 import { useVariation } from '~shared/hooks/extends/useVariation'
 import { SortableItem } from '../../../shared/components/dnd/SortableItem'
 import { SortableList } from '../../../shared/components/dnd/SortableList'
 import { Map, type MapRef } from '../../../shared/components/Map'
 import { useCurrentCoordinate } from '../../../shared/hooks/env/useCurrentCoordinate'
-import { useQueryParamState } from '../../../shared/hooks/urls/useQueryParamState'
 import { formatDisplayDate, formatShortDate } from '../../../shared/utils/formats'
 import { PlaceCategoryColorCode } from '../../place/place.types'
 import { useTripPlaceFormOverlay } from '../trip-place/trip-place-form/useTripPlaceFormOverlay'
@@ -25,14 +24,14 @@ import { useRouteLegs } from './useRouteLegs'
 
 import VisibilityOnIcon from '@mui/icons-material/Visibility'
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
-import { TripRouteMapFloatingControls } from './components/TripRouteMapFloatingControls'
-import { NoteEditor } from './RouteNoteList'
-import { useTripViewConfigValue } from './useTripViewConfig'
-import { useActiveTripDay } from './useActiveTripDay'
-import { FloatingControl } from './components/FloatingControl'
-import { TripWeatherIconButton } from '../trip-weather/TripWeatherIconButton'
 import { theme } from '~shared/config/theme'
 import { TripMarineActivityMapMarkers } from '../trip-marine-activity/TripMarineActivityMapMarkers'
+import { TripWeatherIconButton } from '../trip-weather/TripWeatherIconButton'
+import { FloatingControl } from './components/FloatingControl'
+import { TripRouteMapFloatingControls } from './components/TripRouteMapFloatingControls'
+import { NoteEditor } from './RouteNoteList'
+import { useActiveTripDay } from './useActiveTripDay'
+import { useTripViewConfigValue } from './useTripViewConfig'
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = ['#1976d2', '#e53935', '#43a047', '#fb8c00', '#8e24aa', '#00acc1']
@@ -94,6 +93,8 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
     }
   });
 
+  const [currentPlaces, setOptimisticCurrentPlaces] = useOptimistic(currentRoute.places)
+
   return (
     <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
       {/* Left: List */}
@@ -133,16 +134,21 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
             ) : (
               <Stack spacing={1}>
                 <SortableList
-                  items={currentRoute.places}
-                  onSort={(changed) => update({ routeId: currentRoute.id, placeIds: changed.items.map(x => x.id) })}
+                  items={currentPlaces}
+                  onSort={(changed) => {
+                    startTransition(async () => {
+                      setOptimisticCurrentPlaces(changed.items)
+                      await update({ routeId: currentRoute.id, placeIds: changed.items.map(x => x.id) })
+                    })
+                  }}
                 >
-                  {currentRoute.places.map((place, idx) => {
+                  {currentPlaces.map((place, idx) => {
                     const inboundLeg = legByArrivalPlaceId.get(place.id)
                     const isHidden = currentRoute.hiddenPlaces.includes(place.id);
 
                     return (
                       <Stack key={place.id} gap={1}>
-                        {inboundLeg && inboundLeg.duration > 0 && (
+                        {idx !== 0 && inboundLeg && inboundLeg.duration > 0 && (
                           <RouteLegItem leg={inboundLeg} paddingY={1} />
                         )}
                         <SortableList.Item id={place.id}>

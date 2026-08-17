@@ -16,7 +16,10 @@ type Props<T extends { id: UniqueIdentifier }> = {
 export function SortableList<T extends { id: UniqueIdentifier }>({ items: _items, strategy, onSort, disabled, renderItem, children, ...props }: Props<T>) {
   const [items, setItems] = useState(_items);
 
-  useEffect(() => setItems(_items), [_items])
+
+  useEffect(() => {
+    setItems(_items)
+  }, [_items])
 
   const pointerSencor = useSensor(PointerSensor);
   const touchSensor = useSensor(TouchSensor);
@@ -31,12 +34,12 @@ export function SortableList<T extends { id: UniqueIdentifier }>({ items: _items
         const { active, over } = event;
         if (hasSortableIndex(active) && hasSortableIndex(over)) {
           const swaped = swap(items, active.data.current.sortable.index, over.data.current.sortable.index);
+          setItems(swaped);
           onSort?.({
             from: active.data.current.sortable.index,
             to: over.data.current.sortable.index,
             items: swaped
           });
-          setItems(swaped);
         }
         props.onDragEnd?.(event);
       }}

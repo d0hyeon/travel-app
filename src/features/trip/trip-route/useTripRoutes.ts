@@ -1,6 +1,16 @@
-import { useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getRoutesByTripId, routeKey, createRoute, updateRoute, deleteRoute } from "../../route/route.api";
-import { assert } from '~shared/utils/types';
+import {
+  useSuspenseQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+import {
+  getRoutesByTripId,
+  routeKey,
+  createRoute,
+  updateRoute,
+  deleteRoute,
+} from "../../route/route.api";
+import { assert } from "~shared/utils/types";
 import { useTrip } from "../useTrip";
 import { mergeQueriesStatus } from "../../../shared/utils/merges";
 import { useMemo } from "react";
@@ -17,27 +27,32 @@ export function useTripRoutes(id: string) {
     queryKey: useTripRoutes.key(id),
     queryFn: async () => {
       const data = await getRoutesByTripId(id);
-      assert(!!data, '데이터를 찾을수 없습니다.');
+      assert(!!data, "데이터를 찾을수 없습니다.");
       return data;
     },
     ...TRIP_PLAN_REFETCH,
   });
-  
+
   const dates = useMemo(() => {
     const diffDays = differenceInDays(trip.endDate, trip.startDate);
-    return Array.from({ length: diffDays + 1 }).map((_, day) => (
-      formatDisplayDate(new Date(addDays(trip.startDate, day)))
-    ))
+    return Array.from({ length: diffDays + 1 }).map((_, day) =>
+      formatDisplayDate(new Date(addDays(trip.startDate, day))),
+    );
   }, [trip.startDate, trip.endDate]);
 
   const { mutateAsync: create } = useMutation({
-    mutationFn: (params: OmitPartial<Parameters<typeof createRoute>[0], 'name' | 'tripId' | 'scheduledDate'>) => {
+    mutationFn: (
+      params: OmitPartial<
+        Parameters<typeof createRoute>[0],
+        "name" | "tripId" | "scheduledDate"
+      >,
+    ) => {
       return createRoute({
         placeIds: [],
         isMain: false,
         placeMemos: {},
         ...params,
-      })
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: useTripRoutes.key(id) });
@@ -45,27 +60,30 @@ export function useTripRoutes(id: string) {
   });
 
   const { mutateAsync: toggleVisible } = useMutation({
-    mutationFn: (params: { routeId: string, placeId: string }) => {
-      const route = routes.find(x => x.id === params.routeId);
-      assert(!!route, '존재하지 않는 경로입니다.');
+    mutationFn: (params: { routeId: string; placeId: string }) => {
+      const route = routes.find((x) => x.id === params.routeId);
+      assert(!!route, "존재하지 않는 경로입니다.");
 
       return updateRoute(params.routeId, {
         hiddenPlaces: route.hiddenPlaces.includes(params.placeId)
-          ? route.hiddenPlaces.filter(x => x !== params.placeId)
-          : [...route.hiddenPlaces, params.placeId]
+          ? route.hiddenPlaces.filter((x) => x !== params.placeId)
+          : [...route.hiddenPlaces, params.placeId],
       });
     },
     onSuccess: () => {
       routeQueries.refetch();
-    }
-  })
+    },
+  });
 
   const { mutateAsync: update } = useMutation({
-    mutationFn: ({ routeId, ...payload }: { routeId: string; } & Parameters<typeof updateRoute>[1]) => {
+    mutationFn: ({
+      routeId,
+      ...payload
+    }: { routeId: string } & Parameters<typeof updateRoute>[1]) => {
       return updateRoute(routeId, payload);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: useTripRoutes.key(id) });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: useTripRoutes.key(id) });
     },
   });
 
@@ -82,8 +100,8 @@ export function useTripRoutes(id: string) {
     update,
     remove,
     toggleVisible,
-    ...mergeQueriesStatus(tripQueries, routeQueries)
-  }
+    ...mergeQueriesStatus(tripQueries, routeQueries),
+  };
 }
 
 useTripRoutes.key = (id: string) => [routeKey, id];
@@ -91,8 +109,8 @@ useTripRoutes.key = (id: string) => [routeKey, id];
 useTripRoutes.prefetch = (id: string) => {
   queryClient.prefetchQuery({
     queryKey: useTripRoutes.key(id),
-    queryFn: () => getRoutesByTripId(id)
-  })
-}
+    queryFn: () => getRoutesByTripId(id),
+  });
+};
 
 type OmitPartial<T, Key extends keyof T> = Partial<Omit<T, Key>> & Pick<T, Key>;

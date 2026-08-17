@@ -6,12 +6,13 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import VisibilityOnIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { Box, Button, IconButton, ListItemIcon, Menu, MenuItem, Stack, Tab, Tabs, Typography } from "@mui/material";
-import { Fragment, useMemo, useRef, useState } from "react";
+import { Fragment, startTransition, useMemo, useOptimistic, useRef, useState } from "react";
 import { Dot } from 'recharts';
 import { BottomArea } from '~shared/components/BottomArea';
 import { ListItem } from '~shared/components/ListItem';
 import { useVariation } from '~shared/hooks/extends/useVariation';
 import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState';
+import { assert } from '~shared/utils/types';
 import { BottomSheet } from "../../../shared/components/bottom-sheet/BottomSheet";
 import { SortableItem } from "../../../shared/components/dnd/SortableItem";
 import { SortableList } from "../../../shared/components/dnd/SortableList";
@@ -21,25 +22,23 @@ import { usePointerPosition } from "../../../shared/hooks/interaction/usePointer
 import { useOverlay } from "../../../shared/hooks/useOverlay";
 import { formatDisplayDate, formatShortDate } from "../../../shared/utils/formats";
 import { PlaceCategoryColorCode, type TripPlace } from "../../place/place.types";
+import { TripMarineActivityMapMarkers } from '../trip-marine-activity/TripMarineActivityMapMarkers';
 import { useTripPlaces } from "../trip-place/useTripPlaces";
+import { TripWeatherIconButton } from '../trip-weather/TripWeatherIconButton';
 import { useTrip } from '../useTrip';
 import { FloatingControl } from "./components/FloatingControl";
 import { RoutePath } from "./components/RoutePath";
 import { TripRouteMapFloatingControls } from './components/TripRouteMapFloatingControls';
 import { TripRoutePlaceListItem } from "./components/TripRoutePlaceListItem";
 import { TripRouteSelector } from "./components/TripRouteSelector";
+import { findNearestPlace } from './findNearestPlace.utils';
 import { PlaceSelectSheet } from "./PlaceSelectSheet";
 import { NoteEditor } from './RouteNoteList';
 import { RouteLegItem } from './RouteTimeline';
-import { findNearestPlace } from './findNearestPlace.utils';
 import { useDayTripRoutes } from './useDayTripRoutes';
 import { usePlaceFormOverlay } from './usePlaceFormOverlay';
 import { useRouteLegs } from './useRouteLegs';
 import { useTripViewConfigValue } from './useTripViewConfig';
-import { TripWeatherIconButton } from '../trip-weather/TripWeatherIconButton';
-import { TripMarineActivityMapMarkers } from '../trip-marine-activity/TripMarineActivityMapMarkers';
-import SettingsIcon from '@mui/icons-material/Settings';
-import { assert } from '~shared/utils/types';
 
 // 경로별 색상 팔레트
 const ROUTE_COLORS = ['#1976d2', '#e53935', '#43a047', '#fb8c00', '#8e24aa', '#00acc1']
@@ -58,7 +57,7 @@ const DEFAULT_BOTTOM_SHEET_RATIO = 0.5 satisfies typeof BOTTOM_SHEET_RATIOS[numb
 export default function TripRoutesContent({ tripId }: RouteContentProps) {
 
   const { data: trip } = useTrip(tripId);
-  const { data: places, update: updatePlace } = useTripPlaces(tripId)
+  const { data: allPlaces, update: updatePlace } = useTripPlaces(tripId)
 
   const [selectedDate, setSelectedDate] = useQueryParamState<string>('days', {
     defaultValue: () => {
@@ -128,7 +127,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
     return currentRoute?.placeIds.includes(place.id)
   };
 
-
+  const [currentPlaces, setOptimisticCurrentPlaces] = useOptimistic(currentRoute.places);
 
   return (
     <>
@@ -166,7 +165,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
             {isOngoingTrip && currentCoordinate && (
               <Map.Marker variant="circle" {...currentCoordinate} />
             )}
-            {places.map((place) => {
+            {allPlaces.map((place) => {
               const isInCurrentRoute = currentRoute?.placeIds.includes(place.id) ?? false;
               const orderInRoute = currentRoute?.placeIds.indexOf(place.id) ?? -1;
 
@@ -256,9 +255,12 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
               ) : (
                 <Stack spacing={0.5}>
                   <SortableList
-                    items={currentRoute.places}
+                    items={currentPlaces}
                     onSort={(changed) => {
-                      update({ routeId: currentRoute.id, placeIds: changed.items.map(x => x.id) })
+                      startTransition(async () => {
+                        setOptimisticCurrentPlaces(changed.items);
+                        await update({ routeId: currentRoute.id, placeIds: changed.items.map(x => x.id) })
+                      })
                     }}
                   >
                     {currentRoute.places.map((place, idx) => {
@@ -333,7 +335,6 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
               onClick={async () => {
                 setSelectedPlace(null)
                 const updated = await getUpdatedPlace({ tripId, placeId: selectedPlace.id, defaultValues: selectedPlace });
-                console.log(updated)
                 if (updated) await updatePlace({ ...selectedPlace, ...updated });
 
               }}
