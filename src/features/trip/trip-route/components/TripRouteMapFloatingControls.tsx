@@ -10,28 +10,41 @@ import { FloatingControl } from "./FloatingControl";
 export function TripRouteMapFloatingControls() {
   const [viewConfig, setViewConfig] = useTripViewConfig();
   const overlay = useOverlay();
-  const isMobile = useIsMobile()
+  const isMobile = useIsMobile();
+
 
   const openSettingDialog = () => {
     overlay.open(({ isOpen, close, onClose }) => (
       <Dialog open={isOpen} onClose={onClose} maxWidth="sm">
         <DialogTitle>지도 설정</DialogTitle>
         <DialogContent>
-          <Typography variant={isMobile ? "caption" : "body2"} marginBottom={1} color="textSecondary" display="block">마커</Typography>
-          <Row label="접어 보기" description="거리가 가까운 마커끼리 합쳐져 노출돼요">
-            <Switch
-              defaultChecked={viewConfig.isCluasterlingView}
-              onChange={(_, checked) => setViewConfig({ isCluasterlingView: checked })}
-              sx={{ marginRight: -1 }}
-            />
-          </Row>
-          <Row label="계획된 장소만 보기">
-            <Switch
-              defaultChecked={!viewConfig.isVisibleAllMarkers}
-              onChange={(_, checked) => setViewConfig({ isVisibleAllMarkers: !checked })}
-              sx={{ marginRight: -1 }}
-            />
-          </Row>
+          <Box>
+            <Typography variant={isMobile ? "caption" : "body2"} marginBottom={1} color="textSecondary" display="block">마커</Typography>
+            <Row label="접어 보기" description="거리가 가까운 마커끼리 합쳐서 보여져요">
+              <Switch
+                defaultChecked={viewConfig.isCluasterlingView}
+                onChange={(_, checked) => setViewConfig({ isCluasterlingView: checked })}
+                sx={{ marginRight: -1 }}
+              />
+            </Row>
+            <Row label="계획된 장소만 보기">
+              <Switch
+                defaultChecked={!viewConfig.isVisibleAllMarkers}
+                onChange={(_, checked) => setViewConfig({ isVisibleAllMarkers: !checked })}
+                sx={{ marginRight: -1 }}
+              />
+            </Row>
+          </Box>
+          <Box marginTop={2}>
+            <Typography variant={isMobile ? "caption" : "body2"} color="textSecondary" display="block">경로</Typography>
+            <Row label="이동 시간 보기">
+              <Switch
+                defaultChecked={viewConfig.isVisibleRouteLegs}
+                onChange={(_, checked) => setViewConfig({ isVisibleRouteLegs: checked })}
+                sx={{ marginRight: -1 }}
+              />
+            </Row>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button variant="contained" onClick={close}>확인</Button>
