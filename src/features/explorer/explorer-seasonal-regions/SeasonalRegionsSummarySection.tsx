@@ -7,6 +7,7 @@ import { Scrollable } from '~shared/components/Scrollable'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 import { RegionTrendCard } from './RegionTrendCard'
+import { toast } from 'sonner'
 
 const SECTION_LIMIT = 20
 
@@ -62,7 +63,10 @@ export function SeasonalRegionsSummarySection() {
           {topTrends.map((trend, index) => (
             <ButtonBase
               key={trend.location}
-              onClick={() => setLocation(trend.location)}
+              onClick={() => {
+                setLocation(trend.location)
+                toast.success('지역 필터가 적용되었어요')
+              }}
               sx={{
                 width: isMobile ? 150 : 200,
                 flexShrink: 0,
