@@ -23,6 +23,7 @@ export function TripDateToggleGroup({ tripId, value, onChange, ...props }: TripD
           onClick={() => onChange(date)}
           size="small"
           sx={{ paddingInline: 2 }}
+          autoFocus={value === date}
         >
           {formatShortDate(date)}
         </ToggleButton>
