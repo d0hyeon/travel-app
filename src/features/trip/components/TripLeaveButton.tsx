@@ -9,7 +9,11 @@ interface Props extends ButtonProps {
 }
 export function TripLeaveButton({ tripId, color = 'error', children = '나가기', ...props }: Props) {
   const { data: auth } = useAuth();
-  const { data: { userId }, remove, leave } = useTrip(tripId);
+  const {
+    data: { userId },
+    remove: removeTrip,
+    leave: leaveTrip
+  } = useTrip(tripId);
   const isHost = auth.id === userId;
 
   const confirm = useConfirmDialog();
@@ -21,8 +25,9 @@ export function TripLeaveButton({ tripId, color = 'error', children = '나가기
       color={color}
       onClick={async () => {
         if (await confirm(`여행을 나가시겠어요?`)) {
-          await (isHost ? remove() : leave());
           navigate('/', { replace: true });
+          if (isHost) removeTrip();
+          else leaveTrip();
         }
       }}
     >

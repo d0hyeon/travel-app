@@ -25,7 +25,11 @@ function Resolved({ tripId }: ItemProps) {
   const { data: auth } = useAuth();
   assert(!!auth, '로그인이 필요합니다.');
 
-  const { data: { userId, name }, remove, leave } = useTrip(tripId)
+  const {
+    data: { userId, name },
+    remove: removeTrip,
+    leave: leaveTrip
+  } = useTrip(tripId)
   const isHost = auth.id === userId;
 
   const confirm = useConfirmDialog();
@@ -37,8 +41,10 @@ function Resolved({ tripId }: ItemProps) {
       color="error"
       onClick={async () => {
         if (await confirm(`${name}을(를) 나가시겠어요?`)) {
-          await (isHost ? remove.mutateAsync() : leave.mutateAsync());
           navigate('/', { replace: true })
+
+          if (isHost) removeTrip()
+          else leaveTrip()
         }
       }}
     >
