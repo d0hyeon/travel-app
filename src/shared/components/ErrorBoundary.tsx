@@ -5,21 +5,41 @@ export type FallbackProps = {
   error: Error;
   resetError: () => void;
 };
+type ResetKey = string | number | boolean;
 type Props = PropsWithChildren<{
   onError?: (error: Error, reset: () => void) => void;
   ignoreError?: (error: Error) => boolean;
   fallback?: ((fallback: FallbackProps) => ReactNode) | null;
-  resetKeys?: (string | number | boolean)[];
+  resetKeys?: ResetKey[];
 }>;
 
 type State = {
   error: Error | null;
+  resetKeys: ResetKey[];
 };
 
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { error: null };
+
+    this.state = {
+      error: null,
+      resetKeys: props.resetKeys ?? [],
+    };
+  }
+
+  static getDerivedStateFromProps(
+    props: Props,
+    state: State,
+  ): Partial<State> | null {
+    if (!isDeepEqual(props.resetKeys ?? [], state.resetKeys)) {
+      return {
+        error: null,
+        resetKeys: props.resetKeys ?? [],
+      };
+    }
+
+    return null;
   }
 
   static getDerivedStateFromError(error: Error) {
@@ -32,20 +52,8 @@ export class ErrorBoundary extends Component<Props, State> {
     if (isIgnored) {
       throw error;
     }
+
     this.props.onError?.(error, this.resetError.bind(this));
-    this.setState({ error });
-  }
-
-  componentDidUpdate(nextProps: Readonly<Props>): void {
-    const { resetKeys = [] } = this.props;
-    const { resetKeys: nextResetKeys = [] } = nextProps;
-
-    const isUpdatedResetKey =
-      resetKeys.length !== nextResetKeys.length || resetKeys.some((key, idx) => key !== nextResetKeys[idx]);
-
-    if (isUpdatedResetKey) {
-      this.resetError();
-    }
   }
 
   resetError() {
@@ -62,4 +70,8 @@ export class ErrorBoundary extends Component<Props, State> {
 
     return this.props.children;
   }
+}
+
+function isDeepEqual(a: Array<ResetKey>, b: Array<ResetKey>) {
+  return a.length === b.length && a.every((value, i) => value === b[i]);
 }
