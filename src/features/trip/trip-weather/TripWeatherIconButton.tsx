@@ -94,11 +94,13 @@ function Resolved({ tripId, ...props }: Props) {
     return null;
   }
 
+  const hasSnowForecast = arrayIncludes(PRECIPITATION_SNOW_TYPES, weatherForecast.forecast.summary.precipitationType)
+
   return (
     <>
       <IconButton
         onClick={isMobile ? openHourlyForecastSheet : openHourlyForecastDialog}
-        sx={[arrayIncludes(PRECIPITATION_SNOW_TYPES, weatherForecast.forecast.summary.precipitationType)
+        sx={[hasSnowForecast
           ? { background: `${theme.alpha('#000', 0.4)}!important` } : {},
         ...(Array.isArray(props.sx) ? props.sx : [props.sx])
         ]}
