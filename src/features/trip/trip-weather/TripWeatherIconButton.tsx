@@ -79,29 +79,28 @@ function Resolved({ tripId, ...props }: Props) {
                 <Typography variant="subtitle2" marginBottom={0.5} paddingX={1}>오후</Typography>
                 <DailyWeatherInfoBox coordinate={trip} date={activedTripDate} dayPart="pm" />
                 <HourlyForecastList coordinate={trip} date={activedTripDate} dayPart="pm" paddingX={0.5} marginTop={2} />
-
               </Box>
             </ErrorBoundary>
           </Stack>
+          <Typography variant="caption" color="textSecondary" padding={1} display="block" marginTop={1} textAlign="right">
+            출처 : {weatherForecast.provider}
+          </Typography>
         </DialogContent>
       </Dialog>
     ))
   }
 
-
   if (weatherForecast == null) {
     return null;
   }
-
 
   return (
     <>
       <IconButton
         onClick={isMobile ? openHourlyForecastSheet : openHourlyForecastDialog}
-        sx={[
-          arrayIncludes(PRECIPITATION_SNOW_TYPES, weatherForecast.forecast.summary.precipitationType)
-            ? { background: `${theme.alpha('#000', 0.4)}!important` } : {},
-          ...(Array.isArray(props.sx) ? props.sx : [props.sx])
+        sx={[arrayIncludes(PRECIPITATION_SNOW_TYPES, weatherForecast.forecast.summary.precipitationType)
+          ? { background: `${theme.alpha('#000', 0.4)}!important` } : {},
+        ...(Array.isArray(props.sx) ? props.sx : [props.sx])
         ]}
         {...props}
       >

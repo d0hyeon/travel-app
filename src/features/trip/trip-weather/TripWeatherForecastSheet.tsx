@@ -120,64 +120,69 @@ function DayPartForecast({ coordinate, date }: { coordinate: Coordinate; date: s
   };
 
   return (
-    <Stack gap={1}>
-      <ToggleButtonGroup
-        value={selectedDayPart.dayPart}
-        exclusive
-        onChange={(_, dayPart: DayPart | null) => dayPart && selectDayPart(dayPart)}
-        size="small"
-        sx={(theme) => ({
-          alignSelf: 'end',
-          marginTop: 1.5,
-          marginRight: 1.5,
-          backgroundColor: theme.palette.grey[200],
-          padding: 0.25,
-          borderRadius: '8px',
-          '& .MuiToggleButton-root': {
-            border: 'none',
-            paddingX: 1.25,
-            paddingY: 0.5,
-            minHeight: 0,
-            fontSize: 11,
-            lineHeight: 1.4,
-            color: 'text.secondary',
-          },
-          '.Mui-selected': { backgroundColor: '#fff !important', color: 'text.primary' },
-          '.MuiButtonBase-root': { borderRadius: '6px' },
-        })}
-      >
-        {availableDayParts.map(({ dayPart, label }) => (
-          <ToggleButton key={dayPart} value={dayPart}>{label}</ToggleButton>
-        ))}
-      </ToggleButtonGroup>
+    <>
+      <Stack gap={1}>
+        <ToggleButtonGroup
+          value={selectedDayPart.dayPart}
+          exclusive
+          onChange={(_, dayPart: DayPart | null) => dayPart && selectDayPart(dayPart)}
+          size="small"
+          sx={(theme) => ({
+            alignSelf: 'end',
+            marginTop: 1.5,
+            marginRight: 1.5,
+            backgroundColor: theme.palette.grey[200],
+            padding: 0.25,
+            borderRadius: '8px',
+            '& .MuiToggleButton-root': {
+              border: 'none',
+              paddingX: 1.25,
+              paddingY: 0.5,
+              minHeight: 0,
+              fontSize: 11,
+              lineHeight: 1.4,
+              color: 'text.secondary',
+            },
+            '.Mui-selected': { backgroundColor: '#fff !important', color: 'text.primary' },
+            '.MuiButtonBase-root': { borderRadius: '6px' },
+          })}
+        >
+          {availableDayParts.map(({ dayPart, label }) => (
+            <ToggleButton key={dayPart} value={dayPart}>{label}</ToggleButton>
+          ))}
+        </ToggleButtonGroup>
 
-      <Swiper
-        key={`${date}-${availableDayParts.map(({ dayPart }) => dayPart).join("-")}`}
-        ref={swiperRef}
-        initialSlide={availableDayParts.indexOf(selectedDayPart)}
-        onSlideChange={(swiper) => {
-          const dayPart = availableDayParts[swiper.activeIndex];
-          if (dayPart) setActiveDayPart(dayPart.dayPart);
-        }}
-        data-prevent-sheet="true"
-        style={{ width: '100%' }}
-      >
-        {availableDayParts.map(({ dayPart }) => (
-          <ErrorBoundary key={`${date}-${dayPart}`} resetKeys={[date, dayPart]}>
-            <SwiperSlide key={dayPart}>
-              <Stack gap={1} paddingX={1.5}>
-                <ErrorBoundary key={`${dayPart}-summary`} resetKeys={[date, dayPart]}>
-                  <DailyWeatherInfoBox coordinate={coordinate} date={date} dayPart={dayPart} />
-                </ErrorBoundary>
-                <ErrorBoundary key={`${dayPart}-hourly`} resetKeys={[date, dayPart]}>
-                  <HourlyForecastList coordinate={coordinate} date={date} dayPart={dayPart} marginTop={1} />
-                </ErrorBoundary>
-              </Stack>
-            </SwiperSlide>
-          </ErrorBoundary>
-        ))}
-      </Swiper>
-    </Stack>
+        <Swiper
+          key={`${date}-${availableDayParts.map(({ dayPart }) => dayPart).join("-")}`}
+          ref={swiperRef}
+          initialSlide={availableDayParts.indexOf(selectedDayPart)}
+          onSlideChange={(swiper) => {
+            const dayPart = availableDayParts[swiper.activeIndex];
+            if (dayPart) setActiveDayPart(dayPart.dayPart);
+          }}
+          data-prevent-sheet="true"
+          style={{ width: '100%' }}
+        >
+          {availableDayParts.map(({ dayPart }) => (
+            <ErrorBoundary key={`${date}-${dayPart}`} resetKeys={[date, dayPart]}>
+              <SwiperSlide key={dayPart}>
+                <Stack gap={1} paddingX={1.5}>
+                  <ErrorBoundary key={`${dayPart}-summary`} resetKeys={[date, dayPart]}>
+                    <DailyWeatherInfoBox coordinate={coordinate} date={date} dayPart={dayPart} />
+                  </ErrorBoundary>
+                  <ErrorBoundary key={`${dayPart}-hourly`} resetKeys={[date, dayPart]}>
+                    <HourlyForecastList coordinate={coordinate} date={date} dayPart={dayPart} marginTop={1} />
+                  </ErrorBoundary>
+                </Stack>
+              </SwiperSlide>
+            </ErrorBoundary>
+          ))}
+        </Swiper>
+      </Stack>
+      <Typography variant="caption" color="textSecondary" paddingY={0.5} paddingX={2} display="block" marginTop={1} textAlign="right">
+        출처 : {weatherForecast.provider}
+      </Typography>
+    </>
   );
 }
 
