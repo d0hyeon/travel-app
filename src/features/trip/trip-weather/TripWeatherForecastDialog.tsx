@@ -69,14 +69,14 @@ function DailyForecast({ date, tripId, ...props }: DailyForecastProps) {
   return (
     <>
       <Stack direction="row" gap={2} justifyContent="stretch" width="100%" alignItems="stretch" {...props}>
-        <ErrorBoundary>
+        <ErrorBoundary resetKeys={[date]}>
           <Box width="100%">
             <Typography variant="subtitle2" marginBottom={0.5} paddingX={1}>오전</Typography>
             <DailyWeatherInfoBox coordinate={{ lat, lng }} date={date} dayPart="am" />
             <HourlyForecastList coordinate={{ lat, lng }} date={date} dayPart="am" paddingX={0.5} marginTop={2} />
           </Box>
         </ErrorBoundary>
-        <ErrorBoundary>
+        <ErrorBoundary resetKeys={[date]}>
           <Box width="100%">
             <Typography variant="subtitle2" marginBottom={0.5} paddingX={1}>오후</Typography>
             <DailyWeatherInfoBox coordinate={{ lat, lng }} date={date} dayPart="pm" />

@@ -77,7 +77,7 @@ function Resolved({ tripId, initialDate }: Pick<Props, "tripId" | "initialDate">
 
       <BottomSheet.Body paddingX={0}>
         <ErrorBoundary
-          key={selectedDate}
+          resetKeys={[selectedDate]}
           fallback={ForecastUnavailable}
         >
           <DayPartForecast
@@ -164,13 +164,13 @@ function DayPartForecast({ coordinate, date }: { coordinate: Coordinate; date: s
           style={{ width: '100%' }}
         >
           {availableDayParts.map(({ dayPart }) => (
-            <ErrorBoundary key={`${date}-${dayPart}`} resetKeys={[date, dayPart]}>
+            <ErrorBoundary resetKeys={[date, dayPart]}>
               <SwiperSlide key={dayPart}>
                 <Stack gap={1} paddingX={1.5}>
-                  <ErrorBoundary key={`${dayPart}-summary`} resetKeys={[date, dayPart]}>
+                  <ErrorBoundary resetKeys={[date, dayPart]}>
                     <DailyWeatherInfoBox coordinate={coordinate} date={date} dayPart={dayPart} />
                   </ErrorBoundary>
-                  <ErrorBoundary key={`${dayPart}-hourly`} resetKeys={[date, dayPart]}>
+                  <ErrorBoundary resetKeys={[date, dayPart]}>
                     <HourlyForecastList coordinate={coordinate} date={date} dayPart={dayPart} marginTop={1} />
                   </ErrorBoundary>
                 </Stack>
