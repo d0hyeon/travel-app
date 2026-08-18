@@ -1,5 +1,6 @@
 import { startTransition, useCallback, useContext, useEffect, useId, useImperativeHandle, useMemo, useRef, useState, type ReactNode, type Ref } from "react";
 import { OverlayContext } from "./useOverlay.context";
+import { usePreservedCallback } from "./extends/usePreservedCallback";
 
 export function useOverlay() {
   const context = useContext(OverlayContext)
@@ -55,7 +56,7 @@ interface OverlayRendererProps {
 
 export interface OverlayRenderProps {
   isOpen: boolean;
-  close: () => void;
+  close: () => Promise<void>;
   onClose: () => void;
 }
 
@@ -72,12 +73,19 @@ function OverlayRenderer({
     startTransition(() => setIsOpen(true));
   }, [])
 
+  const handleClose = usePreservedCallback(onClose);
   const close = useCallback(() => {
-    if (isOpen) {
+    if (isOpen) return Promise.resolve();
+
+    return new Promise<void>((resolve) => {
       setIsOpen(false);
       // 애니메이션 후 unmount
-      setTimeout(onClose, 300)
-    }
+      setTimeout(() => {
+        handleClose();
+        resolve();
+      }, 300);
+    })
+
   }, [isOpen])
 
   useImperativeHandle<OverlayRendererRef, OverlayRendererRef>(ref, () => ({

@@ -38,8 +38,8 @@ export default function TripListPage() {
             exchangeRate: null,
             exchangeRates: null,
           })
-          close();
-          await navigate(`/trip/${trip.id}`)
+          await close();
+          navigate(`/trip/${trip.id}`)
         }}
       />
     ))
