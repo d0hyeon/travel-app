@@ -38,8 +38,8 @@ export default function TripListPage() {
             exchangeRate: null,
             exchangeRates: null,
           })
-          await navigate(`/trip/${trip.id}`)
           close();
+          await navigate(`/trip/${trip.id}`)
         }}
       />
     ))
@@ -131,7 +131,11 @@ export default function TripListPage() {
 
       <Fab
         color="primary"
-        onClick={() => navigate(AppRoute.여행_생성)}
+        onClick={() => {
+          if (isMobile) navigate(AppRoute.여행_생성)
+          else openCreationPopup()
+
+        }}
         aria-label="새 여행"
         sx={{
           position: 'fixed',
