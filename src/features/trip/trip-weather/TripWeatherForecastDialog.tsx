@@ -2,12 +2,13 @@ import type { DialogProps, StackProps } from "@mui/material";
 
 import { Close } from "@mui/icons-material";
 import { alpha, Box, Dialog, DialogContent, IconButton, Skeleton, Stack, Typography } from "@mui/material";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { DailyWeatherInfoBox } from "~features/weather/DailyWeatherInfoBox";
 import { HourlyForecastList } from "~features/weather/HourlyForecastList";
 import { useDailyWeatherForecast } from "~features/weather/useDailyWeatherForecast";
 import { DialogTitle } from "~shared/components/confirm-dialog/DialogTitle";
 import { ErrorBoundary } from "~shared/components/ErrorBoundary";
+import { AsyncBoundary } from "~shared/components/utils/AsyncBoundary";
 import { assert } from "~shared/utils/types";
 import { TripDateToggleGroup } from "../trip-route/components/TripDateToggleGroup";
 import { useTrip } from "../useTrip";
@@ -40,14 +41,13 @@ export function TripWeatherForecastDialog({ tripId, initialDate, ...props }: Pro
         <Box sx={theme => ({ overflowX: 'auto', position: 'sticky', top: 0, marginLeft: -3, width: 'calc(100% + 48px)', paddingX: 3, background: alpha(theme.palette.background.default, 0.8), backdropFilter: 'blur(3px)' })}>
           <TripDateToggleGroup tripId={tripId} value={date} onChange={setDate} />
         </Box>
-        <ErrorBoundary
-          fallback={({ error }) => <ForecastUnavailable message={error.message} />}
+        <AsyncBoundary
           resetKeys={[date]}
+          rejectedFallback={({ error }) => <DailyForecast.Message message={error.message} />}
+          pendingFallback={<DailyForecast.Skeleton marginTop={4} />}
         >
-          <Suspense fallback={<DailyForecastSkeleton marginTop={4} />}>
-            <DailyForecast tripId={tripId} date={date} marginTop={4} />
-          </Suspense>
-        </ErrorBoundary>
+          <DailyForecast tripId={tripId} date={date} marginTop={4} />
+        </AsyncBoundary>
       </DialogContent>
     </Dialog>
   )
@@ -90,6 +90,7 @@ function DailyForecast({ date, tripId, ...props }: DailyForecastProps) {
     </>
   )
 }
+DailyForecast.Skeleton = DailyForecastSkeleton;
 
 function DailyForecastSkeleton(props: StackProps) {
   return (
@@ -112,8 +113,9 @@ function DailyForecastSkeleton(props: StackProps) {
     </>
   )
 }
+DailyForecast.Message = ForecastMessage;
 
-function ForecastUnavailable(props: { message: string; }) {
+function ForecastMessage(props: { message: string; }) {
   return (
     <Stack alignItems="center" paddingY={6}>
       <Typography variant="body2" color="textSecondary">
