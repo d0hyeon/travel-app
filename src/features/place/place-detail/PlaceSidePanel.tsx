@@ -28,7 +28,6 @@ export function PlaceSidePanel({ placeId, isOpen: _isOpen = true, onClose, zInde
   const [currentTab, changeTab] = useState<'basic' | 'feed'>('basic');
   const [isOpen, setIsOpen] = useState(_isOpen);
 
-
   const close = () => {
     setIsOpen(false);
     setTimeout(onClose, 300)
@@ -40,10 +39,11 @@ export function PlaceSidePanel({ placeId, isOpen: _isOpen = true, onClose, zInde
     <Drawer
       anchor="right"
       open={isOpen}
-      onClose={() => setIsOpen(false)}
+      onClose={close}
       hideBackdrop
       sx={theme => ({ zIndex: zIndex ?? theme.zIndex.drawer })}
       container={() => document.querySelector(`.${APP_ROOT_NODE_CLASS}`)}
+
       PaperProps={{
         sx: {
           width: 480,
