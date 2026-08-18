@@ -15,6 +15,7 @@ export function DailyWeatherInfoBox(props: Props) {
     </Suspense>
   )
 }
+DailyWeatherInfoBox.Skeleton = Pending;
 
 function Resolved({ coordinate, date, dayPart, ...props }: Props) {
   const { data: weatherForecast } = useDailyWeatherForecast({ coordinate, date });

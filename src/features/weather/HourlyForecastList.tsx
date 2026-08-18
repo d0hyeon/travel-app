@@ -4,8 +4,8 @@ import { ko } from 'date-fns/locale';
 import { Suspense, useMemo } from "react";
 import { useCurrentTime } from "~shared/hooks/env/useCurrentTime";
 import { HourlyForecastItem } from "./HourlyForecastItem";
-import { useHourlyForecast } from "./useHourlyForecast";
 import { type UseDailyWeatherForecastParams } from "./useDailyWeatherForecast";
+import { useHourlyForecast } from "./useHourlyForecast";
 import type { DayPart } from "./weather.types";
 
 interface Props extends UseDailyWeatherForecastParams, StackProps {
@@ -19,8 +19,9 @@ export function HourlyForecastList(props: Props) {
     </Suspense>
   )
 }
+HourlyForecastList.Skeleton = HourlyForecastListSkeleton;
 
-export function Resolved({ coordinate, date, dayPart, ...props }: Props) {
+function Resolved({ coordinate, date, dayPart, ...props }: Props) {
   const { forecast, hourly } = useHourlyForecast({ coordinate, date, dayPart });
 
   // 오전은 늦은 시각이 위로 오도록 뒤집어 보여준다.
@@ -47,7 +48,12 @@ export function Resolved({ coordinate, date, dayPart, ...props }: Props) {
 }
 HourlyForecastList.Skeleton = HourlyForecastListSkeleton;
 
-function HourlyForecastListSkeleton({ date, dayPart, ...props }: Props) {
+const today = Date.now();
+function HourlyForecastListSkeleton({
+  date = formatDate(today, 'yyyy-MM-dd'),
+  dayPart = 'pm',
+  ...props
+}: Partial<Omit<Props, 'coordinate'>>) {
   const isToday = getIsToday(date)
   const startHours = dayPart === "pm" ? 12 : 0;
   const endHours = dayPart === "am" ? 12 : 24;
