@@ -58,7 +58,7 @@ function Resolved({ tripId, ...props }: Props) {
     assert(weatherForecast != null, '날씨 데이터가 존재하지 않습니다.');
 
     overlay.open(({ isOpen, onClose, close }) => (
-      <Dialog open={isOpen} onClose={onClose} maxWidth="lg" slotProps={{ paper: { sx: { height: '100%', width: '550px' }, } }}>
+      <Dialog open={isOpen} onClose={onClose} maxWidth="lg" slotProps={{ paper: { sx: { height: '100%', width: 600 }, } }}>
         <Stack direction="row" justifyContent="space-between" alignItems="center" paddingRight={1}>
           <DialogTitle>날씨 예보</DialogTitle>
           <IconButton onClick={close}>
