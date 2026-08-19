@@ -4,7 +4,7 @@
 
 > **경로 표기 규칙**
 > 이 문서에서 `src/`로 시작하는 경로는 모두 `apps/waylog-web/` 기준이다.
-> (예: `src/api/client.ts` → `apps/waylog-web/src/api/client.ts`)
+> (예: `packages/domains/src/api/client.ts` → `apps/waylog-web/src/api/client.ts`)
 > 워크스페이스 루트 기준 경로는 `apps/`, `packages/`처럼 최상위 디렉토리부터 적는다.
 
 ---
@@ -84,7 +84,23 @@ apps/
     ├── package.json            # 앱 의존성·스크립트
     ├── tsconfig.json           # 앱 프로젝트 레퍼런스 루트
     └── vite.config.ts 등       # 앱 빌드·테스트 설정
-packages/                       # 공유 패키지 (아직 비어 있음)
+packages/
+├── domains/                    # @waylog/domains — 도메인·데이터 계층
+│   └── src/
+│       ├── api/                # supabase 클라이언트(initApi 주입), 생성 타입
+│       ├── auth/               # 인증 API·useAuth
+│       ├── expense/            # 지출(순수 로직)
+│       ├── location/           # 위치 vocabulary
+│       ├── marine-activity/    # 해양 활동
+│       ├── photo/              # 사진 조회·삭제·수정
+│       ├── query/              # QueryClient(initQueryClient 주입)
+│       ├── route/              # 경로
+│       ├── tourism-trend/      # 관광 트렌드
+│       ├── trip/               # 여행
+│       ├── trip-member/        # 여행 멤버
+│       ├── user-profile/       # 유저 프로필
+│       └── utils/              # 순수 유틸(포맷·좌표·URL·지오)
+└── react/                      # @waylog/react — 플랫폼 비의존 훅
 supabase/                       # DB 마이그레이션·엣지 함수
 tools/                          # eslint 커스텀 룰
 package.json                    # 워크스페이스 루트 (앱으로 위임하는 스크립트)
@@ -95,7 +111,39 @@ eslint.config.js                # 레포 전역 lint 설정 + 의존성
 `pnpm --filter waylog-web`으로 앱에 위임한다. `lint`만 루트에서 직접 실행한다
 (`eslint.config.js`가 레포 전역이라 그 의존성도 루트에 있다).
 
-**환경변수:** `.env`는 `apps/waylog-web/`에 있다. Vite가 자기 프로젝트 루트에서 찾는다.
+**환경변수:** 웹은 `apps/waylog-web/.env`(Vite), 앱은 `apps/waylog-app/.env`를
+`app.config.ts`가 읽어 `extra`로 넘긴다.
+
+### 공유 경계
+
+> UI 상태·기기 상태는 플랫폼별, 서버 데이터·도메인 규칙은 공유.
+
+| 대상 | 위치 |
+| --- | --- |
+| Supabase 쿼리, 도메인 로직·타입, 도메인 훅 | `@waylog/domains` |
+| 플랫폼 비의존 React 훅 | `@waylog/react` |
+| 컴포넌트, 라우팅, 애니메이션, 스토리지, 디바이스 권한 | 각 앱 |
+
+공유 패키지가 지켜야 하는 것:
+
+- 환경변수를 직접 읽지 않는다. 각 앱이 `initApi()` / `initQueryClient()`로 주입한다
+- 컴포넌트(`.tsx`)를 두지 않는다
+- MUI·react-router·브라우저 전역 API(`window`, `document`, `HTMLElement`,
+  `requestAnimationFrame`, `localStorage`, IndexedDB 등)에 의존하지 않는다
+
+이 기준 때문에 웹에 남은 것들:
+
+| 대상 | 이유 |
+| --- | --- |
+| `photo.api`의 업로드 함수 | HEIC 변환(`heic-to`)·리사이즈 의존 |
+| `roadRoute.schema` | IndexedDB(`schema-idb`) 의존 |
+| push subscription 함수 3개 | 웹 표준 `PushSubscription` 타입 의존 |
+| `useExpenses` 등 일부 훅 | 웹 전용 계층을 물고 있음 |
+| 스크롤·포인터·애니메이션 훅 | DOM 이벤트·`requestAnimationFrame` 의존 |
+
+**supabase 클라이언트:** `.api.ts` 전체가 `import { supabase }`로 모듈 스코프
+인스턴스를 쓴다. 인스턴스 생성만 앱으로 옮기기 위해 Proxy 지연 초기화를 쓴다.
+초기화 전에 접근하면 명확한 에러를 던진다.
 
 ### 앱 내부 구조
 
@@ -475,7 +523,7 @@ src/
 
 - `*.api.ts` — Supabase 직접 호출, DB row → 도메인 모델 변환
 - `use*.ts` — React Query 훅으로 감싸서 컴포넌트에 제공
-- DB 타입은 `src/api/_database.types.ts` (자동 생성, 직접 수정 금지)
+- DB 타입은 `packages/domains/src/api/_database.types.ts` (자동 생성, 직접 수정 금지)
 
 ### 오버레이 시스템
 
@@ -487,13 +535,13 @@ src/
 - `Region` — `Location`의 상위 지역. 예: `강원도`, `간사이`
 - `Country` — `Location`의 국가 메타. 예: `South Korea`, `Japan`
 - `Destination` — 별도 베이스 모델이 아니라 여행 생성 UI에서 선택 가능한 `Location` 집합
-- 공용 vocabulary: `src/features/location/location.model.ts`, `location.utils.ts`
+- 공용 vocabulary: `packages/domains/src/location/location.model.ts`, `location.utils.ts`
 - 관계형 상수는 `LocationCountry`, `LocationRegion`처럼 `ByX`보다 목적어 중심 이름을 우선
 
 ### 공용 좌표 모델
 
 - `Coordinate`는 지도 컴포넌트 타입이 아니라 공용 값 모델
-- 원천 타입: `src/shared/model/coordinate.model.ts`
+- 원천 타입: `packages/domains/src/utils/coordinate.ts`
 - `shared/components/Map/types.ts`는 이를 re-export만 함
 
 ### 현재 위치 조회 (`useCurrentCoordinate`)
