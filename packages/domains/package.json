@@ -1,0 +1,18 @@
+{
+  "name": "@waylog/domains",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*/index.ts"
+  },
+  "dependencies": {
+    "@waylog/react": "workspace:*"
+  },
+  "peerDependencies": {
+    "@supabase/supabase-js": ">=2",
+    "@tanstack/react-query": ">=5",
+    "react": ">=19"
+  }
+}
