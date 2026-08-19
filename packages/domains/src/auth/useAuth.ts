@@ -1,89 +1,85 @@
-import { type User } from '@supabase/supabase-js';
-import { useQueryClient, useSuspenseQuery, type UseQueryOptions, type UseSuspenseQueryResult } from '@tanstack/react-query';
-import { useEffect } from 'react';
-import { supabase } from '../api';
-import { queryClient } from '../query';
-import { updateProfile } from './auth.api';
-import { assert } from '../utils';
-import { AuthError } from './AuthError';
-import { getUserProfileById } from '../user-profile';
-import type { UserProfile } from '../user-profile';
+import { type Session, type User } from "@supabase/supabase-js";
+import {
+  useSuspenseQuery,
+  type UseSuspenseQueryResult,
+} from "@tanstack/react-query";
+import { createStore, useStoreValue } from "@waylog/react";
+import { useEffect } from "react";
+import { supabase } from "../api";
+import type { UserProfile } from "../user-profile";
+import { getUserProfileById } from "../user-profile";
+import { assert } from "../utils";
+import { updateProfile } from "./auth.api";
+import { AuthError } from "./AuthError";
 
 export type Auth = User & {
   profile: UserProfile;
-}
+};
 
 type UseAuthOptions = {
   required?: boolean;
-}
+};
 
-export function useAuth(options: { required: false }): UseSuspenseQueryResult<Auth | null>
-export function useAuth(options?: UseAuthOptions): UseSuspenseQueryResult<Auth>
+const sessionStore = createStore<Session | null>(async () => {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  return session;
+});
+
+export function useAuth(options: {
+  required: false;
+}): UseSuspenseQueryResult<Auth | null>;
+export function useAuth(options?: UseAuthOptions): UseSuspenseQueryResult<Auth>;
 export function useAuth({ required }: UseAuthOptions = {}) {
-  const { data, ...queries } = useSuspenseQuery({
-    queryKey: ['auth'],
-    queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user == null) return null;
-
-      const profile = await getUserProfileById(session.user.id);
-      if (profile == null) return null;
-
-      return { ...session.user, profile };
-    },
-    ...REFETCH_LOCK_OPTIONS
-  });
+  const userSession = useStoreValue(sessionStore);
   if (required) {
-    assert(!!data, new AuthError());
+    assert(!!userSession, new AuthError());
   }
 
-  return { data, ...queries }
+  return useSuspenseQuery({
+    queryKey: ["user", userSession?.user.id],
+    queryFn: () => {
+      if (userSession == null) return null;
+      return getUserProfileById(userSession.user.id);
+    },
+    select: (profile) => {
+      if (profile == null || userSession == null) return null;
+      return { ...userSession.user, profile };
+    },
+  });
 }
-export function getAuth() {
-  const auth = queryClient.getQueryData<Auth | null>(['auth']);
 
-  return auth ?? null;
+export function getSession() {
+  const session = sessionStore.getState();
+  if (session == null) return null;
+
+  return session.user;
 }
 
+/** @deprecated */
+export const getAuth = getSession;
 
 /** 앱 전체에서 한 번만 마운트해야 함 (root.tsx) */
 export function AuthStateSync() {
-  const queryClient = useQueryClient();
-
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth
-      .onAuthStateChange(async (event, session) => {
-        if (session?.user == null) {
-          queryClient.setQueryData<User | null>(['auth'], null);
-          return;
-        }
-        
-        queryClient.setQueryData<User | null>(['auth'], (curr) => {
-          if (curr == null) return session.user;
-          return { ...curr, ...session.user }
-        });
-        
-        if (event === 'USER_UPDATED' && session?.user != null) {
-          const meta = session.user.user_metadata;
-          const name = meta.nickname ?? meta.name ?? meta.full_name ?? '';
-          const avatarUrl = meta.picture ?? meta.avatar_url ?? null;
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      sessionStore.setState(session);
 
-          await updateProfile({ id: session.user.id, name, avatar: avatarUrl });
-        }
-      });
+      if (event === "USER_UPDATED" && session?.user != null) {
+        const meta = session.user.user_metadata;
+        const name = meta.nickname ?? meta.name ?? meta.full_name ?? "";
+        const avatarUrl = meta.picture ?? meta.avatar_url ?? null;
+
+        await updateProfile({ id: session.user.id, name, avatar: avatarUrl });
+      }
+    });
 
     return () => subscription.unsubscribe();
   }, []);
 
   return null;
 }
-
-const REFETCH_LOCK_OPTIONS = {
-  refetchOnMount: false,
-  refetchInterval: false,
-  refetchIntervalInBackground: false,
-  refetchOnReconnect: false,
-  refetchOnWindowFocus: false,
-  staleTime: Infinity,
-  gcTime: Infinity,
-} satisfies Partial<UseQueryOptions>;
