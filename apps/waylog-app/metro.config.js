@@ -18,4 +18,34 @@ config.resolver.nodeModulesPaths = [
   path.resolve(monorepoRoot, 'node_modules'),
 ]
 
+// React 는 앱에 하나만 존재해야 한다. 두 인스턴스가 섞이면 훅 호출이
+// "Invalid hook call" 로 깨진다.
+//
+// 워크스페이스에는 React 버전이 갈릴 경로가 상시 존재한다:
+//   - Expo SDK 를 올리면 앱의 react 가 SDK 가 고정한 버전으로 되돌아간다
+//   - 웹이 react 를 올리면 공유 패키지(@waylog/*)가 그쪽을 따라간다
+// 지금은 버전을 맞춰뒀지만, 어긋난 순간 조용히 깨지는 대신 여기서 막는다.
+const SINGLETONS = ['react', 'react-dom', 'react-native']
+
+const defaultResolveRequest = config.resolver.resolveRequest
+
+config.resolver.resolveRequest = (context, moduleName, platform) => {
+  const pkg = SINGLETONS.find(
+    (name) => moduleName === name || moduleName.startsWith(`${name}/`),
+  )
+
+  if (pkg) {
+    const rest = moduleName.slice(pkg.length)
+    return context.resolveRequest(
+      context,
+      path.resolve(projectRoot, 'node_modules', pkg) + rest,
+      platform,
+    )
+  }
+
+  return defaultResolveRequest
+    ? defaultResolveRequest(context, moduleName, platform)
+    : context.resolveRequest(context, moduleName, platform)
+}
+
 module.exports = config
