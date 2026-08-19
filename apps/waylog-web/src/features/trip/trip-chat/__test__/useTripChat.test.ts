@@ -8,8 +8,8 @@ import { useTripChatMessages } from '../useTripChatMessages'
 import { MOCK_TRIP_ID } from '~features/trip/trip.mock'
 
 // Supabase Realtime WebSocket이 테스트 환경에서 crash하지 않도록 mock
-vi.mock('~api/client', async (importOriginal) => {
-  const mod = await importOriginal<typeof import('~api/client')>()
+vi.mock('@waylog/domains/api', async (importOriginal) => {
+  const mod = await importOriginal<typeof import('@waylog/domains/api')>()
   const fakeChannel = { on: () => fakeChannel, subscribe: () => fakeChannel }
   mod.supabase.channel = () => fakeChannel as unknown as ReturnType<typeof mod.supabase.channel>
   mod.supabase.removeChannel = vi.fn().mockResolvedValue('ok')

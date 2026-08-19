@@ -1,5 +1,5 @@
-import { supabase } from '~api/client'
-import type { CreateDataType, DataRaw, Json } from '~api/tables.types'
+import { supabase } from '@waylog/domains/api'
+import type { CreateDataType, DataRaw, Json } from '@waylog/domains/api'
 
 interface SignInWIthKakaoOptions {
   redirectTo?: string;

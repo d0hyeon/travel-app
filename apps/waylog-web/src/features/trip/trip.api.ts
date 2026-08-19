@@ -1,10 +1,10 @@
-import { supabase } from '~api/client'
+import { supabase } from '@waylog/domains/api'
 import { getAuth } from '~features/auth/useAuth'
 import type { Trip } from './trip.types'
 import { formatShortDate } from '../../shared/utils/formats';
 import { deletePhotosByTripId } from '~features/photo/photo.api';
 import { getCurrencyByDestination, type ExchangeRateEntry } from '../expense/currency';
-import type { DataRaw, CreateDataType, UpdateDataType } from '~api/tables.types';
+import type { DataRaw, CreateDataType, UpdateDataType } from '@waylog/domains/api';
 
 function getDatesBetween(startDate: string, endDate: string): string[] {
   const dates: string[] = []
@@ -90,7 +90,7 @@ export async function createTrip(
     .insert({
       name: data.name,
       destination: data.destinations[0],
-      destinations: data.destinations as unknown as import('~api/tables.types').Json,
+      destinations: data.destinations as unknown as import('@waylog/domains/api').Json,
       lat: data.lat,
       lng: data.lng,
       start_date: data.startDate,

@@ -1,4 +1,4 @@
-import { supabase } from '~api/client'
+import { supabase } from '@waylog/domains/api'
 import { TransportType } from '../route.types'
 import type { RoadRoute } from '../route.types'
 

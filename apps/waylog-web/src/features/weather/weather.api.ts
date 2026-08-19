@@ -1,5 +1,5 @@
 import { differenceInCalendarDays, parseISO, set } from "date-fns";
-import { createHttpClient } from "~shared/libs/createHttpClient";
+import { createHttpClient } from "@waylog/domains/api";
 import type { Coordinate } from "~shared/types/coordinate";
 import {
   PrecipitationType,

@@ -1,4 +1,4 @@
-import { withQueryParams } from "~shared/utils/urls";
+import { withQueryParams } from "../utils/urls";
 
 interface Options {
   baseUrl?: string;

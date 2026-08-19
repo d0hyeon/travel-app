@@ -1,7 +1,7 @@
 import { type User } from '@supabase/supabase-js';
 import { useQueryClient, useSuspenseQuery, type UseQueryOptions, type UseSuspenseQueryResult } from '@tanstack/react-query';
 import { useEffect } from 'react';
-import { supabase } from '~api/client';
+import { supabase } from '@waylog/domains/api';
 import { queryClient } from '~app/query-client';
 import { updateProfile } from './auth.api';
 import { assert } from '~shared/utils/types';

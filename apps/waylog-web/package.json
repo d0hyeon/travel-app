@@ -33,6 +33,8 @@
     "@react-router/serve": "^7.13.1",
     "@supabase/supabase-js": "^2.97.0",
     "@tanstack/react-query": "^5.90.21",
+    "@waylog/domains": "workspace:*",
+    "@waylog/react": "workspace:*",
     "date-fns": "^4.1.0",
     "exifr": "^7.1.3",
     "heic-to": "^1.4.2",

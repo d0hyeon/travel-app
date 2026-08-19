@@ -1,13 +1,19 @@
-import { GOVERNMENT_API_SERVICE_KEY } from "~app/env";
-import { createHttpClient } from "~shared/libs/createHttpClient";
-import { withQueryParams } from "~shared/utils/urls";
+import { createHttpClient } from "./createHttpClient";
+import { withQueryParams } from "../utils/urls";
+
+// 앱이 initApi()로 주입한다. 공유 패키지는 환경변수를 직접 읽지 않는다.
+let serviceKey = "";
+
+export function setGovernmentApiServiceKey(key: string) {
+  serviceKey = key;
+}
 
 export const governmentApi = createHttpClient({
   baseUrl: "https://apis.data.go.kr",
   beforeRequest: (request) => {
     const url = withQueryParams(request.url, {
-      ServiceKey: GOVERNMENT_API_SERVICE_KEY,
-      serviceKey: GOVERNMENT_API_SERVICE_KEY,
+      ServiceKey: serviceKey,
+      serviceKey: serviceKey,
     });
     return new Request(url, request);
   },

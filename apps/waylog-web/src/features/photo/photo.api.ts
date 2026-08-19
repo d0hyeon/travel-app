@@ -1,5 +1,5 @@
-import type { DataRaw } from '~api/tables.types';
-import { apiClient, supabase } from '~api/client'
+import type { DataRaw } from '@waylog/domains/api';
+import { apiClient, supabase } from '@waylog/domains/api'
 import type { Photo, PhotoUploadParams } from './photo.types'
 import { heicTo, isHeic } from 'heic-to'
 import Resizer from 'react-image-file-resizer';

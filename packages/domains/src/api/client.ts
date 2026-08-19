@@ -1,0 +1,51 @@
+import { createClient, type SupabaseClient, type SupabaseClientOptions } from '@supabase/supabase-js'
+import { createHttpClient } from './createHttpClient'
+import { setGovernmentApiServiceKey } from './governmentApi'
+import type { Database } from './_database.types'
+
+export type ApiConfig = {
+  url: string
+  anonKey: string
+  auth?: SupabaseClientOptions<'public'>['auth']
+  governmentApiServiceKey?: string
+}
+
+type HttpClient = ReturnType<typeof createHttpClient>
+
+let supabaseInstance: SupabaseClient<Database> | null = null
+let httpClientInstance: HttpClient | null = null
+
+export function initApi({ url, anonKey, auth, governmentApiServiceKey }: ApiConfig) {
+  supabaseInstance = createClient<Database>(url, anonKey, auth ? { auth } : undefined)
+  httpClientInstance = createHttpClient({
+    baseUrl: url,
+    beforeRequest: (request) => {
+      request.headers.set('Authorization', `Bearer ${anonKey}`)
+      return request
+    },
+  })
+
+  if (governmentApiServiceKey != null) {
+    setGovernmentApiServiceKey(governmentApiServiceKey)
+  }
+}
+
+// .api.ts 전체가 `import { supabase }` 로 모듈 스코프 인스턴스를 쓴다.
+// 함수 인자로 client를 넘기면 모든 파일과 호출부가 바뀌므로, 참조는 그대로 두고
+// 실제 인스턴스만 지연 생성한다.
+function lazy<T extends object>(get: () => T | null, name: string): T {
+  return new Proxy({} as T, {
+    get(_, prop, receiver) {
+      const target = get()
+      if (target == null) {
+        throw new Error(`${name}에 접근하기 전에 initApi()를 호출해야 합니다.`)
+      }
+      const value = Reflect.get(target, prop, receiver)
+      // Reflect.get 만 쓰면 메서드의 this 바인딩이 끊겨 supabase.from(...) 이 깨진다.
+      return typeof value === 'function' ? value.bind(target) : value
+    },
+  })
+}
+
+export const supabase = lazy(() => supabaseInstance, 'supabase')
+export const apiClient = lazy(() => httpClientInstance, 'apiClient')

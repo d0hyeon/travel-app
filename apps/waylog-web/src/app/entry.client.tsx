@@ -1,3 +1,7 @@
+// 공유 패키지(@waylog/domains)의 supabase 클라이언트를 초기화한다.
+// 다른 어떤 모듈보다 먼저 실행되어야 한다.
+import './env'
+
 import { startTransition, StrictMode } from 'react'
 import { hydrateRoot } from 'react-dom/client'
 import { HydratedRouter } from 'react-router/dom'

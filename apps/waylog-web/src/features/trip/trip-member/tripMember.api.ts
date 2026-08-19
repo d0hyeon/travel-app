@@ -1,4 +1,4 @@
-import { supabase } from '~api/client';
+import { supabase } from '@waylog/domains/api';
 import { getAuth } from '~features/auth/useAuth';
 import type { TripMember } from './tripMember.types';
 

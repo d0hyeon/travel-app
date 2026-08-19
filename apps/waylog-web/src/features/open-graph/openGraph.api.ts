@@ -1,4 +1,4 @@
-import { createHttpClient } from "~shared/libs/createHttpClient";
+import { createHttpClient } from "@waylog/domains/api";
 
 export interface OgPreviewData {
   title: string | null

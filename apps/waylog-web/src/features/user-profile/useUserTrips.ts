@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { supabase } from '~api/client'
+import { supabase } from '@waylog/domains/api'
 import { toTrip, tripKey } from '~features/trip/trip.api'
 import type { Trip } from '~features/trip/trip.types'
 

@@ -22,8 +22,8 @@ import { queryClient as appQueryClient } from '~app/query-client'
 //   4. Realtime 수신 — setQueryData로 메시지가 즉시 추가됨
 // ────────────────────────────────────────────────────────────
 
-vi.mock('~api/client', async (importOriginal) => {
-  const mod = await importOriginal<typeof import('~api/client')>()
+vi.mock('@waylog/domains/api', async (importOriginal) => {
+  const mod = await importOriginal<typeof import('@waylog/domains/api')>()
   const fakeChannel = { on: () => fakeChannel, subscribe: () => fakeChannel }
   mod.supabase.channel = () => fakeChannel as unknown as ReturnType<typeof mod.supabase.channel>
   mod.supabase.removeChannel = vi.fn().mockResolvedValue('ok')

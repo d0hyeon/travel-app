@@ -1,4 +1,4 @@
-import { governmentApi } from '~api/governmentApi'
+import { governmentApi } from '@waylog/domains/api'
 import { getSeasonDateRange, type SeasonValue } from './season'
 import {
   RegionLevel,

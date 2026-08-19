@@ -1,6 +1,6 @@
-import type { DataRaw, CreateDataType, UpdateDataType } from '~api/tables.types'
-import type { Json } from '~api/tables.types'
-import { supabase } from '~api/client'
+import type { DataRaw, CreateDataType, UpdateDataType } from '@waylog/domains/api'
+import type { Json } from '@waylog/domains/api'
+import { supabase } from '@waylog/domains/api'
 import type { Route } from './route.types'
 
 export const routeKey = 'routes'
