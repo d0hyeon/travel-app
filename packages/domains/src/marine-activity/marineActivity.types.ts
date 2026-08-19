@@ -1,4 +1,4 @@
-import type { Coordinate } from "@waylog/domains/utils";
+import type { Coordinate } from "../utils";
 
 export const MarineActivityType = {
   Beach: "beach",

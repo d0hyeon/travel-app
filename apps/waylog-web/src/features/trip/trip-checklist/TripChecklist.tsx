@@ -12,7 +12,7 @@ import { useIsMobile } from "~shared/hooks/env/useIsMobile";
 import { useOverlay } from "~shared/hooks/useOverlay";
 import { assert } from '@waylog/domains/utils';
 import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
-import { formatRemainTime } from "~shared/utils/formats";
+import { formatRemainTime } from "@waylog/domains/utils";
 import { useTripMembers } from "../trip-member/useTripMembers";
 import { ERROR_DAYS_FROM_DEADLINE, WARNING_DAYS_FROM_DEADLINE } from './tripChecklist.constants';
 import { useTripChecklistModifyOverlay } from "./TripChecklistModifyIconButton";

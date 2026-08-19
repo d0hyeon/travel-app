@@ -10,8 +10,8 @@ import { BottomSheet } from "~shared/components/bottom-sheet/BottomSheet";
 import { ErrorBoundary } from "~shared/components/ErrorBoundary";
 import { useCurrentTime } from "@waylog/react";
 import type { Coordinate } from "@waylog/domains/utils";
-import { formatDisplayDate, formatShortDate } from "~shared/utils/formats";
-import { useTrip } from "../useTrip";
+import { formatDisplayDate, formatShortDate } from "@waylog/domains/utils";
+import { useTrip } from "@waylog/domains/trip";
 
 import "swiper/css";
 

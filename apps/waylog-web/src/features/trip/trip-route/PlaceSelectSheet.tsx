@@ -8,7 +8,7 @@ import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet
 import { ListItem } from '../../../shared/components/ListItem'
 import { PlaceCategoryColorCode } from '../../place/place.types'
 import { useTripPlaces } from '../trip-place/useTripPlaces'
-import { useTrip } from '../useTrip'
+import { useTrip } from '@waylog/domains/trip'
 
 interface PlaceSelectSheetProps {
   isOpen: boolean

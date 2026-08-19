@@ -11,11 +11,11 @@ import {
   deleteRoute,
 } from "@waylog/domains/route";
 import { assert } from "@waylog/domains/utils";
-import { useTrip } from "../useTrip";
+import { useTrip } from "@waylog/domains/trip";
 import { mergeQueriesStatus } from "../../../shared/utils/merges";
 import { useMemo } from "react";
 import { addDays, differenceInDays } from "date-fns";
-import { formatDisplayDate } from "../../../shared/utils/formats";
+import { formatDisplayDate } from "@waylog/domains/utils";
 import { queryClient } from "~app/query-client";
 import { TRIP_PLAN_REFETCH } from "./tripPlanRefetch";
 

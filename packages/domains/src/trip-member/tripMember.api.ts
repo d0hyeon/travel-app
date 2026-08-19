@@ -1,6 +1,6 @@
-import { supabase } from '@waylog/domains/api';
-import { getAuth } from '@waylog/domains/auth';
-import type { TripMember } from '@waylog/domains/trip-member';
+import { supabase } from '../api';
+import { getAuth } from '../auth';
+import type { TripMember } from '../trip-member';
 
 export const tripMemberKey = 'trip_members';
 

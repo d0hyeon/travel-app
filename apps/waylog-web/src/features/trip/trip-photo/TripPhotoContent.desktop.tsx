@@ -5,7 +5,7 @@ import { PhotoUploader } from '~shared/components/photo/PhotoUploader';
 import { PhotoVisibilityBadge } from '~shared/components/photo/PhotoVisibilityBadge';
 import { useOverlay } from '~shared/hooks/useOverlay';
 import { PhotoThunbnail } from '../../../shared/components/photo/PhotoThumbnail';
-import type { Photo } from '../../photo/photo.types';
+import type { Photo } from '@waylog/domains/photo';
 import { useTripPlaces } from '../trip-place/useTripPlaces';
 import { useTripPhotos } from './useTripPhotos';
 

@@ -8,7 +8,7 @@ import {
   upsertPlace,
 } from "../../place/place.api";
 import type { PlaceCategoryType, PlaceStatus, TripPlace } from "../../place/place.types";
-import { tripKey } from "../trip.api";
+import { tripKey } from "@waylog/domains/trip";
 import { queryClient } from "~app/query-client";
 import { TRIP_PLAN_REFETCH } from "../trip-route/tripPlanRefetch";
 

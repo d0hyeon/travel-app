@@ -1,6 +1,6 @@
 import { IconButton, useTheme, type IconButtonProps } from "@mui/material";
 import { Suspense } from "react";
-import { useTrip } from "~features/trip/useTrip";
+import { useTrip } from "@waylog/domains/trip";
 import { useDailyWeatherForecast } from "~features/weather/useDailyWeatherForecast";
 import { PRECIPITATION_SNOW_TYPES } from "~features/weather/weather.types";
 import { WeatherIcon } from "~features/weather/WeatherIcon";

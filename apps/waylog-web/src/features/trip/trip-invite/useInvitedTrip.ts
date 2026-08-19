@@ -1,6 +1,6 @@
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
-import { getTripByShareLink } from "../trip.api";
-import { joinTrip } from "../trip-member/tripMember.api";
+import { getTripByShareLink } from "@waylog/domains/trip";
+import { joinTrip } from "@waylog/domains/trip-member";
 import type { ValueOf } from "@waylog/domains/utils";
 
 interface UseInvitedTripParams {

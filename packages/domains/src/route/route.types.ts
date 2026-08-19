@@ -1,5 +1,5 @@
-import { reverseKeyValue } from "@waylog/domains/utils";
-import type { ValueOf } from "@waylog/domains/utils";
+import { reverseKeyValue } from "../utils";
+import type { ValueOf } from "../utils";
 
 export const TransportType = {
   도보: 'walk',

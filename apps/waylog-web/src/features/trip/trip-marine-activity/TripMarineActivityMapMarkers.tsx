@@ -6,7 +6,7 @@ import type { Trip } from "@waylog/domains/trip";
 import { createMarineActivityMarkerIcon } from "./MarineActivityMarkerIcon";
 import { useTripMarineActivityDetailOverlay } from "./TripMarineActivityDetailOverlay";
 import { useActiveTripDay } from "../trip-route/useActiveTripDay";
-import { useTrip } from "../useTrip";
+import { useTrip } from "@waylog/domains/trip";
 
 interface TripMarineActivityMapMarkersProps {
   tripId: string;

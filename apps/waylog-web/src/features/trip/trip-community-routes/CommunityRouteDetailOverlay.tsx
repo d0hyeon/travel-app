@@ -9,7 +9,7 @@ import { useOverlay } from '~shared/hooks/useOverlay'
 import type { Coordinate } from '@waylog/domains/utils'
 import { createTripPlace } from '../../place/place.api'
 import { useTripPlaces } from '../trip-place/useTripPlaces'
-import { useTrip } from '../useTrip'
+import { useTrip } from '@waylog/domains/trip'
 import type { CommunityPlace, CommunityTrip } from './communityRoute.types'
 import { useCommunityRouteDetail } from './useCommunityRouteDetail'
 

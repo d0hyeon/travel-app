@@ -4,7 +4,7 @@ import { formatDate } from "date-fns";
 import { Controller, useForm } from "react-hook-form";
 import { useIsMobile } from "~shared/hooks/env/useIsMobile";
 import { useTripMembers } from "../trip-member/useTripMembers";
-import { useTrip } from "../useTrip";
+import { useTrip } from "@waylog/domains/trip";
 
 export interface TripChecklistFormValue {
   title: string;

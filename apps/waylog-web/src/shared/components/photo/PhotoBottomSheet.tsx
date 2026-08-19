@@ -4,7 +4,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Menu, MenuItem, Stack } from "@mui/material";
 import { useEffect, useEffectEvent, useRef, useState, type ComponentProps } from "react";
 import { Swiper, SwiperSlide, type SwiperRef } from 'swiper/react';
-import type { Photo } from "~features/photo/photo.types";
+import type { Photo } from "@waylog/domains/photo";
 import type { PhotoUpdate } from "~features/photo/photo.api";
 import { BottomSheet } from "~shared/components/bottom-sheet/BottomSheet";
 import DownloadIcon from '@mui/icons-material/Downloading';

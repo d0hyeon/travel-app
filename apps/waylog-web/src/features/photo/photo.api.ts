@@ -1,45 +1,10 @@
 import type { DataRaw } from '@waylog/domains/api';
 import { apiClient, supabase } from '@waylog/domains/api'
-import type { Photo, PhotoUploadParams } from './photo.types'
+import type { Photo, PhotoUploadParams } from '@waylog/domains/photo'
+import { toPhoto } from '@waylog/domains/photo'
 import { heicTo, isHeic } from 'heic-to'
 import Resizer from 'react-image-file-resizer';
 
-export const photoKey = 'photos'
-
-export function toPhoto(row: DataRaw<'photos'>): Photo {
-  return {
-    id: row.id,
-    userId: row.user_id,
-    tripId: row.trip_id,
-    placeId: row.place_id,
-    isPublic: row.is_public,
-    url: row.url,
-    storagePath: row.storage_path,
-    createdAt: row.created_at,
-  }
-}
-
-export async function getPhotosByTripId(tripId: string): Promise<Photo[]> {
-  const { data, error } = await supabase
-    .from('photos')
-    .select('*')
-    .eq('trip_id', tripId)
-    .order('created_at', { ascending: false })
-
-  if (error) throw error
-  return (data ?? []).map(toPhoto)
-}
-
-export async function getPhotosByPlaceId(placeId: string): Promise<Photo[]> {
-  const { data, error } = await supabase
-    .from('photos')
-    .select('*')
-    .eq('place_id', placeId)
-    .order('created_at', { ascending: false })
-
-  if (error) throw error
-  return (data ?? []).map(toPhoto)
-}
 
 async function convertHeicToJPEG(file: File) {
   const blob = await heicTo({ blob: file, type: 'image/jpeg' });
@@ -152,47 +117,5 @@ export async function createPhotoFileFromUrl(url: string, fileName = `${Date.now
   return new File([data], fileName, { type: contentType })
 }
 
-export async function deletePhoto(photo: Photo): Promise<boolean> {
-  const { error: fnError } = await supabase.functions.invoke('storage-delete', {
-    body: { storagePaths: [photo.storagePath] },
-  })
-  if (fnError) throw fnError
-
-  const { error: dbError } = await supabase
-    .from('photos')
-    .delete()
-    .eq('id', photo.id)
-
-  if (dbError) throw dbError
-  return true
-}
-
-export interface PhotoUpdate {
-  isPublic?: boolean
-  placeId?: string | null
-}
-
-export async function updatePhoto(photoId: string, patch: PhotoUpdate): Promise<Photo> {
-  const update: { is_public?: boolean; place_id?: string | null } = {}
-  if (patch.isPublic !== undefined) update.is_public = patch.isPublic
-  if (patch.placeId !== undefined) update.place_id = patch.placeId
-
-  const { data, error } = await supabase
-    .from('photos')
-    .update(update)
-    .eq('id', photoId)
-    .select()
-    .single()
-
-  if (error) throw error
-  return toPhoto(data)
-}
-
-export async function deletePhotosByTripId(tripId: string): Promise<void> {
-  const photos = await getPhotosByTripId(tripId)
-
-  if (photos.length > 0) {
-    const storagePaths = photos.map(p => p.storagePath)
-    await supabase.functions.invoke('storage-delete', { body: { storagePaths } })
-  }
-}
+// 조회·삭제·수정은 공유 패키지에 있다. 브라우저 전용(HEIC 변환·리사이즈) 업로드만 여기 남는다.
+export * from '@waylog/domains/photo'

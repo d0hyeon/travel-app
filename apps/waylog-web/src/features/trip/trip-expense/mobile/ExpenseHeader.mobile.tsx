@@ -9,7 +9,7 @@ import {
   type CurrencyCode
 } from "@waylog/domains/expense"
 import { formatCurrency } from "@waylog/domains/expense"
-import { useTrip } from "../../useTrip"
+import { useTrip } from "@waylog/domains/trip"
 import { useExpenseSummary } from "../useExpenseSummary"
 
 interface Props {

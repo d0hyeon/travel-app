@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient, useSuspenseQuery, type UseSuspenseQueryOptions } from "@tanstack/react-query"
 import { queryClient } from "~app/query-client"
-import { tripKey } from "../trip.api"
+import { tripKey } from "@waylog/domains/trip"
 import {
   leaveTrip,
   getTripMembersByTripId,
   tripMemberKey,
-} from "./tripMember.api"
+} from "@waylog/domains/trip-member"
 import type { TripMember } from "@waylog/domains/trip-member"
 
 const getQueryOptions = (tripId: string) => {

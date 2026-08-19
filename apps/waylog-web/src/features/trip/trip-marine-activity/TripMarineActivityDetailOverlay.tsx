@@ -8,9 +8,9 @@ import { BottomSheet } from "~shared/components/bottom-sheet/BottomSheet";
 import { DialogTitle } from "~shared/components/confirm-dialog/DialogTitle";
 import { useIsMobile } from "~shared/hooks/env/useIsMobile";
 import { useOverlay } from "~shared/hooks/useOverlay";
-import { formatDisplayDate, formatShortDate } from "~shared/utils/formats";
+import { formatDisplayDate, formatShortDate } from "@waylog/domains/utils";
 import type { Trip } from "@waylog/domains/trip";
-import { useTrip } from "../useTrip";
+import { useTrip } from "@waylog/domains/trip";
 
 interface TripMarineActivityDetailOverlayProps {
   trip: Trip;

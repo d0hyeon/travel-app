@@ -1,6 +1,6 @@
-import type { DataRaw, UpdateDataType } from '@waylog/domains/api'
-import type { Json } from '@waylog/domains/api'
-import { supabase } from '@waylog/domains/api'
+import type { DataRaw, UpdateDataType } from '../api'
+import type { Json } from '../api'
+import { supabase } from '../api'
 import type { Expense } from './expense.types'
 import type { CurrencyCode } from './currency'
 

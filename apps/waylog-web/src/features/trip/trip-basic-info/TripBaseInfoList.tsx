@@ -1,8 +1,8 @@
 import { Skeleton, Stack, Typography, type StackProps } from "@mui/material";
 import { Suspense } from "react";
-import { formatShortDate } from "~shared/utils/formats";
+import { formatShortDate } from "@waylog/domains/utils";
 import { TripDurationEditableText } from "../components/TripDurationEditableText";
-import { useTrip } from "../useTrip";
+import { useTrip } from "@waylog/domains/trip";
 
 interface Props extends Omit<StackProps, 'direction'> {
   tripId: string;

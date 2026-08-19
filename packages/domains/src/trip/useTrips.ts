@@ -1,7 +1,7 @@
 import { useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getAllTrips, createTrip, deleteTrip, tripKey } from "./trip.api";
-import { leaveTrip } from "./trip-member/tripMember.api";
-import type { Trip } from "@waylog/domains/trip";
+import { leaveTrip } from "../trip-member";
+import type { Trip } from "../trip";
 
 type CreateTripVars = Omit<Trip, 'id' | 'shareLink' | 'createdAt' | 'userId'>
 

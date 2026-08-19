@@ -3,7 +3,7 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp'
 import { Box, Stack, Typography } from '@mui/material'
 import { LocationRegion } from '@waylog/domains/location'
 import type { RegionTourismTrend } from '@waylog/domains/tourism-trend'
-import { formatKoreanCount } from '~shared/utils/formats'
+import { formatKoreanCount } from '@waylog/domains/utils'
 
 interface RegionTrendCardProps {
   trend: RegionTourismTrend

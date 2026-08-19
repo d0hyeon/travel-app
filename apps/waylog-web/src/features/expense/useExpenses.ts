@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query"
-import { tripKey } from "../trip/trip.api"
+import { tripKey } from "@waylog/domains/trip"
 import {
   createExpense,
   deleteExpense,

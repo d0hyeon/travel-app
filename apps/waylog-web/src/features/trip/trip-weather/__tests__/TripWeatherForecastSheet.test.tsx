@@ -39,7 +39,7 @@ vi.mock("~shared/components/bottom-sheet/BottomSheet", () => {
   return { BottomSheet };
 });
 
-vi.mock("../../useTrip", () => ({
+vi.mock("@waylog/domains/trip", () => ({
   useTrip: () => ({
     data: {
       startDate: "2000-01-01",

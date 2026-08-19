@@ -1,6 +1,6 @@
 import { Button, type ButtonProps } from "@mui/material";
 import { usePlaceSearchBottomSheet } from "~features/place/place-search/usePlaceSearchBottomSheet";
-import { useTrip } from "../useTrip";
+import { useTrip } from "@waylog/domains/trip";
 import { useTripPlaces } from "./useTripPlaces";
 import type { TripPlace } from "~features/place/place.types";
 import { Suspense } from "react";

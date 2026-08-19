@@ -6,7 +6,7 @@ import { useIsMobile } from "~shared/hooks/env/useIsMobile";
 import { useNavigate } from "react-router";
 import { AppRoute } from "~app/routes";
 import { TripFormDialog } from "../components/TripFormDialog";
-import { useTrips } from "../useTrips";
+import { useTrips } from "@waylog/domains/trip";
 
 export function CreateTripCardButton({ sx, ...props }: StackProps<'button'>) {
   const { create } = useTrips()

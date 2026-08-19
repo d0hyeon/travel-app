@@ -8,7 +8,7 @@ import { PhotoThunbnail } from '~shared/components/photo/PhotoThumbnail'
 import { PhotoUploader } from '~shared/components/photo/PhotoUploader'
 import type { DraftPostPhoto } from './postDraftPhoto'
 import { useLocalPhotoStore } from './useLocalPhotoStore'
-import type { Photo } from '~features/photo/photo.types'
+import type { Photo } from '@waylog/domains/photo'
 
 // @ts-ignore
 import 'swiper/css'

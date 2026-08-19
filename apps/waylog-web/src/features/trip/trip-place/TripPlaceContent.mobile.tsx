@@ -9,7 +9,7 @@ import { useTripCluastering } from '../hooks/useTripCluastering';
 import { RecommendedMarkers } from '../trip-recommend/RecommendedMarkers';
 import { useRecommendedPlaceDetailOverlay } from '../trip-recommend/RecommendedPlaceDetailOverlay';
 import { useTripRoutes } from "../trip-route/useTripRoutes";
-import { useTrip } from "../useTrip";
+import { useTrip } from "@waylog/domains/trip";
 import { TripPlaceAdditionButton } from './TripPlaceAdditionButton';
 import { TripPlaceItemButton } from './TripPlaceItemButton';
 import { TripPlaceMapFloatingControls } from './TripPlaceMapFloatingControls';

@@ -1,9 +1,10 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { deleteTrip, getTripById, tripKey, updateTrip } from "./trip.api";
-import { leaveTrip } from "./trip-member/tripMember.api";
-import type { Trip } from "@waylog/domains/trip";
-import { getCoordinateByLocation, isLocation } from "@waylog/domains/location";
-import { isOverseasByCoordinate } from "@waylog/domains/utils";
+// 배럴을 경유해 import 한다. 테스트가 vi.spyOn 으로 이 모듈의 함수를 대체할 수 있어야 한다.
+import { deleteTrip, getTripById, tripKey, updateTrip } from "./index";
+import { leaveTrip } from "../trip-member";
+import type { Trip } from "../trip";
+import { getCoordinateByLocation, isLocation } from "../location";
+import { isOverseasByCoordinate } from "../utils";
 
 export function useTrip(id: string) {
   const queryClient = useQueryClient();

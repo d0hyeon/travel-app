@@ -1,6 +1,6 @@
 import { Button, Snackbar, Tooltip, type ButtonProps } from '@mui/material'
 import { useState } from 'react'
-import { useTrip } from '../useTrip'
+import { useTrip } from '@waylog/domains/trip'
 
 interface Props extends ButtonProps {
   tripId: string

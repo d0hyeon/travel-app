@@ -11,7 +11,7 @@ import { ErrorBoundary } from "~shared/components/ErrorBoundary";
 import { AsyncBoundary } from "~shared/components/utils/AsyncBoundary";
 import { assert } from "@waylog/domains/utils";
 import { TripDateToggleGroup } from "../trip-route/components/TripDateToggleGroup";
-import { useTrip } from "../useTrip";
+import { useTrip } from "@waylog/domains/trip";
 
 interface Props extends Omit<DialogProps, 'onClose'> {
   tripId: string;

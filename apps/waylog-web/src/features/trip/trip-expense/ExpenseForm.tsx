@@ -27,12 +27,12 @@ import { useAuth } from '@waylog/domains/auth'
 import { CurrencyCode as CurrencyCodeMap, getCurrenciesByDestinations, getCurrencyName, getUsedCurrencies, type CurrencyCode } from '@waylog/domains/expense'
 import { useExpenses } from '~features/expense/useExpenses'
 import { useTripMembers } from '~features/trip/trip-member/useTripMembers'
-import { useTrip } from '~features/trip/useTrip'
+import { useTrip } from '@waylog/domains/trip'
 import { PopMenu } from '~shared/components/PopMenu'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { SortCommand } from '~shared/utils/sorts'
 import { assert } from '@waylog/domains/utils'
-import { formatDisplayDate } from "../../../shared/utils/formats"
+import { formatDisplayDate } from "@waylog/domains/utils"
 import { useTripPlaces } from '../trip-place/useTripPlaces'
 
 export interface PaymentField {

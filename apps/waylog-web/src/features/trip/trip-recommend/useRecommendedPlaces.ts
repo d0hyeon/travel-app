@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from '@waylog/react'
 import { getRecommendedPlaces, recommendedPlaceKey } from './trip-recommend.api'
-import { tripKey } from '../trip.api'
-import { useTrip } from '../useTrip'
+import { tripKey } from '@waylog/domains/trip'
+import { useTrip } from '@waylog/domains/trip'
 
 export function useRecommendedPlaces(tripId: string, enabled = true) {
   const { data: trip } = useTrip(tripId)

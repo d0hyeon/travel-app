@@ -1,4 +1,4 @@
-import type { Coordinate } from "@waylog/domains/utils";
+import type { Coordinate } from "../utils";
 
 /**
  * 좌표가 한국 영역인지 판단

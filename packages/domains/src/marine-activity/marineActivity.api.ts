@@ -1,5 +1,5 @@
 import { differenceInCalendarDays, format, parseISO, set } from "date-fns";
-import { governmentApi, type GovernmentApiResponse } from "@waylog/domains/api";
+import { governmentApi, type GovernmentApiResponse } from "../api";
 import {
   MarineActivityGrade,
   MarineActivityType,
@@ -10,7 +10,7 @@ import {
   type MarineActivityType as MarineActivityTypeValue,
 } from "./marineActivity.types";
 import { getDistanceMeters } from "./marineActivityPlaces";
-import type { Coordinate } from "@waylog/domains/utils";
+import type { Coordinate } from "../utils";
 
 const marineActivityEndpoint = {
   [MarineActivityType.Beach]: "/1192136/fcstBeachv2/GetFcstBeachApiServicev2",

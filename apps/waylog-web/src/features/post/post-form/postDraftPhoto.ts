@@ -1,4 +1,4 @@
-import type { Photo } from '~features/photo/photo.types'
+import type { Photo } from '@waylog/domains/photo'
 
 export interface DraftPostPhoto {
   id: string;

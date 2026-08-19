@@ -5,7 +5,7 @@ import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState'
 import { lazy } from '~shared/utils/react'
-import { useTrips } from '../useTrips'
+import { useTrips } from '@waylog/domains/trip'
 import type { Destination } from './DestinationStep'
 
 const DestinationStep = lazy(async () => {

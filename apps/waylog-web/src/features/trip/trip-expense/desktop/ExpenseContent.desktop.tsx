@@ -16,7 +16,7 @@ import { SwitchCase } from '~shared/components/SwitchCase'
 import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState'
 import { useExpenses } from "../../../expense/useExpenses"
 import { useTripMembers } from "../../trip-member/useTripMembers"
-import { useTrip } from "../../useTrip"
+import { useTrip } from "@waylog/domains/trip"
 import { TripExchangeRageSettingButton } from '../TripExchangeRateSettingButton'
 import { useExpenseFormOverlay } from "../useExpenseFormOverlay"
 import { ExpenseList } from './ExpenseList.desktop'

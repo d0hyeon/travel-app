@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query"
 import { deletePhoto, getPhotosByPlaceId, photoKey, updatePhoto, uploadPhoto, type PhotoUpdate } from "~features/photo/photo.api"
-import type { Photo } from "~features/photo/photo.types"
+import type { Photo } from "@waylog/domains/photo"
 import { useTripPhotos } from "../trip-photo/useTripPhotos";
 
 type UploadParams = 

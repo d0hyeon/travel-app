@@ -3,7 +3,7 @@ import { Box, Button, ButtonBase, Chip, Stack, Typography, type BoxProps } from 
 import AddIcon from '@mui/icons-material/Add';
 import { useTripPlaces } from "./useTripPlaces";
 import { useTripRoutes } from "../trip-route/useTripRoutes";
-import { useTrip } from "../useTrip";
+import { useTrip } from "@waylog/domains/trip";
 import type { TripPlace } from "../../place/place.types";
 import { Map, type MapRef } from "../../../shared/components/Map";
 import { useOverlay } from "../../../shared/hooks/useOverlay";

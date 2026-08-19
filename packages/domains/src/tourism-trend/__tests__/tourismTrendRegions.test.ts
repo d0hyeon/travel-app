@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { LocationCountry } from '@waylog/domains/location'
-import { Country } from '@waylog/domains/location'
+import { LocationCountry } from '../../location'
+import { Country } from '../../location'
 import { RegionLevel } from '../tourismTrend.types'
 import {
   TourismTrendRegions,

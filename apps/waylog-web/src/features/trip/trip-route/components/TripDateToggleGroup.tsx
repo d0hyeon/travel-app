@@ -1,5 +1,5 @@
 import { ToggleButton, ToggleButtonGroup, type ToggleButtonGroupProps } from '@mui/material';
-import { formatShortDate } from '~shared/utils/formats';
+import { formatShortDate } from '@waylog/domains/utils';
 import { useTripRoutes } from '../useTripRoutes';
 
 interface TripDateToggleGroupProps extends Omit<ToggleButtonGroupProps, 'value' | 'onChange'> {

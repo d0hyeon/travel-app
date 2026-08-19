@@ -1,7 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useScheduledTripDestinations } from '../useScheduledTripDestinations'
-import * as tripApi from '../trip.api'
+import * as tripApi from '@waylog/domains/trip'
 import { createWrapper } from '~fixtures/wraper'
 import type { Trip } from '@waylog/domains/trip'
 
