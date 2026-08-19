@@ -1,4 +1,4 @@
-import { useAuth } from "~features/auth/useAuth"
+import { useAuth } from "@waylog/domains/auth"
 import type { ChatMessage } from "../tripChat.types"
 import { Avatar, Box, Stack, Typography } from "@mui/material";
 import { extractUrls, renderTextWithLinks } from "~shared/utils/urls";

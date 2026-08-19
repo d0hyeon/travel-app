@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from "react";
 import { ErrorBoundary } from "~shared/components/ErrorBoundary";
 import { useAuthNavigate } from "./AuthNavigate";
-import { AuthError } from "./AuthError";
+import { AuthError } from "@waylog/domains/auth";
 
 export function AuthErrorBoundary(props: PropsWithChildren) {
   const login = useAuthNavigate();

@@ -1,5 +1,5 @@
 import { supabase } from '@waylog/domains/api'
-import { getAuth } from '~features/auth/useAuth'
+import { getAuth } from '@waylog/domains/auth'
 import type { Trip } from '@waylog/domains/trip'
 import { formatShortDate } from '../../shared/utils/formats';
 import { deletePhotosByTripId } from '~features/photo/photo.api';

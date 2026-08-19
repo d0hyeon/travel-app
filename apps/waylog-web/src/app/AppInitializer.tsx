@@ -2,7 +2,7 @@ import { Button, Stack, Typography } from "@mui/material";
 import { Suspense, useEffect } from "react";
 import { toast } from "sonner";
 import { registerSW } from "virtual:pwa-register";
-import { AuthStateSync, useAuth } from "~features/auth/useAuth";
+import { AuthStateSync, useAuth } from "@waylog/domains/auth";
 import { getActivedChatTripId } from "~features/trip/trip-chat/notification/useChatActivation";
 import { useChatWebPushFallback as useChatBrowserPushFallback } from '~features/trip/trip-chat/notification/useChatWebPushFallback';
 import { useTripChatOverlay } from "~features/trip/trip-chat/useTripChatOverlay";

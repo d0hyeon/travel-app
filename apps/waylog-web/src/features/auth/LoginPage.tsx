@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { isDev } from '~app/env'
 import { IntroFullScreenBanner } from '~features/intro/IntroFullScreenBanner'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
-import { signInWithEmail, signInWithKakao } from './auth.api'
+import { signInWithEmail, signInWithKakao } from '@waylog/domains/auth'
 import { useAuthRedirection } from './AuthNavigate'
 
 function KakaoSymbol() {

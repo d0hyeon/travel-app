@@ -1,4 +1,4 @@
-import { useAuth } from "~features/auth/useAuth";
+import { useAuth } from "@waylog/domains/auth";
 import { usePost } from "./usePost";
 import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
 import { PopMenu } from "~shared/components/PopMenu";

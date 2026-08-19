@@ -1,5 +1,5 @@
 import { Avatar, Box, Button, Stack, Typography } from '@mui/material'
-import { getAuth } from '~features/auth/useAuth'
+import { getAuth } from '@waylog/domains/auth'
 import { useUserProfile } from './useUserProfile'
 
 interface Props {

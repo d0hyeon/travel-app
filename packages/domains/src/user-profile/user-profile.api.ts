@@ -1,5 +1,5 @@
-import { supabase } from '@waylog/domains/api'
-import type { UserProfile } from '@waylog/domains/user-profile'
+import { supabase } from '../api'
+import type { UserProfile } from '../user-profile'
 
 export const userProfileKey = 'user-profile'
 

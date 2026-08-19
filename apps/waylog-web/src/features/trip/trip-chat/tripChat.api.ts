@@ -1,5 +1,5 @@
 import { supabase } from '@waylog/domains/api'
-import { getAuth } from '~features/auth/useAuth'
+import { getAuth } from '@waylog/domains/auth'
 import type { ChatMessage } from './tripChat.types'
 import type { DataRaw } from '@waylog/domains/api'
 
