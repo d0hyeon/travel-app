@@ -1,8 +1,8 @@
 import { use, useEffect, useEffectEvent, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { type Country, type Location } from '~features/location'
 import type { Coordinate } from '~shared/types/coordinate'
-import { useAsyncEffect } from '~shared/hooks/extends/useAsyncEffect'
-import { useCleanup } from '~shared/hooks/extends/useCleanup'
+import { useAsyncEffect } from '@waylog/react'
+import { useCleanup } from '@waylog/react'
 import { getPolygonFeatureStyle } from './polygon-layer.style'
 import {
   getCountryPolygonCoordinateGroups,
@@ -11,7 +11,7 @@ import {
 import type { MapPolygonProps, PolygonStyleProps } from '../../polygon-layer.types'
 import type { GeoJsonFeatureCollection } from '../boundary/boundary.types'
 import { GoogleMapContext } from '../../MapContext'
-import { usePreservedCallback } from '~shared/hooks/extends/usePreservedCallback'
+import { usePreservedCallback } from '@waylog/react'
 
 export interface GooglePolygonLayerProps {
   children?: ReactNode

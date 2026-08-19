@@ -1,7 +1,7 @@
 import { Box, Divider, Stack, Typography, useTheme, type StackProps } from "@mui/material";
 import { formatDate, isSameHour } from "date-fns";
 import { ko } from "date-fns/locale";
-import { useCurrentTime } from "~shared/hooks/env/useCurrentTime";
+import { useCurrentTime } from "@waylog/react";
 import { reverseKeyValue } from "~shared/utils/common";
 import { arrayIncludes } from "~shared/utils/types";
 import { WeatherIcon } from "./WeatherIcon";

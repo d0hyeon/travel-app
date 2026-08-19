@@ -1,5 +1,5 @@
 import { clientDatabase } from '~app/client-database';
-import { useQuery } from '~shared/hooks/extends/useQuery';
+import { useQuery } from '@waylog/react';
 import { isOverseasByCoordinate } from '~shared/utils/geo';
 import type { Coordinate } from '../../../shared/components/Map/types';
 import type { RoadRoute } from '../route.types';

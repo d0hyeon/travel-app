@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react"
-import { usePreservedValue } from "../extends/usePreservedValue"
+import { usePreservedValue } from "@waylog/react"
 
 type Frames = Keyframe[] | PropertyIndexedKeyframes
 

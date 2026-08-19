@@ -2,7 +2,7 @@ import { Divider, Skeleton, Stack, Typography, useTheme, type StackProps } from 
 import { formatDate, getHours, isToday as getIsToday, set } from "date-fns";
 import { ko } from 'date-fns/locale';
 import { Suspense, useMemo } from "react";
-import { useCurrentTime } from "~shared/hooks/env/useCurrentTime";
+import { useCurrentTime } from "@waylog/react";
 import { HourlyForecastItem } from "./HourlyForecastItem";
 import { type UseDailyWeatherForecastParams } from "./useDailyWeatherForecast";
 import { useHourlyForecast } from "./useHourlyForecast";

@@ -4,9 +4,9 @@ import type { DraftPostPhoto } from "./postDraftPhoto";
 import type { PostPlaceSelection } from "./PostPlacesField";
 import { useCallback, useState } from "react";
 import { assert } from "~shared/utils/types";
-import { useVariation } from "~shared/hooks/extends/useVariation";
-import { usePreservedCallback } from "~shared/hooks/extends/usePreservedCallback";
-import { useLoading } from "~shared/hooks/useLoading";
+import { useVariation } from "@waylog/react";
+import { usePreservedCallback } from "@waylog/react";
+import { useLoading } from "@waylog/react";
 
 export type PostFormValues = {
   photos: DraftPostPhoto[];

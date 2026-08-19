@@ -2,7 +2,7 @@ import { Box } from "@mui/material";
 import { useEffect, useMemo, useRef, type ReactNode } from "react";
 import { useAnimation } from "~shared/hooks/animation/useAnimation";
 import { useElementSize } from "~shared/hooks/dom/useElementSize";
-import { useIsMounted } from "~shared/hooks/useIsMounted";
+import { useIsMounted } from '~shared/hooks/useIsMounted'
 
 type Props = {
   children: ReactNode;

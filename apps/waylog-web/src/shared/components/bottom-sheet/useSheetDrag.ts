@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useVariation } from "~shared/hooks/extends/useVariation";
+import { useVariation } from "@waylog/react";
 
 // ============================================================
 // Constants

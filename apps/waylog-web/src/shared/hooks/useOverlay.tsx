@@ -1,6 +1,6 @@
 import { startTransition, useCallback, useContext, useEffect, useId, useImperativeHandle, useMemo, useRef, useState, type ReactNode, type Ref } from "react";
 import { OverlayContext } from "./useOverlay.context";
-import { usePreservedCallback } from "./extends/usePreservedCallback";
+import { usePreservedCallback } from "@waylog/react";
 
 export function useOverlay() {
   const context = useContext(OverlayContext)

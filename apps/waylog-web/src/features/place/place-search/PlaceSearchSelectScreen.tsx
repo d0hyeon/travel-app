@@ -7,7 +7,7 @@ import { Map, type Coordinate, type MapBounds, type MapRef } from "~shared/compo
 import { SplitView, } from "~shared/components/split-view/SplitView";
 import { calcDistance } from "~shared/utils/geo";
 import { usePlaceSearch, type PlaceResult } from "./usePlaceSearch";
-import { usePreservedValue } from "~shared/hooks/extends/usePreservedValue";
+import { usePreservedValue } from "@waylog/react";
 
 const COLORS = ['#66BB6A', '#EB5757', '#5DADE2', '#7986CB']
 

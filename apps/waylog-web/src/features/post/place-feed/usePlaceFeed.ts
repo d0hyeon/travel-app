@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from "~shared/hooks/extends/useSuspenseQuery";
+import { useSuspenseQuery } from "@waylog/react";
 import { getFeedByPlace } from "./placeFeed.api";
 import { usePlace } from "../../place/usePlace";
 

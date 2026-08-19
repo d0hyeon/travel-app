@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useVariation } from "../extends/useVariation";
+import { useVariation } from "@waylog/react";
 import { useScrollEventListener } from "./useScrollEventListener";
 
 export function useScrollStatus<T extends HTMLElement>(target: T | null) {

@@ -5,7 +5,7 @@ import type { Photo } from "~features/photo/photo.types";
 import { tripKey } from "../trip.api";
 import { useTripPlaces } from "../trip-place/useTripPlaces";
 import { queryClient } from "~app/query-client";
-import { useSuspenseQuery, type UseSuspenseQueryOptions } from "~shared/hooks/extends/useSuspenseQuery";
+import { useSuspenseQuery, type UseSuspenseQueryOptions } from "@waylog/react";
 
 type FileUploadParams =
   | { files: File[]; placeId?: string }

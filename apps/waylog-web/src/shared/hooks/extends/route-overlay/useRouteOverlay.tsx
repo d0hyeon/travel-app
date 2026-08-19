@@ -1,6 +1,6 @@
 import { useCallback, useId, useMemo, useState, type ReactNode } from "react";
 import { Link, useLocation, useNavigate, type LinkProps } from "react-router";
-import { usePreservedCallback } from "../usePreservedCallback";
+import { usePreservedCallback } from "@waylog/react";
 import { registerRouteOverlay, type RouteOverlayRenderProps } from "./routeOverlayStore";
 
 export type { RouteOverlayRenderProps };

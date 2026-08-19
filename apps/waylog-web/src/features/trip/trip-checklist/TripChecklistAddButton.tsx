@@ -1,7 +1,7 @@
 import { Button, Dialog, DialogActions, DialogContent, type ButtonProps } from "@mui/material";
 import { BottomSheet } from "~shared/components/bottom-sheet/BottomSheet";
 import { useIsMobile } from "~shared/hooks/env/useIsMobile";
-import { useLoading } from "~shared/hooks/useLoading";
+import { useLoading } from "@waylog/react";
 import { useOverlay } from "~shared/hooks/useOverlay";
 import { TripChecklistForm } from "./TripChecklistForm";
 import { useTripChecklist } from "./useTripChecklist";

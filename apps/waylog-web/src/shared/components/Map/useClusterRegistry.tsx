@@ -1,5 +1,5 @@
 import { createContext, use, useCallback, useEffect, useMemo, useRef, useState, type DependencyList, type PropsWithChildren } from 'react';
-import { useBatchedCallback } from '~shared/hooks/useBatchedCallback';
+import { useBatchedCallback } from '~shared/hooks/useBatchedCallback'
 import { assert } from '~shared/utils/types';
 import type { MarkerData } from './types';
 

@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from '~shared/hooks/extends/useSuspenseQuery'
+import { useSuspenseQuery } from '@waylog/react'
 import { getRecommendedPlaces, recommendedPlaceKey } from './trip-recommend.api'
 import { tripKey } from '../trip.api'
 import { useTrip } from '../useTrip'

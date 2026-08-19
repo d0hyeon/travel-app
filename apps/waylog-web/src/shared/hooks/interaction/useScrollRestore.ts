@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect } from 'react';
 import { useLocation } from 'react-router';
-import { useScrollEventListener } from './useScrollEventListener';
+import { useScrollEventListener } from '~shared/hooks/interaction/useScrollEventListener'
 import { useIsBFCacheRestored } from '../dom/useIsBFCacheRestored';
 import { APP_ROOT_NODE_CLASS } from '~app/constants';
 

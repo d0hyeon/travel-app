@@ -4,7 +4,7 @@ import {
   getDailyMarineActivityIndices,
   getIsMarineActivityForecastAvailability,
 } from "./marineActivity.api";
-import { useSuspenseQuery } from "~shared/hooks/extends/useSuspenseQuery";
+import { useSuspenseQuery } from "@waylog/react";
 import type { Coordinate } from "~shared/types/coordinate";
 
 interface UseDailyMarineActivityIndicesParams {

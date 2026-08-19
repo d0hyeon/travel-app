@@ -17,7 +17,7 @@ import {
 import { useEffect, useState } from 'react'
 import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
 import { ListItem } from '~shared/components/ListItem'
-import { useDebouncedValue } from '~shared/hooks/extends/useDebouncedValue'
+import { useDebouncedValue } from '@waylog/react'
 import type { Coordinate, MapType } from '../../../shared/components/Map'
 import type { PlaceSearchResult } from './PlaceSearchDialog'
 import { PlaceSearchSelectScreen } from './PlaceSearchSelectScreen'

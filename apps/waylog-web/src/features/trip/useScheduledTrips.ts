@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from "~shared/hooks/extends/useSuspenseQuery";
+import { useSuspenseQuery } from "@waylog/react";
 import { getAllTrips, tripKey } from "./trip.api";
 import { getTripStatus } from "./trip-list/trip-list.utils";
 import { SortCommand } from "~shared/utils/sorts";

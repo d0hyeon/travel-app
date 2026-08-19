@@ -8,7 +8,7 @@ import { useDailyWeatherForecast } from "~features/weather/useDailyWeatherForeca
 import type { DayPart } from "~features/weather/weather.types";
 import { BottomSheet } from "~shared/components/bottom-sheet/BottomSheet";
 import { ErrorBoundary } from "~shared/components/ErrorBoundary";
-import { useCurrentTime } from "~shared/hooks/env/useCurrentTime";
+import { useCurrentTime } from "@waylog/react";
 import type { Coordinate } from "~shared/types/coordinate";
 import { formatDisplayDate, formatShortDate } from "~shared/utils/formats";
 import { useTrip } from "../useTrip";

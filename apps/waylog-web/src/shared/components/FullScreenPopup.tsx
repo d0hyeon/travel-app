@@ -1,8 +1,8 @@
 import { Box } from "@mui/material";
 import { useState, type ReactNode, useImperativeHandle, type Ref } from "react";
 import { useAnimation, type AnimationSpec } from "~shared/hooks/animation/useAnimation";
-import { useAsyncEffect } from "~shared/hooks/extends/useAsyncEffect";
-import { useVariation } from "~shared/hooks/extends/useVariation";
+import { useAsyncEffect } from "@waylog/react";
+import { useVariation } from "@waylog/react";
 
 export interface ScreenTransition {
   frames?: Keyframe[];

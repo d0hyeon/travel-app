@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useEffectEvent, useRef } from "react";
 import type { Coordinate, MapBounds } from "../types";
-import { useBatchedCallback } from "~shared/hooks/useBatchedCallback";
+import { useBatchedCallback } from '~shared/hooks/useBatchedCallback'
 
 /** @package {GoogleMap.tsx} */
 export function useBoundsChangeListener(map: google.maps.Map | null, onChangeBound?: (bound: MapBounds) => void) {

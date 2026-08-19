@@ -1,6 +1,6 @@
 import { useEffectEvent, useState } from 'react';
 import type { Coordinate } from '~shared/types/coordinate';
-import { useAsyncEffect } from '../extends/useAsyncEffect';
+import { useAsyncEffect } from '@waylog/react';
 
 let permissionPromise: Promise<boolean> | null = null;
 const getPermission = () => {

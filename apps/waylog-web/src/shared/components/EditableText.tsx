@@ -2,7 +2,7 @@
 import { Box, Stack, TextField, Typography, type TypographyProps } from '@mui/material';
 import { type InputHTMLAttributes, type ReactNode, useEffect, useRef } from 'react';
 import { type ControllerFieldState, type ControllerRenderProps, type RegisterOptions, useController, useForm } from 'react-hook-form';
-import { useBooleanState } from '../hooks/extends/useBooleanState';
+import { useBooleanState } from '@waylog/react';
 import { useDismissCallback } from '../hooks/interaction/useDismissCallback';
 import EditIcon from '@mui/icons-material/Edit';
 import { mergeProps, mergeRef } from '../utils/merges';

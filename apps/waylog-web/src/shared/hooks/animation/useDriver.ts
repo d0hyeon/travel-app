@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import type { AnimationApi } from "./useAnimation"
-import { useVariation } from "../extends/useVariation"
+import { useVariation } from "@waylog/react"
 import { assert } from "~shared/utils/types"
 import { throttle } from "~shared/utils/throttle";
 

@@ -1,5 +1,5 @@
 import { useEffect, useEffectEvent } from "react";
-import { useVariation } from "../extends/useVariation";
+import { useVariation } from "@waylog/react";
 
 interface Handlers {
   onScroll?: (event: Event) => void;

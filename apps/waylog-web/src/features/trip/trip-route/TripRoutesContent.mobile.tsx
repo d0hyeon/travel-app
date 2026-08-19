@@ -10,7 +10,7 @@ import { Fragment, startTransition, useMemo, useOptimistic, useRef, useState } f
 import { Dot } from 'recharts';
 import { BottomArea } from '~shared/components/BottomArea';
 import { ListItem } from '~shared/components/ListItem';
-import { useVariation } from '~shared/hooks/extends/useVariation';
+import { useVariation } from '@waylog/react';
 import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState';
 import { assert } from '~shared/utils/types';
 import { BottomSheet } from "../../../shared/components/bottom-sheet/BottomSheet";

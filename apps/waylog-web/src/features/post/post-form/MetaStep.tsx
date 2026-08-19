@@ -25,7 +25,7 @@ import { Swiper, SwiperSlide } from 'swiper/react'
 
 // @ts-ignore
 import 'swiper/css'
-import { useLoading } from '~shared/hooks/useLoading'
+import { useLoading } from '@waylog/react'
 
 export interface MetaStepValue {
   description: string

@@ -1,6 +1,6 @@
 import { Box, Stack, type BoxProps, type StackProps } from '@mui/material';
 import { useCallback, useRef, type ReactNode } from 'react';
-import { useVariation } from '~shared/hooks/extends/useVariation';
+import { useVariation } from '@waylog/react';
 import { IntersectionArea } from '../IntersectionArea';
 import { useBottomSheetContext } from './BottomSheetContext';
 import { useKeyboardStatus } from './useKeyboardStatus';

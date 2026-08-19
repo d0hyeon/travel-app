@@ -3,7 +3,7 @@ import type { WheelAction } from '@fancyapps/ui/types/Panzoom/types';
 import { Box, type BoxProps } from '@mui/material';
 
 import { useEffect, useState } from 'react';
-import { usePreservedCallback } from '~shared/hooks/extends/usePreservedCallback';
+import { usePreservedCallback } from '@waylog/react';
 
 const { Panzoom } = FancyappsUI;
 

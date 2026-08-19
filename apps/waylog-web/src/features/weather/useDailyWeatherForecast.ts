@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from "~shared/hooks/extends/useSuspenseQuery";
+import { useSuspenseQuery } from "@waylog/react";
 import type { Coordinate } from "~shared/types/coordinate";
 import { isOverseasByCoordinate } from "~shared/utils/geo";
 import forecastApi from "./weather.api";

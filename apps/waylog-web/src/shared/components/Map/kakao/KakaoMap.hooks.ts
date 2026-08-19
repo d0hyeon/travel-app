@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useEffectEvent, useMemo, useRef } from "react";
 import type { Coordinate, MapBounds } from "../types";
-import { useBatchedCallback } from "~shared/hooks/useBatchedCallback";
+import { useBatchedCallback } from '~shared/hooks/useBatchedCallback'
 
 /** @package { KakaoMap.tsx } */
 export function useBoundsChangeListener(map: kakao.maps.Map | null, onChangeBounds?: (bounds: MapBounds) => void) {

@@ -1,5 +1,5 @@
 import { useEffect, useEffectEvent, useMemo, useState } from "react";
-import { useVariation } from "../extends/useVariation";
+import { useVariation } from "@waylog/react";
 
 export interface CountAnimationOptions {
   enabled?: boolean;

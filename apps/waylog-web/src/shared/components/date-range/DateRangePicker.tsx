@@ -4,7 +4,7 @@ import { Box, Dialog, InputAdornment, TextField, useTheme, type TextFieldProps }
 import { formatDate } from 'date-fns';
 import { useEffect, useState, type DependencyList, type EffectCallback, type ReactNode } from 'react';
 import { useIsMobile } from '~shared/hooks/env/useIsMobile';
-import { useVariation } from '~shared/hooks/extends/useVariation';
+import { useVariation } from '@waylog/react';
 import { DateCalendarBoard } from './DateCalendarBoard';
 import { Popover } from './Popover';
 import { type DateRange } from './type';

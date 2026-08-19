@@ -8,6 +8,11 @@
     "./*": "./src/*.ts"
   },
   "peerDependencies": {
-    "react": ">=19"
+    "react": ">=19",
+    "@tanstack/react-query": ">=5"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.7",
+    "typescript": "~5.9.3"
   }
 }

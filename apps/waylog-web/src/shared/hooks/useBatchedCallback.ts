@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react';
-import { usePreservedCallback } from './extends/usePreservedCallback';
+import { usePreservedCallback } from '@waylog/react';
 
 interface Options {
   once?: boolean;

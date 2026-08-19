@@ -3,7 +3,7 @@ import { useState, type ComponentProps } from "react";
 import { useWebPushSubscription } from "~features/auth/useWebPushSubscription";
 import { NotificationCard } from "~shared/components/notification-card/NotificationCard";
 import { SlideReveal } from "~shared/components/animation/SlideReveal";
-import { useLoading } from "~shared/hooks/useLoading";
+import { useLoading } from "@waylog/react";
 
 
 export function ChatPushNoticeCard(props: ComponentProps<typeof NotificationCard>) {
