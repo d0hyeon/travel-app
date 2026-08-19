@@ -13,7 +13,8 @@ const config = {
     // React 인스턴스가 둘이면 훅 호출이 "Invalid hook call" 로 깨진다.
     // RN 앱이 다른 react 버전을 들여오면 swiper 같은 라이브러리가 그쪽을 잡을 수 있어,
     // 웹 번들에서는 항상 이 앱이 가진 것 하나로 고정한다.
-    dedupe: ['react', 'react-dom'],
+    // react-query 도 Context 를 쓴다. 인스턴스가 갈리면 Provider 를 못 찾는다.
+    dedupe: ['react', 'react-dom', '@tanstack/react-query'],
     alias: [
       // dedupe 는 사전번들 대상에만 적용돼 swiper 같은 .mjs 라이브러리가
       // RN 앱의 react 를 잡는 것을 막지 못한다. 경로로 직접 고정한다.

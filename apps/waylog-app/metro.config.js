@@ -25,7 +25,14 @@ config.resolver.nodeModulesPaths = [
 //   - Expo SDK 를 올리면 앱의 react 가 SDK 가 고정한 버전으로 되돌아간다
 //   - 웹이 react 를 올리면 공유 패키지(@waylog/*)가 그쪽을 따라간다
 // 지금은 버전을 맞춰뒀지만, 어긋난 순간 조용히 깨지는 대신 여기서 막는다.
-const SINGLETONS = ['react', 'react-dom', 'react-native']
+// Context 를 쓰는 패키지는 인스턴스가 갈리면 Provider 를 찾지 못한다.
+// react-query 는 peer 인 react 버전별로 따로 설치되므로 여기 포함해야 한다.
+const SINGLETONS = [
+  'react',
+  'react-dom',
+  'react-native',
+  '@tanstack/react-query',
+]
 
 const defaultResolveRequest = config.resolver.resolveRequest
 
