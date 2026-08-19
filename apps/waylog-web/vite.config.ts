@@ -3,6 +3,9 @@ import { reactRouter } from '@react-router/dev/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 
+// 인스턴스가 하나여야 하는 패키지. metro.config.js 의 SINGLETONS 와 같은 목록을 유지한다.
+const SINGLETONS = ['react', 'react-dom', '@tanstack/react-query']
+
 // https://vite.dev/config/
 const config = {
   base: '/',
@@ -10,20 +13,15 @@ const config = {
     reactRouter(),
   ],
   resolve: {
-    // React 인스턴스가 둘이면 훅 호출이 "Invalid hook call" 로 깨진다.
-    // RN 앱이 다른 react 버전을 들여오면 swiper 같은 라이브러리가 그쪽을 잡을 수 있어,
-    // 웹 번들에서는 항상 이 앱이 가진 것 하나로 고정한다.
-    // react-query 도 Context 를 쓴다. 인스턴스가 갈리면 Provider 를 못 찾는다.
-    dedupe: ['react', 'react-dom', '@tanstack/react-query'],
+    // React 와 Context 를 쓰는 패키지는 인스턴스가 둘이면 깨진다.
+    // (훅 → "Invalid hook call", Context → Provider 를 못 찾음)
+    //
+    // 워크스페이스에는 버전이 갈릴 경로가 상시 존재한다:
+    //   - RN 앱은 react-native 가 고정하는 react 를 쓴다 (현재 19.1)
+    //   - 공유 패키지(@waylog/*)는 peer 라 pnpm 해석에 따라 어느 쪽이든 붙을 수 있다
+    // 웹 번들에서는 이 앱이 가진 것 하나로 고정한다.
+    dedupe: SINGLETONS,
     alias: [
-      // dedupe 는 사전번들 대상에만 적용돼 swiper 같은 .mjs 라이브러리가
-      // RN 앱의 react 를 잡는 것을 막지 못한다. 경로로 직접 고정한다.
-      { find: /^react$/, replacement: path.resolve(__dirname, 'node_modules/react') },
-      { find: /^react-dom$/, replacement: path.resolve(__dirname, 'node_modules/react-dom') },
-      // dedupe 는 사전 번들된 .mjs 라이브러리(swiper 등)에는 닿지 않는다.
-      // RN 앱이 다른 react 버전을 들여와도 웹은 자기 것만 쓰도록 경로를 못박는다.
-      { find: /^react$/, replacement: path.resolve(__dirname, 'node_modules/react') },
-      { find: /^react-dom$/, replacement: path.resolve(__dirname, 'node_modules/react-dom') },
       { find: /^~(.*)/, replacement: path.resolve(__dirname, 'src/$1') },
     ],
   },

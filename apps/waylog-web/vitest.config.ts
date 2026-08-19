@@ -25,16 +25,12 @@ export default defineConfig({
     // react-query 도 Context 를 쓴다. 인스턴스가 갈리면 Provider 를 못 찾는다.
     dedupe: ['react', 'react-dom', '@tanstack/react-query'],
     alias: [
-      // dedupe 는 사전번들 대상에만 적용돼 swiper 같은 .mjs 라이브러리가
-      // RN 앱의 react 19.1 을 잡는 것을 막지 못한다. 경로로 직접 고정한다.
+      // dedupe 는 사전 번들된 .mjs 라이브러리(swiper 등)에는 닿지 않는다.
+      // 테스트 환경에서는 경로로 직접 못박아 앱이 가진 react 하나만 쓰게 한다.
       { find: /^react$/, replacement: path.resolve(__dirname, 'node_modules/react') },
       { find: /^react-dom$/, replacement: path.resolve(__dirname, 'node_modules/react-dom') },
       { find: /^react\/jsx-runtime$/, replacement: path.resolve(__dirname, 'node_modules/react/jsx-runtime') },
       { find: /^react\/jsx-dev-runtime$/, replacement: path.resolve(__dirname, 'node_modules/react/jsx-dev-runtime') },
-      // dedupe 는 사전 번들된 .mjs 라이브러리(swiper 등)에는 닿지 않는다.
-      // RN 앱이 다른 react 버전을 들여와도 웹은 자기 것만 쓰도록 경로를 못박는다.
-      { find: /^react$/, replacement: path.resolve(__dirname, 'node_modules/react') },
-      { find: /^react-dom$/, replacement: path.resolve(__dirname, 'node_modules/react-dom') },
       { find: /^~(.*)/, replacement: path.resolve(__dirname, 'src/$1') },
     ],
   },
