@@ -2,12 +2,18 @@
 
 프로젝트 구조와 주요 패턴을 빠르게 파악하기 위한 참조 문서.
 
+> **경로 표기 규칙**
+> 이 문서에서 `src/`로 시작하는 경로는 모두 `apps/waylog-web/` 기준이다.
+> (예: `src/api/client.ts` → `apps/waylog-web/src/api/client.ts`)
+> 워크스페이스 루트 기준 경로는 `apps/`, `packages/`처럼 최상위 디렉토리부터 적는다.
+
 ---
 
 ## 기술 스택
 
 | 분류      | 기술                               |
 | --------- | ---------------------------------- |
+| Monorepo  | pnpm workspace                     |
 | Framework | React 19 + React Router 7 (CSR, `ssr: false`) |
 | Language  | TypeScript 5.9                     |
 | Build     | Vite 7                             |
@@ -61,6 +67,34 @@
 ---
 
 ## 디렉토리 구조
+
+### 워크스페이스 레이아웃
+
+```
+apps/
+└── waylog-web/                 # 웹 앱 (React Router 7 + Vite)
+    ├── src/                    # 아래 "앱 내부 구조" 참조
+    ├── e2e/                    # Playwright 스펙
+    ├── public/                 # 정적 자산 + 서비스워커 산출물
+    ├── package.json            # 앱 의존성·스크립트
+    ├── tsconfig.json           # 앱 프로젝트 레퍼런스 루트
+    └── vite.config.ts 등       # 앱 빌드·테스트 설정
+packages/                       # 공유 패키지 (아직 비어 있음)
+supabase/                       # DB 마이그레이션·엣지 함수
+tools/                          # eslint 커스텀 룰
+package.json                    # 워크스페이스 루트 (앱으로 위임하는 스크립트)
+eslint.config.js                # 레포 전역 lint 설정 + 의존성
+```
+
+**스크립트 실행:** 루트의 `dev`·`build`·`test`·`test:e2e`·`ts-check`는
+`pnpm --filter waylog-web`으로 앱에 위임한다. `lint`만 루트에서 직접 실행한다
+(`eslint.config.js`가 레포 전역이라 그 의존성도 루트에 있다).
+
+**환경변수:** `.env`는 `apps/waylog-web/`에 있다. Vite가 자기 프로젝트 루트에서 찾는다.
+
+### 앱 내부 구조
+
+경로는 `apps/waylog-web/` 기준이다.
 
 ```
 src/
