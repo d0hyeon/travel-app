@@ -1,6 +1,6 @@
-import { initQueryClient, queryClient } from '@waylog/domains/query'
+import { QueryClient } from "@tanstack/react-query";
 
-initQueryClient({
+export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchInterval: false,
@@ -10,5 +10,3 @@ initQueryClient({
     }
   }
 })
-
-export { queryClient }

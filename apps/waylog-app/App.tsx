@@ -1,8 +1,7 @@
 import 'react-native-url-polyfill/auto'
 
 import { AuthStateSync, useAuth } from '@waylog/domains/auth'
-import { queryClient } from '@waylog/domains/query'
-import { QueryClientProvider } from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { StatusBar } from 'expo-status-bar'
 import { Suspense } from 'react'
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'
@@ -12,6 +11,16 @@ import { TripListScreen } from './src/TripListScreen'
 
 // 어떤 도메인 모듈보다 먼저 실행되어야 한다.
 setupApi()
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // RN 에는 window focus 개념이 없다.
+      refetchOnWindowFocus: false,
+      throwOnError: true,
+    },
+  },
+})
 
 function Root() {
   const { data: auth } = useAuth({ required: false })
