@@ -203,10 +203,24 @@ config.resolver.nodeModulesPaths = [
 ]
 ```
 
-**(b) 네이티브 의존성 해석** — CocoaPods / Gradle은 pnpm의 중첩 심링크에서 경로 해석이
-깨지는 사례가 있다. 발생하면 루트 `.npmrc`에 `node-linker=hoisted`로 대응한다.
+**(b) 네이티브 의존성 해석** — RN 패키지는 JS(`lib/`)와 네이티브 코드(`ios/`, `android/`)를
+한 패키지에 함께 담고, 각각을 Metro / CocoaPods(iOS) / Gradle(Android)이 따로 가져간다.
+CocoaPods와 Gradle은 pnpm을 모르는 외부 도구라 중첩 심링크에서 경로 해석이 깨지는 사례가 있다.
+
+**대응: 루트 `.npmrc`에 RN 관련 패키지만 호이스팅한다.**
+
+```
+public-hoist-pattern[]=*react-native*
+public-hoist-pattern[]=*expo*
+```
+
+전역 `node-linker=hoisted` 대신 이 방식을 쓴다. pnpm의 격리를 나머지 의존성에 대해
+유지하면서 네이티브 빌드가 기대하는 구조만 맞춘다.
+그래도 깨지면 그때 `node-linker=hoisted`로 넓힌다.
 
 공유 패키지를 순수 TS로 유지하면 (b)는 애초에 발생하지 않는다.
+`@waylog/domains`와 `@waylog/react`에는 podspec이 없어 CocoaPods가 볼 일이 없다.
+문제가 생긴다면 서드파티 RN 라이브러리 때문이다.
 이는 "플랫폼 비의존 계층만 공유"라는 방향이 아키텍처뿐 아니라 툴체인 관점에서도
 유리하다는 뜻이다.
 
@@ -226,7 +240,7 @@ config.resolver.nodeModulesPaths = [
 | Vercel | Root Directory = `apps/waylog-web` | `vercel.ts`는 경로가 전부 URL 기준이라 내용 변경 불필요 |
 | 환경변수 | 앱이 읽어 `initApi()`로 주입 | |
 | client 초기화 | Proxy 지연 초기화 | |
-| node-linker | 기본(심링크) 우선. 네이티브 빌드가 깨지면 `hoisted` | |
+| node-linker | 기본(심링크) 유지 + `public-hoist-pattern`으로 RN/Expo만 호이스팅. 그래도 깨지면 전역 `hoisted` | 격리를 최대한 유지한다 |
 
 ### 코드 변경 목록
 
