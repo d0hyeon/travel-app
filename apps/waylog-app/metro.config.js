@@ -18,30 +18,4 @@ config.resolver.nodeModulesPaths = [
   path.resolve(monorepoRoot, 'node_modules'),
 ]
 
-// 공유 패키지(@waylog/*)에도 peer 로 react 가 심겨 웹(19.2)과 앱(19.1)의
-// 인스턴스가 섞인다. 두 인스턴스가 공존하면 훅 호출이 "Invalid hook call" 로 깨지므로
-// RN 번들에서는 어디서 import 하든 앱이 가진 것 하나로 강제한다.
-const SINGLETONS = ['react', 'react-dom', 'react-native']
-
-const defaultResolveRequest = config.resolver.resolveRequest
-
-config.resolver.resolveRequest = (context, moduleName, platform) => {
-  const pkg = SINGLETONS.find(
-    (name) => moduleName === name || moduleName.startsWith(`${name}/`),
-  )
-
-  if (pkg) {
-    const rest = moduleName.slice(pkg.length)
-    return context.resolveRequest(
-      context,
-      path.resolve(projectRoot, 'node_modules', pkg) + rest,
-      platform,
-    )
-  }
-
-  return defaultResolveRequest
-    ? defaultResolveRequest(context, moduleName, platform)
-    : context.resolveRequest(context, moduleName, platform)
-}
-
 module.exports = config
