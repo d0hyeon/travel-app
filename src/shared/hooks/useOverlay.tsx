@@ -75,7 +75,7 @@ function OverlayRenderer({
 
   const handleClose = usePreservedCallback(onClose);
   const close = useCallback(() => {
-    if (isOpen) return Promise.resolve();
+    if (!isOpen) return Promise.resolve();
 
     return new Promise<void>((resolve) => {
       setIsOpen(false);
