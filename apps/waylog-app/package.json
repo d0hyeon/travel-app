@@ -16,7 +16,7 @@
     "react-native-url-polyfill": "^4.0.0"
   },
   "devDependencies": {
-    "@types/react": "~19.1.17",
+    "@types/react": "~19.2.7",
     "dotenv": "^17.4.2",
     "typescript": "~5.9.3"
   },
