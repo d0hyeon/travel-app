@@ -14,6 +14,7 @@
 | 분류      | 기술                               |
 | --------- | ---------------------------------- |
 | Monorepo  | pnpm workspace                     |
+| Native    | Expo SDK 57 + React Native 0.86    |
 | Framework | React 19 + React Router 7 (CSR, `ssr: false`) |
 | Language  | TypeScript 5.9                     |
 | Build     | Vite 7                             |
@@ -72,6 +73,10 @@
 
 ```
 apps/
+├── waylog-app/                 # 네이티브 앱 (Expo SDK 57 + RN 0.86)
+│   ├── App.tsx
+│   ├── metro.config.js         # 워크스페이스 해석 설정
+│   └── app.json
 └── waylog-web/                 # 웹 앱 (React Router 7 + Vite)
     ├── src/                    # 아래 "앱 내부 구조" 참조
     ├── e2e/                    # Playwright 스펙
