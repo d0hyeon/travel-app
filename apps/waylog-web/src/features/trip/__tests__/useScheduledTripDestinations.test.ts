@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useScheduledTripDestinations } from '../useScheduledTripDestinations'
 import * as tripApi from '../trip.api'
 import { createWrapper } from '~fixtures/wraper'
-import type { Trip } from '../trip.types'
+import type { Trip } from '@waylog/domains/trip'
 
 const BASE_TRIP: Trip = {
   id: 'trip-001',

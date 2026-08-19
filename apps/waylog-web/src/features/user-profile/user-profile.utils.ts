@@ -7,7 +7,7 @@ import {
   getCountryNameByLocation,
   isLocation,
 } from '@waylog/domains/location'
-import type { Trip } from '~features/trip/trip.types'
+import type { Trip } from '@waylog/domains/trip'
 
 export interface VisitedLocation {
   location: Location

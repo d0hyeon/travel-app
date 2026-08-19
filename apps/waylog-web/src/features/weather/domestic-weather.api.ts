@@ -8,7 +8,7 @@ import {
   SkyCondition,
 } from "./weather.types";
 import { differenceInCalendarDays, parseISO, set } from "date-fns";
-import { isOverseasByCoordinate } from "~shared/utils/geo";
+import { isOverseasByCoordinate } from "@waylog/domains/utils";
 
 type GetDailyWeatherForecastParams = {
   /**

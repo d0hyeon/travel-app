@@ -1,8 +1,8 @@
 import { clientDatabase } from '~app/client-database';
 import { useQuery } from '@waylog/react';
-import { isOverseasByCoordinate } from '~shared/utils/geo';
+import { isOverseasByCoordinate } from '@waylog/domains/utils';
 import type { Coordinate } from '../../../shared/components/Map/types';
-import type { RoadRoute } from '../route.types';
+import type { RoadRoute } from '@waylog/domains/route';
 import { getRoadDirections } from './roadRoute.api';
 import { keepPreviousData } from '@tanstack/react-query';
 

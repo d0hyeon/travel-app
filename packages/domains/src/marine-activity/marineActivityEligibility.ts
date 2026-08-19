@@ -1,4 +1,4 @@
-import { isOverseasByCoordinate } from "~shared/utils/geo";
+import { isOverseasByCoordinate } from "../utils";
 import {
   MarineActivityDisableReason,
   type MarineActivityEligibility,

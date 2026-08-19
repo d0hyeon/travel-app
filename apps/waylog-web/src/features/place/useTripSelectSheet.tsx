@@ -2,7 +2,7 @@ import { Badge, Chip, Stack, Typography } from "@mui/material";
 import { formatDate } from "date-fns";
 import { useCallback } from "react";
 import { getTripDuration } from "~features/trip/trip-list/trip-list.utils";
-import type { Trip } from "~features/trip/trip.types";
+import type { Trip } from "@waylog/domains/trip";
 import { BottomSheet } from "~shared/components/bottom-sheet/BottomSheet";
 import { useOverlay } from "~shared/hooks/useOverlay";
 

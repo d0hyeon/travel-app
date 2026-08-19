@@ -2,14 +2,14 @@ import { Close } from "@mui/icons-material";
 import { Box, Dialog, DialogContent, IconButton, Stack, Tab, Tabs, Typography } from "@mui/material";
 import { eachDayOfInterval } from "date-fns";
 import { Suspense, useCallback, useMemo, useState } from "react";
-import { MarineActivityType, type MarineActivityIndex } from "~features/marine-activity/marineActivity.types";
-import { useDailyMarineActivityIndices } from "~features/marine-activity/useDailyMarineActivityIndices";
+import { MarineActivityType, type MarineActivityIndex } from "@waylog/domains/marine-activity";
+import { useDailyMarineActivityIndices } from "@waylog/domains/marine-activity";
 import { BottomSheet } from "~shared/components/bottom-sheet/BottomSheet";
 import { DialogTitle } from "~shared/components/confirm-dialog/DialogTitle";
 import { useIsMobile } from "~shared/hooks/env/useIsMobile";
 import { useOverlay } from "~shared/hooks/useOverlay";
 import { formatDisplayDate, formatShortDate } from "~shared/utils/formats";
-import type { Trip } from "../trip.types";
+import type { Trip } from "@waylog/domains/trip";
 import { useTrip } from "../useTrip";
 
 interface TripMarineActivityDetailOverlayProps {

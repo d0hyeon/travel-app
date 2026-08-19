@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import type { Coordinate } from '~shared/components/Map/types';
 import { useRoadRoute } from '../../route/road-route/useRoadRoute';
-import type { RouteLeg } from '../../route/route.types';
+import type { RouteLeg } from '@waylog/domains/route';
 
 type Waypoint = Coordinate & { id: string };
 

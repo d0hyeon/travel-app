@@ -1,6 +1,6 @@
 import { supabase } from '@waylog/domains/api'
-import { TransportType } from '../route.types'
-import type { RoadRoute } from '../route.types'
+import { TransportType } from '@waylog/domains/route'
+import type { RoadRoute } from '@waylog/domains/route'
 
 interface Coordinate {
   lat: number

@@ -8,7 +8,8 @@
     "./*": "./src/*/index.ts"
   },
   "dependencies": {
-    "@waylog/react": "workspace:*"
+    "@waylog/react": "workspace:*",
+    "date-fns": "^4.1.0"
   },
   "peerDependencies": {
     "@supabase/supabase-js": ">=2",

@@ -7,7 +7,9 @@ vi.mock("~shared/hooks/env/useIsMobile", () => ({
   useIsMobile: vi.fn(() => false),
 }));
 
-vi.mock("~features/marine-activity/useDailyMarineActivityIndices", () => ({
+// 서브트리 전체를 대체하면 같은 모듈의 타입·상수 export가 사라진다.
+vi.mock("@waylog/domains/marine-activity", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@waylog/domains/marine-activity")>()),
   useDailyMarineActivityIndices: vi.fn(({ date }: { date: string }) => ({
     data: {
       date,

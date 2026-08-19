@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@waylog/react";
 import type { Coordinate } from "@waylog/domains/utils";
-import { isOverseasByCoordinate } from "~shared/utils/geo";
+import { isOverseasByCoordinate } from "@waylog/domains/utils";
 import forecastApi from "./weather.api";
 import domesticForecastApi from "./domestic-weather.api";
 

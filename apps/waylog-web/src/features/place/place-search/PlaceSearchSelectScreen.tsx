@@ -5,7 +5,7 @@ import { IntersectionArea } from "~shared/components/IntersectionArea";
 import { ListItem } from "~shared/components/ListItem";
 import { Map, type Coordinate, type MapBounds, type MapRef } from "~shared/components/Map";
 import { SplitView, } from "~shared/components/split-view/SplitView";
-import { calcDistance } from "~shared/utils/geo";
+import { calcDistance } from "@waylog/domains/utils";
 import { usePlaceSearch, type PlaceResult } from "./usePlaceSearch";
 import { usePreservedValue } from "@waylog/react";
 

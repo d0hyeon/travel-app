@@ -274,6 +274,9 @@ importers:
       '@waylog/react':
         specifier: workspace:*
         version: link:../react
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.4.0
       react:
         specifier: '>=19'
         version: 19.2.7

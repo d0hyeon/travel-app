@@ -2,7 +2,7 @@ import { Box, ButtonBase, Chip, Stack, Typography } from '@mui/material'
 import { Suspense } from 'react'
 import { Link, PrefetchPageLinks } from 'react-router'
 import { TripUnreadCountBadge } from '../trip-chat/TripUnreadCountBadge'
-import type { Trip } from '../trip.types'
+import type { Trip } from '@waylog/domains/trip'
 import {
   formatTripDate,
   getDaysUntil,

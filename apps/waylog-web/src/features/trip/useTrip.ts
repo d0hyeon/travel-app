@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { deleteTrip, getTripById, tripKey, updateTrip } from "./trip.api";
 import { leaveTrip } from "./trip-member/tripMember.api";
-import type { Trip } from "./trip.types";
+import type { Trip } from "@waylog/domains/trip";
 import { getCoordinateByLocation, isLocation } from "@waylog/domains/location";
-import { isOverseasByCoordinate } from "~shared/utils/geo";
+import { isOverseasByCoordinate } from "@waylog/domains/utils";
 
 export function useTrip(id: string) {
   const queryClient = useQueryClient();

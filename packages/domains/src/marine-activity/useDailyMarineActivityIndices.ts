@@ -1,4 +1,4 @@
-import type { Trip } from "~features/trip/trip.types";
+import type { Trip } from "../trip";
 import { getTripMarineActivityEligibility } from "./marineActivityEligibility";
 import {
   getDailyMarineActivityIndices,

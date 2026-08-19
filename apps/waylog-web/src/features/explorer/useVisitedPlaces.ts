@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 import { Country, getCountryByLocation, isLocation, type Location } from '@waylog/domains/location'
 import { useTrips } from '../trip/useTrips'
 import { getAllTripPlaces, placeKey } from "../place/place.api"
-import { getAllRoutes, routeKey } from "../route/route.api"
+import { getAllRoutes, routeKey } from "@waylog/domains/route"
 
 export interface VisitedLocation {
   id: string

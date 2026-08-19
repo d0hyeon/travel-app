@@ -1,8 +1,8 @@
 import { Fragment, useMemo } from "react";
-import { getMarineActivityMarkerItems } from "~features/marine-activity/marineActivity.api";
-import { useDailyMarineActivityIndices } from "~features/marine-activity/useDailyMarineActivityIndices";
+import { getMarineActivityMarkerItems } from "@waylog/domains/marine-activity";
+import { useDailyMarineActivityIndices } from "@waylog/domains/marine-activity";
 import { Map } from "~shared/components/Map";
-import type { Trip } from "../trip.types";
+import type { Trip } from "@waylog/domains/trip";
 import { createMarineActivityMarkerIcon } from "./MarineActivityMarkerIcon";
 import { useTripMarineActivityDetailOverlay } from "./TripMarineActivityDetailOverlay";
 import { useActiveTripDay } from "../trip-route/useActiveTripDay";

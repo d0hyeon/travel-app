@@ -1,6 +1,6 @@
 import { supabase } from '@waylog/domains/api'
 import { getAuth } from '~features/auth/useAuth'
-import type { Trip } from './trip.types'
+import type { Trip } from '@waylog/domains/trip'
 import { formatShortDate } from '../../shared/utils/formats';
 import { deletePhotosByTripId } from '~features/photo/photo.api';
 import { getCurrencyByDestination, type ExchangeRateEntry } from '@waylog/domains/expense';

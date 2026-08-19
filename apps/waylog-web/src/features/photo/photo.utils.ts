@@ -1,5 +1,5 @@
 import { extractGps } from '~shared/utils/exif'
-import { calcDistance } from '~shared/utils/geo'
+import { calcDistance } from '@waylog/domains/utils'
 
 const PLACE_MATCH_DISTANCE_LIMIT = 500
 

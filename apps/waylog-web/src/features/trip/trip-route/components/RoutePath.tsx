@@ -2,7 +2,7 @@ import { Map } from '~shared/components/Map';
 import type { Coordinate } from '~shared/components/Map/types';
 import { formatDuration } from '~shared/utils/formats';
 import { useRoadRoute } from '~features/route/road-route/useRoadRoute';
-import { TransportTypeLabel } from '~features/route/route.types';
+import { TransportTypeLabel } from '@waylog/domains/route';
 import { useMapZoomLevel } from '~shared/components/Map';
 import { useTripViewConfigValue } from '../useTripViewConfig';
 

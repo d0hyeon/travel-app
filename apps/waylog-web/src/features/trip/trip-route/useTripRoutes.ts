@@ -9,7 +9,7 @@ import {
   createRoute,
   updateRoute,
   deleteRoute,
-} from "../../route/route.api";
+} from "@waylog/domains/route";
 import { assert } from "@waylog/domains/utils";
 import { useTrip } from "../useTrip";
 import { mergeQueriesStatus } from "../../../shared/utils/merges";

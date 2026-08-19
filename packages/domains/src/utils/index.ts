@@ -1,4 +1,5 @@
 export * from './common'
 export * from './coordinate'
+export * from './geo'
 export * from './types'
 export * from './urls'

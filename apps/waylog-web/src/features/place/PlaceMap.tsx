@@ -1,6 +1,6 @@
 import type { ComponentProps } from "react";
 import { Map } from "~shared/components/Map";
-import { isOverseasByCoordinate } from "~shared/utils/geo";
+import { isOverseasByCoordinate } from "@waylog/domains/utils";
 import { usePlace } from "./usePlace";
 
 interface Props extends Omit<ComponentProps<typeof Map>, 'center' | 'type'> {
