@@ -1,6 +1,6 @@
 import { Box, Stack } from '@mui/material'
 
-import { formatCurrency } from '~features/expense/expense.utils'
+import { formatCurrency } from '@waylog/domains/expense'
 import { StatisticsBarChart } from '~shared/components/statistics/StatisticsBarChart'
 import { StatisticsColumnChart } from '~shared/components/statistics/StatisticsColumnChart'
 import { StatisticsDonutChart } from '~shared/components/statistics/StatisticsDonutChart'

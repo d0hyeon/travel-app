@@ -5,7 +5,7 @@ import { DialogTitle } from "~shared/components/confirm-dialog/DialogTitle";
 import { useTrip } from "../useTrip";
 import { useExpenses } from "~features/expense/useExpenses";
 import { useMemo } from "react";
-import { getCurrencyName, getDefaultExchangeRate, getExchangeRate, getUsedCurrencies, setExchangeRate } from "~features/expense/currency";
+import { getCurrencyName, getDefaultExchangeRate, getExchangeRate, getUsedCurrencies, setExchangeRate } from "@waylog/domains/expense";
 import { ListItem } from "~shared/components/ListItem";
 import { EditableText } from "~shared/components/EditableText";
 

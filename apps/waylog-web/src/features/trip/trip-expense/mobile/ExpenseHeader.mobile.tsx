@@ -7,8 +7,8 @@ import {
   getUsedCurrencies,
   setExchangeRate,
   type CurrencyCode
-} from "~features/expense/currency"
-import { formatCurrency } from "~features/expense/expense.utils"
+} from "@waylog/domains/expense"
+import { formatCurrency } from "@waylog/domains/expense"
 import { useTrip } from "../../useTrip"
 import { useExpenseSummary } from "../useExpenseSummary"
 

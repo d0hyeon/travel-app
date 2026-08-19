@@ -6,7 +6,7 @@ import {
   getTripMembersByTripId,
   tripMemberKey,
 } from "./tripMember.api"
-import type { TripMember } from "./tripMember.types"
+import type { TripMember } from "@waylog/domains/trip-member"
 
 const getQueryOptions = (tripId: string) => {
   return {

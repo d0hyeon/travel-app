@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { useEffect, useEffectEvent } from 'react';
-import type { TripMember } from '../trip-member/tripMember.types';
+import type { TripMember } from '@waylog/domains/trip-member';
 import { useTripMembers } from '../trip-member/useTripMembers';
 import { getChatMessages, sendChatMessage, subscribeTripMessages, tripChatKey } from './tripChat.api';
 import type { ChatMessage } from './tripChat.types';

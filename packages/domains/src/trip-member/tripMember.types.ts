@@ -1,4 +1,4 @@
-import type { UserProfile } from "~features/user-profile/user-profile.type"
+import type { UserProfile } from "../user-profile"
 
 export interface TripMemberUser {
   id: string

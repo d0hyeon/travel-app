@@ -1,10 +1,10 @@
 import { useMemo } from "react"
-import { convertToKRW } from "../../expense/currency"
+import { convertToKRW } from "@waylog/domains/expense"
 import { useExpenses } from "../../expense/useExpenses"
 import { useTripMembers } from "../trip-member/useTripMembers"
 import { useTripPlaces } from "../trip-place/useTripPlaces"
 import { useTripRoutes } from "../trip-route/useTripRoutes"
-import type { Expense } from "~features/expense/expense.types"
+import type { Expense } from "@waylog/domains/expense"
 
 interface Payer {
   memberId: string;

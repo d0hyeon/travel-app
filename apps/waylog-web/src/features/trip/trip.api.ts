@@ -3,7 +3,7 @@ import { getAuth } from '~features/auth/useAuth'
 import type { Trip } from './trip.types'
 import { formatShortDate } from '../../shared/utils/formats';
 import { deletePhotosByTripId } from '~features/photo/photo.api';
-import { getCurrencyByDestination, type ExchangeRateEntry } from '../expense/currency';
+import { getCurrencyByDestination, type ExchangeRateEntry } from '@waylog/domains/expense';
 import type { DataRaw, CreateDataType, UpdateDataType } from '@waylog/domains/api';
 
 function getDatesBetween(startDate: string, endDate: string): string[] {

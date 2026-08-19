@@ -1,5 +1,5 @@
 import { useMemo } from "react"
-import { calculateBalancesInKRW, calculateSettlements, getTotalExpensesInKRW } from "~features/expense/expense.utils"
+import { calculateBalancesInKRW, calculateSettlements, getTotalExpensesInKRW } from "@waylog/domains/expense"
 import { useExpenses } from "~features/expense/useExpenses"
 import { useTripMembers } from "../trip-member/useTripMembers"
 import { useTrip } from "../useTrip"

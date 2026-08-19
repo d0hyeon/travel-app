@@ -1,4 +1,4 @@
-import type { TripMember } from '../trip/trip-member/tripMember.types'
+import type { TripMember } from '../trip-member'
 import type { Expense, SettlementBalance, SettlementTransaction } from './expense.types'
 import { convertToKRW, type ExchangeRateEntry } from './currency'
 

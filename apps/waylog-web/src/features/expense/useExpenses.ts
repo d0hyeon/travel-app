@@ -6,8 +6,8 @@ import {
   expenseKey,
   getExpensesByTripId,
   updateExpense
-} from "./expense.api"
-import type { Expense } from "./expense.types"
+} from "@waylog/domains/expense"
+import type { Expense } from "@waylog/domains/expense"
 import { useTripPlaces } from "~features/trip/trip-place/useTripPlaces";
 import { queryClient } from "~app/query-client";
 

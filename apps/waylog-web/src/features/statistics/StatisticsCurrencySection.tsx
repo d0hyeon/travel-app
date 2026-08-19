@@ -1,6 +1,6 @@
 import PublicRoundedIcon from '@mui/icons-material/PublicRounded'
 import { Box, Chip, Stack } from '@mui/material'
-import { formatCurrency } from '~features/expense/expense.utils'
+import { formatCurrency } from '@waylog/domains/expense'
 import { StatisticsBarChart } from '~shared/components/statistics/StatisticsBarChart'
 import { StatisticsSectionCard } from './StatisticsSectionCard'
 import { StatisticsSummaryCard } from './StatisticsSummaryCard'

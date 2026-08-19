@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "pnpm --filter waylog-web dev",
     "build": "pnpm --filter waylog-web build",
-    "test": "pnpm --filter waylog-web test",
+    "test": "pnpm -r --if-present run test",
     "test:e2e": "pnpm --filter waylog-web test:e2e",
     "lint": "eslint .",
     "ts-check": "pnpm --filter waylog-web ts-check"

@@ -7,7 +7,7 @@ import { updateProfile } from './auth.api';
 import { assert } from '@waylog/domains/utils';
 import { AuthError } from './AuthError';
 import { getUserProfileById } from '~features/user-profile/user-profile.api';
-import type { UserProfile } from '~features/user-profile/user-profile.type';
+import type { UserProfile } from '@waylog/domains/user-profile';
 
 export type Auth = User & {
   profile: UserProfile;

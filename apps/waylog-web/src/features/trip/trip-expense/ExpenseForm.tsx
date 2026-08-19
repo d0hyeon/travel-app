@@ -24,7 +24,7 @@ import { DatePicker } from '@mui/x-date-pickers'
 import { Suspense, type ReactNode } from "react"
 import { Controller, FormProvider, useFieldArray, useForm, useFormContext, useWatch } from "react-hook-form"
 import { useAuth } from '~features/auth/useAuth'
-import { CurrencyCode as CurrencyCodeMap, getCurrenciesByDestinations, getCurrencyName, getUsedCurrencies, type CurrencyCode } from '~features/expense/currency'
+import { CurrencyCode as CurrencyCodeMap, getCurrenciesByDestinations, getCurrencyName, getUsedCurrencies, type CurrencyCode } from '@waylog/domains/expense'
 import { useExpenses } from '~features/expense/useExpenses'
 import { useTripMembers } from '~features/trip/trip-member/useTripMembers'
 import { useTrip } from '~features/trip/useTrip'

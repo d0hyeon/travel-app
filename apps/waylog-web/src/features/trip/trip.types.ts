@@ -1,4 +1,4 @@
-import type { ExchangeRateEntry } from '../expense/currency'
+import type { ExchangeRateEntry } from '@waylog/domains/expense'
 
 export interface Trip {
   id: string
