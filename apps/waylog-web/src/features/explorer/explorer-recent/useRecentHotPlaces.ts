@@ -2,8 +2,8 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { explorerKey, getRecentHotPlaces } from '../explorer.api'
 import { useMemo } from 'react'
 import type { PlaceCategoryType } from '~features/place/place.types'
-import { arrayIncludes } from '~shared/utils/types';
-import type { Location } from '~features/location';
+import { arrayIncludes } from '@waylog/domains/utils';
+import type { Location } from '@waylog/domains/location';
 
 interface RecentHotPlaceOption {
   inquiryMonths: number;

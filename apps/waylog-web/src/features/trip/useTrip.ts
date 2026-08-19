@@ -2,7 +2,7 @@ import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-q
 import { deleteTrip, getTripById, tripKey, updateTrip } from "./trip.api";
 import { leaveTrip } from "./trip-member/tripMember.api";
 import type { Trip } from "./trip.types";
-import { getCoordinateByLocation, isLocation } from "~features/location";
+import { getCoordinateByLocation, isLocation } from "@waylog/domains/location";
 import { isOverseasByCoordinate } from "~shared/utils/geo";
 
 export function useTrip(id: string) {

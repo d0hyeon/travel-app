@@ -10,7 +10,7 @@ import { PlaceCategoryColorCode, PlaceCategoryTypeLabel, PlaceCategoryType } fro
 import { getAllRoutes, routeKey } from '~features/route/route.api'
 import { getTripMembersByTripId, tripMemberKey } from '~features/trip/trip-member/tripMember.api'
 import { tripKey } from '~features/trip/trip.api'
-import { getCountryNameByLocation, getRegionByLocation } from '~features/location'
+import { getCountryNameByLocation, getRegionByLocation } from '@waylog/domains/location'
 import type { Trip } from '~features/trip/trip.types'
 import { useTrips } from '~features/trip/useTrips'
 import { differenceInDays } from 'date-fns'

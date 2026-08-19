@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import type { Location } from '~features/location'
+import type { Location } from '@waylog/domains/location'
 import type { PlaceCategoryType } from '~features/place/place.types'
 import { useExploredPlaces } from './explorer-ranking/useExploredPlaces'
 import { useRecentHotPlaces } from './explorer-recent/useRecentHotPlaces'

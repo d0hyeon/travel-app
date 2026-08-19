@@ -1,7 +1,7 @@
 import { Box, Container } from '@mui/material'
 import { useNavigate, useParams } from 'react-router'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
-import { assert } from '~shared/utils/types'
+import { assert } from '@waylog/domains/utils'
 import { PostMenu } from './PostMenu'
 import { PostScreen } from './PostScreen'
 import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'

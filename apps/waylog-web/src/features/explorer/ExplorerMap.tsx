@@ -1,5 +1,5 @@
 import { Box, type BoxProps } from "@mui/material";
-import { getCoordinateByLocation } from "~features/location";
+import { getCoordinateByLocation } from "@waylog/domains/location";
 import { Map } from "~shared/components/Map";
 import { useIsMobile } from "~shared/hooks/env/useIsMobile";
 import { useExplorerPlaceModal, useExplorerPlaceSidePannel } from "./useExplorerPlaceOverlay";

@@ -2,7 +2,7 @@ import { supabase } from '@waylog/domains/api'
 import type { DataRaw } from '@waylog/domains/api'
 import type { Post, PostPhoto, PostPlace, PostVisibility } from './post.types'
 import { getAuth } from '~features/auth/useAuth'
-import { assert } from '~shared/utils/types'
+import { assert } from '@waylog/domains/utils'
 
 export const postKey = 'posts'
 export const postLikeKey = 'post-likes'

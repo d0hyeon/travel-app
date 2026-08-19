@@ -1,5 +1,5 @@
 import { useParams } from "react-router";
-import { assert } from "~shared/utils/types";
+import { assert } from "@waylog/domains/utils";
 
 
 export function usePlaceId() {

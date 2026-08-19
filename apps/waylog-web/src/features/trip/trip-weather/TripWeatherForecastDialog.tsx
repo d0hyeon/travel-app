@@ -9,7 +9,7 @@ import { useDailyWeatherForecast } from "~features/weather/useDailyWeatherForeca
 import { DialogTitle } from "~shared/components/confirm-dialog/DialogTitle";
 import { ErrorBoundary } from "~shared/components/ErrorBoundary";
 import { AsyncBoundary } from "~shared/components/utils/AsyncBoundary";
-import { assert } from "~shared/utils/types";
+import { assert } from "@waylog/domains/utils";
 import { TripDateToggleGroup } from "../trip-route/components/TripDateToggleGroup";
 import { useTrip } from "../useTrip";
 

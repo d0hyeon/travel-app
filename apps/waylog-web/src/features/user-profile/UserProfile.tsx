@@ -1,6 +1,6 @@
 import { Avatar, Stack, Typography, type StackProps } from '@mui/material'
 import { useUserProfile } from './useUserProfile'
-import { assert } from '~shared/utils/types'
+import { assert } from '@waylog/domains/utils'
 
 export const UserProfileSize = {
   small: 'small',

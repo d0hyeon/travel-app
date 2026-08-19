@@ -1,4 +1,4 @@
-import type { ValueOf } from "~shared/utils/types";
+import type { ValueOf } from "@waylog/domains/utils";
 
 export const SkyCondition = {
   맑음: "clear",

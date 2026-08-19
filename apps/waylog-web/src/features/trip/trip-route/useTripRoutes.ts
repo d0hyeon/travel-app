@@ -10,7 +10,7 @@ import {
   updateRoute,
   deleteRoute,
 } from "../../route/route.api";
-import { assert } from "~shared/utils/types";
+import { assert } from "@waylog/domains/utils";
 import { useTrip } from "../useTrip";
 import { mergeQueriesStatus } from "../../../shared/utils/merges";
 import { useMemo } from "react";

@@ -1,4 +1,4 @@
-import type { Location } from '~features/location'
+import type { Location } from '@waylog/domains/location'
 import type { PlaceCategoryType } from '~features/place/place.types'
 
 export function buildExplorerDetailUrl(

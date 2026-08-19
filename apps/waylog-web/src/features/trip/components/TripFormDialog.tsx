@@ -10,10 +10,10 @@ import {
 } from '@mui/material'
 import { formatDate } from 'date-fns'
 import { useEffect, useState } from 'react'
-import { getCoordinateByLocation, isLocation, Locations } from '~features/location'
+import { getCoordinateByLocation, isLocation, Locations } from '@waylog/domains/location'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { DateRangePicker } from '../../../shared/components/date-range/DateRangePicker'
-import { LocationGroup } from '~features/location/location.constants'
+import { LocationGroup } from '@waylog/domains/location'
 
 type Destination = {
   name: string;

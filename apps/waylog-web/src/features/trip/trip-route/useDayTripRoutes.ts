@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { arrayIncludes,  assert} from "~shared/utils/types";
+import { arrayIncludes,  assert} from "@waylog/domains/utils";
 import { useTripPlaces } from "../trip-place/useTripPlaces";
 import { useTripRoutes } from "./useTripRoutes";
 

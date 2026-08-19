@@ -1,4 +1,4 @@
-import type { Coordinate } from '~shared/types/coordinate'
+import type { Coordinate } from '@waylog/domains/utils'
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string

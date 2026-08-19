@@ -2,7 +2,7 @@ import { Box, Button, CircularProgress, Container, Typography } from '@mui/mater
 import { Suspense, useTransition } from 'react'
 import { PrefetchPageLinks, useNavigate, useParams } from 'react-router'
 import { ErrorBoundary } from '~shared/components/ErrorBoundary'
-import { assert } from '~shared/utils/types'
+import { assert } from '@waylog/domains/utils'
 import { useInvitedTrip } from './useInvitedTrip'
 
 

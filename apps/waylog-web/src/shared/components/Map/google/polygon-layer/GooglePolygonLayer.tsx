@@ -1,6 +1,6 @@
 import { use, useEffect, useEffectEvent, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
-import { type Country, type Location } from '~features/location'
-import type { Coordinate } from '~shared/types/coordinate'
+import { type Country, type Location } from '@waylog/domains/location'
+import type { Coordinate } from '@waylog/domains/utils'
 import { useAsyncEffect } from '@waylog/react'
 import { useCleanup } from '@waylog/react'
 import { getPolygonFeatureStyle } from './polygon-layer.style'

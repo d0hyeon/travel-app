@@ -7,7 +7,7 @@ import { WeatherIcon } from "~features/weather/WeatherIcon";
 import { ErrorBoundary } from "~shared/components/ErrorBoundary";
 import { useIsMobile } from "~shared/hooks/env/useIsMobile";
 import { useOverlay } from "~shared/hooks/useOverlay";
-import { arrayIncludes, assert } from "~shared/utils/types";
+import { arrayIncludes, assert } from "@waylog/domains/utils";
 import { useActiveTripDay } from "../trip-route/useActiveTripDay";
 import { TripWeatherForecastDialog } from "./TripWeatherForecastDialog";
 import { TripWeatherForecastSheet } from "./TripWeatherForecastSheet";

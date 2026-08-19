@@ -12,7 +12,7 @@ import { BottomArea } from '~shared/components/BottomArea';
 import { ListItem } from '~shared/components/ListItem';
 import { useVariation } from '@waylog/react';
 import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState';
-import { assert } from '~shared/utils/types';
+import { assert } from '@waylog/domains/utils';
 import { BottomSheet } from "../../../shared/components/bottom-sheet/BottomSheet";
 import { SortableItem } from "../../../shared/components/dnd/SortableItem";
 import { SortableList } from "../../../shared/components/dnd/SortableList";

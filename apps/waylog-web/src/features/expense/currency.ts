@@ -1,10 +1,10 @@
 /**
  * 목적지별 화폐 단위 매핑
  */
-import { getCountryByLocation } from '~features/location';
-import { Country } from '~features/location/country.model';
-import { reverseKeyValue } from '~shared/utils/common';
-import type { ValueOf } from '~shared/utils/types';
+import { getCountryByLocation } from '@waylog/domains/location';
+import { Country } from '@waylog/domains/location';
+import { reverseKeyValue } from '@waylog/domains/utils';
+import type { ValueOf } from '@waylog/domains/utils';
 
 
 // 화폐 코드 -> 이름 매핑

@@ -1,8 +1,5 @@
-import {
-  getCoordinateByLocation,
-  Locations,
-  type Location,
-} from "~features/location";
+import { Locations, type Location } from "./location.model";
+import { getCoordinateByLocation } from "./location.utils";
 
 export const LocationGroups = [
   "국내",

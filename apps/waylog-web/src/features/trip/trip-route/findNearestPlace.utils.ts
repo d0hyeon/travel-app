@@ -1,4 +1,4 @@
-import type { Coordinate } from "~shared/types/coordinate";
+import type { Coordinate } from "@waylog/domains/utils";
 import { calcDistance } from "~shared/utils/geo";
 
 export function findNearestPlace<T extends Coordinate>(coordinate: Coordinate, places: T[]): T | null {

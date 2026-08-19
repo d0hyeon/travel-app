@@ -1,4 +1,4 @@
-import { CountryCode, type Country } from '~features/location'
+import { CountryCode, type Country } from '@waylog/domains/location'
 import type { GeoJsonFeatureCollection } from './boundary.types'
 
 const WORLD_BOUNDARY_URL = '/visit-layer/world.geojson'

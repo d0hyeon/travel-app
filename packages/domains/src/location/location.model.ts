@@ -1,5 +1,5 @@
-import type { Coordinate } from "~shared/types/coordinate";
-import type { ValueOf } from "~shared/utils/types";
+import type { Coordinate } from "../utils";
+import type { ValueOf } from "@waylog/domains/utils";
 import { Country } from "./country.model";
 
 export const Locations = [

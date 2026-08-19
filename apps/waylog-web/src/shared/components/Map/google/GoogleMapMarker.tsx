@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { omit } from "~shared/utils/common";
+import { omit } from "@waylog/domains/utils";
 import { GoogleMapContext, useMapContext } from "../MapContext";
 import { resolveMarkerColor } from "../map.utils";
 import type { MarkerData, MarkerProps } from "../types";

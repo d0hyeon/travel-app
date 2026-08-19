@@ -1,5 +1,5 @@
-import type { Location } from '~features/location'
-import type { ValueOf } from '~shared/utils/types'
+import type { Location } from '@waylog/domains/location'
+import type { ValueOf } from '@waylog/domains/utils'
 import type { SeasonValue } from './season'
 
 // 광역(시도)과 기초(시군구)는 집계 기준이 달라 합산할 수 없다.

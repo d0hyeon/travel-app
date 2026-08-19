@@ -1,5 +1,5 @@
 import { gps } from 'exifr'
-import type { Coordinate } from '~shared/types/coordinate'
+import type { Coordinate } from '@waylog/domains/utils'
 
 /**
  * 이미지 파일의 EXIF GPS 좌표 추출.

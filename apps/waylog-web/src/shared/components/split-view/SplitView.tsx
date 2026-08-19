@@ -1,7 +1,7 @@
 import { Box, styled, type BoxProps } from "@mui/material";
 import { useResizableSplit, type UseResizableSplitOptions } from "./useResizableSplit";
 import { Children } from "react";
-import { assert } from "~shared/utils/types";
+import { assert } from "@waylog/domains/utils";
 
 export function SplitView({
   children,

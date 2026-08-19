@@ -1,6 +1,6 @@
 import { Box, Container, Grid, Skeleton, Stack } from '@mui/material'
 import { Suspense, useRef, useState } from 'react'
-import { getCoordinateByLocation, type Location } from '~features/location'
+import { getCoordinateByLocation, type Location } from '@waylog/domains/location'
 import type { PlaceCategoryType } from '~features/place/place.types'
 import { Extrude } from '~shared/components/animation/Extrude'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'

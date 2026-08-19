@@ -1,5 +1,5 @@
 import { endOfMonth, format } from 'date-fns'
-import type { ValueOf } from '~shared/utils/types'
+import type { ValueOf } from '@waylog/domains/utils'
 
 export const Season = {
   Spring: 'spring',

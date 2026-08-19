@@ -10,7 +10,7 @@ import { ListItem } from "~shared/components/ListItem";
 import { SwitchCase } from "~shared/components/SwitchCase";
 import { useIsMobile } from "~shared/hooks/env/useIsMobile";
 import { useOverlay } from "~shared/hooks/useOverlay";
-import { assert } from '~shared/utils/types';
+import { assert } from '@waylog/domains/utils';
 import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
 import { formatRemainTime } from "~shared/utils/formats";
 import { useTripMembers } from "../trip-member/useTripMembers";

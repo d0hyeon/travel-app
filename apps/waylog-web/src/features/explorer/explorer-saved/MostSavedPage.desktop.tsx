@@ -1,6 +1,6 @@
 import { Box, Container, Stack } from '@mui/material'
 import { Suspense } from 'react'
-import { getCoordinateByLocation, type Location } from '~features/location'
+import { getCoordinateByLocation, type Location } from '@waylog/domains/location'
 import type { PlaceCategoryType } from '~features/place/place.types'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
 import { Map } from '~shared/components/Map'

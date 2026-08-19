@@ -31,7 +31,7 @@ import { useTrip } from '~features/trip/useTrip'
 import { PopMenu } from '~shared/components/PopMenu'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { SortCommand } from '~shared/utils/sorts'
-import { assert } from '~shared/utils/types'
+import { assert } from '@waylog/domains/utils'
 import { formatDisplayDate } from "../../../shared/utils/formats"
 import { useTripPlaces } from '../trip-place/useTripPlaces'
 

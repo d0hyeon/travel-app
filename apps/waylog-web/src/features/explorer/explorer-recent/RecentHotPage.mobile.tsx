@@ -1,7 +1,7 @@
 import CheckIcon from '@mui/icons-material/Check'
 import { Box, Chip, Container, Grid, Skeleton, Stack } from '@mui/material'
 import { Suspense, useCallback, useRef, useState } from 'react'
-import { getCoordinateByLocation, type Location } from '~features/location'
+import { getCoordinateByLocation, type Location } from '@waylog/domains/location'
 import type { PlaceCategoryType } from '~features/place/place.types'
 import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
 import { Extrude } from '~shared/components/animation/Extrude'

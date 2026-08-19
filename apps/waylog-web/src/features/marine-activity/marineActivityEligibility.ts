@@ -3,8 +3,8 @@ import {
   MarineActivityDisableReason,
   type MarineActivityEligibility,
 } from "./marineActivity.types";
-import { getCoordinateByLocation } from "~features/location";
-import type { Coordinate } from "~shared/types/coordinate";
+import { getCoordinateByLocation } from "@waylog/domains/location";
+import type { Coordinate } from "@waylog/domains/utils";
 
 const islandDestinationNames = [
   "제주",

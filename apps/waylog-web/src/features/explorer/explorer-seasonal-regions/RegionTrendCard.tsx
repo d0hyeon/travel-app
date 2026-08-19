@@ -1,7 +1,7 @@
 import TrendingDownIcon from '@mui/icons-material/TrendingDown'
 import TrendingUpIcon from '@mui/icons-material/TrendingUp'
 import { Box, Stack, Typography } from '@mui/material'
-import { LocationRegion } from '~features/location/location.model'
+import { LocationRegion } from '@waylog/domains/location'
 import type { RegionTourismTrend } from '~features/tourism-trend/tourismTrend.types'
 import { formatKoreanCount } from '~shared/utils/formats'
 

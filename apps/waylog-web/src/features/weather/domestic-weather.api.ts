@@ -1,6 +1,6 @@
 import { governmentApi, type GovernmentApiResponse } from "@waylog/domains/api";
-import type { Coordinate } from "~shared/types/coordinate";
-import type { ValueOf } from "~shared/utils/types";
+import type { Coordinate } from "@waylog/domains/utils";
+import type { ValueOf } from "@waylog/domains/utils";
 import {
   type DailyWeatherForecast,
   type HourlyWeatherForecast,

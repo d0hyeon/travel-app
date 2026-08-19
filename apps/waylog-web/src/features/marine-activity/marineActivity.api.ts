@@ -10,7 +10,7 @@ import {
   type MarineActivityType as MarineActivityTypeValue,
 } from "./marineActivity.types";
 import { getDistanceMeters } from "./marineActivityPlaces";
-import type { Coordinate } from "~shared/types/coordinate";
+import type { Coordinate } from "@waylog/domains/utils";
 
 const marineActivityEndpoint = {
   [MarineActivityType.Beach]: "/1192136/fcstBeachv2/GetFcstBeachApiServicev2",

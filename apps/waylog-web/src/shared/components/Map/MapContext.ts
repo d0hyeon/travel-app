@@ -1,6 +1,6 @@
 import { createContext, use } from "react";
 import type { AutoFocus, Coordinate } from "./types";
-import { assert } from "~shared/utils/types";
+import { assert } from "@waylog/domains/utils";
 
 export interface MapContextValue<MapInstance> {
   map: MapInstance | null;

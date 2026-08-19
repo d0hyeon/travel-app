@@ -1,8 +1,8 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import type { Location } from '~features/location'
+import type { Location } from '@waylog/domains/location'
 import type { PlaceCategoryType } from '~features/place/place.types'
-import { arrayIncludes } from '~shared/utils/types'
+import { arrayIncludes } from '@waylog/domains/utils'
 import { explorerKey, getMostSavedPlaces } from '../explorer.api'
 
 interface MostSavedPlacesOption {

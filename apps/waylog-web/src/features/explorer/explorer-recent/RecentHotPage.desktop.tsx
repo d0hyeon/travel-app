@@ -1,7 +1,7 @@
 import CheckIcon from '@mui/icons-material/Check'
 import { Box, Button, Chip, Container, Dialog, DialogActions, DialogContent, Stack } from '@mui/material'
 import { Suspense, useCallback, useState } from 'react'
-import { getCoordinateByLocation, type Location } from '~features/location'
+import { getCoordinateByLocation, type Location } from '@waylog/domains/location'
 import type { PlaceCategoryType } from '~features/place/place.types'
 import { DialogTitle } from '~shared/components/confirm-dialog/DialogTitle'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'

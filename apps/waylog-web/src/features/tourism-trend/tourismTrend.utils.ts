@@ -1,4 +1,4 @@
-import type { Location } from '~features/location'
+import type { Location } from '@waylog/domains/location'
 import type { SeasonValue } from './season'
 import {
   VisitorDivision,

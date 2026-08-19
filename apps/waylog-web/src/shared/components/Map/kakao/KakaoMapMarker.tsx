@@ -4,7 +4,7 @@ import type { MarkerData, MarkerProps } from "../types";
 import { useRegisterClusterMarker } from "../useClusterRegistry";
 import { renderMarker } from "./marker.renderers";
 import { useMapZoomLevel } from "./useMapZoomLevel";
-import { omit } from '~shared/utils/common';
+import { omit } from '@waylog/domains/utils';
 
 function toMarkerData(props: MarkerProps): Omit<MarkerData, 'id'> {
   return {

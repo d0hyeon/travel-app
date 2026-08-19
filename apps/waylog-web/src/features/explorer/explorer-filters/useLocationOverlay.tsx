@@ -1,7 +1,7 @@
 import CloseIcon from '@mui/icons-material/Close'
 import { Box, Button, IconButton } from '@mui/material'
 import { useCallback } from 'react'
-import type { Location } from '~features/location'
+import type { Location } from '@waylog/domains/location'
 import { LocationForm } from '~features/location/LocationForm'
 import { BottomArea } from '~shared/components/BottomArea'
 import { FullScreenPopup } from '~shared/components/FullScreenPopup'

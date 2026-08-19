@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { supabase } from '@waylog/domains/api';
 import { queryClient } from '~app/query-client';
 import { updateProfile } from './auth.api';
-import { assert } from '~shared/utils/types';
+import { assert } from '@waylog/domains/utils';
 import { AuthError } from './AuthError';
 import { getUserProfileById } from '~features/user-profile/user-profile.api';
 import type { UserProfile } from '~features/user-profile/user-profile.type';

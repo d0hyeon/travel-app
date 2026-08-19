@@ -7,7 +7,7 @@ import { useOverlay } from "~shared/hooks/useOverlay";
 import { DialogTitle } from "~shared/components/confirm-dialog/DialogTitle";
 import { usePlaceDetailOverlay } from "~features/place/place-detail/usePlaceDetailOverlay";
 import { useTripPlaces } from "../trip-place/useTripPlaces";
-import { assert } from "~shared/utils/types";
+import { assert } from "@waylog/domains/utils";
 import { PlacePhotoSection } from "~features/trip/trip-place/PlacePhotoSection";
 
 interface PlaceFormOverlayProps {

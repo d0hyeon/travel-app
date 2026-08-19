@@ -1,12 +1,12 @@
-import type { Coordinate } from '~shared/types/coordinate'
-import { Country } from '~features/location/country.model'
-import type { Location } from '~features/location/location.model'
+import type { Coordinate } from '@waylog/domains/utils'
+import { Country } from '@waylog/domains/location'
+import type { Location } from '@waylog/domains/location'
 import {
   getCoordinateByLocation,
   getCountryByLocation,
   getCountryNameByLocation,
   isLocation,
-} from '~features/location/location.utils'
+} from '@waylog/domains/location'
 import type { Trip } from '~features/trip/trip.types'
 
 export interface VisitedLocation {
