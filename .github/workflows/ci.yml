@@ -82,6 +82,6 @@ jobs:
         with:
           name: playwright-report
           path: |
-            playwright-report/
-            test-results/
+            apps/waylog-web/playwright-report/
+            apps/waylog-web/test-results/
           retention-days: 7
