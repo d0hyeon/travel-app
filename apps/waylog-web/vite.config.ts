@@ -15,6 +15,14 @@ const config = {
     // 웹 번들에서는 항상 이 앱이 가진 것 하나로 고정한다.
     dedupe: ['react', 'react-dom'],
     alias: [
+      // dedupe 는 사전번들 대상에만 적용돼 swiper 같은 .mjs 라이브러리가
+      // RN 앱의 react 를 잡는 것을 막지 못한다. 경로로 직접 고정한다.
+      { find: /^react$/, replacement: path.resolve(__dirname, 'node_modules/react') },
+      { find: /^react-dom$/, replacement: path.resolve(__dirname, 'node_modules/react-dom') },
+      // dedupe 는 사전 번들된 .mjs 라이브러리(swiper 등)에는 닿지 않는다.
+      // RN 앱이 다른 react 버전을 들여와도 웹은 자기 것만 쓰도록 경로를 못박는다.
+      { find: /^react$/, replacement: path.resolve(__dirname, 'node_modules/react') },
+      { find: /^react-dom$/, replacement: path.resolve(__dirname, 'node_modules/react-dom') },
       { find: /^~(.*)/, replacement: path.resolve(__dirname, 'src/$1') },
     ],
   },
