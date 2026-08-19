@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach, vi } from 'vitest'
 import { setupServer } from 'msw/node'
 import { handlers } from '../../../../mocks/handlers'
 import { MOCK_MESSAGES } from '../tripChat.mock'
@@ -6,11 +6,19 @@ import { getChatMessages, sendChatMessage } from '../tripChat.api'
 import { MOCK_TRIP_ID } from '~features/trip/trip.mock'
 import { MOCK_SESSION } from '~features/auth/auth.mock'
 import { queryClient } from '~app/query-client'
+import { supabase } from '@waylog/domains/api'
 
 const server = setupServer(...handlers)
 beforeAll(() => {
   server.listen()
   queryClient.setQueryData(['auth'], MOCK_SESSION.user)
+  // sendChatMessage 는 supabase.auth.getUser() 로 사용자를 조회한다.
+  // 세션이 없으면 supabase-js 가 요청을 보내지 않아 MSW handler 에 닿지 않으므로
+  // 로그인 상태를 직접 세운다.
+  vi.spyOn(supabase.auth, 'getUser').mockResolvedValue({
+    data: { user: MOCK_SESSION.user },
+    error: null,
+  } as Awaited<ReturnType<typeof supabase.auth.getUser>>)
 })
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
