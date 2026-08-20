@@ -13,6 +13,8 @@ const config: ExpoConfig = {
   ios: {"supportsTablet": true},
   android: {"adaptiveIcon": {"backgroundColor": "#E6F4FE", "foregroundImage": "./assets/android-icon-foreground.png", "backgroundImage": "./assets/android-icon-background.png", "monochromeImage": "./assets/android-icon-monochrome.png"}, "predictiveBackGestureEnabled": false},
   web: {"favicon": "./assets/favicon.png"},
+  scheme: "waylog",
+  plugins: ["expo-router"],
   extra: {
     supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
     supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
