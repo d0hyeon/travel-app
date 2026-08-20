@@ -1,10 +1,17 @@
-import { Box, Typography } from '../../../src/shared/components/mui'
+import { useLocalSearchParams } from 'expo-router'
+import { ScrollView } from 'react-native'
+import { TripChecklist } from '../../../src/features/trip/trip-checklist/TripChecklist'
+import { palette } from '../../../src/shared/config/tokens'
 
-// 웹 화면 이관 예정. 현재는 장소 탭만 완료됐다.
-export default function Placeholder() {
+export default function TripDetailChecklistRoute() {
+  const { tripId } = useLocalSearchParams<{ tripId: string }>()
+
   return (
-    <Box sx={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Typography variant="h6">준비물</Typography>
-    </Box>
+    <ScrollView
+      style={{ flex: 1, backgroundColor: palette.background }}
+      contentContainerStyle={{ padding: 16 }}
+    >
+      <TripChecklist tripId={tripId} />
+    </ScrollView>
   )
 }

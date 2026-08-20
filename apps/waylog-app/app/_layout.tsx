@@ -1,4 +1,5 @@
 import 'react-native-url-polyfill/auto'
+import '../src/shared/polyfills'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthStateSync } from '@waylog/domains/auth'
