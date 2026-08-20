@@ -14,7 +14,13 @@ const config: ExpoConfig = {
   android: {"package": "com.waylog.app", "adaptiveIcon": {"backgroundColor": "#E6F4FE", "foregroundImage": "./assets/android-icon-foreground.png", "backgroundImage": "./assets/android-icon-background.png", "monochromeImage": "./assets/android-icon-monochrome.png"}, "predictiveBackGestureEnabled": false},
   web: {"favicon": "./assets/favicon.png"},
   scheme: "waylog",
-  plugins: ["expo-router"],
+  plugins: [
+    "expo-router",
+    [
+      "@mj-studio/react-native-naver-map",
+      { client_id: process.env.EXPO_PUBLIC_NAVER_MAP_CLIENT_ID },
+    ],
+  ],
   extra: {
     supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
     supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
