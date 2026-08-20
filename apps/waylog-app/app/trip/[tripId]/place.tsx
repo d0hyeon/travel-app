@@ -1,8 +1,8 @@
-import { useLocalSearchParams } from 'expo-router'
+import { useTripId } from '../../../src/features/trip/useTripId'
 import TripPlaceContent from '../../../src/features/trip/trip-place/TripPlaceContent'
 
 export default function TripDetailPlaceRoute() {
-  const { tripId } = useLocalSearchParams<{ tripId: string }>()
+  const tripId = useTripId()
 
   return <TripPlaceContent tripId={tripId} />
 }
