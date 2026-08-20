@@ -4,9 +4,9 @@ import { Image, View } from 'react-native'
 import Svg, { Circle, Path } from 'react-native-svg'
 import { Typography } from '../mui'
 
-// tooltip·onContextMenu 는 받지 않는다. 네이티브에 hover 와 우클릭이 없어
-// 소비자가 결정할 수 없는 값이다.
-type NativeMarkerProps = Omit<MarkerProps, 'tooltip' | 'onContextMenu'>
+// 웹 MarkerProps 를 그대로 받는다.
+// hover·우클릭이 없는 자리는 길게 누르기로 대응한다.
+type NativeMarkerProps = MarkerProps
 
 export function NativeMapMarker({
   id,
@@ -18,7 +18,9 @@ export function NativeMapMarker({
   opacity = 1,
   outlined,
   thumbnailUrl,
+  tooltip,
   onClick,
+  onContextMenu,
 }: NativeMarkerProps) {
   const resolved = resolveMarkerColor(color, variant)
 
@@ -28,7 +30,11 @@ export function NativeMapMarker({
       coordinate={{ latitude: lat, longitude: lng }}
       anchor={{ x: 0.5, y: 1 }}
       tracksViewChanges={false}
+      // 웹은 hover 로 보여주지만 네이티브에는 hover 가 없다.
+      // 같은 정보를 말풍선으로 띄운다.
+      title={toTooltipText(tooltip)}
       onPress={() => onClick?.({ lat, lng, label, variant })}
+      onCalloutPress={() => onContextMenu?.({ lat, lng, label, variant })}
     >
       {/* 웹 marker.renderers 의 모양을 그대로 옮긴다. */}
       <View style={{ alignItems: 'center' }}>
@@ -128,4 +134,9 @@ function MarkerShape({ variant, color, opacity, outlined, thumbnailUrl }: ShapeP
       <Circle cx={10} cy={10} r={4} fill="white" />
     </Svg>
   )
+}
+
+function toTooltipText(tooltip: MarkerProps['tooltip']): string | undefined {
+  if (tooltip == null) return undefined
+  return Array.isArray(tooltip) ? tooltip.join('\n') : tooltip
 }
