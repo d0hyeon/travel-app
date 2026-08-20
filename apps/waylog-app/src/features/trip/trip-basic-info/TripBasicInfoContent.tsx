@@ -1,9 +1,14 @@
 import { ScrollView } from 'react-native'
 import { Box, Stack, Tab, Tabs, Typography } from "../../../shared/components/mui"
 import { Suspense } from 'react'
+import { BottomArea } from "../../../shared/components/BottomArea"
 import { ErrorBoundary } from "../../../shared/components/ErrorBoundary"
 import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
 import { TripChecklist } from '../trip-checklist/TripChecklist'
+import { TripChecklistAddButton } from '../trip-checklist/TripChecklistAddButton'
+import { TripDeadlineChecklist } from '../trip-checklist/TripDeadlineChecklist'
+import { TripMemberSection } from '../trip-member/TripMemberSection'
+import { TripPinnedMemos } from '../trip-memo/TripPinnedMemos'
 import { TripMemo } from '../trip-memo/TripMemo'
 import { TripBaseInfoList } from './TripBaseInfoList'
 import { TripDDay } from './TripDDay'
@@ -46,14 +51,34 @@ export function TripBasicInfoContent({ tripId }: Props) {
                 }}
               />
 
+              <ErrorBoundary>
+                <Stack gap={1} sx={{ width: '100%' }}>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    해야할 일
+                  </Typography>
+                  <TripDeadlineChecklist tripId={tripId} gap={1} throwOnEmpty />
+                </Stack>
+              </ErrorBoundary>
+
+              <ErrorBoundary>
+                <TripPinnedMemos tripId={tripId} throwOnEmpty />
+              </ErrorBoundary>
+
+              <TripMemberSection tripId={tripId} />
+
             </Stack>
           </ScrollView>
         )}
 
         {currentTab === 'checklist' && (
-          <ScrollView contentContainerStyle={{ padding: 16 }}>
-            <TripChecklist tripId={tripId} />
-          </ScrollView>
+          <>
+            <ScrollView contentContainerStyle={{ padding: 16 }}>
+              <TripChecklist tripId={tripId} />
+            </ScrollView>
+            <BottomArea>
+              <TripChecklistAddButton tripId={tripId} size="large" fullWidth />
+            </BottomArea>
+          </>
         )}
 
         {currentTab === 'memo' && (

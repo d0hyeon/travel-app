@@ -1,15 +1,19 @@
 import { formatDisplayDate, formatShortDate } from '@waylog/domains/utils'
 import { useDayTripRoutes, useTrip } from '@waylog/domains/trip'
-import { useMemo, useRef, useState } from 'react'
-import { Box, Chip, Stack, Typography } from '../../../shared/components/mui'
+import { MaterialIcons } from '@expo/vector-icons'
+import { Fragment, startTransition, useMemo, useOptimistic, useRef, useState } from 'react'
+import { Box, Chip, IconButton, Stack, Typography } from '../../../shared/components/mui'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { ListItem } from '../../../shared/components/ListItem'
+import { SortableItem, SortableList } from '../../../shared/components/dnd/SortableList'
 import { Map, type MapRef } from '../../../shared/components/Map'
 import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
 import { palette } from '../../../shared/config/tokens'
 import { RoutePath } from './components/RoutePath'
 import { TripRouteSelector } from './components/TripRouteSelector'
-import { RouteLegItem } from './RouteTimeline'
+import { DragIcon } from './components/DragIcon'
+import { TripRoutePlaceListItem } from './components/TripRoutePlaceListItem'
+import { Dot, RouteLegItem } from './RouteTimeline'
 import { useRouteLegs } from './useRouteLegs'
 
 // 경로별 색상 팔레트 — 웹과 같은 값이다.
@@ -43,6 +47,8 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
     data: { routes, tripDates },
     create: createRoute,
     remove: removeRoute,
+    update,
+    toggleVisible,
   } = useDayTripRoutes({ tripId, date: selectedDate })
 
   const [selectedRouteId, setSelectedRouteId] = useQueryParamState<string>('route-id', {
@@ -60,6 +66,8 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
     [currentRoute],
   )
   const legByArrivalPlaceId = useRouteLegs(visiblePlaces)
+
+  const [currentPlaces, setOptimisticCurrentPlaces] = useOptimistic(currentRoute?.places ?? [])
 
   const mapRef = useRef<MapRef>(null)
   const [sheetRatio, setSheetRatio] = useState<number>(DEFAULT_BOTTOM_SHEET_RATIO)
@@ -133,33 +141,78 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
             }
           />
 
-          {visiblePlaces.length === 0 ? (
-            <Typography variant="body2" color="text.secondary" sx={{ paddingVertical: 24 }}>
-              등록된 장소가 없어요
+          {currentRoute == null || currentRoute.places.length === 0 ? (
+            <Typography variant="caption" color="text.secondary" sx={{ paddingVertical: 24 }}>
+              지도에서 장소를 눌러 경로에 추가하세요
             </Typography>
           ) : (
-            <Stack gap={0.5}>
-              {visiblePlaces.map((place, index) => {
-                const leg = legByArrivalPlaceId.get(place.id)
+            <SortableList
+              items={currentPlaces}
+              onSort={(changed) => {
+                startTransition(async () => {
+                  setOptimisticCurrentPlaces(changed.items)
+                  await update({
+                    routeId: currentRoute.id,
+                    placeIds: changed.items.map((x) => x.id),
+                  })
+                })
+              }}
+              renderItem={(place, idx) => {
+                const inboundLeg = legByArrivalPlaceId.get(place.id)
+                const isHidden = currentRoute.hiddenPlaces.includes(place.id)
 
                 return (
-                  <Box key={place.id}>
-                    {leg != null && <RouteLegItem leg={leg} />}
-                    <ListItem.Button
-                      focused={place.id === focusedId}
+                  <Fragment key={place.id}>
+                    {inboundLeg != null && inboundLeg.duration > 0 && (
+                      <RouteLegItem leg={inboundLeg} />
+                    )}
+                    <TripRoutePlaceListItem
+                      data={place}
+                      focused={focusedId === place.id}
                       onClick={() => {
                         setFocusedId(place.id)
                         mapRef.current?.panTo(place.lat, place.lng)
                       }}
-                      leftAddon={<ListItem.Ordering>{index + 1}</ListItem.Ordering>}
-                    >
-                      <ListItem.Title>{place.name}</ListItem.Title>
-                      {place.address !== '' && <ListItem.Text>{place.address}</ListItem.Text>}
-                    </ListItem.Button>
-                  </Box>
+                      leftAddon={
+                        <SortableItem.Handle id={place.id}>
+                          <DragIcon />
+                        </SortableItem.Handle>
+                      }
+                      title={
+                        <Stack direction="row" alignItems="center" gap={0.5}>
+                          <Dot>
+                            <Typography sx={{ color: '#fff', fontSize: 11, fontWeight: '900' }}>
+                              {idx + 1}
+                            </Typography>
+                          </Dot>
+                          <ListItem.Title>{place.name}</ListItem.Title>
+                          <IconButton
+                            size="small"
+                            onClick={() =>
+                              toggleVisible({ routeId: currentRoute.id, placeId: place.id })
+                            }
+                          >
+                            <MaterialIcons
+                              name={isHidden ? 'visibility-off' : 'visibility'}
+                              size={18}
+                              color={isHidden ? '#bbb' : '#787c7e'}
+                            />
+                          </IconButton>
+                        </Stack>
+                      }
+                      rightAddon={
+                        <TripRoutePlaceListItem.Actions
+                          tripId={tripId}
+                          date={selectedDate}
+                          routeId={currentRoute.id}
+                          placeId={place.id}
+                        />
+                      }
+                    />
+                  </Fragment>
                 )
-              })}
-            </Stack>
+              }}
+            />
           )}
         </BottomSheet.Body>
       </BottomSheet>
