@@ -7,6 +7,7 @@ import { useExpenses } from '@waylog/domains/expense'
 import { ListItem } from "../../../shared/components/ListItem"
 import { PopMenu } from "../../../shared/components/PopMenu"
 import { useConfirmDialog } from "../../../shared/components/confirm-dialog/useConfirmDialog"
+import { useExpenseFormBottomSheet } from "./useExpenseFormOverlay"
 import { formatShortDate } from "@waylog/domains/utils"
 import { useTripMembers } from '@waylog/domains/trip-member'
 
@@ -20,9 +21,12 @@ export function ExpenseList({ tripId }: Props) {
   const memberMap = useMemo(() => new Map(members.map(m => [m.id, m])), [members])
 
   const confirm = useConfirmDialog()
+  const formBottomSheet = useExpenseFormBottomSheet(tripId)
 
-  // TODO: 지출 수정 폼 오버레이 (useExpenseFormOverlay)
-  const handleEditExpense = (_expense: Expense) => {}
+  const handleEditExpense = async (expense: Expense) => {
+    const data = await formBottomSheet.open({ defaultValues: expense })
+    if (data) update({ expenseId: expense.id, data })
+  }
 
   return (
     <Stack gap={1.5}>
