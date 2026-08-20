@@ -33,6 +33,8 @@ export interface TypographyProps extends RNTextProps {
   variant?: TypographyVariant
   color?: string
   fontWeight?: 'bold' | 'medium' | number | string
+  /** 웹 코드를 그대로 옮기기 위해 받기만 하고 무시한다 */
+  component?: string
   sx?: Sx
   children?: ReactNode
 }
@@ -41,6 +43,7 @@ export function Typography({
   variant = 'body1',
   color,
   fontWeight,
+  component: _component,
   sx,
   style,
   ...rest
@@ -50,7 +53,9 @@ export function Typography({
       style={[
         VARIANT_STYLE[variant],
         { color: color != null ? (COLOR_MAP[color] ?? color) : palette.text },
-        fontWeight != null && { fontWeight: fontWeight === 'medium' ? '700' : (fontWeight as never) },
+        fontWeight != null && {
+          fontWeight: (fontWeight === 'medium' ? '700' : String(fontWeight)) as never,
+        },
         sxToStyle(sx),
         style,
       ]}
