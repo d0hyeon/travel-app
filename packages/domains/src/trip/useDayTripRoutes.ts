@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { arrayIncludes,  assert} from "../utils";
-import { useTripPlaces } from './index';
-import { useTripRoutes } from './index';
+import { useTripPlaces } from './useTripPlaces';
+import { useTripRoutes } from './useTripRoutes';
 
 type Params = {
   tripId: string;

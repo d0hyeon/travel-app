@@ -8,7 +8,7 @@ import {
   upsertPlace,
 } from "../place";
 import type { PlaceCategoryType, PlaceStatus, TripPlace } from "../place";
-import { tripKey } from "./index";
+import { tripKey } from "./trip.api";
 import { TRIP_PLAN_REFETCH } from "./tripPlanRefetch";
 
 export function useTripPlaces(tripId: string) {

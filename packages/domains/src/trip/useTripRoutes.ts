@@ -11,7 +11,7 @@ import {
   deleteRoute,
 } from "../route";
 import { assert } from "../utils";
-import { useTrip } from "./index";
+import { useTrip } from "./useTrip";
 import { mergeQueriesStatus } from "../utils";
 import { useMemo } from "react";
 import { addDays, differenceInDays } from "date-fns";
