@@ -49,7 +49,16 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
       <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
         <TripPlaceMapFloatingControls />
         {/* Map (전체) */}
-        <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `calc(${sheetRatio * 100}% - 10px)` }}>
+        {/* 웹은 calc(%-10px) 를 쓰지만 RN 은 계산식을 못 읽는다. 비율만 남긴다. */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: `${sheetRatio * 100}%`,
+          }}
+        >
           <Map
             type={trip.isOverseas ? 'google' : 'kakao'}
             ref={mapRef}

@@ -42,6 +42,14 @@ export function sxToStyle(sx: Sx): ViewStyle & TextStyle {
       continue
     }
 
+    // RN 은 calc() 를 못 읽는다. 넘기면 값이 무시되고 레이아웃이 무너지므로 버린다.
+    if (typeof value === 'string' && value.includes('calc(')) {
+      if (__DEV__) {
+        console.warn(`[sx] calc() 는 RN 에서 동작하지 않는다: ${key}=${value}`)
+      }
+      continue
+    }
+
     const spacingTargets = SPACING_MAP[key]
     if (spacingTargets != null && typeof value === 'number') {
       for (const target of spacingTargets) style[target] = value * 8
