@@ -7,7 +7,7 @@ import { ListItem } from '~shared/components/ListItem';
 import { PopMenu } from '~shared/components/PopMenu';
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog';
 import { useTripPlaces } from '@waylog/domains/trip';
-import { useDayTripRoutes } from '../useDayTripRoutes';
+import { useDayTripRoutes } from '@waylog/domains/trip';
 import { usePlaceFormOverlay } from '../usePlaceFormOverlay';
 
 type ListItemButtonProps = Parameters<typeof ListItem.Button>[0];

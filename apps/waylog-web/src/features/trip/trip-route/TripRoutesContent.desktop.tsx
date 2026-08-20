@@ -19,7 +19,7 @@ import { TripRutePlaceAddButton } from './components/TripRoutePlaceAddButton'
 import { TripRoutePlaceItem } from './components/TripRoutePlaceItem'
 import { TripRouteSelector } from './components/TripRouteSelector'
 import { Dot, RouteLegItem } from './RouteTimeline'
-import { useDayTripRoutes } from './useDayTripRoutes'
+import { useDayTripRoutes } from '@waylog/domains/trip'
 import { useRouteLegs } from './useRouteLegs'
 
 import VisibilityOnIcon from '@mui/icons-material/Visibility'
