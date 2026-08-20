@@ -2,7 +2,8 @@
 
 Expo SDK 54 / React Native 0.81.
 
-Expo Go 가 지원하는 버전이므로 SDK 를 임의로 올리지 않는다.
+Expo Go 는 개발 편의 도구일 뿐이다. SDK 버전이나 네이티브 모듈 선택의
+근거로 삼지 않는다. 네이티브 모듈이 필요하면 development build 로 간다.
 
 API가 버전마다 크게 바뀐다. 코드를 쓰기 전에 해당 버전 문서를 확인한다:
 https://docs.expo.dev/versions/v54.0.0/
