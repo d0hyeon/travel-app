@@ -66,9 +66,8 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
             clustering={isCluastering}
             clusterGridSize={50}
           >
-            {({ zoom }) => (
-              <>
-                {places.map(place => (
+            {({ zoom }) =>
+              places.map(place => (
                   <Map.Marker
                     key={place.id}
                     label={zoom > MICRO_ZOOM_LEVEL ? undefined : place.name}
@@ -81,11 +80,8 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
                     variant={zoom > MICRO_ZOOM_LEVEL ? 'circle' : 'pin'}
                     onClick={() => setFocusedId(place.id)}
                   />
-                ))}
-
-                {/* 추천 마커(trip-recommend)는 2단계 범위다 */}
-              </>
-            )}
+              ))
+            }
 
           </Map>
         </Box>

@@ -13,7 +13,7 @@ import { useCurrentCoordinate } from '../../../shared/hooks/env/useCurrentCoordi
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
 import { palette } from '../../../shared/config/tokens'
-import { RoutePath } from './components/RoutePath'
+import { useRouteLegsPath } from './components/RoutePath'
 import { TripRouteSelector } from './components/TripRouteSelector'
 import { TripRouteMapFloatingControls } from './components/TripRouteMapFloatingControls'
 import { PlaceSelectSheet } from './PlaceSelectSheet'
@@ -73,6 +73,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
     [currentRoute],
   )
   const legByArrivalPlaceId = useRouteLegs(visiblePlaces)
+  const currentLegs = useRouteLegsPath(visiblePlaces)
 
   const [currentPlaces, setOptimisticCurrentPlaces] = useOptimistic(currentRoute?.places ?? [])
 
@@ -106,16 +107,16 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
       <TripRouteMapFloatingControls />
       <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `${sheetRatio * 100}%` }}>
         <Map type={trip.isOverseas ? 'google' : 'kakao'} ref={mapRef} defaultCenter={{ lat: trip.lat, lng: trip.lng }}>
-          <>
-            {routes.map((route, index) => (
-              <RoutePath
-                key={route.id}
-                waypoints={route.places.filter((x) => !route.hiddenPlaces.includes(x.id))}
-                color={getRouteColor(index)}
-                isSelected={route.id === currentRoute?.id}
+          {[
+            ...currentLegs.map((leg, index) => (
+              <Map.Path
+                key={`leg_${index}`}
+                coordinates={leg.coordinates}
+                strokeColor={getRouteColor(0)}
+                strokeWeight={5}
               />
-            ))}
-            {visiblePlaces.map((place, index) => (
+            )),
+            ...visiblePlaces.map((place, index) => (
               <Map.Marker
                 key={place.id}
                 lat={place.lat}
@@ -127,8 +128,8 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                   mapRef.current?.panTo(place.lat, place.lng)
                 }}
               />
-            ))}
-          </>
+            )),
+          ]}
         </Map>
       </Box>
 

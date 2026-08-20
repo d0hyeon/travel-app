@@ -1,5 +1,5 @@
 import { clusterMarkers, type MapBounds, type MapProps, type MapRef, type MapType, type MarkerData, type ToPixel } from '@waylog/domains/map'
-import { Children, isValidElement, useImperativeHandle, useMemo, useRef, useState, type ReactNode } from 'react'
+import { Children, cloneElement, isValidElement, useImperativeHandle, useRef, useState, type ReactNode } from 'react'
 import MapView, { PROVIDER_DEFAULT, PROVIDER_GOOGLE, type Region } from 'react-native-maps'
 import { StyleSheet, useWindowDimensions } from 'react-native'
 import { NativeMapMarker } from './NativeMapMarker'
@@ -122,16 +122,22 @@ interface RenderParams {
 // 클러스터링이 켜지면 가까운 마커를 묶어 하나로 그린다.
 // 좌표→픽셀 변환이 필요해 지도 영역이 정해진 뒤에만 동작한다.
 function renderChildren({ children, clustering, clusterGridSize, region, width }: RenderParams) {
-  if (clustering !== true || region == null) return children
+  const list = Children.toArray(children)
 
-  const markers = Children.toArray(children).filter(
+  if (clustering !== true || region == null) return list
+
+  const markers = list.filter(
     (child): child is React.ReactElement<React.ComponentProps<typeof NativeMapMarker>> =>
       isValidElement(child) && child.type === NativeMapMarker,
   )
 
-  if (markers.length < 2) return children
+  if (markers.length < 2) return list
 
-  const others = Children.toArray(children).filter((child) => !markers.includes(child as never))
+  const others = list.filter((child) => !markers.includes(child as never))
+
+  const markerById = new Map(
+    markers.map((marker, index) => [marker.props.id ?? String(index), marker] as const),
+  )
 
   const data: MarkerData[] = markers.map((marker, index) => ({
     id: marker.props.id ?? String(index),
@@ -140,28 +146,28 @@ function renderChildren({ children, clustering, clusterGridSize, region, width }
 
   const clusters = clusterMarkers(data, createToPixel(region, width), clusterGridSize)
 
-  return (
-    <>
-      {others}
-      {clusters.map((cluster) => {
-        // 하나짜리는 원래 마커를 그대로 쓴다.
-        if (cluster.markers.length === 1) {
-          const found = markers.find((marker, index) => (marker.props.id ?? String(index)) === cluster.markers[0]!.id)
-          return found ?? null
-        }
+  // AIRMap 은 자식 배열을 인덱스로 다루므로 조각(Fragment)으로 감싸지 않고
+  // 평평한 배열을 그대로 넘긴다. key 도 클러스터 기준으로 새로 매긴다.
+  const clustered = clusters.map((cluster) => {
+    if (cluster.markers.length === 1) {
+      const origin = markerById.get(cluster.markers[0]!.id)
+      if (origin == null) return null
 
-        return (
-          <NativeMapMarker
-            key={cluster.id}
-            id={cluster.id}
-            lat={cluster.center.lat}
-            lng={cluster.center.lng}
-            label={String(cluster.markers.length)}
-            variant="pin"
-            color="selected"
-          />
-        )
-      })}
-    </>
-  )
+      return cloneElement(origin, { key: `single_${cluster.markers[0]!.id}` })
+    }
+
+    return (
+      <NativeMapMarker
+        key={cluster.id}
+        id={cluster.id}
+        lat={cluster.center.lat}
+        lng={cluster.center.lng}
+        label={String(cluster.markers.length)}
+        variant="pin"
+        color="selected"
+      />
+    )
+  })
+
+  return [...others, ...clustered]
 }

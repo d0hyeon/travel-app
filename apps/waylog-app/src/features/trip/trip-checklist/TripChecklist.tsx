@@ -135,7 +135,7 @@ function TripChecklistItem({ tripId, id, ...props }: ItemProps) {
           </ListItem.Text>
         )}
         <Stack direction="row" justifyContent="space-between" alignItems="center" gap={0.5}>
-          {value.content && value.content.trim() !== '' && (
+          {!!value.content && value.content.trim() !== '' && (
             <ListItem.Text sx={value.isCompleted ? { opacity: 0.5 } : {}}>
               {value.content}
             </ListItem.Text>
@@ -195,7 +195,7 @@ function ReadonlyItem({ id, tripId, ...props }: ItemProps) {
     >
       <Stack direction="row" gap={0.5} justifyContent="space-between">
         <ListItem.Title>{value.title}</ListItem.Title>
-        {value.endedAt && (
+        {!!value.endedAt && (
           <ListItem.Text color={status}>
             {isBefore(value.endedAt, now)
               ? '시간 초과'

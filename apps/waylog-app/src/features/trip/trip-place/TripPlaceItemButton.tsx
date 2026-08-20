@@ -58,7 +58,7 @@ export function TripPlaceItemButton({ place, ...props }: ItemProps) {
         )}
         <ListItem.Title>{place.name}</ListItem.Title>
       </Stack>
-      {place.address && (
+      {!!place.address && (
         <ListItem.Text variant="body2" color="text.secondary" sx={{ fontSize: 12 }}>
           {place.address}
         </ListItem.Text>

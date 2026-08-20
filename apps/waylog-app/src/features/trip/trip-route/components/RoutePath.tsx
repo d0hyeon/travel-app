@@ -1,33 +1,14 @@
 import type { Coordinate } from '@waylog/domains/map'
-import { Map } from '../../../../shared/components/Map'
+import type { RouteLeg } from '@waylog/domains/route'
 import { useRoadRoute } from '../../../route/road-route/useRoadRoute'
 
-interface RoutePathProps {
-  waypoints: Coordinate[]
-  color: string
-  isSelected: boolean
-}
-
-// 경로를 구간(leg)별 폴리라인으로 그린다.
-// 웹은 구간마다 이동수단·시간 라벨을 얹지만 RN 폴리라인에는 라벨이 없다.
-export function RoutePath({ waypoints, color, isSelected }: RoutePathProps) {
+// AIRMap 은 지도용이 아닌 자식(컴포넌트·조각)을 만나면 그 자식들을 같은
+// 인덱스에 밀어넣어 내부 배열이 깨진다. 그래서 컴포넌트로 감싸지 않고
+// 훅으로 구간만 얻어 호출부가 Map.Path 를 직접 펼친다.
+export function useRouteLegsPath(waypoints: Coordinate[]): RouteLeg[] {
   const {
     data: { legs },
   } = useRoadRoute({ waypoints, suspense: false })
 
-  if (legs.length === 0) return null
-
-  return (
-    <>
-      {legs.map((leg, index) => (
-        <Map.Path
-          key={index}
-          coordinates={leg.coordinates}
-          strokeColor={color}
-          strokeWeight={isSelected ? 5 : 3}
-          strokeOpacity={isSelected ? 1 : 0.6}
-        />
-      ))}
-    </>
-  )
+  return legs
 }
