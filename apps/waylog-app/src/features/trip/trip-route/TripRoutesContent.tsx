@@ -2,15 +2,19 @@ import { formatDisplayDate, formatShortDate } from '@waylog/domains/utils'
 import { useDayTripRoutes, useTrip } from '@waylog/domains/trip'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Fragment, startTransition, useMemo, useOptimistic, useRef, useState } from 'react'
-import { Box, Chip, IconButton, Stack, Typography } from '../../../shared/components/mui'
+import { Box, Button, Chip, IconButton, Stack, Typography } from '../../../shared/components/mui'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { ListItem } from '../../../shared/components/ListItem'
 import { SortableItem, SortableList } from '../../../shared/components/dnd/SortableList'
 import { Map, type MapRef } from '../../../shared/components/Map'
+import { BottomArea } from '../../../shared/components/BottomArea'
+import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
 import { palette } from '../../../shared/config/tokens'
 import { RoutePath } from './components/RoutePath'
 import { TripRouteSelector } from './components/TripRouteSelector'
+import { PlaceSelectSheet } from './PlaceSelectSheet'
+import { NoteEditor } from './RouteNoteList'
 import { DragIcon } from './components/DragIcon'
 import { TripRoutePlaceListItem } from './components/TripRoutePlaceListItem'
 import { Dot, RouteLegItem } from './RouteTimeline'
@@ -49,6 +53,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
     remove: removeRoute,
     update,
     toggleVisible,
+    updateNotes,
   } = useDayTripRoutes({ tripId, date: selectedDate })
 
   const [selectedRouteId, setSelectedRouteId] = useQueryParamState<string>('route-id', {
@@ -70,6 +75,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
   const [currentPlaces, setOptimisticCurrentPlaces] = useOptimistic(currentRoute?.places ?? [])
 
   const mapRef = useRef<MapRef>(null)
+  const overlay = useOverlay()
   const [sheetRatio, setSheetRatio] = useState<number>(DEFAULT_BOTTOM_SHEET_RATIO)
   const [focusedId, setFocusedId] = useState<string | null>(null)
 
@@ -208,7 +214,15 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                           placeId={place.id}
                         />
                       }
-                    />
+                    >
+                      <NoteEditor
+                        notes={place.routeNotes ?? []}
+                        onChange={(memos) =>
+                          updateNotes({ placeId: place.id, routeId: currentRoute.id, memos })
+                        }
+                        action="dialog"
+                      />
+                    </TripRoutePlaceListItem>
                   </Fragment>
                 )
               }}
@@ -216,6 +230,31 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
           )}
         </BottomSheet.Body>
       </BottomSheet>
+
+      <BottomArea>
+        <Button
+          size="large"
+          variant="contained"
+          fullWidth
+          onClick={() => {
+            overlay.open(({ isOpen, close }) => (
+              <PlaceSelectSheet
+                isOpen={isOpen}
+                onClose={close}
+                tripId={tripId}
+                selectedPlaceIds={currentRoute?.placeIds ?? []}
+                onConfirm={(placeIds) => {
+                  if (currentRoute == null || placeIds.length === 0) return
+                  const merged = Array.from(new Set([...currentRoute.placeIds, ...placeIds]))
+                  update({ routeId: currentRoute.id, placeIds: merged })
+                }}
+              />
+            ))
+          }}
+        >
+          장소 추가
+        </Button>
+      </BottomArea>
     </Box>
   )
 }
