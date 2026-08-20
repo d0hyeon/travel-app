@@ -1,10 +1,11 @@
 import { PlaceCategoryColorCode, type TripPlace } from '@waylog/domains/place'
 import { useTrip, useTripPlaces, useTripRoutes } from '@waylog/domains/trip'
 import { arraySplit } from '@waylog/domains/utils'
+import { useRouter } from 'expo-router'
 import { useMemo, useRef, useState } from 'react'
 import { ScrollView, View } from 'react-native'
 import { Map, type MapRef } from '../../../shared/components/Map'
-import { Stack, Text } from '../../../shared/components'
+import { Button, Stack, Text } from '../../../shared/components'
 import { palette } from '../../../shared/config/tokens'
 import { usePlaceDetailOverlay } from '../../place/place-detail/usePlaceDetailOverlay'
 import { TripPlaceItemButton } from './TripPlaceItemButton'
@@ -26,6 +27,7 @@ export function TripPlaceContent({ tripId }: Props) {
   const mapRef = useRef<MapRef>(null)
   const [focusedId, setFocusedId] = useState<string | null>(null)
   const placeDetail = usePlaceDetailOverlay()
+  const router = useRouter()
 
   const plannedPlaceIds = useMemo(
     () => new Set(routes.flatMap((route) => route.placeIds)),
@@ -71,9 +73,14 @@ export function TripPlaceContent({ tripId }: Props) {
       </View>
 
       <View style={{ flex: 1, padding: 16, backgroundColor: palette.background }}>
-        <Text variant="caption" color={palette.textSecondary}>
-          확정 ({plannedPlaces.length}) / 후보 ({candidatePlaces.length})
-        </Text>
+        <Stack direction="row" align="center" justify="space-between">
+          <Text variant="caption" color={palette.textSecondary}>
+            확정 ({plannedPlaces.length}) / 후보 ({candidatePlaces.length})
+          </Text>
+          <Button size="sm" onPress={() => router.push(`/trip/${tripId}/place-search`)}>
+            장소 추가
+          </Button>
+        </Stack>
 
         <ScrollView contentContainerStyle={{ paddingTop: 8 }}>
           <Stack gap={6}>

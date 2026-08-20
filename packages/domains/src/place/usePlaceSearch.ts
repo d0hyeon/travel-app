@@ -1,7 +1,7 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import type { Coordinate } from '@waylog/domains/utils'
-import type { MapProvider } from '../../../shared/components/Map/types'
+import type { Coordinate } from '../utils'
+import type { MapProvider } from '../map'
 import { searchPlaces } from './placeSearch.api'
 
 export type { PlaceResult } from './placeSearch.api'
