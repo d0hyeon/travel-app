@@ -1,10 +1,11 @@
 import GorhomBottomSheet, {
   BottomSheetScrollView,
 } from '@gorhom/bottom-sheet'
-import { useCallback, useEffect, useImperativeHandle, useMemo, useRef, type ReactNode, type Ref } from 'react'
+import { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState, type ReactNode, type Ref } from 'react'
 import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native'
 import { Box, Stack, Typography, sxToStyle, type BoxProps, type StackProps, type Sx } from '../mui'
 import { palette } from '../../config/tokens'
+import { dragGestureRef } from '../dnd/SortableList'
 
 // 웹 shared/components/bottom-sheet 와 같은 공개 인터페이스를 유지한다.
 // 드래그·스냅은 @gorhom/bottom-sheet 가 처리한다.
@@ -58,6 +59,7 @@ function ModalSheet({
 }: BottomSheetProps) {
   const sheetRef = useRef<GorhomBottomSheet>(null)
   const snapHeights = useSnapHeights(snapPoints)
+  const [snapIndex, setSnapIndex] = useState(defaultSnapIndex)
 
   // BottomSheetModal 은 자체 포털에 그리는데, 오버레이 층 안에서는 그 포털이
   // 화면에 닿지 않는다. 오버레이 층이 이미 전체 화면이므로 인라인 시트를
@@ -80,13 +82,18 @@ function ModalSheet({
             onClose?.()
             return
           }
+          setSnapIndex(index)
           const ratio = snapPoints?.[index]
           if (ratio != null) onSnapChange?.(ratio)
         }}
         backgroundStyle={[styles.background, sxToStyle(sx)]}
         handleIndicatorStyle={styles.handle}
+      // 목록 드래그가 먼저다. 시트는 그 제스처가 실패해야 움직인다.
+      waitFor={dragGestureRef}
       >
-        {children}
+        {/* 내용에 높이 기준을 준다. 이게 없으면 안쪽 ScrollView 의 flex:1 이
+          무한 높이를 상대로 풀려 내용만큼 늘어나고, 넘침이 없어 스크롤이 죽는다. */}
+      <View style={{ height: snapHeights[snapIndex] }}>{children}</View>
       </GorhomBottomSheet>
     </View>
   )
@@ -102,8 +109,9 @@ function InlineSheet({
 }: BottomSheetProps) {
   const sheetRef = useRef<GorhomBottomSheet>(null)
   const snapHeights = useSnapHeights(snapPoints)
+  const [snapIndex, setSnapIndex] = useState(defaultSnapIndex)
 
-  useImperativeHandle(ref as never, () => ({ snap: defaultSnapIndex }), [defaultSnapIndex])
+  useImperativeHandle(ref as never, () => ({ snap: snapIndex }), [snapIndex])
 
   return (
     <GorhomBottomSheet
@@ -115,13 +123,17 @@ function InlineSheet({
       enableDynamicSizing={false}
       snapPoints={snapHeights}
       onChange={(index) => {
+        if (index < 0) return
+        setSnapIndex(index)
         const ratio = snapPoints?.[index]
         if (ratio != null) onSnapChange?.(ratio)
       }}
       backgroundStyle={[styles.background, sxToStyle(sx)]}
       handleIndicatorStyle={styles.handle}
+      // 목록 드래그가 먼저다. 시트는 그 제스처가 실패해야 움직인다.
+      waitFor={dragGestureRef}
     >
-      {children}
+      <View style={{ height: snapHeights[snapIndex] }}>{children}</View>
     </GorhomBottomSheet>
   )
 }
