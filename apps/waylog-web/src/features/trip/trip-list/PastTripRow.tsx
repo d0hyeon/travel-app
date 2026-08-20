@@ -4,7 +4,7 @@ import { Suspense } from 'react'
 import { Link, PrefetchPageLinks } from 'react-router'
 import { TripUnreadCountBadge } from '../trip-chat/TripUnreadCountBadge'
 import type { Trip } from '@waylog/domains/trip'
-import { formatTripDate, getTripDuration } from './trip-list.utils'
+import { formatTripDate, getTripDuration } from '@waylog/domains/trip'
 
 interface Props {
   trip: Trip
