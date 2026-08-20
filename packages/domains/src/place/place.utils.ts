@@ -1,4 +1,4 @@
-import type { PlaceCategoryType, PlaceStatus } from "./place.types";
+import type { PlaceCategoryType, PlaceStatus } from './place.types';
 
 export interface TripPlacePatchInput {
   status?: PlaceStatus;

@@ -6,8 +6,8 @@ import { useMemo, useState } from 'react'
 import { PlaceSearchSelectScreen } from '~features/place/place-search/PlaceSearchSelectScreen'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { ListItem } from '../../../shared/components/ListItem'
-import { PlaceCategoryColorCode } from '../../place/place.types'
-import { useTripPlaces } from '../trip-place/useTripPlaces'
+import { PlaceCategoryColorCode } from '@waylog/domains/place'
+import { useTripPlaces } from '@waylog/domains/trip'
 import { useTrip } from '@waylog/domains/trip'
 
 interface PlaceSelectSheetProps {

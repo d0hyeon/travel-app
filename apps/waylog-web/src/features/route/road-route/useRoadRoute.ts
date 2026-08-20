@@ -3,7 +3,7 @@ import { useQuery } from '@waylog/react';
 import { isOverseasByCoordinate } from '@waylog/domains/utils';
 import type { Coordinate } from '../../../shared/components/Map/types';
 import type { RoadRoute } from '@waylog/domains/route';
-import { getRoadDirections } from './roadRoute.api';
+import { getRoadDirections } from '@waylog/domains/route';
 import { keepPreviousData } from '@tanstack/react-query';
 
 interface UseDirectionsOptions {

@@ -9,14 +9,14 @@ import {
   createRoute,
   updateRoute,
   deleteRoute,
-} from "@waylog/domains/route";
-import { assert } from "@waylog/domains/utils";
-import { useTrip } from "@waylog/domains/trip";
-import { mergeQueriesStatus } from "../../../shared/utils/merges";
+} from "../route";
+import { assert } from "../utils";
+import { useTrip } from "./index";
+import { mergeQueriesStatus } from "../utils";
 import { useMemo } from "react";
 import { addDays, differenceInDays } from "date-fns";
-import { formatDisplayDate } from "@waylog/domains/utils";
-import { queryClient } from "~app/query-client";
+import { formatDisplayDate } from "../utils";
+import { queryClient } from "../query";
 import { TRIP_PLAN_REFETCH } from "./tripPlanRefetch";
 
 export function useTripRoutes(id: string) {

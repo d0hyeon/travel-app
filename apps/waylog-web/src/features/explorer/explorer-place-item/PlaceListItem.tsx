@@ -1,8 +1,8 @@
 import LocationOnIcon from '@mui/icons-material/LocationOn'
 import PeopleIcon from '@mui/icons-material/People'
 import { Box, Skeleton, Stack, Typography, type BoxProps } from '@mui/material'
-import type { PlaceCategoryType } from '~features/place/place.types'
-import { PlaceCategoryColorCode, PlaceCategoryTypeLabel } from '~features/place/place.types'
+import type { PlaceCategoryType } from '@waylog/domains/place'
+import { PlaceCategoryColorCode, PlaceCategoryTypeLabel } from '@waylog/domains/place'
 
 interface Place {
   placeId: string

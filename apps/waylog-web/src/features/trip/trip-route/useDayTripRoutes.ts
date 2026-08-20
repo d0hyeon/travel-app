@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { arrayIncludes,  assert} from "@waylog/domains/utils";
-import { useTripPlaces } from "../trip-place/useTripPlaces";
-import { useTripRoutes } from "./useTripRoutes";
+import { useTripPlaces } from '@waylog/domains/trip';
+import { useTripRoutes } from '@waylog/domains/trip';
 
 type Params = {
   tripId: string;

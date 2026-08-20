@@ -11,9 +11,9 @@ import { Map, type MapRef } from "../../../../shared/components/Map"
 import { formatShortDate } from "@waylog/domains/utils"
 import { formatByCurrencyCode } from "@waylog/domains/expense"
 import { formatCurrency } from "@waylog/domains/expense"
-import { PlaceCategoryColorCode } from "../../../place/place.types"
-import { useTripPlaces } from "../../trip-place/useTripPlaces"
-import { useTripRoutes } from "../../trip-route/useTripRoutes"
+import { PlaceCategoryColorCode } from '@waylog/domains/place'
+import { useTripPlaces } from '@waylog/domains/trip'
+import { useTripRoutes } from '@waylog/domains/trip'
 import { useTrip } from "@waylog/domains/trip"
 import { getRouteColor, RoutePath } from "../routeExpenseView.utils"
 import { useExpenseFormOverlay } from "../useExpenseFormOverlay"

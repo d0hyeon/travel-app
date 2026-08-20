@@ -14,7 +14,7 @@ import {
   InputAdornment,
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
-import { Map, type MapType } from '../../../shared/components/Map'
+import { Map, type MapProvider } from '../../../shared/components/Map'
 import { usePlaceSearch, type PlaceResult } from './usePlaceSearch'
 
 export type PlaceSearchResult = PlaceResult
@@ -23,7 +23,7 @@ interface Props {
   isOpen: boolean
   onClose: () => void
   onSelect: (place: PlaceSearchResult) => void
-  service?: MapType
+  service?: MapProvider
 }
 
 export function PlaceSearchDialog({ isOpen, onClose, onSelect, service = 'kakao' }: Props) {

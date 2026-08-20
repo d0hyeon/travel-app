@@ -142,5 +142,5 @@ Map.Region = Region;
 export type { MapPolygonProps, MapRegionProps, PolygonLayerProps, RegionLayerProps } from './polygon-layer.types';
 export { getCountryPolygonCoordinates, getLocationCoordinates } from './polygon-layer.utils';
 export type { LocationCoordinateLevel } from './polygon-layer.utils';
-export type { AutoFocus, Coordinate, MapBounds, MapProps, MapRef, MapType, MarkerProps, PathProps } from './types';
+export type { AutoFocus, Coordinate, MapBounds, MapProps, MapProvider, MapRef, MapType, MarkerProps, PathProps } from './types';
 

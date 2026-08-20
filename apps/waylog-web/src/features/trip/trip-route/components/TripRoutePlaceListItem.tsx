@@ -2,11 +2,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { Box } from '@mui/material';
 import type { ReactNode } from 'react';
-import type { TripPlace } from '~features/place/place.types';
+import type { TripPlace } from '@waylog/domains/place';
 import { ListItem } from '~shared/components/ListItem';
 import { PopMenu } from '~shared/components/PopMenu';
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog';
-import { useTripPlaces } from '../../trip-place/useTripPlaces';
+import { useTripPlaces } from '@waylog/domains/trip';
 import { useDayTripRoutes } from '../useDayTripRoutes';
 import { usePlaceFormOverlay } from '../usePlaceFormOverlay';
 

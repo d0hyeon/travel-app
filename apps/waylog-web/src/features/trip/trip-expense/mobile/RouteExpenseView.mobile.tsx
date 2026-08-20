@@ -7,10 +7,10 @@ import { Map, type MapRef } from "../../../../shared/components/Map"
 import { formatShortDate } from "@waylog/domains/utils"
 import { formatByCurrencyCode } from "@waylog/domains/expense"
 import { formatCurrency } from "@waylog/domains/expense"
-import { PlaceCategoryColorCode } from "../../../place/place.types"
+import { PlaceCategoryColorCode } from '@waylog/domains/place'
 import { useTripMembers } from "../../trip-member/useTripMembers"
-import { useTripPlaces } from "../../trip-place/useTripPlaces"
-import { useTripRoutes } from "../../trip-route/useTripRoutes"
+import { useTripPlaces } from '@waylog/domains/trip'
+import { useTripRoutes } from '@waylog/domains/trip'
 import { useTrip } from "@waylog/domains/trip"
 import { ExpenseFormDeletationActions } from "../ExpenseFormDeletationActions"
 import { ExpenseFormOverlayActions, useExpenseFormBottomSheet } from "../useExpenseFormOverlay"

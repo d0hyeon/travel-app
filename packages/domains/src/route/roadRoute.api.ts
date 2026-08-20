@@ -1,22 +1,8 @@
-import { supabase } from '@waylog/domains/api'
-import { TransportType } from '@waylog/domains/route'
-import type { RoadRoute } from '@waylog/domains/route'
-
-interface Coordinate {
-  lat: number
-  lng: number
-}
-
-function splitIntoSegments(waypoints: Coordinate[], maxSize: number): Coordinate[][] {
-  const segments: Coordinate[][] = []
-  let start = 0
-  while (start < waypoints.length - 1) {
-    const end = Math.min(start + maxSize, waypoints.length)
-    segments.push(waypoints.slice(start, end))
-    start = end - 1
-  }
-  return segments
-}
+import { supabase } from '../api'
+import { TransportType } from './route.types'
+import type { RoadRoute } from './route.types'
+import type { Coordinate } from '../utils'
+import { splitIntoSegments } from './roadRoute.utils'
 
 function mergeRoadRoutes(routes: RoadRoute[]): RoadRoute {
   if (routes.length === 0) return { coordinates: [], legs: [] }

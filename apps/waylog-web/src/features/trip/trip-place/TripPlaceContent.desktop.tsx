@@ -8,16 +8,16 @@ import {
 import { Suspense, useMemo, useRef, useState } from 'react'
 import { Map, type MapRef } from '../../../shared/components/Map'
 import { usePlaceSearchDialog } from '../../place/place-search/usePlaceSearchDialog'
-import { PlaceCategoryColorCode, type TripPlace } from '../../place/place.types'
+import { PlaceCategoryColorCode, type TripPlace } from '@waylog/domains/place'
 import { useTripCluastering } from '../hooks/useTripCluastering'
 import { RecommendedMarkers } from '../trip-recommend/RecommendedMarkers'
 import { useRecommendedPlaceDetailOverlay } from '../trip-recommend/RecommendedPlaceDetailOverlay'
-import { useTripRoutes } from '../trip-route/useTripRoutes'
+import { useTripRoutes } from '@waylog/domains/trip'
 import { useTrip } from '@waylog/domains/trip'
 import { TripPlaceItemButton } from './TripPlaceItemButton'
 import { TripPlaceMapFloatingControls } from './TripPlaceMapFloatingControls'
 import { useTripPlaceFormOverlay } from './trip-place-form/useTripPlaceFormOverlay'
-import { useTripPlaces } from './useTripPlaces'
+import { useTripPlaces } from '@waylog/domains/trip'
 
 const MICRO_ZOOM_LEVEL = 8;
 interface TripPlaceContentProps {

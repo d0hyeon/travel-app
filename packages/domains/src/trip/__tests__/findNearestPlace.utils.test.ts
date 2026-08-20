@@ -19,4 +19,12 @@ describe("findNearestPlace", () => {
 
     expect(findNearestPlace({ lat: 37.5665, lng: 126.978 }, [only])).toBe(only);
   });
+
+  it("거리가 같으면 먼저 오는 장소를 고른다", () => {
+    const coordinate = { lat: 0, lng: 0 };
+    const west = { lat: 0, lng: -1 };
+    const east = { lat: 0, lng: 1 };
+
+    expect(findNearestPlace(coordinate, [west, east])).toBe(west);
+  });
 });

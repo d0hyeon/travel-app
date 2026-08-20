@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { explorerKey, getExploredPlaces } from '../explorer.api'
 import { useMemo } from 'react'
-import type { PlaceCategoryType } from '~features/place/place.types'
+import type { PlaceCategoryType } from '@waylog/domains/place'
 
 export function useExploredPlaces(location?: string | null, category?: PlaceCategoryType | null) {
   const query = useSuspenseQuery({
