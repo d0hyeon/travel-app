@@ -1,3 +1,4 @@
+import { queryClient } from '~app/query-client';
 import { Box, Stack, Typography } from "@mui/material";
 import { Suspense, useMemo, useRef, useState } from "react";
 import { BottomArea } from '~shared/components/BottomArea';
@@ -26,8 +27,8 @@ const BOTTOM_SHEET_RATIOS = [0.25, 0.5, 0.8, 1] as const;
 const DEFAULT_BOTTOM_SHEET_RATIO = 0.5 satisfies typeof BOTTOM_SHEET_RATIOS[number];
 
 export function preload(id: string) {
-  useTripPlaces.prefetch(id);
-  useTripRoutes.prefetch(id);
+  queryClient.prefetchQuery(useTripPlaces.query(id));
+  queryClient.prefetchQuery(useTripRoutes.query(id));
 }
 
 export default function TripPlaceContent({ tripId }: PlaceContentProps) {

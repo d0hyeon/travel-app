@@ -22,7 +22,7 @@ import type { Coordinate, MapProvider } from '../../../shared/components/Map'
 import type { PlaceSearchResult } from './PlaceSearchDialog'
 import { PlaceSearchSelectScreen } from './PlaceSearchSelectScreen'
 import { useLaststSearchKeywords } from './useLaststSearchKeywords'
-import { usePlaceSearch } from './usePlaceSearch'
+import { usePlaceSearch } from '@waylog/domains/place'
 
 interface Props {
   isOpen: boolean

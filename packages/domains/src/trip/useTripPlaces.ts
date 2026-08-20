@@ -8,16 +8,11 @@ import {
   upsertPlace,
 } from "../place";
 import type { PlaceCategoryType, PlaceStatus, TripPlace } from "../place";
-import { tripKey } from "./index";
-import { queryClient } from "../query";
+import { tripKey } from "./trip.api";
 import { TRIP_PLAN_REFETCH } from "./tripPlanRefetch";
 
 export function useTripPlaces(tripId: string) {
-  const { data, refetch, ...queries } = useSuspenseQuery({
-    queryKey: useTripPlaces.key(tripId),
-    queryFn: () => getTripPlacesByTripId(tripId),
-    ...TRIP_PLAN_REFETCH,
-  })
+  const { data, refetch, ...queries } = useSuspenseQuery(useTripPlaces.query(tripId))
 
   const create = useAddTripPlace(tripId, {
     onSuccess: () => refetch(),
@@ -97,9 +92,10 @@ export function useAddTripPlace(
 }
 
 useTripPlaces.key = (id: string) => [tripKey, placeKey, id];
-useTripPlaces.prefetch = (id: string) => {
-  queryClient.prefetchQuery({
-    queryKey: useTripPlaces.key(id),
-    queryFn: () => getTripPlacesByTripId(id),
-  })
-}
+// 소비처가 자기 QueryClient 로 prefetch 한다.
+// 패키지가 QueryClient 를 알 필요가 없다.
+useTripPlaces.query = (id: string) => ({
+  queryKey: useTripPlaces.key(id),
+  queryFn: () => getTripPlacesByTripId(id),
+  ...TRIP_PLAN_REFETCH,
+})

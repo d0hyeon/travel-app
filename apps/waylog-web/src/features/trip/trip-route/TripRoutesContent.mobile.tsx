@@ -35,7 +35,7 @@ import { findNearestPlace } from '@waylog/domains/trip';
 import { PlaceSelectSheet } from "./PlaceSelectSheet";
 import { NoteEditor } from './RouteNoteList';
 import { RouteLegItem } from './RouteTimeline';
-import { useDayTripRoutes } from './useDayTripRoutes';
+import { useDayTripRoutes } from '@waylog/domains/trip';
 import { usePlaceFormOverlay } from './usePlaceFormOverlay';
 import { useRouteLegs } from './useRouteLegs';
 import { useTripViewConfigValue } from './useTripViewConfig';

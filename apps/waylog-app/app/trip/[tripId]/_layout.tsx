@@ -17,6 +17,8 @@ export default function TripDetailLayout() {
       <Tabs.Screen name="route" options={{ title: '계획' }} />
       <Tabs.Screen name="expense" options={{ title: '정산' }} />
       <Tabs.Screen name="photo" options={{ title: '사진' }} />
+      {/* 탭이 아니라 장소 탭에서 들어가는 화면이다 */}
+      <Tabs.Screen name="place-search" options={{ href: null }} />
     </Tabs>
   )
 }

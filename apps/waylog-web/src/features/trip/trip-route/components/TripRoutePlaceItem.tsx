@@ -6,7 +6,7 @@ import type { TripPlace } from '@waylog/domains/place';
 import { ListItem } from '~shared/components/ListItem';
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog';
 import { useTripPlaces } from '@waylog/domains/trip';
-import { useDayTripRoutes } from '../useDayTripRoutes';
+import { useDayTripRoutes } from '@waylog/domains/trip';
 import { usePlaceFormOverlay } from '../usePlaceFormOverlay';
 
 type ListItemProps = Parameters<typeof ListItem>[0];
