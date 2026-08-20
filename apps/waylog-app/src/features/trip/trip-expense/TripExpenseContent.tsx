@@ -5,6 +5,7 @@ import { Box, Button, Stack, Tab, Tabs, Typography } from '../../../shared/compo
 import { palette } from '../../../shared/config/tokens'
 import { ExpenseHeader } from './ExpenseHeader'
 import { ExpenseList } from './ExpenseList'
+import { RouteExpenseView } from './RouteExpenseView'
 import { SettlementSummary } from './SettlementSummary'
 import { useExpenseFormBottomSheet } from './useExpenseFormOverlay'
 
@@ -12,7 +13,7 @@ interface Props {
   tripId: string
 }
 
-type SubTab = 'list' | 'settlement'
+type SubTab = 'list' | 'settlement' | 'route'
 
 export default function TripExpenseContent({ tripId }: Props) {
   const [currentSubTab, selectSubTab] = useState<SubTab>('list')
@@ -32,6 +33,7 @@ export default function TripExpenseContent({ tripId }: Props) {
         <Tabs value={currentSubTab} onChange={(_, value) => selectSubTab(value as SubTab)}>
           <Tab value="list" label="지출 목록" />
           <Tab value="settlement" label="정산" />
+          <Tab value="route" label="경로별" />
         </Tabs>
         <Button
           size="small"
@@ -43,13 +45,14 @@ export default function TripExpenseContent({ tripId }: Props) {
         </Button>
       </Stack>
 
-      <ScrollView contentContainerStyle={{ padding: 16 }}>
-        {currentSubTab === 'list' ? (
-          <ExpenseList tripId={tripId} />
-        ) : (
-          <SettlementSummary tripId={tripId} />
-        )}
-      </ScrollView>
+      {currentSubTab === 'route' ? (
+        <RouteExpenseView tripId={tripId} />
+      ) : (
+        <ScrollView contentContainerStyle={{ padding: 16 }}>
+          {currentSubTab === 'list' && <ExpenseList tripId={tripId} />}
+          {currentSubTab === 'settlement' && <SettlementSummary tripId={tripId} />}
+        </ScrollView>
+      )}
     </Box>
   )
 }

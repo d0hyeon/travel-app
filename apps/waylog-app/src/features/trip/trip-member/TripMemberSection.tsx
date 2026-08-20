@@ -3,6 +3,7 @@ import { useTripMembers } from '@waylog/domains/trip-member'
 import { Suspense } from 'react'
 import { ListItem } from '../../../shared/components/ListItem'
 import { Skeleton, Stack, Typography } from '../../../shared/components/mui'
+import { TripInviteButton } from '../components/TripInviteButton'
 import { MemberAvatar } from './MemberAvatar'
 
 interface Props {
@@ -28,7 +29,7 @@ function Resolved({ tripId }: Props) {
         <Typography variant="subtitle2" color="text.secondary">
           인원 ({members.length}명)
         </Typography>
-        {/* TODO: 초대 버튼 (TripInviteButton) */}
+        <TripInviteButton tripId={tripId}>초대</TripInviteButton>
       </Stack>
 
       <Stack gap={1} sx={{ width: '100%' }}>

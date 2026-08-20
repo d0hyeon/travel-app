@@ -1,3 +1,4 @@
+import { findNearestPlace } from '@waylog/domains/trip'
 import { formatDisplayDate, formatShortDate } from '@waylog/domains/utils'
 import { useDayTripRoutes, useTrip } from '@waylog/domains/trip'
 import { MaterialIcons } from '@expo/vector-icons'
@@ -8,6 +9,7 @@ import { ListItem } from '../../../shared/components/ListItem'
 import { SortableItem, SortableList } from '../../../shared/components/dnd/SortableList'
 import { Map, type MapRef } from '../../../shared/components/Map'
 import { BottomArea } from '../../../shared/components/BottomArea'
+import { useCurrentCoordinate } from '../../../shared/hooks/env/useCurrentCoordinate'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
 import { palette } from '../../../shared/config/tokens'
@@ -76,6 +78,26 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
 
   const mapRef = useRef<MapRef>(null)
   const overlay = useOverlay()
+
+  // 여행 중이면 현재 위치로 이동하고 가장 가까운 장소를 잡아준다.
+  const today = formatDisplayDate(new Date())
+  const isOngoingTrip = trip.startDate <= today && today <= trip.endDate
+  const isInitialedRef = useRef(false)
+
+  useCurrentCoordinate({
+    enabled: isOngoingTrip,
+    onChange: (coordinate) => {
+      if (isInitialedRef.current) return
+      isInitialedRef.current = true
+
+      mapRef.current?.panTo(coordinate.lat, coordinate.lng)
+
+      if (selectedDate === today) {
+        const nearestPlace = findNearestPlace(coordinate, currentRoute?.places ?? [])
+        if (nearestPlace != null) setFocusedId(nearestPlace.id)
+      }
+    },
+  })
   const [sheetRatio, setSheetRatio] = useState<number>(DEFAULT_BOTTOM_SHEET_RATIO)
   const [focusedId, setFocusedId] = useState<string | null>(null)
 
