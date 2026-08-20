@@ -3,7 +3,7 @@ import { Box, IconButton, Skeleton, Stack, Tab, Tabs, Typography } from '@mui/ma
 import { Suspense, useEffect, useState } from 'react'
 import { FullScreenPopup, type FullScreenPopupProps } from '~shared/components/FullScreenPopup'
 import { SwitchCase } from '~shared/components/SwitchCase'
-import { usePlace } from '../usePlace'
+import { usePlace } from '@waylog/domains/place'
 import { PlaceDetailContent } from './PlaceDetailContent'
 
 

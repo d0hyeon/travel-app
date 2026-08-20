@@ -1,4 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
+import { initQueryClient } from "@waylog/domains/query";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -10,3 +11,5 @@ export const queryClient = new QueryClient({
     }
   }
 })
+
+initQueryClient(queryClient)

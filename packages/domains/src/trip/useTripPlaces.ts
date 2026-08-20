@@ -6,11 +6,11 @@ import {
   placeKey,
   updateTripPlace,
   upsertPlace,
-} from "../../place/place.api";
-import type { PlaceCategoryType, PlaceStatus, TripPlace } from "../../place/place.types";
-import { tripKey } from "@waylog/domains/trip";
-import { queryClient } from "~app/query-client";
-import { TRIP_PLAN_REFETCH } from "../trip-route/tripPlanRefetch";
+} from "../place";
+import type { PlaceCategoryType, PlaceStatus, TripPlace } from "../place";
+import { tripKey } from "./index";
+import { queryClient } from "../query";
+import { TRIP_PLAN_REFETCH } from "./tripPlanRefetch";
 
 export function useTripPlaces(tripId: string) {
   const { data, refetch, ...queries } = useSuspenseQuery({

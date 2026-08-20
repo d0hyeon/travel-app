@@ -1,5 +1,5 @@
-import { supabase } from "@waylog/domains/api";
-import type { UpdateDataType } from "@waylog/domains/api";
+import { supabase } from "../api";
+import type { UpdateDataType } from "../api";
 import type {
   Place,
   PlaceCategoryType,

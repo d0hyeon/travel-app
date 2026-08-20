@@ -3,7 +3,7 @@ import { Suspense } from 'react'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState'
-import { usePlace } from '../usePlace'
+import { usePlace } from '@waylog/domains/place'
 import { PlaceDetailContent } from './PlaceDetailContent'
 import { usePlaceId } from './usePlaceId'
 

@@ -8,7 +8,7 @@ import {
   updateExpense
 } from "@waylog/domains/expense"
 import type { Expense } from "@waylog/domains/expense"
-import { useTripPlaces } from "~features/trip/trip-place/useTripPlaces";
+import { useTripPlaces } from '@waylog/domains/trip';
 import { queryClient } from "~app/query-client";
 
 export function useExpenses(tripId: string) {

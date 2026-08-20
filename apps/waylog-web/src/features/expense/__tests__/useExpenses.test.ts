@@ -2,7 +2,7 @@ import { renderHook, waitFor, act } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useExpenses } from '../useExpenses'
 import * as expenseApi from '@waylog/domains/expense'
-import * as placeApi from '../../place/place.api'
+import * as placeApi from '@waylog/domains/place'
 
 import type { Expense } from '@waylog/domains/expense'
 import { createWrapper } from '~fixtures/wraper'

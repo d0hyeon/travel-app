@@ -33,7 +33,7 @@ import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { SortCommand } from '~shared/utils/sorts'
 import { assert } from '@waylog/domains/utils'
 import { formatDisplayDate } from "@waylog/domains/utils"
-import { useTripPlaces } from '../trip-place/useTripPlaces'
+import { useTripPlaces } from '@waylog/domains/trip'
 
 export interface PaymentField {
   memberId: string

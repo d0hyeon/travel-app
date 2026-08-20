@@ -21,9 +21,9 @@ import { useCurrentCoordinate } from "../../../shared/hooks/env/useCurrentCoordi
 import { usePointerPosition } from "../../../shared/hooks/interaction/usePointerPosition";
 import { useOverlay } from "../../../shared/hooks/useOverlay";
 import { formatDisplayDate, formatShortDate } from "@waylog/domains/utils";
-import { PlaceCategoryColorCode, type TripPlace } from "../../place/place.types";
+import { PlaceCategoryColorCode, type TripPlace } from '@waylog/domains/place';
 import { TripMarineActivityMapMarkers } from '../trip-marine-activity/TripMarineActivityMapMarkers';
-import { useTripPlaces } from "../trip-place/useTripPlaces";
+import { useTripPlaces } from '@waylog/domains/trip';
 import { TripWeatherIconButton } from '../trip-weather/TripWeatherIconButton';
 import { useTrip } from '@waylog/domains/trip';
 import { FloatingControl } from "./components/FloatingControl";

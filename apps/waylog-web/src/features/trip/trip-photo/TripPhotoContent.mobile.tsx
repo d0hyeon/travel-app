@@ -11,7 +11,7 @@ import { PhotoVisibilityBadge } from '~shared/components/photo/PhotoVisibilityBa
 import { useOverlay } from '~shared/hooks/useOverlay';
 import { PhotoThunbnail } from '../../../shared/components/photo/PhotoThumbnail';
 import type { Photo } from '@waylog/domains/photo';
-import { useTripPlaces } from '../trip-place/useTripPlaces';
+import { useTripPlaces } from '@waylog/domains/trip';
 import { useTripPhotos } from './useTripPhotos';
 
 interface TripPhotoContentProps {
