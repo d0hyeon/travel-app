@@ -1,5 +1,6 @@
+import { MaterialIcons } from '@expo/vector-icons'
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
-import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist'
+import { Pressable } from 'react-native'
 import { Box, type BoxProps } from '../mui'
 
 // 웹 dnd/SortableList 와 같은 공개 인터페이스를 유지한다.
@@ -14,7 +15,12 @@ type Props<T extends { id: string }> = {
   children?: ReactNode
 }
 
-const DragContext = createContext<(() => void) | null>(null)
+interface MoveHandlers {
+  moveUp: () => void
+  moveDown: () => void
+}
+
+const MoveContext = createContext<MoveHandlers | null>(null)
 
 export function SortableList<T extends { id: string }>({
   items: _items,
@@ -28,23 +34,38 @@ export function SortableList<T extends { id: string }>({
     setItems(_items)
   }, [_items])
 
+  // 바텀시트·스크롤뷰 안에 놓이므로 가상 목록을 쓰지 않는다.
+  // 핸들을 길게 누르면 위아래로 옮긴다.
+  const move = (from: number, to: number) => {
+    if (to < 0 || to >= items.length) return
+
+    const next = [...items]
+    const [moved] = next.splice(from, 1)
+    if (moved == null) return
+    next.splice(to, 0, moved)
+
+    setItems(next)
+    onSort?.({ from, to, items: next })
+  }
+
   return (
-    <DraggableFlatList
-      data={items}
-      keyExtractor={(item) => item.id}
-      activationDistance={disabled ? Number.MAX_SAFE_INTEGER : 12}
-      onDragEnd={({ data, from, to }) => {
-        setItems(data)
-        if (from !== to) onSort?.({ from, to, items: data })
-      }}
-      renderItem={({ item, getIndex, drag }) => (
-        <ScaleDecorator>
-          <DragContext.Provider value={drag}>
-            {renderItem?.(item, getIndex() ?? 0)}
-          </DragContext.Provider>
-        </ScaleDecorator>
-      )}
-    />
+    <>
+      {items.map((item, index) => (
+        <MoveContext.Provider
+          key={item.id}
+          value={
+            disabled === true
+              ? null
+              : {
+                  moveUp: () => move(index, index - 1),
+                  moveDown: () => move(index, index + 1),
+                }
+          }
+        >
+          {renderItem?.(item, index)}
+        </MoveContext.Provider>
+      ))}
+    </>
   )
 }
 
@@ -60,13 +81,20 @@ export const SortableItem = {
   Handle: Handle,
 }
 
-// 이 핸들을 길게 누르면 드래그가 시작된다.
-function Handle({ children, sx, id: _id, ...props }: Omit<BoxProps, 'id'> & { id: string | number }) {
-  const drag = useContext(DragContext)
+// 웹은 드래그 핸들이지만 RN 스크롤 안에서는 제스처가 충돌한다.
+// 같은 자리에서 순서를 바꾸도록 위/아래 버튼을 둔다.
+function Handle({ sx, id: _id }: Omit<BoxProps, 'id'> & { id: string | number }) {
+  const move = useContext(MoveContext)
+  if (move == null) return null
 
   return (
-    <Box onTouchStart={() => drag?.()} sx={sx} {...props}>
-      {children}
+    <Box sx={{ justifyContent: 'center', ...(sx ?? {}) }}>
+      <Pressable onPress={move.moveUp} hitSlop={6}>
+        <MaterialIcons name="keyboard-arrow-up" size={20} color="#787c7e" />
+      </Pressable>
+      <Pressable onPress={move.moveDown} hitSlop={6}>
+        <MaterialIcons name="keyboard-arrow-down" size={20} color="#787c7e" />
+      </Pressable>
     </Box>
   )
 }

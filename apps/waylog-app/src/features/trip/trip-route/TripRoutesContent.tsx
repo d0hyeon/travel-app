@@ -15,7 +15,6 @@ import { RoutePath } from './components/RoutePath'
 import { TripRouteSelector } from './components/TripRouteSelector'
 import { PlaceSelectSheet } from './PlaceSelectSheet'
 import { NoteEditor } from './RouteNoteList'
-import { DragIcon } from './components/DragIcon'
 import { TripRoutePlaceListItem } from './components/TripRoutePlaceListItem'
 import { Dot, RouteLegItem } from './RouteTimeline'
 import { useRouteLegs } from './useRouteLegs'
@@ -179,11 +178,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                         setFocusedId(place.id)
                         mapRef.current?.panTo(place.lat, place.lng)
                       }}
-                      leftAddon={
-                        <SortableItem.Handle id={place.id}>
-                          <DragIcon />
-                        </SortableItem.Handle>
-                      }
+                      leftAddon={<SortableItem.Handle id={place.id} />}
                       title={
                         <Stack direction="row" alignItems="center" gap={0.5}>
                           <Dot>
