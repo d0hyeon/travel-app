@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query"
-import { tripKey } from "../trip"
+import { tripKey } from "../trip/trip.api"
 import {
   createExpense,
   deleteExpense,
   expenseKey,
   getExpensesByTripId,
   updateExpense
-} from "./index"
+} from "./expense.api"
 import type { Expense } from "./expense.types"
 import { useTripPlaces } from '../trip';
 

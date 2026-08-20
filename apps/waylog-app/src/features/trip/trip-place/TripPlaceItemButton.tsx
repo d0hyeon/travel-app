@@ -1,36 +1,89 @@
-import styled from '@emotion/native'
-import type { TripPlace } from '@waylog/domains/place'
-import { Text } from '../../../shared/components'
-import { palette, radius } from '../../../shared/config/tokens'
+import { MaterialIcons } from '@expo/vector-icons';
+import { Box, Stack } from "../../../shared/components/mui";
+import { Chip } from "../../../shared/components/mui/Chip";
+import { type ComponentProps } from "react";
+import { PlaceCategoryColorCode, type TripPlace } from '@waylog/domains/place';
+import { ListItem } from "../../../shared/components/ListItem";
+import { PopMenu } from "../../../shared/components/PopMenu";
+import { useConfirmDialog } from "../../../shared/components/confirm-dialog/useConfirmDialog";
+import { useTripPlaces } from '@waylog/domains/trip';
 
-const Root = styled.Pressable<{ focused: boolean; planned: boolean }>`
-  padding: 10px 12px;
-  border-radius: ${radius.md}px;
-  border-width: 1px;
-  border-color: ${({ focused, planned }) =>
-    focused || planned ? palette.primary : palette.divider};
-  background-color: ${({ focused }) => (focused ? '#f2f6ff' : '#fff')};
-  gap: 2px;
-`
+interface ItemProps extends ComponentProps<typeof ListItem.Button> {
+  place: TripPlace;
+}
+export function TripPlaceItemButton({ place, ...props }: ItemProps) {
+  const confirm = useConfirmDialog();
+  const { remove } = useTripPlaces(place.tripId);
 
-interface Props {
-  place: TripPlace
-  focused: boolean
-  planned: boolean
-  onPress: () => void
+  return (
+    <ListItem.Button
+      key={place.id}
+      rightAddon={(
+        <PlaceItemMenu
+          onEdit={() => {
+            // TODO: 장소 수정 폼 오버레이 (trip-place-form)
+          }}
+          onDelete={async () => {
+            if (await confirm('삭제하시겠어요?')) {
+              remove(place.id)
+            }
+          }}
+        />
+      )}
+      {...props}
+    >
+      <Stack direction="row" gap={0.5} alignItems="center">
+        {!!place.category && (
+          <Box
+            sx={{
+              width: 12,
+              height: 12,
+              borderRadius: 6,
+              backgroundColor: PlaceCategoryColorCode[place.category],
+            }}
+          />
+        )}
+        <ListItem.Title>{place.name}</ListItem.Title>
+      </Stack>
+      {place.address && (
+        <ListItem.Text variant="body2" color="text.secondary" sx={{ fontSize: 12 }}>
+          {place.address}
+        </ListItem.Text>
+      )}
+      {!!place.memo && (
+        <ListItem.Text variant="body2" color="text.secondary" sx={{ fontSize: 12 }}>
+          {place.memo}
+        </ListItem.Text>
+      )}
+      {place.tags.length > 0 && (
+        <Stack direction="row" gap={0.5} sx={{ flexWrap: 'wrap', mt: 0.5 }}>
+          {place.tags.map(x => (
+            <Chip key={x} label={x} size="small" />
+          ))}
+        </Stack>
+      )}
+    </ListItem.Button>
+  )
 }
 
-export function TripPlaceItemButton({ place, focused, planned, onPress }: Props) {
+interface PlaceItemMenuProps {
+  onEdit: () => void
+  onDelete: () => void
+}
+
+function PlaceItemMenu({ onEdit, onDelete }: PlaceItemMenuProps) {
   return (
-    <Root focused={focused} planned={planned} onPress={onPress}>
-      <Text variant="body2" bold numberOfLines={1}>
-        {place.name}
-      </Text>
-      {place.memo != null && place.memo !== '' && (
-        <Text variant="caption" color={palette.textSecondary} numberOfLines={1}>
-          {place.memo}
-        </Text>
-      )}
-    </Root>
+    <PopMenu
+      items={
+        <>
+          <PopMenu.Item onClick={onEdit} icon={<MaterialIcons name="edit" size={18} />}>
+            수정
+          </PopMenu.Item>
+          <PopMenu.Item onClick={onDelete} icon={<MaterialIcons name="delete" size={18} color="#d32f2f" />} color="error">
+            삭제
+          </PopMenu.Item>
+        </>
+      }
+    />
   )
 }

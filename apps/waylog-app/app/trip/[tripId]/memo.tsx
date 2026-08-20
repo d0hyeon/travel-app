@@ -1,8 +1,10 @@
-import { useLocalSearchParams } from 'expo-router'
-import { TripMemoListContent } from '../../../src/features/trip/trip-memo/TripMemoListContent'
+import { Box, Typography } from '../../../src/shared/components/mui'
 
-export default function TripDetailMemoRoute() {
-  const { tripId } = useLocalSearchParams<{ tripId: string }>()
-
-  return <TripMemoListContent tripId={tripId} />
+// 웹 화면 이관 예정. 현재는 장소 탭만 완료됐다.
+export default function Placeholder() {
+  return (
+    <Box sx={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Typography variant="h6">메모</Typography>
+    </Box>
+  )
 }

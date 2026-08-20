@@ -1,9 +1,9 @@
 import { useMemo } from "react"
 import { convertToKRW } from "./currency"
 import { useExpenses } from "./useExpenses"
-import { useTripMembers } from "../trip-member"
-import { useTripPlaces } from '../trip'
-import { useTripRoutes } from '../trip'
+import { useTripMembers } from "../trip-member/useTripMembers"
+import { useTripPlaces } from '../trip/useTripPlaces'
+import { useTripRoutes } from '../trip/useTripRoutes'
 import type { Expense } from "./expense.types"
 
 interface Payer {

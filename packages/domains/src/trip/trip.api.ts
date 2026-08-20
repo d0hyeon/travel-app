@@ -3,7 +3,7 @@ import { getAuth } from '../auth'
 import type { Trip } from '../trip'
 import { formatShortDate } from '../utils';
 import { deletePhotosByTripId } from '../photo';
-import { getCurrencyByDestination, type ExchangeRateEntry } from '../expense';
+import { getCurrencyByDestination, type ExchangeRateEntry } from '../expense/currency';
 import type { DataRaw, CreateDataType, UpdateDataType } from '../api';
 
 function getDatesBetween(startDate: string, endDate: string): string[] {

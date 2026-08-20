@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient, useSuspenseQuery, type UseSuspenseQueryOptions } from "@tanstack/react-query"
-import { tripKey } from "../trip"
+import { tripKey } from "../trip/trip.api"
 import {
   leaveTrip,
   getTripMembersByTripId,
