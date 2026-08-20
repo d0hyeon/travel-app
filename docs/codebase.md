@@ -73,10 +73,20 @@
 
 ```
 apps/
-├── waylog-app/                 # 네이티브 앱 (Expo SDK 57 + RN 0.86)
-│   ├── App.tsx
+├── waylog-app/                 # 네이티브 앱 (Expo SDK 54 + RN 0.81)
+│   ├── app/                    # Expo Router 라우트 (파일 기반)
+│   │   ├── _layout.tsx         # Provider 구성 (QueryClient·Auth·Overlay)
+│   │   ├── index.tsx           # 여행 목록
+│   │   ├── login.tsx
+│   │   └── trip/[tripId]/      # 상세 탭 셸 (정보·장소·계획·정산·사진)
+│   ├── src/
+│   │   ├── features/           # 웹 features 구조를 미러링
+│   │   └── shared/
+│   │       ├── components/     # emotion 공용 컴포넌트
+│   │       ├── config/tokens.ts # 웹 theme.ts 에서 승계한 값
+│   │       └── hooks/          # useOverlay (웹과 동일 시그니처)
 │   ├── metro.config.js         # 워크스페이스 해석 설정
-│   └── app.json
+│   └── app.config.ts
 └── waylog-web/                 # 웹 앱 (React Router 7 + Vite)
     ├── src/                    # 아래 "앱 내부 구조" 참조
     ├── e2e/                    # Playwright 스펙

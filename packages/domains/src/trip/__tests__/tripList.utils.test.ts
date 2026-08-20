@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { getTripProgress } from '../trip-list.utils'
+import type { Trip } from '../trip.types'
+import { getTripProgress, groupTripsByStatus } from '../tripList.utils'
 
 afterEach(() => {
   vi.useRealTimers()
@@ -106,5 +107,72 @@ describe('getTripProgress', () => {
 
       expect(progress).toBeCloseTo((24 / 72) * 100, 0)
     })
+  })
+})
+
+describe('groupTripsByStatus', () => {
+  function trip(id: string, startDate: string, endDate: string): Trip {
+    return {
+      id,
+      userId: null,
+      name: id,
+      destinations: [],
+      lat: 0,
+      lng: 0,
+      startDate,
+      endDate,
+      shareLink: '',
+      createdAt: '',
+      exchangeRate: null,
+      exchangeRates: null,
+    }
+  }
+
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 7, 20))
+  })
+
+  it('진행 중인 여행을 시작일 기준으로 고른다', () => {
+    const ongoing = trip('ongoing', '2026-08-18', '2026-08-22')
+
+    const groups = groupTripsByStatus([
+      trip('past', '2026-08-01', '2026-08-05'),
+      ongoing,
+      trip('upcoming', '2026-09-01', '2026-09-03'),
+    ])
+
+    expect(groups.ongoing).toEqual([ongoing])
+  })
+
+  it('예정된 여행을 시작일 내림차순으로 정렬한다', () => {
+    const groups = groupTripsByStatus([
+      trip('sooner', '2026-09-01', '2026-09-03'),
+      trip('later', '2026-10-01', '2026-10-03'),
+    ])
+
+    expect(groups.upcoming.map((t) => t.id)).toEqual(['later', 'sooner'])
+  })
+
+  it('종료된 여행을 시작일 내림차순으로 정렬한다', () => {
+    const groups = groupTripsByStatus([
+      trip('older', '2026-06-01', '2026-06-05'),
+      trip('recent', '2026-07-01', '2026-07-05'),
+    ])
+
+    expect(groups.past.map((t) => t.id)).toEqual(['recent', 'older'])
+  })
+
+  it('종료일이 늦어도 시작일이 이르면 뒤에 온다', () => {
+    const groups = groupTripsByStatus([
+      trip('longTrip', '2026-07-01', '2026-07-20'),
+      trip('shortTrip', '2026-07-10', '2026-07-12'),
+    ])
+
+    expect(groups.past.map((t) => t.id)).toEqual(['shortTrip', 'longTrip'])
+  })
+
+  it('여행이 없으면 각 분류가 빈 배열이다', () => {
+    expect(groupTripsByStatus([])).toEqual({ ongoing: [], upcoming: [], past: [] })
   })
 })

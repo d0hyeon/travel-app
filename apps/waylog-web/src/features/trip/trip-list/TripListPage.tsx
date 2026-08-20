@@ -13,7 +13,7 @@ import { CreateTripCardButton } from './CreateTripCardButton'
 import { OngoingHero } from './OngoingHero'
 import { PastTripRow } from './PastTripRow'
 import { UpcomingCard } from './UpcomingCard'
-import { getDaysUntil, getTripStatus, getTripYear } from './trip-list.utils'
+import { getTripYear, groupTripsByStatus } from '@waylog/domains/trip'
 
 export const meta = () => [
   { title: '내 여행 — WayLog' },
@@ -45,18 +45,11 @@ export default function TripListPage() {
     ))
   }
 
-  const tripsByStatus = useMemo(() => (
-    Object.groupBy(
-      trips.toSorted((a, b) => getDaysUntil(b.startDate) - getDaysUntil(a.startDate)),
-      trip => getTripStatus(trip.startDate, trip.endDate)
-    )
-  ), [trips])
-
   const {
-    ongoing: ongoingTrips = [],
-    past: pastTrips = [],
-    upcoming: upcomingTrips = []
-  } = tripsByStatus;
+    ongoing: ongoingTrips,
+    past: pastTrips,
+    upcoming: upcomingTrips,
+  } = useMemo(() => groupTripsByStatus(trips), [trips])
 
   const pastByYear = Object.groupBy(pastTrips, (trip) => getTripYear(trip.startDate))
   const pastYears = Object.keys(pastByYear).toSorted((a, b) => Number(b) - Number(a))

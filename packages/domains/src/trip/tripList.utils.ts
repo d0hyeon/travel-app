@@ -1,4 +1,5 @@
 import { set } from "date-fns"
+import type { Trip } from "./trip.types"
 
 export type TripStatus = 'ongoing' | 'upcoming' | 'past'
 
@@ -55,35 +56,17 @@ export function getTripYear(iso: string): string {
   return iso.slice(0, 4)
 }
 
-// ─── proximity (UpcomingCard 배경/테두리 보간) ────────────────────────────────
+// 웹 TripListPage 의 useMemo 안에 있던 분류·정렬을 순수 함수로 분리한다.
+// 정렬 규칙은 웹 동작을 그대로 보존한다 — 전체를 시작일 내림차순으로 한 번
+// 정렬한 뒤 분류하므로, 세 분류 모두 늦게 시작한 여행이 앞에 온다.
+export function groupTripsByStatus(trips: Trip[]): Record<TripStatus, Trip[]> {
+  const groups: Record<TripStatus, Trip[]> = { ongoing: [], upcoming: [], past: [] }
 
-function interpolate(from: number, to: number, t: number): number {
-  return from + (to - from) * t
-}
+  const startsLaterFirst = (a: Trip, b: Trip) => b.startDate.localeCompare(a.startDate)
 
-function upcomingProximityRatio(daysUntil: number): number {
-  return Math.min(1, daysUntil / 30)
-}
+  for (const trip of trips.toSorted(startsLaterFirst)) {
+    groups[getTripStatus(trip.startDate, trip.endDate)].push(trip)
+  }
 
-export function upcomingCardBg(daysUntil: number): string {
-  const t = upcomingProximityRatio(daysUntil)
-  const r = Math.round(interpolate(238, 250, t))
-  const g = Math.round(interpolate(243, 250, t))
-  const b = Math.round(interpolate(255, 250, t))
-  return `rgb(${r},${g},${b})`
-}
-
-export function upcomingCardBorderColor(daysUntil: number): string {
-  const t = upcomingProximityRatio(daysUntil)
-  const r = Math.round(interpolate(76, 0, t))
-  const g = Math.round(interpolate(132, 0, t))
-  const b = Math.round(interpolate(255, 0, t))
-  const a = interpolate(0.25, 0.08, t)
-  return `rgba(${r},${g},${b},${a.toFixed(2)})`
-}
-
-export function upcomingCardBorderStyle(daysUntil: number): string {
-  if (daysUntil <= 3) return 'solid'
-  if (daysUntil <= 10) return 'dashed'
-  return 'dotted'
+  return groups
 }
