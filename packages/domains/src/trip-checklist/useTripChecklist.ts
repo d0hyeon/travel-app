@@ -1,14 +1,11 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { differenceInDays, getTime } from "date-fns";
 import { useMemo } from "react";
-import type { PickRequired } from "../utils";
 import { createChecklist, getChecklist, path, removeChecklist, updateChecklist, type CreateChecklist, type UpdateChecklist } from "./tripChecklist.api";
 import type { TripChecklist } from "./tripChecklist.type";
-import { WARNING_DAYS_FROM_DEADLINE } from "./tripChecklist.constants";
+import { getUpcomingDeadlines } from "./tripChecklist.utils";
 
 const now = Date.now();
 
-type Todo = PickRequired<TripChecklist, 'endedAt'>
 
 export function useTripChecklist(tripId: string) {
   const client = useQueryClient();
@@ -21,13 +18,7 @@ export function useTripChecklist(tripId: string) {
     },
   });
 
-  const deadlines = useMemo(() => {
-    const checklistWithDeadline = data.filter((x): x is Todo => x.endedAt != null);
-
-    return checklistWithDeadline
-      .filter(x => !x.isCompleted && differenceInDays(x.endedAt, now) < WARNING_DAYS_FROM_DEADLINE)
-      .toSorted((a, b) => getTime(a.endedAt) - getTime(b.endedAt!));
-  }, [data]);
+  const deadlines = useMemo(() => getUpcomingDeadlines(data, now), [data]);
 
   const { mutateAsync: add } = useMutation({
     mutationFn: (params: Omit<CreateChecklist, 'tripId'>) => {
