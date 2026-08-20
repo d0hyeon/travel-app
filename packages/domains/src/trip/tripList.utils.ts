@@ -65,9 +65,14 @@ export function groupTripsByStatus(trips: Trip[]): Record<TripStatus, Trip[]> {
     groups[getTripStatus(trip.startDate, trip.endDate)].push(trip)
   }
 
-  groups.ongoing.sort((a, b) => a.startDate.localeCompare(b.startDate))
-  groups.upcoming.sort((a, b) => a.startDate.localeCompare(b.startDate))
-  groups.past.sort((a, b) => b.endDate.localeCompare(a.endDate))
+  // 다가오는 순서. 진행 중·예정은 먼저 시작한 여행이 앞이다.
+  const startsEarlierFirst = (a: Trip, b: Trip) => a.startDate.localeCompare(b.startDate)
+  // 최근에 끝난 여행이 앞이다.
+  const endsLaterFirst = (a: Trip, b: Trip) => b.endDate.localeCompare(a.endDate)
 
-  return groups
+  return {
+    ongoing: groups.ongoing.toSorted(startsEarlierFirst),
+    upcoming: groups.upcoming.toSorted(startsEarlierFirst),
+    past: groups.past.toSorted(endsLaterFirst),
+  }
 }
