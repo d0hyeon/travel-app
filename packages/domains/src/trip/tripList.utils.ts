@@ -57,22 +57,16 @@ export function getTripYear(iso: string): string {
 }
 
 // 웹 TripListPage 의 useMemo 안에 있던 분류·정렬을 순수 함수로 분리한다.
-// 앱과 웹이 같은 규칙을 쓴다.
+// 정렬 규칙은 웹 동작을 그대로 보존한다 — 전체를 시작일 내림차순으로 한 번
+// 정렬한 뒤 분류하므로, 세 분류 모두 늦게 시작한 여행이 앞에 온다.
 export function groupTripsByStatus(trips: Trip[]): Record<TripStatus, Trip[]> {
   const groups: Record<TripStatus, Trip[]> = { ongoing: [], upcoming: [], past: [] }
 
-  for (const trip of trips) {
+  const startsLaterFirst = (a: Trip, b: Trip) => b.startDate.localeCompare(a.startDate)
+
+  for (const trip of trips.toSorted(startsLaterFirst)) {
     groups[getTripStatus(trip.startDate, trip.endDate)].push(trip)
   }
 
-  // 다가오는 순서. 진행 중·예정은 먼저 시작한 여행이 앞이다.
-  const startsEarlierFirst = (a: Trip, b: Trip) => a.startDate.localeCompare(b.startDate)
-  // 최근에 끝난 여행이 앞이다.
-  const endsLaterFirst = (a: Trip, b: Trip) => b.endDate.localeCompare(a.endDate)
-
-  return {
-    ongoing: groups.ongoing.toSorted(startsEarlierFirst),
-    upcoming: groups.upcoming.toSorted(startsEarlierFirst),
-    past: groups.past.toSorted(endsLaterFirst),
-  }
+  return groups
 }

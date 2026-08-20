@@ -145,22 +145,31 @@ describe('groupTripsByStatus', () => {
     expect(groups.ongoing).toEqual([ongoing])
   })
 
-  it('예정된 여행을 시작일 오름차순으로 정렬한다', () => {
+  it('예정된 여행을 시작일 내림차순으로 정렬한다', () => {
     const groups = groupTripsByStatus([
-      trip('later', '2026-10-01', '2026-10-03'),
       trip('sooner', '2026-09-01', '2026-09-03'),
+      trip('later', '2026-10-01', '2026-10-03'),
     ])
 
-    expect(groups.upcoming.map((t) => t.id)).toEqual(['sooner', 'later'])
+    expect(groups.upcoming.map((t) => t.id)).toEqual(['later', 'sooner'])
   })
 
-  it('종료된 여행을 종료일 내림차순으로 정렬한다', () => {
+  it('종료된 여행을 시작일 내림차순으로 정렬한다', () => {
     const groups = groupTripsByStatus([
       trip('older', '2026-06-01', '2026-06-05'),
       trip('recent', '2026-07-01', '2026-07-05'),
     ])
 
     expect(groups.past.map((t) => t.id)).toEqual(['recent', 'older'])
+  })
+
+  it('종료일이 늦어도 시작일이 이르면 뒤에 온다', () => {
+    const groups = groupTripsByStatus([
+      trip('longTrip', '2026-07-01', '2026-07-20'),
+      trip('shortTrip', '2026-07-10', '2026-07-12'),
+    ])
+
+    expect(groups.past.map((t) => t.id)).toEqual(['shortTrip', 'longTrip'])
   })
 
   it('여행이 없으면 각 분류가 빈 배열이다', () => {
