@@ -13,6 +13,7 @@ import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
 import { palette } from '../../../shared/config/tokens'
 import { RoutePath } from './components/RoutePath'
 import { TripRouteSelector } from './components/TripRouteSelector'
+import { TripRouteMapFloatingControls } from './components/TripRouteMapFloatingControls'
 import { PlaceSelectSheet } from './PlaceSelectSheet'
 import { NoteEditor } from './RouteNoteList'
 import { TripRoutePlaceListItem } from './components/TripRoutePlaceListItem'
@@ -80,6 +81,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
 
   return (
     <Box sx={{ flex: 1, position: 'relative' }}>
+      <TripRouteMapFloatingControls />
       <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `${sheetRatio * 100}%` }}>
         <Map type={trip.isOverseas ? 'google' : 'kakao'} ref={mapRef} defaultCenter={{ lat: trip.lat, lng: trip.lng }}>
           <>
