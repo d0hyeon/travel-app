@@ -31,7 +31,7 @@ import { RoutePath } from "./components/RoutePath";
 import { TripRouteMapFloatingControls } from './components/TripRouteMapFloatingControls';
 import { TripRoutePlaceListItem } from "./components/TripRoutePlaceListItem";
 import { TripRouteSelector } from "./components/TripRouteSelector";
-import { findNearestPlace } from './findNearestPlace.utils';
+import { findNearestPlace } from '@waylog/domains/trip';
 import { PlaceSelectSheet } from "./PlaceSelectSheet";
 import { NoteEditor } from './RouteNoteList';
 import { RouteLegItem } from './RouteTimeline';
