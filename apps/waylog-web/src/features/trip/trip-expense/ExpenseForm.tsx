@@ -25,8 +25,8 @@ import { Suspense, type ReactNode } from "react"
 import { Controller, FormProvider, useFieldArray, useForm, useFormContext, useWatch } from "react-hook-form"
 import { useAuth } from '@waylog/domains/auth'
 import { CurrencyCode as CurrencyCodeMap, getCurrenciesByDestinations, getCurrencyName, getUsedCurrencies, type CurrencyCode } from '@waylog/domains/expense'
-import { useExpenses } from '~features/expense/useExpenses'
-import { useTripMembers } from '~features/trip/trip-member/useTripMembers'
+import { useExpenses } from '@waylog/domains/expense'
+import { useTripMembers } from '@waylog/domains/trip-member'
 import { useTrip } from '@waylog/domains/trip'
 import { PopMenu } from '~shared/components/PopMenu'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'

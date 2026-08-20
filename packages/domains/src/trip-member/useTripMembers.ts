@@ -1,12 +1,11 @@
 import { useMutation, useQueryClient, useSuspenseQuery, type UseSuspenseQueryOptions } from "@tanstack/react-query"
-import { queryClient } from "~app/query-client"
-import { tripKey } from "@waylog/domains/trip"
+import { tripKey } from "../trip"
 import {
   leaveTrip,
   getTripMembersByTripId,
   tripMemberKey,
-} from "@waylog/domains/trip-member"
-import type { TripMember } from "@waylog/domains/trip-member"
+} from "./tripMember.api"
+import type { TripMember } from "./tripMember.types"
 
 const getQueryOptions = (tripId: string) => {
   return {
@@ -36,5 +35,5 @@ export function useTripMembers<T = TripMember[]>(tripId: string, queryOptions?: 
 }
 
 useTripMembers.key = (tripId: string) => getQueryOptions(tripId).queryKey;
-useTripMembers.prefetch = (tripId: string) => queryClient.prefetchQuery(getQueryOptions(tripId))
-useTripMembers.fetch = (tripId: string) => queryClient.ensureQueryData(getQueryOptions(tripId))
+// 소비처가 자기 QueryClient 로 prefetch·ensure 한다.
+useTripMembers.query = getQueryOptions

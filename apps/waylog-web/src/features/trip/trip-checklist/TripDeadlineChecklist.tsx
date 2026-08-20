@@ -1,6 +1,6 @@
 import { Skeleton, Stack, Typography, type StackProps } from "@mui/material";
 import { TripChecklist } from './TripChecklist';
-import { useTripChecklist } from "./useTripChecklist";
+import { useTripChecklist } from '@waylog/domains/trip-checklist';
 import { ListItem } from "~shared/components/ListItem";
 import { Suspense } from "react";
 

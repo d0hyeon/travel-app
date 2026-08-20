@@ -17,6 +17,10 @@ export default function TripDetailLayout() {
       <Tabs.Screen name="route" options={{ title: '계획' }} />
       <Tabs.Screen name="expense" options={{ title: '정산' }} />
       <Tabs.Screen name="photo" options={{ title: '사진' }} />
+      {/* 웹 하단 네비게이션은 5개다. 준비·메모는 정보 탭에서 들어간다 */}
+      <Tabs.Screen name="checklist" options={{ href: null }} />
+      <Tabs.Screen name="memo" options={{ href: null }} />
+      <Tabs.Screen name="memo/[memoId]" options={{ href: null }} />
       {/* 탭이 아니라 장소 탭에서 들어가는 화면이다 */}
       <Tabs.Screen name="place-search" options={{ href: null }} />
     </Tabs>

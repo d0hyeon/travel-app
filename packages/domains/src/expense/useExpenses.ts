@@ -1,15 +1,14 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query"
-import { tripKey } from "@waylog/domains/trip"
+import { tripKey } from "../trip"
 import {
   createExpense,
   deleteExpense,
   expenseKey,
   getExpensesByTripId,
   updateExpense
-} from "@waylog/domains/expense"
-import type { Expense } from "@waylog/domains/expense"
-import { useTripPlaces } from '@waylog/domains/trip';
-import { queryClient } from "~app/query-client";
+} from "./index"
+import type { Expense } from "./expense.types"
+import { useTripPlaces } from '../trip';
 
 export function useExpenses(tripId: string) {
   const queryClient = useQueryClient();
@@ -69,9 +68,8 @@ export function useExpenses(tripId: string) {
 }
 
 useExpenses.key = (tripId: string) => [tripKey, expenseKey, tripId]
-useExpenses.prefetch = (tripId: string) => {
-  queryClient.prefetchQuery({
-    queryKey: useExpenses.key(tripId),
-    queryFn: () => getExpensesByTripId(tripId)
-  })
-}
+// 소비처가 자기 QueryClient 로 prefetch 한다.
+useExpenses.query = (tripId: string) => ({
+  queryKey: useExpenses.key(tripId),
+  queryFn: () => getExpensesByTripId(tripId),
+})

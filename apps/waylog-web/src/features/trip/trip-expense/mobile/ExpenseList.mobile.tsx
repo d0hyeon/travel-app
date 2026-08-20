@@ -7,12 +7,12 @@ import { Stack, Typography } from "@mui/material"
 import { useMemo } from "react"
 import type { Expense } from "@waylog/domains/expense"
 import { formatByCurrencyCode } from "@waylog/domains/expense"
-import { useExpenses } from "~features/expense/useExpenses"
+import { useExpenses } from '@waylog/domains/expense'
 import { ListItem } from "~shared/components/ListItem"
 import { PopMenu } from "~shared/components/PopMenu"
 import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog"
 import { formatShortDate } from "@waylog/domains/utils"
-import { useTripMembers } from "../../trip-member/useTripMembers"
+import { useTripMembers } from '@waylog/domains/trip-member'
 import { useExpenseFormBottomSheet } from "../useExpenseFormOverlay"
 
 interface Props {

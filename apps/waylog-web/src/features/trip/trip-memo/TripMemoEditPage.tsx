@@ -4,7 +4,7 @@ import { useTransition } from 'react';
 import { generatePath, useNavigate, useParams } from 'react-router';
 import { AppRoute } from '~app/routes';
 import { TripMemoForm } from './TripMemoForm';
-import { useTripMemo } from './useTripMemo';
+import { useTripMemo } from '@waylog/domains/trip-memo';
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile';
 
 export default function TripMemoEditPage() {

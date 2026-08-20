@@ -14,8 +14,8 @@ import {
 import { Suspense, useState, type ReactElement } from "react"
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState'
-import { useExpenses } from "../../../expense/useExpenses"
-import { useTripMembers } from "../../trip-member/useTripMembers"
+import { useExpenses } from '@waylog/domains/expense'
+import { useTripMembers } from '@waylog/domains/trip-member'
 import { useTrip } from "@waylog/domains/trip"
 import { TripExchangeRageSettingButton } from '../TripExchangeRateSettingButton'
 import { useExpenseFormOverlay } from "../useExpenseFormOverlay"

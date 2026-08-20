@@ -1,6 +1,6 @@
-import { supabase } from "@waylog/domains/api";
+import { supabase } from "../api";
 import type { TripMemo } from "./tripMemo.type";
-import type { DataRaw, UpdateDataType } from "@waylog/domains/api";
+import type { DataRaw, UpdateDataType } from "../api";
 
 
 function toData(row: DataRaw<'memos'>): TripMemo {

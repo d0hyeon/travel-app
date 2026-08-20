@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, IconButton, Skeleton, Stack, Typography 
 import { Suspense } from 'react'
 import { ListItem } from '../../../shared/components/ListItem'
 import { TripInviteButton } from '../components/TripInviteButton'
-import { useTripMembers } from './useTripMembers'
+import { useTripMembers } from '@waylog/domains/trip-member'
 import { MemberAvatar } from './MemberAvatar'
 import { SortCommand } from '~shared/utils/sorts'
 

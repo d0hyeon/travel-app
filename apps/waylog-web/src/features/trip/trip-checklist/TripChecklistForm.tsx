@@ -3,7 +3,7 @@ import { DateTimePicker } from "@mui/x-date-pickers";
 import { formatDate } from "date-fns";
 import { Controller, useForm } from "react-hook-form";
 import { useIsMobile } from "~shared/hooks/env/useIsMobile";
-import { useTripMembers } from "../trip-member/useTripMembers";
+import { useTripMembers } from '@waylog/domains/trip-member';
 import { useTrip } from "@waylog/domains/trip";
 
 export interface TripChecklistFormValue {

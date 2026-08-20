@@ -4,7 +4,7 @@ import { useIsMobile } from "~shared/hooks/env/useIsMobile";
 import { useLoading } from "@waylog/react";
 import { useOverlay } from "~shared/hooks/useOverlay";
 import { TripMemoForm } from "./TripMemoForm";
-import { useTripMemo } from "./useTripMemo";
+import { useTripMemo } from '@waylog/domains/trip-memo';
 
 interface Props extends Omit<ButtonProps, 'onClick'> {
   tripId: string;
