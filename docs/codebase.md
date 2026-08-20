@@ -82,7 +82,7 @@ apps/
 │   ├── src/
 │   │   ├── features/           # 웹 features 구조를 미러링
 │   │   └── shared/
-│   │       ├── components/     # emotion 공용 컴포넌트
+│   │       ├── components/     # emotion 공용 컴포넌트 + Map(react-native-maps)
 │   │       ├── config/tokens.ts # 웹 theme.ts 에서 승계한 값
 │   │       └── hooks/          # useOverlay (웹과 동일 시그니처)
 │   ├── metro.config.js         # 워크스페이스 해석 설정
@@ -102,11 +102,12 @@ packages/
 │       ├── expense/            # 지출(순수 로직)
 │       ├── location/           # 위치 vocabulary
 │       ├── marine-activity/    # 해양 활동
+│       ├── map/                # 좌표·마커 타입, 클러스터링(순수)
 │       ├── photo/              # 사진 조회·삭제·수정
-│       ├── query/              # QueryClient(initQueryClient 주입)
-│       ├── route/              # 경로
+│       ├── place/              # 장소 조회·검색·추가
+│       ├── route/              # 경로 (도로 경로 어댑터 포함)
 │       ├── tourism-trend/      # 관광 트렌드
-│       ├── trip/               # 여행
+│       ├── trip/               # 여행 (목록·경로·장소 데이터 계층)
 │       ├── trip-member/        # 여행 멤버
 │       ├── user-profile/       # 유저 프로필
 │       └── utils/              # 순수 유틸(포맷·좌표·URL·지오)
