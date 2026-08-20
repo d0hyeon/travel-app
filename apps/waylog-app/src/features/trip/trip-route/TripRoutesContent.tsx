@@ -201,7 +201,11 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                         setFocusedId(place.id)
                         mapRef.current?.panTo(place.lat, place.lng)
                       }}
-                      leftAddon={<SortableItem.Handle id={place.id} />}
+                      leftAddon={(
+                        <SortableItem.Handle id={place.id}>
+                          <MaterialIcons name="drag-indicator" size={24} color="#787c7e" />
+                        </SortableItem.Handle>
+                      )}
                       title={
                         <Stack direction="row" alignItems="center" gap={0.5}>
                           <Dot>
