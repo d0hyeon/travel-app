@@ -35,6 +35,16 @@ export interface TypographyProps extends RNTextProps {
   fontWeight?: 'bold' | 'medium' | number | string
   /** 웹 코드를 그대로 옮기기 위해 받기만 하고 무시한다 */
   component?: string
+  /** MUI 축약 prop */
+  mb?: number
+  mt?: number
+  ml?: number
+  mr?: number
+  flexShrink?: number
+  noWrap?: boolean
+  textAlign?: 'left' | 'center' | 'right'
+  py?: number
+  px?: number
   sx?: Sx
   children?: ReactNode
 }
@@ -44,6 +54,15 @@ export function Typography({
   color,
   fontWeight,
   component: _component,
+  mb,
+  mt,
+  ml,
+  mr,
+  flexShrink,
+  noWrap,
+  textAlign,
+  py,
+  px,
   sx,
   style,
   ...rest
@@ -56,9 +75,20 @@ export function Typography({
         fontWeight != null && {
           fontWeight: (fontWeight === 'medium' ? '700' : String(fontWeight)) as never,
         },
+        {
+          marginBottom: mb != null ? mb * 8 : undefined,
+          marginTop: mt != null ? mt * 8 : undefined,
+          marginLeft: ml != null ? ml * 8 : undefined,
+          marginRight: mr != null ? mr * 8 : undefined,
+          flexShrink,
+          textAlign,
+          paddingVertical: py != null ? py * 8 : undefined,
+          paddingHorizontal: px != null ? px * 8 : undefined,
+        },
         sxToStyle(sx),
         style,
       ]}
+      numberOfLines={noWrap === true ? 1 : rest.numberOfLines}
       {...rest}
     />
   )
