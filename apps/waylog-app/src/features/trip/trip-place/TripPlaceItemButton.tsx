@@ -7,21 +7,34 @@ import { ListItem } from "../../../shared/components/ListItem";
 import { PopMenu } from "../../../shared/components/PopMenu";
 import { useConfirmDialog } from "../../../shared/components/confirm-dialog/useConfirmDialog";
 import { useTripPlaces } from '@waylog/domains/trip';
+import { usePlaceFormOverlay } from '../trip-route/usePlaceFormOverlay';
 
 interface ItemProps extends ComponentProps<typeof ListItem.Button> {
   place: TripPlace;
 }
 export function TripPlaceItemButton({ place, ...props }: ItemProps) {
   const confirm = useConfirmDialog();
-  const { remove } = useTripPlaces(place.tripId);
+  const { remove, update } = useTripPlaces(place.tripId);
+  const { openBottomsheet: getUpdatedPlace } = usePlaceFormOverlay();
 
   return (
     <ListItem.Button
       key={place.id}
       rightAddon={(
         <PlaceItemMenu
-          onEdit={() => {
-            // TODO: 장소 수정 폼 오버레이 (trip-place-form)
+          onEdit={async () => {
+            const updated = await getUpdatedPlace({
+              tripId: place.tripId,
+              placeId: place.id,
+              defaultValues: place,
+            });
+            if (!updated) return;
+            update({
+              ...updated,
+              id: place.id,
+              category: updated.category || undefined,
+              tags: updated.tags,
+            });
           }}
           onDelete={async () => {
             if (await confirm('삭제하시겠어요?')) {

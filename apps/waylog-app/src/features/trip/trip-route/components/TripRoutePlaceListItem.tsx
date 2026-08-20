@@ -7,6 +7,7 @@ import { PopMenu } from '../../../../shared/components/PopMenu';
 import { useConfirmDialog } from '../../../../shared/components/confirm-dialog/useConfirmDialog';
 import { useTripPlaces } from '@waylog/domains/trip';
 import { useDayTripRoutes } from '@waylog/domains/trip';
+import { usePlaceFormOverlay } from '../usePlaceFormOverlay';
 
 type ListItemButtonProps = Parameters<typeof ListItem.Button>[0];
 
@@ -48,6 +49,7 @@ interface ActionsProps {
 // 장소 수정/삭제 액션 메뉴. route 조회·변경은 내부 책임이다.
 TripRoutePlaceListItem.Actions = function TripRoutePlaceListItemActions({ tripId, date, routeId, placeId }: ActionsProps) {
   const confirm = useConfirmDialog();
+  const { openBottomsheet: getUpdatedPlace } = usePlaceFormOverlay();
   const { update: updatePlace } = useTripPlaces(tripId);
   const { data: { routes }, update } = useDayTripRoutes({ tripId, date });
 
@@ -55,8 +57,11 @@ TripRoutePlaceListItem.Actions = function TripRoutePlaceListItemActions({ tripId
   const place = route?.places.find(x => x.id === placeId);
   if (!route || !place) return null;
 
-  // TODO: 장소 수정 폼 오버레이 (usePlaceFormOverlay)
-  const editPlace = () => {};
+  const editPlace = async () => {
+    const updated = await getUpdatedPlace({ tripId, placeId: place.id, defaultValues: place });
+    if (!updated) return;
+    updatePlace({ ...updated, id: place.id, category: updated.category || undefined, tags: updated.tags });
+  };
 
   const removeFromRoute = async () => {
     if (!(await confirm('정말로 삭제하시겠어요?'))) return;
