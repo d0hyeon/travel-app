@@ -7,6 +7,7 @@ import { StatusBar } from 'expo-status-bar'
 import { Suspense } from 'react'
 import { ActivityIndicator, View } from 'react-native'
 import { setupApi } from '../src/api-config'
+import { OverlayProvider } from '../src/shared/hooks/useOverlay.context'
 
 // 어떤 도메인 모듈보다 먼저 실행되어야 한다.
 setupApi()
@@ -33,9 +34,11 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthStateSync />
-      <Suspense fallback={<Loading />}>
-        <Stack screenOptions={{ headerShown: false }} />
-      </Suspense>
+      <OverlayProvider>
+        <Suspense fallback={<Loading />}>
+          <Stack screenOptions={{ headerShown: false }} />
+        </Suspense>
+      </OverlayProvider>
       <StatusBar style="auto" />
     </QueryClientProvider>
   )
