@@ -11,6 +11,7 @@ import {
 import {
   Children,
   isValidElement,
+  useEffect,
   useImperativeHandle,
   useMemo,
   useRef,
@@ -26,6 +27,11 @@ interface NativeMapProps extends MapProps {
   type?: MapType
 }
 
+// 웹은 해외를 google 로 본다. 네이버는 해외 데이터가 약해 위성으로 보완한다.
+function toBaseMapType(type: MapType | undefined) {
+  return type === 'google' ? ('Hybrid' as const) : ('Basic' as const)
+}
+
 // 웹은 level(1~14, 작을수록 확대), 네이버는 zoom(클수록 확대)이다.
 const DEFAULT_ZOOM = 14
 
@@ -34,6 +40,8 @@ function levelToZoom(level: number): number {
 }
 
 export function NativeMap({
+  type,
+  autoFocus = 'marker',
   defaultCenter,
   center,
   children,
@@ -70,6 +78,18 @@ export function NativeMap({
   // 나머지(경로선 등)는 그대로 자식으로 둔다.
   const { markerProps, others } = useMemo(() => splitMarkers(rendered), [rendered])
 
+  // 웹과 같이 마커(또는 경로)가 모두 담기도록 화면을 맞춘다.
+  const focusedRef = useRef(false)
+  useEffect(() => {
+    if (autoFocus === false || focusedRef.current) return
+
+    const coords = markerProps.map((marker) => ({ lat: marker.lat, lng: marker.lng }))
+    if (coords.length === 0) return
+
+    focusedRef.current = true
+    mapRef.current?.animateRegionTo(toRegion(coords))
+  }, [autoFocus, markerProps])
+
   const { width } = useWindowDimensions()
   const [region, setRegion] = useState<Region | null>(null)
 
@@ -90,6 +110,7 @@ export function NativeMap({
     <NaverMapView
       ref={mapRef}
       style={StyleSheet.absoluteFill}
+      mapType={toBaseMapType(type)}
       initialCamera={
         initial == null
           ? undefined
@@ -179,4 +200,26 @@ function findMarker(children: ReactNode, id: string): ReactNode {
         (child.props.id ?? String(index)) === id,
     ) ?? null
   )
+}
+
+// 좌표들이 모두 담기는 영역을 만든다.
+function toRegion(coords: { lat: number; lng: number }[]): Region {
+  const lats = coords.map((c) => c.lat)
+  const lngs = coords.map((c) => c.lng)
+
+  const south = Math.min(...lats)
+  const north = Math.max(...lats)
+  const west = Math.min(...lngs)
+  const east = Math.max(...lngs)
+
+  // 가장자리에 붙지 않도록 약간 여유를 준다.
+  const padLat = Math.max((north - south) * 0.2, 0.005)
+  const padLng = Math.max((east - west) * 0.2, 0.005)
+
+  return {
+    latitude: south - padLat,
+    longitude: west - padLng,
+    latitudeDelta: north - south + padLat * 2,
+    longitudeDelta: east - west + padLng * 2,
+  }
 }
