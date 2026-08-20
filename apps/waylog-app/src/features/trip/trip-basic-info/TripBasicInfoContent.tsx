@@ -52,12 +52,7 @@ export function TripBasicInfoContent({ tripId }: Props) {
               />
 
               <ErrorBoundary>
-                <Stack gap={1} sx={{ width: '100%' }}>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    해야할 일
-                  </Typography>
-                  <TripDeadlineChecklist tripId={tripId} gap={1} throwOnEmpty />
-                </Stack>
+                <TripDeadlineChecklist tripId={tripId} gap={1} throwOnEmpty />
               </ErrorBoundary>
 
               <ErrorBoundary>

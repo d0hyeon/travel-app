@@ -21,12 +21,17 @@ export function TripDeadlineChecklist(props: Props) {
 function Resolved({ tripId, throwOnEmpty, ...props }: Props) {
   const { data: { deadlines } } = useTripChecklist(tripId);
 
-  if (deadlines.length === 0 && throwOnEmpty) {
-    throw new Error('체크리스트가 없습니다.');
-  }
+  // 웹은 throw 로 ErrorBoundary 가 섹션을 숨기지만, RN 개발 빌드는
+  // redbox 를 먼저 띄운다. 같은 결과를 null 로 만든다.
+  if (deadlines.length === 0 && throwOnEmpty) return null;
+
 
   return (
-    <Stack {...props}>
+    <Stack gap={1} sx={{ width: '100%' }}>
+      <Typography variant="subtitle2" color="text.secondary">
+        해야할 일
+      </Typography>
+      <Stack {...props}>
       {deadlines.length > 0 ? (
         deadlines.map(x => (
           <TripChecklist.ReadonlyItem
@@ -36,7 +41,7 @@ function Resolved({ tripId, throwOnEmpty, ...props }: Props) {
           />
         ))
       ) : <Typography variant="body2" color="text.secondary" sx={{ paddingVertical: 24 }}>모든 사항을 점검했어요</Typography>}
-
+      </Stack>
     </Stack>
   )
 }

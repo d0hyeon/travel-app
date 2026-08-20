@@ -14,9 +14,6 @@ interface Props extends StackProps {
 export function TripPinnedMemos({ tripId, ...props }: Props) {
   return (
     <Stack gap={1} sx={{ width: "100%" }} {...props}>
-      <Typography variant="subtitle2" color="text.secondary">
-        고정된 메모
-      </Typography>
       <Suspense fallback={(
         <ListItem sx={{ width: "100%" }}>
           <Skeleton variant='text' />
@@ -33,13 +30,13 @@ function TripPinnedMemosContent({ tripId, throwOnEmpty, ...props }: Props) {
   const { data: { pinnedMemos } } = useTripMemo(tripId);
   const router = useRouter();
 
-  if (pinnedMemos.length === 0) {
-    if (throwOnEmpty) throw new Error('메모가 없습니다.')
-    return null;
-  }
+  if (pinnedMemos.length === 0) return null;
 
   return (
     <Stack gap={1} {...props}>
+      <Typography variant="subtitle2" color="text.secondary">
+        고정된 메모
+      </Typography>
       {pinnedMemos.map((memo) => {
         const preview = memo.content;
         const title = memo.title ?? preview;

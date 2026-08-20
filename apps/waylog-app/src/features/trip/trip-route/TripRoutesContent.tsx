@@ -226,7 +226,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
         </BottomSheet.Body>
       </BottomSheet>
 
-      <BottomArea>
+      <BottomArea sx={{ position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 20 }}>
         <Button
           size="large"
           variant="contained"
