@@ -12,14 +12,14 @@ function expense(
     id,
     tripId: 't',
     placeId,
-    title: id,
+    description: id,
     totalAmount,
     currency,
     payments: [],
     splitAmong: [],
     date: '2026-08-20',
     createdAt: '',
-  } as Expense
+  }
 }
 
 describe('groupByPlace', () => {
