@@ -37,7 +37,7 @@ function Resolved({ tripId, editable, size, direction, ...props }: Props) {
         <Typography variant={size === 's' ? "caption" : "subtitle2"} color="text.secondary">
           여행 기간
         </Typography>
-        {/* TODO: editable 인 경우 기간 편집 (TripDurationEditableText) */}
+        {/* 웹 모바일도 기간 편집을 노출하지 않는다 (editable 미사용) */}
         <Typography variant={size === 's' ? 'body2' : "body1"}>
           {formatShortDate(trip.startDate)} ~ {formatShortDate(trip.endDate)}
         </Typography>
