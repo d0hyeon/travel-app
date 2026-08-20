@@ -71,6 +71,7 @@ function ModalSheet({
       <GorhomBottomSheet
         ref={sheetRef}
         index={defaultSnapIndex}
+        enableDynamicSizing={false}
         snapPoints={snapHeights}
         enablePanDownToClose
         onClose={onClose}
@@ -107,7 +108,11 @@ function InlineSheet({
   return (
     <GorhomBottomSheet
       ref={sheetRef}
+      // index 를 상수로 두면 리렌더마다 그 위치로 되돌아간다.
+      // 처음 위치만 정하고 이후는 사용자가 잡은 자리를 유지한다.
       index={defaultSnapIndex}
+      animateOnMount={false}
+      enableDynamicSizing={false}
       snapPoints={snapHeights}
       onChange={(index) => {
         const ratio = snapPoints?.[index]

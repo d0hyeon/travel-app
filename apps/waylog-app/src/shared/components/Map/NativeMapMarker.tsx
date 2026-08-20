@@ -19,8 +19,11 @@ export function NativeMapMarker({
     <NaverMapMarkerOverlay
       latitude={lat}
       longitude={lng}
-      width={variant === 'circle' ? 12 : 20}
-      height={variant === 'circle' ? 12 : 28}
+      // 네이버는 image 를 주지 않으면 마커가 그려지지 않는다.
+      // 기본 심볼에 웹 색상을 입힌다.
+      image={{ symbol: 'green' }}
+      width={variant === 'circle' ? 16 : 24}
+      height={variant === 'circle' ? 16 : 32}
       tintColor={resolved}
       caption={label == null ? undefined : { text: label, color: '#333' }}
       onTap={() => onClick?.({ lat, lng, label, variant })}

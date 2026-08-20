@@ -58,19 +58,31 @@ interface ButtonProps extends Props {
   onClick?: () => void
 }
 
-function ListItemButton({ focused, sx, onClick, ...props }: ButtonProps) {
+function ListItemButton({
+  focused,
+  sx,
+  onClick,
+  leftAddon,
+  rightAddon,
+  children,
+  ...props
+}: ButtonProps) {
+  // 좌우 애드온은 자체 버튼을 갖는 경우가 많다(정렬 핸들·메뉴).
+  // 통째로 Pressable 안에 넣으면 바깥이 터치를 먼저 가져가 눌리지 않는다.
   return (
-    <Pressable onPress={onClick} style={{ width: '100%' }}>
-      <ListItem
-        sx={{
-          width: '100%',
-          // 웹은 :focus 에 primary 20% 배경을 준다.
-          ...(focused ? { backgroundColor: 'rgba(76,132,255,0.2)' } : {}),
-          ...(sx ?? {}),
-        }}
-        {...props}
-      />
-    </Pressable>
+    <ListItem
+      leftAddon={leftAddon}
+      rightAddon={rightAddon}
+      sx={{
+        width: '100%',
+        // 웹은 :focus 에 primary 20% 배경을 준다.
+        ...(focused ? { backgroundColor: 'rgba(76,132,255,0.2)' } : {}),
+        ...(sx ?? {}),
+      }}
+      {...props}
+    >
+      <Pressable onPress={onClick}>{children}</Pressable>
+    </ListItem>
   )
 }
 
