@@ -99,13 +99,14 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
       }
     },
   })
-  const [sheetRatio, setSheetRatio] = useState<number>(DEFAULT_BOTTOM_SHEET_RATIO)
   const [focusedId, setFocusedId] = useState<string | null>(null)
 
   return (
     <Box sx={{ flex: 1, position: 'relative' }}>
       <TripRouteMapFloatingControls />
-      <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `${sheetRatio * 100}%` }}>
+      {/* 지도는 항상 전체를 채운다. 시트가 그 위를 덮는다 —
+          높이를 시트 비율에 묶으면 상태가 바뀔 때마다 시트가 다시 자리를 잡는다. */}
+      <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
         <Map type={trip.isOverseas ? 'google' : 'kakao'} ref={mapRef} defaultCenter={{ lat: trip.lat, lng: trip.lng }}>
           {[
             ...currentLegs.map((leg, index) => (
@@ -136,9 +137,6 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
       <BottomSheet
         snapPoints={BOTTOM_SHEET_RATIOS}
         defaultSnapIndex={BOTTOM_SHEET_RATIOS.indexOf(DEFAULT_BOTTOM_SHEET_RATIO)}
-        onSnapChange={(ratio) => {
-          if (ratio < 1 && ratio !== sheetRatio) setSheetRatio(ratio)
-        }}
       >
         <BottomSheet.Body sx={{ paddingHorizontal: 16, paddingBottom: 40 }}>
           {/* 여행 일자 선택 */}

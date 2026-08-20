@@ -1,7 +1,8 @@
 import GorhomBottomSheet, {
+  BottomSheetBackdrop,
+  BottomSheetModal,
   BottomSheetScrollView,
   BottomSheetView,
-  type BottomSheetProps as GorhomProps,
 } from '@gorhom/bottom-sheet'
 import { useCallback, useEffect, useImperativeHandle, useMemo, useRef, type ReactNode, type Ref } from 'react'
 import { StyleSheet } from 'react-native'
@@ -31,52 +32,86 @@ interface BottomSheetProps {
   ref?: Ref<BottomSheetRef>
 }
 
-export function BottomSheet({
+export function BottomSheet(props: BottomSheetProps) {
+  // 오버레이로 띄우는 경우 모달을 쓴다. 자체 포털·백드롭·높이 계산을 갖고 있어
+  // 인라인 시트로는 대체되지 않는다.
+  return props.isOpen != null ? <ModalSheet {...props} /> : <InlineSheet {...props} />
+}
+
+function useSnapPercents(snapPoints: BottomSheetProps['snapPoints']) {
+  // 웹은 0-1 비율을 쓴다. gorhom 은 '50%' 형태를 받는다.
+  return useMemo(
+    () => (snapPoints ?? [0.5]).map((ratio) => `${Math.round(ratio * 100)}%`),
+    [snapPoints],
+  )
+}
+
+function ModalSheet({
   children,
-  snapPoints = [0.5],
+  snapPoints,
   defaultSnapIndex = 0,
   isOpen,
   onClose,
   onSnapChange,
   sx,
+}: BottomSheetProps) {
+  const sheetRef = useRef<BottomSheetModal>(null)
+  const percentPoints = useSnapPercents(snapPoints)
+
+  useEffect(() => {
+    if (isOpen === true) sheetRef.current?.present()
+    else sheetRef.current?.dismiss()
+  }, [isOpen])
+
+  return (
+    <BottomSheetModal
+      ref={sheetRef}
+      index={defaultSnapIndex}
+      snapPoints={percentPoints}
+      enablePanDownToClose
+      onDismiss={onClose}
+      onChange={(index) => {
+        const ratio = snapPoints?.[index]
+        if (ratio != null) onSnapChange?.(ratio)
+      }}
+      backdropComponent={(backdropProps) => (
+        <BottomSheetBackdrop
+          {...backdropProps}
+          appearsOnIndex={0}
+          disappearsOnIndex={-1}
+          pressBehavior="close"
+        />
+      )}
+      backgroundStyle={[styles.background, sxToStyle(sx)]}
+      handleIndicatorStyle={styles.handle}
+    >
+      {children}
+    </BottomSheetModal>
+  )
+}
+
+function InlineSheet({
+  children,
+  snapPoints,
+  defaultSnapIndex = 0,
+  onSnapChange,
+  sx,
   ref,
 }: BottomSheetProps) {
   const sheetRef = useRef<GorhomBottomSheet>(null)
-
-  // 웹은 0-1 비율을 쓴다. gorhom 은 '50%' 형태를 받는다.
-  const percentPoints = useMemo(
-    () => snapPoints.map((ratio) => `${Math.round(ratio * 100)}%`),
-    [snapPoints],
-  )
+  const percentPoints = useSnapPercents(snapPoints)
 
   useImperativeHandle(ref as never, () => ({ snap: defaultSnapIndex }), [defaultSnapIndex])
-
-  // 모달 모드에서만 isOpen 이 넘어온다.
-  useEffect(() => {
-    if (isOpen == null) return
-    if (isOpen) sheetRef.current?.snapToIndex(defaultSnapIndex)
-    else sheetRef.current?.close()
-  }, [isOpen, defaultSnapIndex])
-
-  const handleChange = useCallback<NonNullable<GorhomProps['onChange']>>(
-    (index) => {
-      if (index === -1) {
-        onClose?.()
-        return
-      }
-      const ratio = snapPoints[index]
-      if (ratio != null) onSnapChange?.(ratio)
-    },
-    [snapPoints, onSnapChange, onClose],
-  )
 
   return (
     <GorhomBottomSheet
       ref={sheetRef}
       index={defaultSnapIndex}
       snapPoints={percentPoints}
-      enablePanDownToClose={isOpen != null}
-      onChange={handleChange}
+      onChange={(index) => {
+        const ratio = snapPoints?.[index]
+        if (ratio != null) onSnapChange?.(ratio)
+      }}
       backgroundStyle={[styles.background, sxToStyle(sx)]}
       handleIndicatorStyle={styles.handle}
     >
