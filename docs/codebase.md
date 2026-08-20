@@ -79,12 +79,17 @@ apps/
 │   │   ├── index.tsx           # 여행 목록
 │   │   ├── login.tsx
 │   │   └── trip/[tripId]/      # 상세 탭 셸 (정보·장소·계획·정산·사진)
+│   ├── ios/                    # prebuild 산출물 (gitignore, 네이티브 빌드용)
 │   ├── src/
 │   │   ├── features/           # 웹 features 구조를 미러링
 │   │   └── shared/
-│   │       ├── components/     # emotion 공용 컴포넌트 + Map(react-native-maps)
+│   │       ├── components/
+│   │       │   ├── mui/        # MUI 호환 계층 — 웹 코드를 그대로 옮기기 위함
+│   │       │   ├── Map/        # react-native-maps 구현
+│   │       │   ├── bottom-sheet/ # @gorhom/bottom-sheet 위 웹 API
+│   │       │   └── dnd/        # 제스처 기반 정렬 목록
 │   │       ├── config/tokens.ts # 웹 theme.ts 에서 승계한 값
-│   │       └── hooks/          # useOverlay (웹과 동일 시그니처)
+│   │       └── hooks/          # useOverlay·useQueryParamState (웹과 동일 시그니처)
 │   ├── metro.config.js         # 워크스페이스 해석 설정
 │   └── app.config.ts
 └── waylog-web/                 # 웹 앱 (React Router 7 + Vite)
