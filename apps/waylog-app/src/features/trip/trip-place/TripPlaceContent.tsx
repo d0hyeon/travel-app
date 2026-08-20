@@ -6,6 +6,7 @@ import { ScrollView, View } from 'react-native'
 import { Map, type MapRef } from '../../../shared/components/Map'
 import { Stack, Text } from '../../../shared/components'
 import { palette } from '../../../shared/config/tokens'
+import { usePlaceDetailOverlay } from '../../place/place-detail/usePlaceDetailOverlay'
 import { TripPlaceItemButton } from './TripPlaceItemButton'
 
 // 이 배율보다 멀어지면 라벨을 숨기고 점으로만 표시한다. 웹과 같은 기준이다.
@@ -24,6 +25,7 @@ export function TripPlaceContent({ tripId }: Props) {
 
   const mapRef = useRef<MapRef>(null)
   const [focusedId, setFocusedId] = useState<string | null>(null)
+  const placeDetail = usePlaceDetailOverlay()
 
   const plannedPlaceIds = useMemo(
     () => new Set(routes.flatMap((route) => route.placeIds)),
@@ -58,7 +60,10 @@ export function TripPlaceContent({ tripId }: Props) {
                       ? 'selected'
                       : 'default'
                 }
-                onClick={() => setFocusedId(place.id)}
+                onClick={() => {
+                  setFocusedId(place.id)
+                  placeDetail.open(place.placeId)
+                }}
               />
             ))
           }
