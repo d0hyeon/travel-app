@@ -1,10 +1,9 @@
-import { Stack, Text } from '../../../src/shared/components'
+import { Map } from '../../../src/shared/components/Map'
 
-// 브랜치 1 은 셸만 세운다. 내용은 이후 브랜치에서 채운다.
 export default function TripDetailPlaceRoute() {
   return (
-    <Stack gap={8} align="center" justify="center" style={{ flex: 1 }}>
-      <Text variant="h6" bold>장소</Text>
-    </Stack>
+    <Map defaultCenter={{ lat: 37.5665, lng: 126.978 }}>
+      <Map.Marker lat={37.5665} lng={126.978} label="서울시청" />
+    </Map>
   )
 }
