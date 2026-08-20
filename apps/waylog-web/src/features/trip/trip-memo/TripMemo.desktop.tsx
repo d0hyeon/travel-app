@@ -11,7 +11,7 @@ import { DialogTitle } from '~shared/components/confirm-dialog/DialogTitle';
 import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
 import { useOverlay } from '~shared/hooks/useOverlay';
 import { extractUrls } from '~shared/utils/urls';
-import { useTripMemo } from "./useTripMemo";
+import { useTripMemo } from '@waylog/domains/trip-memo';
 import { OgPreviewCard } from '~features/open-graph/OgPreviewCard';
 
 interface Props extends StackProps {

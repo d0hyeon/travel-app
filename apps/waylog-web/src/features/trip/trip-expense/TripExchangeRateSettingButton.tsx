@@ -3,7 +3,7 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import { useOverlay } from "~shared/hooks/useOverlay";
 import { DialogTitle } from "~shared/components/confirm-dialog/DialogTitle";
 import { useTrip } from "@waylog/domains/trip";
-import { useExpenses } from "~features/expense/useExpenses";
+import { useExpenses } from '@waylog/domains/expense';
 import { useMemo } from "react";
 import { getCurrencyName, getDefaultExchangeRate, getExchangeRate, getUsedCurrencies, setExchangeRate } from "@waylog/domains/expense";
 import { ListItem } from "~shared/components/ListItem";

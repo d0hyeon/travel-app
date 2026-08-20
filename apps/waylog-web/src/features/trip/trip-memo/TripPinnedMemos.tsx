@@ -2,7 +2,7 @@ import PushPinIcon from '@mui/icons-material/PushPin';
 import { Skeleton, Stack, Typography, type StackProps } from "@mui/material";
 import { Suspense } from "react";
 import { ListItem } from "~shared/components/ListItem";
-import { useTripMemo } from "./useTripMemo";
+import { useTripMemo } from '@waylog/domains/trip-memo';
 import { generatePath, Link } from 'react-router';
 import { AppRoute } from '~app/routes';
 

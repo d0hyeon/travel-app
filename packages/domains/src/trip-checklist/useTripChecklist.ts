@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { differenceInDays, getTime } from "date-fns";
 import { useMemo } from "react";
-import type { PickRequired } from "@waylog/domains/utils";
+import type { PickRequired } from "../utils";
 import { createChecklist, getChecklist, path, removeChecklist, updateChecklist, type CreateChecklist, type UpdateChecklist } from "./tripChecklist.api";
 import type { TripChecklist } from "./tripChecklist.type";
 import { WARNING_DAYS_FROM_DEADLINE } from "./tripChecklist.constants";

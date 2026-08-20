@@ -12,7 +12,7 @@ import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDi
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile';
 import { PopMenu } from '~shared/components/PopMenu';
 import { extractUrls, renderTextWithLinks } from '~shared/utils/urls';
-import { useTripMemo } from './useTripMemo';
+import { useTripMemo } from '@waylog/domains/trip-memo';
 
 export default function TripMemoDetailPage() {
   return (
