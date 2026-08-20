@@ -1,12 +1,9 @@
 import GorhomBottomSheet, {
-  BottomSheetBackdrop,
-  BottomSheetModal,
   BottomSheetScrollView,
-  BottomSheetView,
 } from '@gorhom/bottom-sheet'
 import { useCallback, useEffect, useImperativeHandle, useMemo, useRef, type ReactNode, type Ref } from 'react'
-import { StyleSheet } from 'react-native'
-import { Box, Stack, sxToStyle, type BoxProps, type StackProps, type Sx } from '../mui'
+import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native'
+import { Box, Stack, Typography, sxToStyle, type BoxProps, type StackProps, type Sx } from '../mui'
 import { palette } from '../../config/tokens'
 
 // 웹 shared/components/bottom-sheet 와 같은 공개 인터페이스를 유지한다.
@@ -38,11 +35,15 @@ export function BottomSheet(props: BottomSheetProps) {
   return props.isOpen != null ? <ModalSheet {...props} /> : <InlineSheet {...props} />
 }
 
-function useSnapPercents(snapPoints: BottomSheetProps['snapPoints']) {
-  // 웹은 0-1 비율을 쓴다. gorhom 은 '50%' 형태를 받는다.
+// 웹은 0-1 비율을 쓴다. 퍼센트 문자열은 부모 높이를 기준으로 하는데
+// 오버레이 층(absoluteFill) 안에서는 그 기준이 잡히지 않아 시트가 눕는다.
+// 화면 높이로 실제 픽셀을 계산해 넘긴다.
+function useSnapHeights(snapPoints: BottomSheetProps['snapPoints']) {
+  const { height } = useWindowDimensions()
+
   return useMemo(
-    () => (snapPoints ?? [0.5]).map((ratio) => `${Math.round(ratio * 100)}%`),
-    [snapPoints],
+    () => (snapPoints ?? [0.5]).map((ratio) => Math.round(height * ratio)),
+    [snapPoints, height],
   )
 }
 
@@ -55,38 +56,38 @@ function ModalSheet({
   onSnapChange,
   sx,
 }: BottomSheetProps) {
-  const sheetRef = useRef<BottomSheetModal>(null)
-  const percentPoints = useSnapPercents(snapPoints)
+  const sheetRef = useRef<GorhomBottomSheet>(null)
+  const snapHeights = useSnapHeights(snapPoints)
 
-  useEffect(() => {
-    if (isOpen === true) sheetRef.current?.present()
-    else sheetRef.current?.dismiss()
-  }, [isOpen])
+  // BottomSheetModal 은 자체 포털에 그리는데, 오버레이 층 안에서는 그 포털이
+  // 화면에 닿지 않는다. 오버레이 층이 이미 전체 화면이므로 인라인 시트를
+  // 그 위에 직접 띄우고 백드롭만 손수 깐다.
+  if (isOpen !== true) return null
 
   return (
-    <BottomSheetModal
-      ref={sheetRef}
-      index={defaultSnapIndex}
-      snapPoints={percentPoints}
-      enablePanDownToClose
-      onDismiss={onClose}
-      onChange={(index) => {
-        const ratio = snapPoints?.[index]
-        if (ratio != null) onSnapChange?.(ratio)
-      }}
-      backdropComponent={(backdropProps) => (
-        <BottomSheetBackdrop
-          {...backdropProps}
-          appearsOnIndex={0}
-          disappearsOnIndex={-1}
-          pressBehavior="close"
-        />
-      )}
-      backgroundStyle={[styles.background, sxToStyle(sx)]}
-      handleIndicatorStyle={styles.handle}
-    >
-      {children}
-    </BottomSheetModal>
+    <View style={StyleSheet.absoluteFill}>
+      <Pressable style={styles.backdrop} onPress={onClose} />
+
+      <GorhomBottomSheet
+        ref={sheetRef}
+        index={defaultSnapIndex}
+        snapPoints={snapHeights}
+        enablePanDownToClose
+        onClose={onClose}
+        onChange={(index) => {
+          if (index === -1) {
+            onClose?.()
+            return
+          }
+          const ratio = snapPoints?.[index]
+          if (ratio != null) onSnapChange?.(ratio)
+        }}
+        backgroundStyle={[styles.background, sxToStyle(sx)]}
+        handleIndicatorStyle={styles.handle}
+      >
+        {children}
+      </GorhomBottomSheet>
+    </View>
   )
 }
 
@@ -99,7 +100,7 @@ function InlineSheet({
   ref,
 }: BottomSheetProps) {
   const sheetRef = useRef<GorhomBottomSheet>(null)
-  const percentPoints = useSnapPercents(snapPoints)
+  const snapHeights = useSnapHeights(snapPoints)
 
   useImperativeHandle(ref as never, () => ({ snap: defaultSnapIndex }), [defaultSnapIndex])
 
@@ -107,7 +108,7 @@ function InlineSheet({
     <GorhomBottomSheet
       ref={sheetRef}
       index={defaultSnapIndex}
-      snapPoints={percentPoints}
+      snapPoints={snapHeights}
       onChange={(index) => {
         const ratio = snapPoints?.[index]
         if (ratio != null) onSnapChange?.(ratio)
@@ -122,7 +123,6 @@ function InlineSheet({
 
 function Header({ children, rightElement, sx, ...props }: StackProps & { rightElement?: ReactNode }) {
   return (
-    <BottomSheetView>
       <Stack
         direction="row"
         alignItems="center"
@@ -130,16 +130,20 @@ function Header({ children, rightElement, sx, ...props }: StackProps & { rightEl
         sx={{ px: 2, py: 1, ...(sx ?? {}) }}
         {...props}
       >
-        {children}
+        {/* 문자열을 그대로 받으면 RN 이 렌더하지 못한다. 제목은 감싸준다. */}
+        {typeof children === 'string' ? (
+          <Typography variant="h6">{children}</Typography>
+        ) : (
+          children
+        )}
         {rightElement}
       </Stack>
-    </BottomSheetView>
   )
 }
 
 function Body({ children, sx, ...props }: BoxProps) {
   return (
-    <BottomSheetScrollView contentContainerStyle={sxToStyle(sx)}>
+    <BottomSheetScrollView style={{ flex: 1 }} contentContainerStyle={sxToStyle(sx)}>
       <Box {...props}>{children}</Box>
     </BottomSheetScrollView>
   )
@@ -155,11 +159,9 @@ function Scrollable({ children, sx, ...props }: BoxProps) {
 
 function BottomActions({ children, sx, ...props }: StackProps) {
   return (
-    <BottomSheetView>
-      <Stack direction="row" gap={1} sx={{ px: 2, py: 1, ...(sx ?? {}) }} {...props}>
-        {children}
-      </Stack>
-    </BottomSheetView>
+    <Stack direction="row" gap={1} sx={{ px: 2, py: 1, ...(sx ?? {}) }} {...props}>
+      {children}
+    </Stack>
   )
 }
 
@@ -169,6 +171,7 @@ BottomSheet.Scrollable = Scrollable
 BottomSheet.BottomActions = BottomActions
 
 const styles = StyleSheet.create({
+  backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.4)' },
   background: { backgroundColor: palette.background, borderRadius: 20 },
   handle: { backgroundColor: palette.divider, width: 40 },
 })

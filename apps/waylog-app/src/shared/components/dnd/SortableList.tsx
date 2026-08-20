@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
-import { Pressable } from 'react-native'
+import { TouchableOpacity } from '@gorhom/bottom-sheet'
 import { Box, type BoxProps } from '../mui'
 
 // 웹 dnd/SortableList 와 같은 공개 인터페이스를 유지한다.
@@ -83,18 +83,19 @@ export const SortableItem = {
 
 // 웹은 드래그 핸들이지만 RN 스크롤 안에서는 제스처가 충돌한다.
 // 같은 자리에서 순서를 바꾸도록 위/아래 버튼을 둔다.
+// 바텀시트가 탭을 가로채지 않도록 gorhom 의 터치 컴포넌트를 쓴다.
 function Handle({ sx, id: _id }: Omit<BoxProps, 'id'> & { id: string | number }) {
   const move = useContext(MoveContext)
   if (move == null) return null
 
   return (
     <Box sx={{ justifyContent: 'center', ...(sx ?? {}) }}>
-      <Pressable onPress={move.moveUp} hitSlop={6}>
+      <TouchableOpacity onPress={move.moveUp} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
         <MaterialIcons name="keyboard-arrow-up" size={20} color="#787c7e" />
-      </Pressable>
-      <Pressable onPress={move.moveDown} hitSlop={6}>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={move.moveDown} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
         <MaterialIcons name="keyboard-arrow-down" size={20} color="#787c7e" />
-      </Pressable>
+      </TouchableOpacity>
     </Box>
   )
 }
