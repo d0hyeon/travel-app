@@ -1,4 +1,4 @@
-import type { MapBounds, MapProps, MapRef } from '@waylog/domains/map'
+import type { MapBounds, MapProps, MapRef, MapType } from '@waylog/domains/map'
 import { useImperativeHandle, useRef, useState } from 'react'
 import MapView, { PROVIDER_DEFAULT, PROVIDER_GOOGLE, type Region } from 'react-native-maps'
 import { StyleSheet } from 'react-native'
@@ -25,6 +25,11 @@ function deltaToZoom(delta: number): number {
   return Math.round(Math.log2(360 / delta))
 }
 
+interface NativeMapProps extends MapProps {
+  /** 웹과 같은 기준으로 소비자가 고른다 */
+  type?: MapType
+}
+
 export function NativeMap({
   type = 'kakao',
   defaultCenter,
@@ -32,7 +37,7 @@ export function NativeMap({
   children,
   ref,
   onBoundsChange,
-}: MapProps) {
+}: NativeMapProps) {
   const mapRef = useRef<MapView>(null)
   const [zoom, setZoom] = useState(() => deltaToZoom(DEFAULT_DELTA))
 
