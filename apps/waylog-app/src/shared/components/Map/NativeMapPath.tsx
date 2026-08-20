@@ -1,4 +1,4 @@
-import { NaverMapPathOverlay } from '@mj-studio/react-native-naver-map'
+import { Polyline } from 'react-native-maps'
 import type { PathProps } from '@waylog/domains/map'
 
 export function NativeMapPath({
@@ -10,10 +10,10 @@ export function NativeMapPath({
   if (coordinates.length < 2) return null
 
   return (
-    <NaverMapPathOverlay
-      coords={coordinates.map((c) => ({ latitude: c.lat, longitude: c.lng }))}
-      color={strokeColor}
-      width={strokeWeight}
+    <Polyline
+      coordinates={coordinates.map((c) => ({ latitude: c.lat, longitude: c.lng }))}
+      strokeColor={strokeColor}
+      strokeWidth={strokeWeight}
     />
   )
 }

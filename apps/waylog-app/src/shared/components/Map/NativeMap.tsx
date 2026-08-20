@@ -1,10 +1,8 @@
-import { NaverMapView, type NaverMapViewRef } from '@mj-studio/react-native-naver-map'
 import {
   clusterMarkers,
   type MapBounds,
   type MapProps,
   type MapRef,
-  type MapType,
   type MarkerData,
   type ToPixel,
 } from '@waylog/domains/map'
@@ -19,28 +17,31 @@ import {
   type ReactNode,
 } from 'react'
 import { StyleSheet, useWindowDimensions } from 'react-native'
+import MapView, { PROVIDER_GOOGLE, type Region } from 'react-native-maps'
 import { NativeMapCluster } from './NativeMapCluster'
 import { NativeMapMarker } from './NativeMapMarker'
 
-interface NativeMapProps extends MapProps {
-  /** 웹과 같은 기준으로 소비자가 고른다 */
-  type?: MapType
+// 웹은 level(1~14, 작을수록 확대), RN 은 delta(작을수록 확대)로 배율을 다룬다.
+const DEFAULT_DELTA = 0.02
+
+function levelToDelta(level: number): number {
+  return DEFAULT_DELTA * 2 ** (level - 3)
 }
 
-// 웹은 해외를 google 로 본다. 네이버는 해외 데이터가 약해 위성으로 보완한다.
-function toBaseMapType(type: MapType | undefined) {
-  return type === 'google' ? ('Hybrid' as const) : ('Basic' as const)
+function deltaToZoom(delta: number): number {
+  return Math.round(Math.log2(360 / delta))
 }
 
-// 웹은 level(1~14, 작을수록 확대), 네이버는 zoom(클수록 확대)이다.
-const DEFAULT_ZOOM = 14
-
-function levelToZoom(level: number): number {
-  return Math.max(1, 19 - level)
+function regionToBounds(region: Region): MapBounds {
+  return {
+    north: region.latitude + region.latitudeDelta / 2,
+    south: region.latitude - region.latitudeDelta / 2,
+    east: region.longitude + region.longitudeDelta / 2,
+    west: region.longitude - region.longitudeDelta / 2,
+  }
 }
 
 export function NativeMap({
-  type,
   autoFocus = 'marker',
   defaultCenter,
   center,
@@ -49,18 +50,22 @@ export function NativeMap({
   clustering,
   clusterGridSize = 50,
   onBoundsChange,
-}: NativeMapProps) {
-  const mapRef = useRef<NaverMapViewRef>(null)
-  const [zoom, setZoom] = useState(DEFAULT_ZOOM)
+}: MapProps) {
+  const mapRef = useRef<MapView>(null)
+  const [zoom, setZoom] = useState(() => deltaToZoom(DEFAULT_DELTA))
+  const [region, setRegion] = useState<Region | null>(null)
+  const { width } = useWindowDimensions()
 
   useImperativeHandle<MapRef, MapRef>(
     ref as never,
     () => ({
       panTo: (lat, lng, level) => {
-        mapRef.current?.animateCameraTo({
+        const delta = level == null ? DEFAULT_DELTA : levelToDelta(level)
+        mapRef.current?.animateToRegion({
           latitude: lat,
           longitude: lng,
-          zoom: level == null ? undefined : levelToZoom(level),
+          latitudeDelta: delta,
+          longitudeDelta: delta,
         })
       },
       // 네이티브 지도는 레이아웃 변경 시 스스로 다시 그린다.
@@ -71,30 +76,22 @@ export function NativeMap({
   )
 
   const initial = center ?? defaultCenter
-
   const rendered = typeof children === 'function' ? children({ zoom }) : children
 
-  // 클러스터링은 네이버가 네이티브로 처리한다. 마커만 골라 넘기고
-  // 나머지(경로선 등)는 그대로 자식으로 둔다.
   const { markerProps, others } = useMemo(() => splitMarkers(rendered), [rendered])
 
-  // 웹과 같이 마커(또는 경로)가 모두 담기도록 화면을 맞춘다.
+  // 웹과 같이 마커가 모두 담기도록 화면을 맞춘다. 최초 한 번만 한다.
   const focusedRef = useRef(false)
   useEffect(() => {
-    if (autoFocus === false || focusedRef.current) return
-
-    const coords = markerProps.map((marker) => ({ lat: marker.lat, lng: marker.lng }))
-    if (coords.length === 0) return
+    if (autoFocus === false || focusedRef.current || markerProps.length === 0) return
 
     focusedRef.current = true
-    mapRef.current?.animateRegionTo(toRegion(coords))
+    mapRef.current?.fitToCoordinates(
+      markerProps.map((marker) => ({ latitude: marker.lat, longitude: marker.lng })),
+      { edgePadding: { top: 60, right: 60, bottom: 60, left: 60 }, animated: true },
+    )
   }, [autoFocus, markerProps])
 
-  const { width } = useWindowDimensions()
-  const [region, setRegion] = useState<Region | null>(null)
-
-  // 네이버 내장 클러스터는 아이콘이 프리셋뿐이라 개수를 못 넣는다.
-  // 웹과 같은 모양으로 그리려면 공유 계산을 쓰고 직접 렌더한다.
   const clustered = useMemo(() => {
     if (clustering !== true || region == null || markerProps.length < 2) return null
 
@@ -107,19 +104,23 @@ export function NativeMap({
   }, [clustering, region, markerProps, clusterGridSize, width])
 
   return (
-    <NaverMapView
+    <MapView
       ref={mapRef}
+      provider={PROVIDER_GOOGLE}
       style={StyleSheet.absoluteFill}
-      mapType={toBaseMapType(type)}
-      initialCamera={
-        initial == null
-          ? undefined
-          : { latitude: initial.lat, longitude: initial.lng, zoom: DEFAULT_ZOOM }
+      initialRegion={
+        initial && {
+          latitude: initial.lat,
+          longitude: initial.lng,
+          latitudeDelta: DEFAULT_DELTA,
+          longitudeDelta: DEFAULT_DELTA,
+        }
       }
-      onCameraChanged={({ zoom: nextZoom, region: nextRegion }) => {
-        if (nextZoom != null) setZoom(nextZoom)
-        setRegion(nextRegion)
-        onBoundsChange?.(regionToBounds(nextRegion))
+      // 이동이 끝난 뒤에만 다시 묶는다. 이동 중 계산하면 지도가 끊긴다.
+      onRegionChangeComplete={(next) => {
+        setZoom(deltaToZoom(next.longitudeDelta))
+        setRegion(next)
+        onBoundsChange?.(regionToBounds(next))
       }}
     >
       {(clustered == null
@@ -135,33 +136,26 @@ export function NativeMap({
                   latitude={cluster.center.lat}
                   longitude={cluster.center.lng}
                   count={cluster.markers.length}
+                  onTap={() =>
+                    mapRef.current?.fitToCoordinates(
+                      cluster.markers.map((marker) => ({
+                        latitude: marker.position.lat,
+                        longitude: marker.position.lng,
+                      })),
+                      { edgePadding: { top: 80, right: 80, bottom: 80, left: 80 }, animated: true },
+                    )
+                  }
                 />
               ),
             ),
           ]) as ReactNode}
-    </NaverMapView>
+    </MapView>
   )
-}
-
-interface Region {
-  latitude: number
-  longitude: number
-  latitudeDelta: number
-  longitudeDelta: number
-}
-
-function regionToBounds(region: Region): MapBounds {
-  return {
-    north: region.latitude + region.latitudeDelta,
-    south: region.latitude,
-    east: region.longitude + region.longitudeDelta,
-    west: region.longitude,
-  }
 }
 
 type MarkerElementProps = React.ComponentProps<typeof NativeMapMarker>
 
-// 자식 중 마커만 분리한다. 클러스터링이 켜지면 마커는 네이티브로 넘긴다.
+// 자식 중 마커만 분리한다. 클러스터링이 켜지면 마커는 묶어서 그린다.
 function splitMarkers(children: ReactNode): {
   markerProps: MarkerElementProps[]
   others: ReactNode[]
@@ -200,26 +194,4 @@ function findMarker(children: ReactNode, id: string): ReactNode {
         (child.props.id ?? String(index)) === id,
     ) ?? null
   )
-}
-
-// 좌표들이 모두 담기는 영역을 만든다.
-function toRegion(coords: { lat: number; lng: number }[]): Region {
-  const lats = coords.map((c) => c.lat)
-  const lngs = coords.map((c) => c.lng)
-
-  const south = Math.min(...lats)
-  const north = Math.max(...lats)
-  const west = Math.min(...lngs)
-  const east = Math.max(...lngs)
-
-  // 가장자리에 붙지 않도록 약간 여유를 준다.
-  const padLat = Math.max((north - south) * 0.2, 0.005)
-  const padLng = Math.max((east - west) * 0.2, 0.005)
-
-  return {
-    latitude: south - padLat,
-    longitude: west - padLng,
-    latitudeDelta: north - south + padLat * 2,
-    longitudeDelta: east - west + padLng * 2,
-  }
 }

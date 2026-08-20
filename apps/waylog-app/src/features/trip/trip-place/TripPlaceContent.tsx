@@ -60,7 +60,6 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
           }}
         >
           <Map
-            type={trip.isOverseas ? 'google' : 'kakao'}
             ref={mapRef}
             defaultCenter={{ lat: trip.lat, lng: trip.lng }}
             clustering={isCluastering}

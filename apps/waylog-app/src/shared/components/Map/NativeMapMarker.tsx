@@ -1,4 +1,4 @@
-import { NaverMapMarkerOverlay } from '@mj-studio/react-native-naver-map'
+import { Marker } from 'react-native-maps'
 import { resolveMarkerColor, type MarkerProps } from '@waylog/domains/map'
 import { Image, View } from 'react-native'
 import Svg, { Circle, Path } from 'react-native-svg'
@@ -9,6 +9,7 @@ import { Typography } from '../mui'
 type NativeMarkerProps = Omit<MarkerProps, 'tooltip' | 'onContextMenu'>
 
 export function NativeMapMarker({
+  id,
   lat,
   lng,
   label,
@@ -22,11 +23,12 @@ export function NativeMapMarker({
   const resolved = resolveMarkerColor(color, variant)
 
   return (
-    <NaverMapMarkerOverlay
-      latitude={lat}
-      longitude={lng}
+    <Marker
+      identifier={id}
+      coordinate={{ latitude: lat, longitude: lng }}
       anchor={{ x: 0.5, y: 1 }}
-      onTap={() => onClick?.({ lat, lng, label, variant })}
+      tracksViewChanges={false}
+      onPress={() => onClick?.({ lat, lng, label, variant })}
     >
       {/* 웹 marker.renderers 의 모양을 그대로 옮긴다. */}
       <View style={{ alignItems: 'center' }}>
@@ -54,7 +56,7 @@ export function NativeMapMarker({
           thumbnailUrl={thumbnailUrl}
         />
       </View>
-    </NaverMapMarkerOverlay>
+    </Marker>
   )
 }
 
