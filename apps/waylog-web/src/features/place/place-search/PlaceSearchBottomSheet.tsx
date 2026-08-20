@@ -18,7 +18,7 @@ import { useEffect, useState } from 'react'
 import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
 import { ListItem } from '~shared/components/ListItem'
 import { useDebouncedValue } from '@waylog/react'
-import type { Coordinate, MapType } from '../../../shared/components/Map'
+import type { Coordinate, MapProvider } from '../../../shared/components/Map'
 import type { PlaceSearchResult } from './PlaceSearchDialog'
 import { PlaceSearchSelectScreen } from './PlaceSearchSelectScreen'
 import { useLaststSearchKeywords } from './useLaststSearchKeywords'
@@ -28,7 +28,7 @@ interface Props {
   isOpen: boolean
   onClose: () => void
   onSelect: (place: PlaceSearchResult) => void
-  service?: MapType;
+  service?: MapProvider;
   center?: Coordinate;
 }
 

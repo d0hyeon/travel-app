@@ -1,10 +1,10 @@
 import { useCallback } from "react";
 import { useOverlay } from "../../../shared/hooks/useOverlay";
-import type { MapType } from "../../../shared/components/Map";
+import type { MapProvider } from "../../../shared/components/Map";
 import { PlaceSearchDialog, type PlaceSearchResult } from "./PlaceSearchDialog";
 
 interface UsePlaceSearchDialogOptions {
-  service?: MapType
+  service?: MapProvider
 }
 
 export function usePlaceSearchDialog(options: UsePlaceSearchDialogOptions = {}) {
