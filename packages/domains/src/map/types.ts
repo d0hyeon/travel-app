@@ -27,6 +27,8 @@ export interface MapRenderProps {
   zoom: number;
 }
 export interface MapProps  {
+  /** 지도 제공자. 웹은 국내 kakao·해외 google 로 나눈다 */
+  type?: MapType;
   defaultCenter?: Coordinate;
   center?: Coordinate;
   autoFocus?: AutoFocus;

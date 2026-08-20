@@ -51,6 +51,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
         {/* Map (전체) */}
         <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `calc(${sheetRatio * 100}% - 10px)` }}>
           <Map
+            type={trip.isOverseas ? 'google' : 'kakao'}
             ref={mapRef}
             defaultCenter={{ lat: trip.lat, lng: trip.lng }}
             clustering={isCluastering}

@@ -1,6 +1,6 @@
 import type { MapBounds, MapProps, MapRef } from '@waylog/domains/map'
 import { useImperativeHandle, useRef, useState } from 'react'
-import MapView, { PROVIDER_GOOGLE, type Region } from 'react-native-maps'
+import MapView, { PROVIDER_DEFAULT, PROVIDER_GOOGLE, type Region } from 'react-native-maps'
 import { StyleSheet } from 'react-native'
 
 // 웹은 level(1~14, 작을수록 확대), RN 은 delta(작을수록 확대)로 배율을 다룬다.
@@ -26,6 +26,7 @@ function deltaToZoom(delta: number): number {
 }
 
 export function NativeMap({
+  type = 'kakao',
   defaultCenter,
   center,
   children,
@@ -59,7 +60,10 @@ export function NativeMap({
   return (
     <MapView
       ref={mapRef}
-      provider={PROVIDER_GOOGLE}
+      // 웹은 국내 kakao·해외 google 로 나눈다. 분기 지점은 같게 두되,
+      // react-native-maps 는 kakao 를 지원하지 않아 현재 국내는 기본 지도로 떨어진다.
+      // TODO: 국내 지도 품질을 웹과 맞추려면 kakao RN SDK 를 붙인다.
+      provider={type === 'google' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
       style={StyleSheet.absoluteFill}
       initialRegion={
         initial && {
