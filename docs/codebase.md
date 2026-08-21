@@ -139,7 +139,7 @@ packages/
 │       ├── place/              # 장소 조회·검색·추가
 │       ├── route/              # 경로 (도로 경로 어댑터 포함)
 │       ├── tourism-trend/      # 관광 트렌드
-│       ├── trip/               # 여행 (목록·경로·장소 데이터 계층)
+│       ├── trip/               # 여행 (목록·경로·장소 데이터 계층, 최근접 장소 탐색)
 │       ├── trip-checklist/     # 여행 준비물
 │       ├── trip-member/        # 여행 멤버
 │       ├── trip-memo/          # 여행 메모
@@ -254,8 +254,7 @@ src/
 │   │
 │   ├── photo/                  # 사진 도메인
 │   │   ├── photo.api.ts
-│   │   ├── photo.types.ts
-│   │   └── photo.utils.ts
+│   │   └── photo.types.ts
 │   │
 │   ├── place/                  # 장소/POI 도메인
 │   │   ├── place.api.ts
@@ -716,6 +715,7 @@ src/
 | 사진 상세 뷰어       | `shared/components/photo/PhotoBottomSheet.tsx`(모바일), `PhotoDialog.tsx`(데스크탑) |
 | 사진 공개 뱃지/장소 변경 | `shared/components/photo/PhotoVisibilityBadge.tsx`, `PhotoPlaceSelect.tsx` |
 | 여행 사진 탭         | `features/trip/trip-photo/TripPhotoContent.*.tsx`                 |
+| 사진 EXIF 장소 매칭  | 웹 `features/photo/photo.utils.ts` + `shared/utils/exif.ts`(exifr), 앱 `features/photo/exif.utils.ts`(picker 의 `exif: true`). 매칭은 `findNearestPlace(.., { withinMeters: 500 })` 공유 |
 | 체크리스트           | `features/trip/trip-checklist/`                                   |
 | 오버레이/모달        | `shared/hooks/useOverlay.tsx`                                     |
 | 웹 푸시              | `features/auth/useWebPushSubscription.ts`                         |

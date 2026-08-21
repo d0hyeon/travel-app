@@ -24,16 +24,29 @@
 
 ## 1단계 잔여
 
+없다. 2026-08-22 기준 모두 완료.
+
 | 작업 | 상태 | 비고 |
 | --- | --- | --- |
-| 메모 상세 화면 | 미착수 | 목록만 있고 상세 진입이 없다 |
-| 사진 EXIF 장소 자동 매칭 | 미착수 | 웹 `trip-photo` 참조 |
+| 메모 상세 화면 | 완료 | `cc77f2f`. 목록·고정 목록에서 진입, 수정·삭제 포함 |
+| 사진 EXIF 장소 자동 매칭 | 완료 | picker 의 `exif: true` 사용. 웹과 같은 500m 기준 |
 
 ## 2단계
 
-trip-create, trip-invite,
-trip-recommend, trip-community-routes, trip-weather,
-trip-marine-activity, trip-chat, features/weather
+플랜: [`docs/plans/app-trip-stage2.md`](./app-trip-stage2.md)
+
+브랜치 3개로 나눈다. 성격은 포팅이며 기능을 누락하거나 다르게 구현하지 않는다.
+
+| 브랜치 | 범위 | 상태 |
+| --- | --- | --- |
+| `feat/app-photo-exif-place` | 1단계 잔여 (EXIF) | 완료 |
+| `feat/app-trip-chat` | trip-chat | 미착수 |
+| `feat/app-trip-rest2` | trip-recommend, trip-community-routes, trip-weather, trip-marine-activity, trip-create, trip-invite, features/weather | 미착수 |
+
+## 알려진 기존 실패
+
+`apps/waylog-web` 의 `src/features/trip/__tests__/useTrip.integration.test.ts` 3건이
+실패 상태다. EXIF 작업 이전부터 실패했으며 원인은 별개다.
 
 ## 앱 전체에서 영구 제외
 
