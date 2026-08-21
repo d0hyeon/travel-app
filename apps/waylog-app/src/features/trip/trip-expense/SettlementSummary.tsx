@@ -44,7 +44,7 @@ export function SettlementSummary({ tripId, formatAmount = formatCurrency }: Pro
             const { paidInKRW, fairShare } = memberPaidMap.get(memberId) ?? { paidInKRW: 0, fairShare: 0 }
 
             return (
-              <Box sx={{ borderWidth: 1, borderColor: "rgba(0,0,0,0.12)", borderRadius: 16 }}>
+              <Box key={memberId} sx={{ borderWidth: 1, borderColor: "rgba(0,0,0,0.12)", borderRadius: 16 }}>
                 <Box sx={{ padding: 16 }}>
                   <Stack direction="row" justifyContent="space-between" alignItems="center">
                     <Stack direction="row" gap={1.5} alignItems="center">
@@ -110,7 +110,7 @@ export function SettlementSummary({ tripId, formatAmount = formatCurrency }: Pro
               if (!from || !to) return null
 
               return (
-                <Box sx={{ borderWidth: 1, borderColor: "rgba(0,0,0,0.12)", borderRadius: 16 }}>
+                <Box key={`${settlement.from}-${settlement.to}-${index}`} sx={{ borderWidth: 1, borderColor: "rgba(0,0,0,0.12)", borderRadius: 16 }}>
                   <Box sx={{ padding: 16 }}>
                     <Stack direction="row" alignItems="center" justifyContent="space-between">
                       <Stack direction="row" alignItems="center" gap={1}>

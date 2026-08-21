@@ -49,12 +49,11 @@ function Resolved({ tripId }: Props) {
   const { data: { checklist } } = useTripChecklist(tripId);
 
   return (
-    <>
+    <Stack gap={1}>
       {checklist.length > 0
         ? checklist.map(x => <TripChecklist.Item id={x.id} key={x.id} tripId={tripId} />)
         : <Typography variant="body2" color="text.secondary" sx={{ paddingVertical: 24 }}>체크리스트가 없어요</Typography>}
-
-    </>
+    </Stack>
   )
 }
 
@@ -90,12 +89,12 @@ function TripChecklistItem({ tripId, id, ...props }: ItemProps) {
     .with(P.number.lt(StatusInDays.warning), () => "warning" as const)
     .otherwise(() => undefined)
 
-
   return (
     <ListItem
       sx={{
         borderColor: value.isCompleted ? 'rgba(76,132,255,0.4)' : 'rgba(221,221,221,0.4)',
         borderWidth: value.isCompleted ? 2 : 1,
+        paddingVertical: 16,
       }}
       leftAddon={(
         <Checkbox

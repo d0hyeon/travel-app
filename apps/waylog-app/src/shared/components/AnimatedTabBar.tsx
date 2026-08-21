@@ -67,7 +67,10 @@ export function AnimatedTabBar({ state, descriptors, navigation, visibleNames }:
                 target: route.key,
                 canPreventDefault: true,
               })
-              if (!isFocused && !event.defaultPrevented) navigation.navigate(route.name)
+              if (!isFocused && !event.defaultPrevented) {
+                const currentRoute = state.routes[state.index]
+                navigation.navigate(route.name, currentRoute.params)
+              }
             }}
             style={{ width: tabWidth, alignItems: 'center', paddingVertical: 8, gap: 2 }}
           >

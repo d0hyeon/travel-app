@@ -16,7 +16,7 @@ export function useAuthNavigate() {
 export function useAuthRedirection() {
   const location = useLocation();
 
-  if (typeof location.state.from !== 'string') {
+  if (typeof location.state?.from !== 'string') {
     return null;
   }
 

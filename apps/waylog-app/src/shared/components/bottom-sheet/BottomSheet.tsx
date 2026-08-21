@@ -267,7 +267,18 @@ function Scrollable({ children, sx, ...props }: BoxProps) {
 
 function BottomActions({ children, sx, ...props }: StackProps) {
   return (
-    <Stack direction="row" gap={1} sx={{ px: 2, py: 1, ...(sx ?? {}) }} {...props}>
+    <Stack
+      direction="row"
+      gap={1}
+      sx={{
+        px: 2,
+        py: 1,
+        backgroundColor: palette.background,
+        zIndex: 10,
+        ...(sx ?? {}),
+      }}
+      {...props}
+    >
       {children}
     </Stack>
   )

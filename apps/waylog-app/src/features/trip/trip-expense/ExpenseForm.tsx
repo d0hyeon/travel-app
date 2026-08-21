@@ -1,11 +1,16 @@
 import { useAuth } from '@waylog/domains/auth'
-import { getCurrenciesByDestinations, type CurrencyCode } from '@waylog/domains/expense'
+import { CurrencyCode as CurrencyCodeMap, CurrencyCodeLabel, getCurrenciesByDestinations, type CurrencyCode } from '@waylog/domains/expense'
 import { useTrip, useTripPlaces } from '@waylog/domains/trip'
 import { useTripMembers } from '@waylog/domains/trip-member'
 import { formatDisplayDate } from '@waylog/domains/utils'
 import { forwardRef, useImperativeHandle, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Chip, Stack, TextField, Typography } from '../../../shared/components/mui'
+import { Button, Chip, Stack, TextField, Typography } from '../../../shared/components/mui'
+import { Pressable } from 'react-native'
+import { MaterialIcons } from '@expo/vector-icons'
+import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
+import { useOverlay } from '../../../shared/hooks/useOverlay'
+import { PopMenu } from '../../../shared/components/PopMenu'
 
 export interface PaymentField {
   memberId: string
@@ -32,7 +37,6 @@ interface Props {
 }
 
 // 웹 ExpenseForm 과 같은 값 모양을 유지한다.
-// 날짜 선택(DatePicker)은 오늘 기준 기본값으로 두고 후속 작업으로 남긴다.
 export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseForm(
   { tripId, defaultValues, onSubmit },
   ref,
@@ -48,7 +52,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
   const { control, handleSubmit, watch, setValue } = useForm<ExpenseFormValues>({
     defaultValues: {
       description: '',
-      date: formatDisplayDate(new Date()),
+      date: '',
       currency: (currencies[0]?.code ?? 'KRW') as CurrencyCode,
       payments: myMemberId != null ? [{ memberId: myMemberId, amount: 0 }] : [],
       splitAmong: members.map((member) => member.id),
@@ -57,10 +61,17 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
   })
 
   const [amount, setAmount] = useState(String(defaultValues?.payments?.[0]?.amount ?? ''))
+  const overlay = useOverlay()
   const currency = watch('currency')
   const splitAmong = watch('splitAmong')
   const placeId = watch('placeId')
   const payerId = watch('payments')[0]?.memberId
+  const paymentRows = watch('payments')
+  const addPayer = () => {
+    const nextMember = members.find((member) => !paymentRows.some((payment) => payment.memberId === member.id))
+    if (nextMember == null) return
+    setValue('payments', [...paymentRows, { memberId: nextMember.id, amount: 0 }])
+  }
 
   useImperativeHandle(
     ref,
@@ -78,31 +89,6 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
 
   return (
     <Stack gap={2}>
-      <Controller
-        control={control}
-        name="description"
-        rules={{ required: true }}
-        render={({ field }) => (
-          <TextField
-            autoFocus
-            placeholder="지출 내용"
-            fullWidth
-            variant="standard"
-            value={field.value}
-            onChangeText={field.onChange}
-          />
-        )}
-      />
-
-      <TextField
-        placeholder="금액"
-        fullWidth
-        variant="standard"
-        keyboardType="number-pad"
-        value={amount}
-        onChangeText={setAmount}
-      />
-
       {currencies.length > 1 && (
         <Stack gap={1}>
           <Typography variant="caption" color="text.secondary">
@@ -123,28 +109,123 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
         </Stack>
       )}
 
-      <Stack gap={1}>
-        <Typography variant="caption" color="text.secondary">
-          결제자
-        </Typography>
-        <Stack direction="row" gap={0.5} sx={{ flexWrap: 'wrap' }}>
-          {members.map((member) => (
-            <Chip
-              key={member.id}
-              label={member.name}
-              size="small"
-              variant={payerId === member.id ? 'filled' : 'outlined'}
-              color={payerId === member.id ? 'primary' : 'default'}
-              onClick={() => setValue('payments', [{ memberId: member.id, amount: 0 }])}
+      <Stack gap={0.5}>
+        <Stack direction="row" justifyContent="space-between" alignItems="center">
+          <Typography variant="subtitle2" sx={{ fontWeight: '800' }}>결제 금액</Typography>
+          <Button size="small" onClick={addPayer} disabled={paymentRows.length >= members.length}>추가</Button>
+        </Stack>
+        <Stack direction="row" gap={1} alignItems="flex-end">
+        <Stack gap={0.5} sx={{ flex: 3 }}>
+          <Pressable onPress={() => overlay.open(({ isOpen, close }) => (
+            <BottomSheet isOpen={isOpen} onClose={close} snapPoints={[0.4]} defaultSnapIndex={0} safeArea>
+              <BottomSheet.Body sx={{ paddingHorizontal: 0, paddingVertical: 8 }}>
+                {members.map((member) => (
+                  <Pressable key={member.id} onPress={() => { setValue('payments', [{ memberId: member.id, amount: 0 }]); close() }} style={{ paddingHorizontal: 20, paddingVertical: 16 }}>
+                    <Typography>{member.name}</Typography>
+                  </Pressable>
+                ))}
+              </BottomSheet.Body>
+            </BottomSheet>
+          ))} style={{ position: 'relative' }}>
+            <TextField pointerEvents="none" placeholder="결제자" variant="standard" value={members.find((member) => member.id === payerId)?.name ?? ''} fullWidth editable={false} />
+            <MaterialIcons name="arrow-drop-down" size={24} color="#777" style={{ position: 'absolute', right: 0, bottom: 8 }} />
+          </Pressable>
+        </Stack>
+        <Stack sx={{ flex: 7, position: 'relative' }}>
+          <TextField
+            placeholder="0"
+            sx={{ textAlign: 'right', paddingRight: 72 }}
+            variant="standard"
+            keyboardType="number-pad"
+            value={amount}
+            onChangeText={setAmount}
+          />
+          <Stack sx={{ position: 'absolute', right: 0, bottom: 7 }}>
+            <PopMenu
+              trigger={(
+                <Stack direction="row" alignItems="center" gap={0.5}>
+                  <Typography color="primary">{CurrencyCodeLabel[currency] ?? currency}</Typography>
+                  <MaterialIcons name="swap-horiz" size={22} color="#4C84FF" />
+                </Stack>
+              )}
+              items={CurrencyCodeMap && Object.values(CurrencyCodeMap).map((code) => (
+                <PopMenu.Item key={code} onClick={() => setValue('currency', code)}>
+                  <Typography sx={{ color: currency === code ? '#4C84FF' : '#666' }}>
+                    {CurrencyCodeLabel[code]}
+                  </Typography>
+                </PopMenu.Item>
+              ))}
             />
-          ))}
+          </Stack>
+        </Stack>
+        {paymentRows.length > 1 && (
+          <Pressable onPress={() => setValue('payments', paymentRows.slice(0, -1))}>
+            <MaterialIcons name="delete" size={22} color="#aaa" />
+          </Pressable>
+        )}
         </Stack>
       </Stack>
 
+      <Stack gap={0.5}>
+        <Typography variant="subtitle2" sx={{ fontWeight: '800' }}>내용</Typography>
+        <Controller
+          control={control}
+          name="description"
+          rules={{ required: true }}
+          render={({ field }) => (
+            <TextField
+              placeholder="점심 식사"
+              fullWidth
+              variant="standard"
+              value={field.value}
+              onChangeText={field.onChange}
+            />
+          )}
+        />
+      </Stack>
+
+      <Stack gap={0.5}>
+        <Typography variant="subtitle2" sx={{ fontWeight: '800' }}>날짜</Typography>
+        <Controller
+          control={control}
+          name="date"
+          render={({ field }) => (
+            <TextField
+              placeholder="MM/DD/YYYY"
+              fullWidth
+              variant="standard"
+              value={field.value}
+              onChangeText={field.onChange}
+            />
+          )}
+        />
+      </Stack>
+
+      {places.length > 0 && (
+        <Stack gap={1}>
+          <Typography variant="caption" color="text.secondary">
+            장소 (선택)
+          </Typography>
+          <TextField
+            placeholder="장소 검색..."
+            variant="standard"
+            value={places.find((place) => place.placeId === placeId)?.name ?? ''}
+            fullWidth
+          />
+        </Stack>
+      )}
+
       <Stack gap={1}>
-        <Typography variant="caption" color="text.secondary">
-          나눠 낼 사람
-        </Typography>
+        <Stack direction="row" justifyContent="space-between" alignItems="center">
+          <Typography variant="subtitle2" sx={{ fontWeight: '800' }}>누구와 나눌까요?</Typography>
+          <Button
+            size="small"
+            variant="text"
+            onClick={() => setValue('splitAmong', splitAmong.length === members.length ? [] : members.map((member) => member.id))}
+          >
+            전체 선택
+          </Button>
+        </Stack>
         <Stack direction="row" gap={0.5} sx={{ flexWrap: 'wrap' }}>
           {members.map((member) => {
             const included = splitAmong.includes(member.id)
@@ -169,28 +250,6 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
           })}
         </Stack>
       </Stack>
-
-      {places.length > 0 && (
-        <Stack gap={1}>
-          <Typography variant="caption" color="text.secondary">
-            장소 (선택)
-          </Typography>
-          <Stack direction="row" gap={0.5} sx={{ flexWrap: 'wrap' }}>
-            {places.map((place) => (
-              <Chip
-                key={place.id}
-                label={place.name}
-                size="small"
-                variant={placeId === place.placeId ? 'filled' : 'outlined'}
-                color={placeId === place.placeId ? 'primary' : 'default'}
-                onClick={() =>
-                  setValue('placeId', placeId === place.placeId ? undefined : place.placeId)
-                }
-              />
-            ))}
-          </Stack>
-        </Stack>
-      )}
     </Stack>
   )
 })

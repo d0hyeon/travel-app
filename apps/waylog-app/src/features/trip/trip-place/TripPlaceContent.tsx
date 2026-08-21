@@ -13,6 +13,7 @@ import { TripPlaceAdditionButton } from './TripPlaceAdditionButton';
 import { TripPlaceItemButton } from './TripPlaceItemButton';
 import { TripPlaceMapFloatingControls } from './TripPlaceMapFloatingControls';
 import { useTripPlaces } from '@waylog/domains/trip';
+import { TripDetailHeader } from '../components/TripDetailHeader'
 
 const MICRO_ZOOM_LEVEL = 8;
 
@@ -47,6 +48,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
 
   return (
     <>
+      <TripDetailHeader />
       <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
         <TripPlaceMapFloatingControls />
         {/* Map (전체) */}

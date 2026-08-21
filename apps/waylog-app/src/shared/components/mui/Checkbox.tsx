@@ -12,7 +12,6 @@ export interface CheckboxProps {
 
 export function Checkbox({ checked = false, size = 'medium', onChange, sx }: CheckboxProps) {
   const box = size === 'small' ? 18 : 22
-
   return (
     <Pressable
       onPress={() => onChange?.()}
@@ -33,7 +32,7 @@ export function Checkbox({ checked = false, size = 'medium', onChange, sx }: Che
       {checked && (
         <Typography sx={{ color: '#fff', fontSize: size === 'small' ? 11 : 13, fontWeight: '900' }}>
           ✓
-        </Typography>
+      </Typography>
       )}
     </Pressable>
   )

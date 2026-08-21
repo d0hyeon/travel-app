@@ -44,6 +44,12 @@
 웹 화면을 복사해 오고 컴포넌트만 바꾸는 방식으로 이관한다.
 바텀시트·정렬 목록처럼 손이 많이 가는 것은 직접 구현한다 — 아래 "주요 패턴" 참조.
 
+여행 상세 5개 탭의 웹-앱 대조 기준은
+[`docs/app-trip-feature-definition.md`](./app-trip-feature-definition.md)와
+[`docs/app-trip-ui-definition.md`](./app-trip-ui-definition.md)에 기록한다.
+앱 지도 렌더링은 Google 단일이며, 장소 검색과 경로찾기 provider는 Google/Kakao
+양쪽을 지원한다.
+
 ---
 
 ## 라우팅
@@ -656,6 +662,10 @@ src/
 지정한 높이를 지켜야 하면 `alignSelf` 는 `center` 로 둔다.
 
 ## 기능별 탐색 가이드
+
+여행 상세 웹·앱 시나리오 및 스크린샷 대조 기록은 `docs/app-trip-screenshot-comparison.md`에서 관리한다.
+
+최근 앱 검증 반영: `AnimatedTabBar`는 탭 전환 시 현재 라우트 파라미터를 전달하며, 공용 `Tabs`는 화면 전환 중 레이아웃 상태 갱신을 하지 않는다. 정산 경로 기반 화면은 Google 지도와 일차별 장소·지출 추가 액션을 포함한다.
 
 | 기능                 | 핵심 파일                                                         |
 | -------------------- | ----------------------------------------------------------------- |

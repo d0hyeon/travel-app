@@ -6,6 +6,7 @@ import { ExpenseForm, type ExpenseFormRef, type ExpenseFormValues } from './Expe
 
 interface OpenParams {
   defaultValues?: Partial<ExpenseFormValues>
+  mode?: 'create' | 'edit'
 }
 
 // 웹 useExpenseFormBottomSheet 와 같은 시그니처를 유지한다.
@@ -13,7 +14,7 @@ export function useExpenseFormBottomSheet(tripId: string) {
   const overlay = useOverlay()
 
   const open = useCallback(
-    ({ defaultValues }: OpenParams = {}) => {
+    ({ defaultValues, mode = 'create' }: OpenParams = {}) => {
       return new Promise<ExpenseFormValues | null>((resolve) => {
         overlay.open(({ isOpen, close }) => {
           const formRef = { current: null as ExpenseFormRef | null }
@@ -24,9 +25,9 @@ export function useExpenseFormBottomSheet(tripId: string) {
           }
 
           return (
-            <BottomSheet isOpen={isOpen} onClose={cancel} snapPoints={[0.8]} defaultSnapIndex={0}>
+            <BottomSheet isOpen={isOpen} onClose={cancel} safeArea snapPoints={[0.8]} defaultSnapIndex={0}>
               <BottomSheet.Header>
-                {defaultValues != null ? '지출 수정' : '지출 추가'}
+                {mode === 'edit' ? '결제 금액 수정' : '결제 금액'}
               </BottomSheet.Header>
               <BottomSheet.Body sx={{ paddingHorizontal: 16 }}>
                 <ExpenseForm

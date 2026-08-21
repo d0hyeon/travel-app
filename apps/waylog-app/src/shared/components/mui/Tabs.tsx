@@ -1,9 +1,10 @@
 import { Children, isValidElement, useEffect, useState, type ReactNode } from 'react'
-import { Pressable, ScrollView, View } from 'react-native'
+import { Pressable, View } from 'react-native'
+import { css } from '@emotion/native'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { palette } from '../../config/tokens'
 import { Typography } from './Typography'
-import type { Sx } from './sx'
+import { sxToStyle, type Sx } from './sx'
 
 export interface TabProps {
   value: string
@@ -22,38 +23,30 @@ export interface TabsProps {
   sx?: Sx
 }
 
-interface TabLayout {
-  x: number
-  width: number
-}
-
-export function Tabs({ value, onChange, children }: TabsProps) {
+export function Tabs({ value, onChange, sx, children }: TabsProps) {
   const tabs = Children.toArray(children)
     .filter(isValidElement<TabProps>)
     .map((child) => child.props)
 
-  const [layouts, setLayouts] = useState<Record<string, TabLayout>>({})
+  const [tabLayouts, setTabLayouts] = useState<Record<string, { x: number; width: number }>>({})
+  const indicatorX = useSharedValue(0)
+  const indicatorWidth = useSharedValue(0)
+  const selectedLayout = tabLayouts[value]
 
-  const offset = useSharedValue(0)
-  const width = useSharedValue(0)
-
-  const active = layouts[value]
-
-  // 선택된 탭 아래로 표시선을 옮긴다.
   useEffect(() => {
-    if (active == null) return
-    offset.value = withTiming(active.x, { duration: 220 })
-    width.value = withTiming(active.width, { duration: 220 })
-  }, [active?.x, active?.width])
+    if (selectedLayout == null) return
+    indicatorX.value = withTiming(selectedLayout.x, { duration: 220 })
+    indicatorWidth.value = withTiming(selectedLayout.width, { duration: 220 })
+  }, [indicatorWidth, indicatorX, selectedLayout])
 
   const indicatorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: offset.value }],
-    width: width.value,
+    width: indicatorWidth.value,
+    transform: [{ translateX: indicatorX.value }],
   }))
 
   return (
-    <View style={{ borderBottomWidth: 1, borderBottomColor: palette.divider }}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }}>
+    <View style={{ width: '100%', borderBottomWidth: 1, borderBottomColor: palette.divider, ...sxToStyle(sx) }}>
+      <View style={{ flexDirection: 'row' }}>
         {tabs.map((tab) => {
           const selected = tab.value === value
 
@@ -62,14 +55,14 @@ export function Tabs({ value, onChange, children }: TabsProps) {
               key={tab.value}
               onPress={() => onChange(null, tab.value)}
               onLayout={(event) => {
-                const { x, width: tabWidth } = event.nativeEvent.layout
-                setLayouts((curr) =>
-                  curr[tab.value]?.x === x && curr[tab.value]?.width === tabWidth
-                    ? curr
-                    : { ...curr, [tab.value]: { x, width: tabWidth } },
-                )
+                const { x, width } = event.nativeEvent.layout
+                setTabLayouts((current) => current[tab.value]?.x === x && current[tab.value]?.width === width ? current : { ...current, [tab.value]: { x, width } })
               }}
-              style={{ paddingHorizontal: 16, paddingVertical: 12 }}
+              style={{
+                alignItems: 'center',
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+              }}
             >
               <Typography
                 variant="body2"
@@ -80,14 +73,8 @@ export function Tabs({ value, onChange, children }: TabsProps) {
             </Pressable>
           )
         })}
-      </ScrollView>
-
-      <Animated.View
-        style={[
-          { position: 'absolute', bottom: 0, height: 2, backgroundColor: palette.primary },
-          indicatorStyle,
-        ]}
-      />
+      </View>
+      <Animated.View style={[{ position: 'absolute', bottom: -1, left: 0, height: 3, backgroundColor: palette.primary }, indicatorStyle]} />
     </View>
   )
 }

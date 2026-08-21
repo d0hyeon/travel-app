@@ -30,9 +30,9 @@ function Resolved({ tripId }: Props) {
     overlay.open(({ isOpen, close }) => {
       const formRef = { current: null as TripMemoFormRef | null };
       return (
-        <BottomSheet isOpen={isOpen} onClose={close}>
+        <BottomSheet isOpen={isOpen} onClose={close} safeArea>
           <BottomSheet.Header>새 메모</BottomSheet.Header>
-          <BottomSheet.Body>
+          <BottomSheet.Body sx={{ paddingHorizontal: 16 }}>
             <TripMemoForm
               ref={(instance) => { formRef.current = instance }}
               onSubmit={async ({ title, content }) => {

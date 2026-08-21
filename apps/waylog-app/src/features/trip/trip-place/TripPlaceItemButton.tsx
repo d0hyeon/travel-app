@@ -27,6 +27,7 @@ export function TripPlaceItemButton({ place, ...props }: ItemProps) {
               tripId: place.tripId,
               placeId: place.id,
               defaultValues: place,
+              onDelete: () => remove(place.id),
             });
             if (!updated) return;
             update({

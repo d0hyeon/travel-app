@@ -22,7 +22,6 @@ interface Props {
 }
 
 // 웹은 form={id} 로 바깥 버튼과 잇지만 RN 에는 없다. ref.submit() 으로 대체한다.
-// 마감일 선택(DateTimePicker)은 후속 작업이다.
 export const TripChecklistForm = forwardRef<TripChecklistFormRef, Props>(
   function TripChecklistForm({ tripId, defaultValues, onSubmit }, ref) {
     const { data: members } = useTripMembers(tripId)
@@ -55,6 +54,15 @@ export const TripChecklistForm = forwardRef<TripChecklistFormRef, Props>(
             />
           )}
         />
+
+        <Stack direction="row" gap={1}>
+          <Controller control={control} name="startedAt" render={({ field }) => (
+            <TextField placeholder="시작일" fullWidth variant="outlined" value={field.value ?? ''} onChangeText={field.onChange} />
+          )} />
+          <Controller control={control} name="endedAt" render={({ field }) => (
+            <TextField placeholder="종료일" fullWidth variant="outlined" value={field.value ?? ''} onChangeText={field.onChange} />
+          )} />
+        </Stack>
 
         <Controller
           control={control}

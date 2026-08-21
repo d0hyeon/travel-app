@@ -76,14 +76,15 @@ TripDDay.Skeleton = (props: BoxProps) => {
 
 
 
-function DDayBox(props: BoxProps) {
+function DDayBox({ sx, ...props }: BoxProps) {
   return (
     <Box
       sx={{
-        background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)',
-        borderRadius: 4,
-        px: 2.5,
-        py: 2,
+        backgroundColor: '#eef1f5',
+        borderRadius: 20,
+        paddingHorizontal: 20,
+        paddingVertical: 24,
+        ...(sx ?? {}),
       }}
       {...props}
     />

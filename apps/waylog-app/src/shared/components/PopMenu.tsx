@@ -1,5 +1,5 @@
-import { createContext, useContext, useState, type ReactNode } from 'react'
-import { Modal, Pressable } from 'react-native'
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
+import { Animated, Modal, Pressable, ScrollView } from 'react-native'
 import { palette, radius } from '../config/tokens'
 import { Box, Stack, Typography } from './mui'
 import { IconButton } from './mui/IconButton'
@@ -9,41 +9,89 @@ import { IconButton } from './mui/IconButton'
 interface MenuProps {
   children?: ReactNode
   items: ReactNode
+  trigger?: ReactNode
 }
 
-export function PopMenu({ children, items }: MenuProps) {
+export function PopMenu({ children, items, trigger }: MenuProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const suppressTriggerRef = useRef(false)
+  const backdropOpacity = useRef(new Animated.Value(0)).current
+  const sheetTranslateY = useRef(new Animated.Value(80)).current
+
+  useEffect(() => {
+    if (!isOpen) return
+
+    Animated.parallel([
+      Animated.timing(backdropOpacity, { toValue: 1, duration: 180, useNativeDriver: true }),
+      Animated.timing(sheetTranslateY, { toValue: 0, duration: 220, useNativeDriver: true }),
+    ]).start()
+
+    return () => {
+      backdropOpacity.setValue(0)
+      sheetTranslateY.setValue(80)
+    }
+  }, [backdropOpacity, isOpen, sheetTranslateY])
+
+  const closeMenu = () => {
+    suppressTriggerRef.current = true
+    setIsOpen(false)
+    setTimeout(() => {
+      suppressTriggerRef.current = false
+    }, 250)
+  }
 
   return (
     <>
-      <IconButton size="small" onClick={() => setIsOpen(true)}>
-        {children ?? <Typography sx={{ fontSize: 18, color: palette.textSecondary }}>⋮</Typography>}
-      </IconButton>
+      {trigger != null ? <Pressable onPress={() => {
+        if (suppressTriggerRef.current) return
+        setIsOpen(true)
+      }}>{trigger}</Pressable> : (
+        <IconButton size="small" onClick={() => {
+          if (suppressTriggerRef.current) return
+          setIsOpen(true)
+        }}>
+          {children ?? <Typography sx={{ fontSize: 18, color: palette.textSecondary }}>⋮</Typography>}
+        </IconButton>
+      )}
 
-      <Modal visible={isOpen} transparent animationType="fade" onRequestClose={() => setIsOpen(false)}>
-        <Pressable
-          onPress={() => setIsOpen(false)}
-          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'flex-end' }}
-        >
-          <Box
-            sx={{
-              backgroundColor: palette.background,
-              borderTopLeftRadius: radius.xxl,
-              borderTopRightRadius: radius.xxl,
-              paddingVertical: 8,
+      <Modal visible={isOpen} transparent animationType="none" onRequestClose={closeMenu}>
+        <Box sx={{ flex: 1, justifyContent: 'flex-end' }}>
+          <Animated.View
+            style={{
+              position: 'absolute',
+              top: 0,
+              right: 0,
+              bottom: 0,
+              left: 0,
+              opacity: backdropOpacity,
+              backgroundColor: 'rgba(0,0,0,0.3)',
             }}
           >
-            <MenuCloseContext.Provider value={() => setIsOpen(false)}>
-              {items}
-            </MenuCloseContext.Provider>
-          </Box>
-        </Pressable>
+            <Pressable onPress={closeMenu} style={{ flex: 1 }} />
+          </Animated.View>
+          <Animated.View style={{ transform: [{ translateY: sheetTranslateY }] }}>
+            <Box
+              sx={{
+                backgroundColor: palette.background,
+                borderTopLeftRadius: radius.xxl,
+                borderTopRightRadius: radius.xxl,
+                paddingVertical: 8,
+              }}
+            >
+              <ScrollView style={{ maxHeight: 560 }} bounces={false}>
+                <MenuCloseContext.Provider value={closeMenu}>
+                  {items}
+                </MenuCloseContext.Provider>
+              </ScrollView>
+            </Box>
+          </Animated.View>
+        </Box>
       </Modal>
     </>
   )
 }
 
-const MenuCloseContext = createContext<() => void>(() => {})
+const MenuCloseContext = createContext<() => void>(() => { })
 
 interface MenuItemProps {
   onClick?: () => void
