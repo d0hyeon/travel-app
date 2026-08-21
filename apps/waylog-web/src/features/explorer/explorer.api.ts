@@ -1,5 +1,5 @@
 import { supabase } from '@waylog/domains/api'
-import { PlaceCategoryType, type PlaceCategoryType as PlaceCategoryTypeValue } from '~features/place/place.types'
+import { PlaceCategoryType, type PlaceCategoryType as PlaceCategoryTypeValue } from '@waylog/domains/place'
 
 export const explorerKey = 'explorer'
 

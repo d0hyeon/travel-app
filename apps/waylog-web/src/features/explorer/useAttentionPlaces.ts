@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import type { Location } from '@waylog/domains/location'
-import type { PlaceCategoryType } from '~features/place/place.types'
+import type { PlaceCategoryType } from '@waylog/domains/place'
 import { useExploredPlaces } from './explorer-ranking/useExploredPlaces'
 import { useRecentHotPlaces } from './explorer-recent/useRecentHotPlaces'
 import { useMostSavedPlaces } from './explorer-saved/useMostSavedPlaces'

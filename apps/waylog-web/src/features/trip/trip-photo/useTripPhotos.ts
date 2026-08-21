@@ -3,7 +3,7 @@ import { deletePhoto, getPhotosByTripId, photoKey, updatePhoto, uploadPhoto, typ
 import { findNearestPlaceFromPhoto } from "~features/photo/photo.utils";
 import type { Photo } from "@waylog/domains/photo";
 import { tripKey } from "@waylog/domains/trip";
-import { useTripPlaces } from "../trip-place/useTripPlaces";
+import { useTripPlaces } from '@waylog/domains/trip';
 import { queryClient } from "~app/query-client";
 import { useSuspenseQuery, type UseSuspenseQueryOptions } from "@waylog/react";
 

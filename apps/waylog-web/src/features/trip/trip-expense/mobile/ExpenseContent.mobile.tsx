@@ -1,3 +1,4 @@
+import { queryClient } from '~app/query-client';
 import AddIcon from '@mui/icons-material/Add'
 import RouteIcon from '@mui/icons-material/Route'
 import { Box, Button, Stack, Tab, Tabs, Typography } from "@mui/material"
@@ -5,8 +6,8 @@ import { Suspense, useState } from "react"
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { BottomSheet } from "~shared/components/bottom-sheet/BottomSheet"
 import { useOverlay } from "~shared/hooks/useOverlay"
-import { useExpenses } from "~features/expense/useExpenses"
-import { useTripMembers } from "../../trip-member/useTripMembers"
+import { useExpenses } from '@waylog/domains/expense'
+import { useTripMembers } from '@waylog/domains/trip-member'
 import { useExpenseFormBottomSheet } from "../useExpenseFormOverlay"
 import { ExpenseHeader } from "./ExpenseHeader.mobile"
 import { ExpenseList } from "./ExpenseList.mobile"
@@ -20,8 +21,8 @@ interface Props {
 type SubTab = 'list' | 'settlement'
 
 export function preload(tripId: string) {
-  useExpenses.prefetch(tripId);
-  useTripMembers.prefetch(tripId);
+  queryClient.prefetchQuery(useExpenses.query(tripId));
+  queryClient.prefetchQuery(useTripMembers.query(tripId));
 }
 
 export default function ExpenseContent({ tripId }: Props) {

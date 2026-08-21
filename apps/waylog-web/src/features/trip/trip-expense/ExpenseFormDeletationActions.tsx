@@ -1,7 +1,7 @@
 import { Button } from "@mui/material";
 import { ExpenseFormOverlayActions } from "./useExpenseFormOverlay";
 import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
-import { useExpenses } from "~features/expense/useExpenses";
+import { useExpenses } from '@waylog/domains/expense';
 
 type Props = {
   tripId: string;

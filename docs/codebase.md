@@ -73,10 +73,25 @@
 
 ```
 apps/
-├── waylog-app/                 # 네이티브 앱 (Expo SDK 57 + RN 0.86)
-│   ├── App.tsx
+├── waylog-app/                 # 네이티브 앱 (Expo SDK 54 + RN 0.81)
+│   ├── app/                    # Expo Router 라우트 (파일 기반)
+│   │   ├── _layout.tsx         # Provider 구성 (QueryClient·Auth·Overlay)
+│   │   ├── index.tsx           # 여행 목록
+│   │   ├── login.tsx
+│   │   └── trip/[tripId]/      # 상세 탭 셸 (정보·장소·계획·정산·사진)
+│   ├── ios/                    # prebuild 산출물 (gitignore, 네이티브 빌드용)
+│   ├── src/
+│   │   ├── features/           # 웹 features 구조를 미러링
+│   │   └── shared/
+│   │       ├── components/
+│   │       │   ├── mui/        # MUI 호환 계층 — 웹 코드를 그대로 옮기기 위함
+│   │       │   ├── Map/        # react-native-maps 구현
+│   │       │   ├── bottom-sheet/ # @gorhom/bottom-sheet 위 웹 API
+│   │       │   └── dnd/        # 제스처 기반 정렬 목록
+│   │       ├── config/tokens.ts # 웹 theme.ts 에서 승계한 값
+│   │       └── hooks/          # useOverlay·useQueryParamState (웹과 동일 시그니처)
 │   ├── metro.config.js         # 워크스페이스 해석 설정
-│   └── app.json
+│   └── app.config.ts
 └── waylog-web/                 # 웹 앱 (React Router 7 + Vite)
     ├── src/                    # 아래 "앱 내부 구조" 참조
     ├── e2e/                    # Playwright 스펙
@@ -92,11 +107,12 @@ packages/
 │       ├── expense/            # 지출(순수 로직)
 │       ├── location/           # 위치 vocabulary
 │       ├── marine-activity/    # 해양 활동
+│       ├── map/                # 좌표·마커 타입, 클러스터링(순수)
 │       ├── photo/              # 사진 조회·삭제·수정
-│       ├── query/              # QueryClient(initQueryClient 주입)
-│       ├── route/              # 경로
+│       ├── place/              # 장소 조회·검색·추가
+│       ├── route/              # 경로 (도로 경로 어댑터 포함)
 │       ├── tourism-trend/      # 관광 트렌드
-│       ├── trip/               # 여행
+│       ├── trip/               # 여행 (목록·경로·장소 데이터 계층)
 │       ├── trip-member/        # 여행 멤버
 │       ├── user-profile/       # 유저 프로필
 │       └── utils/              # 순수 유틸(포맷·좌표·URL·지오)

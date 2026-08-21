@@ -13,8 +13,8 @@ import { useMemo } from "react"
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { formatShortDate } from "@waylog/domains/utils"
 import { formatByCurrencyCode } from "@waylog/domains/expense"
-import { useExpenses } from "../../../expense/useExpenses"
-import { useTripMembers } from "../../trip-member/useTripMembers"
+import { useExpenses } from '@waylog/domains/expense'
+import { useTripMembers } from '@waylog/domains/trip-member'
 import { useExpenseFormOverlay } from "../useExpenseFormOverlay"
 
 interface ExpenseListProps {

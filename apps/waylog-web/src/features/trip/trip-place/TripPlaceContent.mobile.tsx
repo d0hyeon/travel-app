@@ -1,19 +1,20 @@
+import { queryClient } from '~app/query-client';
 import { Box, Stack, Typography } from "@mui/material";
 import { Suspense, useMemo, useRef, useState } from "react";
 import { BottomArea } from '~shared/components/BottomArea';
 import { arraySplit } from '@waylog/domains/utils';
 import { BottomSheet } from "../../../shared/components/bottom-sheet/BottomSheet";
 import { Map, type MapRef } from "../../../shared/components/Map";
-import { PlaceCategoryColorCode, type TripPlace } from "../../place/place.types";
+import { PlaceCategoryColorCode, type TripPlace } from '@waylog/domains/place';
 import { useTripCluastering } from '../hooks/useTripCluastering';
 import { RecommendedMarkers } from '../trip-recommend/RecommendedMarkers';
 import { useRecommendedPlaceDetailOverlay } from '../trip-recommend/RecommendedPlaceDetailOverlay';
-import { useTripRoutes } from "../trip-route/useTripRoutes";
+import { useTripRoutes } from '@waylog/domains/trip';
 import { useTrip } from "@waylog/domains/trip";
 import { TripPlaceAdditionButton } from './TripPlaceAdditionButton';
 import { TripPlaceItemButton } from './TripPlaceItemButton';
 import { TripPlaceMapFloatingControls } from './TripPlaceMapFloatingControls';
-import { useTripPlaces } from "./useTripPlaces";
+import { useTripPlaces } from '@waylog/domains/trip';
 
 const MICRO_ZOOM_LEVEL = 8;
 
@@ -26,8 +27,8 @@ const BOTTOM_SHEET_RATIOS = [0.25, 0.5, 0.8, 1] as const;
 const DEFAULT_BOTTOM_SHEET_RATIO = 0.5 satisfies typeof BOTTOM_SHEET_RATIOS[number];
 
 export function preload(id: string) {
-  useTripPlaces.prefetch(id);
-  useTripRoutes.prefetch(id);
+  queryClient.prefetchQuery(useTripPlaces.query(id));
+  queryClient.prefetchQuery(useTripRoutes.query(id));
 }
 
 export default function TripPlaceContent({ tripId }: PlaceContentProps) {

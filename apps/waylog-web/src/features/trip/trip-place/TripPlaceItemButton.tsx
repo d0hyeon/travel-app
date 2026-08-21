@@ -2,13 +2,13 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { Box, Chip, Stack } from "@mui/material";
 import { type ComponentProps } from "react";
-import { PlaceCategoryColorCode, type TripPlace } from "~features/place/place.types";
+import { PlaceCategoryColorCode, type TripPlace } from '@waylog/domains/place';
 import { ListItem } from "~shared/components/ListItem";
 import { PopMenu } from "~shared/components/PopMenu";
 import { useIsMobile } from "~shared/hooks/env/useIsMobile";
 import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
 import { useTripPlaceFormOverlay } from "./trip-place-form/useTripPlaceFormOverlay";
-import { useTripPlaces } from "./useTripPlaces";
+import { useTripPlaces } from '@waylog/domains/trip';
 
 interface ItemProps extends ComponentProps<typeof ListItem.Button> {
   place: TripPlace;

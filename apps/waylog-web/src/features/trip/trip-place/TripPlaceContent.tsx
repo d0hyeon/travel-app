@@ -1,10 +1,10 @@
 import { useMemo, useRef } from "react";
 import { Box, Button, ButtonBase, Chip, Stack, Typography, type BoxProps } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
-import { useTripPlaces } from "./useTripPlaces";
-import { useTripRoutes } from "../trip-route/useTripRoutes";
+import { useTripPlaces } from '@waylog/domains/trip';
+import { useTripRoutes } from '@waylog/domains/trip';
 import { useTrip } from "@waylog/domains/trip";
-import type { TripPlace } from "../../place/place.types";
+import type { TripPlace } from '@waylog/domains/place';
 import { Map, type MapRef } from "../../../shared/components/Map";
 import { useOverlay } from "../../../shared/hooks/useOverlay";
 import { PlaceSearchDialog, type PlaceSearchResult } from "../../place/place-search/PlaceSearchDialog";

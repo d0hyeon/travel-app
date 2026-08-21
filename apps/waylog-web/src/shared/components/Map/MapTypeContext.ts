@@ -1,4 +1,4 @@
 import { createContext } from 'react';
-import type { MapType } from './types';
+import type { MapProvider } from './types';
 
-export const MapTypeContext = createContext<MapType>('kakao');
+export const MapTypeContext = createContext<MapProvider>('kakao');
