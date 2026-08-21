@@ -10,6 +10,8 @@ import { useTripCluastering } from '../hooks/useTripCluastering';
 import { useTripRoutes } from '@waylog/domains/trip';
 import { useTrip } from "@waylog/domains/trip";
 import { TripPlaceAdditionButton } from './TripPlaceAdditionButton';
+import { RecommendedMarkers } from '../trip-recommend/RecommendedMarkers';
+import { useRecommendedPlaceDetailOverlay } from '../trip-recommend/RecommendedPlaceDetailOverlay';
 import { TripPlaceItemButton } from './TripPlaceItemButton';
 import { TripPlaceMapFloatingControls } from './TripPlaceMapFloatingControls';
 import { useTripPlaces } from '@waylog/domains/trip';
@@ -31,6 +33,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
   const { data: { routes } } = useTripRoutes(tripId)
 
   const mapRef = useRef<MapRef>(null);
+  const { openBottomSheet } = useRecommendedPlaceDetailOverlay()
   const handlePlaceClick = (place: TripPlace) => {
     mapRef.current?.panTo(place.lat, place.lng)
   }
@@ -69,22 +72,33 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
             clusterGridSize={50}
             autoFocus="marker"
           >
-            {({ zoom }) =>
-              places.map(place => (
-                <Map.Marker
-                  key={place.id}
-                  label={zoom > MICRO_ZOOM_LEVEL ? undefined : place.name}
-                  lat={place.lat}
-                  lng={place.lng}
-                  color={place.category
-                    ? PlaceCategoryColorCode[place.category]
-                    : plannedPlaceIds.has(place.id) ? 'selected' : 'default'
-                  }
-                  variant={zoom > MICRO_ZOOM_LEVEL ? 'circle' : 'pin'}
-                  onClick={() => setFocusedId(place.id)}
-                />
-              ))
-            }
+            {({ zoom }) => (
+              <>
+                {places.map(place => (
+                  <Map.Marker
+                    key={place.id}
+                    label={zoom > MICRO_ZOOM_LEVEL ? undefined : place.name}
+                    lat={place.lat}
+                    lng={place.lng}
+                    color={place.category
+                      ? PlaceCategoryColorCode[place.category]
+                      : plannedPlaceIds.has(place.id) ? 'selected' : 'default'
+                    }
+                    variant={zoom > MICRO_ZOOM_LEVEL ? 'circle' : 'pin'}
+                    onClick={() => setFocusedId(place.id)}
+                  />
+                ))}
+
+                {zoom <= MICRO_ZOOM_LEVEL && (
+                  <Suspense>
+                    <RecommendedMarkers
+                      tripId={tripId}
+                      onClick={(place) => openBottomSheet({ place, tripId })}
+                    />
+                  </Suspense>
+                )}
+              </>
+            )}
 
           </Map>
         </Box>
