@@ -28,3 +28,25 @@ describe("findNearestPlace", () => {
     expect(findNearestPlace(coordinate, [west, east])).toBe(west);
   });
 });
+
+describe("findNearestPlace - withinMeters", () => {
+  const cityHall = { lat: 37.5665, lng: 126.978 }; // 서울시청
+  const gwanghwamun = { id: "gwanghwamun", lat: 37.5759, lng: 126.9768 }; // 약 1km
+  const busan = { id: "busan", lat: 35.1796, lng: 129.0756 };
+
+  it("제한 거리 안에 있는 가장 가까운 장소를 고른다", () => {
+    expect(
+      findNearestPlace(cityHall, [busan, gwanghwamun], { withinMeters: 2000 }),
+    ).toBe(gwanghwamun);
+  });
+
+  it("가장 가까운 장소도 제한 거리 밖이면 null 을 반환한다", () => {
+    expect(
+      findNearestPlace(cityHall, [busan, gwanghwamun], { withinMeters: 500 }),
+    ).toBeNull();
+  });
+
+  it("제한 거리를 주지 않으면 거리와 무관하게 가장 가까운 장소를 고른다", () => {
+    expect(findNearestPlace(cityHall, [busan, gwanghwamun])).toBe(gwanghwamun);
+  });
+});
