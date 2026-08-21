@@ -11,18 +11,38 @@
 
 ## 기술 스택
 
-| 분류      | 기술                               |
-| --------- | ---------------------------------- |
-| Monorepo  | pnpm workspace                     |
-| Native    | Expo SDK 57 + React Native 0.86    |
-| Framework | React 19 + React Router 7 (CSR, `ssr: false`) |
-| Language  | TypeScript 5.9                     |
-| Build     | Vite 7                             |
-| UI        | Material-UI 7 + Tailwind CSS       |
-| State     | Zustand 5 + TanStack React Query 5 |
-| Backend   | Supabase (DB + Storage)            |
-| Maps      | Kakao Maps                         |
-| Forms     | React Hook Form 7                  |
+공통
+
+| 분류     | 기술                               |
+| -------- | ---------------------------------- |
+| Monorepo | pnpm workspace                     |
+| Language | TypeScript 5.9                     |
+| State    | Zustand 5 + TanStack React Query 5 |
+| Backend  | Supabase (DB + Storage)            |
+| Forms    | React Hook Form 7                  |
+
+웹 (`apps/waylog-web`)
+
+| 분류      | 기술                                          |
+| --------- | --------------------------------------------- |
+| Framework | React 19 + React Router 7 (CSR, `ssr: false`)  |
+| Build     | Vite 7                                        |
+| UI        | Material-UI 7 + Tailwind CSS                  |
+| Maps      | Kakao Maps / Google Maps (국내외 분기)        |
+
+앱 (`apps/waylog-app`)
+
+| 분류      | 기술                                             |
+| --------- | ------------------------------------------------ |
+| Native    | Expo SDK 54 + React Native 0.81.5                |
+| Routing   | Expo Router 6 (파일 기반)                        |
+| UI        | `@emotion/native` 자체 구축 + MUI 호환 shim       |
+| Maps      | `react-native-maps` (Google 단일)                |
+| Animation | Reanimated 4 + Gesture Handler 2                 |
+
+앱 UI 는 웹 MUI 와 같은 인터페이스를 갖는 얇은 shim(`shared/components/mui/`)을 두어
+웹 화면을 복사해 오고 컴포넌트만 바꾸는 방식으로 이관한다.
+바텀시트·정렬 목록처럼 손이 많이 가는 것은 직접 구현한다 — 아래 "주요 패턴" 참조.
 
 ---
 
@@ -86,8 +106,8 @@ apps/
 │   │       ├── components/
 │   │       │   ├── mui/        # MUI 호환 계층 — 웹 코드를 그대로 옮기기 위함
 │   │       │   ├── Map/        # react-native-maps 구현
-│   │       │   ├── bottom-sheet/ # @gorhom/bottom-sheet 위 웹 API
-│   │       │   └── dnd/        # 제스처 기반 정렬 목록
+│   │       │   ├── bottom-sheet/ # 자체 구현 (Reanimated) — 웹과 같은 공개 API
+│   │       │   └── dnd/        # 제스처 기반 정렬 목록 (드래그 핸들)
 │   │       ├── config/tokens.ts # 웹 theme.ts 에서 승계한 값
 │   │       └── hooks/          # useOverlay·useQueryParamState (웹과 동일 시그니처)
 │   ├── metro.config.js         # 워크스페이스 해석 설정
@@ -595,6 +615,43 @@ src/
 - 여행 진행률(`getTripProgress`)은 시작일 00:00:00 ~ 종료일 23:59:59.999를 기준으로 현재 시각까지의 경과 비율을 계산한다. 당일 여행(시작일 = 종료일)도 하루(24시간) 안에서 시각에 따라 채워지며, 100%로 고정되지 않는다.
 
 ---
+
+### 앱 화면 레이아웃 — 시트와 하단 버튼 (RN)
+
+웹을 옮길 때 반복해서 어긋난 지점이다. 구조를 웹과 같게 두는 것이 기준이다.
+
+**최상위는 프래그먼트, 화면은 그 안의 형제로 쌓는다.**
+
+```jsx
+<>
+  <Box sx={{ flex: 1, position: 'relative' }}>   {/* 지도 등 본문 */}
+  <BottomSheet />                                 {/* 본문 위를 덮는다 */}
+  <BottomArea position="static" />                {/* 흐름에서 자리를 차지한다 */}
+</>
+```
+
+- 최상위를 `Box` 로 감싸고 그 안에 `BottomArea` 를 넣으면, 본문이 `absolute` 일 때
+  흐름에 남는 것이 버튼뿐이라 화면 위쪽에 붙는다.
+- 시트를 `overflow: 'hidden'` 인 부모 안에 두면 그 경계에서 잘린다. RN 은 자식이
+  부모의 `overflow` 를 뚫지 못한다.
+- 시트 높이 비율은 화면이 아니라 **시트가 놓인 컨테이너**를 기준으로 잰다.
+  탭 화면은 탭바만큼 화면보다 작다. `onLayout` 으로 실측한다.
+- 하단 안전영역은 화면 바닥에 닿는 쪽에서만 더한다. 시트와 버튼이 각각 더하면
+  둘 사이가 벌어진다.
+
+**Reanimated**
+
+- shared value 는 `.value` 직접 대입이 아니라 `.set()` / `.get()` 을 쓴다 (lint 에러).
+- 크기·위치를 애니메이션할 때 값을 둘로 쪼개지 않는다. 높이와 오프셋을 나눠 두면
+  손을 뗀 순간 한쪽만 튀어 끊겨 보인다.
+- 키보드는 `useAnimatedKeyboard` 가 중간 프레임을 주지 않는다. `keyboardWillShow` 의
+  최종 높이와 `duration` 을 받아 `withTiming` 으로 직접 보간한다.
+
+**flex 축**
+
+`fullWidth` 처럼 "가로를 채운다" 는 부모의 주축에 달렸다. `direction="row"` 인 부모에서
+`alignSelf: 'stretch'` 는 세로를 늘릴 뿐이다. 주축을 채우려면 `flex: 1` 을 쓰고,
+지정한 높이를 지켜야 하면 `alignSelf` 는 `center` 로 둔다.
 
 ## 기능별 탐색 가이드
 
