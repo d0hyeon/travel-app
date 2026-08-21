@@ -1,5 +1,5 @@
 import { extractGps } from '~shared/utils/exif'
-import { calcDistance } from '@waylog/domains/utils'
+import { findNearestPlace } from '@waylog/domains/trip'
 
 const PLACE_MATCH_DISTANCE_LIMIT = 500
 
@@ -10,10 +10,9 @@ export async function findNearestPlaceFromPhoto(
   const coord = await extractGps(file)
   if (!coord) return undefined
 
-  const nearest = places
-    .map(place => ({ place, distance: calcDistance(coord, place) }))
-    .filter(({ distance }) => distance <= PLACE_MATCH_DISTANCE_LIMIT)
-    .toSorted((a, b) => a.distance - b.distance)[0]
+  const nearest = findNearestPlace(coord, places, {
+    withinMeters: PLACE_MATCH_DISTANCE_LIMIT,
+  })
 
-  return nearest?.place.placeId
+  return nearest?.placeId
 }
