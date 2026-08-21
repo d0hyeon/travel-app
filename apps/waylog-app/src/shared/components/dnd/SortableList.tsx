@@ -1,15 +1,15 @@
-import { createContext, useContext, useEffect, useRef, useState, type MutableRefObject, type ReactNode } from 'react'
-import { LayoutAnimation, View, type LayoutChangeEvent } from 'react-native'
-import { Gesture, GestureDetector, type GestureType } from 'react-native-gesture-handler'
-import Animated, {
-  runOnJS,
-  useAnimatedStyle,
-  useSharedValue,
-} from 'react-native-reanimated'
+import { createContext, useContext, useState, type ReactNode } from 'react'
+import { Pressable } from 'react-native'
+import {
+  NestedReorderableList,
+  reorderItems,
+  useReorderableDrag,
+  type ReorderableListReorderEvent,
+} from 'react-native-reorderable-list'
 import { Box, type BoxProps } from '../mui'
 
 // 웹 dnd/SortableList 와 같은 공개 인터페이스를 유지한다.
-// 내부는 @dnd-kit(DOM) 대신 gesture-handler 기반 구현을 쓴다.
+// 내부는 @dnd-kit(DOM) 대신 react-native-reorderable-list 를 쓴다.
 export type SortEvent<T> = { from: number; to: number; items: T[] }
 
 type Props<T extends { id: string }> = {
@@ -20,22 +20,8 @@ type Props<T extends { id: string }> = {
   children?: ReactNode
 }
 
-interface DragContextValue {
-  /** 항목이 자기 인덱스와 높이를 등록한다. 드롭 위치 계산에 쓰인다. */
-  register: (index: number, height: number) => void
-  /** 드래그를 끝내고 순서를 반영한다. 활성 표시 해제까지 함께 처리한다. */
-  finishDrag: (from: number, offsetY: number) => void
-  activeIndex: number | null
-  setActiveIndex: (index: number | null) => void
-}
-
-const DragContext = createContext<DragContextValue | null>(null)
-const IndexContext = createContext(0)
-// 바텀시트가 이 제스처에 길을 내주기 위해 참조한다.
-export const dragGestureRef: MutableRefObject<GestureType | undefined> = { current: undefined }
-
-// 끌리는 행의 이동량. 핸들이 쓰고 행이 그린다.
-const TranslateContext = createContext<ReturnType<typeof useSharedValue<number>> | null>(null)
+// 핸들이 자기 행을 끌 수 있게 드래그 시작 함수를 내려준다.
+const DragContext = createContext<(() => void) | null>(null)
 
 export function SortableList<T extends { id: string }>({
   items: _items,
@@ -43,90 +29,41 @@ export function SortableList<T extends { id: string }>({
   renderItem,
   disabled,
 }: Props<T>) {
-  const [items, setItems] = useState(_items)
-  const [activeIndex, setActiveIndex] = useState<number | null>(null)
-  const heights = useRef<number[]>([])
-
-  useEffect(() => {
-    setItems(_items)
-  }, [_items])
-
-  const move = (from: number, to: number) => {
-    if (to === from || to < 0 || to >= items.length) return
-
-    const next = [...items]
-    const [moved] = next.splice(from, 1)
-    if (moved == null) return
-    next.splice(to, 0, moved)
-
-    // 손을 뗀 뒤 새 자리로 미끄러지듯 정렬된다.
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
-    setItems(next)
+  const [items, setItems] = useState(_items);
+  const handleReorder = ({ from, to }: ReorderableListReorderEvent) => {
+    const next = reorderItems(items, from, to)
+    setItems(next);
     onSort?.({ from, to, items: next })
   }
 
-  // 끌어온 거리를 항목 높이로 나눠 몇 칸 이동했는지 구한다.
-  const finishDrag = (from: number, offsetY: number) => {
-    setActiveIndex(null)
+  return (
+    <NestedReorderableList
+      data={items}
+      keyExtractor={(item) => item.id}
+      // 바텀시트의 스크롤을 그대로 쓴다. 목록이 따로 스크롤하지 않는다.
+      scrollable={false}
+      onReorder={handleReorder}
+      renderItem={({ item, index }) => (
+        <Row disabled={disabled}>{renderItem?.(item, index)}</Row>
+      )}
+    />
+  )
+}
 
-    const rowHeight = heights.current[from] ?? 0
-    if (rowHeight === 0) return
-
-    move(from, from + Math.round(offsetY / rowHeight))
-  }
-
-  const context: DragContextValue = {
-    register: (index, height) => {
-      heights.current[index] = height
-    },
-    finishDrag,
-    activeIndex,
-    setActiveIndex,
-  }
+// 셀 하나가 드래그 단위다. 여기서 얻은 시작 함수를 핸들에 내려준다.
+function Row({ disabled, children }: { disabled?: boolean; children?: ReactNode }) {
+  const drag = useReorderableDrag()
 
   return (
-    <DragContext.Provider value={disabled === true ? null : context}>
-      {items.map((item, index) => (
-        <IndexContext.Provider key={item.id} value={index}>
-          <SortableRow index={index}>{renderItem?.(item, index)}</SortableRow>
-        </IndexContext.Provider>
-      ))}
+    <DragContext.Provider value={disabled === true ? null : drag}>
+      {children}
     </DragContext.Provider>
   )
 }
 
-// 끌리는 동안 해당 행만 손가락을 따라 움직이고 다른 행 위에 겹쳐 보인다.
-function SortableRow({ index, children }: { index: number; children?: ReactNode }) {
-  const drag = useContext(DragContext)
-  const translateY = useSharedValue(0)
-  const isActive = drag?.activeIndex === index
-
-  useEffect(() => {
-    if (!isActive) translateY.value = 0
-  }, [isActive, translateY])
-
-  const style = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
-    zIndex: isActive ? 1 : 0,
-    opacity: isActive ? 0.9 : 1,
-  }))
-
-  const onLayout = (event: LayoutChangeEvent) => {
-    drag?.register(index, event.nativeEvent.layout.height)
-  }
-
-  return (
-    <TranslateContext.Provider value={translateY}>
-      <Animated.View style={style} onLayout={onLayout}>
-        {children}
-      </Animated.View>
-    </TranslateContext.Provider>
-  )
-}
-
-// 웹에서는 SortableList.Item 이 각 항목을 감쌌다. RN 은 renderItem 이 그 역할을
-// 하므로 자리만 유지한다.
-function Item({ children }: { id: string; children?: ReactNode }) {
+// 웹에서는 SortableList.Item 이 각 항목을 감쌌다.
+// 이 구현은 셀이 그 단위라 자리만 유지한다.
+function Item({ children }: { id?: string; children?: ReactNode }) {
   return <>{children}</>
 }
 
@@ -139,33 +76,12 @@ export const SortableItem = {
 // 웹과 같이 이 자리를 잡아야만 끌리고, children 으로 받은 아이콘을 그대로 쓴다.
 function Handle({ children, sx, id: _id }: Omit<BoxProps, 'id'> & { id: string | number }) {
   const drag = useContext(DragContext)
-  const index = useContext(IndexContext)
-  const translateY = useContext(TranslateContext)
 
-  if (drag == null || translateY == null) return <Box sx={sx}>{children}</Box>
-
-  // 핸들에서 시작한 세로 끌기만 가로챈다.
-  // 시트는 이 제스처가 실패할 때까지 기다린다(BottomSheet 의 waitFor).
-  const pan = Gesture.Pan()
-    .withRef(dragGestureRef)
-    .activeOffsetY([-8, 8])
-    .onStart(() => {
-      runOnJS(drag.setActiveIndex)(index)
-    })
-    .onUpdate((event) => {
-      translateY.value = event.translationY
-    })
-    // 끝나는 경로가 둘이면(onEnd 후 onFinalize) 순서가 바뀌며 사라진 행을
-    // 다시 건드려 "unmounted component" 가 난다. 정리는 한 곳에서만 한다.
-    .onFinalize((event, success) => {
-      runOnJS(drag.finishDrag)(index, success === true ? event.translationY : 0)
-    })
+  if (drag == null) return <Box sx={sx}>{children}</Box>
 
   return (
-    <GestureDetector gesture={pan}>
-      <View>
-        <Box sx={{ justifyContent: 'center', ...(sx ?? {}) }}>{children}</Box>
-      </View>
-    </GestureDetector>
+    <Pressable onLongPress={drag} delayLongPress={150} hitSlop={8}>
+      <Box sx={{ justifyContent: 'center', ...(sx ?? {}) }}>{children}</Box>
+    </Pressable>
   )
 }
