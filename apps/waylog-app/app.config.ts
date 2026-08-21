@@ -12,10 +12,10 @@ const config: ExpoConfig = {
   userInterfaceStyle: "light",
   ios: {
     supportsTablet: true,
-    bundleIdentifier: "com.waylog.app",
+    bundleIdentifier: "me.waylog.app",
     config: { googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY },
   },
-  android: {"package": "com.waylog.app", "config": {"googleMaps": {"apiKey": process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY}}, "adaptiveIcon": {"backgroundColor": "#E6F4FE", "foregroundImage": "./assets/android-icon-foreground.png", "backgroundImage": "./assets/android-icon-background.png", "monochromeImage": "./assets/android-icon-monochrome.png"}, "predictiveBackGestureEnabled": false},
+  android: {"package": "me.waylog.app", "config": {"googleMaps": {"apiKey": process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY}}, "adaptiveIcon": {"backgroundColor": "#E6F4FE", "foregroundImage": "./assets/android-icon-foreground.png", "backgroundImage": "./assets/android-icon-background.png", "monochromeImage": "./assets/android-icon-monochrome.png"}, "predictiveBackGestureEnabled": false},
   web: {"favicon": "./assets/favicon.png"},
   scheme: "waylog",
   plugins: ["expo-router"],
