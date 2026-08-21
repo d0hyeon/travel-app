@@ -136,15 +136,18 @@ packages/
 │       ├── marine-activity/    # 해양 활동
 │       ├── map/                # 좌표·마커 타입, 클러스터링(순수)
 │       ├── photo/              # 사진 조회·삭제·수정
+│       ├── community-route/    # 커뮤니티 경로 (썸네일 좌표 정규화 포함)
 │       ├── open-graph/         # 링크 미리보기 (og-preview Edge Function)
 │       ├── place/              # 장소 조회·검색·추가
 │       ├── route/              # 경로 (도로 경로 어댑터 포함)
 │       ├── tourism-trend/      # 관광 트렌드
 │       ├── trip/               # 여행 (목록·경로·장소 데이터 계층, 최근접 장소 탐색)
 │       ├── trip-chat/          # 여행 채팅 (미읽음 저장소는 플랫폼이 주입)
+│       ├── trip-recommend/     # 추천 장소
 │       ├── trip-checklist/     # 여행 준비물
 │       ├── trip-member/        # 여행 멤버
 │       ├── trip-memo/          # 여행 메모
+│       ├── weather/            # 날씨 예보 (국내 기상청 / 해외 open-meteo)
 │       ├── user-profile/       # 유저 프로필
 │       └── utils/              # 순수 유틸(포맷·좌표·URL·지오)
 └── react/                      # @waylog/react — 플랫폼 비의존 훅
