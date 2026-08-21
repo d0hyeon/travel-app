@@ -1,4 +1,5 @@
 import { initApi } from '@waylog/domains/api'
+import { setLastReadStore } from '@waylog/domains/trip-chat'
 
 export const isDev = import.meta.env.DEV;
 
@@ -11,4 +12,10 @@ initApi({
   url: import.meta.env.VITE_SUPABASE_URL,
   anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY,
   governmentApiServiceKey: GOVERNMENT_API_SERVICE_KEY,
+})
+
+// 채팅 미읽음 계산은 렌더 중에 동기로 읽는다. 웹은 localStorage 가 그대로 맞다.
+setLastReadStore({
+  get: (key) => localStorage.getItem(key),
+  set: (key, value) => localStorage.setItem(key, value),
 })

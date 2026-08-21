@@ -1,7 +1,7 @@
 import ChatIcon from '@mui/icons-material/Send'
 import { Badge, Fab } from '@mui/material'
 import { Suspense } from 'react'
-import { useUnreadChatCount } from './useUnreadChatCount'
+import { useUnreadChatCount } from '@waylog/domains/trip-chat'
 import { useTripChatOverlay } from './useTripChatOverlay'
 
 interface Props {
