@@ -124,7 +124,7 @@ packages/
 │   └── src/
 │       ├── api/                # supabase 클라이언트(initApi 주입), 생성 타입
 │       ├── auth/               # 인증 API·useAuth
-│       ├── expense/            # 지출(순수 로직)
+│       ├── expense/            # 지출(순수 로직·데이터 계층)
 │       ├── location/           # 위치 vocabulary
 │       ├── marine-activity/    # 해양 활동
 │       ├── map/                # 좌표·마커 타입, 클러스터링(순수)
@@ -133,7 +133,9 @@ packages/
 │       ├── route/              # 경로 (도로 경로 어댑터 포함)
 │       ├── tourism-trend/      # 관광 트렌드
 │       ├── trip/               # 여행 (목록·경로·장소 데이터 계층)
+│       ├── trip-checklist/     # 여행 준비물
 │       ├── trip-member/        # 여행 멤버
+│       ├── trip-memo/          # 여행 메모
 │       ├── user-profile/       # 유저 프로필
 │       └── utils/              # 순수 유틸(포맷·좌표·URL·지오)
 └── react/                      # @waylog/react — 플랫폼 비의존 훅
