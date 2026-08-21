@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useWebPushSubscription } from '~features/auth/useWebPushSubscription'
-import type { ChatMessage } from '../tripChat.types'
-import { subscribeAllTripMessages } from '../tripChat.api'
+import type { ChatMessage } from '@waylog/domains/trip-chat'
+import { subscribeAllTripMessages } from '@waylog/domains/trip-chat'
 
 export function useChatWebPushFallback(onFallback: (message: ChatMessage) => void) {
   const { isEnabled, isSubscribed } = useWebPushSubscription()

@@ -19,7 +19,7 @@ export interface StackProps extends ViewProps {
   p?: number
   /** MUI 와 같이 1 = 8px 이다 */
   spacing?: number
-  direction?: 'row' | 'column'
+  direction?: 'row' | 'column' | 'row-reverse' | 'column-reverse'
   alignItems?: 'flex-start' | 'center' | 'flex-end' | 'stretch' | 'baseline'
   justifyContent?:
     | 'flex-start'

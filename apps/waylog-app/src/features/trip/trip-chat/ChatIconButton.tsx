@@ -1,7 +1,7 @@
-import ChatIcon from '@mui/icons-material/Telegram'
-import { Badge, IconButton } from '@mui/material'
-import { Suspense } from 'react'
+import { MaterialIcons } from '@expo/vector-icons'
 import { useUnreadChatCount } from '@waylog/domains/trip-chat'
+import { Suspense } from 'react'
+import { Badge, IconButton } from '../../../shared/components/mui'
 import { useTripChatOverlay } from './useTripChatOverlay'
 
 interface Props {
@@ -25,9 +25,9 @@ function ChatIconButtonBase({ tripId, unreadCount }: Props & { unreadCount: numb
   const { open } = useTripChatOverlay()
 
   return (
-    <IconButton onClick={() => open(tripId)} color="inherit" aria-label="채팅 열기">
+    <IconButton onClick={() => open(tripId)}>
       <Badge badgeContent={unreadCount} color="error" max={99}>
-        <ChatIcon fontSize="small" />
+        <MaterialIcons name="send" size={20} />
       </Badge>
     </IconButton>
   )

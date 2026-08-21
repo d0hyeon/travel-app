@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook } from '@testing-library/react'
 import { useChatWebPushFallback } from '../notification/useChatWebPushFallback'
-import type { ChatMessage } from '../tripChat.types'
+import type { ChatMessage } from '@waylog/domains/trip-chat'
 
 const makeMessage = (id: string, tripId = 'trip-1', content = '새 메시지'): ChatMessage => ({
   id,
@@ -16,12 +16,12 @@ vi.mock('~features/auth/useWebPushSubscription', () => ({
   useWebPushSubscription: vi.fn(),
 }))
 
-vi.mock('../tripChat.api', () => ({
+vi.mock('@waylog/domains/trip-chat', () => ({
   subscribeAllTripMessages: vi.fn(),
 }))
 
 import { useWebPushSubscription } from '~features/auth/useWebPushSubscription'
-import { subscribeAllTripMessages } from '../tripChat.api'
+import { subscribeAllTripMessages } from '@waylog/domains/trip-chat'
 
 const mockUseWebPushSubscription = vi.mocked(useWebPushSubscription)
 const mockSubscribeAllTripMessages = vi.mocked(subscribeAllTripMessages)

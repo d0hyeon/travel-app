@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll, afterEach, vi } from 'vitest
 import { setupServer } from 'msw/node'
 import { handlers } from '../../../../mocks/handlers'
 import { MOCK_MESSAGES } from '../tripChat.mock'
-import { getChatMessages, sendChatMessage } from '../tripChat.api'
+import { getChatMessages, sendChatMessage } from '@waylog/domains/trip-chat'
 import { MOCK_TRIP_ID } from '~features/trip/trip.mock'
 import { MOCK_SESSION } from '~features/auth/auth.mock'
 import { queryClient } from '~app/query-client'

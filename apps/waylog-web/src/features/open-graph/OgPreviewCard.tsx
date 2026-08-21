@@ -1,6 +1,6 @@
 import { Box, Card, CardActionArea, Skeleton, Stack, Typography, type CardProps } from '@mui/material';
 import { Suspense } from 'react';
-import { useOpenGraph } from './useOpenGraph';
+import { useOpenGraph } from '@waylog/domains/open-graph';
 
 interface Props {
   url: string;
