@@ -40,13 +40,20 @@
 | 브랜치 | 범위 | 상태 |
 | --- | --- | --- |
 | `feat/app-photo-exif-place` | 1단계 잔여 (EXIF) | 완료 |
-| `feat/app-trip-chat` | trip-chat | 미착수 |
+| `feat/app-trip-chat` | trip-chat | 완료 (푸시 알림 제외) |
 | `feat/app-trip-rest2` | trip-recommend, trip-community-routes, trip-weather, trip-marine-activity, trip-create, trip-invite, features/weather | 미착수 |
 
-## 알려진 기존 실패
+## 채팅 — 푸시 알림 미착수
 
-`apps/waylog-web` 의 `src/features/trip/__tests__/useTrip.integration.test.ts` 3건이
-실패 상태다. EXIF 작업 이전부터 실패했으며 원인은 별개다.
+채팅 본체(목록·전송·읽음·미읽음 배지·활성 방 추적)는 완료했다.
+**네이티브 푸시 알림은 붙이지 않았다.**
+
+- 웹은 service worker + 웹푸시(`useWebPushSubscription`)를 쓴다. 앱은 이 경로를 쓸 수 없다.
+- 앱에 붙이려면 `expo-notifications` + APNs 설정이 필요하다.
+- Personal Team 프로비저닝으로는 `aps-environment` 가 붙지 않아 실기기 검증이 막힌다.
+  유료 계정이 있어야 한다.
+
+`ChatPushNoticeCard`(알림 권한 안내 카드)도 같은 이유로 옮기지 않았다.
 
 ## 앱 전체에서 영구 제외
 
