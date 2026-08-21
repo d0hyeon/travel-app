@@ -11,6 +11,7 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { PopMenu } from '../../../shared/components/PopMenu'
+import { DateField } from '../../../shared/components/date-picker'
 
 export interface PaymentField {
   memberId: string
@@ -190,12 +191,10 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
           control={control}
           name="date"
           render={({ field }) => (
-            <TextField
-              placeholder="MM/DD/YYYY"
-              fullWidth
-              variant="standard"
-              value={field.value}
-              onChangeText={field.onChange}
+            <DateField
+              placeholder="날짜 선택"
+              value={field.value ? new Date(field.value) : undefined}
+              onChange={(date) => field.onChange(formatDisplayDate(date))}
             />
           )}
         />
