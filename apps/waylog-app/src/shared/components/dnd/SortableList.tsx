@@ -23,7 +23,8 @@ type Props<T extends { id: string }> = {
 interface DragContextValue {
   /** 항목이 자기 인덱스와 높이를 등록한다. 드롭 위치 계산에 쓰인다. */
   register: (index: number, height: number) => void
-  onDrop: (from: number, offsetY: number) => void
+  /** 드래그를 끝내고 순서를 반영한다. 활성 표시 해제까지 함께 처리한다. */
+  finishDrag: (from: number, offsetY: number) => void
   activeIndex: number | null
   setActiveIndex: (index: number | null) => void
 }
@@ -65,7 +66,9 @@ export function SortableList<T extends { id: string }>({
   }
 
   // 끌어온 거리를 항목 높이로 나눠 몇 칸 이동했는지 구한다.
-  const onDrop = (from: number, offsetY: number) => {
+  const finishDrag = (from: number, offsetY: number) => {
+    setActiveIndex(null)
+
     const rowHeight = heights.current[from] ?? 0
     if (rowHeight === 0) return
 
@@ -76,7 +79,7 @@ export function SortableList<T extends { id: string }>({
     register: (index, height) => {
       heights.current[index] = height
     },
-    onDrop,
+    finishDrag,
     activeIndex,
     setActiveIndex,
   }
@@ -152,11 +155,10 @@ function Handle({ children, sx, id: _id }: Omit<BoxProps, 'id'> & { id: string |
     .onUpdate((event) => {
       translateY.value = event.translationY
     })
-    .onEnd((event) => {
-      runOnJS(drag.onDrop)(index, event.translationY)
-    })
-    .onFinalize(() => {
-      runOnJS(drag.setActiveIndex)(null)
+    // 끝나는 경로가 둘이면(onEnd 후 onFinalize) 순서가 바뀌며 사라진 행을
+    // 다시 건드려 "unmounted component" 가 난다. 정리는 한 곳에서만 한다.
+    .onFinalize((event, success) => {
+      runOnJS(drag.finishDrag)(index, success === true ? event.translationY : 0)
     })
 
   return (
