@@ -61,7 +61,7 @@ export const PlaceForm = forwardRef<PlaceFormRef, Props>(function PlaceForm(
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync()
     if (!permission.granted) return
     const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsMultipleSelection: true, quality: 1 })
-    if (!result.canceled) await upload({ uris: result.assets.map((asset) => asset.uri), placeId })
+    if (!result.canceled) await upload({ assets: result.assets, placeId })
   }
 
   useImperativeHandle(ref, () => ({ submit: () => void handleSubmit(onSubmit)() }), [

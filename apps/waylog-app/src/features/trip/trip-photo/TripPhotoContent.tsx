@@ -71,10 +71,12 @@ export function TripPhotoContent({ tripId }: Props) {
       mediaTypes: ['images'],
       allowsMultipleSelection: true,
       quality: 1,
+      // 장소 자동 매칭에 쓴다. 리사이즈를 거치면 EXIF 가 사라지므로 여기서 받아야 한다.
+      exif: true,
     })
     if (result.canceled) return
 
-    await upload({ uris: result.assets.map((asset) => asset.uri) })
+    await upload({ assets: result.assets })
   }
 
   const openPhotoDetails = (photo: Photo) => {

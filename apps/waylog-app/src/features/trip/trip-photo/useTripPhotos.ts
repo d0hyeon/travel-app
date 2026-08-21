@@ -1,17 +1,28 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { deletePhoto, getPhotosByTripId, photoKey, updatePhoto, type Photo, type PhotoUpdate } from '@waylog/domains/photo'
-import { tripKey } from '@waylog/domains/trip'
+import { findNearestPlace, tripKey, useTripPlaces } from '@waylog/domains/trip'
 import { uploadPhoto } from '../../photo/photo.api'
+import { toCoordinate } from '../../photo/exif.utils'
+
+// 웹과 같은 거리 기준을 쓴다 — web/features/photo/photo.utils.ts
+const PLACE_MATCH_DISTANCE_LIMIT = 500
 
 // 웹 useTripPhotos 와 같은 시그니처를 유지한다.
-// 웹은 File 을 받지만 앱은 로컬 uri 를 받는다 — EXIF 기반 장소 추정은 후속 작업이다.
+// 웹은 File 을 받지만 앱은 picker 가 준 asset 을 받는다.
+// EXIF 는 리사이즈 전에 읽어야 하므로 picker 가 준 것을 그대로 넘긴다.
+interface UploadAsset {
+  uri: string
+  exif?: Record<string, unknown> | null
+}
+
 interface UploadParams {
-  uris: string[]
+  assets: UploadAsset[]
   placeId?: string
 }
 
 export function useTripPhotos(tripId: string) {
   const queryClient = useQueryClient()
+  const { data: places } = useTripPlaces(tripId)
 
   const { data, refetch, ...queries } = useSuspenseQuery({
     queryKey: useTripPhotos.key(tripId),
@@ -19,9 +30,14 @@ export function useTripPhotos(tripId: string) {
   })
 
   const { mutateAsync: upload, isPending: isUploading } = useMutation({
-    mutationFn: async ({ uris, placeId }: UploadParams) => {
-      for (const uri of uris) {
-        const uploaded = await uploadPhoto({ tripId, placeId, uri, isPublic: false })
+    mutationFn: async ({ assets, placeId }: UploadParams) => {
+      for (const asset of assets) {
+        const uploaded = await uploadPhoto({
+          tripId,
+          placeId: placeId ?? findPlaceIdFromExif(asset.exif, places),
+          uri: asset.uri,
+          isPublic: false,
+        })
 
         queryClient.setQueryData<Photo[]>(useTripPhotos.key(tripId), (curr) =>
           curr == null ? [uploaded] : [uploaded, ...curr],
@@ -52,3 +68,18 @@ export function useTripPhotos(tripId: string) {
 }
 
 useTripPhotos.key = (tripId: string) => [tripKey, photoKey, tripId]
+
+/** 사진에 찍힌 좌표로 여행 장소를 추정한다. 웹 findNearestPlaceFromPhoto 와 같은 동작. */
+function findPlaceIdFromExif(
+  exif: Record<string, unknown> | null | undefined,
+  places: Array<{ placeId: string; lat: number; lng: number }>,
+): string | undefined {
+  const coordinate = toCoordinate(exif)
+  if (coordinate == null) return undefined
+
+  const nearest = findNearestPlace(coordinate, places, {
+    withinMeters: PLACE_MATCH_DISTANCE_LIMIT,
+  })
+
+  return nearest?.placeId
+}
