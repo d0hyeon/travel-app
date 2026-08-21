@@ -21,10 +21,6 @@ place 중 trip 이 의존하는 것: `place.types`, `place.api`, `usePlace`,
 trip-recommend, trip-community-routes, trip-weather,
 trip-marine-activity, trip-chat, features/weather
 
-### 앱 전체에서 영구 제외
-
-statistics, explorer, post + feed, `PlaceDetailPage` 라우트(`/place/:placeId`)
-
 ---
 
 ## 설계 원칙 — 웹과의 편차 최소화
@@ -35,12 +31,12 @@ statistics, explorer, post + feed, `PlaceDetailPage` 라우트(`/place/:placeId`
 
 웹의 계층 규칙(`docs/codebase.md`, `architecture.md` §1)을 앱에서도 동일하게 쓴다.
 
-| 계층 | 파일 패턴 | 앱에서의 차이 |
-| --- | --- | --- |
-| 외부 어댑터 | `*.api.ts` | **차이 없음** — `@waylog/domains` 로 이미 공유 중 |
-| 도메인 | `*.types.ts`, `*.utils.ts` | **차이 없음** — 공유 |
-| 데이터 | `use*.ts` | **차이 없음** — 공유 |
-| UI | `*.tsx` | **여기만 다시 쓴다** |
+| 계층        | 파일 패턴                  | 앱에서의 차이                                     |
+| ----------- | -------------------------- | ------------------------------------------------- |
+| 외부 어댑터 | `*.api.ts`                 | **차이 없음** — `@waylog/domains` 로 이미 공유 중 |
+| 도메인      | `*.types.ts`, `*.utils.ts` | **차이 없음** — 공유                              |
+| 데이터      | `use*.ts`                  | **차이 없음** — 공유                              |
+| UI          | `*.tsx`                    | **여기만 다시 쓴다**                              |
 
 의존 방향 `UI → Data → Domain → Adapter` 를 앱에서도 유지한다.
 
@@ -96,16 +92,16 @@ gluestack · react-native-maps · Expo Router 3축 통합이 여기서 검증된
 
 ## 기술 스택
 
-| 영역 | 선택 | 비고 |
-| --- | --- | --- |
-| UI | `@gluestack-ui/core` v5 + `@gluestack-ui/utils` | NativeWind 기반 |
-| peer | `react-native-svg`, `react-native-safe-area-context` | gluestack 요구 |
-| 지도 | `react-native-maps` (Google Provider) | 웹과 동일 Place ID 체계 |
-| 네비게이션 | Expo Router | 웹 react-router 7 과 파일 라우팅 동일 |
-| 서버 상태 | `@tanstack/react-query` + `@waylog/domains` | 현행 유지 |
-| 클라이언트 상태 | `zustand` | 웹과 동일 |
-| 사진 | `expo-image-picker`, `expo-image-manipulator` | |
-| 오프라인 | `AsyncStorage` + react-query persist | |
+| 영역            | 선택                                                 | 비고                                  |
+| --------------- | ---------------------------------------------------- | ------------------------------------- |
+| UI              | `@gluestack-ui/core` v5 + `@gluestack-ui/utils`      | NativeWind 기반                       |
+| peer            | `react-native-svg`, `react-native-safe-area-context` | gluestack 요구                        |
+| 지도            | `react-native-maps` (Google Provider)                | 웹과 동일 Place ID 체계               |
+| 네비게이션      | Expo Router                                          | 웹 react-router 7 과 파일 라우팅 동일 |
+| 서버 상태       | `@tanstack/react-query` + `@waylog/domains`          | 현행 유지                             |
+| 클라이언트 상태 | `zustand`                                            | 웹과 동일                             |
+| 사진            | `expo-image-picker`, `expo-image-manipulator`        |                                       |
+| 오프라인        | `AsyncStorage` + react-query persist                 |                                       |
 
 `@gluestack-ui/themed` v1 은 2025-09 이후 방치 상태다. 쓰지 않는다.
 
@@ -291,20 +287,20 @@ apps/waylog-app/src/
 
 지도 타입과 데이터 훅은 양쪽이 공유한다.
 
-| 현재 위치 | 이동 위치 | 이유 |
-| --- | --- | --- |
-| `web/shared/components/Map/types.ts` | `packages/domains/src/map/types.ts` | 좌표·마커 타입은 플랫폼 무관 |
-| `web/.../Map/map.utils.ts` | `packages/domains/src/map/map.utils.ts` | 순수 함수 |
-| `web/.../Map/cluster.core.ts` | `packages/domains/src/map/cluster.core.ts` | 순수 함수 |
-| `web/features/trip/trip-route/useTripRoutes.ts` | `packages/domains/src/trip/useTripRoutes.ts` | 데이터 계층. **`queryClient` 주입 필요** |
-| `web/features/trip/trip-route/findNearestPlace.utils.ts` | `packages/domains/src/trip/findNearestPlace.utils.ts` | 순수 함수 |
-| `web/features/trip/trip-place/useTripPlaces.ts` | `packages/domains/src/trip/useTripPlaces.ts` | 데이터 계층. **`queryClient` 주입 필요** |
-| `web/features/place/place.types.ts` | `packages/domains/src/place/place.types.ts` | 도메인 |
-| `web/features/place/place.api.ts` | `packages/domains/src/place/place.api.ts` | 어댑터 |
-| `web/features/place/usePlace.ts` | `packages/domains/src/place/usePlace.ts` | 데이터 계층 |
-| `web/features/route/road-route/roadRoute.api.ts` | `packages/domains/src/route/roadRoute.api.ts` | 어댑터. `@waylog/domains` 만 import — 그대로 이동 |
-| `web/features/route/road-route/roadRoute.schema.ts` | `packages/domains/src/route/roadRoute.schema.ts` | 도메인 |
-| `web/features/trip/trip-route/useActiveTripDay.ts` 의 기본값 계산 | `packages/domains/src/trip/activeTripDay.utils.ts` | 순수 함수로 분리 |
+| 현재 위치                                                         | 이동 위치                                             | 이유                                              |
+| ----------------------------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------- |
+| `web/shared/components/Map/types.ts`                              | `packages/domains/src/map/types.ts`                   | 좌표·마커 타입은 플랫폼 무관                      |
+| `web/.../Map/map.utils.ts`                                        | `packages/domains/src/map/map.utils.ts`               | 순수 함수                                         |
+| `web/.../Map/cluster.core.ts`                                     | `packages/domains/src/map/cluster.core.ts`            | 순수 함수                                         |
+| `web/features/trip/trip-route/useTripRoutes.ts`                   | `packages/domains/src/trip/useTripRoutes.ts`          | 데이터 계층. **`queryClient` 주입 필요**          |
+| `web/features/trip/trip-route/findNearestPlace.utils.ts`          | `packages/domains/src/trip/findNearestPlace.utils.ts` | 순수 함수                                         |
+| `web/features/trip/trip-place/useTripPlaces.ts`                   | `packages/domains/src/trip/useTripPlaces.ts`          | 데이터 계층. **`queryClient` 주입 필요**          |
+| `web/features/place/place.types.ts`                               | `packages/domains/src/place/place.types.ts`           | 도메인                                            |
+| `web/features/place/place.api.ts`                                 | `packages/domains/src/place/place.api.ts`             | 어댑터                                            |
+| `web/features/place/usePlace.ts`                                  | `packages/domains/src/place/usePlace.ts`              | 데이터 계층                                       |
+| `web/features/route/road-route/roadRoute.api.ts`                  | `packages/domains/src/route/roadRoute.api.ts`         | 어댑터. `@waylog/domains` 만 import — 그대로 이동 |
+| `web/features/route/road-route/roadRoute.schema.ts`               | `packages/domains/src/route/roadRoute.schema.ts`      | 도메인                                            |
+| `web/features/trip/trip-route/useActiveTripDay.ts` 의 기본값 계산 | `packages/domains/src/trip/activeTripDay.utils.ts`    | 순수 함수로 분리                                  |
 
 이동 시 시그니처를 바꾸지 않는다. 웹 호출부는 import 경로만 바뀐다.
 
@@ -342,11 +338,11 @@ export function useRoadRoute(options: {
 **앱에도 URL 쿼리 파라미터가 있다.** Expo Router 는 파일 라우팅 위에
 실제 URL 개념을 갖는다. 전역 상태를 쓸 이유가 없다.
 
-| 웹 (react-router 7) | 앱 (Expo Router) |
-| --- | --- |
-| `useSearchParams()` | `useLocalSearchParams()` |
+| 웹 (react-router 7)   | 앱 (Expo Router)             |
+| --------------------- | ---------------------------- |
+| `useSearchParams()`   | `useLocalSearchParams()`     |
 | `setParams({ days })` | `router.setParams({ days })` |
-| `?days=2026-08-21` | 동일 — 딥링크 URL 에 실린다 |
+| `?days=2026-08-21`    | 동일 — 딥링크 URL 에 실린다  |
 
 따라서 저장 모델이 양쪽 같다. 앱은 `useQueryParamState` 의 RN 판을
 `app/src/shared/hooks/useQueryParamState.ts` 에 만들고,
@@ -392,7 +388,7 @@ const queryClient = useQueryClient();
 // packages/domains/src/map/types.ts
 // 웹 shared/components/Map/types.ts 에서 이동. 내용 변경 없음.
 // MapType 만 확장한다.
-export type MapType = 'kakao' | 'google' | 'native';
+export type MapType = "kakao" | "google" | "native";
 
 export interface MapRef {
   panTo: (lat: number, lng: number, level?: number) => void;
@@ -416,7 +412,7 @@ export interface MarkerProps {
   lat: number;
   lng: number;
   label?: string;
-  variant?: 'pin' | 'circle';
+  variant?: "pin" | "circle";
   color?: MarkerColor;
   opacity?: number;
   outlined?: boolean;
@@ -544,26 +540,26 @@ apps/waylog-app/app/trip/
 단 라우트 파일(`app/trip/[tripId]/_layout.tsx`)은 탭 추가로 공유되므로
 **웨이브 종료 후 한 번에 반영**한다.
 
-| 웨이브 | 태스크 |
-| --- | --- |
-| 1 | trip-photo, trip-basic-info, trip-member |
-| 2 | trip-create, trip-invite, trip-checklist |
-| 3 | trip-memo, trip-expense |
+| 웨이브 | 태스크                                   |
+| ------ | ---------------------------------------- |
+| 1      | trip-photo, trip-basic-info, trip-member |
+| 2      | trip-create, trip-invite, trip-checklist |
+| 3      | trip-memo, trip-expense                  |
 
 trip-expense 가 가장 크다(2,614 LOC). 마지막 웨이브에 단독에 가깝게 둔다.
 
 ## 이동 대상 — packages 로 승격
 
-| 현재 위치 | 이동 위치 | 비고 |
-| --- | --- | --- |
-| `web/features/trip/trip-expense/useExpensesByPlace.ts` | `packages/domains/src/expense/` | 웹 전용 의존 없음. 그대로 이동 |
-| `web/features/trip/trip-checklist/tripChecklist.api.ts` | `packages/domains/src/trip-checklist/` | 어댑터 |
-| `web/features/trip/trip-checklist/tripChecklist.type.ts` | `packages/domains/src/trip-checklist/` | 도메인 |
-| `web/features/trip/trip-checklist/tripChecklist.constants.ts` | `packages/domains/src/trip-checklist/` | 도메인 |
-| `web/features/trip/trip-checklist/useTripChecklist.ts` | `packages/domains/src/trip-checklist/` | 데이터 계층 |
-| `web/features/trip/trip-memo/tripMemo.api.ts` | `packages/domains/src/trip-memo/` | 어댑터 |
-| `web/features/trip/trip-memo/tripMemo.type.ts` | `packages/domains/src/trip-memo/` | 도메인 |
-| `web/features/trip/trip-memo/useTripMemo.ts` | `packages/domains/src/trip-memo/` | 데이터 계층 |
+| 현재 위치                                                     | 이동 위치                              | 비고                           |
+| ------------------------------------------------------------- | -------------------------------------- | ------------------------------ |
+| `web/features/trip/trip-expense/useExpensesByPlace.ts`        | `packages/domains/src/expense/`        | 웹 전용 의존 없음. 그대로 이동 |
+| `web/features/trip/trip-checklist/tripChecklist.api.ts`       | `packages/domains/src/trip-checklist/` | 어댑터                         |
+| `web/features/trip/trip-checklist/tripChecklist.type.ts`      | `packages/domains/src/trip-checklist/` | 도메인                         |
+| `web/features/trip/trip-checklist/tripChecklist.constants.ts` | `packages/domains/src/trip-checklist/` | 도메인                         |
+| `web/features/trip/trip-checklist/useTripChecklist.ts`        | `packages/domains/src/trip-checklist/` | 데이터 계층                    |
+| `web/features/trip/trip-memo/tripMemo.api.ts`                 | `packages/domains/src/trip-memo/`      | 어댑터                         |
+| `web/features/trip/trip-memo/tripMemo.type.ts`                | `packages/domains/src/trip-memo/`      | 도메인                         |
+| `web/features/trip/trip-memo/useTripMemo.ts`                  | `packages/domains/src/trip-memo/`      | 데이터 계층                    |
 
 checklist·memo 에는 `*.utils.ts` 가 없다. 순수 로직이 컴포넌트 안에 있다.
 이관 시 계산 로직을 `*.utils.ts` 로 **새로 분리**한 뒤 테스트한다
@@ -611,11 +607,11 @@ it.todo('항목이 없으면 완료율이 0이다')
 
 ## 리스크
 
-| 리스크 | 시점 | 대응 |
-| --- | --- | --- |
-| **gluestack v5 가 SDK 54 에서 안 돌 가능성** | infra 최초 | 최소 화면으로 먼저 확인. 실패 시 UI 스택 재선정 |
-| `SINGLETONS` 목록에 없는 네이티브 모듈 중복 | infra 초반 | `pnpm why` 로 확인 후 목록 추가 |
-| `queryClient` 전역 import 제거가 웹 회귀 유발 | map 초반 | 훅 시그니처 고정. 웹 e2e 로 확인 |
-| react-native-maps 클러스터링 부재 | map 중반 | `cluster.core.ts` 가 순수 함수라 재사용 가능. 렌더만 새로 |
-| 훅 11개 이동으로 웹 회귀 | map | 시그니처 고정. import 경로만 변경. 웹 e2e 로 확인 |
-| trip-expense 규모 | rest | 웨이브 3에 단독 배치 |
+| 리스크                                        | 시점       | 대응                                                      |
+| --------------------------------------------- | ---------- | --------------------------------------------------------- |
+| **gluestack v5 가 SDK 54 에서 안 돌 가능성**  | infra 최초 | 최소 화면으로 먼저 확인. 실패 시 UI 스택 재선정           |
+| `SINGLETONS` 목록에 없는 네이티브 모듈 중복   | infra 초반 | `pnpm why` 로 확인 후 목록 추가                           |
+| `queryClient` 전역 import 제거가 웹 회귀 유발 | map 초반   | 훅 시그니처 고정. 웹 e2e 로 확인                          |
+| react-native-maps 클러스터링 부재             | map 중반   | `cluster.core.ts` 가 순수 함수라 재사용 가능. 렌더만 새로 |
+| 훅 11개 이동으로 웹 회귀                      | map        | 시그니처 고정. import 경로만 변경. 웹 e2e 로 확인         |
+| trip-expense 규모                             | rest       | 웨이브 3에 단독 배치                                      |
