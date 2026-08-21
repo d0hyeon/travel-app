@@ -6,12 +6,14 @@ import { Calendar, type CalendarRef } from './Calendar'
 import { CalendarHeader } from './CalendarHeader'
 import { TimeWheel } from './TimeWheel'
 import { toggleRangeSelection } from './calendar.utils'
+import { DEFAULT_MINUTE_STEP } from './datePicker.model'
 import type { DatePickerMode, DateRangeSelection, TimeOfDay } from './datePicker.model'
 
 interface DatePickerProps {
   mode: DatePickerMode
   selection: DateRangeSelection
-  minuteStep: number
+  /** time 모드에서만 쓴다. */
+  minuteStep?: number
   onSelectionChange: (selection: DateRangeSelection) => void
 }
 
@@ -19,7 +21,12 @@ interface DatePickerProps {
  * 달력이 보여줄 달과 고르는 중인 날짜를 쥔다.
  * 확정 시점은 위(시트)가 정하므로 여기서는 고르는 것까지만 책임진다.
  */
-export function DatePicker({ mode, selection, minuteStep, onSelectionChange }: DatePickerProps) {
+export function DatePicker({
+  mode,
+  selection,
+  minuteStep = DEFAULT_MINUTE_STEP,
+  onSelectionChange,
+}: DatePickerProps) {
   const [start] = selection
   const [cursor, setCursor] = useState(() => start ?? new Date())
   const calendarRef = useRef<CalendarRef>(null)

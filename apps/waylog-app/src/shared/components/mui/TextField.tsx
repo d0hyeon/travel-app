@@ -1,11 +1,15 @@
-import { TextInput, type TextInputProps } from 'react-native'
+import { View, TextInput, type TextInputProps } from 'react-native'
 import { palette, radius } from '../../config/tokens'
+import { Typography } from './Typography'
 import { sxToStyle, type Sx } from './sx'
 
 export interface TextFieldProps extends Omit<TextInputProps, 'style'> {
   variant?: 'standard' | 'outlined'
   fullWidth?: boolean
   minRows?: number
+  /** MUI 처럼 입력 위에 이름을 얹는다. */
+  label?: string
+  size?: 'small' | 'medium'
   sx?: Sx
 }
 
@@ -15,10 +19,12 @@ export function TextField({
   fullWidth,
   multiline,
   minRows = 1,
+  label,
+  size,
   sx,
   ...rest
 }: TextFieldProps) {
-  return (
+  const input = (
     <TextInput
       multiline={multiline}
       placeholderTextColor={palette.textSecondary}
@@ -40,5 +46,16 @@ export function TextField({
       ]}
       {...rest}
     />
+  )
+
+  if (label == null) return input
+
+  return (
+    <View style={{ width: fullWidth ? '100%' : undefined, gap: 4 }}>
+      <Typography variant="caption" color="text.secondary">
+        {label}
+      </Typography>
+      {input}
+    </View>
   )
 }
