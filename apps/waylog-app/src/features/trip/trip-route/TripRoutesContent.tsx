@@ -23,6 +23,9 @@ import { Dot, RouteLegItem } from './RouteTimeline'
 import { useRouteLegs } from './useRouteLegs'
 import { usePlaceFormOverlay } from './usePlaceFormOverlay'
 import { FloatingControl } from './components/FloatingControl'
+import { useActiveTripDay } from './useActiveTripDay'
+import { TripMarineActivityMapMarkers } from '../trip-marine-activity/TripMarineActivityMapMarkers'
+import { TripWeatherIconButton } from '../trip-weather/TripWeatherIconButton'
 import { TripDetailHeader } from '../components/TripDetailHeader'
 
 // 경로별 색상 팔레트 — 웹과 같은 값이다.
@@ -43,15 +46,8 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
   const { data: trip } = useTrip(tripId)
   const { data: allPlaces, update: updatePlace } = useTripPlaces(tripId)
 
-  const [selectedDate, setSelectedDate] = useQueryParamState<string>('days', {
-    defaultValue: () => {
-      const today = new Date().toISOString().split('T')[0]!
-      if (today >= trip.startDate && today <= trip.endDate) {
-        return formatDisplayDate(today)
-      }
-      return formatDisplayDate(trip.startDate)
-    },
-  })
+  // 웹과 같은 훅을 쓴다. 기본값 계산은 공유 getDefaultTripDay 가 한다.
+  const { value: selectedDate, update: setSelectedDate } = useActiveTripDay(tripId)
 
   const {
     data: { routes, tripDates },
@@ -111,6 +107,9 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
     <>
       <TripDetailHeader />
       <Box sx={{ flex: 1, position: 'relative' }}>
+        <FloatingControl corner="top-left" zIndex={8}>
+          <TripWeatherIconButton tripId={tripId} />
+        </FloatingControl>
         <TripRouteMapFloatingControls />
         {currentCoordinate != null && (
           <FloatingControl corner="bottom-right" zIndex={8}>
@@ -127,6 +126,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
           높이를 시트 비율에 묶으면 상태가 바뀔 때마다 시트가 다시 자리를 잡는다. */}
         <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
           <Map ref={mapRef} defaultCenter={{ lat: trip.lat, lng: trip.lng }}>
+            <TripMarineActivityMapMarkers tripId={trip.id} />
             {[
               ...currentLegs.map((leg, index) => (
                 <Map.Path
