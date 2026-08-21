@@ -8,6 +8,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated'
+import { ScrollViewContainer } from 'react-native-reorderable-list'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Box, Stack, Typography, sxToStyle, type BoxProps, type StackProps, type Sx } from '../mui'
 import { palette } from '../../config/tokens'
@@ -247,10 +248,12 @@ function Header({ children, rightElement, sx, ...props }: StackProps & { rightEl
 }
 
 function Body({ children, sx, ...props }: BoxProps) {
+  // 순서 변경 목록이 이 스크롤에 얹힌다. 라이브러리가 주는 컨테이너를 써야
+  // 중첩된 목록이 자리를 계산할 수 있다.
   return (
-    <ScrollView style={{ flex: 1 }} contentContainerStyle={sxToStyle(sx)}>
+    <ScrollViewContainer style={{ flex: 1 }} contentContainerStyle={sxToStyle(sx)}>
       <Box {...props}>{children}</Box>
-    </ScrollView>
+    </ScrollViewContainer>
   )
 }
 
