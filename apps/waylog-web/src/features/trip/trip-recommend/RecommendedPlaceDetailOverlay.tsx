@@ -12,7 +12,7 @@ import { PlaceInfoWidget } from '~features/place/PlaceInfoWIdget'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { useAddTripPlace } from '@waylog/domains/trip'
-import type { RecommendedPlace } from './trip-recommend.api'
+import type { RecommendedPlace } from '@waylog/domains/trip-recommend'
 
 interface Props {
   place: RecommendedPlace

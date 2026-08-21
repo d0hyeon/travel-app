@@ -4,8 +4,8 @@ import { Suspense, type ReactNode } from 'react'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { PlaceCategoryColorCode } from '@waylog/domains/place'
 import { useRecommendedPlaceDetailOverlay } from './RecommendedPlaceDetailOverlay'
-import { useRecommendedPlaces } from './useRecommendedPlaces'
-import type { RecommendedPlace } from './trip-recommend.api'
+import { useRecommendedPlaces } from '@waylog/domains/trip-recommend'
+import type { RecommendedPlace } from '@waylog/domains/trip-recommend'
 
 interface Props extends StackProps {
   tripId: string

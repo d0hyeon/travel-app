@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader } from '@mui/material'
 import { Suspense } from 'react'
 import { useCommunityRouteDetailOverlay } from './CommunityRouteDetailOverlay'
 import { CommunityRouteList } from './CommunityRoutesSection'
-import { useCommunityRoutes } from './useCommunityRoutes'
+import { useCommunityRoutes } from '@waylog/domains/community-route'
 
 export function CommunityRoutesSectionDesktop({ tripId }: { tripId: string }) {
   return (
