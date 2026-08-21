@@ -1,15 +1,9 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { useTripChatMessages, markAsRead } from '@waylog/domains/trip-chat'
+import { useTripChatMessages, markAsRead, useChatActivation } from '@waylog/domains/trip-chat'
 import { Suspense, useRef, useState, type ReactNode } from 'react'
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  TextInput,
-} from 'react-native'
+import { KeyboardAvoidingView, Platform, ScrollView, TextInput } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Box, IconButton, Skeleton, Stack, Typography } from '../../../shared/components/mui'
+import { IconButton, Skeleton, Stack, Typography } from '../../../shared/components/mui'
 import { palette, radius } from '../../../shared/config/tokens'
 import { TripChatMessage } from './TripChatMessage'
 
@@ -63,6 +57,9 @@ function Resolved({ tripId }: Props) {
   const [content, setContent] = useState('')
   const scrollRef = useRef<ScrollView>(null)
   const insets = useSafeAreaInsets()
+
+  // 웹과 동일하게 열려 있는 방을 기록한다. 푸시가 붙을 때 중복 알림을 막는다.
+  useChatActivation(tripId)
 
   const submit = () => {
     const trimmed = content.trim()

@@ -1,26 +1,20 @@
-import { useEffect } from 'react';
+import { useChatActivation as useSharedChatActivation } from '@waylog/domains/trip-chat';
 import { ChattingNotificationType, type ChattingNotificationMessage } from './chatting-notification.types';
 
-
+export { getActivedChatTripId } from '@waylog/domains/trip-chat';
 
 function postToSW(message: ChattingNotificationMessage) {
   navigator.serviceWorker.controller?.postMessage(message)
 }
 
-let activeTripId: string | null = null;
-
-export function getActivedChatTripId() {
-  return activeTripId;
-}
-
 export function useChatActivation(tripId: string) {
-  useEffect(() => {
-    postToSW({ type: ChattingNotificationType.open, tripId });
-    activeTripId = tripId;
-    
-    return () => {
-      postToSW({ type: ChattingNotificationType.close, tripId })
-      activeTripId = null;
-    }
-  }, [tripId])
+  // 활성 방 추적은 공유하고, service worker 통지만 웹에 남긴다.
+  useSharedChatActivation(tripId, {
+    onChange: ({ tripId, isOpen }) => {
+      postToSW({
+        type: isOpen ? ChattingNotificationType.open : ChattingNotificationType.close,
+        tripId,
+      })
+    },
+  })
 }
