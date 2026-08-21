@@ -4,7 +4,7 @@ import type { PropsWithChildren } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { TripWeatherForecastSheet } from "../TripWeatherForecastSheet";
 
-vi.mock("~features/weather/useDailyWeatherForecast", () => ({
+vi.mock("@waylog/domains/weather", () => ({
   useDailyWeatherForecast: ({ date }: { date: string }) => ({
     data:
       date === "2000-01-01"

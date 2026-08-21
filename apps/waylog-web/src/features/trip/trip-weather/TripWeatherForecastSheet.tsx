@@ -4,8 +4,8 @@ import { Suspense, useMemo, useRef, useState, type ComponentProps } from "react"
 import { Swiper, SwiperSlide, type SwiperRef } from "swiper/react";
 import { DailyWeatherInfoBox } from "~features/weather/DailyWeatherInfoBox";
 import { HourlyForecastList } from "~features/weather/HourlyForecastList";
-import { useDailyWeatherForecast } from "~features/weather/useDailyWeatherForecast";
-import type { DayPart } from "~features/weather/weather.types";
+import { useDailyWeatherForecast } from "@waylog/domains/weather";
+import type { DayPart } from "@waylog/domains/weather";
 import { BottomSheet } from "~shared/components/bottom-sheet/BottomSheet";
 import { ErrorBoundary } from "~shared/components/ErrorBoundary";
 import { useCurrentTime } from "@waylog/react";

@@ -5,7 +5,7 @@ import { alpha, Box, Dialog, DialogContent, IconButton, Skeleton, Stack, Typogra
 import { useEffect, useState } from "react";
 import { DailyWeatherInfoBox } from "~features/weather/DailyWeatherInfoBox";
 import { HourlyForecastList } from "~features/weather/HourlyForecastList";
-import { useDailyWeatherForecast } from "~features/weather/useDailyWeatherForecast";
+import { useDailyWeatherForecast } from "@waylog/domains/weather";
 import { DialogTitle } from "~shared/components/confirm-dialog/DialogTitle";
 import { ErrorBoundary } from "~shared/components/ErrorBoundary";
 import { AsyncBoundary } from "~shared/components/utils/AsyncBoundary";
