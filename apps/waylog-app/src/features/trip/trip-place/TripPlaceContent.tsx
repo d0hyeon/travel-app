@@ -44,6 +44,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
 
   const [focusedId, setFocusedId] = useState<string | null>(null)
 
+
   return (
     <>
       <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
@@ -64,27 +65,27 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
             defaultCenter={{ lat: trip.lat, lng: trip.lng }}
             clustering={isCluastering}
             clusterGridSize={50}
+            autoFocus="marker"
           >
             {({ zoom }) =>
               places.map(place => (
-                  <Map.Marker
-                    key={place.id}
-                    label={zoom > MICRO_ZOOM_LEVEL ? undefined : place.name}
-                    lat={place.lat}
-                    lng={place.lng}
-                    color={place.category
-                      ? PlaceCategoryColorCode[place.category]
-                      : plannedPlaceIds.has(place.id) ? 'selected' : 'default'
-                    }
-                    variant={zoom > MICRO_ZOOM_LEVEL ? 'circle' : 'pin'}
-                    onClick={() => setFocusedId(place.id)}
-                  />
+                <Map.Marker
+                  key={place.id}
+                  label={zoom > MICRO_ZOOM_LEVEL ? undefined : place.name}
+                  lat={place.lat}
+                  lng={place.lng}
+                  color={place.category
+                    ? PlaceCategoryColorCode[place.category]
+                    : plannedPlaceIds.has(place.id) ? 'selected' : 'default'
+                  }
+                  variant={zoom > MICRO_ZOOM_LEVEL ? 'circle' : 'pin'}
+                  onClick={() => setFocusedId(place.id)}
+                />
               ))
             }
 
           </Map>
         </Box>
-
         {/* Bottom Sheet */}
         <BottomSheet
           snapPoints={BOTTOM_SHEET_RATIOS}
@@ -122,8 +123,11 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
             </Stack>
           </BottomSheet.Body>
         </BottomSheet>
+
       </Box>
-      <BottomArea position="static">
+      <BottomArea
+        position="static"
+      >
         <TripPlaceAdditionButton
           tripId={tripId}
           onAddedPlace={(place) => {

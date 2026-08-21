@@ -102,7 +102,8 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
   const [focusedId, setFocusedId] = useState<string | null>(null)
 
   return (
-    <Box sx={{ flex: 1, position: 'relative' }}>
+    <>
+      <Box sx={{ flex: 1, position: 'relative' }}>
       <TripRouteMapFloatingControls />
       {/* 지도는 항상 전체를 채운다. 시트가 그 위를 덮는다 —
           높이를 시트 비율에 묶으면 상태가 바뀔 때마다 시트가 다시 자리를 잡는다. */}
@@ -253,7 +254,8 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
         </BottomSheet.Body>
       </BottomSheet>
 
-      <BottomArea sx={{ position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 20 }}>
+      </Box>
+      <BottomArea position="static">
         <Button
           size="large"
           variant="contained"
@@ -277,6 +279,6 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
           장소 추가
         </Button>
       </BottomArea>
-    </Box>
+    </>
   )
 }
