@@ -53,7 +53,10 @@ export function Button({
           borderWidth: variant === 'outlined' ? 1 : 0,
           borderColor: main,
           opacity: disabled ? 0.4 : 1,
-          alignSelf: fullWidth ? 'stretch' : 'flex-start',
+          // 부모가 row 면 alignSelf 는 세로 정렬이라 너비가 늘지 않는다.
+          // 주축을 채우려면 flex 로 늘린다. 다만 stretch 를 함께 주면
+          // 교차축까지 늘어나 지정한 height 를 넘겨 버린다.
+          ...(fullWidth ? { flex: 1, alignSelf: 'center' } : { alignSelf: 'flex-start' }),
         },
         sxToStyle(sx),
       ]}
