@@ -3,6 +3,12 @@ import { getLocationCoordinates } from '~shared/components/Map/polygon-layer.uti
 import { Locations, type Location } from '@waylog/domains/location'
 import type { Coordinate } from '@waylog/domains/utils'
 import type { PreviewRoute } from '@waylog/domains/community-route'
+import {
+  dedupeNearbyPoints,
+  getCoordinateBounds,
+  normalizeCoordsToCanvas,
+  pointsToPath,
+} from '@waylog/domains/community-route'
 
 const DOT_COLOR = '#1976d2'
 
@@ -11,37 +17,6 @@ interface Props {
   previewRoutes: PreviewRoute[]
   width?: number
   height?: number
-}
-
-interface NormalizedPoint {
-  x: number
-  y: number
-}
-
-function normalizeCoordsToSVG(
-  coords: Coordinate[],
-  minLng: number,
-  maxLng: number,
-  minLat: number,
-  maxLat: number,
-  width: number,
-  height: number,
-  padding: number,
-): NormalizedPoint[] {
-  const lngRange = maxLng - minLng || 1
-  const latRange = maxLat - minLat || 1
-  const w = width - padding * 2
-  const h = height - padding * 2
-
-  return coords.map(({ lat, lng }) => ({
-    x: padding + ((lng - minLng) / lngRange) * w,
-    y: padding + ((maxLat - lat) / latRange) * h,
-  }))
-}
-
-function pointsToPath(points: NormalizedPoint[]): string {
-  if (points.length === 0) return ''
-  return points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(' ') + ' Z'
 }
 
 
@@ -77,23 +52,12 @@ export function CommunityRouteThumbnail({
     )
   }
 
-  const padding = 6
-  const minLng = Math.min(...allCoords.map((c) => c.lng))
-  const maxLng = Math.max(...allCoords.map((c) => c.lng))
-  const minLat = Math.min(...allCoords.map((c) => c.lat))
-  const maxLat = Math.max(...allCoords.map((c) => c.lat))
+  const bounds = getCoordinateBounds(allCoords)
+  const size = { width, height, padding: 6 }
 
-  const toSVG = (coords: Coordinate[]) =>
-    normalizeCoordsToSVG(coords, minLng, maxLng, minLat, maxLat, width, height, padding)
+  const toSVG = (coords: Coordinate[]) => normalizeCoordsToCanvas(coords, bounds, size)
 
-  const allDots = toSVG(routeCoords)
-  const dedupedDots = allDots.filter((pt, idx) => {
-    for (let i = 0; i < idx; i++) {
-      const prev = allDots[i]!
-      if (Math.hypot(pt.x - prev.x, pt.y - prev.y) < 7) return false
-    }
-    return true
-  })
+  const dedupedDots = dedupeNearbyPoints(toSVG(routeCoords))
 
   return (
     <svg
