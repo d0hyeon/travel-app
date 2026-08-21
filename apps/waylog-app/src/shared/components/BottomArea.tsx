@@ -19,7 +19,9 @@ export function BottomArea({
       gap={1}
       sx={{
         padding: 8,
-        paddingBottom: (bottom ?? 8) + insets.bottom,
+        // 웹은 fixed 로 띄울 때만 safe-area 를 더한다.
+        // 흐름에 놓인 static 은 부모가 이미 안전영역을 피해 있어 더하면 과하다.
+        paddingBottom: position === 'static' ? (bottom ?? 8) : (bottom ?? 8) + insets.bottom,
         width: '100%',
         backgroundColor: palette.background,
         zIndex: 10,
