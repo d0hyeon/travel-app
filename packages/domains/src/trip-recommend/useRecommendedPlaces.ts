@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from '@waylog/react'
-import { getRecommendedPlaces, recommendedPlaceKey } from './trip-recommend.api'
+import { getRecommendedPlaces, recommendedPlaceKey } from './tripRecommend.api'
 import { tripKey } from '@waylog/domains/trip'
 import { useTrip } from '@waylog/domains/trip'
 

@@ -10,8 +10,8 @@ import type { Coordinate } from '@waylog/domains/utils'
 import { createTripPlace } from '@waylog/domains/place'
 import { useTripPlaces } from '@waylog/domains/trip'
 import { useTrip } from '@waylog/domains/trip'
-import type { CommunityPlace, CommunityTrip } from './communityRoute.types'
-import { useCommunityRouteDetail } from './useCommunityRouteDetail'
+import type { CommunityPlace, CommunityTrip } from '@waylog/domains/community-route'
+import { useCommunityRouteDetail } from '@waylog/domains/community-route'
 
 interface Props {
   communityTrip: CommunityTrip

@@ -10,6 +10,8 @@ import { TripChecklistAddButton } from '../trip-checklist/TripChecklistAddButton
 import { TripDeadlineChecklist } from '../trip-checklist/TripDeadlineChecklist'
 import { TripMemberSection } from '../trip-member/TripMemberSection'
 import { TripPinnedMemos } from '../trip-memo/TripPinnedMemos'
+import { RecommendedPlaceListSection } from '../trip-recommend/RecommendedPlaceListSection'
+import { CommunityRoutesSection } from '../trip-community-routes/CommunityRoutesSection'
 import { TripMemo } from '../trip-memo/TripMemo'
 import { TripBaseInfoList } from './TripBaseInfoList'
 import { TripDDay } from './TripDDay'
@@ -86,6 +88,21 @@ export function TripBasicInfoContent({ tripId }: Props) {
 
               <ErrorBoundary>
                 <TripPinnedMemos tripId={tripId} throwOnEmpty />
+              </ErrorBoundary>
+
+              <Stack gap={1} sx={{ width: '100%' }}>
+                <RecommendedPlaceListSection
+                  tripId={tripId}
+                  header={
+                    <Typography variant="subtitle2" color="text.secondary">
+                      사람들이 많이 찾는 곳이에요
+                    </Typography>
+                  }
+                />
+              </Stack>
+
+              <ErrorBoundary>
+                <CommunityRoutesSection tripId={tripId} />
               </ErrorBoundary>
 
               <TripMemberSection tripId={tripId} />

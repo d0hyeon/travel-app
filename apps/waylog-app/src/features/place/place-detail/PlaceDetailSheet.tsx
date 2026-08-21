@@ -52,7 +52,8 @@ export function PlaceDetailSheet({ placeId, isOpen, onClose }: Props) {
   )
 }
 
-function PlaceDetailBody({ placeId }: { placeId: string }) {
+// 추천 장소 시트도 같은 내용을 보여준다. 시트 껍데기만 다르다.
+export function PlaceDetailBody({ placeId }: { placeId: string }) {
   const { data: place } = usePlace(placeId)
 
   return (

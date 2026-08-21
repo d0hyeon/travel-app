@@ -2,9 +2,9 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { addDays, format } from "date-fns";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createWrapper } from "~fixtures/wraper";
-import * as domesticForecastApi from "../domestic-weather.api";
-import { useDailyWeatherForecast } from "../useDailyWeatherForecast";
-import * as forecastApi from "../weather.api";
+import * as domesticForecastApi from "../../../../../../packages/domains/src/weather/domestic-weather.api";
+import { useDailyWeatherForecast } from "@waylog/domains/weather";
+import * as forecastApi from "../../../../../../packages/domains/src/weather/weather.api";
 
 const TODAY = new Date(2026, 7, 12);
 

@@ -17,9 +17,14 @@ export function TripListScreen() {
         <Text variant="h6" bold>
           내 여행 {trips.length}건
         </Text>
-        <Button variant="text" size="sm" onPress={() => signOut()}>
-          로그아웃
-        </Button>
+        <Stack direction="row" align="center" gap={8}>
+          <Button variant="text" size="sm" onPress={() => router.push('/trip/new')}>
+            여행 만들기
+          </Button>
+          <Button variant="text" size="sm" onPress={() => signOut()}>
+            로그아웃
+          </Button>
+        </Stack>
       </Stack>
 
       <FlatList

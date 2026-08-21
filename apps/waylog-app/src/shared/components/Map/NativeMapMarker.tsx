@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Marker } from 'react-native-maps'
 import { resolveMarkerColor, type MarkerProps } from '@waylog/domains/map'
 import { Image, View } from 'react-native'
@@ -6,7 +7,12 @@ import { Typography } from '../mui'
 
 // 웹 MarkerProps 를 그대로 받는다.
 // hover·우클릭이 없는 자리는 길게 누르기로 대응한다.
-type NativeMarkerProps = MarkerProps
+//
+// icon 은 앱에만 있다. 웹은 SVG 를 data URI 로 만들어 thumbnailUrl 에 넣지만
+// RN 의 Image 는 SVG data URI 를 못 읽어 그릴 것을 직접 받는다.
+interface NativeMarkerProps extends MarkerProps {
+  icon?: ReactNode
+}
 
 export function NativeMapMarker({
   id,
@@ -19,6 +25,7 @@ export function NativeMapMarker({
   outlined,
   thumbnailUrl,
   tooltip,
+  icon,
   onClick,
   onContextMenu,
 }: NativeMarkerProps) {
@@ -54,13 +61,15 @@ export function NativeMapMarker({
           </View>
         )}
 
-        <MarkerShape
-          variant={variant}
-          color={resolved}
-          opacity={opacity}
-          outlined={outlined}
-          thumbnailUrl={thumbnailUrl}
-        />
+        {icon ?? (
+          <MarkerShape
+            variant={variant}
+            color={resolved}
+            opacity={opacity}
+            outlined={outlined}
+            thumbnailUrl={thumbnailUrl}
+          />
+        )}
       </View>
     </Marker>
   )

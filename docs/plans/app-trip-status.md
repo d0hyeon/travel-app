@@ -41,7 +41,7 @@
 | --- | --- | --- |
 | `feat/app-photo-exif-place` | 1단계 잔여 (EXIF) | 완료 |
 | `feat/app-trip-chat` | trip-chat | 완료 (푸시 알림 제외) |
-| `feat/app-trip-rest2` | trip-recommend, trip-community-routes, trip-weather, trip-marine-activity, trip-create, trip-invite, features/weather | 미착수 |
+| `feat/app-trip-rest2` | trip-recommend, trip-community-routes, trip-weather, trip-marine-activity, trip-create, trip-invite, features/weather | 완료 |
 
 ## 채팅 — 푸시 알림 미착수
 
@@ -54,6 +54,16 @@
   유료 계정이 있어야 한다.
 
 `ChatPushNoticeCard`(알림 권한 안내 카드)도 같은 이유로 옮기지 않았다.
+
+## 네이티브 제약으로 웹과 다른 지점
+
+임의로 대체하지 않고 아래에 기록한다.
+
+| 지점 | 웹 | 앱 | 사유 |
+| --- | --- | --- | --- |
+| 커뮤니티 경로 썸네일 | 지역 폴리곤 배경 + 경로 도트 | 경로 도트만 | 웹은 `/visit-layer/*.geojson` 정적 파일을 상대 URL 로 받는다. 앱에는 그 파일도, 상대 URL 을 받을 방법도 없다 |
+| 채팅 푸시 알림 | service worker 웹푸시 | 없음 | 위 "채팅 — 푸시 알림 미착수" 참조 |
+| 데스크톱 분기 | `.desktop.tsx` / Dialog | 없음 | 앱은 모바일 단일. `.mobile.tsx` 경로만 옮겼다 |
 
 ## 앱 전체에서 영구 제외
 
