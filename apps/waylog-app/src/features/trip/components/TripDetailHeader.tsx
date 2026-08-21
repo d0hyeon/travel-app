@@ -7,6 +7,7 @@ import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet
 import { Button, Stack, TextField, Typography } from '../../../shared/components/mui'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { palette } from '../../../shared/config/tokens'
+import { ChatIconButton } from '../trip-chat/ChatIconButton'
 
 export function TripDetailHeader() {
   const { tripId } = useLocalSearchParams<{ tripId: string }>()
@@ -31,9 +32,7 @@ export function TripDetailHeader() {
           <MaterialIcons name="edit" size={15} color={palette.grey} />
         </Stack>
       </Pressable>
-      <Pressable accessibilityLabel="채팅" onPress={() => router.push(`/trip/${tripId}/chat`)} style={{ padding: 4 }}>
-        <MaterialIcons name="send" size={21} color={palette.text} />
-      </Pressable>
+      <ChatIconButton tripId={tripId} />
     </Stack>
   )
 }

@@ -1,9 +1,11 @@
 import { signOut } from '@waylog/domains/auth'
 import { useTrips } from '@waylog/domains/trip'
 import { useRouter } from 'expo-router'
+import { Suspense } from 'react'
 import { FlatList, Pressable, View } from 'react-native'
 import { Button, Stack, Text } from '../../../shared/components'
 import { palette } from '../../../shared/config/tokens'
+import { TripUnreadCountBadge } from '../trip-chat/TripUnreadCountBadge'
 
 export function TripListScreen() {
   const { data: trips } = useTrips()
@@ -36,13 +38,18 @@ export function TripListScreen() {
             onPress={() => router.push(`/trip/${item.id}`)}
             style={{ paddingVertical: 14 }}
           >
-            <Stack gap={4}>
-              <Text variant="body1" bold>
-                {item.name}
-              </Text>
-              <Text variant="caption" color={palette.textSecondary}>
-                {item.destinations.join(', ')} · {item.startDate} ~ {item.endDate}
-              </Text>
+            <Stack direction="row" align="center" justify="space-between" gap={8}>
+              <Stack gap={4} style={{ flex: 1 }}>
+                <Text variant="body1" bold>
+                  {item.name}
+                </Text>
+                <Text variant="caption" color={palette.textSecondary}>
+                  {item.destinations.join(', ')} · {item.startDate} ~ {item.endDate}
+                </Text>
+              </Stack>
+              <Suspense fallback={null}>
+                <TripUnreadCountBadge tripId={item.id} variant="fill" />
+              </Suspense>
             </Stack>
           </Pressable>
         )}
