@@ -113,6 +113,7 @@ apps/
 │   │       │   ├── mui/        # MUI 호환 계층 — 웹 코드를 그대로 옮기기 위함
 │   │       │   ├── Map/        # react-native-maps 구현
 │   │       │   ├── bottom-sheet/ # 자체 구현 (Reanimated) — 웹과 같은 공개 API
+│   │       │   ├── date-picker/ # 날짜·기간·시각 선택 (바텀시트 + 스와이프 달력)
 │   │       │   └── dnd/        # 제스처 기반 정렬 목록 (드래그 핸들)
 │   │       ├── config/tokens.ts # 웹 theme.ts 에서 승계한 값
 │   │       └── hooks/          # useOverlay·useQueryParamState (웹과 동일 시그니처)
@@ -572,6 +573,20 @@ src/
 ### 오버레이 시스템
 
 모달/바텀시트는 `useOverlay` 훅을 통해 명령형으로 열고 닫는다.
+
+### 날짜 선택 (앱)
+
+계층은 `DateField > DatePickerBottomSheet > DatePicker > Calendar` 다.
+`shared/components/date-picker/` 한 디렉토리에 모여 있다.
+
+- `DateField` — 트리거 필드. `mode` 에 따라 `value`/`onChange` 타입이 결정되는 판별 유니온이다.
+  `mode="range"` 면 `[Date, Date]`, `single`·`time` 이면 `Date` 를 주고받는다.
+- `DatePicker` — 보여줄 달(커서)과 고르는 중인 날짜를 쥔다. 확정은 시트가 맡는다.
+- `Calendar` — 앞뒤 달을 양옆에 깔아두고 통째로 미는 스와이프 페이저.
+  헤더의 좌우 버튼도 `CalendarRef.slidePrevious/slideNext` 로 같은 애니메이션을 탄다.
+- 격자 계산과 기간 선택 규칙은 `calendar.utils.ts` 의 순수 함수로 분리해 두었다.
+  웹 `shared/components/date-range/` 의 선택 규칙을 승계했다.
+  소비처가 이 디렉토리뿐이라 공유 패키지로 올리지 않는다.
 
 ### 위치 모델링
 
