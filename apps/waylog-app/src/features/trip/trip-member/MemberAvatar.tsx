@@ -1,8 +1,8 @@
 import type { TripMember } from '@waylog/domains/modules/trip-member'
-import { Image } from 'react-native'
 import { palette } from '../../../shared/config/tokens'
 import { Box, Typography } from '../../../shared/components/mui'
 import type { Sx } from '../../../shared/components/mui'
+import { LoadableImage } from '../../../shared/components/LoadableImage'
 
 interface Props {
   member: TripMember
@@ -25,7 +25,7 @@ export function MemberAvatar({ member, size = 28, sx }: Props) {
       }}
     >
       {member.profileUrl != null ? (
-        <Image source={{ uri: member.profileUrl }} style={{ width: size, height: size }} />
+        <LoadableImage source={{ uri: member.profileUrl }} style={{ width: size, height: size }} resizeMode="cover" />
       ) : (
         <Typography sx={{ fontSize: size * 0.5, color: palette.text }}>
           {member.name?.[0] ?? '?'}

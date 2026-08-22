@@ -3,7 +3,7 @@ import * as ImagePicker from 'expo-image-picker'
 import type { Photo } from '@waylog/domains/modules/photo'
 import { useTripPlaces } from '@waylog/domains/modules/trip'
 import { useEffect, useMemo, useState } from 'react'
-import { ActivityIndicator, FlatList, Image, Pressable, ScrollView, useWindowDimensions } from 'react-native'
+import { ActivityIndicator, FlatList, Pressable, ScrollView, useWindowDimensions } from 'react-native'
 import * as Linking from 'expo-linking'
 import { Box, Button, Chip, Stack, Typography } from '../../../shared/components/mui'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
@@ -13,6 +13,7 @@ import { palette } from '../../../shared/config/tokens'
 import { useTripPhotos } from './useTripPhotos'
 import { TripDetailHeader } from '../components/TripDetailHeader'
 import { ZoomArea } from '../../../shared/components/photo/ZoomArea'
+import { LoadableImage } from '../../../shared/components/LoadableImage'
 
 const COLUMNS = 3
 const GAP = 2
@@ -205,7 +206,7 @@ export function TripPhotoContent({ tripId }: Props) {
             onPress={() => (isReadonly ? openPhotoDetails(item) : toggleSelect(item))}
             onLongPress={() => setIsReadonly(false)}
           >
-            <Image source={{ uri: item.url }} style={{ width: size, height: size, borderRadius: 8 }} />
+            <LoadableImage source={{ uri: item.url }} style={{ width: size, height: size, borderRadius: 8 }} resizeMode="cover" />
 
             {/* 공개 사진 표시 */}
             {item.isPublic && (

@@ -1,8 +1,9 @@
 import { useOpenGraph } from '@waylog/domains/modules/open-graph'
 import { Suspense } from 'react'
-import { Image, Linking, Pressable } from 'react-native'
+import { Linking, Pressable } from 'react-native'
 import { Box, Skeleton, Stack, Typography } from '../../shared/components/mui'
 import { palette, radius } from '../../shared/config/tokens'
+import { LoadableImage } from '../../shared/components/LoadableImage'
 
 interface Props {
   url: string
@@ -24,7 +25,7 @@ function Resolved({ url }: Props) {
       <Box sx={{ borderWidth: 1, borderColor: palette.divider, borderRadius: radius.md }}>
         {data.image ? (
           <Stack direction="row" gap={1.5} sx={{ padding: 12 }}>
-            <Image
+            <LoadableImage
               source={{ uri: data.image }}
               style={{
                 width: 80,

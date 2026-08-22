@@ -3,10 +3,11 @@ import { PlaceCategoryColorCode } from '@waylog/domains/modules/place'
 import { useRecommendedPlaces } from '@waylog/domains/modules/trip-recommend'
 import type { RecommendedPlace } from '@waylog/domains/modules/trip-recommend'
 import { Suspense, type ReactNode } from 'react'
-import { Image, Pressable, ScrollView } from 'react-native'
+import { Pressable, ScrollView } from 'react-native'
 import { Box, Chip, Skeleton, Stack, Typography } from '../../../shared/components/mui'
 import { palette, radius } from '../../../shared/config/tokens'
 import { useRecommendedPlaceDetailOverlay } from './RecommendedPlaceDetailOverlay'
+import { LoadableImage } from '../../../shared/components/LoadableImage'
 
 interface Props {
   tripId: string
@@ -77,7 +78,7 @@ function RecommendedPlaceCard({
             }}
           >
             {place.photos[0] ? (
-              <Image source={{ uri: place.photos[0] }} style={{ width: '100%', height: '100%' }} />
+              <LoadableImage source={{ uri: place.photos[0] }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
             ) : (
               <MaterialIcons name="room" size={28} color={accentColor ?? palette.textSecondary} />
             )}

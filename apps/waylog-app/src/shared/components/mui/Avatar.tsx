@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
-import { Image } from 'react-native'
 import { palette } from '../../config/tokens'
+import { LoadableImage } from '../LoadableImage'
 import { Box } from './Box'
 import { Typography } from './Typography'
 import { sxToStyle, type Sx } from './sx'
@@ -32,7 +32,7 @@ export function Avatar({ src, children, sx }: AvatarProps) {
       }}
     >
       {src != null ? (
-        <Image source={{ uri: src }} style={{ width: size, height: size }} />
+        <LoadableImage source={{ uri: src }} style={{ width: size, height: size }} resizeMode="cover" />
       ) : (
         <Typography
           sx={{

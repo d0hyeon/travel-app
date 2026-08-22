@@ -5,13 +5,14 @@ import {
   type PlaceCategoryType,
 } from '@waylog/domains/modules/place'
 import { forwardRef, useImperativeHandle, useState } from 'react'
-import { Image, Linking, Pressable } from 'react-native'
+import { Linking, Pressable } from 'react-native'
 import * as ImagePicker from 'expo-image-picker'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Controller, useForm } from 'react-hook-form'
 import { Box, Chip, Stack, TextField, Typography } from '../../../../shared/components/mui'
 import { PopMenu } from '../../../../shared/components/PopMenu'
 import { useTripPhotos } from '../../trip-photo/useTripPhotos'
+import { LoadableImage } from '../../../../shared/components/LoadableImage'
 
 export interface PlaceFormValues {
   name: string
@@ -167,7 +168,7 @@ export const PlaceForm = forwardRef<PlaceFormRef, Props>(function PlaceForm(
           </Pressable>
           {placePhotos.map((photo) => (
             <Pressable key={photo.id} onLongPress={() => void remove(photo)}>
-              <Image source={{ uri: photo.url }} style={{ width: 96, height: 96, borderRadius: 12 }} />
+              <LoadableImage source={{ uri: photo.url }} style={{ width: 96, height: 96, borderRadius: 12 }} resizeMode="cover" />
             </Pressable>
           ))}
         </Stack>
