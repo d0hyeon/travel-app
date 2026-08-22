@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { Marker } from 'react-native-maps'
-import { resolveMarkerColor, type MarkerProps } from '@waylog/domains/map'
+import { resolveMarkerColor, type MarkerProps } from '@waylog/domains/modules/map'
 import { Image, View } from 'react-native'
 import Svg, { Circle, Path } from 'react-native-svg'
 import { Typography } from '../mui'

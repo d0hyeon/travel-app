@@ -1,5 +1,5 @@
 import { Chip, IconButton, Stack, type StackProps } from "@mui/material";
-import { useDayTripRoutes } from "@waylog/domains/trip";
+import { useDayTripRoutes } from "@waylog/domains/modules/trip";
 import AddIcon from '@mui/icons-material/Add'
 
 

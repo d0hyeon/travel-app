@@ -1,5 +1,5 @@
-import type { Coordinate } from '@waylog/domains/map'
-import type { RouteLeg } from '@waylog/domains/route'
+import type { Coordinate } from '@waylog/domains/modules/map'
+import type { RouteLeg } from '@waylog/domains/modules/route'
 import { useMemo } from 'react'
 import { useRoadRoute } from '../../route/road-route/useRoadRoute'
 

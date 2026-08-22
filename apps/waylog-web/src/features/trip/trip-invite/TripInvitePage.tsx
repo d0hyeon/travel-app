@@ -3,7 +3,7 @@ import { Suspense, useTransition } from 'react'
 import { PrefetchPageLinks, useNavigate, useParams } from 'react-router'
 import { ErrorBoundary } from '~shared/components/ErrorBoundary'
 import { assert } from '@waylog/utility'
-import { useInvitedTrip } from '@waylog/domains/trip'
+import { useInvitedTrip } from '@waylog/domains/modules/trip'
 
 
 export default function TripInvitePage() {

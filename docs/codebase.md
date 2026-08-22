@@ -133,25 +133,29 @@ packages/
 │   └── src/
 │       ├── api/                # 앱이 주입한 supabase client 연결, 생성 타입
 │       ├── auth/               # 인증 API·useAuth
-│       ├── expense/            # 지출(순수 로직·데이터 계층)
-│       ├── location/           # 위치 vocabulary
-│       ├── marine-activity/    # 해양 활동
-│       ├── map/                # 좌표·마커 타입, 클러스터링(순수)
-│       ├── photo/              # 사진 조회·삭제·수정
-│       ├── community-route/    # 커뮤니티 경로 (썸네일 좌표 정규화 포함)
-│       ├── open-graph/         # 링크 미리보기 (og-preview Edge Function)
-│       ├── place/              # 장소 조회·검색·추가
-│       ├── route/              # 경로 (도로 경로 어댑터 포함)
-│       ├── tourism-trend/      # 관광 트렌드
-│       ├── trip/               # 여행 (목록·경로·장소 데이터 계층, 최근접 장소 탐색)
-│       ├── trip-chat/          # 여행 채팅 (미읽음 저장소는 공용 storage 어댑터 사용)
-│       ├── trip-recommend/     # 추천 장소
-│       ├── trip-checklist/     # 여행 준비물
-│       ├── trip-member/        # 여행 멤버
-│       ├── trip-memo/          # 여행 메모
-│       ├── weather/            # 날씨 예보 (국내 기상청 / 해외 open-meteo)
-│       ├── user-profile/       # 유저 프로필
-│       └── utils/              # domains 전용 query 결과 병합 호환 진입점
+│       ├── auth/               # 인증 추상화
+│       ├── client/             # 앱이 주입하는 외부 클라이언트
+│       └── modules/            # 도메인별 데이터·로직 모듈
+│           ├── expense/        # 지출(순수 로직·데이터 계층)
+│           ├── location/       # 위치 vocabulary
+│           ├── marine-activity/ # 해양 활동
+│           ├── map/             # 좌표·마커 타입, 클러스터링(순수)
+│           ├── photo/           # 사진 조회·삭제·수정
+│           ├── community-route/ # 커뮤니티 경로
+│           ├── open-graph/      # 링크 미리보기
+│           ├── place/           # 장소 조회·검색·추가
+│           ├── route/           # 경로
+│           ├── tourism-trend/   # 관광 트렌드
+│           ├── trip/            # 여행
+│           ├── trip-chat/       # 여행 채팅
+│           ├── trip-recommend/  # 추천 장소
+│           ├── trip-checklist/  # 여행 준비물
+│           ├── trip-member/     # 여행 멤버
+│           ├── trip-memo/       # 여행 메모
+│           ├── storage/         # 플랫폼 저장소 캐시 어댑터
+│           ├── weather/         # 날씨 예보
+│           ├── user-profile/    # 유저 프로필
+│           └── utils/           # domains 전용 query 결과 병합 호환 진입점
 └── react/                      # @waylog/react — 플랫폼 비의존 훅
 supabase/                       # DB 마이그레이션·엣지 함수
 tools/                          # eslint 커스텀 룰
@@ -644,7 +648,7 @@ src/
 ### 공용 좌표 모델
 
 - `Coordinate`는 지도 컴포넌트 타입이 아니라 공용 값 모델
-- 원천 타입: `packages/domains/src/utils/coordinate.ts`
+- 원천 타입: `packages/domains/src/modules/utils/coordinate.ts`
 - `shared/components/Map/types.ts`는 이를 re-export만 함
 
 ### 현재 위치 조회 (`useCurrentCoordinate`)

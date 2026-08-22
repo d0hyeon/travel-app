@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { useCommunityRoutes, type CommunityTrip } from '@waylog/domains/community-route'
+import { useCommunityRoutes, type CommunityTrip } from '@waylog/domains/modules/community-route'
 import { Suspense } from 'react'
 import { Pressable, ScrollView } from 'react-native'
 import { Box, Skeleton, Stack, Typography } from '../../../shared/components/mui'

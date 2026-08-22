@@ -1,5 +1,5 @@
-import { useDailyWeatherForecast, type UseDailyWeatherForecastParams } from '@waylog/domains/weather'
-import type { DayPart } from '@waylog/domains/weather'
+import { useDailyWeatherForecast, type UseDailyWeatherForecastParams } from '@waylog/domains/modules/weather'
+import type { DayPart } from '@waylog/domains/modules/weather'
 import { Suspense } from 'react'
 import { Box, Skeleton, Stack, Typography } from '../../shared/components/mui'
 import { palette, radius } from '../../shared/config/tokens'

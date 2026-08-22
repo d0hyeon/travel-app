@@ -1,6 +1,6 @@
 import { Suspense, type ComponentProps } from "react";
 import { EditableText } from "~shared/components/EditableText";
-import { useTrip } from "@waylog/domains/trip";
+import { useTrip } from "@waylog/domains/modules/trip";
 
 interface Props extends ComponentProps<typeof EditableText> {
   tripId: string;

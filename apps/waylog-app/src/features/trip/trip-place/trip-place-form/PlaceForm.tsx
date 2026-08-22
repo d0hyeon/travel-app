@@ -3,7 +3,7 @@ import {
   PlaceCategoryTypeLabel,
   PlaceCategoryTypes,
   type PlaceCategoryType,
-} from '@waylog/domains/place'
+} from '@waylog/domains/modules/place'
 import { forwardRef, useImperativeHandle, useState } from 'react'
 import { Image, Linking, Pressable } from 'react-native'
 import * as ImagePicker from 'expo-image-picker'

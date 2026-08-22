@@ -1,7 +1,7 @@
 import { Autocomplete, TextField, type AutocompleteProps } from "@mui/material";
 import type { PickPartial } from "@waylog/utility";
-import type { TripMember } from "@waylog/domains/trip-member";
-import { useTripMembers } from '@waylog/domains/trip-member';
+import type { TripMember } from "@waylog/domains/modules/trip-member";
+import { useTripMembers } from '@waylog/domains/modules/trip-member';
 
 type TripMemberAutocompleteProps<
   Multiple extends boolean,

@@ -1,12 +1,12 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { Box } from '../../../../shared/components/mui';
 import type { ReactNode } from 'react';
-import type { TripPlace } from '@waylog/domains/place';
+import type { TripPlace } from '@waylog/domains/modules/place';
 import { ListItem } from '../../../../shared/components/ListItem';
 import { PopMenu } from '../../../../shared/components/PopMenu';
 import { useConfirmDialog } from '../../../../shared/components/confirm-dialog/useConfirmDialog';
-import { useTripPlaces } from '@waylog/domains/trip';
-import { useDayTripRoutes } from '@waylog/domains/trip';
+import { useTripPlaces } from '@waylog/domains/modules/trip';
+import { useDayTripRoutes } from '@waylog/domains/modules/trip';
 import { usePlaceFormOverlay } from '../usePlaceFormOverlay';
 
 type ListItemButtonProps = Parameters<typeof ListItem.Button>[0];

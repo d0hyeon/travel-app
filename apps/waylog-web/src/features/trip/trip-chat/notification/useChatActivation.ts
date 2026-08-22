@@ -1,7 +1,7 @@
-import { useChatActivation as useSharedChatActivation } from '@waylog/domains/trip-chat';
+import { useChatActivation as useSharedChatActivation } from '@waylog/domains/modules/trip-chat';
 import { ChattingNotificationType, type ChattingNotificationMessage } from './chatting-notification.types';
 
-export { getActivedChatTripId } from '@waylog/domains/trip-chat';
+export { getActivedChatTripId } from '@waylog/domains/modules/trip-chat';
 
 function postToSW(message: ChattingNotificationMessage) {
   navigator.serviceWorker.controller?.postMessage(message)

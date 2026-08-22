@@ -7,7 +7,7 @@ import { Box, Dialog, IconButton, ListSubheader, Menu, MenuItem, Slide, Stack } 
 import { forwardRef, useRef, useState, type ComponentProps } from "react";
 import { Mousewheel } from 'swiper/modules';
 import { Swiper, SwiperSlide, type SwiperRef } from "swiper/react";
-import type { Photo } from "@waylog/domains/photo";
+import type { Photo } from "@waylog/domains/modules/photo";
 import type { PhotoUpdate } from "~features/photo/photo.api";
 import { useConfirmDialog } from "../../components/confirm-dialog/useConfirmDialog";
 

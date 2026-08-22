@@ -1,4 +1,4 @@
-import { useOpenGraph } from '@waylog/domains/open-graph'
+import { useOpenGraph } from '@waylog/domains/modules/open-graph'
 import { Suspense } from 'react'
 import { Image, Linking, Pressable } from 'react-native'
 import { Box, Skeleton, Stack, Typography } from '../../shared/components/mui'

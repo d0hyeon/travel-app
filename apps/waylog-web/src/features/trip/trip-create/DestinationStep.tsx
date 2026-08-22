@@ -1,6 +1,6 @@
 import { BottomActions } from '~shared/components/bottom-sheet/compounds';
 import { LocationForm } from '~features/location/LocationForm';
-import { LocationOptions, type LocationOption } from '@waylog/domains/location'
+import { LocationOptions, type LocationOption } from '@waylog/domains/modules/location'
 
 export type Destination = LocationOption;
 

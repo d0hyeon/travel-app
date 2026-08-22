@@ -3,8 +3,8 @@ import { alpha, Box, ButtonBase, Chip, Stack, Typography, useTheme } from '@mui/
 import { Suspense } from 'react'
 import { Link, PrefetchPageLinks } from 'react-router'
 import { TripUnreadCountBadge } from '../trip-chat/TripUnreadCountBadge'
-import type { Trip } from '@waylog/domains/trip'
-import { formatTripDate, getTripDuration } from '@waylog/domains/trip'
+import type { Trip } from '@waylog/domains/modules/trip'
+import { formatTripDate, getTripDuration } from '@waylog/domains/modules/trip'
 
 interface Props {
   trip: Trip

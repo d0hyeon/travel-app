@@ -3,8 +3,8 @@ import { Box, ButtonBase, LinearProgress, Stack, Typography } from '@mui/materia
 import { Suspense } from 'react'
 import { Link, PrefetchPageLinks } from 'react-router'
 import { TripUnreadCountBadge } from '../trip-chat/TripUnreadCountBadge'
-import type { Trip } from '@waylog/domains/trip'
-import { formatTripDate, getTripDuration, getTripProgress } from '@waylog/domains/trip'
+import type { Trip } from '@waylog/domains/modules/trip'
+import { formatTripDate, getTripDuration, getTripProgress } from '@waylog/domains/modules/trip'
 import { differenceInDays, startOfToday, set } from 'date-fns'
 
 interface Props {

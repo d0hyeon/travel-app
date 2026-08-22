@@ -5,16 +5,16 @@ import { BottomArea } from '~shared/components/BottomArea';
 import { arraySplit } from '@waylog/utility';
 import { BottomSheet } from "../../../shared/components/bottom-sheet/BottomSheet";
 import { Map, type MapRef } from "../../../shared/components/Map";
-import { PlaceCategoryColorCode, type TripPlace } from '@waylog/domains/place';
+import { PlaceCategoryColorCode, type TripPlace } from '@waylog/domains/modules/place';
 import { useTripCluastering } from '../hooks/useTripCluastering';
 import { RecommendedMarkers } from '../trip-recommend/RecommendedMarkers';
 import { useRecommendedPlaceDetailOverlay } from '../trip-recommend/RecommendedPlaceDetailOverlay';
-import { useTripRoutes } from '@waylog/domains/trip';
-import { useTrip } from "@waylog/domains/trip";
+import { useTripRoutes } from '@waylog/domains/modules/trip';
+import { useTrip } from "@waylog/domains/modules/trip";
 import { TripPlaceAdditionButton } from './TripPlaceAdditionButton';
 import { TripPlaceItemButton } from './TripPlaceItemButton';
 import { TripPlaceMapFloatingControls } from './TripPlaceMapFloatingControls';
-import { useTripPlaces } from '@waylog/domains/trip';
+import { useTripPlaces } from '@waylog/domains/modules/trip';
 
 const MICRO_ZOOM_LEVEL = 8;
 

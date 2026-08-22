@@ -4,7 +4,7 @@ import type { PropsWithChildren } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { TripWeatherForecastSheet } from "../TripWeatherForecastSheet";
 
-vi.mock("@waylog/domains/weather", () => ({
+vi.mock("@waylog/domains/modules/weather", () => ({
   useDailyWeatherForecast: ({ date }: { date: string }) => ({
     data:
       date === "2000-01-01"
@@ -39,7 +39,7 @@ vi.mock("~shared/components/bottom-sheet/BottomSheet", () => {
   return { BottomSheet };
 });
 
-vi.mock("@waylog/domains/trip", () => ({
+vi.mock("@waylog/domains/modules/trip", () => ({
   useTrip: () => ({
     data: {
       startDate: "2000-01-01",

@@ -12,7 +12,7 @@ import {
 } from 'recharts'
 import type { TooltipContentProps } from 'recharts'
 import { formatDate } from 'date-fns'
-import { formatCurrency } from '@waylog/domains/expense'
+import { formatCurrency } from '@waylog/domains/modules/expense'
 import type { StatisticsChartViewMode } from './StatisticsViewConfigButton'
 import type { ExpenseTrendPoint } from './statistics-expense/useStatisticsSummary'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'

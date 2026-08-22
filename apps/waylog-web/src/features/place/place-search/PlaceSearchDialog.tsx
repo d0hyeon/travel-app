@@ -15,7 +15,7 @@ import {
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import { Map, type MapProvider } from '../../../shared/components/Map'
-import { usePlaceSearch, type PlaceResult } from '@waylog/domains/place'
+import { usePlaceSearch, type PlaceResult } from '@waylog/domains/modules/place'
 
 export type PlaceSearchResult = PlaceResult
 

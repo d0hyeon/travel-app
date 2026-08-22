@@ -1,8 +1,8 @@
 import { IconButton, useTheme, type IconButtonProps } from "@mui/material";
 import { Suspense } from "react";
-import { useTrip } from "@waylog/domains/trip";
-import { useDailyWeatherForecast } from "@waylog/domains/weather";
-import { PRECIPITATION_SNOW_TYPES } from "@waylog/domains/weather";
+import { useTrip } from "@waylog/domains/modules/trip";
+import { useDailyWeatherForecast } from "@waylog/domains/modules/weather";
+import { PRECIPITATION_SNOW_TYPES } from "@waylog/domains/modules/weather";
 import { WeatherIcon } from "~features/weather/WeatherIcon";
 import { ErrorBoundary } from "~shared/components/ErrorBoundary";
 import { useIsMobile } from "~shared/hooks/env/useIsMobile";

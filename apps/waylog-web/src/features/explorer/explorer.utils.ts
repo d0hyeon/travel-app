@@ -1,5 +1,5 @@
-import type { Location } from '@waylog/domains/location'
-import type { PlaceCategoryType } from '@waylog/domains/place'
+import type { Location } from '@waylog/domains/modules/location'
+import type { PlaceCategoryType } from '@waylog/domains/modules/place'
 
 export function buildExplorerDetailUrl(
   base: string,

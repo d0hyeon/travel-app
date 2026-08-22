@@ -1,8 +1,8 @@
 import { Box, Skeleton, Stack, Typography, useTheme, type BoxProps } from "@mui/material";
-import { useDailyWeatherForecast, type UseDailyWeatherForecastParams } from "@waylog/domains/weather";
+import { useDailyWeatherForecast, type UseDailyWeatherForecastParams } from "@waylog/domains/modules/weather";
 import { WeatherIcon } from "./WeatherIcon";
 import { Suspense } from "react";
-import type { DayPart } from "@waylog/domains/weather";
+import type { DayPart } from "@waylog/domains/modules/weather";
 
 interface Props extends UseDailyWeatherForecastParams, BoxProps {
   dayPart?: DayPart;

@@ -1,9 +1,9 @@
 import { renderHook, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useScheduledTripDestinations } from '../useScheduledTripDestinations'
-import * as tripApi from '@waylog/domains/trip'
+import * as tripApi from '@waylog/domains/modules/trip'
 import { createWrapper } from '~fixtures/wraper'
-import type { Trip } from '@waylog/domains/trip'
+import type { Trip } from '@waylog/domains/modules/trip'
 
 const BASE_TRIP: Trip = {
   id: 'trip-001',

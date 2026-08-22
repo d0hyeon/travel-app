@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { TransportType, type TransportType as Transport } from '@waylog/domains/route'
+import { TransportType, type TransportType as Transport } from '@waylog/domains/modules/route'
 
 interface TransportIconProps {
   transport: Transport

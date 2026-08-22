@@ -1,5 +1,5 @@
 import { defineStore, field } from "schema-idb";
-import type { TransportType } from "@waylog/domains/route";
+import type { TransportType } from "@waylog/domains/modules/route";
 
 export const roadRouteSchema = defineStore('roadRoutes', {
   key: field.string().primaryKey().index(),

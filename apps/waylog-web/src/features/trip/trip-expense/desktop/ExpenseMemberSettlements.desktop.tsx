@@ -1,6 +1,6 @@
 import { Box, Stack, Typography } from "@mui/material";
-import { convertToKRW } from "@waylog/domains/expense";
-import { formatCurrency } from "@waylog/domains/expense";
+import { convertToKRW } from "@waylog/domains/modules/expense";
+import { formatCurrency } from "@waylog/domains/modules/expense";
 import { MemberAvatar } from "~features/trip/trip-member/MemberAvatar";
 import { useExpenseSummary } from "../useExpenseSummary";
 

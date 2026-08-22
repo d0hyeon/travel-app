@@ -1,5 +1,5 @@
 // UpcomingCard 배경·테두리 보간. rgb()/dashed 같은 CSS 문자열을 반환하므로
-// 웹 전용이다. 날짜 계산은 @waylog/domains/trip 으로 옮겼다.
+// 웹 전용이다. 날짜 계산은 @waylog/domains/modules/trip 으로 옮겼다.
 
 function interpolate(from: number, to: number, t: number): number {
   return from + (to - from) * t

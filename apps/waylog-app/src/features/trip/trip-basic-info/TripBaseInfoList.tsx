@@ -1,7 +1,7 @@
 import { Skeleton, Stack, Typography, type StackProps } from "../../../shared/components/mui";
 import { Suspense } from "react";
 import { formatShortDate } from "@waylog/utility";
-import { useTrip } from "@waylog/domains/trip";
+import { useTrip } from "@waylog/domains/modules/trip";
 
 interface Props extends Omit<StackProps, 'direction'> {
   tripId: string;

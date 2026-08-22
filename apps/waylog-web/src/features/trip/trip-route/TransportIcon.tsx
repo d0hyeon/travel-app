@@ -1,7 +1,7 @@
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
 import type { SvgIconProps } from '@mui/material';
-import { TransportType, type TransportType as Transport } from '@waylog/domains/route';
+import { TransportType, type TransportType as Transport } from '@waylog/domains/modules/route';
 
 interface TransportIconProps extends SvgIconProps {
   transport: Transport;

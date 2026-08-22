@@ -3,7 +3,7 @@ import {
   getCoordinateBounds,
   normalizeCoordsToCanvas,
   type PreviewRoute,
-} from '@waylog/domains/community-route'
+} from '@waylog/domains/modules/community-route'
 import Svg, { Circle, Rect } from 'react-native-svg'
 
 const DOT_COLOR = '#1976d2'

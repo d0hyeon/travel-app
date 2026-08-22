@@ -1,4 +1,4 @@
-import { getActivedChatTripId } from '@waylog/domains/trip-chat'
+import { getActivedChatTripId } from '@waylog/domains/modules/trip-chat'
 import { useRouter } from 'expo-router'
 import * as Notifications from 'expo-notifications'
 import { useEffect } from 'react'

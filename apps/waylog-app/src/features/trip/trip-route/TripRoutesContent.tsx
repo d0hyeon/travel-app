@@ -1,6 +1,6 @@
-import { findNearestPlace } from '@waylog/domains/trip'
+import { findNearestPlace } from '@waylog/domains/modules/trip'
 import { formatDisplayDate, formatShortDate } from '@waylog/utility'
-import { useDayTripRoutes, useTrip, useTripPlaces } from '@waylog/domains/trip'
+import { useDayTripRoutes, useTrip, useTripPlaces } from '@waylog/domains/modules/trip'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Fragment, useMemo, useRef, useState } from 'react'
 import { Box, Button, Chip, IconButton, Stack, Tab, Tabs, Typography } from '../../../shared/components/mui'

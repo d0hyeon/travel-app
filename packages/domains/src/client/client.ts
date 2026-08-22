@@ -3,8 +3,8 @@ import { setGovernmentApiServiceKey } from './governmentApi'
 import type { Database } from './_database.types'
 import type { AuthService } from '../auth/auth.types'
 import { configureAuthService } from '../auth/auth.service'
-import { configureStorage } from '../storage'
-import type { PlatformStorage } from '../storage'
+import { configureStorage } from '../modules/storage'
+import type { PlatformStorage } from '../modules/storage'
 
 export type ApiConfig = {
   client: SupabaseClient<Database>

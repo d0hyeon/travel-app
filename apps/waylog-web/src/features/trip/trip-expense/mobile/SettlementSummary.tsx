@@ -1,7 +1,7 @@
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import { Box, Card, CardContent, Divider, Stack, Typography } from "@mui/material"
-import { convertToKRW } from '@waylog/domains/expense'
-import { formatCurrency } from '@waylog/domains/expense'
+import { convertToKRW } from '@waylog/domains/modules/expense'
+import { formatCurrency } from '@waylog/domains/modules/expense'
 import { MemberAvatar } from '../../trip-member/MemberAvatar'
 import { useExpenseSummary } from '../useExpenseSummary'
 

@@ -1,5 +1,5 @@
 import { Box, Chip, Stack, Typography } from '@mui/material'
-import { formatCurrency } from '@waylog/domains/expense'
+import { formatCurrency } from '@waylog/domains/modules/expense'
 import { StatisticsBarChart } from '~shared/components/statistics/StatisticsBarChart'
 import { StatisticsColumnChart } from '~shared/components/statistics/StatisticsColumnChart'
 import { StatisticsDonutChart } from '~shared/components/statistics/StatisticsDonutChart'

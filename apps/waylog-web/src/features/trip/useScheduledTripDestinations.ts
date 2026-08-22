@@ -1,5 +1,5 @@
-import type { Location } from '@waylog/domains/location';
-import { isLocation } from '@waylog/domains/location';
+import type { Location } from '@waylog/domains/modules/location';
+import { isLocation } from '@waylog/domains/modules/location';
 import { useScheduledTrips } from './useScheduledTrips';
 
 export function useScheduledTripDestinations(): Location[] {

@@ -1,5 +1,5 @@
 import { use, useEffect, useEffectEvent, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
-import { type Country, type Location } from '@waylog/domains/location'
+import { type Country, type Location } from '@waylog/domains/modules/location'
 import type { Coordinate } from '@waylog/utility'
 import { useAsyncEffect } from '@waylog/react'
 import { useCleanup } from '@waylog/react'

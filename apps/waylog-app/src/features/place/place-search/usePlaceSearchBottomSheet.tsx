@@ -1,4 +1,4 @@
-import type { PlaceResult } from '@waylog/domains/place'
+import type { PlaceResult } from '@waylog/domains/modules/place'
 import { useCallback } from 'react'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { PlaceSearchBottomSheet, type PlaceSearchBottomSheetProps } from './PlaceSearchBottomSheet'

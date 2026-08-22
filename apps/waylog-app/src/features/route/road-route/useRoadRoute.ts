@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import type { Coordinate } from '@waylog/domains/map'
-import { getRoadDirections, type RoadRoute } from '@waylog/domains/route'
+import type { Coordinate } from '@waylog/domains/modules/map'
+import { getRoadDirections, type RoadRoute } from '@waylog/domains/modules/route'
 import { isOverseasByCoordinate } from '@waylog/utility'
 
 // 웹과 같은 시그니처를 유지한다. 캐시 계층만 다르다 —

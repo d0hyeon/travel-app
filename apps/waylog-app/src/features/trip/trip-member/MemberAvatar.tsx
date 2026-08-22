@@ -1,4 +1,4 @@
-import type { TripMember } from '@waylog/domains/trip-member'
+import type { TripMember } from '@waylog/domains/modules/trip-member'
 import { Image } from 'react-native'
 import { palette } from '../../../shared/config/tokens'
 import { Box, Typography } from '../../../shared/components/mui'

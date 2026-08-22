@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { useTripMembers } from '@waylog/domains/trip-member'
+import { useTripMembers } from '@waylog/domains/modules/trip-member'
 import { Suspense } from 'react'
 import { ListItem } from '../../../shared/components/ListItem'
 import { Skeleton, Stack, Typography } from '../../../shared/components/mui'

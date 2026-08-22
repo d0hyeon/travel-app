@@ -1,6 +1,6 @@
 import { useAuth } from "@waylog/domains/auth";
 import { assert } from "@waylog/utility";
-import { useTrip } from "@waylog/domains/trip";
+import { useTrip } from "@waylog/domains/modules/trip";
 import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
 import { useNavigate } from "react-router";
 import { PopMenu } from "~shared/components/PopMenu";

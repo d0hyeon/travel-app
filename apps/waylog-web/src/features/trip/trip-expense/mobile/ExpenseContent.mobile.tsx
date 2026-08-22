@@ -6,8 +6,8 @@ import { Suspense, useState } from "react"
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { BottomSheet } from "~shared/components/bottom-sheet/BottomSheet"
 import { useOverlay } from "~shared/hooks/useOverlay"
-import { useExpenses } from '@waylog/domains/expense'
-import { useTripMembers } from '@waylog/domains/trip-member'
+import { useExpenses } from '@waylog/domains/modules/expense'
+import { useTripMembers } from '@waylog/domains/modules/trip-member'
 import { useExpenseFormBottomSheet } from "../useExpenseFormOverlay"
 import { ExpenseHeader } from "./ExpenseHeader.mobile"
 import { ExpenseList } from "./ExpenseList.mobile"

@@ -5,7 +5,7 @@ import {
   getCountryByLocation,
   getRegionByLocation,
   type Location,
-} from '@waylog/domains/location'
+} from '@waylog/domains/modules/location'
 import type { Coordinate } from './types'
 import {
   fetchCountryCityBoundaries,

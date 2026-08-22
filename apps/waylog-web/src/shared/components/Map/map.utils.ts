@@ -1,1 +1,1 @@
-export * from '@waylog/domains/map'
+export * from '@waylog/domains/modules/map'

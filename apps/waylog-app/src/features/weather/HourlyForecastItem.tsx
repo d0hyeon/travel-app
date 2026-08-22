@@ -7,7 +7,7 @@ import {
   PrecipitationType,
   SkyCondition,
   type HourlyWeatherForecast,
-} from '@waylog/domains/weather'
+} from '@waylog/domains/modules/weather'
 import { Box, Divider, Stack, Typography } from '../../shared/components/mui'
 import { palette } from '../../shared/config/tokens'
 import { WeatherIcon } from './WeatherIcon'

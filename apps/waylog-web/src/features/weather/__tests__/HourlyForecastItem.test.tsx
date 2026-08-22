@@ -5,7 +5,7 @@ import {
   PrecipitationType,
   SkyCondition,
   type HourlyWeatherForecast,
-} from "@waylog/domains/weather";
+} from "@waylog/domains/modules/weather";
 
 vi.mock("../WeatherIcon", () => ({
   WeatherIcon: () => <span aria-hidden="true" />,

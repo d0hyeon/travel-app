@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { Chip, IconButton, Stack, type StackProps } from "../../../../shared/components/mui";
 import { useConfirmDialog } from "../../../../shared/components/confirm-dialog/useConfirmDialog";
-import { useDayTripRoutes } from "@waylog/domains/trip";
+import { useDayTripRoutes } from "@waylog/domains/modules/trip";
 
 
 interface Props {

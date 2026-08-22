@@ -1,5 +1,5 @@
 import { Avatar, type AvatarProps } from '@mui/material';
-import type { TripMember } from '@waylog/domains/trip-member';
+import type { TripMember } from '@waylog/domains/modules/trip-member';
 
 interface Props extends AvatarProps {
   member: TripMember;

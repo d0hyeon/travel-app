@@ -2,11 +2,11 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Box, Stack } from "../../../shared/components/mui";
 import { Chip } from "../../../shared/components/mui/Chip";
 import { type ComponentProps } from "react";
-import { PlaceCategoryColorCode, type TripPlace } from '@waylog/domains/place';
+import { PlaceCategoryColorCode, type TripPlace } from '@waylog/domains/modules/place';
 import { ListItem } from "../../../shared/components/ListItem";
 import { PopMenu } from "../../../shared/components/PopMenu";
 import { useConfirmDialog } from "../../../shared/components/confirm-dialog/useConfirmDialog";
-import { useTripPlaces } from '@waylog/domains/trip';
+import { useTripPlaces } from '@waylog/domains/modules/trip';
 import { usePlaceFormOverlay } from '../trip-route/usePlaceFormOverlay';
 
 interface ItemProps extends ComponentProps<typeof ListItem.Button> {

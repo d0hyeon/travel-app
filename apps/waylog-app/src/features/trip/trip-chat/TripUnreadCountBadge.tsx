@@ -1,4 +1,4 @@
-import { useUnreadChatCount } from '@waylog/domains/trip-chat'
+import { useUnreadChatCount } from '@waylog/domains/modules/trip-chat'
 import { Box, Typography } from '../../../shared/components/mui'
 import { palette } from '../../../shared/config/tokens'
 import type { Sx } from '../../../shared/components/mui'

@@ -1,5 +1,5 @@
 import { extractGps } from '~shared/utils/exif'
-import { findNearestPlace } from '@waylog/domains/trip'
+import { findNearestPlace } from '@waylog/domains/modules/trip'
 
 const PLACE_MATCH_DISTANCE_LIMIT = 500
 

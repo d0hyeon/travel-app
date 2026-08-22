@@ -3,7 +3,7 @@ import { Suspense, useRef, useState } from 'react'
 import { ActivityIndicator, ScrollView } from 'react-native'
 import { Button, IconButton, Stack, Typography } from '../../../../../src/shared/components/mui'
 import { TripMemoForm, type TripMemoFormRef } from '../../../../../src/features/trip/trip-memo/TripMemoForm'
-import { useTripMemo } from '@waylog/domains/trip-memo'
+import { useTripMemo } from '@waylog/domains/modules/trip-memo'
 import { MaterialIcons } from '@expo/vector-icons'
 
 export default function TripMemoEditRoute() {

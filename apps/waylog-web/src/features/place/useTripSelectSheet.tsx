@@ -1,8 +1,8 @@
 import { Badge, Chip, Stack, Typography } from "@mui/material";
 import { formatDate } from "date-fns";
 import { useCallback } from "react";
-import { getTripDuration } from "@waylog/domains/trip";
-import type { Trip } from "@waylog/domains/trip";
+import { getTripDuration } from "@waylog/domains/modules/trip";
+import type { Trip } from "@waylog/domains/modules/trip";
 import { BottomSheet } from "~shared/components/bottom-sheet/BottomSheet";
 import { useOverlay } from "~shared/hooks/useOverlay";
 

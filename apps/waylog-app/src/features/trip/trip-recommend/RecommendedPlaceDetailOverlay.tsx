@@ -1,5 +1,5 @@
-import { useAddTripPlace } from '@waylog/domains/trip'
-import type { RecommendedPlace } from '@waylog/domains/trip-recommend'
+import { useAddTripPlace } from '@waylog/domains/modules/trip'
+import type { RecommendedPlace } from '@waylog/domains/modules/trip-recommend'
 import { Suspense, useCallback } from 'react'
 import { ActivityIndicator } from 'react-native'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'

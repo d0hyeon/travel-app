@@ -1,4 +1,4 @@
-import { useTripPlaces } from '@waylog/domains/trip'
+import { useTripPlaces } from '@waylog/domains/modules/trip'
 import { useState } from 'react'
 import { MaterialIcons } from '@expo/vector-icons'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'

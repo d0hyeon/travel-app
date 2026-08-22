@@ -3,8 +3,8 @@ import { Box, Skeleton, Stack, Typography, type StackProps } from '@mui/material
 import { Suspense } from 'react'
 import { useCommunityRouteDetailOverlay } from './CommunityRouteDetailOverlay'
 import { CommunityRouteThumbnail } from './CommunityRouteThumbnail'
-import { useCommunityRoutes } from '@waylog/domains/community-route'
-import type { CommunityTrip } from '@waylog/domains/community-route'
+import { useCommunityRoutes } from '@waylog/domains/modules/community-route'
+import type { CommunityTrip } from '@waylog/domains/modules/community-route'
 export { CommunityRoutesSectionDesktop } from './CommunityRoutesSection.desktop'
 
 function getNightsAndDays(startDate: string, endDate: string): string {

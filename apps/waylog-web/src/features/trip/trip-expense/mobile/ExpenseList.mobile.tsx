@@ -5,14 +5,14 @@ import PaymentIcon from '@mui/icons-material/Payment'
 import PlaceIcon from '@mui/icons-material/Place'
 import { Stack, Typography } from "@mui/material"
 import { useMemo } from "react"
-import type { Expense } from "@waylog/domains/expense"
-import { formatByCurrencyCode } from "@waylog/domains/expense"
-import { useExpenses } from '@waylog/domains/expense'
+import type { Expense } from "@waylog/domains/modules/expense"
+import { formatByCurrencyCode } from "@waylog/domains/modules/expense"
+import { useExpenses } from '@waylog/domains/modules/expense'
 import { ListItem } from "~shared/components/ListItem"
 import { PopMenu } from "~shared/components/PopMenu"
 import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog"
 import { formatShortDate } from "@waylog/utility"
-import { useTripMembers } from '@waylog/domains/trip-member'
+import { useTripMembers } from '@waylog/domains/modules/trip-member'
 import { useExpenseFormBottomSheet } from "../useExpenseFormOverlay"
 
 interface Props {

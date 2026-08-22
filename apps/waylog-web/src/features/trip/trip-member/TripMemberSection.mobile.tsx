@@ -3,7 +3,7 @@ import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium'
 import { IconButton, Skeleton, Stack, Typography } from "@mui/material"
 import { Suspense } from 'react'
 import { ListItem } from '~shared/components/ListItem'
-import { useTripMembers } from '@waylog/domains/trip-member'
+import { useTripMembers } from '@waylog/domains/modules/trip-member'
 import { TripInviteButton } from '../components/TripInviteButton'
 import { MemberAvatar } from './MemberAvatar'
 import { SortCommand } from '~shared/utils/sorts'

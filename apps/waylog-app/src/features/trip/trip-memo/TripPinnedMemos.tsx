@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ListItem } from "../../../shared/components/ListItem";
-import { useTripMemo } from '@waylog/domains/trip-memo';
+import { useTripMemo } from '@waylog/domains/modules/trip-memo';
 
 interface Props extends StackProps {
   tripId: string;

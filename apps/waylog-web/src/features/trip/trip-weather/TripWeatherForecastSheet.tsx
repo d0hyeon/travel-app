@@ -4,14 +4,14 @@ import { Suspense, useMemo, useRef, useState, type ComponentProps } from "react"
 import { Swiper, SwiperSlide, type SwiperRef } from "swiper/react";
 import { DailyWeatherInfoBox } from "~features/weather/DailyWeatherInfoBox";
 import { HourlyForecastList } from "~features/weather/HourlyForecastList";
-import { useDailyWeatherForecast } from "@waylog/domains/weather";
-import type { DayPart } from "@waylog/domains/weather";
+import { useDailyWeatherForecast } from "@waylog/domains/modules/weather";
+import type { DayPart } from "@waylog/domains/modules/weather";
 import { BottomSheet } from "~shared/components/bottom-sheet/BottomSheet";
 import { ErrorBoundary } from "~shared/components/ErrorBoundary";
 import { useCurrentTime } from "@waylog/react";
 import type { Coordinate } from "@waylog/utility";
 import { formatDisplayDate, formatShortDate } from "@waylog/utility";
-import { useTrip } from "@waylog/domains/trip";
+import { useTrip } from "@waylog/domains/modules/trip";
 
 import "swiper/css";
 

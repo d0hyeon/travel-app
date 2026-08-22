@@ -5,8 +5,8 @@ import {
   getUsedCurrencies,
   setExchangeRate,
   type CurrencyCode,
-} from '@waylog/domains/expense'
-import { useTrip } from '@waylog/domains/trip'
+} from '@waylog/domains/modules/expense'
+import { useTrip } from '@waylog/domains/modules/trip'
 import { useState } from 'react'
 import { Pressable } from 'react-native'
 import { Stack, TextField, Typography } from '../../../shared/components/mui'

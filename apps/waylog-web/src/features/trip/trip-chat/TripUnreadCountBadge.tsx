@@ -1,5 +1,5 @@
 import { Stack, Typography, type StackProps } from '@mui/material'
-import { useUnreadChatCount } from '@waylog/domains/trip-chat'
+import { useUnreadChatCount } from '@waylog/domains/modules/trip-chat'
 
 interface Props extends StackProps {
   tripId: string

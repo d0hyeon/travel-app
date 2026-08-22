@@ -1,5 +1,5 @@
 import { Chip } from '@mui/material'
-import { PlaceCategoryTypeLabel } from '@waylog/domains/place'
+import { PlaceCategoryTypeLabel } from '@waylog/domains/modules/place'
 import { useCategoryBottomSheet } from './useCategoryBottomSheet'
 import { useExplorerFilterParams } from './useExplorerFilterParams'
 import { useLocationOverlay } from './useLocationOverlay'

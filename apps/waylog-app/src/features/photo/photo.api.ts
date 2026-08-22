@@ -1,9 +1,9 @@
 import { supabase } from '@waylog/domains/client'
-import type { Photo } from '@waylog/domains/photo'
-import { toPhoto } from '@waylog/domains/photo'
+import type { Photo } from '@waylog/domains/modules/photo'
+import { toPhoto } from '@waylog/domains/modules/photo'
 import * as ImageManipulator from 'expo-image-manipulator'
 
-export * from '@waylog/domains/photo'
+export * from '@waylog/domains/modules/photo'
 
 // 웹은 File + canvas 로 줄이지만 RN 에는 둘 다 없다.
 // 로컬 uri 를 받아 같은 크기로 줄인 뒤 같은 스토리지 흐름을 탄다.

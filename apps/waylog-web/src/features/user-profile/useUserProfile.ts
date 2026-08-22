@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { queryClient } from '~app/query-client'
-import { getUserProfileById, userProfileKey } from '@waylog/domains/user-profile'
+import { getUserProfileById, userProfileKey } from '@waylog/domains/modules/user-profile'
 
 export function useUserProfile(id: string) {
   return useSuspenseQuery({

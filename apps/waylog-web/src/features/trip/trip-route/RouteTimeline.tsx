@@ -1,5 +1,5 @@
 import { Box, Stack, styled, Typography, type StackProps } from '@mui/material';
-import type { RouteLeg } from '@waylog/domains/route';
+import type { RouteLeg } from '@waylog/domains/modules/route';
 import { formatDistance, formatDuration } from '@waylog/utility';
 import { TransportIcon } from './TransportIcon';
 

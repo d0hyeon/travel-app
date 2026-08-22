@@ -6,7 +6,7 @@ import { ListItem } from "~shared/components/ListItem";
 import { Map, type Coordinate, type MapBounds, type MapRef } from "~shared/components/Map";
 import { SplitView, } from "~shared/components/split-view/SplitView";
 import { calcDistance } from "@waylog/utility";
-import { usePlaceSearch, type PlaceResult } from '@waylog/domains/place';
+import { usePlaceSearch, type PlaceResult } from '@waylog/domains/modules/place';
 import { usePreservedValue } from "@waylog/react";
 
 const COLORS = ['#66BB6A', '#EB5757', '#5DADE2', '#7986CB']

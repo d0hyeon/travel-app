@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@waylog/react";
-import { getAllTrips, tripKey } from "@waylog/domains/trip";
-import { getTripStatus } from "@waylog/domains/trip";
+import { getAllTrips, tripKey } from "@waylog/domains/modules/trip";
+import { getTripStatus } from "@waylog/domains/modules/trip";
 import { SortCommand } from "~shared/utils/sorts";
 import { getDate } from "date-fns";
 

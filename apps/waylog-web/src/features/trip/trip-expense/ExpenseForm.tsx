@@ -24,16 +24,16 @@ import { DatePicker } from '@mui/x-date-pickers'
 import { Suspense, type ReactNode } from "react"
 import { Controller, FormProvider, useFieldArray, useForm, useFormContext, useWatch } from "react-hook-form"
 import { useAuth } from '@waylog/domains/auth'
-import { CurrencyCode as CurrencyCodeMap, getCurrenciesByDestinations, getCurrencyName, getUsedCurrencies, type CurrencyCode } from '@waylog/domains/expense'
-import { useExpenses } from '@waylog/domains/expense'
-import { useTripMembers } from '@waylog/domains/trip-member'
-import { useTrip } from '@waylog/domains/trip'
+import { CurrencyCode as CurrencyCodeMap, getCurrenciesByDestinations, getCurrencyName, getUsedCurrencies, type CurrencyCode } from '@waylog/domains/modules/expense'
+import { useExpenses } from '@waylog/domains/modules/expense'
+import { useTripMembers } from '@waylog/domains/modules/trip-member'
+import { useTrip } from '@waylog/domains/modules/trip'
 import { PopMenu } from '~shared/components/PopMenu'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { SortCommand } from '~shared/utils/sorts'
 import { assert } from '@waylog/utility'
 import { formatDisplayDate } from "@waylog/utility"
-import { useTripPlaces } from '@waylog/domains/trip'
+import { useTripPlaces } from '@waylog/domains/modules/trip'
 
 export interface PaymentField {
   memberId: string

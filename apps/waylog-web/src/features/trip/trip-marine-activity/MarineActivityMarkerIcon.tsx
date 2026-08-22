@@ -1,5 +1,5 @@
-import type { MarineActivityMarkerItem } from "@waylog/domains/marine-activity";
-import { MarineActivityType } from "@waylog/domains/marine-activity";
+import type { MarineActivityMarkerItem } from "@waylog/domains/modules/marine-activity";
+import { MarineActivityType } from "@waylog/domains/modules/marine-activity";
 
 export function createMarineActivityMarkerIcon(markerItem: MarineActivityMarkerItem) {
   const supportsBeach = markerItem.indices.some((index) => index.type === MarineActivityType.Beach);

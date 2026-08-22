@@ -1,9 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { useMemo } from 'react'
-import { Country, getCountryByLocation, isLocation, type Location } from '@waylog/domains/location'
-import { useTrips } from '@waylog/domains/trip'
-import { getAllTripPlaces, placeKey } from '@waylog/domains/place'
-import { getAllRoutes, routeKey } from "@waylog/domains/route"
+import { Country, getCountryByLocation, isLocation, type Location } from '@waylog/domains/modules/location'
+import { useTrips } from '@waylog/domains/modules/trip'
+import { getAllTripPlaces, placeKey } from '@waylog/domains/modules/place'
+import { getAllRoutes, routeKey } from "@waylog/domains/modules/route"
 
 export interface VisitedLocation {
   id: string

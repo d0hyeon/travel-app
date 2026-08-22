@@ -1,5 +1,5 @@
-import type { Coordinate } from '@waylog/domains/map'
-import type { RouteLeg } from '@waylog/domains/route'
+import type { Coordinate } from '@waylog/domains/modules/map'
+import type { RouteLeg } from '@waylog/domains/modules/route'
 import { useRoadRoute } from '../../../route/road-route/useRoadRoute'
 
 // AIRMap 은 지도용이 아닌 자식(컴포넌트·조각)을 만나면 그 자식들을 같은

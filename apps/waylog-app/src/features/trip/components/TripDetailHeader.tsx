@@ -1,4 +1,4 @@
-import { useTrip } from '@waylog/domains/trip'
+import { useTrip } from '@waylog/domains/modules/trip'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useState } from 'react'
 import { Pressable } from 'react-native'

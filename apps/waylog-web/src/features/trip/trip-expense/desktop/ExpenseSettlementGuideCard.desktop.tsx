@@ -1,7 +1,7 @@
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { Box, Card, CardContent, Stack, Typography } from "@mui/material"
 import { type ReactNode } from "react"
-import { formatCurrency } from "@waylog/domains/expense"
+import { formatCurrency } from "@waylog/domains/modules/expense"
 import { AnimatedCountText } from "~shared/components/animation/AnimatedCountText"
 import { useExpenseSummary } from "../useExpenseSummary"
 

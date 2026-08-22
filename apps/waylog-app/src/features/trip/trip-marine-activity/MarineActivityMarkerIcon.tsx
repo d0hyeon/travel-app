@@ -1,5 +1,5 @@
-import type { MarineActivityMarkerItem } from '@waylog/domains/marine-activity'
-import { MarineActivityType } from '@waylog/domains/marine-activity'
+import type { MarineActivityMarkerItem } from '@waylog/domains/modules/marine-activity'
+import { MarineActivityType } from '@waylog/domains/modules/marine-activity'
 import Svg, {
   Circle,
   Defs,

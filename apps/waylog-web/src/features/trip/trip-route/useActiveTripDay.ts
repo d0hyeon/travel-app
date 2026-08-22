@@ -1,5 +1,5 @@
 import { useQueryParamState } from "~shared/hooks/urls/useQueryParamState";
-import { getDefaultTripDay, useTrip } from "@waylog/domains/trip";
+import { getDefaultTripDay, useTrip } from "@waylog/domains/modules/trip";
 
 export function useActiveTripDay(tripId: string) {
   const { data: trip } = useTrip(tripId);

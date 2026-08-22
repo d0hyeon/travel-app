@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react'
 import { getLocationCoordinates } from '~shared/components/Map/polygon-layer.utils'
-import { Locations, type Location } from '@waylog/domains/location'
+import { Locations, type Location } from '@waylog/domains/modules/location'
 import type { Coordinate } from '@waylog/utility'
-import type { PreviewRoute } from '@waylog/domains/community-route'
+import type { PreviewRoute } from '@waylog/domains/modules/community-route'
 import {
   dedupeNearbyPoints,
   getCoordinateBounds,
   normalizeCoordsToCanvas,
   pointsToPath,
-} from '@waylog/domains/community-route'
+} from '@waylog/domains/modules/community-route'
 
 const DOT_COLOR = '#1976d2'
 

@@ -1,4 +1,4 @@
-import { useTrips } from '@waylog/domains/trip'
+import { useTrips } from '@waylog/domains/modules/trip'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'

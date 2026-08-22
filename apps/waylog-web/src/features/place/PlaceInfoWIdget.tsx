@@ -4,10 +4,10 @@ import { Suspense } from "react";
 import { toast } from "sonner";
 import { useScheduledTrips } from "~features/trip/useScheduledTrips";
 import { BottomArea } from "~shared/components/BottomArea";
-import { createTripPlace } from '@waylog/domains/place';
+import { createTripPlace } from '@waylog/domains/modules/place';
 import { PlaceMap } from "./PlaceMap";
 import { PlacePhotoList } from "./PlacePhotoList";
-import { usePlace } from '@waylog/domains/place';
+import { usePlace } from '@waylog/domains/modules/place';
 import { useTripSelectSheet } from './useTripSelectSheet';
 
 interface Props extends StackProps {

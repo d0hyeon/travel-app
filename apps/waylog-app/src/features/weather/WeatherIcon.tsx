@@ -1,5 +1,5 @@
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons'
-import { PrecipitationType, SkyCondition } from '@waylog/domains/weather'
+import { PrecipitationType, SkyCondition } from '@waylog/domains/modules/weather'
 import { arrayIncludes, assert } from '@waylog/utility'
 import { palette } from '../../shared/config/tokens'
 

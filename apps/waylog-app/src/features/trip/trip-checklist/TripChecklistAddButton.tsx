@@ -1,4 +1,4 @@
-import { useTripChecklist } from '@waylog/domains/trip-checklist'
+import { useTripChecklist } from '@waylog/domains/modules/trip-checklist'
 import { useRef } from 'react'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { Button } from '../../../shared/components/mui'

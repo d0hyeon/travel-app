@@ -1,4 +1,4 @@
-import { useTripMembers } from '@waylog/domains/trip-member'
+import { useTripMembers } from '@waylog/domains/modules/trip-member'
 import { forwardRef, useImperativeHandle } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Chip, Stack, TextField, Typography } from '../../../shared/components/mui'

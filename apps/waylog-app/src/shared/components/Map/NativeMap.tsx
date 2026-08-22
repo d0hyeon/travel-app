@@ -5,7 +5,7 @@ import {
   type MapRef,
   type MarkerData,
   type ToPixel,
-} from '@waylog/domains/map'
+} from '@waylog/domains/modules/map'
 import {
   Children,
   isValidElement,

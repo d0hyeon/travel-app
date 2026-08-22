@@ -1,8 +1,8 @@
 import { Box, Button, Stack, Typography } from '@mui/material'
 import { useState } from 'react'
 import { BottomArea } from '~shared/components/BottomArea'
-import { useTrips } from '@waylog/domains/trip'
-import type { Trip } from '@waylog/domains/trip'
+import { useTrips } from '@waylog/domains/modules/trip'
+import type { Trip } from '@waylog/domains/modules/trip'
 
 interface Props {
   defaultValue: string | null

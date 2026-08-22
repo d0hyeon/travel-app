@@ -6,7 +6,7 @@ import { PhotoBottomSheet } from '~shared/components/photo/PhotoBottomSheet';
 import { PhotoDialog } from '~shared/components/photo/PhotoDialog';
 import { PhotoThunbnail } from '../../../shared/components/photo/PhotoThumbnail';
 import { PhotoUploader } from '../../../shared/components/photo/PhotoUploader';
-import type { Photo } from '@waylog/domains/photo';
+import type { Photo } from '@waylog/domains/modules/photo';
 import { usePlacePhotos } from './useTripPlacePhotos';
 
 

@@ -2,10 +2,10 @@ import { Button, Dialog, DialogActions, DialogContent, Stack, Typography, type B
 import SettingsIcon from '@mui/icons-material/Settings'
 import { useOverlay } from "~shared/hooks/useOverlay";
 import { DialogTitle } from "~shared/components/confirm-dialog/DialogTitle";
-import { useTrip } from "@waylog/domains/trip";
-import { useExpenses } from '@waylog/domains/expense';
+import { useTrip } from "@waylog/domains/modules/trip";
+import { useExpenses } from '@waylog/domains/modules/expense';
 import { useMemo } from "react";
-import { getCurrencyName, getDefaultExchangeRate, getExchangeRate, getUsedCurrencies, setExchangeRate } from "@waylog/domains/expense";
+import { getCurrencyName, getDefaultExchangeRate, getExchangeRate, getUsedCurrencies, setExchangeRate } from "@waylog/domains/modules/expense";
 import { ListItem } from "~shared/components/ListItem";
 import { EditableText } from "~shared/components/EditableText";
 

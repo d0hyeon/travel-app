@@ -1,5 +1,5 @@
 import { useAuth } from '@waylog/domains/auth'
-import { useTrip } from '@waylog/domains/trip'
+import { useTrip } from '@waylog/domains/modules/trip'
 import { useRouter } from 'expo-router'
 import { Button } from '../../../shared/components/mui'
 import type { ButtonProps } from '../../../shared/components/mui/Button'

@@ -1,8 +1,8 @@
 import { useMemo } from "react"
-import { calculateBalancesInKRW, calculateSettlements, getTotalExpensesInKRW } from "@waylog/domains/expense"
-import { useExpenses } from '@waylog/domains/expense'
-import { useTripMembers } from '@waylog/domains/trip-member'
-import { useTrip } from "@waylog/domains/trip"
+import { calculateBalancesInKRW, calculateSettlements, getTotalExpensesInKRW } from "@waylog/domains/modules/expense"
+import { useExpenses } from '@waylog/domains/modules/expense'
+import { useTripMembers } from '@waylog/domains/modules/trip-member'
+import { useTrip } from "@waylog/domains/modules/trip"
 
 export function useExpenseSummary(tripId: string) {
   const { data: trip } = useTrip(tripId)

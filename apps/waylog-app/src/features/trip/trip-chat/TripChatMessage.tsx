@@ -1,5 +1,5 @@
 import { useAuth } from '@waylog/domains/auth'
-import type { ChatMessage } from '@waylog/domains/trip-chat'
+import type { ChatMessage } from '@waylog/domains/modules/trip-chat'
 import { Avatar, Box, Stack, Typography } from '../../../shared/components/mui'
 import { extractUrls, renderTextWithLinks } from '../../../shared/utils/urls'
 import { OgPreviewCard } from '../../open-graph/OgPreviewCard'

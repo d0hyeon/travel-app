@@ -1,5 +1,5 @@
 import styled from '@emotion/native'
-import { usePlace } from '@waylog/domains/place'
+import { usePlace } from '@waylog/domains/modules/place'
 import { Suspense } from 'react'
 import { ActivityIndicator, Modal, Pressable, View } from 'react-native'
 import { Stack, Text } from '../../../shared/components'

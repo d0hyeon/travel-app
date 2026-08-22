@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { useTripChatMessages, markAsRead, useChatActivation } from '@waylog/domains/trip-chat'
+import { useTripChatMessages, markAsRead, useChatActivation } from '@waylog/domains/modules/trip-chat'
 import { Suspense, useRef, useState, type ReactNode } from 'react'
 import { KeyboardAvoidingView, Platform, ScrollView, TextInput } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'

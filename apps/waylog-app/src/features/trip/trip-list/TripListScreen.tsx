@@ -1,5 +1,5 @@
 import { signOut } from '@waylog/domains/auth'
-import { useTrips } from '@waylog/domains/trip'
+import { useTrips } from '@waylog/domains/modules/trip'
 import { useRouter } from 'expo-router'
 import { Suspense } from 'react'
 import { FlatList, Pressable, View } from 'react-native'

@@ -1,4 +1,4 @@
-import { LocationOptions, type LocationOption } from '@waylog/domains/location'
+import { LocationOptions, type LocationOption } from '@waylog/domains/modules/location'
 import { BottomArea } from '../../../shared/components/BottomArea'
 import { LocationForm } from '../../location/LocationForm'
 

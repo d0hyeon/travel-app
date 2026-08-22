@@ -1,7 +1,7 @@
 import { Button } from "@mui/material";
 import { PlaceSearchDialog, type PlaceSearchResult } from "~features/place/place-search/PlaceSearchDialog";
-import { useTripPlaces } from '@waylog/domains/trip';
-import { useTrip } from "@waylog/domains/trip";
+import { useTripPlaces } from '@waylog/domains/modules/trip';
+import { useTrip } from "@waylog/domains/modules/trip";
 import { useOverlay } from "~shared/hooks/useOverlay";
 import AddIcon from '@mui/icons-material/Add';
 

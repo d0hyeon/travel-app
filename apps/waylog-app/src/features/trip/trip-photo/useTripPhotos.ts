@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
-import { deletePhoto, getPhotosByTripId, photoKey, updatePhoto, type Photo, type PhotoUpdate } from '@waylog/domains/photo'
-import { findNearestPlace, tripKey, useTripPlaces } from '@waylog/domains/trip'
+import { deletePhoto, getPhotosByTripId, photoKey, updatePhoto, type Photo, type PhotoUpdate } from '@waylog/domains/modules/photo'
+import { findNearestPlace, tripKey, useTripPlaces } from '@waylog/domains/modules/trip'
 import { uploadPhoto } from '../../photo/photo.api'
 import { toCoordinate } from '../../photo/exif.utils'
 

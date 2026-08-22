@@ -2,7 +2,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { Box, Stack, Typography } from '@mui/material'
 import { Link } from 'react-router'
 import { AppRoute } from '~app/routes'
-import { useTrip } from '@waylog/domains/trip'
+import { useTrip } from '@waylog/domains/modules/trip'
 
 interface Props {
   tripId: string

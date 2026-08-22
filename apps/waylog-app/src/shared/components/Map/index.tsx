@@ -9,4 +9,4 @@ export const Map = Object.assign(NativeMap, {
   Path: NativeMapPath,
 })
 
-export type { MapBounds, MapProps, MapRef, MarkerProps, PathProps } from '@waylog/domains/map'
+export type { MapBounds, MapProps, MapRef, MarkerProps, PathProps } from '@waylog/domains/modules/map'

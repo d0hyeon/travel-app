@@ -1,5 +1,5 @@
-import { useRecommendedPlaces } from '@waylog/domains/trip-recommend'
-import type { RecommendedPlace } from '@waylog/domains/trip-recommend'
+import { useRecommendedPlaces } from '@waylog/domains/modules/trip-recommend'
+import type { RecommendedPlace } from '@waylog/domains/modules/trip-recommend'
 import { Suspense } from 'react'
 import { Map, type MarkerProps } from '../../../shared/components/Map'
 

@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { supabase } from '@waylog/domains/client'
-import { toTrip, tripKey } from '@waylog/domains/trip'
-import type { Trip } from '@waylog/domains/trip'
+import { toTrip, tripKey } from '@waylog/domains/modules/trip'
+import type { Trip } from '@waylog/domains/modules/trip'
 
 async function fetchUserTrips(userId: string): Promise<Trip[]> {
   const { data, error } = await supabase

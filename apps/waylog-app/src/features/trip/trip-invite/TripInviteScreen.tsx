@@ -1,4 +1,4 @@
-import { useInvitedTrip } from '@waylog/domains/trip'
+import { useInvitedTrip } from '@waylog/domains/modules/trip'
 import { assert } from '@waylog/utility'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { Suspense, useTransition } from 'react'

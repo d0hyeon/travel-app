@@ -8,12 +8,12 @@ import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
 import { useOverlay } from '~shared/hooks/useOverlay'
 import { TripFormDialog } from '../components/TripFormDialog'
-import { useTrips } from '@waylog/domains/trip'
+import { useTrips } from '@waylog/domains/modules/trip'
 import { CreateTripCardButton } from './CreateTripCardButton'
 import { OngoingHero } from './OngoingHero'
 import { PastTripRow } from './PastTripRow'
 import { UpcomingCard } from './UpcomingCard'
-import { getTripYear, groupTripsByStatus } from '@waylog/domains/trip'
+import { getTripYear, groupTripsByStatus } from '@waylog/domains/modules/trip'
 
 export const meta = () => [
   { title: '내 여행 — WayLog' },

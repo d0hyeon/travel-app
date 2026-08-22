@@ -1,5 +1,5 @@
 import { Button, Dialog, DialogActions, DialogContent, IconButton, Typography, type IconButtonProps } from "@mui/material";
-import { useTripChecklist } from '@waylog/domains/trip-checklist';
+import { useTripChecklist } from '@waylog/domains/modules/trip-checklist';
 import { useOverlay } from "~shared/hooks/useOverlay";
 import { useId } from "react";
 import { DialogTitle } from "~shared/components/confirm-dialog/DialogTitle";

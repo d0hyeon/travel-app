@@ -6,7 +6,7 @@ import { ScrollView, ActivityIndicator } from 'react-native'
 import { IconButton, Stack, Typography } from '../../../../src/shared/components/mui'
 import { PopMenu } from '../../../../src/shared/components/PopMenu'
 import { useConfirmDialog } from '../../../../src/shared/components/confirm-dialog/useConfirmDialog'
-import { useTripMemo } from '@waylog/domains/trip-memo'
+import { useTripMemo } from '@waylog/domains/modules/trip-memo'
 
 export default function TripMemoDetailRoute() {
   return (

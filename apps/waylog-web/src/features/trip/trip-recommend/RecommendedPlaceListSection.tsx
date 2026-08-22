@@ -2,10 +2,10 @@ import RoomIcon from '@mui/icons-material/Room'
 import { Box, Card, CardContent, CardHeader, Chip, Skeleton, Stack, Typography, type StackProps } from '@mui/material'
 import { Suspense, type ReactNode } from 'react'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
-import { PlaceCategoryColorCode } from '@waylog/domains/place'
+import { PlaceCategoryColorCode } from '@waylog/domains/modules/place'
 import { useRecommendedPlaceDetailOverlay } from './RecommendedPlaceDetailOverlay'
-import { useRecommendedPlaces } from '@waylog/domains/trip-recommend'
-import type { RecommendedPlace } from '@waylog/domains/trip-recommend'
+import { useRecommendedPlaces } from '@waylog/domains/modules/trip-recommend'
+import type { RecommendedPlace } from '@waylog/domains/modules/trip-recommend'
 
 interface Props extends StackProps {
   tripId: string

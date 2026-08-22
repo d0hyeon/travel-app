@@ -5,7 +5,7 @@ import { useCurrentTime } from "@waylog/react";
 import { reverseKeyValue } from "@waylog/utility";
 import { arrayIncludes } from "@waylog/utility";
 import { WeatherIcon } from "./WeatherIcon";
-import { PRECIPITATION_SNOW_TYPES, PrecipitationType, SkyCondition, type HourlyWeatherForecast } from "@waylog/domains/weather";
+import { PRECIPITATION_SNOW_TYPES, PrecipitationType, SkyCondition, type HourlyWeatherForecast } from "@waylog/domains/modules/weather";
 
 const SKY_CONDITION_LABEL = reverseKeyValue(SkyCondition);
 

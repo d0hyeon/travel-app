@@ -1,5 +1,5 @@
-import type { Location } from '@waylog/domains/location'
-import { LocationGroups, LocationOptions } from '@waylog/domains/location'
+import type { Location } from '@waylog/domains/modules/location'
+import { LocationGroups, LocationOptions } from '@waylog/domains/modules/location'
 import { useState, type ReactNode } from 'react'
 import { ScrollView } from 'react-native'
 import { Box, Chip, Stack, Typography } from '../../shared/components/mui'

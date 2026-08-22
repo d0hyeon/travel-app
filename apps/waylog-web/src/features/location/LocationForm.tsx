@@ -1,8 +1,8 @@
 import { Box, Button, Chip, Stack, Typography, type BoxProps, type ButtonProps } from "@mui/material";
 import type { FormHTMLAttributes, ReactNode } from "react";
 import { FormProvider, useController, useForm, useFormContext } from "react-hook-form";
-import type { Location } from "@waylog/domains/location";
-import { LocationGroups, LocationOptions } from "@waylog/domains/location";
+import type { Location } from "@waylog/domains/modules/location";
+import { LocationGroups, LocationOptions } from "@waylog/domains/modules/location";
 
 
 type Props = {

@@ -1,5 +1,5 @@
 import { Paper, Stack, Typography } from "@mui/material"
-import { formatCurrency } from "@waylog/domains/expense";
+import { formatCurrency } from "@waylog/domains/modules/expense";
 import { MemberAvatar } from "~features/trip/trip-member/MemberAvatar";
 import { AnimatedCountText } from "~shared/components/animation/AnimatedCountText"
 import { useExpenseSummary } from "../useExpenseSummary";

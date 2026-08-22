@@ -7,11 +7,11 @@ import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
 import { Map } from '~shared/components/Map'
 import { useOverlay } from '~shared/hooks/useOverlay'
 import type { Coordinate } from '@waylog/utility'
-import { createTripPlace } from '@waylog/domains/place'
-import { useTripPlaces } from '@waylog/domains/trip'
-import { useTrip } from '@waylog/domains/trip'
-import type { CommunityPlace, CommunityTrip } from '@waylog/domains/community-route'
-import { useCommunityRouteDetail } from '@waylog/domains/community-route'
+import { createTripPlace } from '@waylog/domains/modules/place'
+import { useTripPlaces } from '@waylog/domains/modules/trip'
+import { useTrip } from '@waylog/domains/modules/trip'
+import type { CommunityPlace, CommunityTrip } from '@waylog/domains/modules/community-route'
+import { useCommunityRouteDetail } from '@waylog/domains/modules/community-route'
 
 interface Props {
   communityTrip: CommunityTrip

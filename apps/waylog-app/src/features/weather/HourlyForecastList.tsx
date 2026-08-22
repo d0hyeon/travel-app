@@ -6,7 +6,7 @@ import {
   useHourlyForecast,
   type DayPart,
   type UseDailyWeatherForecastParams,
-} from '@waylog/domains/weather'
+} from '@waylog/domains/modules/weather'
 import { Divider, Skeleton, Stack, Typography } from '../../shared/components/mui'
 import { palette } from '../../shared/config/tokens'
 import { HourlyForecastItem } from './HourlyForecastItem'

@@ -1,13 +1,13 @@
 import type { Coordinate } from '@waylog/utility'
-import { Country } from '@waylog/domains/location'
-import type { Location } from '@waylog/domains/location'
+import { Country } from '@waylog/domains/modules/location'
+import type { Location } from '@waylog/domains/modules/location'
 import {
   getCoordinateByLocation,
   getCountryByLocation,
   getCountryNameByLocation,
   isLocation,
-} from '@waylog/domains/location'
-import type { Trip } from '@waylog/domains/trip'
+} from '@waylog/domains/modules/location'
+import type { Trip } from '@waylog/domains/modules/trip'
 
 export interface VisitedLocation {
   location: Location

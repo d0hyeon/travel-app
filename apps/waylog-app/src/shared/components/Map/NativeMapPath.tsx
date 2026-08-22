@@ -1,4 +1,4 @@
-import type { PathProps } from '@waylog/domains/map'
+import type { PathProps } from '@waylog/domains/modules/map'
 import { Polyline } from 'react-native-maps'
 
 export function NativeMapPath({

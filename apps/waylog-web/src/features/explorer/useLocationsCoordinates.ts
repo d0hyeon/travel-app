@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import type { Location } from '@waylog/domains/location'
+import type { Location } from '@waylog/domains/modules/location'
 import {
   getLocationCoordinates,
   type Coordinate,

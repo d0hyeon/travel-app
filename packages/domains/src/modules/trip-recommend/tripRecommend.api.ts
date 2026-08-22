@@ -1,0 +1,212 @@
+import { supabase } from '@waylog/domains/client'
+import { getTripPlacesByTripId } from '@waylog/domains/modules/place'
+import type { PlaceCategoryType } from '@waylog/domains/modules/place'
+import { calcDistance } from '@waylog/utility'
+
+
+export const recommendedPlaceKey = 'recommended-places'
+
+export interface RecommendedPlace {
+  /** 전역 places.id */
+  id: string
+  tripId: string
+  provider: string
+  externalId: string
+  name: string
+  address: string
+  lat: number
+  lng: number
+  category?: PlaceCategoryType
+  photos: string[]
+  tripCount: number
+  recommendLabel: string
+}
+
+const SAME_PLACE_DISTANCE_THRESHOLD = 100 // meters
+const MAX_RESULTS = 20
+const MAX_PHOTO_SCORE = 45
+
+function normalizeName(name: string) {
+  return name.trim().toLowerCase()
+}
+
+function calcRecencyScore(tripStartDate: string): number {
+  const daysAgo = (Date.now() - new Date(tripStartDate).getTime()) / (1000 * 60 * 60 * 24)
+  if (daysAgo < 30) return 20
+  if (daysAgo < 90) return 15
+  if (daysAgo < 365) return 10
+  return 5
+}
+
+interface ScoredPlace {
+  /** 전역 places.id */
+  id: string
+  tripId: string
+  provider: string
+  externalId: string
+  name: string
+  address: string
+  lat: number
+  lng: number
+  category?: PlaceCategoryType
+  photos: string[]
+  confirmedCount: number
+  photoCount: number
+  latestTripDate: string
+  tripCount: number
+}
+
+function isSamePlace(a: ScoredPlace, b: ScoredPlace): boolean {
+  if (a.id === b.id) return true
+  if (normalizeName(a.name) === normalizeName(b.name)) return true
+  return calcDistance(a, b) < SAME_PLACE_DISTANCE_THRESHOLD
+}
+
+function calcRecommendLabel(place: ScoredPlace): string {
+  if (place.tripCount >= 3) return '이 지역 인기 장소'
+  if (place.tripCount >= 2) return '믾이 방문하는 곳'
+  const daysAgo = (Date.now() - new Date(place.latestTripDate).getTime()) / (1000 * 60 * 60 * 24)
+  if (daysAgo < 30) return '최근 많이 방문하는 곳'
+  return '저장 많은 장소'
+}
+
+function calcScore(place: ScoredPlace): number {
+  return (
+    place.confirmedCount * 50 +
+    Math.min(place.photoCount * 15, MAX_PHOTO_SCORE) +
+    calcRecencyScore(place.latestTripDate)
+  )
+}
+
+function deduplicateAndMerge(places: ScoredPlace[]): ScoredPlace[] {
+  const groups: ScoredPlace[][] = []
+
+  for (const place of places) {
+    const existingGroup = groups.find(group => group.some(p => isSamePlace(p, place)))
+    if (existingGroup) {
+      existingGroup.push(place)
+    } else {
+      groups.push([place])
+    }
+  }
+
+  return groups.map(group => {
+    const representative = group.reduce((best, p) => calcScore(p) >= calcScore(best) ? p : best)
+    const mergedPhotoCount = group.reduce((sum, p) => sum + p.photoCount, 0)
+    const mergedPhotos = representative.photos.length > 0
+      ? representative.photos
+      : group.flatMap(p => p.photos).slice(0, 3)
+    const latestTripDate = group.reduce(
+      (latest, p) => p.latestTripDate > latest ? p.latestTripDate : latest,
+      group[0].latestTripDate,
+    )
+
+    return {
+      ...representative,
+      confirmedCount: group.reduce((sum, p) => sum + p.confirmedCount, 0),
+      photoCount: mergedPhotoCount,
+      latestTripDate,
+      photos: mergedPhotos,
+      tripCount: new Set(group.map(p => p.tripId)).size,
+    }
+  })
+}
+
+export async function getRecommendedPlaces(
+  currentTripId: string,
+  destinations: string[],
+): Promise<RecommendedPlace[]> {
+  if (destinations.length === 0) return []
+
+  const [tripsResult, currentPlaces] = await Promise.all([
+    supabase
+      .from('trips')
+      .select('id, start_date')
+      .in('destination', destinations)
+      .neq('id', currentTripId),
+    getTripPlacesByTripId(currentTripId),
+  ])
+
+  if (tripsResult.error) throw tripsResult.error
+
+  const otherTrips = tripsResult.data ?? []
+  if (otherTrips.length === 0) return []
+
+  const tripIds = otherTrips.map(t => t.id)
+  const tripDateMap = new Map(otherTrips.map(t => [t.id, t.start_date]))
+
+  const [tripPlacesResult, routesResult] = await Promise.all([
+    supabase
+      .from('trip_places')
+      .select('id, trip_id, category, places!inner(id, provider, external_id, name, address, lat, lng, photos(url, is_public))')
+      .in('trip_id', tripIds),
+    supabase.from('routes').select('trip_id, place_ids, hidden_places').in('trip_id', tripIds),
+  ])
+
+  if (tripPlacesResult.error) throw tripPlacesResult.error
+  if (routesResult.error) throw routesResult.error
+
+  const routes = routesResult.data ?? []
+  const confirmedPlaceIds = new Set(routes.flatMap(r => r.place_ids ?? []))
+  const hiddenPlaceIds = new Set(routes.flatMap(r => r.hidden_places ?? []))
+  const currentPlaceNames = new Set(currentPlaces.map(p => normalizeName(p.name)))
+
+  type TripPlaceRow = {
+    id: string
+    trip_id: string
+    category: string | null
+    places: {
+      id: string
+      provider: string
+      external_id: string
+      name: string
+      address: string | null
+      lat: number
+      lng: number
+      photos: { url: string; is_public: boolean }[] | null
+    }
+  }
+
+  const scoredPlaces: ScoredPlace[] = ((tripPlacesResult.data ?? []) as unknown as TripPlaceRow[])
+    .filter(row => !hiddenPlaceIds.has(row.id))
+    .filter(row => !currentPlaceNames.has(normalizeName(row.places.name)))
+    .map(row => {
+      const photos = (row.places.photos ?? [])
+        .filter(photo => photo.is_public)
+        .map(photo => photo.url)
+      return {
+        id: row.places.id,
+        tripId: row.trip_id,
+        provider: row.places.provider,
+        externalId: row.places.external_id,
+        name: row.places.name,
+        address: row.places.address ?? '',
+        lat: row.places.lat,
+        lng: row.places.lng,
+        category: (row.category as PlaceCategoryType) ?? undefined,
+        photos,
+        confirmedCount: confirmedPlaceIds.has(row.id) ? 1 : 0,
+        photoCount: photos.length,
+        latestTripDate: tripDateMap.get(row.trip_id) ?? '',
+        tripCount: 1,
+      }
+    })
+
+  return deduplicateAndMerge(scoredPlaces)
+    .toSorted((a, b) => calcScore(b) - calcScore(a))
+    .slice(0, MAX_RESULTS)
+    .map(place => ({
+      id: place.id,
+      tripId: place.tripId,
+      provider: place.provider,
+      externalId: place.externalId,
+      name: place.name,
+      address: place.address,
+      lat: place.lat,
+      lng: place.lng,
+      category: place.category,
+      photos: place.photos,
+      tripCount: place.tripCount,
+      recommendLabel: calcRecommendLabel(place),
+    }))
+}

@@ -1,4 +1,4 @@
-import { useTrip } from '@waylog/domains/trip'
+import { useTrip } from '@waylog/domains/modules/trip'
 import { Share } from 'react-native'
 import { Button } from '../../../shared/components/mui'
 

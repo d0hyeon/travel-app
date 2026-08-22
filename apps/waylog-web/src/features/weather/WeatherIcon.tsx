@@ -1,5 +1,5 @@
 import type { SvgIconProps } from "@mui/material";
-import { PrecipitationType, SkyCondition } from "@waylog/domains/weather";
+import { PrecipitationType, SkyCondition } from "@waylog/domains/modules/weather";
 import { arrayIncludes, assert } from "@waylog/utility";
 import { SwitchCase } from "~shared/components/SwitchCase";
 

@@ -4,9 +4,9 @@ import { ko } from 'date-fns/locale';
 import { Suspense, useMemo } from "react";
 import { useCurrentTime } from "@waylog/react";
 import { HourlyForecastItem } from "./HourlyForecastItem";
-import { type UseDailyWeatherForecastParams } from "@waylog/domains/weather";
-import { useHourlyForecast } from "@waylog/domains/weather";
-import type { DayPart } from "@waylog/domains/weather";
+import { type UseDailyWeatherForecastParams } from "@waylog/domains/modules/weather";
+import { useHourlyForecast } from "@waylog/domains/modules/weather";
+import type { DayPart } from "@waylog/domains/modules/weather";
 
 interface Props extends UseDailyWeatherForecastParams, StackProps {
   dayPart?: DayPart

@@ -2,8 +2,8 @@ import { Box, ButtonBase, Chip, Stack, Typography } from '@mui/material'
 import { Suspense } from 'react'
 import { Link, PrefetchPageLinks } from 'react-router'
 import { TripUnreadCountBadge } from '../trip-chat/TripUnreadCountBadge'
-import type { Trip } from '@waylog/domains/trip'
-import { formatTripDate, getDaysUntil, getTripDuration } from '@waylog/domains/trip'
+import type { Trip } from '@waylog/domains/modules/trip'
+import { formatTripDate, getDaysUntil, getTripDuration } from '@waylog/domains/modules/trip'
 import {
   upcomingCardBg,
   upcomingCardBorderColor,

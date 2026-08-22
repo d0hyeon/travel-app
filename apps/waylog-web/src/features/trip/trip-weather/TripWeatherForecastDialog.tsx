@@ -5,13 +5,13 @@ import { alpha, Box, Dialog, DialogContent, IconButton, Skeleton, Stack, Typogra
 import { useEffect, useState } from "react";
 import { DailyWeatherInfoBox } from "~features/weather/DailyWeatherInfoBox";
 import { HourlyForecastList } from "~features/weather/HourlyForecastList";
-import { useDailyWeatherForecast } from "@waylog/domains/weather";
+import { useDailyWeatherForecast } from "@waylog/domains/modules/weather";
 import { DialogTitle } from "~shared/components/confirm-dialog/DialogTitle";
 import { ErrorBoundary } from "~shared/components/ErrorBoundary";
 import { AsyncBoundary } from "~shared/components/utils/AsyncBoundary";
 import { assert } from "@waylog/utility";
 import { TripDateToggleGroup } from "../trip-route/components/TripDateToggleGroup";
-import { useTrip } from "@waylog/domains/trip";
+import { useTrip } from "@waylog/domains/modules/trip";
 
 interface Props extends Omit<DialogProps, 'onClose'> {
   tripId: string;

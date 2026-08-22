@@ -3,9 +3,9 @@ import {
   useCommunityRouteDetail,
   type CommunityPlace,
   type CommunityTrip,
-} from '@waylog/domains/community-route'
-import { createTripPlace } from '@waylog/domains/place'
-import { useTripPlaces } from '@waylog/domains/trip'
+} from '@waylog/domains/modules/community-route'
+import { createTripPlace } from '@waylog/domains/modules/place'
+import { useTripPlaces } from '@waylog/domains/modules/trip'
 import type { Coordinate } from '@waylog/utility'
 import { Suspense, useCallback, useMemo, useState } from 'react'
 import { View } from 'react-native'

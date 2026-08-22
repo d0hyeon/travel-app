@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react'
-import type { Country, Location } from '@waylog/domains/location'
+import type { Country, Location } from '@waylog/domains/modules/location'
 import type { Coordinate } from './types'
 
 export interface PolygonStyleProps {

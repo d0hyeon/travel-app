@@ -13,10 +13,10 @@ import { useOverlay } from "~shared/hooks/useOverlay";
 import { assert } from '@waylog/utility';
 import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
 import { formatRemainTime } from "@waylog/utility";
-import { useTripMembers } from '@waylog/domains/trip-member';
-import { ERROR_DAYS_FROM_DEADLINE, WARNING_DAYS_FROM_DEADLINE } from '@waylog/domains/trip-checklist';
+import { useTripMembers } from '@waylog/domains/modules/trip-member';
+import { ERROR_DAYS_FROM_DEADLINE, WARNING_DAYS_FROM_DEADLINE } from '@waylog/domains/modules/trip-checklist';
 import { useTripChecklistModifyOverlay } from "./TripChecklistModifyIconButton";
-import { useTripChecklist } from '@waylog/domains/trip-checklist';
+import { useTripChecklist } from '@waylog/domains/modules/trip-checklist';
 
 const StatusInDays = {
   error: ERROR_DAYS_FROM_DEADLINE,

@@ -1,5 +1,5 @@
-import { useExpenses } from '@waylog/domains/expense'
-import { useTripMembers } from '@waylog/domains/trip-member'
+import { useExpenses } from '@waylog/domains/modules/expense'
+import { useTripMembers } from '@waylog/domains/modules/trip-member'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useState } from 'react'
 import { ScrollView } from 'react-native'

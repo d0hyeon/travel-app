@@ -1,5 +1,5 @@
-import { usePlaceSearch, type PlaceResult } from '@waylog/domains/place'
-import type { Coordinate, MapProvider } from '@waylog/domains/map'
+import { usePlaceSearch, type PlaceResult } from '@waylog/domains/modules/place'
+import type { Coordinate, MapProvider } from '@waylog/domains/modules/map'
 import { useState } from 'react'
 import { ActivityIndicator, FlatList, Modal, Pressable, TextInput } from 'react-native'
 import { palette, radius } from '../../../shared/config/tokens'

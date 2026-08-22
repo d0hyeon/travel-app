@@ -1,7 +1,7 @@
 import type { DataRaw } from '@waylog/domains/client';
 import { createHttpClient, supabase } from '@waylog/domains/client'
-import type { Photo, PhotoUploadParams } from '@waylog/domains/photo'
-import { toPhoto } from '@waylog/domains/photo'
+import type { Photo, PhotoUploadParams } from '@waylog/domains/modules/photo'
+import { toPhoto } from '@waylog/domains/modules/photo'
 import { heicTo, isHeic } from 'heic-to'
 import Resizer from 'react-image-file-resizer';
 
@@ -126,4 +126,4 @@ export async function createPhotoFileFromUrl(url: string, fileName = `${Date.now
 }
 
 // 조회·삭제·수정은 공유 패키지에 있다. 브라우저 전용(HEIC 변환·리사이즈) 업로드만 여기 남는다.
-export * from '@waylog/domains/photo'
+export * from '@waylog/domains/modules/photo'

@@ -1,6 +1,6 @@
 import { Box, Skeleton, Typography, type BoxProps } from '@mui/material'
 import { useCountAnimation } from '~shared/hooks/animation/useCountdownAnimation'
-import { useTrip } from '@waylog/domains/trip'
+import { useTrip } from '@waylog/domains/modules/trip'
 
 
 

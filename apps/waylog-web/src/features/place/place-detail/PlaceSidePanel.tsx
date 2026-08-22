@@ -11,7 +11,7 @@ import {
   Typography
 } from '@mui/material'
 import { Suspense, useEffect, useState } from 'react'
-import { usePlace } from '@waylog/domains/place'
+import { usePlace } from '@waylog/domains/modules/place'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { PlaceDetailContent } from './PlaceDetailContent'
 import { APP_ROOT_NODE_CLASS } from '~app/constants'

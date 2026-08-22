@@ -1,8 +1,8 @@
 import { Button, type ButtonProps } from "../../../shared/components/mui/Button";
 import { usePlaceSearchBottomSheet } from "../../place/place-search/usePlaceSearchBottomSheet";
-import { useTrip } from "@waylog/domains/trip";
-import { useTripPlaces } from '@waylog/domains/trip';
-import type { TripPlace } from '@waylog/domains/place';
+import { useTrip } from "@waylog/domains/modules/trip";
+import { useTripPlaces } from '@waylog/domains/modules/trip';
+import type { TripPlace } from '@waylog/domains/modules/place';
 import { Suspense } from "react";
 
 interface Props extends ButtonProps {

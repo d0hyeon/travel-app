@@ -3,21 +3,21 @@ import { Box, IconButton, Stack, Typography } from "@mui/material"
 import { styled } from '@mui/material'
 import { addDays, isSameDay } from 'date-fns'
 import { useRef, useState } from "react"
-import { useTripMembers } from '@waylog/domains/trip-member'
+import { useTripMembers } from '@waylog/domains/modules/trip-member'
 import { ResizeHandleHorizontal } from '~shared/components/split-view/SplitView'
 import { useResizableSplit } from '~shared/components/split-view/useResizableSplit'
 import { IntersectionArea } from "../../../../shared/components/IntersectionArea"
 import { Map, type MapRef } from "../../../../shared/components/Map"
 import { formatShortDate } from "@waylog/utility"
-import { formatByCurrencyCode } from "@waylog/domains/expense"
-import { formatCurrency } from "@waylog/domains/expense"
-import { PlaceCategoryColorCode } from '@waylog/domains/place'
-import { useTripPlaces } from '@waylog/domains/trip'
-import { useTripRoutes } from '@waylog/domains/trip'
-import { useTrip } from "@waylog/domains/trip"
+import { formatByCurrencyCode } from "@waylog/domains/modules/expense"
+import { formatCurrency } from "@waylog/domains/modules/expense"
+import { PlaceCategoryColorCode } from '@waylog/domains/modules/place'
+import { useTripPlaces } from '@waylog/domains/modules/trip'
+import { useTripRoutes } from '@waylog/domains/modules/trip'
+import { useTrip } from "@waylog/domains/modules/trip"
 import { getRouteColor, RoutePath } from "../routeExpenseView.utils"
 import { useExpenseFormOverlay } from "../useExpenseFormOverlay"
-import { type PlaceWithRoute, useExpensesByPlace } from '@waylog/domains/expense'
+import { type PlaceWithRoute, useExpensesByPlace } from '@waylog/domains/modules/expense'
 
 interface Props {
   tripId: string

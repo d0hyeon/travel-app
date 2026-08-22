@@ -1,10 +1,10 @@
 import { renderHook, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { useTrip } from '@waylog/domains/trip'
+import { useTrip } from '@waylog/domains/modules/trip'
 // useTrip 은 배럴이 아니라 ./trip.api 를 직접 import 한다.
 // 배럴에 spy 를 걸면 그 참조가 바뀌지 않으므로 실제 모듈을 가리킨다.
 // (useExpenses.test.ts 와 같은 방식)
-import * as tripApi from '../../../../../../packages/domains/src/trip/trip.api'
+import * as tripApi from '../../../../../../packages/domains/src/modules/trip/trip.api'
 import { createWrapper } from '~fixtures/wraper'
 
 // ────────────────────────────────────────────────────────────

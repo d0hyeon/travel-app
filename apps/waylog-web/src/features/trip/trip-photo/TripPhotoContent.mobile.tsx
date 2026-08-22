@@ -10,8 +10,8 @@ import { PhotoUploader } from '~shared/components/photo/PhotoUploader';
 import { PhotoVisibilityBadge } from '~shared/components/photo/PhotoVisibilityBadge';
 import { useOverlay } from '~shared/hooks/useOverlay';
 import { PhotoThunbnail } from '../../../shared/components/photo/PhotoThumbnail';
-import type { Photo } from '@waylog/domains/photo';
-import { useTripPlaces } from '@waylog/domains/trip';
+import type { Photo } from '@waylog/domains/modules/photo';
+import { useTripPlaces } from '@waylog/domains/modules/trip';
 import { useTripPhotos } from './useTripPhotos';
 
 interface TripPhotoContentProps {
