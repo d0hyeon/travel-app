@@ -9,7 +9,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated'
 import { buildMonthMatrix } from './calendar.utils'
-import type { DateRangeSelection } from './datePicker.model'
+import type { DateSelection } from './datePicker.model'
 import { Typography } from '../mui'
 import { palette } from '../../config/tokens'
 import { CalendarDay } from './CalendarDay'
@@ -31,7 +31,7 @@ export type CalendarRef = {
 
 interface CalendarProps {
   cursor: Date
-  selection: DateRangeSelection
+  selection: DateSelection
   onCursorChange: (cursor: Date) => void
   onSelectDay: (day: Date) => void
   ref?: Ref<CalendarRef>
@@ -154,7 +154,7 @@ export function Calendar({ cursor, selection, onCursorChange, onSelectDay, ref }
 
 interface MonthGridProps {
   month: Date
-  selection: DateRangeSelection
+  selection: DateSelection
   onSelectDay: (day: Date) => void
 }
 

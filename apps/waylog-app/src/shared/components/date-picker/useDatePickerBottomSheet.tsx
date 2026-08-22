@@ -1,47 +1,76 @@
 import { useCallback } from 'react'
 import { useOverlay } from '../../hooks/useOverlay'
 import { DatePickerBottomSheet } from './DatePickerBottomSheet'
-import { DEFAULT_MINUTE_STEP, type DatePickerMode, type DateRangeSelection } from './datePicker.model'
+import type { DateRange, DateSelection } from './datePicker.model'
 
-interface OpenParams {
-  mode?: DatePickerMode
-  defaultSelection?: DateRangeSelection
+interface OpenDayParams {
+  type?: 'date' | 'dateTime'
+  defaultValue?: Date | null
   minuteStep?: number
 }
 
-const EMPTY_SELECTION: DateRangeSelection = [null, null]
+interface OpenRangeParams {
+  defaultValue?: DateSelection
+  /** 하루만 골라도 확정할 수 있게 한다. 이때 시작일과 종료일이 같아진다. */
+  allowSingleDay?: boolean
+}
 
-/** 날짜 선택 시트를 열고 확정된 값을 받는다. 취소하면 null 이다. */
+const EMPTY_RANGE: DateSelection = [null, null]
+
+/**
+ * 날짜 선택 시트를 연다. 확정하면 고른 값이, 취소하면 null 이 온다.
+ * 하루와 기간은 돌려주는 모양이 달라 여는 길도 나눠 둔다.
+ */
 export function useDatePickerBottomSheet() {
   const overlay = useOverlay()
 
-  const open = useCallback(
-    ({
-      mode = 'single',
-      defaultSelection = EMPTY_SELECTION,
-      minuteStep = DEFAULT_MINUTE_STEP,
-    }: OpenParams = {}) => {
-      return new Promise<DateRangeSelection | null>((resolve) => {
-        overlay.open(({ isOpen, close }) => (
-          <DatePickerBottomSheet
-            isOpen={isOpen}
-            mode={mode}
-            defaultSelection={defaultSelection}
-            minuteStep={minuteStep}
-            onConfirm={(selection) => {
-              resolve(selection)
-              close()
-            }}
-            onClose={() => {
-              resolve(null)
-              close()
-            }}
-          />
-        ))
-      })
-    },
+  const openDay = useCallback(
+    ({ type = 'date', defaultValue = null, minuteStep }: OpenDayParams = {}) =>
+      new Promise<Date | null>((resolve) => {
+        overlay.open(({ isOpen, close }) => {
+          const settle = (value: Date | null) => {
+            resolve(value)
+            close()
+          }
+
+          return (
+            <DatePickerBottomSheet
+              isOpen={isOpen}
+              type={type}
+              defaultValue={defaultValue}
+              minuteStep={minuteStep}
+              onConfirm={settle}
+              onClose={() => settle(null)}
+            />
+          )
+        })
+      }),
     [overlay],
   )
 
-  return { open }
+  const openRange = useCallback(
+    ({ defaultValue = EMPTY_RANGE, allowSingleDay }: OpenRangeParams = {}) =>
+      new Promise<DateRange | null>((resolve) => {
+        overlay.open(({ isOpen, close }) => {
+          const settle = (value: DateRange | null) => {
+            resolve(value)
+            close()
+          }
+
+          return (
+            <DatePickerBottomSheet
+              isOpen={isOpen}
+              type="range"
+              defaultValue={defaultValue}
+              allowSingleDay={allowSingleDay}
+              onConfirm={settle}
+              onClose={() => settle(null)}
+            />
+          )
+        })
+      }),
+    [overlay],
+  )
+
+  return { openDay, openRange }
 }

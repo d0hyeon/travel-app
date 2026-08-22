@@ -1,5 +1,5 @@
 import { addDays, endOfMonth, isBefore, isSameDay, startOfMonth, startOfWeek } from 'date-fns'
-import type { DateRangeSelection } from './datePicker.model'
+import type { DateSelection } from './datePicker.model'
 
 /**
  * 한 달을 주 단위 격자로 편다.
@@ -21,7 +21,7 @@ export function buildMonthMatrix(cursor: Date): Date[][] {
 }
 
 /** 기간 안에 드는가. 양 끝도 기간에 속한다. */
-export function isWithinRange(day: Date, range: DateRangeSelection): boolean {
+export function isWithinRange(day: Date, range: DateSelection): boolean {
   const [start, end] = range
   if (start == null) return false
 
@@ -34,17 +34,21 @@ export function isWithinRange(day: Date, range: DateRangeSelection): boolean {
 /**
  * 날짜 하나를 눌렀을 때 기간 선택이 어떻게 바뀌는지 정한다.
  * 이미 찍힌 끝을 다시 누르면 그 끝이 풀리고,
- * 시작일보다 앞을 누르면 기간을 뒤집지 않고 시작일이 그쪽으로 옮겨간다.
+ * 남은 끝을 넘어서 누르면 기간을 뒤집는 대신 그 끝이 눌린 쪽으로 옮겨간다.
  */
 export function toggleRangeSelection(
-  selection: DateRangeSelection,
+  selection: DateSelection,
   day: Date,
-): DateRangeSelection {
+): DateSelection {
   const [start, end] = selection
 
   // 이미 찍힌 끝을 다시 누르면 그 끝만 푼다. 나머지 끝은 남는다.
   if (start != null && isSameDay(start, day)) return [null, end]
   if (end != null && isSameDay(end, day)) return [start, null]
+
+  // 시작일이 풀린 동안 종료일보다 뒤를 누르면 시작일을 채울 수 없다. 채우면 기간이 뒤집힌다.
+  // 빈 시작일 대신 종료일을 눌린 쪽으로 옮긴다.
+  if (start == null && end != null && isBefore(end, day)) return [start, day]
 
   // 시작일보다 앞을 누르면 기간을 뒤집는 대신 시작일을 그쪽으로 옮긴다.
   if (start == null || isBefore(day, start)) return [day, end]

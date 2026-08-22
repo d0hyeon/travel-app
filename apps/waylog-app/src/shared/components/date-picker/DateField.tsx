@@ -3,55 +3,61 @@ import { format as formatDate } from 'date-fns'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Typography } from '../mui'
 import { palette, radius } from '../../config/tokens'
-import { DEFAULT_MINUTE_STEP } from './datePicker.model'
-import type { DateRange, DateRangeSelection } from './datePicker.model'
+import type { DateRange } from './datePicker.model'
 import { useDatePickerBottomSheet } from './useDatePickerBottomSheet'
 
-type DateFieldModeProps =
-  | { mode?: 'single'; value?: Date; onChange?: (value: Date) => void }
-  | { mode: 'range'; value?: DateRange; onChange?: (value: DateRange) => void }
-  | { mode: 'time'; value?: Date; onChange?: (value: Date) => void; minuteStep?: number }
+type DateFieldTypeProps =
+  | { type?: 'date'; value?: Date; onChange?: (value: Date) => void }
+  | { type: 'dateTime'; value?: Date; minuteStep?: number; onChange?: (value: Date) => void }
+  | {
+      type: 'range'
+      value?: DateRange
+      /** 하루만 골라도 확정할 수 있게 한다. 이때 시작일과 종료일이 같아진다. */
+      allowSingleDay?: boolean
+      onChange?: (value: DateRange) => void
+    }
 
-type DateFieldProps = DateFieldModeProps & {
+type DateFieldProps = DateFieldTypeProps & {
   placeholder?: string
   /** 표시 형식. 화면마다 다르므로 밖에서 정한다. */
   format?: (value: Date) => string
   disabled?: boolean
 }
 
-const DEFAULT_FORMAT = { date: 'yyyy/MM/dd', time: 'yyyy/MM/dd HH:mm' } as const
+const DEFAULT_FORMAT = { date: 'yyyy/MM/dd', dateTime: 'yyyy/MM/dd HH:mm' } as const
 
 export function DateField(props: DateFieldProps) {
-  const { mode = 'single', value, placeholder, format, disabled } = props
-  const minuteStep = props.mode === 'time' ? (props.minuteStep ?? DEFAULT_MINUTE_STEP) : DEFAULT_MINUTE_STEP
+  const { type = 'date', value, placeholder, format, disabled } = props
 
   const datePickerBottomSheet = useDatePickerBottomSheet()
 
-  const defaultPattern = mode === 'time' ? DEFAULT_FORMAT.time : DEFAULT_FORMAT.date
+  const defaultPattern = type === 'dateTime' ? DEFAULT_FORMAT.dateTime : DEFAULT_FORMAT.date
   const formatValue = format ?? ((date: Date) => formatDate(date, defaultPattern))
 
   const displayText = toDisplayText(value, formatValue)
 
+  // 타입마다 고르는 모양이 달라 시트를 여는 길도 갈라진다.
   const handlePress = async () => {
-    const selection = await datePickerBottomSheet.open({
-      mode,
-      defaultSelection: toSelection(value),
-      minuteStep,
-    })
-    // 취소하면 null 이 온다. 이때는 기존 값을 그대로 둔다.
-    if (selection == null) return
+    if (props.type === 'range') {
+      const range = await datePickerBottomSheet.openRange({
+        defaultValue: props.value ?? [null, null],
+        allowSingleDay: props.allowSingleDay,
+      })
+      // 취소하면 null 이 온다. 이때는 기존 값을 그대로 둔다.
+      if (range == null) return
 
-    const [start, end] = selection
-    if (start == null) return
-
-    // mode 마다 onChange 가 받는 모양이 달라 props 를 좁혀서 넘긴다.
-    if (props.mode === 'range') {
-      if (end == null) return
-      props.onChange?.([start, end])
+      props.onChange?.(range)
       return
     }
 
-    props.onChange?.(start)
+    const day = await datePickerBottomSheet.openDay({
+      type: props.type,
+      defaultValue: props.value ?? null,
+      minuteStep: props.type === 'dateTime' ? props.minuteStep : undefined,
+    })
+    if (day == null) return
+
+    props.onChange?.(day)
   }
 
   return (
@@ -70,13 +76,6 @@ export function DateField(props: DateFieldProps) {
       </View>
     </Pressable>
   )
-}
-
-function toSelection(value: Date | DateRange | undefined): DateRangeSelection {
-  if (value == null) return [null, null]
-  if (Array.isArray(value)) return value
-
-  return [value, null]
 }
 
 function toDisplayText(

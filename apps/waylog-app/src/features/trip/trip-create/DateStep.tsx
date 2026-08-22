@@ -2,7 +2,7 @@ import { formatDate } from 'date-fns'
 import { useState } from 'react'
 import { BottomArea } from '../../../shared/components/BottomArea'
 import { DatePicker } from '../../../shared/components/date-picker'
-import type { DateRangeSelection } from '../../../shared/components/date-picker'
+import type { DateSelection } from '../../../shared/components/date-picker'
 import { Button } from '../../../shared/components/mui'
 
 interface Props {
@@ -11,7 +11,7 @@ interface Props {
 }
 
 export function DateStep({ defaultValue, onNext }: Props) {
-  const [selection, setSelection] = useState<DateRangeSelection>(() =>
+  const [selection, setSelection] = useState<DateSelection>(() =>
     defaultValue ? [new Date(defaultValue[0]), new Date(defaultValue[1])] : [null, null],
   )
 
@@ -21,7 +21,11 @@ export function DateStep({ defaultValue, onNext }: Props) {
 
   return (
     <>
-      <DatePicker mode="range" selection={selection} onSelectionChange={setSelection} />
+      <DatePicker
+        type="range"
+        value={selection}
+        onChange={setSelection}
+      />
       <BottomArea>
         <Button
           fullWidth
