@@ -31,7 +31,7 @@ export function PlaceSelectSheet({
     setPicked((curr) => (curr.includes(id) ? curr.filter((x) => x !== id) : [...curr, id]))
 
   return (
-    <BottomSheet isOpen={isOpen} onClose={onClose} snapPoints={[0.7]} defaultSnapIndex={0}>
+    <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.7]} defaultSnapIndex={0}>
       <BottomSheet.Header>경로에 장소 추가</BottomSheet.Header>
       <BottomSheet.Body sx={{ paddingHorizontal: 16 }}>
         {candidates.length === 0 ? (

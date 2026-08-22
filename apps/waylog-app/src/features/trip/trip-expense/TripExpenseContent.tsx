@@ -38,7 +38,7 @@ export default function TripExpenseContent({ tripId }: Props) {
 
     if (!hasMember) return
     overlay.open(({ isOpen, close }) => (
-      <BottomSheet isOpen={isOpen} onClose={close} snapPoints={[0.95]} defaultSnapIndex={0}>
+      <BottomSheet isOpen={isOpen} onDismiss={close} snapPoints={[0.95]} defaultSnapIndex={0}>
         <BottomSheet.Body>
           <RouteExpenseView tripId={tripId} />
         </BottomSheet.Body>

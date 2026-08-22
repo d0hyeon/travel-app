@@ -29,7 +29,7 @@ export function usePlaceFormOverlay() {
             <BottomSheet
               isOpen={isOpen}
               safeArea
-              onClose={() => {
+              onDismiss={() => {
                 resolve(null)
                 close()
               }}

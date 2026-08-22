@@ -42,7 +42,7 @@ function Resolved({ tripId }: Props) {
     overlay.open(({ isOpen, close }) => (
       <TripWeatherForecastSheet
         isOpen={isOpen}
-        onClose={close}
+        onDismiss={close}
         tripId={tripId}
         initialDate={activedTripDate}
       />

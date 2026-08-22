@@ -96,7 +96,7 @@ function NoteSheet({ isOpen, initial, onClose, onConfirm, onDelete }: NoteSheetP
   const [value, setValue] = useState(initial)
 
   return (
-    <BottomSheet isOpen={isOpen} onClose={onClose} snapPoints={[0.4]} defaultSnapIndex={0}>
+    <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.4]} defaultSnapIndex={0}>
       <BottomSheet.Header>메모</BottomSheet.Header>
       <BottomSheet.Body sx={{ paddingHorizontal: 16 }}>
         <TextField

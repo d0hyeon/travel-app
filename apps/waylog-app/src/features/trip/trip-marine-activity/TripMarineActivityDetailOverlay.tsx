@@ -64,7 +64,7 @@ function TripMarineActivityDetailSheet({
   )
 
   return (
-    <BottomSheet isOpen={isOpen} onClose={onClose} snapPoints={[0.9]} defaultSnapIndex={0}>
+    <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.9]} defaultSnapIndex={0}>
       <BottomSheet.Header direction="row" justifyContent="space-between">
         <Typography variant="subtitle1">{placeName}</Typography>
       </BottomSheet.Header>

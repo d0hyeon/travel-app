@@ -239,7 +239,7 @@ function TripChecklistMenu({ id, tripId }: CheckMenuProps) {
       const formRef = { current: null as TripChecklistFormRef | null };
 
       return (
-        <BottomSheet isOpen={isOpen} onClose={close} snapPoints={[0.6]} defaultSnapIndex={0}>
+        <BottomSheet isOpen={isOpen} onDismiss={close} snapPoints={[0.6]} defaultSnapIndex={0}>
           <BottomSheet.Header>할 일 수정</BottomSheet.Header>
           <BottomSheet.Body sx={{ paddingHorizontal: 16 }}>
             <TripChecklistForm

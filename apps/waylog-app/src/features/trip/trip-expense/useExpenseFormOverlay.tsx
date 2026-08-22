@@ -25,7 +25,7 @@ export function useExpenseFormBottomSheet(tripId: string) {
           }
 
           return (
-            <BottomSheet isOpen={isOpen} onClose={cancel} safeArea snapPoints={[0.8]} defaultSnapIndex={0}>
+            <BottomSheet isOpen={isOpen} onDismiss={cancel} safeArea snapPoints={[0.8]} defaultSnapIndex={0}>
               <BottomSheet.Header>
                 {mode === 'edit' ? '결제 금액 수정' : '결제 금액'}
               </BottomSheet.Header>

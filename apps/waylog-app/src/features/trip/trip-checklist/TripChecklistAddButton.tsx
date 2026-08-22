@@ -20,7 +20,7 @@ export function TripChecklistAddButton({ tripId, size = 'large', fullWidth }: Pr
       const formRef = { current: null as TripChecklistFormRef | null }
 
       return (
-        <BottomSheet isOpen={isOpen} onClose={close} safeArea snapPoints={[0.75]} defaultSnapIndex={0}>
+        <BottomSheet isOpen={isOpen} onDismiss={close} safeArea snapPoints={[0.75]} defaultSnapIndex={0}>
           <BottomSheet.Header>체크리스트</BottomSheet.Header>
           <BottomSheet.Body sx={{ paddingHorizontal: 16 }}>
             <TripChecklistForm

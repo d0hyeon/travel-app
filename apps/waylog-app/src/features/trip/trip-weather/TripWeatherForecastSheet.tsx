@@ -37,6 +37,9 @@ interface Props {
   /** 시트를 열 때 선택되어 있을 여행 일자. 이후 선택은 시트 내부 상태로 관리한다. */
   initialDate: string
   isOpen?: boolean
+  /** 닫기 요청 */
+  onDismiss?: () => void
+  /** 닫기 모션이 끝난 시점 */
   onClose?: () => void
 }
 

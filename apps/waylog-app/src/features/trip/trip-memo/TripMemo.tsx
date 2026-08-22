@@ -30,7 +30,7 @@ function Resolved({ tripId }: Props) {
     overlay.open(({ isOpen, close }) => {
       const formRef = { current: null as TripMemoFormRef | null };
       return (
-        <BottomSheet isOpen={isOpen} onClose={close} safeArea>
+        <BottomSheet isOpen={isOpen} onDismiss={close} safeArea>
           <BottomSheet.Header>새 메모</BottomSheet.Header>
           <BottomSheet.Body sx={{ paddingHorizontal: 16 }}>
             <TripMemoForm

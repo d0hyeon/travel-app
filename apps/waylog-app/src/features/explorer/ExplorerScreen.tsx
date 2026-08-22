@@ -229,7 +229,7 @@ function PeriodFilterChip({ months, onChange }: { months: PeriodMonths; onChange
   const overlay = useOverlay()
   const currentLabel = PERIOD_OPTIONS.find((option) => option.value === months)?.label ?? ''
 
-  return <Chip label={currentLabel} size="small" variant="outlined" color="primary" onClick={() => overlay.open(({ isOpen, close }) => <BottomSheet isOpen={isOpen} onClose={close}><BottomSheet.Header>기간 선택</BottomSheet.Header><BottomSheet.Body><View style={{ padding: 16, gap: 8 }}>{PERIOD_OPTIONS.map((option) => <Pressable key={option.value} onPress={() => { onChange(option.value); close() }} style={{ paddingVertical: 12, flexDirection: 'row', justifyContent: 'space-between' }}><Typography fontWeight={option.value === months ? 'bold' : 'medium'}>{option.label}</Typography>{option.value === months && <Typography color="primary">✓</Typography>}</Pressable>)}</View></BottomSheet.Body></BottomSheet>)} />
+  return <Chip label={currentLabel} size="small" variant="outlined" color="primary" onClick={() => overlay.open(({ isOpen, close }) => <BottomSheet isOpen={isOpen} onDismiss={close}><BottomSheet.Header>기간 선택</BottomSheet.Header><BottomSheet.Body><View style={{ padding: 16, gap: 8 }}>{PERIOD_OPTIONS.map((option) => <Pressable key={option.value} onPress={() => { onChange(option.value); close() }} style={{ paddingVertical: 12, flexDirection: 'row', justifyContent: 'space-between' }}><Typography fontWeight={option.value === months ? 'bold' : 'medium'}>{option.label}</Typography>{option.value === months && <Typography color="primary">✓</Typography>}</Pressable>)}</View></BottomSheet.Body></BottomSheet>)} />
 }
 
 function EmptyState() {

@@ -15,7 +15,7 @@ export function ExplorerFilterBar({ children }: PropsWithChildren) {
 
   const openLocationPicker = () => {
     overlay.open(({ isOpen, close }) => (
-      <BottomSheet isOpen={isOpen} onClose={close} snapPoints={[0.75]}>
+      <BottomSheet isOpen={isOpen} onDismiss={close} snapPoints={[0.75]}>
         <BottomSheet.Header>지역 선택</BottomSheet.Header>
         <BottomSheet.Body>
           <ScrollView contentContainerStyle={{ padding: 16, gap: 4 }}>
@@ -36,7 +36,7 @@ export function ExplorerFilterBar({ children }: PropsWithChildren) {
 
   const openCategoryPicker = () => {
     overlay.open(({ isOpen, close }) => (
-      <BottomSheet isOpen={isOpen} onClose={close} snapPoints={[0.65]}>
+      <BottomSheet isOpen={isOpen} onDismiss={close} snapPoints={[0.65]}>
         <BottomSheet.Header>카테고리 선택</BottomSheet.Header>
         <BottomSheet.Body>
           <ScrollView contentContainerStyle={{ padding: 16, gap: 4 }}>

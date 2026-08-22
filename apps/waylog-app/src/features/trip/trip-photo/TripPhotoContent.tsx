@@ -258,13 +258,13 @@ function PhotoViewerSheet({ isOpen, photos, initialIndex, places, onUpdate, onDe
   }
 
   return (
-    <BottomSheet isOpen={isOpen} onClose={onClose} snapPoints={[0.95]} defaultSnapIndex={0} safeArea sx={{ backgroundColor: '#010101' }}>
+    <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.95]} defaultSnapIndex={0} safeArea sx={{ backgroundColor: '#010101' }}>
       <BottomSheet.Header alignItems="center" justifyContent="center" sx={{ backgroundColor: '#010101' }}>
         <Typography variant="body2" sx={{ color: '#fff', fontWeight: '800' }}>{currentIndex + 1} / {viewerPhotos.length}</Typography>
         <Pressable
           accessibilityLabel="사진 메뉴"
           onPress={() => overlay.open(({ isOpen: menuOpen, close: closeMenu }) => (
-            <BottomSheet isOpen={menuOpen} onClose={closeMenu} snapPoints={[0.4]} defaultSnapIndex={0} safeArea>
+            <BottomSheet isOpen={menuOpen} onDismiss={closeMenu} snapPoints={[0.4]} defaultSnapIndex={0} safeArea>
               <BottomSheet.Body sx={{ paddingHorizontal: 0, paddingVertical: 8 }}>
                 <Pressable onPress={() => { void Linking.openURL(currentPhoto.url); closeMenu() }} style={{ paddingHorizontal: 20, paddingVertical: 16 }}>
                   <Stack direction="row" justifyContent="space-between" alignItems="center">
@@ -317,7 +317,7 @@ function PhotoViewerSheet({ isOpen, photos, initialIndex, places, onUpdate, onDe
         <Pressable
           accessibilityLabel="사진 장소 지정"
           onPress={() => overlay.open(({ isOpen: pickerOpen, close: closePicker }) => (
-            <BottomSheet isOpen={pickerOpen} onClose={closePicker} snapPoints={[0.5]} defaultSnapIndex={0} safeArea>
+            <BottomSheet isOpen={pickerOpen} onDismiss={closePicker} snapPoints={[0.5]} defaultSnapIndex={0} safeArea>
               <BottomSheet.Body sx={{ paddingHorizontal: 0, paddingVertical: 8 }}>
                 {[{ id: 'none', label: '장소 미지정' }, ...places.map((place) => ({ id: place.placeId, label: place.name }))].map((option) => {
                   const isUnassigned = option.id === 'none'

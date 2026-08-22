@@ -25,14 +25,14 @@ type DatePickerBottomSheetValueProps =
 type DatePickerBottomSheetProps = DatePickerBottomSheetValueProps & {
   isOpen: boolean
   /** 사용자가 닫으려 한다 (취소·배경 탭·아래로 끌기) */
-  onClose: () => void
+  onDismiss: () => void
 }
 
 // 시각 휠은 달력보다 자리를 덜 먹는다.
 const SNAP_POINTS = { date: [0.62], time: [0.45] } as const
 
 export function DatePickerBottomSheet(props: DatePickerBottomSheetProps) {
-  const { isOpen, onClose } = props
+  const { isOpen, onDismiss } = props
 
   // 두 모양을 한 상태에 담으면 다시 빈 칸을 들고 다니게 되므로 따로 쥔다.
   const [day, setDay] = useState<Date | null>(
@@ -63,7 +63,7 @@ export function DatePickerBottomSheet(props: DatePickerBottomSheetProps) {
   return (
     <BottomSheet
       isOpen={isOpen}
-      onClose={onClose}
+      onDismiss={onDismiss}
       snapPoints={step === 'time' ? SNAP_POINTS.time : SNAP_POINTS.date}
       safeArea
     >
@@ -83,7 +83,7 @@ export function DatePickerBottomSheet(props: DatePickerBottomSheetProps) {
       </BottomSheet.Scrollable>
 
       <BottomSheet.BottomActions>
-        <Button fullWidth size="large" onClick={step === 'time' ? () => setStep('date') : onClose}>
+        <Button fullWidth size="large" onClick={step === 'time' ? () => setStep('date') : onDismiss}>
           {step === 'time' ? '이전' : '취소'}
         </Button>
         <Button

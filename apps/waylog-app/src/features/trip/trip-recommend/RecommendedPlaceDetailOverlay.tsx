@@ -37,7 +37,7 @@ function RecommendedPlaceDetailSheet({ place, tripId, isOpen, onClose }: Props) 
   })
 
   return (
-    <BottomSheet isOpen={isOpen} onClose={onClose}>
+    <BottomSheet isOpen={isOpen} onDismiss={onClose}>
       <BottomSheet.Header>
         <Typography variant="h6">{place.name}</Typography>
       </BottomSheet.Header>

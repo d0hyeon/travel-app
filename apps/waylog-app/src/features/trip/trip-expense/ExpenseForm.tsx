@@ -118,7 +118,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
         <Stack direction="row" gap={1} alignItems="flex-end">
         <Stack gap={0.5} sx={{ flex: 3 }}>
           <Pressable onPress={() => overlay.open(({ isOpen, close }) => (
-            <BottomSheet isOpen={isOpen} onClose={close} snapPoints={[0.4]} defaultSnapIndex={0} safeArea>
+            <BottomSheet isOpen={isOpen} onDismiss={close} snapPoints={[0.4]} defaultSnapIndex={0} safeArea>
               <BottomSheet.Body sx={{ paddingHorizontal: 0, paddingVertical: 8 }}>
                 {members.map((member) => (
                   <Pressable key={member.id} onPress={() => { setValue('payments', [{ memberId: member.id, amount: 0 }]); close() }} style={{ paddingHorizontal: 20, paddingVertical: 16 }}>

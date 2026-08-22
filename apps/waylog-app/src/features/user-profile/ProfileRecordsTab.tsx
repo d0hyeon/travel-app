@@ -21,7 +21,7 @@ export function ProfileRecordsTab({ userId }: { userId: string }) {
     if (selectedLocation == null) return
 
     const closeOverlay = locationOverlay.open(({ isOpen, onClose }) => (
-      <BottomSheet isOpen={isOpen} snapPoints={[0.6, 0.8]} defaultSnapIndex={0} onClose={onClose}>
+      <BottomSheet isOpen={isOpen} snapPoints={[0.6, 0.8]} defaultSnapIndex={0} onDismiss={onClose}>
         <BottomSheet.Header><LocationMetaInfo value={selectedLocation} /></BottomSheet.Header>
         <BottomSheet.Body>
           <ScrollView contentContainerStyle={{ padding: 16, gap: 16 }}>
