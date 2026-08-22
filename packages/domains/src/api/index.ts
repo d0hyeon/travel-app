@@ -1,4 +1,4 @@
-export { initApi, supabase, apiClient, type ApiConfig } from './client'
+export { initializeClient, supabase, type ApiConfig } from './client'
 export { createHttpClient } from './createHttpClient'
 export type { Database } from './_database.types'
 export * from './tables.types'

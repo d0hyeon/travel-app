@@ -1,9 +1,17 @@
 import type { DataRaw } from '@waylog/domains/api';
-import { apiClient, supabase } from '@waylog/domains/api'
+import { createHttpClient, supabase } from '@waylog/domains/api'
 import type { Photo, PhotoUploadParams } from '@waylog/domains/photo'
 import { toPhoto } from '@waylog/domains/photo'
 import { heicTo, isHeic } from 'heic-to'
 import Resizer from 'react-image-file-resizer';
+
+const fileClient = createHttpClient({
+  baseUrl: import.meta.env.VITE_SUPABASE_URL,
+  beforeRequest: (request) => {
+    request.headers.set('Authorization', `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`)
+    return request
+  },
+})
 
 
 async function convertHeicToJPEG(file: File) {
@@ -106,7 +114,7 @@ export async function uploadPostPhoto(tripId: string | null, file: File): Promis
 }
 
 export async function createPhotoFileFromUrl(url: string, fileName = `${Date.now()}.jpg`): Promise<File> {
-  const { data, contentType } = await apiClient.get('/functions/v1/file', {
+  const { data, contentType } = await fileClient.get('/functions/v1/file', {
     params: { url },
     parse: async (response) => {
       const data = await response.blob();

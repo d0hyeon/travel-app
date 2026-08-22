@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { initApi } from '@waylog/domains/api'
+import { initializeClient } from '@waylog/domains/api'
 import { createAuthService } from '~app/supabase-auth'
 import { setLastReadStore } from '@waylog/domains/trip-chat'
 
@@ -10,11 +10,9 @@ const client = createClient(
   import.meta.env.VITE_SUPABASE_ANON_KEY ?? 'placeholder',
 )
 
-initApi({
+initializeClient({
   client,
-  authService: createAuthService(client),
-  url: import.meta.env.VITE_SUPABASE_URL ?? 'https://placeholder.supabase.co',
-  anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY ?? 'placeholder',
+  auth: createAuthService(client),
 })
 
 

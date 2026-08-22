@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import type { AuthService } from './auth'
-import { initApi } from './api'
+import { initializeClient } from './api'
 
 const client = createClient('https://placeholder.supabase.co', 'placeholder')
 const authService: AuthService = {
@@ -11,4 +11,4 @@ const authService: AuthService = {
   onAuthStateChange: () => () => {},
 }
 
-initApi({ client, authService, url: 'https://placeholder.supabase.co', anonKey: 'placeholder' })
+initializeClient({ client, auth: authService })

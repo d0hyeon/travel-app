@@ -131,7 +131,7 @@ packages/
 ├── utility/                    # @waylog/utility — 플랫폼·도메인 비의존 순수 유틸리티·공용 타입
 ├── domains/                    # @waylog/domains — 도메인·데이터 계층
 │   └── src/
-│       ├── api/                # supabase 클라이언트(initApi 주입), 생성 타입
+│       ├── api/                # 앱이 주입한 supabase client 연결, 생성 타입
 │       ├── auth/               # 인증 API·useAuth
 │       ├── expense/            # 지출(순수 로직·데이터 계층)
 │       ├── location/           # 위치 vocabulary
@@ -179,7 +179,7 @@ eslint.config.js                # 레포 전역 lint 설정 + 의존성
 
 공유 패키지가 지켜야 하는 것:
 
-- 환경변수를 직접 읽지 않는다. 각 앱이 Supabase client·인증 adapter를 생성해 `initApi()`로 주입한다
+- 환경변수를 직접 읽지 않는다. 각 앱이 Supabase client·인증 adapter를 생성해 `initializeClient()`로 주입한다
 - 컴포넌트(`.tsx`)를 두지 않는다
 - MUI·react-router·브라우저 전역 API(`window`, `document`, `HTMLElement`,
   `requestAnimationFrame`, `localStorage`, IndexedDB 등)에 의존하지 않는다

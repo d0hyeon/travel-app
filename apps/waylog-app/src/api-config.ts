@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { createClient } from '@supabase/supabase-js'
-import { initApi } from '@waylog/domains/api'
+import { initializeClient } from '@waylog/domains/api'
 import { setLastReadStore } from '@waylog/domains/trip-chat'
 import Constants from 'expo-constants'
 import { createAuthService } from './supabase-auth'
@@ -18,13 +18,11 @@ export function setupApi() {
     },
   })
 
-  initApi({
+  initializeClient({
     client,
-    authService: createAuthService(client),
-    url: extra?.supabaseUrl,
-    anonKey: extra?.supabaseAnonKey,
+    auth: createAuthService(client),
     // 국내 날씨(기상청)가 쓴다. 없으면 인증 실패가 에러로 올라온다.
-    governmentApiServiceKey: extra?.governmentApiServiceKey,
+    governmentKey: extra?.governmentApiServiceKey,
   })
 
   setupLastReadStore()
