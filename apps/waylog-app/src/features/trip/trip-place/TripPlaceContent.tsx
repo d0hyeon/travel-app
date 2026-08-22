@@ -113,8 +113,8 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
             }
           }}
         >
-          <BottomSheet.Body sx={{ paddingBottom: 40 }}>
-            <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5 }}>
+          <BottomSheet.Body style={{ paddingHorizontal: 12 }} sx={{ paddingBottom: 40, }}>
+            <Typography variant="caption" color="text.secondary" style={{ marginBottom: 12 }}>
               확정 ({plannedPlaces.length}) / 후보 ({candidatePlaces.length})
             </Typography>
 

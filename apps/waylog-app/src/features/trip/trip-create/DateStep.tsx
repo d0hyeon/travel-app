@@ -26,7 +26,7 @@ export function DateStep({ defaultValue, onNext }: Props) {
         value={selection}
         onChange={setSelection}
       />
-      <BottomArea>
+      <BottomArea position="fixed" bottom={0}>
         <Button
           fullWidth
           variant="contained"

@@ -7,7 +7,7 @@ import { palette } from '../config/tokens'
 export function BottomArea({
   bottom,
   sx,
-  // 웹은 fixed/static 을 구분하지만 RN 에서는 부모 레이아웃이 결정한다.
+  // RN 에는 fixed 가 없다. 화면 하단 고정은 부모 기준 absolute 로 대신한다.
   position,
   ...props
 }: StackProps & { bottom?: number; position?: 'fixed' | 'static' }) {
@@ -25,6 +25,9 @@ export function BottomArea({
         width: '100%',
         backgroundColor: palette.background,
         zIndex: 10,
+        ...(position === 'fixed'
+          ? ({ position: 'absolute', bottom: 0, left: 0, right: 0 } as const)
+          : {}),
         ...(sx ?? {}),
       }}
       {...props}

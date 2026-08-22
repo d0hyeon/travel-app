@@ -27,7 +27,7 @@ export function InfoStep({ destination, onNext }: Props) {
         </Typography>
       </Box>
 
-      <BottomArea>
+      <BottomArea position='fixed' bottom={0}>
         <Button
           fullWidth
           variant="contained"

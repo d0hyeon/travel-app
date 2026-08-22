@@ -19,7 +19,11 @@ export function useCurrentCoordinate({ enabled = true, onChange, onRejectPermiss
     let cancelled = false
 
     void (async () => {
+      // 권한 대화상자가 떠 있는 동안 화면을 떠날 수 있다.
+      // 떠난 뒤에는 상태도 콜백도 건드리지 않는다.
       const permission = await Location.requestForegroundPermissionsAsync()
+      if (cancelled) return
+
       if (!permission.granted) {
         onRejectPermission?.()
         return

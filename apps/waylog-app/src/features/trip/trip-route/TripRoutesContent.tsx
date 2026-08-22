@@ -27,6 +27,8 @@ import { useActiveTripDay } from './useActiveTripDay'
 import { TripMarineActivityMapMarkers } from '../trip-marine-activity/TripMarineActivityMapMarkers'
 import { TripWeatherIconButton } from '../trip-weather/TripWeatherIconButton'
 import { TripDetailHeader } from '../components/TripDetailHeader'
+import { ActionSheet } from '../../../shared/components/action-sheet/ActionSheet'
+import { Alert } from 'react-native'
 
 // 경로별 색상 팔레트 — 웹과 같은 값이다.
 const ROUTE_COLORS = ['#1976d2', '#e53935', '#43a047', '#fb8c00', '#8e24aa', '#00acc1']
@@ -102,17 +104,18 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
     },
   })
   const [focusedId, setFocusedId] = useState<string | null>(null)
+  const [sheetRatio, setSheetRatio] = useState(DEFAULT_BOTTOM_SHEET_RATIO)
 
   return (
     <>
       <TripDetailHeader />
-      <Box sx={{ flex: 1, position: 'relative' }}>
+      <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
         <FloatingControl corner="top-left" zIndex={8}>
           <TripWeatherIconButton tripId={tripId} />
         </FloatingControl>
         <TripRouteMapFloatingControls />
         {currentCoordinate != null && (
-          <FloatingControl corner="bottom-right" zIndex={8}>
+          <FloatingControl corner="bottom-right" zIndex={8} sx={{ bottom: `${sheetRatio * 100}%` }}>
             <IconButton
               size="small"
               onClick={() => mapRef.current?.panTo(currentCoordinate.lat, currentCoordinate.lng)}
@@ -122,9 +125,8 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
             </IconButton>
           </FloatingControl>
         )}
-        {/* 지도는 항상 전체를 채운다. 시트가 그 위를 덮는다 —
-          높이를 시트 비율에 묶으면 상태가 바뀔 때마다 시트가 다시 자리를 잡는다. */}
-        <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
+        {/* 웹은 calc(%-10px) 를 쓰지만 RN 은 계산식을 못 읽는다. 비율만 남긴다. */}
+        <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `${sheetRatio * 100}%` }}>
           <Map ref={mapRef} defaultCenter={{ lat: trip.lat, lng: trip.lng }}>
             <TripMarineActivityMapMarkers tripId={trip.id} />
             {[
@@ -152,7 +154,30 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                         setFocusedId(place.id)
                         mapRef.current?.panTo(place.lat, place.lng)
                       }
-                      setSelectedPlace(place)
+                      overlay.open(({ isOpen, close }) => (
+                        <ActionSheet isOpen={isOpen} onClose={close}>
+                          <ActionSheet.Item
+                            onClick={async () => {
+                              const updated = await openPlaceEditor({ tripId, placeId: place.id, defaultValues: place })
+                              if (updated) await updatePlace({ ...selectedPlace, ...updated })
+                            }}
+                          >
+                            장소 수정
+                          </ActionSheet.Item>
+                          {currentRoute != null && (
+                            <ActionSheet.Item
+                              onClick={async () => {
+                                const placeIds = currentRoute.placeIds.includes(place.id)
+                                  ? currentRoute.placeIds.filter((id) => id !== place.id)
+                                  : [...currentRoute.placeIds, place.id]
+                                await update({ routeId: currentRoute.id, placeIds })
+                              }}
+                            >
+                              {currentRoute.placeIds.includes(place.id) ? '경로에서 제거' : '경로에 추가'}
+                            </ActionSheet.Item>
+                          )}
+                        </ActionSheet>
+                      ))
                     }}
                   />
                 )
@@ -161,9 +186,18 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
           </Map>
         </Box>
 
+
+
         <BottomSheet
           snapPoints={BOTTOM_SHEET_RATIOS}
           defaultSnapIndex={BOTTOM_SHEET_RATIOS.indexOf(DEFAULT_BOTTOM_SHEET_RATIO)}
+          onSnapChange={(ratio) => {
+            // 1.0 은 지도를 0 으로 만든다. 그때는 자리를 건드리지 않는다.
+            if (ratio < 1 && ratio !== sheetRatio) {
+              setSheetRatio(ratio)
+              setTimeout(() => mapRef.current?.relayout(), 350)
+            }
+          }}
         >
           <BottomSheet.Body sx={{ paddingBottom: 40 }}>
             {/* 여행 일자 선택 */}
@@ -173,14 +207,13 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                 setSelectedDate(date)
                 setSelectedRouteId('')
               }}
-
+              scrollable
             >
               {tripDates.map((date, index) => (
                 <Tab key={date} value={date} label={`${index + 1}일차`} />
               ))}
             </Tabs>
             <Box sx={{ paddingHorizontal: 16, marginTop: 8 }}>
-
               {/* 경로 선택 */}
               <TripRouteSelector.Chip
                 tripId={tripId}
@@ -216,7 +249,6 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
 
                     return (
                       <Fragment key={place.id}>
-
                         <SortableList.Item id={place.id}>
                           {inboundLeg != null && inboundLeg.duration > 0 && (
                             <RouteLegItem leg={inboundLeg} />
@@ -281,52 +313,6 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
             </Box>
           </BottomSheet.Body>
         </BottomSheet>
-
-        {selectedPlace != null && (
-          <BottomSheet
-            isOpen
-            onClose={() => setSelectedPlace(null)}
-            snapPoints={[0.35]}
-            defaultSnapIndex={0}
-          >
-            <BottomSheet.Header>{selectedPlace.name}</BottomSheet.Header>
-            <BottomSheet.Body>
-              <Stack gap={1}>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  onClick={async () => {
-                    const updated = await openPlaceEditor({
-                      tripId,
-                      placeId: selectedPlace.id,
-                      defaultValues: selectedPlace,
-                    })
-                    if (updated) await updatePlace({ ...selectedPlace, ...updated })
-                    setSelectedPlace(null)
-                  }}
-                >
-                  장소 수정
-                </Button>
-                {currentRoute != null && (
-                  <Button
-                    variant="contained"
-                    fullWidth
-                    onClick={async () => {
-                      const placeIds = currentRoute.placeIds.includes(selectedPlace.id)
-                        ? currentRoute.placeIds.filter((id) => id !== selectedPlace.id)
-                        : [...currentRoute.placeIds, selectedPlace.id]
-                      await update({ routeId: currentRoute.id, placeIds })
-                      setSelectedPlace(null)
-                    }}
-                  >
-                    {currentRoute.placeIds.includes(selectedPlace.id) ? '경로에서 제거' : '경로에 추가'}
-                  </Button>
-                )}
-              </Stack>
-            </BottomSheet.Body>
-          </BottomSheet>
-        )}
-
       </Box>
       <BottomArea position="static">
         <Button
