@@ -113,6 +113,7 @@ apps/
 │   │       │   ├── mui/        # MUI 호환 계층 — 웹 코드를 그대로 옮기기 위함
 │   │       │   ├── Map/        # react-native-maps 구현
 │   │       │   ├── bottom-sheet/ # 자체 구현 (Reanimated) — 웹과 같은 공개 API
+│   │       │   ├── action-sheet/ # 하단 액션 시트 (Modal + 슬라이드업). PopMenu 가 트리거를 얹어 쓴다
 │   │       │   ├── date-picker/ # 날짜·기간·시각 선택 (바텀시트 + 스와이프 달력)
 │   │       │   └── dnd/        # 제스처 기반 정렬 목록 (드래그 핸들)
 │   │       ├── config/tokens.ts # 웹 theme.ts 에서 승계한 값
@@ -583,14 +584,50 @@ src/
 계층은 `DateField > DatePickerBottomSheet > DatePicker > Calendar` 다.
 `shared/components/date-picker/` 한 디렉토리에 모여 있다.
 
-- `DateField` — 트리거 필드. `mode` 에 따라 `value`/`onChange` 타입이 결정되는 판별 유니온이다.
-  `mode="range"` 면 `[Date, Date]`, `single`·`time` 이면 `Date` 를 주고받는다.
-- `DatePicker` — 보여줄 달(커서)과 고르는 중인 날짜를 쥔다. 확정은 시트가 맡는다.
+- `DateField` — 트리거 필드. `type` 에 따라 `value`/`onChange` 타입이 결정되는 판별 유니온이다.
+  `type="range"` 면 `[Date, Date]`, `date`·`dateTime` 이면 `Date` 를 주고받는다.
+  `allowSingleDay` 는 `range` 분기에만, `minuteStep` 은 `dateTime` 분기에만 있어
+  유효하지 않은 조합은 타입 단계에서 막힌다.
+- `useDatePickerBottomSheet` — 시트를 명령형으로 연다.
+  돌려주는 모양이 달라 `openDay` 와 `openRange` 로 나뉘어 있다.
+  하나로 묶으면 소비자가 받은 값의 모양을 다시 좁혀야 한다.
+- `DatePickerBottomSheet` — 확정 시점과 `dateTime` 의 단계 전환을 쥔다.
+  `defaultValue`/`onConfirm` 도 `type` 으로 갈린다. `range` 만 `allowSingleDay` 를 받는다.
+  하단 버튼과 스냅 포인트가 시트 소유라 단계 상태도 여기 둔다.
+  `dateTime` 은 날짜를 누르는 즉시 시각 단계로 넘어간다. 되돌아갈 때는 "이전" 이다.
+  단계를 넘기는 버튼이 없으므로 확정 버튼은 항상 "확인" 이다.
+  `range` 에 `allowSingleDay` 를 주면 하루만 골라도 `[day, day]` 로 채워 내보내므로
+  소비자는 빈 칸을 보지 않는다.
+- `DatePicker` — 보여줄 달(커서)과 고르는 중인 날짜를 쥔다. 확정은 위가 맡는다.
+  `value`/`onChange` 는 `type` 으로 갈리는 판별 유니온이다.
+  `date`·`dateTime` 은 `Date`, `range` 는 `DateSelection` 을 주고받는다.
+  하루를 고르는 타입이 빈 둘째 칸을 들고 다니지 않게 한다.
+  달력에 넘길 때만 안에서 기간 꼴로 맞춘다.
+  `value` 도 옵셔널이라 주면 밖이, 주지 않으면 안에서 쥔다.
+  안에서 쥘 때도 상태는 늘 `DateSelection` 튜플이다.
+  타입마다 다른 모양을 한 상태에 담으면 다음 렌더에서 구조분해가 깨진다.
+  `dateTime` 에서 날짜를 고르면 시각 단계로 넘어가는 전환은 이 컴포넌트가 끝낸다.
+  `step` 도 옵셔널이며 `value` 와 별개로 판단한다.
+  값만 밖에서 쥐고 단계 전환은 맡기는 조합이 가능해야 한다.
+  `step` 을 안 준 경우에만 시각 단계에 `TimeStepHeader` 를 낸다.
+  밖이 단계를 쥐면 돌아가는 버튼도 밖에 있어 여기서 또 내면 뒤로가기가 둘이 된다.
+- `TimeStepHeader` — 시각 단계에서 날짜로 돌아가는 길. 고른 날짜도 함께 보여준다.
+  달 이동은 `CalendarHeader` 책임이라 섞지 않는다.
+  - 주지 않으면 안에서 쥔다. `DateStep` 처럼 하단 버튼이 단계와 무관한 곳이 이렇게 쓴다.
+  - 주면 밖이 쥐고 `onStepChange` 로 전환 요청만 받는다.
+    `DatePickerBottomSheet` 는 버튼 라벨과 스냅 포인트가 단계를 따라가야 해서 이쪽이다.
 - `Calendar` — 앞뒤 달을 양옆에 깔아두고 통째로 미는 스와이프 페이저.
   헤더의 좌우 버튼도 `CalendarRef.slidePrevious/slideNext` 로 같은 애니메이션을 탄다.
 - 격자 계산과 기간 선택 규칙은 `calendar.utils.ts` 의 순수 함수로 분리해 두었다.
   웹 `shared/components/date-range/` 의 선택 규칙을 승계했다.
   소비처가 이 디렉토리뿐이라 공유 패키지로 올리지 않는다.
+- 한쪽 끝을 풀면 `[null, end]` 처럼 반대쪽 끝만 남는다. 이 상태를 두 곳에서 다룬다.
+  - `CalendarDay` 는 고른 끝(`isEdge`)을 기간 포함 여부와 별개로 칠한다.
+    `isWithinRange` 는 시작일이 없으면 아무 날도 포함하지 않으므로,
+    포함 여부만으로 칠하면 남은 끝이 사라져 초기화된 것처럼 보인다.
+  - `toggleRangeSelection` 은 시작일이 빈 채로 종료일보다 뒤를 누르면
+    시작일을 채우는 대신 종료일을 옮긴다. 채우면 기간이 뒤집힌다.
+    웹은 이 지점에서 역순 기간을 만들 수 있다. 앱만 먼저 고친 차이다.
 
 ### 위치 모델링
 
