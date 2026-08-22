@@ -26,7 +26,9 @@ interface BottomSheetProps {
   defaultSnapIndex?: number
   /** 모달 모드: 열림/닫힘 상태 */
   isOpen?: boolean
-  /** 모달 모드: 닫기 콜백 */
+  /** 모달 모드: 닫기 요청 (배경 탭·아래로 끌어내림). 소비자가 isOpen 을 내린다 */
+  onDismiss?: () => void
+  /** 모달 모드: 닫기 모션이 끝난 시점 */
   onClose?: () => void
   /** 스냅 변경 콜백 (바텀시트가 차지하는 비율 전달) */
   onSnapChange?: (snapRatio: number) => void
@@ -54,6 +56,7 @@ export function BottomSheet({
   snapPoints,
   defaultSnapIndex = 0,
   isOpen,
+  onDismiss,
   onClose,
   onSnapChange,
   safeArea = false,
@@ -88,29 +91,34 @@ export function BottomSheet({
   useImperativeHandle(ref as never, () => ({ snap: snapIndex }), [snapIndex])
 
   // 닫으라는 지시가 와도 높이가 줄어드는 동안은 화면에 남아 있어야 한다.
-  // 애니메이션이 끝난 시점에만 내려 그때 언마운트한다.
-  const [closed, setClosed] = useState(false)
+  // 닫힘을 알리는 것은 애니메이션이 끝난 시점이다. 소비자는 그때
+  // 뒷정리(폼 초기화·언마운트)를 해야 내려가는 도중에 내용이 사라지지 않는다.
+  // 콜백은 워크릿이 붙잡으므로 최신 참조를 ref 로 넘긴다.
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
+
+  const notifyClosed = useCallback(() => {
+    onCloseRef.current?.()
+  }, [])
+
+  // 닫힌 채로 시작한 시트는 닫힌 적이 없다. 열린 적이 있어야 닫힘을 알린다.
+  const opened = useRef(false)
+  if (isOpen === true) opened.current = true
 
   useEffect(() => {
-    if (isOpen == null) {
+    if (isOpen == null || isOpen) {
       sheetH.set(withSpring(height, SPRING))
       return
     }
 
-    if (isOpen) {
-      sheetH.set(withSpring(height, SPRING))
-      return
-    }
+    if (!opened.current) return
 
     sheetH.set(
       withSpring(0, SPRING, (finished) => {
-        if (finished === true) runOnJS(setClosed)(true)
+        if (finished === true) runOnJS(notifyClosed)()
       }),
     )
-  }, [isOpen, height, sheetH])
-
-  // 다시 열리면 닫힘 표시를 지운다. 렌더 중에 맞추면 effect 가 필요 없다.
-  if (isOpen === true && closed) setClosed(false)
+  }, [isOpen, height, sheetH, notifyClosed])
 
   const snapTo = useCallback(
     (index: number) => {
@@ -133,7 +141,7 @@ export function BottomSheet({
 
       // 가장 낮은 스냅에서 더 끌어내리면 닫는다.
       if (isOpen != null && nearest === 0 && dragged < (heights[0] ?? 0) * 0.6) {
-        onClose?.()
+        onDismiss?.()
         return
       }
 
@@ -141,7 +149,7 @@ export function BottomSheet({
       sheetH.set(withSpring(heights[nearest] ?? 0, SPRING))
       if (nearest !== snapIndex) snapTo(nearest)
     },
-    [heights, snapIndex, snapTo, isOpen, onClose, sheetH],
+    [heights, snapIndex, snapTo, isOpen, onDismiss, sheetH],
   )
 
   // 핸들 바에서만 시트를 끈다. 본문 제스처는 스크롤이 갖고,
@@ -215,7 +223,7 @@ export function BottomSheet({
       pointerEvents="box-none"
       onLayout={(e) => setHostH(Math.round(e.nativeEvent.layout.height))}
     >
-      {isOpen === true && <Pressable style={styles.backdrop} onPress={onClose} />}
+      {isOpen === true && <Pressable style={styles.backdrop} onPress={onDismiss} />}
 
       <Animated.View style={[styles.sheet, sheetStyle, sxToStyle(sx)]}>
         <GestureDetector gesture={pan}>
