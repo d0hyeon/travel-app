@@ -1,4 +1,4 @@
-import { supabase } from "../api/client";
+import { supabase } from "../client";
 
 export interface OgPreviewData {
   title: string | null;

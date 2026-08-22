@@ -1,4 +1,4 @@
-import { supabase } from '../api'
+import { supabase } from '../client'
 import type { Coordinate } from '../utils'
 
 export interface PlaceResult {

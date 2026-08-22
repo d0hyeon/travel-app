@@ -11,7 +11,7 @@ import { MOCK_MESSAGES } from '../tripChat.mock'
 import { MOCK_TRIP_ID } from '~features/trip/trip.mock'
 import { MOCK_SESSION } from '~features/auth/auth.mock'
 import { queryClient as appQueryClient } from '~app/query-client'
-import { supabase } from '@waylog/domains/api'
+import { supabase } from '@waylog/domains/client'
 
 // ────────────────────────────────────────────────────────────
 // 무엇을 테스트하는가
@@ -23,8 +23,8 @@ import { supabase } from '@waylog/domains/api'
 //   4. Realtime 수신 — setQueryData로 메시지가 즉시 추가됨
 // ────────────────────────────────────────────────────────────
 
-vi.mock('@waylog/domains/api', async (importOriginal) => {
-  const mod = await importOriginal<typeof import('@waylog/domains/api')>()
+vi.mock('@waylog/domains/client', async (importOriginal) => {
+  const mod = await importOriginal<typeof import('@waylog/domains/client')>()
   const fakeChannel = { on: () => fakeChannel, subscribe: () => fakeChannel }
   mod.supabase.channel = () => fakeChannel as unknown as ReturnType<typeof mod.supabase.channel>
   mod.supabase.removeChannel = vi.fn().mockResolvedValue('ok')

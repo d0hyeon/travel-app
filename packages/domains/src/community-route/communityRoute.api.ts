@@ -1,4 +1,4 @@
-import { supabase } from '@waylog/domains/api'
+import { supabase } from '@waylog/domains/client'
 import type { CommunityTrip, CommunityRouteWithPlaces, CommunityPlace } from './communityRoute.types'
 
 export const communityRouteKey = 'community-routes'

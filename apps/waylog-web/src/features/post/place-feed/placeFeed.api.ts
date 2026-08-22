@@ -1,5 +1,5 @@
-import { supabase } from "@waylog/domains/api";
-import type { DataRaw } from "@waylog/domains/api";
+import { supabase } from "@waylog/domains/client";
+import type { DataRaw } from "@waylog/domains/client";
 import type { Post } from "~features/post/post.types";
 
 

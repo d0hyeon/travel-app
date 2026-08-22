@@ -1,5 +1,5 @@
-import { supabase } from '../api'
-import type { DataRaw } from '../api'
+import { supabase } from '../client'
+import type { DataRaw } from '../client'
 import type { Photo } from './photo.types'
 
 export const photoKey = 'photos'

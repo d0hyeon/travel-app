@@ -1,4 +1,4 @@
-import { governmentApi, type GovernmentApiResponse } from "@waylog/domains/api";
+import { governmentApi, type GovernmentApiResponse } from "@waylog/domains/client";
 import type { Coordinate } from "@waylog/utility";
 import type { ValueOf } from "@waylog/utility";
 import {

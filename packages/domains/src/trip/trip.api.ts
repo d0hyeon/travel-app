@@ -1,10 +1,10 @@
-import { supabase } from '../api'
+import { supabase } from '../client'
 import { getAuth } from '../auth'
 import type { Trip } from '../trip'
 import { formatShortDate } from '../utils';
 import { deletePhotosByTripId } from '../photo';
 import { getCurrencyByDestination, type ExchangeRateEntry } from '../expense/currency';
-import type { DataRaw, CreateDataType, UpdateDataType } from '../api';
+import type { DataRaw, CreateDataType, UpdateDataType } from '../client';
 
 function getDatesBetween(startDate: string, endDate: string): string[] {
   const dates: string[] = []
@@ -90,7 +90,7 @@ export async function createTrip(
     .insert({
       name: data.name,
       destination: data.destinations[0],
-      destinations: data.destinations as unknown as import('../api').Json,
+      destinations: data.destinations as unknown as import('../client').Json,
       lat: data.lat,
       lng: data.lng,
       start_date: data.startDate,

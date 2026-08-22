@@ -318,7 +318,7 @@ google 전용 구현은 이동하지 않는다. 앱은 별도 구현을 갖는�
 #### `useRoadRoute`
 
 웹은 `clientDatabase`(IndexedDB), 앱은 `AsyncStorage` 로 캐시한다.
-`roadRoute.api.ts` 는 `@waylog/domains/api` 의 supabase 만 쓰므로
+`roadRoute.api.ts` 는 `@waylog/domains/client` 의 supabase 만 쓰므로
 `packages/domains/src/route/roadRoute.api.ts` 로 **이동해 공유**한다.
 캐시 계층만 각자 구현한다.
 

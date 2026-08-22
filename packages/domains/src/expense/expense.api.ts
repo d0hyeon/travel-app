@@ -1,6 +1,6 @@
-import type { DataRaw, UpdateDataType } from '../api'
-import type { Json } from '../api'
-import { supabase } from '../api'
+import type { DataRaw, UpdateDataType } from '../client'
+import type { Json } from '../client'
+import { supabase } from '../client'
 import type { Expense } from './expense.types'
 import type { CurrencyCode } from './currency'
 

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { getRoadDirections } from '../roadRoute.api'
 
-vi.mock('@waylog/domains/api', () => ({
+vi.mock('@waylog/domains/client', () => ({
   supabase: {
     functions: {
       invoke: vi.fn(),
@@ -9,7 +9,7 @@ vi.mock('@waylog/domains/api', () => ({
   },
 }))
 
-import { supabase } from '@waylog/domains/api'
+import { supabase } from '@waylog/domains/client'
 
 const mockInvoke = vi.mocked(supabase.functions.invoke)
 

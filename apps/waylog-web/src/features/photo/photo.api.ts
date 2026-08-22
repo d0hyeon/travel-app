@@ -1,5 +1,5 @@
-import type { DataRaw } from '@waylog/domains/api';
-import { createHttpClient, supabase } from '@waylog/domains/api'
+import type { DataRaw } from '@waylog/domains/client';
+import { createHttpClient, supabase } from '@waylog/domains/client'
 import type { Photo, PhotoUploadParams } from '@waylog/domains/photo'
 import { toPhoto } from '@waylog/domains/photo'
 import { heicTo, isHeic } from 'heic-to'

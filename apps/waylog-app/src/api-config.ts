@@ -1,9 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { createClient } from '@supabase/supabase-js'
-import { initializeClient } from '@waylog/domains/api'
+import { initializeClient } from '@waylog/domains/client'
 import Constants from 'expo-constants'
 import { createAuthService } from './supabase-auth'
-import type { Database } from '@waylog/domains/api'
+import type { Database } from '@waylog/domains/client'
 
 const extra = Constants.expoConfig?.extra
 

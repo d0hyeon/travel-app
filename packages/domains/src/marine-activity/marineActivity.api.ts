@@ -1,5 +1,5 @@
 import { differenceInCalendarDays, format, parseISO, set } from "date-fns";
-import { governmentApi, type GovernmentApiResponse } from "../api";
+import { governmentApi, type GovernmentApiResponse } from "../client";
 import {
   MarineActivityGrade,
   MarineActivityType,

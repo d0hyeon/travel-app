@@ -4,7 +4,7 @@
 
 > **경로 표기 규칙**
 > 이 문서에서 `src/`로 시작하는 경로는 모두 `apps/waylog-web/` 기준이다.
-> (예: `packages/domains/src/api/client.ts` → `apps/waylog-web/src/api/client.ts`)
+> (예: `packages/domains/src/client/client.ts` → `apps/waylog-web/src/api/client.ts`)
 > 워크스페이스 루트 기준 경로는 `apps/`, `packages/`처럼 최상위 디렉토리부터 적는다.
 
 ---
@@ -196,7 +196,7 @@ eslint.config.js                # 레포 전역 lint 설정 + 의존성
 | 스크롤·포인터·애니메이션 훅 | DOM 이벤트·`requestAnimationFrame` 의존 |
 
 **supabase 클라이언트:** client 생성과 auth storage 설정은 각 앱이 소유한다.
-`@waylog/domains/api`는 앱이 주입한 client를 기존 `.api.ts`에 제공하기 위해 Proxy 지연 참조를 사용한다.
+`@waylog/domains/client`는 앱이 주입한 client를 기존 `.api.ts`에 제공하기 위해 Proxy 지연 참조를 사용한다.
 초기화 전에 접근하면 명확한 에러를 던진다.
 
 ### 앱 내부 구조
@@ -576,7 +576,7 @@ src/
 
 - `*.api.ts` — Supabase 직접 호출, DB row → 도메인 모델 변환
 - `use*.ts` — React Query 훅으로 감싸서 컴포넌트에 제공
-- DB 타입은 `packages/domains/src/api/_database.types.ts` (자동 생성, 직접 수정 금지)
+- DB 타입은 `packages/domains/src/client/_database.types.ts` (자동 생성, 직접 수정 금지)
 
 ### 오버레이 시스템
 

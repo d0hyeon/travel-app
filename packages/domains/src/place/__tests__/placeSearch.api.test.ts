@@ -3,7 +3,7 @@ import { searchPlaces } from '../placeSearch.api'
 
 const invoke = vi.fn()
 
-vi.mock('../../api', () => ({
+vi.mock('../../client', () => ({
   supabase: {
     functions: {
       invoke: (...args: unknown[]) => invoke(...args),

@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Database } from '@waylog/domains/api'
+import type { Database } from '@waylog/domains/client'
 import type { AuthService } from '@waylog/domains/auth'
 
 export function createAuthService(client: SupabaseClient<Database>): AuthService {

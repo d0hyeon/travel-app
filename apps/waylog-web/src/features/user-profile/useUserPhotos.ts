@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { supabase } from '@waylog/domains/api'
+import { supabase } from '@waylog/domains/client'
 import { photoKey, toPhoto } from '~features/photo/photo.api'
 
 export function useUserPhotos(userId: string) {

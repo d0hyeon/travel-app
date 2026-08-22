@@ -1,4 +1,4 @@
-import { supabase } from '../api'
+import { supabase } from '../client'
 import { TransportType } from './route.types'
 import type { RoadRoute } from './route.types'
 import type { Coordinate } from '../utils'

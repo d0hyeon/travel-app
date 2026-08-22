@@ -1,4 +1,4 @@
-import { supabase } from '../api';
+import { supabase } from '../client';
 import { getAuth } from '../auth';
 import type { TripMember } from '../trip-member';
 
