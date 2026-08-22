@@ -43,17 +43,37 @@
 | `feat/app-trip-chat` | trip-chat | 완료 (푸시 알림 제외) |
 | `feat/app-trip-rest2` | trip-recommend, trip-community-routes, trip-weather, trip-marine-activity, trip-create, trip-invite, features/weather | 완료 |
 
-## 채팅 — 푸시 알림 미착수
+## 채팅 푸시 알림 — 코드 완료, 실기기 검증 대기
 
-채팅 본체(목록·전송·읽음·미읽음 배지·활성 방 추적)는 완료했다.
-**네이티브 푸시 알림은 붙이지 않았다.**
+코드는 전부 작성했다. **iOS 실기기 검증만 계정 문제로 막혀 있다.**
 
-- 웹은 service worker + 웹푸시(`useWebPushSubscription`)를 쓴다. 앱은 이 경로를 쓸 수 없다.
-- 앱에 붙이려면 `expo-notifications` + APNs 설정이 필요하다.
-- Personal Team 프로비저닝으로는 `aps-environment` 가 붙지 않아 실기기 검증이 막힌다.
-  유료 계정이 있어야 한다.
+### 구성
 
-`ChatPushNoticeCard`(알림 권한 안내 카드)도 같은 이유로 옮기지 않았다.
+| 위치 | 역할 |
+| --- | --- |
+| `supabase/functions/chat-web-push/expoPush.ts` | Expo Push Service 호출 |
+| `supabase/functions/chat-web-push/index.ts` | 구독 종류로 웹·앱 발송을 가름 |
+| `app/src/features/auth/pushSubscription.api.ts` | 토큰 저장·삭제 |
+| `app/src/features/auth/useNativePushSubscription.ts` | 구독 상태 (웹 `useWebPushSubscription` 과 같은 시그니처) |
+| `app/src/features/trip/trip-chat/notification/useChatNotification.ts` | 알림 표시 판단·탭 처리 |
+| `app/src/features/trip/trip-chat/ChatPushNoticeCard.tsx` | 권한 안내 카드 |
+
+`push_subscriptions` 테이블은 그대로 쓴다. 마이그레이션이 없다.
+앱은 `endpoint` 에 Expo 토큰(`ExponentPushToken[...]`)을, `subscription` 에
+`{ type: 'expo', token }` 을 넣는다. 서버가 `endpoint` 형태로 보낼 경로를 판단한다.
+
+### 남은 작업 — 실기기 검증 전 필요
+
+1. **EAS 프로젝트 생성** — `eas init`. `projectId` 가 없으면 토큰을 받을 수 없다.
+   `useNativePushSubscription` 의 `isEnabled` 가 false 가 되어 안내 카드가
+   "실기기에서만 알림을 설정할 수 있어요" 로 뜬다.
+2. **Expo 에 푸시 자격증명 등록** — `eas credentials`.
+   - iOS: **Apple Developer Program 유료 계정($99/년) 필요.**
+     Personal Team 으로는 `aps-environment` 가 서명되지 않아 토큰 발급이 실패한다.
+   - Android: FCM 무료. `google-services.json` 을 등록하면 된다.
+3. **Edge Function 재배포** — `supabase functions deploy chat-web-push`
+
+Android 는 유료 계정 없이 지금 검증할 수 있다.
 
 ## 네이티브 제약으로 웹과 다른 지점
 
@@ -62,7 +82,6 @@
 | 지점 | 웹 | 앱 | 사유 |
 | --- | --- | --- | --- |
 | 커뮤니티 경로 썸네일 | 지역 폴리곤 배경 + 경로 도트 | 경로 도트만 | 웹은 `/visit-layer/*.geojson` 정적 파일을 상대 URL 로 받는다. 앱에는 그 파일도, 상대 URL 을 받을 방법도 없다 |
-| 채팅 푸시 알림 | service worker 웹푸시 | 없음 | 위 "채팅 — 푸시 알림 미착수" 참조 |
 | 데스크톱 분기 | `.desktop.tsx` / Dialog | 없음 | 앱은 모바일 단일. `.mobile.tsx` 경로만 옮겼다 |
 
 ## 앱 전체에서 영구 제외
