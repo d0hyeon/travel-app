@@ -12,5 +12,5 @@
     "skipLibCheck": true,
     "erasableSyntaxOnly": true
   },
-  "include": ["src"]
+  "include": ["src", "../utility/src/createHttpClient.ts"]
 }
