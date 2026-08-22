@@ -11,7 +11,7 @@ import Animated, {
 import { ScrollViewContainer } from 'react-native-reorderable-list'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Box, Stack, Typography, sxToStyle, type BoxProps, type StackProps, type Sx } from '../mui'
-import { palette } from '../../config/tokens'
+import { palette, zLayer } from '../../config/tokens'
 
 // 웹 shared/components/bottom-sheet 와 같은 공개 인터페이스를 유지한다.
 export type BottomSheetRef = {
@@ -211,7 +211,7 @@ export function BottomSheet({
 
   return (
     <View
-      style={StyleSheet.absoluteFill}
+      style={[StyleSheet.absoluteFill, { zIndex: zLayer.bottomSheet }]}
       pointerEvents="box-none"
       onLayout={(e) => setHostH(Math.round(e.nativeEvent.layout.height))}
     >
@@ -274,7 +274,7 @@ function BottomActions({ children, sx, ...props }: StackProps) {
         px: 2,
         py: 1,
         backgroundColor: palette.background,
-        zIndex: 10,
+        zIndex: zLayer.bottomSheet,
         ...(sx ?? {}),
       }}
       {...props}

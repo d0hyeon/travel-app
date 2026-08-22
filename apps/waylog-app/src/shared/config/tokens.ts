@@ -42,3 +42,11 @@ export const fontWeight = {
   regular: '700',
   bold: '900',
 } as const
+
+// 겹침 순서. 값 자체보다 서로의 대소가 의미다.
+// 시트는 화면을 덮는 층이므로 흐름에 놓인 하단 CTA 보다 위에 있어야 한다.
+// 같은 값을 주면 RN 이 렌더 순서로 정해 CTA 가 시트를 뚫고 나온다.
+export const zLayer = {
+  bottomArea: 10,
+  bottomSheet: 20,
+} as const
