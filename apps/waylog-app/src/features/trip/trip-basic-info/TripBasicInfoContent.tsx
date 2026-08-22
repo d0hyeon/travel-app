@@ -1,5 +1,4 @@
-import { Alert, Pressable, ScrollView } from 'react-native'
-import { MaterialIcons } from '@expo/vector-icons'
+import { ScrollView } from 'react-native'
 import { Box, Stack, Tab, Tabs, Typography } from "../../../shared/components/mui"
 import { Suspense } from 'react'
 import { BottomArea } from "../../../shared/components/BottomArea"
@@ -17,6 +16,7 @@ import { TripBaseInfoList } from './TripBaseInfoList'
 import { TripDDay } from './TripDDay'
 import { TripLeaveButton } from '../components/TripLeaveButton'
 import { TripDetailHeader } from '../components/TripDetailHeader'
+import { TripPostCreateCard } from './TripPostCreateCard'
 
 interface Props {
   tripId: string
@@ -41,32 +41,13 @@ export function TripBasicInfoContent({ tripId }: Props) {
               <TripDDay tripId={tripId} sx={{ marginBottom: 16 }} />
             </Suspense>
 
-            <Pressable
-              accessibilityLabel="여행을 회고하는 포스트 만들기"
-              onPress={() => Alert.alert('준비 중인 기능', '여행 회고 포스트는 다음 단계에서 제공될 예정이에요.')}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 12,
-                marginBottom: 16,
-                padding: 16,
-                borderWidth: 1,
-                borderColor: '#cbd5ff',
-                borderRadius: 16,
-                backgroundColor: '#f4f6ff',
-              }}
-            >
-              <Stack sx={{ width: 42, height: 42, alignItems: 'center', justifyContent: 'center', borderRadius: 12, backgroundColor: '#fff' }}>
-                <MaterialIcons name="auto-awesome" size={22} color="#587cf5" />
-              </Stack>
-              <Stack sx={{ flex: 1 }} gap={0.5}>
-                <Typography variant="subtitle2" sx={{ fontWeight: '800' }}>여행을 회고하는 포스트 만들기</Typography>
-                <Typography variant="body2" color="text.secondary">이 여행의 사진과 장소로 피드에 올려보세요</Typography>
-              </Stack>
-              <MaterialIcons name="chevron-right" size={24} color="#587cf5" />
-            </Pressable>
-
             <Stack gap={3} alignItems="flex-start">
+              <ErrorBoundary>
+                <Suspense fallback={null}>
+                  <TripPostCreateCard tripId={tripId} />
+                </Suspense>
+              </ErrorBoundary>
+
                 {/* 여행 정보 */}
               <TripBaseInfoList
                 tripId={tripId}
