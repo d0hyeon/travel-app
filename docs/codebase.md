@@ -104,6 +104,9 @@ apps/
 │   │   ├── _layout.tsx         # Provider 구성 (QueryClient·Auth·Overlay)
 │   │   ├── index.tsx           # 여행 목록
 │   │   ├── login.tsx
+│   │   ├── explorer.tsx        # 장소 탐색 카탈로그/지도
+│   │   ├── explorer/           # 탐색 순위 상세 (최다 방문·급상승·저장순)
+│   │   ├── u/[userId].tsx      # 사용자 프로필
 │   │   └── trip/[tripId]/      # 상세 탭 셸 (정보·장소·계획·정산·사진)
 │   ├── ios/                    # prebuild 산출물 (gitignore, 네이티브 빌드용)
 │   ├── src/
@@ -523,7 +526,7 @@ src/
     │   ├── statistics/         # StatisticsBarChart, StatisticsColumnChart, StatisticsDonutChart
     │   ├── BottomArea.tsx
     │   ├── BottomNavigation.tsx
-    │   ├── EditableText.tsx
+    │   ├── EditableText.tsx       # 웹과 동일한 편집 추상화; 기본 앱 필드는 TextOverlayField
     │   ├── ErrorBoundary.tsx
     │   ├── FullScreenPopup.tsx
     │   ├── IntersectionArea.tsx
@@ -711,6 +714,9 @@ src/
   탭 화면은 탭바만큼 화면보다 작다. `onLayout` 으로 실측한다.
 - 하단 안전영역은 화면 바닥에 닿는 쪽에서만 더한다. 시트와 버튼이 각각 더하면
   둘 사이가 벌어진다.
+- 겹침 순서는 `config/tokens.ts` 의 `zLayer` 로만 정한다. RN 은 `zIndex` 가 같으면
+  렌더 순서로 정하므로, 둘 다 `10` 이면 나중에 선언된 시트가 아니라 `BottomArea` 가
+  위로 올라와 시트를 뚫고 버튼이 보인다. 시트는 화면을 덮는 층이라 항상 더 높다.
 
 **Reanimated**
 
@@ -770,3 +776,30 @@ src/
 | 체크리스트           | `features/trip/trip-checklist/`                                   |
 | 오버레이/모달        | `shared/hooks/useOverlay.tsx`                                     |
 | 웹 푸시              | `features/auth/useWebPushSubscription.ts`                         |
+
+네이티브 앱의 탐색·프로필 포팅은 `apps/waylog-app/src/features/explorer/`와
+`apps/waylog-app/src/features/user-profile/`에 둔다. 탐색 순위 라우트는
+`apps/waylog-app/app/explorer/` 아래에, 사용자 프로필 라우트는
+`apps/waylog-app/app/u/[userId].tsx`에 둔다. 앱 지도는 현재 공통 RN 지도 API가
+마커·클러스터만 제공하므로, 프로필 기록의 국내 행정구역 폴리곤은 방문지 마커와
+상세 바텀시트로 대체한다. 프로필 피드는 공용 포스트 도메인 모델의 첫 사진을
+대표 이미지로 사용하고 `/post/[postId]` 상세 화면으로 연결한다.
+
+## 2026-08 앱 포팅 현황
+
+- 홈 하단 탭: `apps/waylog-app/app/(tabs)/_layout.tsx`에 내 여행·피드·탐색·프로필 4개 탭을 구성했다. 통계 탭은 제외했다.
+- 여행 목록: 웹의 진행 중·예정·지난 여행 분류와 진행률/D-day UI를 RN으로 포팅했다.
+- 피드: `/feed` 라우트와 포스트 목록/좋아요/대표 이미지 표시를 추가했고, 포스트 카드를 `/post/[postId]` 상세 화면으로 연결했다. 카드 폭을 실제 레이아웃 측정값으로 계산해 웹과 같은 이미지 비율을 유지한다. 새 포스트 FAB는 `/post/new`로 이동하며, 웹과 같은 여행 선택 → 사진 선택 → 상세 설정 3단계 흐름을 제공한다. 사진은 네이티브 보관함 또는 여행 저장 사진에서 고르고 앱 스토리지 업로드 후 공용 `@waylog/domains`의 `useCreatePost`로 등록한다.
+- 탐색: `/explorer`, `top-visited`, `recent-hot`, `most-saved` 라우트와 목록·지도·필터 UI를 추가했다. 장소 선택은 오버레이 대신 `/explorer/[placeId]` 페이지로 이동하며, 상세 페이지는 기본정보·피드 탭으로 구성된다. 필터는 공용 RN `Extrude`가 최초 source/target 좌표를 기준으로 이동·타깃 페이드·레이아웃 높이 축소/복원을 함께 처리한다. 카탈로그는 Y축으로 타이틀에 이동하고, 뒤로가기 타이틀이 있는 큐레이션 상세는 X·Y축으로 대각선 이동한다. 핫플레이스 상세의 기간 필터도 웹처럼 지역·카테고리 필터와 같은 행에서 함께 이동한다. 탭 라우트는 실제 하단 탭바 높이를 카탈로그 스크롤 인셋에 전달해 마지막 콘텐츠가 탭바에 가려지지 않게 한다. 카탈로그 데이터 쿼리는 웹처럼 계절·최근·저장·방문 섹션별 Suspense와 전용 스켈레톤으로 격리하며, 장소 카테고리는 도메인 enum 원값이 아니라 `PlaceCategoryTypeLabel`의 사용자용 라벨로 표시한다.
+- 프로필: `/u/[userId]` 라우트와 피드 사진 그리드·기록 탭·로그아웃을 추가했다. 피드 사진 조회는 피드와 동일한 공용 포스트 모델을 사용하며 사진을 누르면 포스트 상세로 이동한다. 기록 탭을 선택하면 지도 상단이 화면 상단에 맞도록 자동 스크롤한다.
+- 원격 이미지: `apps/waylog-app/src/shared/components/LoadableImage.tsx`가 이미지 로딩 중 동일한 박스 크기의 스켈레톤을 표시한다. 프로필·피드·포스트 상세·탐색·장소·여행 사진 UI에서 공통으로 사용한다.
+- 통계는 요청 범위에서 제외했으며 구현하지 않았다.
+
+### 웹과 동일 구현이 불가능한 항목
+
+- `react-router`의 URL search params/overlay 연동은 Expo Router에 동일 API가 없어 기존 RN의
+  `useQueryParamState`와 `useOverlay`로 대체했다.
+- 포스트 작성의 브라우저 File/Swiper는 Expo ImagePicker와 네이티브 가로 ScrollView로 대체했다. 포스트 상세는
+  Expo Router 페이지 라우트(`/post/[postId]`)로 구현했으며 웹의 링크 오버레이 동작은 페이지 이동으로 대체했다.
+- 웹 지도 폴리곤/일부 데스크톱 레이아웃은 RN 지도 API 범위에 맞춰 마커·클러스터와 바텀시트로 대체했다.
+- iOS JavaScript 런타임에는 `Object.groupBy`가 없어 여행 목록의 연도별 그룹화는 RN 호환 `reduce` 구현으로 대체했다.
