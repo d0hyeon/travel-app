@@ -5,6 +5,7 @@ import { KeyboardAvoidingView, Platform, ScrollView, TextInput } from 'react-nat
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { IconButton, Skeleton, Stack, Typography } from '../../../shared/components/mui'
 import { palette, radius } from '../../../shared/config/tokens'
+import { ChatPushNoticeCard } from './ChatPushNoticeCard'
 import { TripChatMessage } from './TripChatMessage'
 
 interface Props {
@@ -74,6 +75,10 @@ function Resolved({ tripId }: Props) {
       style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
+      <Suspense>
+        <ChatPushNoticeCard sx={{ margin: 16 }} />
+      </Suspense>
+
       <ScrollView
         ref={scrollRef}
         contentContainerStyle={{ padding: 16, gap: 12, flexGrow: 1 }}

@@ -11,6 +11,7 @@ import { Suspense } from 'react'
 import { ActivityIndicator, View } from 'react-native'
 import { setupApi } from '../src/api-config'
 import { OverlayProvider } from '../src/shared/hooks/useOverlay.context'
+import { useChatNotificationResponse } from '../src/features/trip/trip-chat/notification/useChatNotification'
 
 // 어떤 도메인 모듈보다 먼저 실행되어야 한다.
 setupApi()
@@ -41,6 +42,7 @@ export default function RootLayout() {
           <AuthStateSync />
           <OverlayProvider>
             <Suspense fallback={<Loading />}>
+              <ChatNotificationGateway />
               <Stack screenOptions={{ headerShown: false }} />
             </Suspense>
           </OverlayProvider>
@@ -49,4 +51,10 @@ export default function RootLayout() {
       </SafeAreaProvider>
     </GestureHandlerRootView>
   )
+}
+
+/** 알림을 탭했을 때 채팅방으로 보낸다. 라우터가 필요해 Stack 안쪽에서 건다. */
+function ChatNotificationGateway() {
+  useChatNotificationResponse()
+  return null
 }

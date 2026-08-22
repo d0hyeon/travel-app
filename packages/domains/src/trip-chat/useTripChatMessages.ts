@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
-import { useEffect, useEffectEvent } from 'react';
+import { useEffect } from 'react';
+import { usePreservedCallback } from '@waylog/react';
 import type { TripMember } from '@waylog/domains/trip-member';
 import { useTripMembers } from '@waylog/domains/trip-member';
 import { getChatMessages, sendChatMessage, subscribeTripMessages, tripChatKey } from './tripChat.api';
@@ -59,7 +60,7 @@ export function useTripChatMessages(tripId: string, { onLoad, realtime = true }:
     mutationFn: (content: string) => sendChatMessage(tripId, content),
   });
 
-  const handleLoad = useEffectEvent(() => onLoad?.(query.data));
+  const handleLoad = usePreservedCallback(() => onLoad?.(query.data));
   useEffect(() => handleLoad(), [query.data]);
 
   return {

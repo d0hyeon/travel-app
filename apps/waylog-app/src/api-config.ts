@@ -9,6 +9,8 @@ export function setupApi() {
   initApi({
     url: extra?.supabaseUrl,
     anonKey: extra?.supabaseAnonKey,
+    // 국내 날씨(기상청)가 쓴다. 없으면 인증 실패가 에러로 올라온다.
+    governmentApiServiceKey: extra?.governmentApiServiceKey,
     auth: {
       // supabase-js 의 auth storage 는 비동기 인터페이스를 허용하므로
       // AsyncStorage 를 그대로 넘길 수 있다.
