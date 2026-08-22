@@ -1,10 +1,9 @@
 import { useAuth } from '@waylog/domains/clients'
 import { Redirect } from 'expo-router'
+import { UserProfileScreen } from '../../src/features/user-profile/UserProfileScreen'
 
-export default function IndexRoute() {
+export default function ProfileTabRoute() {
   const { data: auth } = useAuth({ required: false })
-
   if (auth == null) return <Redirect href="/login" />
-
-  return <Redirect href="/(tabs)" />
+  return <UserProfileScreen userId={auth.id} />
 }
