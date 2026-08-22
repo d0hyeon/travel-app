@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { getUnreadCount, markAsRead, getLastReadAt } from '../useUnreadChatCount'
-import { setLastReadStore } from '../lastReadStore'
+import { configureStorage } from '../../storage'
 import type { ChatMessage } from '../tripChat.types'
 
 const makeMessage = (id: string, createdAt: string): ChatMessage => ({
@@ -15,9 +15,9 @@ const makeMessage = (id: string, createdAt: string): ChatMessage => ({
 // 기본 저장소는 메모리라 테스트마다 새로 꽂아 비운다.
 beforeEach(() => {
   const store = new Map<string, string>()
-  setLastReadStore({
-    get: (key) => store.get(key) ?? null,
-    set: (key, value) => void store.set(key, value),
+  configureStorage({
+    getItem: (key) => store.get(key) ?? null,
+    setItem: (key, value) => void store.set(key, value),
   })
 })
 

@@ -144,7 +144,7 @@ packages/
 │       ├── route/              # 경로 (도로 경로 어댑터 포함)
 │       ├── tourism-trend/      # 관광 트렌드
 │       ├── trip/               # 여행 (목록·경로·장소 데이터 계층, 최근접 장소 탐색)
-│       ├── trip-chat/          # 여행 채팅 (미읽음 저장소는 플랫폼이 주입)
+│       ├── trip-chat/          # 여행 채팅 (미읽음 저장소는 공용 storage 어댑터 사용)
 │       ├── trip-recommend/     # 추천 장소
 │       ├── trip-checklist/     # 여행 준비물
 │       ├── trip-member/        # 여행 멤버
@@ -175,11 +175,12 @@ eslint.config.js                # 레포 전역 lint 설정 + 의존성
 | Supabase 쿼리, 도메인 로직·타입, 도메인 훅 | `@waylog/domains` |
 | 플랫폼·도메인 비의존 순수 유틸·공용 타입 | `@waylog/utility` |
 | 플랫폼 비의존 React 훅 | `@waylog/react` |
-| 컴포넌트, 라우팅, 애니메이션, 스토리지, 디바이스 권한 | 각 앱 |
+| 컴포넌트, 라우팅, 애니메이션, raw 스토리지, 디바이스 권한 | 각 앱 |
 
 공유 패키지가 지켜야 하는 것:
 
 - 환경변수를 직접 읽지 않는다. 각 앱이 Supabase client·인증 adapter를 생성해 `initializeClient()`로 주입한다
+- 플랫폼 raw storage도 각 앱이 생성해 `initializeClient({ storage })`로 주입한다. 공용 패키지는 동기 캐시 어댑터만 소유한다
 - 컴포넌트(`.tsx`)를 두지 않는다
 - MUI·react-router·브라우저 전역 API(`window`, `document`, `HTMLElement`,
   `requestAnimationFrame`, `localStorage`, IndexedDB 등)에 의존하지 않는다

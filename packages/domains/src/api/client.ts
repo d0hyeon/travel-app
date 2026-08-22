@@ -3,16 +3,19 @@ import { setGovernmentApiServiceKey } from './governmentApi'
 import type { Database } from './_database.types'
 import type { AuthService } from '../auth/auth.types'
 import { configureAuthService } from '../auth/auth.service'
+import { configureStorage } from '../storage'
+import type { PlatformStorage } from '../storage'
 
 export type ApiConfig = {
   client: SupabaseClient<Database>
   auth: AuthService
+  storage: PlatformStorage
   governmentKey?: string
 }
 
 let supabaseInstance: SupabaseClient<Database> | null = null
 
-export function initializeClient({ client, auth, governmentKey }: ApiConfig) {
+export function initializeClient({ client, auth, storage, governmentKey }: ApiConfig) {
   supabaseInstance = client
 
   if (governmentKey != null) {
@@ -20,6 +23,7 @@ export function initializeClient({ client, auth, governmentKey }: ApiConfig) {
   }
 
   configureAuthService(auth)
+  configureStorage(storage)
 }
 
 // .api.ts 전체가 `import { supabase }` 로 모듈 스코프 인스턴스를 쓴다.

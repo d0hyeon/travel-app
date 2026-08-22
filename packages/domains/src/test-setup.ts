@@ -11,4 +11,11 @@ const authService: AuthService = {
   onAuthStateChange: () => () => {},
 }
 
-initializeClient({ client, auth: authService })
+initializeClient({
+  client,
+  auth: authService,
+  storage: {
+    getItem: () => null,
+    setItem: () => {},
+  },
+})

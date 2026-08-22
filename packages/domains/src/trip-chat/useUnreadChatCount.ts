@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { ChatMessage } from './tripChat.types'
-import { getLastReadStore } from './lastReadStore'
+import { getStorage } from '../storage'
 import { useTripChatMessages } from './useTripChatMessages'
 
 const STORAGE_KEY = (tripId: string) => `chat_last_read_${tripId}`
@@ -9,12 +9,12 @@ const STORAGE_KEY = (tripId: string) => `chat_last_read_${tripId}`
 const listeners = new Set<(tripId: string, lastReadAt: string) => void>()
 
 export function getLastReadAt(tripId: string): string | null {
-  return getLastReadStore().get(STORAGE_KEY(tripId))
+  return getStorage().get(STORAGE_KEY(tripId))
 }
 
 export function markAsRead(tripId: string, lastMessageAt?: string): void {
   const lastReadAt = lastMessageAt ?? new Date().toISOString()
-  getLastReadStore().set(STORAGE_KEY(tripId), lastReadAt)
+  getStorage().set(STORAGE_KEY(tripId), lastReadAt)
   listeners.forEach((notify) => notify(tripId, lastReadAt))
 }
 
