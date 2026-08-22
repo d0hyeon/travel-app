@@ -16,13 +16,28 @@ export interface AppPhotoUploadParams {
 
 const MAX_SIZE = 1280
 
-async function resize(uri: string): Promise<string> {
-  const result = await ImageManipulator.manipulateAsync(uri, [{ resize: { width: MAX_SIZE } }], {
+async function resize(uri: string, maxSize = MAX_SIZE): Promise<string> {
+  const result = await ImageManipulator.manipulateAsync(uri, [{ resize: { width: maxSize } }], {
     compress: 0.8,
     format: ImageManipulator.SaveFormat.JPEG,
   })
 
   return result.uri
+}
+
+export interface PostPhotoUploadResult {
+  url: string
+  storagePath: string
+}
+
+export async function uploadPostPhoto(tripId: string | null, uri: string): Promise<PostPhotoUploadResult> {
+  const uploadUri = uri.startsWith('http://') || uri.startsWith('https://')
+    ? uri
+    : await resize(uri, 1600)
+  const scope = tripId ?? 'orphan'
+  const storagePath = `posts/${scope}/${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`
+  const url = await uploadToStorage(storagePath, uploadUri)
+  return { url, storagePath }
 }
 
 async function uploadToStorage(storagePath: string, uri: string): Promise<string> {
