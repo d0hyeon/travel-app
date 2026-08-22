@@ -14,11 +14,14 @@ const config: ExpoConfig = {
     supportsTablet: true,
     bundleIdentifier: "me.waylog.app",
     config: { googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY },
+    // 푸시 알림은 Apple Developer Program 유료 계정에서만 서명된다.
+    // Personal Team 프로비저닝으로는 이 entitlement 가 붙지 않아 토큰 발급이 실패한다.
+    entitlements: { "aps-environment": "development" },
   },
   android: {"package": "me.waylog.app", "config": {"googleMaps": {"apiKey": process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY}}, "adaptiveIcon": {"backgroundColor": "#E6F4FE", "foregroundImage": "./assets/android-icon-foreground.png", "backgroundImage": "./assets/android-icon-background.png", "monochromeImage": "./assets/android-icon-monochrome.png"}, "predictiveBackGestureEnabled": false},
   web: {"favicon": "./assets/favicon.png"},
   scheme: "waylog",
-  plugins: ["expo-router"],
+  plugins: ["expo-router", "expo-notifications"],
   extra: {
     supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
     supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
