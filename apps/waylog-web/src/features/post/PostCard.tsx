@@ -12,7 +12,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import 'swiper/css'
 // @ts-ignore
 import 'swiper/css/pagination'
-import { useAuth } from '@waylog/domains/auth'
+import { useAuth } from '@waylog/domains/clients'
 
 interface Props {
   post: Post

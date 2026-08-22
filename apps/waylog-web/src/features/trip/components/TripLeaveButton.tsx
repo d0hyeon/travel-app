@@ -1,6 +1,6 @@
 import { Button, type ButtonProps } from "@mui/material";
 import { useTrip } from "@waylog/domains/modules/trip";
-import { useAuth } from "@waylog/domains/auth";
+import { useAuth } from "@waylog/domains/clients";
 import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
 import { useNavigate } from "react-router";
 

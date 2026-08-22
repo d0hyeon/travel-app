@@ -1,4 +1,4 @@
-import type { Coordinate } from '../utils'
+import type { Coordinate } from '../../utils'
 import type { Country } from './country.model'
 import { Country as CountryMap } from './country.model'
 import type { Location } from './location.model'

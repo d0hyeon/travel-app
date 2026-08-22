@@ -1,4 +1,4 @@
-import type { Coordinate } from "../utils";
+import type { Coordinate } from "../../utils";
 
 export const MarineActivityType = {
   Beach: "beach",

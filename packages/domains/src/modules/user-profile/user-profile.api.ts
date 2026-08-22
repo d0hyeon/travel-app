@@ -1,4 +1,4 @@
-import { supabase } from '../../client'
+import { supabase } from '../../gateways/client'
 import type { UserProfile } from '../user-profile'
 
 export const userProfileKey = 'user-profile'

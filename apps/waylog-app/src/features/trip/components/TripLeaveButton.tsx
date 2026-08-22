@@ -1,4 +1,4 @@
-import { useAuth } from '@waylog/domains/auth'
+import { useAuth } from '@waylog/domains/clients'
 import { useTrip } from '@waylog/domains/modules/trip'
 import { useRouter } from 'expo-router'
 import { Button } from '../../../shared/components/mui'

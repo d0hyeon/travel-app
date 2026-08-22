@@ -4,7 +4,7 @@ import { convertToKRW, type CurrencyCode } from '@waylog/domains/modules/expense
 import { expenseKey, getExpensesByTripId } from '@waylog/domains/modules/expense'
 import type { Expense } from '@waylog/domains/modules/expense'
 import { getMyShareInKRW } from '@waylog/domains/modules/expense'
-import { useAuth } from '@waylog/domains/auth'
+import { useAuth } from '@waylog/domains/clients'
 import { getAllTripPlaces, placeKey } from '@waylog/domains/modules/place'
 import { PlaceCategoryColorCode, PlaceCategoryTypeLabel, PlaceCategoryType } from '@waylog/domains/modules/place'
 import { getAllRoutes, routeKey } from '@waylog/domains/modules/route'

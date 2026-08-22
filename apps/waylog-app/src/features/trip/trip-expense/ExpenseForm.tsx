@@ -1,4 +1,4 @@
-import { useAuth } from '@waylog/domains/auth'
+import { useAuth } from '@waylog/domains/clients'
 import { CurrencyCode as CurrencyCodeMap, CurrencyCodeLabel, getCurrenciesByDestinations, type CurrencyCode } from '@waylog/domains/modules/expense'
 import { useTrip, useTripPlaces } from '@waylog/domains/modules/trip'
 import { useTripMembers } from '@waylog/domains/modules/trip-member'

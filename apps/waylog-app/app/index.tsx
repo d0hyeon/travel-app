@@ -1,4 +1,4 @@
-import { useAuth } from '@waylog/domains/auth'
+import { useAuth } from '@waylog/domains/clients'
 import { Redirect } from 'expo-router'
 import { TripListScreen } from '../src/features/trip/trip-list/TripListScreen'
 

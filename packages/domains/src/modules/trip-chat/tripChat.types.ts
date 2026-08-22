@@ -1,4 +1,4 @@
-import type { UserProfile } from "@waylog/domains/modules/user-profile";
+import type { UserProfile } from "../user-profile";
 
 export interface ChatMessage {
   id: string;

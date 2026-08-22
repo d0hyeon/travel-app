@@ -1,6 +1,6 @@
-import type { DataRaw, CreateDataType, UpdateDataType } from '../../client'
-import type { Json } from '../../client'
-import { supabase } from '../../client'
+import type { DataRaw, CreateDataType, UpdateDataType } from '../../gateways/client'
+import type { Json } from '../../gateways/client'
+import { supabase } from '../../gateways/client'
 import type { Route } from './route.types'
 
 export const routeKey = 'routes'

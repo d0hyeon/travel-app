@@ -1,7 +1,7 @@
-import { supabase } from "@waylog/domains/client";
-import type { DataRaw } from "@waylog/domains/client";
+import { supabase } from "@waylog/domains/clients";
+import type { DataRaw } from "@waylog/domains/clients";
 import type { Post, PostPhoto, PostPlace, PostVisibility } from "./post.types";
-import { getAuth } from "@waylog/domains/auth";
+import { getAuth } from "@waylog/domains/clients";
 import { assert } from "@waylog/utility";
 
 export const postKey = "posts";

@@ -1,5 +1,5 @@
-import { supabase } from '@waylog/domains/client'
-import type { DataRaw, Json } from '@waylog/domains/client'
+import { supabase } from '@waylog/domains/clients'
+import type { DataRaw, Json } from '@waylog/domains/clients'
 
 // 웹은 브라우저 PushSubscription 을 통째로 저장하지만 앱은 Expo 토큰 하나다.
 // 같은 테이블을 쓰되 endpoint 에 토큰을 넣어 서버가 보낼 경로를 판단하게 한다.

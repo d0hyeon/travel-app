@@ -23,7 +23,7 @@ import {
 import { DatePicker } from '@mui/x-date-pickers'
 import { Suspense, type ReactNode } from "react"
 import { Controller, FormProvider, useFieldArray, useForm, useFormContext, useWatch } from "react-hook-form"
-import { useAuth } from '@waylog/domains/auth'
+import { useAuth } from '@waylog/domains/clients'
 import { CurrencyCode as CurrencyCodeMap, getCurrenciesByDestinations, getCurrencyName, getUsedCurrencies, type CurrencyCode } from '@waylog/domains/modules/expense'
 import { useExpenses } from '@waylog/domains/modules/expense'
 import { useTripMembers } from '@waylog/domains/modules/trip-member'

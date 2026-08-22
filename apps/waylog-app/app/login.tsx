@@ -1,4 +1,4 @@
-import { useAuth } from '@waylog/domains/auth'
+import { useAuth } from '@waylog/domains/clients'
 import { Redirect } from 'expo-router'
 import { LoginScreen } from '../src/features/auth/LoginScreen'
 

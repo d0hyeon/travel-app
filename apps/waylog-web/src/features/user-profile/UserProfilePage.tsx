@@ -11,8 +11,8 @@ import { ProfileRecordsTab } from './ProfileRecordsTab'
 import { ProfileStatStrip } from './ProfileStatStrip'
 import { useScrollContainer } from '~shared/hooks/interaction/useScrollRestore'
 import LogoutIcon from '@mui/icons-material/Logout';
-import { useAuth } from '@waylog/domains/auth'
-import { signOut } from '@waylog/domains/auth'
+import { useAuth } from '@waylog/domains/clients'
+import { signOut } from '@waylog/domains/clients'
 
 const TABS = ['feed', 'records'] as const
 type Tab = typeof TABS[number];

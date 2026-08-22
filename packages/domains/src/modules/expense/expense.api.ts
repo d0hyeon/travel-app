@@ -1,6 +1,6 @@
-import type { DataRaw, UpdateDataType } from '../../client'
-import type { Json } from '../../client'
-import { supabase } from '../../client'
+import type { DataRaw, UpdateDataType } from '../../gateways/client'
+import type { Json } from '../../gateways/client'
+import { supabase } from '../../gateways/client'
 import type { Expense } from './expense.types'
 import type { CurrencyCode } from './currency'
 

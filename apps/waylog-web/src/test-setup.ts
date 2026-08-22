@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { initializeClient } from '@waylog/domains/client'
+import { initializeClient } from '@waylog/domains/clients'
 import { createAuthService } from '~app/supabase-auth'
 
 // 테스트는 entry.client.tsx 를 거치지 않으므로 여기서 공유 패키지를 초기화한다.

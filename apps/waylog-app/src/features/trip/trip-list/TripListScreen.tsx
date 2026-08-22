@@ -1,4 +1,4 @@
-import { signOut } from '@waylog/domains/auth'
+import { signOut } from '@waylog/domains/clients'
 import { useTrips } from '@waylog/domains/modules/trip'
 import { useRouter } from 'expo-router'
 import { Suspense } from 'react'

@@ -2,7 +2,7 @@ import 'react-native-url-polyfill/auto'
 import '../src/shared/polyfills'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { AuthStateSync } from '@waylog/domains/auth'
+import { AuthStateSync } from '@waylog/domains/clients'
 import { Stack } from 'expo-router'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'

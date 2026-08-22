@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { useTrip } from '@waylog/domains/modules/trip'
+import { useTrip } from '../trip'
 import { communityRouteKey, getTripsByDestination } from './communityRoute.api'
 import type { CommunityTrip } from './communityRoute.types'
 

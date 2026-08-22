@@ -3,8 +3,8 @@
  */
 import { getCountryByLocation } from '../location';
 import { Country } from '../location';
-import { reverseKeyValue } from '../utils';
-import type { ValueOf } from '../utils';
+import { reverseKeyValue } from '../../utils';
+import type { ValueOf } from '../../utils';
 
 
 // 화폐 코드 -> 이름 매핑

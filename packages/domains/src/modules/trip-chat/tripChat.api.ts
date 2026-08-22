@@ -1,8 +1,8 @@
-import { supabase } from "@waylog/domains/client";
-import { getAuth } from "@waylog/domains/auth";
+import { supabase } from "@waylog/domains/clients";
+import { getAuth } from "@waylog/domains/clients";
 import type { ChatMessage } from "./tripChat.types";
-import type { DataRaw } from "@waylog/domains/client";
-import { getUserProfileById } from "@waylog/domains/modules/user-profile";
+import type { DataRaw } from "@waylog/domains/clients";
+import { getUserProfileById } from '../user-profile';
 
 export const tripChatKey = "trip_messages";
 

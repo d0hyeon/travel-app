@@ -1,4 +1,4 @@
-import { useAuth } from "@waylog/domains/auth";
+import { useAuth } from "@waylog/domains/clients";
 import { assert } from "@waylog/utility";
 import { useTrip } from "@waylog/domains/modules/trip";
 import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";

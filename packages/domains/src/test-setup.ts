@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
-import type { AuthService } from './auth'
-import { initializeClient } from './client'
+import type { AuthService } from './gateways/auth'
+import { initializeClient } from './gateways/client'
 
 const client = createClient('https://placeholder.supabase.co', 'placeholder')
 const authService: AuthService = {

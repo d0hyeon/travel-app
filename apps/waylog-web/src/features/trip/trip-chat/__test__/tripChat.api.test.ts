@@ -6,7 +6,7 @@ import { getChatMessages, sendChatMessage } from '@waylog/domains/modules/trip-c
 import { MOCK_TRIP_ID } from '~features/trip/trip.mock'
 import { MOCK_SESSION } from '~features/auth/auth.mock'
 import { queryClient } from '~app/query-client'
-import { supabase } from '@waylog/domains/client'
+import { supabase } from '@waylog/domains/clients'
 
 const server = setupServer(...handlers)
 beforeAll(() => {

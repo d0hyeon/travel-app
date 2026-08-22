@@ -1,4 +1,4 @@
-import { supabase } from '@waylog/domains/client'
+import { supabase } from '@waylog/domains/clients'
 import type { Photo } from '@waylog/domains/modules/photo'
 import { toPhoto } from '@waylog/domains/modules/photo'
 import * as ImageManipulator from 'expo-image-manipulator'

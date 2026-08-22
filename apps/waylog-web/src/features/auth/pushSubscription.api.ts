@@ -1,5 +1,5 @@
-import { supabase } from '@waylog/domains/client'
-import type { DataRaw, Json } from '@waylog/domains/client'
+import { supabase } from '@waylog/domains/clients'
+import type { DataRaw, Json } from '@waylog/domains/clients'
 
 // 웹 표준 PushSubscription 타입에 의존한다. RN 푸시는 토큰 기반이라 형태가 다르므로
 // 공유 패키지로 옮기지 않는다.

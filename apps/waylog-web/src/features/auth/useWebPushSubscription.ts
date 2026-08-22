@@ -2,7 +2,7 @@ import { use, useCallback, useEffect, useMemo } from "react";
 import { useSuspenseQuery } from "@waylog/react";
 import { assert } from "@waylog/utility";
 import { addPushSubscription, findPushSubscription, removePushSubscription } from "./pushSubscription.api";
-import { useAuth } from "@waylog/domains/auth";
+import { useAuth } from "@waylog/domains/clients";
 
 let promise: Promise<ServiceWorkerRegistration | undefined> | null = null;
 function getSWRegistration() {

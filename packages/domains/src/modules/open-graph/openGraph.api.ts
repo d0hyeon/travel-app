@@ -1,4 +1,4 @@
-import { supabase } from "../../client";
+import { supabase } from "../../gateways/client";
 
 export interface OgPreviewData {
   title: string | null;

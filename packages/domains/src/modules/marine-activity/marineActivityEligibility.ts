@@ -1,10 +1,10 @@
-import { isOverseasByCoordinate } from "../utils";
+import { isOverseasByCoordinate } from "../../utils";
 import {
   MarineActivityDisableReason,
   type MarineActivityEligibility,
 } from "./marineActivity.types";
 import { getCoordinateByLocation } from "../location";
-import type { Coordinate } from "../utils";
+import type { Coordinate } from "../../utils";
 
 const islandDestinationNames = [
   "제주",

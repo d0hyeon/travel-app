@@ -1,6 +1,6 @@
 import { Outlet } from "react-router";
 import { AuthNavigate } from "~features/auth/AuthNavigate";
-import { useAuth } from "@waylog/domains/auth";
+import { useAuth } from "@waylog/domains/clients";
 
 export default function AuthGuardLayout() {
   const { data: user } = useAuth({ required: false });

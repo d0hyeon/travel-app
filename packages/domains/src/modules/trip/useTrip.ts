@@ -4,7 +4,7 @@ import { deleteTrip, getTripById, tripKey, updateTrip } from "./trip.api";
 import { leaveTrip } from "../trip-member";
 import type { Trip } from "../trip";
 import { getCoordinateByLocation, isLocation } from "../location";
-import { isOverseasByCoordinate } from "../utils";
+import { isOverseasByCoordinate } from "../../utils";
 
 export function useTrip(id: string) {
   const queryClient = useQueryClient();

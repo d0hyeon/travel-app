@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { arrayIncludes,  assert} from "../utils";
+import { arrayIncludes,  assert} from "../../utils";
 import { useTripPlaces } from './useTripPlaces';
 import { useTripRoutes } from './useTripRoutes';
 

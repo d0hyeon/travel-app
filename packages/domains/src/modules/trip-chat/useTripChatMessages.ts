@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { usePreservedCallback } from '@waylog/react';
-import type { TripMember } from '@waylog/domains/modules/trip-member';
-import { useTripMembers } from '@waylog/domains/modules/trip-member';
+import type { TripMember } from '../trip-member';
+import { useTripMembers } from '../trip-member';
 import { getChatMessages, sendChatMessage, subscribeTripMessages, tripChatKey } from './tripChat.api';
 import type { ChatMessage } from './tripChat.types';
 
@@ -70,5 +70,4 @@ export function useTripChatMessages(tripId: string, { onLoad, realtime = true }:
 
 }
 useTripChatMessages.key = (tripId: string) => [tripChatKey, 'list', tripId]
-
 

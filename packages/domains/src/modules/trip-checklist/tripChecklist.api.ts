@@ -1,5 +1,5 @@
-import { supabase } from "../../client"
-import type { UpdateDataType } from "../../client"
+import { supabase } from "../../gateways/client"
+import type { UpdateDataType } from "../../gateways/client"
 import type { MutableTripChecklist, TripChecklist } from "./tripChecklist.type"
 
 type RawData = {

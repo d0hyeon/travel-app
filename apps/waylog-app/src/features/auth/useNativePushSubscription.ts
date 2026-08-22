@@ -1,4 +1,4 @@
-import { useAuth } from '@waylog/domains/auth'
+import { useAuth } from '@waylog/domains/clients'
 import { useSuspenseQuery } from '@waylog/react'
 import Constants from 'expo-constants'
 import * as Device from 'expo-device'

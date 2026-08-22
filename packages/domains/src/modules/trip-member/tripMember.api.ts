@@ -1,5 +1,5 @@
-import { supabase } from '../../client';
-import { getAuth } from '../../auth';
+import { supabase } from '../../gateways/client';
+import { getAuth } from '../../gateways/auth';
 import type { TripMember } from '../trip-member';
 
 export const tripMemberKey = 'trip_members';

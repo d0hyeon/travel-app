@@ -1,5 +1,5 @@
-import { supabase } from '../../client'
-import type { Coordinate } from '../utils'
+import { supabase } from '../../gateways/client'
+import type { Coordinate } from '../../utils'
 
 export interface PlaceResult {
   externalId: string

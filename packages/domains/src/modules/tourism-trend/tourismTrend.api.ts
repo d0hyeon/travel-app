@@ -1,4 +1,4 @@
-import { governmentApi } from '../../client'
+import { governmentApi } from '../../gateways/client'
 import { getSeasonDateRange, type SeasonValue } from './season'
 import {
   RegionLevel,

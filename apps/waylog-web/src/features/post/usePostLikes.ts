@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
-import { getAuth } from '@waylog/domains/auth'
+import { getAuth } from '@waylog/domains/clients'
 import { addLike, getLikeStatus, postLikeKey, removeLike } from './post.api'
 
 interface LikeStatus {

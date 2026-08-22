@@ -1,5 +1,5 @@
-import type { Coordinate } from "../utils";
-import type { ValueOf } from "../utils";
+import type { Coordinate } from "../../utils";
+import type { ValueOf } from "../../utils";
 import { Country } from "./country.model";
 
 export const Locations = [

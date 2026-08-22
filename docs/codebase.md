@@ -133,8 +133,11 @@ packages/
 │   └── src/
 │       ├── api/                # 앱이 주입한 supabase client 연결, 생성 타입
 │       ├── auth/               # 인증 API·useAuth
-│       ├── auth/               # 인증 추상화
-│       ├── client/             # 앱이 주입하는 외부 클라이언트
+│       ├── gateways/           # 외부 시스템 연결 계층
+│       │   ├── auth/           # 인증 추상화
+│       │   ├── client/         # 앱이 주입하는 외부 클라이언트
+│       │   └── index.ts        # @waylog/domains/clients 공개 진입점
+│       ├── utils/              # 도메인 공용 유틸리티
 │       └── modules/            # 도메인별 데이터·로직 모듈
 │           ├── expense/        # 지출(순수 로직·데이터 계층)
 │           ├── location/       # 위치 vocabulary
@@ -152,7 +155,6 @@ packages/
 │           ├── trip-checklist/  # 여행 준비물
 │           ├── trip-member/     # 여행 멤버
 │           ├── trip-memo/       # 여행 메모
-│           ├── storage/         # 플랫폼 저장소 캐시 어댑터
 │           ├── weather/         # 날씨 예보
 │           ├── user-profile/    # 유저 프로필
 │           └── utils/           # domains 전용 query 결과 병합 호환 진입점

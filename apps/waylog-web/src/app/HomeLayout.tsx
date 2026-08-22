@@ -8,13 +8,13 @@ import { Box, IconButton, Stack, Tooltip, Typography } from '@mui/material'
 import { useRef, useState } from 'react'
 import { generatePath, Link, Outlet, PrefetchPageLinks, useLocation, useNavigate } from 'react-router'
 import { AppRoute } from '~app/routes'
-import { signOut } from '@waylog/domains/auth'
+import { signOut } from '@waylog/domains/clients'
 import { BottomNavigation } from '~shared/components/BottomNavigation'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useActivationSignal } from '~shared/hooks/interaction/useActivationSignal'
 import { ScrollContainerProvider } from '~shared/hooks/interaction/useScrollRestore'
 import { isDev } from './env'
-import { useAuth } from '@waylog/domains/auth'
+import { useAuth } from '@waylog/domains/clients'
 
 
 const TABS = [

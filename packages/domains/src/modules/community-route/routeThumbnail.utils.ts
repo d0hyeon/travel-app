@@ -1,4 +1,4 @@
-import type { Coordinate } from "../utils";
+import type { Coordinate } from "../../utils";
 
 export interface NormalizedPoint {
   x: number;

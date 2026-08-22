@@ -1,6 +1,6 @@
-import { supabase } from '@waylog/domains/client'
-import { getTripPlacesByTripId } from '@waylog/domains/modules/place'
-import type { PlaceCategoryType } from '@waylog/domains/modules/place'
+import { supabase } from '@waylog/domains/clients'
+import { getTripPlacesByTripId } from '../place'
+import type { PlaceCategoryType } from '../place'
 import { calcDistance } from '@waylog/utility'
 
 

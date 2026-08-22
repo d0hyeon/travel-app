@@ -1,6 +1,6 @@
-import { supabase } from "../../client";
+import { supabase } from "../../gateways/client";
 import type { TripMemo } from "./tripMemo.type";
-import type { DataRaw, UpdateDataType } from "../../client";
+import type { DataRaw, UpdateDataType } from "../../gateways/client";
 
 
 function toData(row: DataRaw<'memos'>): TripMemo {

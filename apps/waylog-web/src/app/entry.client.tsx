@@ -3,8 +3,8 @@
 import './env'
 
 import { createClient } from '@supabase/supabase-js'
-import { initializeClient } from '@waylog/domains/client'
-import type { Database } from '@waylog/domains/client'
+import { initializeClient } from '@waylog/domains/clients'
+import type { Database } from '@waylog/domains/clients'
 import { createAuthService } from './supabase-auth'
 import { GOVERNMENT_API_SERVICE_KEY, SUPABASE_ANON_KEY, SUPABASE_URL } from './env'
 import { startTransition, StrictMode } from 'react'

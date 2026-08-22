@@ -1,4 +1,4 @@
-import type { ValueOf } from "../utils";
+import type { ValueOf } from "../../utils";
 
 export const Country = {
   // 아시아
