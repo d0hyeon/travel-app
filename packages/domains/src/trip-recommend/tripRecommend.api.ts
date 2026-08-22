@@ -1,7 +1,7 @@
 import { supabase } from '@waylog/domains/api'
 import { getTripPlacesByTripId } from '@waylog/domains/place'
 import type { PlaceCategoryType } from '@waylog/domains/place'
-import { calcDistance } from '@waylog/domains/utils'
+import { calcDistance } from '@waylog/utility'
 
 
 export const recommendedPlaceKey = 'recommended-places'

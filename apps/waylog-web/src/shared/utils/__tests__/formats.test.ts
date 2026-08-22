@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatKoreanCount } from '@waylog/domains/utils'
+import { formatKoreanCount } from '@waylog/utility'
 
 describe('formatKoreanCount', () => {
   it('만 이상은 만 단위로 축약한다', () => {

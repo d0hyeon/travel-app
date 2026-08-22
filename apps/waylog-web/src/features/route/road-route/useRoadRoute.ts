@@ -1,6 +1,6 @@
 import { clientDatabase } from '~app/client-database';
 import { useQuery } from '@waylog/react';
-import { isOverseasByCoordinate } from '@waylog/domains/utils';
+import { isOverseasByCoordinate } from '@waylog/utility';
 import type { Coordinate } from '../../../shared/components/Map/types';
 import type { RoadRoute } from '@waylog/domains/route';
 import { getRoadDirections } from '@waylog/domains/route';

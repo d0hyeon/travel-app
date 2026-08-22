@@ -1,7 +1,7 @@
 import { createContext, startTransition, use, useCallback, useEffect, useMemo, useState, type PropsWithChildren } from "react";
 import { useSearchParams as useRouterSearchParams, type NavigateOptions as RouterNavigateOptions } from "react-router";
 import { useVariation } from "@waylog/react";
-import { assert } from "@waylog/domains/utils";
+import { assert } from "@waylog/utility";
 
 type NextValue = URLSearchParams | ((curr: URLSearchParams) => URLSearchParams)
 export type NavigateOptions = RouterNavigateOptions;

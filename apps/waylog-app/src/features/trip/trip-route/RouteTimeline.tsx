@@ -1,6 +1,6 @@
 import styled from '@emotion/native'
 import type { RouteLeg } from '@waylog/domains/route'
-import { formatDistance, formatDuration } from '@waylog/domains/utils'
+import { formatDistance, formatDuration } from '@waylog/utility'
 import { palette } from '../../../shared/config/tokens'
 import { Typography, type StackProps } from '../../../shared/components/mui'
 import { TransportIcon } from './TransportIcon'

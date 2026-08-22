@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getLocationCoordinates } from '~shared/components/Map/polygon-layer.utils'
 import { Locations, type Location } from '@waylog/domains/location'
-import type { Coordinate } from '@waylog/domains/utils'
+import type { Coordinate } from '@waylog/utility'
 import type { PreviewRoute } from '@waylog/domains/community-route'
 import {
   dedupeNearbyPoints,

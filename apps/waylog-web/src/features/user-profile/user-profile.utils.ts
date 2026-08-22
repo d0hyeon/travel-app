@@ -1,4 +1,4 @@
-import type { Coordinate } from '@waylog/domains/utils'
+import type { Coordinate } from '@waylog/utility'
 import { Country } from '@waylog/domains/location'
 import type { Location } from '@waylog/domains/location'
 import {

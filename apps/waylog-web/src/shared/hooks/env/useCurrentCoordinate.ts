@@ -1,5 +1,5 @@
 import { useEffectEvent, useState } from 'react';
-import type { Coordinate } from '@waylog/domains/utils';
+import type { Coordinate } from '@waylog/utility';
 import { useAsyncEffect } from '@waylog/react';
 
 let permissionPromise: Promise<boolean> | null = null;

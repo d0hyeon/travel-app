@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import { useTrip } from '@waylog/domains/trip'
-import { arrayIncludes, assert } from '@waylog/domains/utils'
+import { arrayIncludes, assert } from '@waylog/utility'
 import { PRECIPITATION_SNOW_TYPES, useDailyWeatherForecast } from '@waylog/domains/weather'
 import { ErrorBoundary } from '../../../shared/components/ErrorBoundary'
 import { IconButton } from '../../../shared/components/mui'

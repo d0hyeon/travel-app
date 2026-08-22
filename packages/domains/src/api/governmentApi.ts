@@ -1,5 +1,5 @@
 import { createHttpClient } from "./createHttpClient";
-import { withQueryParams } from "../utils/urls";
+import { withQueryParams } from "@waylog/utility";
 
 // 앱이 initApi()로 주입한다. 공유 패키지는 환경변수를 직접 읽지 않는다.
 let serviceKey = "";

@@ -1,6 +1,6 @@
 import { governmentApi, type GovernmentApiResponse } from "@waylog/domains/api";
-import type { Coordinate } from "@waylog/domains/utils";
-import type { ValueOf } from "@waylog/domains/utils";
+import type { Coordinate } from "@waylog/utility";
+import type { ValueOf } from "@waylog/utility";
 import {
   type DailyWeatherForecast,
   type HourlyWeatherForecast,
@@ -8,7 +8,7 @@ import {
   SkyCondition,
 } from "./weather.types";
 import { differenceInCalendarDays, parseISO, set } from "date-fns";
-import { isOverseasByCoordinate } from "@waylog/domains/utils";
+import { isOverseasByCoordinate } from "@waylog/utility";
 
 type GetDailyWeatherForecastParams = {
   /**

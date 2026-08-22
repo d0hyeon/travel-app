@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import type { AnimationApi } from "./useAnimation"
 import { useVariation } from "@waylog/react"
-import { assert } from "@waylog/domains/utils"
+import { assert } from "@waylog/utility"
 import { throttle } from "~shared/utils/throttle";
 
 export type DefaultDriverState = { progress: number };

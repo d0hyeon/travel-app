@@ -1,6 +1,6 @@
 import { Box, CircularProgress, type BoxProps } from '@mui/material';
 import { Suspense, use } from 'react';
-import { omit } from '@waylog/domains/utils';
+import { omit } from '@waylog/utility';
 import { lazy } from '~shared/utils/react';
 import { SwitchCase } from '../SwitchCase';
 import { MapTypeContext } from './MapTypeContext';

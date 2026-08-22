@@ -1,5 +1,5 @@
 import { formatCurrency, useExpenses, useExpensesByPlace } from '@waylog/domains/expense'
-import { formatDisplayDate, formatShortDate } from '@waylog/domains/utils'
+import { formatDisplayDate, formatShortDate } from '@waylog/utility'
 import { useTrip } from '@waylog/domains/trip'
 import { useTripMembers } from '@waylog/domains/trip-member'
 import { MaterialIcons } from '@expo/vector-icons'

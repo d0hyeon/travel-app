@@ -19,7 +19,7 @@ import { useTripChatMessages } from '@waylog/domains/trip-chat'
 import { markAsRead } from '@waylog/domains/trip-chat'
 import { TripChatMessage } from './TripChatMessage'
 import { useWebPushSubscription } from '~features/auth/useWebPushSubscription'
-import { arrayIncludes } from '@waylog/domains/utils'
+import { arrayIncludes } from '@waylog/utility'
 import { TransitionGroup } from 'react-transition-group';
 
 interface Props {

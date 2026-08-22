@@ -1,5 +1,5 @@
 import { findNearestPlace } from '@waylog/domains/trip'
-import { formatDisplayDate, formatShortDate } from '@waylog/domains/utils'
+import { formatDisplayDate, formatShortDate } from '@waylog/utility'
 import { useDayTripRoutes, useTrip, useTripPlaces } from '@waylog/domains/trip'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Fragment, useMemo, useRef, useState } from 'react'

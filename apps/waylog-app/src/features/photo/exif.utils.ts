@@ -1,4 +1,4 @@
-import type { Coordinate } from '@waylog/domains/utils'
+import type { Coordinate } from '@waylog/utility'
 
 /**
  * expo-image-picker 가 준 EXIF 에서 GPS 좌표를 뽑는다.

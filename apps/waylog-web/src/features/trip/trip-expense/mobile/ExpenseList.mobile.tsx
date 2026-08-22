@@ -11,7 +11,7 @@ import { useExpenses } from '@waylog/domains/expense'
 import { ListItem } from "~shared/components/ListItem"
 import { PopMenu } from "~shared/components/PopMenu"
 import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog"
-import { formatShortDate } from "@waylog/domains/utils"
+import { formatShortDate } from "@waylog/utility"
 import { useTripMembers } from '@waylog/domains/trip-member'
 import { useExpenseFormBottomSheet } from "../useExpenseFormOverlay"
 

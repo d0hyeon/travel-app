@@ -1,4 +1,4 @@
-import type { Coordinate } from '@waylog/domains/utils'
+import type { Coordinate } from '@waylog/utility'
 
 export interface PreviewRoute {
   scheduledDate?: string

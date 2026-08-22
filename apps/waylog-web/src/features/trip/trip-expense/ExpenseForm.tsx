@@ -31,8 +31,8 @@ import { useTrip } from '@waylog/domains/trip'
 import { PopMenu } from '~shared/components/PopMenu'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { SortCommand } from '~shared/utils/sorts'
-import { assert } from '@waylog/domains/utils'
-import { formatDisplayDate } from "@waylog/domains/utils"
+import { assert } from '@waylog/utility'
+import { formatDisplayDate } from "@waylog/utility"
 import { useTripPlaces } from '@waylog/domains/trip'
 
 export interface PaymentField {

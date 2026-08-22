@@ -8,7 +8,7 @@ import { ResizeHandleHorizontal } from '~shared/components/split-view/SplitView'
 import { useResizableSplit } from '~shared/components/split-view/useResizableSplit'
 import { IntersectionArea } from "../../../../shared/components/IntersectionArea"
 import { Map, type MapRef } from "../../../../shared/components/Map"
-import { formatShortDate } from "@waylog/domains/utils"
+import { formatShortDate } from "@waylog/utility"
 import { formatByCurrencyCode } from "@waylog/domains/expense"
 import { formatCurrency } from "@waylog/domains/expense"
 import { PlaceCategoryColorCode } from '@waylog/domains/place'

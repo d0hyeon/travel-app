@@ -35,4 +35,4 @@ export function renderTextWithLinks(text: string): ReactNode {
   return result
 }
 
-export { queryParams, withQueryParams } from '@waylog/domains/utils'
+export { queryParams, withQueryParams } from '@waylog/utility'

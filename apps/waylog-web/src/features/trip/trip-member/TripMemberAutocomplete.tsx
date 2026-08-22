@@ -1,5 +1,5 @@
 import { Autocomplete, TextField, type AutocompleteProps } from "@mui/material";
-import type { PickPartial } from "@waylog/domains/utils";
+import type { PickPartial } from "@waylog/utility";
 import type { TripMember } from "@waylog/domains/trip-member";
 import { useTripMembers } from '@waylog/domains/trip-member';
 

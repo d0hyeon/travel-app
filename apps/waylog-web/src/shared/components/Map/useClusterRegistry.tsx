@@ -1,6 +1,6 @@
 import { createContext, use, useCallback, useEffect, useMemo, useRef, useState, type DependencyList, type PropsWithChildren } from 'react';
 import { useBatchedCallback } from '~shared/hooks/useBatchedCallback'
-import { assert } from '@waylog/domains/utils';
+import { assert } from '@waylog/utility';
 import type { MarkerData } from './types';
 
 interface ClusterContextValue {

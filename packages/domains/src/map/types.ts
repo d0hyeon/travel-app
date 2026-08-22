@@ -1,5 +1,5 @@
 import type { ReactNode, Ref } from 'react';
-import type { Coordinate } from '@waylog/domains/utils';
+import type { Coordinate } from '@waylog/utility';
 
 export type { Coordinate };
 

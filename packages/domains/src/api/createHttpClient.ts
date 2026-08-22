@@ -1,4 +1,4 @@
-import { withQueryParams } from "../utils/urls";
+import { withQueryParams } from "@waylog/utility";
 
 interface Options {
   baseUrl?: string;
@@ -68,7 +68,7 @@ async function parseResponse<Data = unknown>(
   const contentType = response.headers.get("content-type") || "";
 
   if (contentType.includes("application/json")) {
-    return await response.json();
+    return (await response.json()) as Data;
   }
 
   if (contentType.includes("text/")) {
@@ -86,7 +86,7 @@ async function parseResponse<Data = unknown>(
   return null as Data;
 }
 
-const serializeBody = (body: unknown): BodyInit | null | undefined => {
+const serializeBody = (body: unknown): RequestInit["body"] => {
   if (body == null) return body as null | undefined;
 
   // fetch가 그대로 수용할 수 있는 객체들인 경우
@@ -96,7 +96,7 @@ const serializeBody = (body: unknown): BodyInit | null | undefined => {
     body instanceof Blob ||
     typeof body === "string"
   ) {
-    return body as BodyInit;
+    return body as RequestInit["body"];
   }
 
   // 일반 객체나 배열은 JSON으로 변환

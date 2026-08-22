@@ -3,7 +3,7 @@ import { InputAdornment, Skeleton } from "@mui/material";
 import { Suspense, type ComponentProps } from "react";
 import { DateRangePicker } from "~shared/components/date-range/DateRangePicker";
 import { EditableText } from "~shared/components/EditableText";
-import { formatShortDate, formatDisplayDate } from "@waylog/domains/utils";
+import { formatShortDate, formatDisplayDate } from "@waylog/utility";
 import { useTrip } from "@waylog/domains/trip";
 
 type Props = {

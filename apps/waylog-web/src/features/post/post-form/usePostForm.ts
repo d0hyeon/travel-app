@@ -3,7 +3,7 @@ import { PostVisibility } from "../post.types";
 import type { DraftPostPhoto } from "./postDraftPhoto";
 import type { PostPlaceSelection } from "./PostPlacesField";
 import { useCallback, useState } from "react";
-import { assert } from "@waylog/domains/utils";
+import { assert } from "@waylog/utility";
 import { useVariation } from "@waylog/react";
 import { usePreservedCallback } from "@waylog/react";
 import { useLoading } from "@waylog/react";

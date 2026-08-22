@@ -1,4 +1,4 @@
-import type { Coordinate } from '@waylog/domains/utils'
+import type { Coordinate } from '@waylog/utility'
 import * as Location from 'expo-location'
 import { useEffect, useState } from 'react'
 

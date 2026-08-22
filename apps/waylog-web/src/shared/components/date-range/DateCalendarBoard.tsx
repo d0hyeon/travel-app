@@ -11,7 +11,7 @@ import { DateCalendarHeader } from './DateCalendarHeader';
 import Menu from './Menu';
 import { type DateRange } from './type';
 import { useIsMobile } from '~shared/hooks/env/useIsMobile';
-import { assert } from '@waylog/domains/utils';
+import { assert } from '@waylog/utility';
 
 type Props = {
   defaultValue?: DateRange;

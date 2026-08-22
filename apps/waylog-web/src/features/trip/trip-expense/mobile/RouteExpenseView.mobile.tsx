@@ -4,7 +4,7 @@ import { alpha, styled } from '@mui/material'
 import { useRef, useState } from "react"
 import { IntersectionArea } from "../../../../shared/components/IntersectionArea"
 import { Map, type MapRef } from "../../../../shared/components/Map"
-import { formatShortDate } from "@waylog/domains/utils"
+import { formatShortDate } from "@waylog/utility"
 import { formatByCurrencyCode } from "@waylog/domains/expense"
 import { formatCurrency } from "@waylog/domains/expense"
 import { PlaceCategoryColorCode } from '@waylog/domains/place'

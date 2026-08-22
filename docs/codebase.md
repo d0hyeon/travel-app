@@ -128,6 +128,7 @@ apps/
     ├── tsconfig.json           # 앱 프로젝트 레퍼런스 루트
     └── vite.config.ts 등       # 앱 빌드·테스트 설정
 packages/
+├── utility/                    # @waylog/utility — 플랫폼·도메인 비의존 순수 유틸리티·공용 타입
 ├── domains/                    # @waylog/domains — 도메인·데이터 계층
 │   └── src/
 │       ├── api/                # supabase 클라이언트(initApi 주입), 생성 타입
@@ -150,7 +151,7 @@ packages/
 │       ├── trip-memo/          # 여행 메모
 │       ├── weather/            # 날씨 예보 (국내 기상청 / 해외 open-meteo)
 │       ├── user-profile/       # 유저 프로필
-│       └── utils/              # 순수 유틸(포맷·좌표·URL·지오)
+│       └── utils/              # domains 전용 query 결과 병합 호환 진입점
 └── react/                      # @waylog/react — 플랫폼 비의존 훅
 supabase/                       # DB 마이그레이션·엣지 함수
 tools/                          # eslint 커스텀 룰
@@ -172,6 +173,7 @@ eslint.config.js                # 레포 전역 lint 설정 + 의존성
 | 대상 | 위치 |
 | --- | --- |
 | Supabase 쿼리, 도메인 로직·타입, 도메인 훅 | `@waylog/domains` |
+| 플랫폼·도메인 비의존 순수 유틸·공용 타입 | `@waylog/utility` |
 | 플랫폼 비의존 React 훅 | `@waylog/react` |
 | 컴포넌트, 라우팅, 애니메이션, 스토리지, 디바이스 권한 | 각 앱 |
 

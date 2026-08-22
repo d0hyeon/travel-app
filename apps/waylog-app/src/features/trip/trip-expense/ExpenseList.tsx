@@ -8,7 +8,7 @@ import { ListItem } from "../../../shared/components/ListItem"
 import { PopMenu } from "../../../shared/components/PopMenu"
 import { useConfirmDialog } from "../../../shared/components/confirm-dialog/useConfirmDialog"
 import { useExpenseFormBottomSheet } from "./useExpenseFormOverlay"
-import { formatShortDate } from "@waylog/domains/utils"
+import { formatShortDate } from "@waylog/utility"
 import { useTripMembers } from '@waylog/domains/trip-member'
 
 interface Props {

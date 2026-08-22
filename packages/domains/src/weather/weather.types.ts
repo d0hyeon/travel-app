@@ -1,4 +1,4 @@
-import type { ValueOf } from "@waylog/domains/utils";
+import type { ValueOf } from "@waylog/utility";
 
 export const SkyCondition = {
   맑음: "clear",

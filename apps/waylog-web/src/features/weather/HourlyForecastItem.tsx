@@ -2,8 +2,8 @@ import { Box, Divider, Stack, Typography, useTheme, type StackProps } from "@mui
 import { formatDate, isSameHour } from "date-fns";
 import { ko } from "date-fns/locale";
 import { useCurrentTime } from "@waylog/react";
-import { reverseKeyValue } from "@waylog/domains/utils";
-import { arrayIncludes } from "@waylog/domains/utils";
+import { reverseKeyValue } from "@waylog/utility";
+import { arrayIncludes } from "@waylog/utility";
 import { WeatherIcon } from "./WeatherIcon";
 import { PRECIPITATION_SNOW_TYPES, PrecipitationType, SkyCondition, type HourlyWeatherForecast } from "@waylog/domains/weather";
 

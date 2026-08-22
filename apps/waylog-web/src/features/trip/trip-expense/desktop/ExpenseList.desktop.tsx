@@ -11,7 +11,7 @@ import {
 } from "@mui/material"
 import { useMemo } from "react"
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
-import { formatShortDate } from "@waylog/domains/utils"
+import { formatShortDate } from "@waylog/utility"
 import { formatByCurrencyCode } from "@waylog/domains/expense"
 import { useExpenses } from '@waylog/domains/expense'
 import { useTripMembers } from '@waylog/domains/trip-member'

@@ -9,8 +9,8 @@ import type { DayPart } from "@waylog/domains/weather";
 import { BottomSheet } from "~shared/components/bottom-sheet/BottomSheet";
 import { ErrorBoundary } from "~shared/components/ErrorBoundary";
 import { useCurrentTime } from "@waylog/react";
-import type { Coordinate } from "@waylog/domains/utils";
-import { formatDisplayDate, formatShortDate } from "@waylog/domains/utils";
+import type { Coordinate } from "@waylog/utility";
+import { formatDisplayDate, formatShortDate } from "@waylog/utility";
 import { useTrip } from "@waylog/domains/trip";
 
 import "swiper/css";

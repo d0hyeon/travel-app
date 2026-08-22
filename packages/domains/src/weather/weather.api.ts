@@ -1,6 +1,6 @@
 import { differenceInCalendarDays, parseISO, set } from "date-fns";
 import { createHttpClient } from "@waylog/domains/api";
-import type { Coordinate } from "@waylog/domains/utils";
+import type { Coordinate } from "@waylog/utility";
 import {
   PrecipitationType,
   SkyCondition,

@@ -1,5 +1,5 @@
 import { useInvitedTrip } from '@waylog/domains/trip'
-import { assert } from '@waylog/domains/utils'
+import { assert } from '@waylog/utility'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { Suspense, useTransition } from 'react'
 import { ErrorBoundary } from '../../../shared/components/ErrorBoundary'

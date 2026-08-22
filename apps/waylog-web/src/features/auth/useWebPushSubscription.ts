@@ -1,6 +1,6 @@
 import { use, useCallback, useEffect, useMemo } from "react";
 import { useSuspenseQuery } from "@waylog/react";
-import { assert } from "@waylog/domains/utils";
+import { assert } from "@waylog/utility";
 import { addPushSubscription, findPushSubscription, removePushSubscription } from "./pushSubscription.api";
 import { useAuth } from "@waylog/domains/auth";
 

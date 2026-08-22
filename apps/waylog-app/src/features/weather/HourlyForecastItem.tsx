@@ -1,7 +1,7 @@
 import { formatDate, isSameHour } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { useCurrentTime } from '@waylog/react'
-import { arrayIncludes, reverseKeyValue } from '@waylog/domains/utils'
+import { arrayIncludes, reverseKeyValue } from '@waylog/utility'
 import {
   PRECIPITATION_SNOW_TYPES,
   PrecipitationType,

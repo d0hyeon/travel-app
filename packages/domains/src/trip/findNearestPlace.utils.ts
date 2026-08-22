@@ -1,5 +1,5 @@
-import type { Coordinate } from "@waylog/domains/utils";
-import { calcDistance } from "@waylog/domains/utils";
+import type { Coordinate } from "@waylog/utility";
+import { calcDistance } from "@waylog/utility";
 
 interface FindNearestPlaceOptions {
   /** 이 거리(m)를 넘으면 가장 가까운 장소라도 고르지 않는다. */

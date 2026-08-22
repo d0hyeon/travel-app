@@ -1,6 +1,6 @@
 import { Skeleton, Stack, Typography, type StackProps } from "@mui/material";
 import { Suspense } from "react";
-import { formatShortDate } from "@waylog/domains/utils";
+import { formatShortDate } from "@waylog/utility";
 import { TripDurationEditableText } from "../components/TripDurationEditableText";
 import { useTrip } from "@waylog/domains/trip";
 

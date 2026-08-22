@@ -2,7 +2,7 @@ import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-q
 import { queryClient } from '~app/query-client'
 import { createPost, deletePost, getPostById, postKey, type CreatePostInput } from './post.api'
 import type { Post } from './post.types'
-import { assert } from '@waylog/domains/utils';
+import { assert } from '@waylog/utility';
 
 
 export const UsePostError = {

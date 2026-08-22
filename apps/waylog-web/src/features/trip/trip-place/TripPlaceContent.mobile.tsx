@@ -2,7 +2,7 @@ import { queryClient } from '~app/query-client';
 import { Box, Stack, Typography } from "@mui/material";
 import { Suspense, useMemo, useRef, useState } from "react";
 import { BottomArea } from '~shared/components/BottomArea';
-import { arraySplit } from '@waylog/domains/utils';
+import { arraySplit } from '@waylog/utility';
 import { BottomSheet } from "../../../shared/components/bottom-sheet/BottomSheet";
 import { Map, type MapRef } from "../../../shared/components/Map";
 import { PlaceCategoryColorCode, type TripPlace } from '@waylog/domains/place';

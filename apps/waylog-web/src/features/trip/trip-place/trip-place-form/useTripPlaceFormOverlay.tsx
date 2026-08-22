@@ -7,7 +7,7 @@ import { PlaceTitleButton } from './PlaceTitleButton'
 import { useCallback } from 'react';
 import { useOverlay } from '../../../../shared/hooks/useOverlay';
 import { useTripPlaces } from '@waylog/domains/trip';
-import { assert } from '@waylog/domains/utils';
+import { assert } from '@waylog/utility';
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog';
 import { usePlaceDetailOverlay } from '~features/place/place-detail/usePlaceDetailOverlay';
 import { PlacePhotoSection } from '../PlacePhotoSection';

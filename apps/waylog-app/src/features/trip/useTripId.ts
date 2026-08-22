@@ -1,4 +1,4 @@
-import { assert } from '@waylog/domains/utils'
+import { assert } from '@waylog/utility'
 import { useGlobalSearchParams } from 'expo-router'
 
 // 웹 useTripId 와 같은 역할이다.
