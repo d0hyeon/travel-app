@@ -179,7 +179,7 @@ eslint.config.js                # 레포 전역 lint 설정 + 의존성
 
 공유 패키지가 지켜야 하는 것:
 
-- 환경변수를 직접 읽지 않는다. 각 앱이 `initApi()` / `initQueryClient()`로 주입한다
+- 환경변수를 직접 읽지 않는다. 각 앱이 Supabase client·인증 adapter를 생성해 `initApi()`로 주입한다
 - 컴포넌트(`.tsx`)를 두지 않는다
 - MUI·react-router·브라우저 전역 API(`window`, `document`, `HTMLElement`,
   `requestAnimationFrame`, `localStorage`, IndexedDB 등)에 의존하지 않는다
@@ -194,8 +194,8 @@ eslint.config.js                # 레포 전역 lint 설정 + 의존성
 | `useExpenses` 등 일부 훅 | 웹 전용 계층을 물고 있음 |
 | 스크롤·포인터·애니메이션 훅 | DOM 이벤트·`requestAnimationFrame` 의존 |
 
-**supabase 클라이언트:** `.api.ts` 전체가 `import { supabase }`로 모듈 스코프
-인스턴스를 쓴다. 인스턴스 생성만 앱으로 옮기기 위해 Proxy 지연 초기화를 쓴다.
+**supabase 클라이언트:** client 생성과 auth storage 설정은 각 앱이 소유한다.
+`@waylog/domains/api`는 앱이 주입한 client를 기존 `.api.ts`에 제공하기 위해 Proxy 지연 참조를 사용한다.
 초기화 전에 접근하면 명확한 에러를 던진다.
 
 ### 앱 내부 구조

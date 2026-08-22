@@ -1,12 +1,15 @@
-import { createClient, type SupabaseClient, type SupabaseClientOptions } from '@supabase/supabase-js'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { createHttpClient } from './createHttpClient'
 import { setGovernmentApiServiceKey } from './governmentApi'
 import type { Database } from './_database.types'
+import type { AuthService } from '../auth/auth.types'
+import { configureAuthService } from '../auth/auth.service'
 
 export type ApiConfig = {
+  client: SupabaseClient<Database>
+  authService: AuthService
   url: string
   anonKey: string
-  auth?: SupabaseClientOptions<'public'>['auth']
   governmentApiServiceKey?: string
 }
 
@@ -15,8 +18,8 @@ type HttpClient = ReturnType<typeof createHttpClient>
 let supabaseInstance: SupabaseClient<Database> | null = null
 let httpClientInstance: HttpClient | null = null
 
-export function initApi({ url, anonKey, auth, governmentApiServiceKey }: ApiConfig) {
-  supabaseInstance = createClient<Database>(url, anonKey, auth ? { auth } : undefined)
+export function initApi({ client, url, anonKey, authService, governmentApiServiceKey }: ApiConfig) {
+  supabaseInstance = client
   httpClientInstance = createHttpClient({
     baseUrl: url,
     beforeRequest: (request) => {
@@ -28,6 +31,8 @@ export function initApi({ url, anonKey, auth, governmentApiServiceKey }: ApiConf
   if (governmentApiServiceKey != null) {
     setGovernmentApiServiceKey(governmentApiServiceKey)
   }
+
+  configureAuthService(authService)
 }
 
 // .api.ts 전체가 `import { supabase }` 로 모듈 스코프 인스턴스를 쓴다.

@@ -65,6 +65,9 @@ importers:
       '@waylog/react':
         specifier: workspace:*
         version: link:../../packages/react
+      '@waylog/typing':
+        specifier: workspace:*
+        version: link:../../packages/typing
       '@waylog/utility':
         specifier: workspace:*
         version: link:../../packages/utility
@@ -213,6 +216,9 @@ importers:
       '@waylog/react':
         specifier: workspace:*
         version: link:../../packages/react
+      '@waylog/typing':
+        specifier: workspace:*
+        version: link:../../packages/typing
       '@waylog/utility':
         specifier: workspace:*
         version: link:../../packages/utility
@@ -382,6 +388,9 @@ importers:
       '@waylog/react':
         specifier: workspace:*
         version: link:../react
+      '@waylog/typing':
+        specifier: workspace:*
+        version: link:../typing
       '@waylog/utility':
         specifier: workspace:*
         version: link:../utility
@@ -418,8 +427,17 @@ importers:
         specifier: ~5.9.3
         version: 5.9.3
 
+  packages/typing:
+    devDependencies:
+      typescript:
+        specifier: ~5.9.3
+        version: 5.9.3
+
   packages/utility:
     dependencies:
+      '@waylog/typing':
+        specifier: workspace:*
+        version: link:../typing
       date-fns:
         specifier: ^4.1.0
         version: 4.4.0
