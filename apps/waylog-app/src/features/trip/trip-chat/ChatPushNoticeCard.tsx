@@ -22,7 +22,7 @@ export function ChatPushNoticeCard(props: Props) {
   }
 
   return (
-    <SlideReveal open={isOpen} delay={1000}>
+    <SlideReveal open={isOpen} delay={1000} duration={400}>
       <NotificationCard onClose={() => setIsOpen(false)} {...props}>
         <NotificationCard.Title textAlign="center">
           실시간으로 알림을 받아보세요
@@ -45,7 +45,7 @@ export function ChatPushNoticeCard(props: Props) {
           </Button>
         ) : (
           <NotificationCard.Text textAlign="center">
-            실기기에서만 알림을 설정할 수 있어요.
+            설정에서 알림을 킬 수 있어요.
           </NotificationCard.Text>
         )}
       </NotificationCard>

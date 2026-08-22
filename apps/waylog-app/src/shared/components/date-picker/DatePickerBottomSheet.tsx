@@ -8,31 +8,32 @@ import type { DatePickerStep, DateRange, DateSelection } from './datePicker.mode
 /** 확정된 값의 모양도 타입이 정한다. 시트를 여는 쪽은 무엇을 고를지 이미 안다. */
 type DatePickerBottomSheetValueProps =
   | {
-      type?: 'date' | 'dateTime'
-      /** 시트를 열 때의 값. 확정 전까지 밖으로 새어 나가지 않는다. */
-      defaultValue: Date | null
-      minuteStep?: number
-      onConfirm: (value: Date) => void
-    }
+    type?: 'date' | 'dateTime'
+    /** 시트를 열 때의 값. 확정 전까지 밖으로 새어 나가지 않는다. */
+    defaultValue: Date | null
+    minuteStep?: number
+    onConfirm: (value: Date) => void
+  }
   | {
-      type: 'range'
-      defaultValue: DateSelection
-      /** 하루만 골라도 확정할 수 있게 한다. 이때 시작일과 종료일이 같아진다. */
-      allowSingleDay?: boolean
-      onConfirm: (value: DateRange) => void
-    }
+    type: 'range'
+    defaultValue: DateSelection
+    /** 하루만 골라도 확정할 수 있게 한다. 이때 시작일과 종료일이 같아진다. */
+    allowSingleDay?: boolean
+    onConfirm: (value: DateRange) => void
+  }
 
 type DatePickerBottomSheetProps = DatePickerBottomSheetValueProps & {
   isOpen: boolean
   /** 사용자가 닫으려 한다 (취소·배경 탭·아래로 끌기) */
   onDismiss: () => void
+  onClose?: () => void;
 }
 
 // 시각 휠은 달력보다 자리를 덜 먹는다.
 const SNAP_POINTS = { date: [0.62], time: [0.45] } as const
 
 export function DatePickerBottomSheet(props: DatePickerBottomSheetProps) {
-  const { isOpen, onDismiss } = props
+  const { isOpen, onDismiss, onClose } = props
 
   // 두 모양을 한 상태에 담으면 다시 빈 칸을 들고 다니게 되므로 따로 쥔다.
   const [day, setDay] = useState<Date | null>(
@@ -64,6 +65,7 @@ export function DatePickerBottomSheet(props: DatePickerBottomSheetProps) {
     <BottomSheet
       isOpen={isOpen}
       onDismiss={onDismiss}
+      onClose={onClose}
       snapPoints={step === 'time' ? SNAP_POINTS.time : SNAP_POINTS.date}
       safeArea
     >

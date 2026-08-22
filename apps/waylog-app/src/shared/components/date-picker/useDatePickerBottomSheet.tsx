@@ -27,7 +27,7 @@ export function useDatePickerBottomSheet() {
   const openDay = useCallback(
     ({ type = 'date', defaultValue = null, minuteStep }: OpenDayParams = {}) =>
       new Promise<Date | null>((resolve) => {
-        overlay.open(({ isOpen, close }) => {
+        overlay.open(({ isOpen, close, onClose }) => {
           const settle = (value: Date | null) => {
             resolve(value)
             close()
@@ -40,7 +40,8 @@ export function useDatePickerBottomSheet() {
               defaultValue={defaultValue}
               minuteStep={minuteStep}
               onConfirm={settle}
-              onClose={() => settle(null)}
+              onDismiss={() => settle(null)}
+              onClose={onClose}
             />
           )
         })
@@ -64,7 +65,7 @@ export function useDatePickerBottomSheet() {
               defaultValue={defaultValue}
               allowSingleDay={allowSingleDay}
               onConfirm={settle}
-              onClose={() => settle(null)}
+              onDismiss={() => settle(null)}
             />
           )
         })
