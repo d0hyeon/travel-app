@@ -1,27 +1,37 @@
-import type { ReactNode } from 'react'
-import { Pressable } from 'react-native'
+import type { ElementType, ReactNode } from 'react'
+import { Pressable, View } from 'react-native'
 import { palette } from '../config/tokens'
-import { Box, Stack, Typography, sxToStyle, type BoxProps, type StackProps, type TypographyProps } from './mui'
+import {
+  Box,
+  Stack,
+  Typography,
+  type BoxProps,
+  type PropsWithAs,
+  type StackProps,
+  type TypographyProps,
+} from './mui'
 
-// 웹 shared/components/ListItem 을 그대로 옮긴다.
-// 앱은 모바일이므로 웹의 isMobile 분기에서 모바일 쪽 값을 쓴다.
 interface Props extends StackProps {
   leftAddon?: ReactNode
   rightAddon?: ReactNode
   children?: ReactNode
 }
 
-export function ListItem({
+export function ListItem<As extends ElementType = typeof View>({
   leftAddon,
   rightAddon,
   children,
   alignItems = 'center',
   gap,
   sx,
+  as,
   ...props
-}: Props) {
+}: PropsWithAs<Props, As>) {
   return (
+    // 미해결 제네릭 As 에는 구체 props 를 대입할 수 없다(폴리모픽 컴포넌트의 알려진 제약).
+    // 내부에서만 캐스팅으로 끊고, 호출부 타입은 그대로 지킨다.
     <Stack
+      as={as as ElementType}
       gap={gap ?? 0.5}
       alignItems={alignItems}
       direction="row"

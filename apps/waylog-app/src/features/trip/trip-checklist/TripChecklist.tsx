@@ -18,6 +18,7 @@ import { formatRemainTime } from "@waylog/utility";
 import { useTripMembers } from '@waylog/domains/modules/trip-member';
 import { ERROR_DAYS_FROM_DEADLINE, WARNING_DAYS_FROM_DEADLINE } from '@waylog/domains/modules/trip-checklist';
 import { useTripChecklist } from '@waylog/domains/modules/trip-checklist';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 const StatusInDays = {
   error: ERROR_DAYS_FROM_DEADLINE,
@@ -89,6 +90,15 @@ function TripChecklistItem({ tripId, id, ...props }: ItemProps) {
     .with(P.number.lt(StatusInDays.warning), () => "warning" as const)
     .otherwise(() => undefined)
 
+  // rotateX 는 원근(perspective) 이 없으면 세로로 눌리기만 하고 회전으로 보이지 않는다.
+  const rotation = useSharedValue(0);
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { perspective: 800 },
+      { rotateX: `${rotation.get()}deg` },
+    ],
+  }))
+
   return (
     <ListItem
       sx={{
@@ -96,11 +106,18 @@ function TripChecklistItem({ tripId, id, ...props }: ItemProps) {
         borderWidth: value.isCompleted ? 2 : 1,
         paddingVertical: 16,
       }}
+      as={Animated.View}
+      style={animatedStyle}
       leftAddon={(
         <Checkbox
           checked={value.isCompleted}
           size="small"
-          onChange={() => update({ id: value.id, isCompleted: !value.isCompleted })}
+          onChange={() => {
+            update({ id: value.id, isCompleted: !value.isCompleted })
+            // 매번 0 에서 다시 시작해야 두 번째 이후에도 회전한다.
+            rotation.set(0)
+            rotation.set(withTiming(360, { duration: 300 }))
+          }}
           sx={{ padding: 0 }}
         />
       )}
@@ -144,7 +161,7 @@ function TripChecklistItem({ tripId, id, ...props }: ItemProps) {
               <Chip
                 size="small"
                 label={`${담당자.name}`}
-                                sx={{ opacity: value.isCompleted ? 0.5 : 1 }}
+                sx={{ opacity: value.isCompleted ? 0.5 : 1 }}
               />
             </Box>
           )}
