@@ -2,6 +2,7 @@ import { View, TextInput, type TextInputProps } from 'react-native'
 import { palette, radius } from '../../config/tokens'
 import { Typography } from './Typography'
 import { sxToStyle, type Sx } from './sx'
+import { Ref } from 'react'
 
 export interface TextFieldProps extends Omit<TextInputProps, 'style'> {
   variant?: 'standard' | 'outlined'
@@ -11,6 +12,7 @@ export interface TextFieldProps extends Omit<TextInputProps, 'style'> {
   label?: string
   size?: 'small' | 'medium'
   sx?: Sx
+  ref?: Ref<TextInput>
 }
 
 // 웹 MUI TextField 와 같은 자리를 차지한다.
@@ -26,6 +28,7 @@ export function TextField({
 }: TextFieldProps) {
   const input = (
     <TextInput
+
       multiline={multiline}
       placeholderTextColor={palette.textSecondary}
       style={[
