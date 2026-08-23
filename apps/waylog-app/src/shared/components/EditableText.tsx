@@ -147,15 +147,13 @@ function Field(props: ComponentProps<typeof TextOverlayField>) {
   const opacityStyle = useAnimatedStyle(() => ({ opacity: opacity.get() }));
 
   useAsyncEffect(async () => {
-    if (sourceRect == null || keyboardPosition == null) {
-      return;
-    }
+    if (sourceRect == null) return;
 
     const last = await overlay.getCurrentRect();
     flip.play({ first: sourceRect, last });
     opacity.set(withTiming(1, { duration: 200 }))
     scale.set(withTiming(OVERLAY_SCALE, TRANSITION_CONFIG));
-  }, [sourceRect, keyboardPosition]);
+  }, [sourceRect]);
 
   return (
     <>
