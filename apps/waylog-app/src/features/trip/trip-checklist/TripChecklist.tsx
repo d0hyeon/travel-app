@@ -115,8 +115,9 @@ function TripChecklistItem({ tripId, id, ...props }: ItemProps) {
           onChange={() => {
             update({ id: value.id, isCompleted: !value.isCompleted })
             // 매번 0 에서 다시 시작해야 두 번째 이후에도 회전한다.
-            rotation.set(0)
-            rotation.set(withTiming(360, { duration: 300 }))
+            rotation.set(
+              withTiming(360, { duration: 300 }, () => rotation.set(0)),
+            )
           }}
           sx={{ padding: 0 }}
         />
