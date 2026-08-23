@@ -6,9 +6,9 @@ import { TextInput } from 'react-native-gesture-handler'
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { useKeyboardMetrics } from '../hooks/env/useKeyboardMetrics'
 import { useFlipAnimation, useMeasureInWindow } from './EditableText.motion'
-import { TextField } from './mui'
 import { TextOverlayField } from './mui/TextOverlayField'
-import { Typography, type TypographyProps } from './mui/Typography'
+import { getTypographyStyle, Typography, type TypographyProps } from './mui/Typography'
+import { Text } from './Text'
 
 type FormValues = { value: string }
 
@@ -52,6 +52,10 @@ export function EditableText<Value extends string | number>({
       autoFocus={field.autoFocus}
       autoComplete={field.autoComplete}
       onSubmitEditing={actions.submit}
+      sx={{
+
+        ...getTypographyStyle(typographyProps.variant ?? 'body1')
+      }}
     />
   ),
   endIcon,
@@ -92,7 +96,6 @@ export function EditableText<Value extends string | number>({
       </Pressable>
     )
   }
-
   return renderEditField(
     {
       fieldState: { invalid: false, isTouched: false, isDirty: false, isValidating: false },
@@ -154,16 +157,15 @@ function Field(props: ComponentProps<typeof TextOverlayField>) {
     scale.set(withTiming(OVERLAY_SCALE, TRANSITION_CONFIG));
   }, [sourceRect, keyboardPosition]);
 
-
   return (
     <>
-      <TextField
-        {...props}
-        sx={{ minHeight: 14 }}
+      <Text
         ref={source.ref}
-        variant="standard"
-        readOnly
-      />
+        style={props.sx}
+        numberOfLines={1}
+      >
+        {props.value}
+      </Text>
 
       {sourceRect != null && (
         <View
