@@ -1,20 +1,25 @@
-import { useEffect, type ReactNode } from 'react'
+import { ComponentProps, useEffect, type ReactNode } from 'react'
 import { KeyboardAvoidingView, Modal, Pressable, View } from 'react-native'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { TextField, type TextFieldProps } from './TextField'
+import styled from '@emotion/native';
 
 export type TextOverlayFieldProps = TextFieldProps & {
   isOpen: boolean
   onClose: () => void
+  slotProps?: { body?: ComponentProps<typeof Body> }
 }
 
+const Body = styled.View({ padding: 16 })
+
 // 어두운 전체 화면 위에 TextField 하나만 띄운다.
-export function TextOverlayField({ isOpen, onClose, sx, ...textFieldProps }: TextOverlayFieldProps) {
+export function TextOverlayField({ isOpen, onClose, slotProps, sx, ...textFieldProps }: TextOverlayFieldProps) {
+
   return (
-    <Modal transparent visible={isOpen} animationType="none" onRequestClose={onClose}>
+    <Modal transparent visible={isOpen} animationType="fade" onDismiss={onClose}>
       <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
         <TextOverlayBackdrop onPress={onClose}>
-          <View style={{ padding: 16 }}>
+          <Body {...slotProps?.body}>
             <TextField
               fullWidth
               variant="standard"
@@ -27,7 +32,7 @@ export function TextOverlayField({ isOpen, onClose, sx, ...textFieldProps }: Tex
                 ...sx,
               }}
             />
-          </View>
+          </Body>
         </TextOverlayBackdrop>
       </KeyboardAvoidingView>
     </Modal>

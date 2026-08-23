@@ -1,8 +1,14 @@
-import { useEffect, useState, type ReactNode } from 'react'
-import { Pressable, View, type TextInputProps } from 'react-native'
+import { useAsyncEffect } from '@waylog/react'
+import { ComponentProps, useEffect, useState, type ReactNode } from 'react'
+import type { ControllerFieldState, ControllerRenderProps } from 'react-hook-form'
+import { Pressable, useWindowDimensions, View, type TextInputProps } from 'react-native'
+import { TextInput } from 'react-native-gesture-handler'
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
+import { useKeyboardMetrics } from '../hooks/env/useKeyboardMetrics'
+import { useFlipAnimation, useMeasureInWindow } from './EditableText.motion'
+import { TextField } from './mui'
 import { TextOverlayField } from './mui/TextOverlayField'
 import { Typography, type TypographyProps } from './mui/Typography'
-import type { ControllerFieldState, ControllerRenderProps } from 'react-hook-form'
 
 type FormValues = { value: string }
 
@@ -38,7 +44,7 @@ export function EditableText<Value extends string | number>({
   valueAs = (value) => String(value),
   onSubmit,
   renderEditField = (field, actions) => (
-    <TextOverlayField
+    <Field
       isOpen
       onClose={actions.cancelEdit}
       value={field.value}
@@ -100,4 +106,98 @@ export function EditableText<Value extends string | number>({
     },
     actions,
   )
+}
+
+const TRANSITION_CONFIG = {
+  duration: 400,
+  easing: Easing.inOut(Easing.cubic),
+};
+const OVERLAY_SCALE = 2;
+
+type Rect = {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+};
+
+function Field(props: ComponentProps<typeof TextOverlayField>) {
+  const { metrics: keyboardPosition } = useKeyboardMetrics();
+  const { width: screenWidth } = useWindowDimensions();
+
+  const [sourceRect, setSourceRect] = useState<Rect | null>(null);
+  const source = useMeasureInWindow<TextInput>(setSourceRect);
+
+  const flip = useFlipAnimation(TRANSITION_CONFIG);
+  const scale = useSharedValue(1);
+  const transformStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: flip.translateX.get() },
+      { translateY: flip.translateY.get() },
+      { scale: scale.get() },
+    ],
+  }));
+
+
+  const overlay = useMeasureInWindow<View>();
+  const opacity = useSharedValue(0);
+  const opacityStyle = useAnimatedStyle(() => ({ opacity: opacity.get() }));
+
+  useAsyncEffect(async () => {
+    if (sourceRect == null || keyboardPosition == null) {
+      return;
+    }
+
+    const last = await overlay.getCurrentRect();
+    flip.play({ first: sourceRect, last });
+    opacity.set(withTiming(1, { duration: 200 }))
+    scale.set(withTiming(OVERLAY_SCALE, TRANSITION_CONFIG));
+  }, [sourceRect, keyboardPosition]);
+
+
+  return (
+    <>
+      <TextField
+        {...props}
+        sx={{ minHeight: 14 }}
+        ref={source.ref}
+        variant="standard"
+        readOnly
+      />
+
+      {sourceRect != null && (
+        <View
+          pointerEvents="box-none"
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: 0,
+            height: keyboardPosition?.screenY,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <TextOverlayField
+            {...props}
+            isOpen
+            sx={{
+              minHeight: 14,
+              maxWidth: (screenWidth - 24 * 2) / OVERLAY_SCALE
+            }}
+            slotProps={{
+              body: {
+                as: Animated.View,
+                ref: overlay.ref,
+                style: [
+                  { alignSelf: 'center' },
+                  transformStyle, opacityStyle,
+                ],
+              },
+            }}
+          />
+        </View>
+      )}
+    </>
+  );
 }
