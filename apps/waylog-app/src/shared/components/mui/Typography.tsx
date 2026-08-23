@@ -6,14 +6,17 @@ import { sxToStyle, type Sx } from './sx'
 // 웹 theme.ts 의 값을 그대로 옮긴다. 앱은 모바일이므로
 // breakpoints.down('md') 쪽 수치를 쓴다.
 const VARIANT_STYLE = {
-  h4: { fontSize: 24, fontWeight: '900' },
-  h5: { fontSize: 20, fontWeight: '900' },
-  h6: { fontSize: 16, fontWeight: '900' },
-  subtitle1: { fontSize: 14, fontWeight: '700' },
-  subtitle2: { fontSize: 13, fontWeight: '700' },
-  body1: { fontSize: 14, fontWeight: '700' },
-  body2: { fontSize: 13, fontWeight: '700' },
-  caption: { fontSize: 11, fontWeight: '700' },
+  h4: { fontSize: 24, lineHeight: 34, fontWeight: '900' },
+  h5: { fontSize: 20, lineHeight: 28, fontWeight: '900' },
+  h6: { fontSize: 16, lineHeight: 22, fontWeight: '900' },
+
+  subtitle1: { fontSize: 14, lineHeight: 20, fontWeight: '700' },
+  subtitle2: { fontSize: 13, lineHeight: 18, fontWeight: '700' },
+
+  body1: { fontSize: 14, lineHeight: 20, fontWeight: '700' },
+  body2: { fontSize: 13, lineHeight: 18, fontWeight: '700' },
+
+  caption: { fontSize: 11, lineHeight: 16, fontWeight: '700' },
 } as const
 
 export type TypographyVariant = keyof typeof VARIANT_STYLE
@@ -92,4 +95,8 @@ export function Typography({
       {...rest}
     />
   )
+}
+
+export function getTypographyStyle(variant: TypographyVariant) {
+  return VARIANT_STYLE[variant];
 }
