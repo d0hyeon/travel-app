@@ -22,6 +22,8 @@ export interface TabsProps {
   onChange: (event: unknown, value: string) => void
   children?: ReactNode
   scrollable?: boolean;
+  /** MUI variant="fullWidth" 와 같다. 탭이 폭을 균등하게 나눠 가진다 */
+  fullWidth?: boolean
   sx?: Sx
 }
 
@@ -29,6 +31,7 @@ export function Tabs({
   value,
   onChange,
   scrollable = false,
+  fullWidth = false,
   sx,
   children
 }: TabsProps) {
@@ -66,8 +69,9 @@ export function Tabs({
       horizontal
       showsHorizontalScrollIndicator={false}
       scrollEnabled={scrollable}
+      contentContainerStyle={fullWidth ? { flexGrow: 1 } : undefined}
     >
-      <View style={{ flexDirection: 'row' }}>
+      <View style={{ flexDirection: 'row', ...(fullWidth && { flex: 1 }) }}>
         {tabs.map((tab) => {
           const selected = tab.value === value
 
@@ -88,6 +92,7 @@ export function Tabs({
                 alignItems: 'center',
                 paddingHorizontal: 16,
                 paddingVertical: 12,
+                ...(fullWidth && { flex: 1 }),
               }}
             >
               <Typography
