@@ -52,7 +52,7 @@ export function ProfileRecordsTab({ userId }: { userId: string }) {
         {visitedLocations.length === 0 ? (
           <Stack flex={1} alignItems="center" justifyContent="center"><Typography variant="body2" color="text.secondary">아직 방문 기록이 없어요</Typography></Stack>
         ) : (
-          <Map autoFocus="marker" clustering>
+          <Map autoFocus="marker" clustering styleVariant="visited-region">
             {isLocationVisible && visitedLocations.map((visitedLocation) => <Map.Marker key={visitedLocation.location} id={visitedLocation.location} lat={visitedLocation.coordinate.lat} lng={visitedLocation.coordinate.lng} variant="circle" color={selectedLocation?.location === visitedLocation.location ? 'selected' : 'default'} onClick={() => setSelectedLocation((current) => current?.location === visitedLocation.location ? null : visitedLocation)} />)}
           </Map>
         )}
