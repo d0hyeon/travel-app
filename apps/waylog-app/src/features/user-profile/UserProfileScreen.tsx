@@ -21,7 +21,7 @@ export function UserProfileScreen({ userId }: { userId: string }) {
   // 지도를 만지는 동안 세로 스크롤을 멈춘다. 두 제스처가 겹치면 지도가 끊긴다.
   const [isMapInteracting, setIsMapInteracting] = useState(false)
   const profileScrollRef = useRef<ScrollView>(null)
-  const recordsContentOffset = useRef<number | null>(null)
+  const tabBarOffset = useRef<number | null>(null)
 
   const handleSignOut = async () => {
     setIsSigningOut(true)
@@ -32,13 +32,14 @@ export function UserProfileScreen({ userId }: { userId: string }) {
     }
   }
 
-  // 기록 탭을 연 순간에만 그 위치로 옮긴다.
+  // 기록 탭을 연 순간에만 옮긴다. 웹처럼 탭바가 화면 맨 위에 붙어 남도록
+  // 탭 아래 내용이 아니라 탭바 자리로 스크롤한다.
   // onLayout 에서 매번 스크롤하면 바텀시트가 열릴 때마다 화면이 다시 튕긴다.
   useEffect(() => {
     if (currentTab !== 'records') return
 
     let frame = requestAnimationFrame(function scrollWhenMeasured() {
-      const targetOffset = recordsContentOffset.current
+      const targetOffset = tabBarOffset.current
       if (targetOffset == null) {
         frame = requestAnimationFrame(scrollWhenMeasured)
         return
@@ -56,30 +57,38 @@ export function UserProfileScreen({ userId }: { userId: string }) {
       contentContainerStyle={{ paddingTop: insets.top, paddingBottom: insets.bottom + 24 }}
       showsVerticalScrollIndicator={false}
       scrollEnabled={!isMapInteracting}
+      // 웹의 position: sticky 와 같다. 탭바가 위에 붙어 남는다.
+      stickyHeaderIndices={[TAB_BAR_CHILD_INDEX]}
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <ProfileHeader userId={userId} />
         {auth.id === userId && <Pressable disabled={isSigningOut} onPress={handleSignOut} style={{ padding: 16 }}><MaterialIcons name="logout" size={22} color="#d32f2f" /></Pressable>}
       </View>
       <ProfileStatStrip userId={userId} />
-      <Tabs fullWidth value={currentTab} onChange={(_, next) => { if (next === 'feed' || next === 'records') selectTab(next) }}>
-        <Tab value="feed" label="피드" />
-        <Tab value="records" label="기록" />
-      </Tabs>
+      <View
+        style={{ backgroundColor: palette.background }}
+        onLayout={(event) => {
+          const offset = event?.nativeEvent?.layout?.y
+          if (typeof offset !== 'number') return
+          tabBarOffset.current = offset
+        }}
+      >
+        <Tabs fullWidth value={currentTab} onChange={(_, next) => { if (next === 'feed' || next === 'records') selectTab(next) }}>
+          <Tab value="feed" label="피드" />
+          <Tab value="records" label="기록" />
+        </Tabs>
+      </View>
       {currentTab === 'feed' ? (
         <ProfileFeedTab userId={userId} />
       ) : (
-        <View onLayout={(event) => {
-          const recordsOffset = event?.nativeEvent?.layout?.y
-          if (typeof recordsOffset !== 'number') return
-          recordsContentOffset.current = recordsOffset
-        }}>
-          <ProfileRecordsTab userId={userId} onMapInteractionChange={setIsMapInteracting} />
-        </View>
+        <ProfileRecordsTab userId={userId} onMapInteractionChange={setIsMapInteracting} />
       )}
     </ScrollView>
   )
 }
+
+// ScrollView 자식 순서: 헤더, 통계, 탭바
+const TAB_BAR_CHILD_INDEX = 2
 
 function parseProfileTab(value: string): ProfileTab {
   return value === 'records' ? 'records' : 'feed'
