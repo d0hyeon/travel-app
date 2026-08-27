@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { View, type LayoutChangeEvent, type StyleProp, type ViewStyle } from 'react-native'
 import {
   Easing,
@@ -9,7 +9,6 @@ import {
 
 const EXTRUDE_EASING = Easing.bezier(0.4, 0, 0.2, 1)
 const EXTRUDE_DURATION = 300
-const LAYOUT_DURATION = 200
 
 type ExtrudeAxis = 'x' | 'y' | 'both'
 
@@ -74,6 +73,14 @@ export function useExtrude({
   const translateY = useSharedValue(0)
   const targetOpacity = useSharedValue(1)
 
+  /**
+   * 정지 상태에서 잰 이동량.
+   *
+   * 접힘 애니메이션 도중의 좌표를 쓰지 않기 위해 캐시한다.
+   * 레이아웃이 실제로 바뀌면 onLayout이 비운다.
+   */
+  const restingOffset = useRef<Point | null>(null)
+
   useEffect(() => {
     if (sourceNode == null || targetNode == null) return
 
@@ -93,15 +100,28 @@ export function useExtrude({
 
     /**
      * source는 제자리에 남고 transform으로만 target 자리에 가 있는 것처럼 보인다.
-     * 매번 다시 재므로 회전이나 레이아웃 변화에도 좌표가 낡지 않는다.
      */
     const moveToTarget = async () => {
+      const offset = restingOffset.current ?? await measureRestingOffset()
+
+      if (isCancelled || offset == null) return
+
+      translateX.set(withTiming(offset.x, timing))
+      translateY.set(withTiming(offset.y, timing))
+    }
+
+    /**
+     * 접힘이 진행 중이면 두 노드가 이동 중이라 좌표를 믿을 수 없다.
+     * 정지 상태에서 한 번 잰 값을 재사용하고,
+     * 레이아웃이 실제로 바뀌면 onLayout이 무효화한다.
+     */
+    const measureRestingOffset = async () => {
       const [sourceOrigin, targetOrigin] = await Promise.all([
         measureOrigin(sourceNode),
         measureOrigin(targetNode),
       ])
 
-      if (isCancelled) return
+      if (isCancelled) return null
 
       /**
        * 측정값에는 진행 중인 transform이 이미 반영되어 있다.
@@ -113,9 +133,10 @@ export function useExtrude({
         y: sourceOrigin.y - translateY.get(),
       }
 
-      const offset = getAxisOffset(restingSource, targetOrigin, axis)
-      translateX.set(withTiming(offset.x, timing))
-      translateY.set(withTiming(offset.y, timing))
+      const measured = getAxisOffset(restingSource, targetOrigin, axis)
+      restingOffset.current = measured
+
+      return measured
     }
 
     moveToTarget()
@@ -132,9 +153,13 @@ export function useExtrude({
   const placeholderStyle = useAnimatedStyle(() => {
     if (sourceHeight === 0) return {}
 
+    /**
+     * 이동과 같은 duration을 쓴다.
+     * 접힘이 먼저 끝나면 그 순간 레이아웃이 튀어 이동이 멈칫해 보인다.
+     */
     return {
       height: withTiming(active ? 0 : sourceHeight, {
-        duration: LAYOUT_DURATION,
+        duration,
         easing: EXTRUDE_EASING,
       }),
     }
@@ -144,9 +169,17 @@ export function useExtrude({
     source: {
       ref: useCallback((node: View | null) => { setSourceNode(node) }, []),
       style: motionStyle,
+      /**
+       * source는 absolute라 접힘에 영향받지 않는다.
+       * 여기서 오는 높이는 항상 정지 상태의 실제 높이다.
+       */
       onLayout: useCallback((event: LayoutChangeEvent) => {
         const measuredHeight = event.nativeEvent.layout.height
-        setSourceHeight((current) => (current === 0 ? measuredHeight : current))
+        if (measuredHeight <= 0) return
+
+        /** 자리가 달라졌으니 다음 이동은 다시 잰다. */
+        restingOffset.current = null
+        setSourceHeight(measuredHeight)
       }, []),
     },
     target: {
