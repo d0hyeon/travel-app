@@ -48,7 +48,7 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
       </BottomSheet>
     ))
 
-    return () => { void closeOverlay() }
+    return () => closeOverlay();
   }, [selectedLocation, locationOverlay])
 
   if (visitedLocations.length === 0) {
@@ -74,7 +74,17 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
           <MaterialIcons name={isLocationVisible ? 'visibility' : 'visibility-off'} size={18} color={palette.textSecondary} />
         </Pressable>
         <Map autoFocus="marker" clustering style={visitedRegionMapStyle}>
-          {isLocationVisible && visitedLocations.map((visitedLocation) => <Map.Marker key={visitedLocation.location} id={visitedLocation.location} lat={visitedLocation.coordinate.lat} lng={visitedLocation.coordinate.lng} variant="circle" color={selectedLocation?.location === visitedLocation.location ? 'selected' : 'default'} onClick={() => setSelectedLocation((current) => current?.location === visitedLocation.location ? null : visitedLocation)} />)}
+          {isLocationVisible && visitedLocations.map((visitedLocation) => (
+            <Map.Marker
+              key={visitedLocation.location}
+              id={visitedLocation.location}
+              lat={visitedLocation.coordinate.lat}
+              lng={visitedLocation.coordinate.lng}
+              variant="circle"
+              color={selectedLocation?.location === visitedLocation.location ? 'selected' : 'default'}
+              onClick={() => setSelectedLocation((current) => current?.location === visitedLocation.location ? null : visitedLocation)}
+            />
+          ))}
         </Map>
       </View>
       <View style={{ padding: 16, gap: 8 }}>
