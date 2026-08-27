@@ -48,6 +48,14 @@ export function ProfileRecordsTab({ userId, onMapInteractionChange }: {
     return () => { void closeOverlay() }
   }, [selectedLocation, locationOverlay])
 
+  if (visitedLocations.length === 0) {
+    return (
+      <Stack alignItems="center" justifyContent="center" sx={{ height: screenHeight - TAB_BAR_HEIGHT }}>
+        <Typography variant="body2" color="text.secondary">아직 방문 기록이 없어요</Typography>
+      </Stack>
+    )
+  }
+
   return (
     <View style={{ flex: 1 }}>
       <View
@@ -62,13 +70,9 @@ export function ProfileRecordsTab({ userId, onMapInteractionChange }: {
         <Pressable onPress={() => setIsLocationVisible((visible) => !visible)} style={{ position: 'absolute', right: 8, top: 8, zIndex: 2, padding: 8, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.85)' }}>
           <MaterialIcons name={isLocationVisible ? 'visibility' : 'visibility-off'} size={18} color={palette.textSecondary} />
         </Pressable>
-        {visitedLocations.length === 0 ? (
-          <Stack flex={1} alignItems="center" justifyContent="center"><Typography variant="body2" color="text.secondary">아직 방문 기록이 없어요</Typography></Stack>
-        ) : (
-          <Map autoFocus="marker" clustering styleVariant="visited-region">
-            {isLocationVisible && visitedLocations.map((visitedLocation) => <Map.Marker key={visitedLocation.location} id={visitedLocation.location} lat={visitedLocation.coordinate.lat} lng={visitedLocation.coordinate.lng} variant="circle" color={selectedLocation?.location === visitedLocation.location ? 'selected' : 'default'} onClick={() => setSelectedLocation((current) => current?.location === visitedLocation.location ? null : visitedLocation)} />)}
-          </Map>
-        )}
+        <Map autoFocus="marker" clustering styleVariant="visited-region">
+          {isLocationVisible && visitedLocations.map((visitedLocation) => <Map.Marker key={visitedLocation.location} id={visitedLocation.location} lat={visitedLocation.coordinate.lat} lng={visitedLocation.coordinate.lng} variant="circle" color={selectedLocation?.location === visitedLocation.location ? 'selected' : 'default'} onClick={() => setSelectedLocation((current) => current?.location === visitedLocation.location ? null : visitedLocation)} />)}
+        </Map>
       </View>
       <View style={{ padding: 16, gap: 8 }}>
         {visitedLocations.map((visitedLocation) => <Pressable key={visitedLocation.location} onPress={() => setSelectedLocation(visitedLocation)} style={{ paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: palette.divider }}><Stack direction="row" alignItems="center" justifyContent="space-between"><Typography variant="body2" fontWeight="bold">{visitedLocation.location}</Typography><Typography variant="caption" color="text.secondary">{visitedLocation.visitCount}회 방문 · {formatLastVisit(visitedLocation.lastVisitedAt)}</Typography></Stack></Pressable>)}
