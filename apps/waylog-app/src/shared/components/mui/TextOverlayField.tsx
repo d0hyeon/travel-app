@@ -7,7 +7,10 @@ import styled from '@emotion/native';
 export type TextOverlayFieldProps = TextFieldProps & {
   isOpen: boolean
   onClose: () => void
-  slotProps?: { body?: ComponentProps<typeof Body> }
+  slotProps?: {
+    body?: ComponentProps<typeof Body>
+    input?: Pick<TextFieldProps, 'ref'>
+  }
 }
 
 const Body = styled.View({ padding: 16 })
@@ -25,6 +28,7 @@ export function TextOverlayField({ isOpen, onClose, slotProps, sx, ...textFieldP
               variant="standard"
               returnKeyType="done"
               {...textFieldProps}
+              {...slotProps?.input}
               sx={{
                 backgroundColor: 'transparent',
                 color: '#fff',
