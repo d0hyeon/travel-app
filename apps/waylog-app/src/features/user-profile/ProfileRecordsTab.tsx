@@ -1,6 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { Suspense, useEffect, useMemo, useState } from 'react'
 import { Pressable, ScrollView, View, useWindowDimensions } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Map } from '../../shared/components/Map'
 import { BottomSheet } from '../../shared/components/bottom-sheet/BottomSheet'
 import { Stack, Typography } from '../../shared/components/mui'
@@ -18,6 +19,10 @@ export function ProfileRecordsTab({ userId, onMapInteractionChange }: {
 }) {
   const { data: trips } = useUserTrips(userId)
   const { height: screenHeight } = useWindowDimensions()
+  const insets = useSafeAreaInsets()
+  // useWindowDimensions 는 노치·홈 인디케이터를 포함한 전체 높이다.
+  // 화면이 이미 안전 영역만큼 패딩을 주므로 그만큼 빼야 지도가 넘치지 않는다.
+  const mapHeight = screenHeight - insets.top - insets.bottom - TAB_BAR_HEIGHT
   const visitedLocations = useMemo(() => deriveVisitedLocations(trips), [trips])
   const [selectedLocation, setSelectedLocation] = useState<VisitedLocation | null>(null)
   const [isLocationVisible, setIsLocationVisible] = useState(true)
@@ -27,7 +32,7 @@ export function ProfileRecordsTab({ userId, onMapInteractionChange }: {
     if (selectedLocation == null) return
 
     const closeOverlay = locationOverlay.open(({ isOpen, onClose }) => (
-      <BottomSheet isOpen={isOpen} snapPoints={[0.6, 0.8]} defaultSnapIndex={0} onDismiss={onClose}>
+      <BottomSheet isOpen={isOpen} snapPoints={[0.6, 0.8]} defaultSnapIndex={0} safeArea onDismiss={onClose}>
         <BottomSheet.Header><LocationMetaInfo value={selectedLocation} /></BottomSheet.Header>
         <BottomSheet.Body>
           <ScrollView contentContainerStyle={{ padding: 16, gap: 16 }}>
@@ -51,7 +56,7 @@ export function ProfileRecordsTab({ userId, onMapInteractionChange }: {
 
   if (visitedLocations.length === 0) {
     return (
-      <Stack alignItems="center" justifyContent="center" sx={{ height: screenHeight - TAB_BAR_HEIGHT }}>
+      <Stack alignItems="center" justifyContent="center" sx={{ height: mapHeight }}>
         <Typography variant="body2" color="text.secondary">아직 방문 기록이 없어요</Typography>
       </Stack>
     )
@@ -60,7 +65,7 @@ export function ProfileRecordsTab({ userId, onMapInteractionChange }: {
   return (
     <View style={{ flex: 1 }}>
       <View
-        style={{ height: screenHeight - TAB_BAR_HEIGHT, backgroundColor: '#EDF2F7' }}
+        style={{ height: mapHeight, backgroundColor: '#EDF2F7' }}
         onStartShouldSetResponderCapture={() => {
           onMapInteractionChange?.(true)
           return false
