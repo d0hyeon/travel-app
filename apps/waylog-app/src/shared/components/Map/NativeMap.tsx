@@ -1,5 +1,7 @@
 import {
   clusterMarkers,
+  pastelMapStyle,
+  visitedRegionMapStyle,
   type MapBounds,
   type MapProps,
   type MapRef,
@@ -50,6 +52,7 @@ export function NativeMap({
   clustering,
   clusterGridSize = 50,
   onBoundsChange,
+  styleVariant = 'pastel',
 }: MapProps) {
   const mapRef = useRef<MapView>(null)
   const [zoom, setZoom] = useState(() => deltaToZoom(DEFAULT_DELTA))
@@ -78,7 +81,13 @@ export function NativeMap({
   const initial = center ?? defaultCenter
   const rendered = typeof children === 'function' ? children({ zoom }) : children
 
-  const { markerProps, others } = useMemo(() => splitMarkers(rendered), [rendered])
+  const { markerProps, others } = splitMarkers(rendered)
+
+  // 마커의 좌표·개수가 그대로면 같은 문자열이 된다.
+  // rendered 는 부모가 리렌더할 때마다 새 배열이라 참조로는 비교할 수 없다.
+  const markerIdentity = markerProps
+    .map((marker, index) => `${marker.id ?? index}:${marker.lat},${marker.lng}`)
+    .join('|')
 
   // 웹과 같이 마커가 모두 담기도록 화면을 맞춘다. 최초 한 번만 한다.
   const focusedRef = useRef(false)
@@ -90,7 +99,8 @@ export function NativeMap({
       markerProps.map((marker) => ({ latitude: marker.lat, longitude: marker.lng })),
       { edgePadding: { top: 60, right: 60, bottom: 60, left: 60 }, animated: true },
     )
-  }, [autoFocus, markerProps])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoFocus, markerIdentity])
 
   const clustered = useMemo(() => {
     if (clustering !== true || region == null || markerProps.length < 2) return null
@@ -101,13 +111,16 @@ export function NativeMap({
     }))
 
     return clusterMarkers(data, createToPixel(region, width), clusterGridSize)
-  }, [clustering, region, markerProps, clusterGridSize, width])
+    // markerProps 는 매 렌더마다 새 배열이므로 값이 같은지로 비교한다.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clustering, region, markerIdentity, clusterGridSize, width])
 
   return (
     <MapView
       ref={mapRef}
       provider={PROVIDER_GOOGLE}
       style={StyleSheet.absoluteFill}
+      customMapStyle={styleVariant === 'visited-region' ? visitedRegionMapStyle : pastelMapStyle}
       initialRegion={
         initial && {
           latitude: initial.lat,
@@ -117,9 +130,13 @@ export function NativeMap({
         }
       }
       // 이동이 끝난 뒤에만 다시 묶는다. 이동 중 계산하면 지도가 끊긴다.
+      // 같은 값으로 setState 하면 마커 전체가 다시 그려지므로 바뀔 때만 반영한다.
       onRegionChangeComplete={(next) => {
-        setZoom(deltaToZoom(next.longitudeDelta))
-        setRegion(next)
+        setZoom((current) => {
+          const nextZoom = deltaToZoom(next.longitudeDelta)
+          return nextZoom === current ? current : nextZoom
+        })
+        setRegion((current) => (isSameRegion(current, next) ? current : next))
         onBoundsChange?.(regionToBounds(next))
       }}
     >
@@ -150,6 +167,21 @@ export function NativeMap({
             ),
           ]) as ReactNode}
     </MapView>
+  )
+}
+
+// 화면에서 구분되지 않을 만큼의 이동은 같은 위치로 본다.
+// 손가락을 뗄 때마다 미세하게 달라지는 값으로 다시 묶으면 마커가 통째로 다시 그려진다.
+const REGION_EPSILON = 1e-6
+
+function isSameRegion(current: Region | null, next: Region): boolean {
+  if (current == null) return false
+
+  return (
+    Math.abs(current.latitude - next.latitude) < REGION_EPSILON &&
+    Math.abs(current.longitude - next.longitude) < REGION_EPSILON &&
+    Math.abs(current.latitudeDelta - next.latitudeDelta) < REGION_EPSILON &&
+    Math.abs(current.longitudeDelta - next.longitudeDelta) < REGION_EPSILON
   )
 }
 

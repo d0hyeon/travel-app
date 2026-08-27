@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react'
+import { memo, type ReactNode } from 'react'
+import { usePreservedCallback } from '@waylog/react'
 import { Marker } from 'react-native-maps'
 import { resolveMarkerColor, type MarkerProps } from '@waylog/domains/modules/map'
 import { Image, View } from 'react-native'
@@ -14,7 +15,7 @@ interface NativeMarkerProps extends MarkerProps {
   icon?: ReactNode
 }
 
-export function NativeMapMarker({
+function NativeMapMarkerView({
   id,
   lat,
   lng,
@@ -30,6 +31,9 @@ export function NativeMapMarker({
   onContextMenu,
 }: NativeMarkerProps) {
   const resolved = resolveMarkerColor(color, variant)
+  // 콜백은 비교 대상이 아니므로 항상 최신 것을 호출하도록 고정한다.
+  const handleClick = usePreservedCallback(() => onClick?.({ lat, lng, label, variant }))
+  const handleContextMenu = usePreservedCallback(() => onContextMenu?.({ lat, lng, label, variant }))
 
   return (
     <Marker
@@ -40,8 +44,8 @@ export function NativeMapMarker({
       // 웹은 hover 로 보여주지만 네이티브에는 hover 가 없다.
       // 같은 정보를 말풍선으로 띄운다.
       title={toTooltipText(tooltip)}
-      onPress={() => onClick?.({ lat, lng, label, variant })}
-      onCalloutPress={() => onContextMenu?.({ lat, lng, label, variant })}
+      onPress={handleClick}
+      onCalloutPress={handleContextMenu}
     >
       {/* 웹 marker.renderers 의 모양을 그대로 옮긴다. */}
       <View style={{ alignItems: 'center' }}>
@@ -144,6 +148,20 @@ function MarkerShape({ variant, color, opacity, outlined, thumbnailUrl }: ShapeP
     </Svg>
   )
 }
+
+// 지도를 움직일 때마다 부모가 리렌더되어도 마커는 다시 그리지 않는다.
+// 콜백은 usePreservedCallback 이 최신 것을 부르므로 비교에서 제외해도 안전하다.
+export const NativeMapMarker = memo(NativeMapMarkerView, (prev, next) =>
+  prev.id === next.id &&
+  prev.lat === next.lat &&
+  prev.lng === next.lng &&
+  prev.label === next.label &&
+  prev.variant === next.variant &&
+  prev.color === next.color &&
+  prev.opacity === next.opacity &&
+  prev.outlined === next.outlined &&
+  prev.thumbnailUrl === next.thumbnailUrl,
+)
 
 function toTooltipText(tooltip: MarkerProps['tooltip']): string | undefined {
   if (tooltip == null) return undefined
