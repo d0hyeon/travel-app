@@ -5,6 +5,7 @@ import { Map } from '../../shared/components/Map'
 import { BottomSheet } from '../../shared/components/bottom-sheet/BottomSheet'
 import { Stack, Typography } from '../../shared/components/mui'
 import { palette } from '../../shared/config/tokens'
+import { visitedRegionMapStyle } from './profile-records.style'
 import { useUserTrips } from './useUserTrips'
 import { deriveVisitedLocations, type VisitedLocation } from './user-profile.utils'
 import { UserTripPhotoList } from './UserTripPhotoList'
@@ -70,7 +71,7 @@ export function ProfileRecordsTab({ userId, onMapInteractionChange }: {
         <Pressable onPress={() => setIsLocationVisible((visible) => !visible)} style={{ position: 'absolute', right: 8, top: 8, zIndex: 2, padding: 8, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.85)' }}>
           <MaterialIcons name={isLocationVisible ? 'visibility' : 'visibility-off'} size={18} color={palette.textSecondary} />
         </Pressable>
-        <Map autoFocus="marker" clustering styleVariant="visited-region">
+        <Map autoFocus="marker" clustering style={visitedRegionMapStyle}>
           {isLocationVisible && visitedLocations.map((visitedLocation) => <Map.Marker key={visitedLocation.location} id={visitedLocation.location} lat={visitedLocation.coordinate.lat} lng={visitedLocation.coordinate.lng} variant="circle" color={selectedLocation?.location === visitedLocation.location ? 'selected' : 'default'} onClick={() => setSelectedLocation((current) => current?.location === visitedLocation.location ? null : visitedLocation)} />)}
         </Map>
       </View>

@@ -32,14 +32,3 @@ export const pastelMapStyle: MapStyleRule[] = [
   { featureType: 'administrative.land_parcel', elementType: 'labels.text.fill', stylers: [{ color: '#a09080' }] },
   { featureType: 'landscape.natural', elementType: 'geometry', stylers: [{ color: '#ede8e0' }] },
 ];
-
-/**
- * 방문 지역을 색으로 읽는 화면용. 도로망이 지역 폴리곤 위에 겹쳐
- * 혈관처럼 보이므로 도로와 교통을 지운다.
- */
-export const visitedRegionMapStyle: MapStyleRule[] = [
-  ...pastelMapStyle,
-  { featureType: 'road', stylers: [{ visibility: 'off' }] },
-  { featureType: 'transit', stylers: [{ visibility: 'off' }] },
-  { featureType: 'poi', stylers: [{ visibility: 'off' }] },
-];

@@ -1,7 +1,6 @@
 import {
   clusterMarkers,
   pastelMapStyle,
-  visitedRegionMapStyle,
   type MapBounds,
   type MapProps,
   type MapRef,
@@ -52,7 +51,7 @@ export function NativeMap({
   clustering,
   clusterGridSize = 50,
   onBoundsChange,
-  styleVariant = 'pastel',
+  style = pastelMapStyle,
 }: MapProps) {
   const mapRef = useRef<MapView>(null)
   const [zoom, setZoom] = useState(() => deltaToZoom(DEFAULT_DELTA))
@@ -120,7 +119,7 @@ export function NativeMap({
       ref={mapRef}
       provider={PROVIDER_GOOGLE}
       style={StyleSheet.absoluteFill}
-      customMapStyle={styleVariant === 'visited-region' ? visitedRegionMapStyle : pastelMapStyle}
+      customMapStyle={style}
       initialRegion={
         initial && {
           latitude: initial.lat,

@@ -1,6 +1,6 @@
 import { Box, type BoxProps } from '@mui/material';
 import { Suspense, use, useEffect, useImperativeHandle, useMemo, useState } from 'react';
-import { pastelMapStyle, visitedRegionMapStyle } from '@waylog/domains/modules/map';
+import { pastelMapStyle } from '@waylog/domains/modules/map';
 import { GoogleMapContext } from '../MapContext';
 import type { MapProps } from '../types';
 import { ClusterProvider } from '../useClusterRegistry';
@@ -27,7 +27,7 @@ export default function GoogleMap({
   clustering = false,
   clusterGridSize = 60,
   onBoundsChange,
-  styleVariant = 'pastel',
+  style = pastelMapStyle,
   children,
   ...boxProps
 }: Props) {
@@ -42,7 +42,7 @@ export default function GoogleMap({
         center: center ?? defaultCenter,
         zoom: 10,
         disableDefaultUI: true,
-        styles: styleVariant === 'visited-region' ? visitedRegionMapStyle : pastelMapStyle,
+        styles: style,
       })
     )
   }, [container]);

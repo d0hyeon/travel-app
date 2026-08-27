@@ -1,5 +1,6 @@
 import type { ReactNode, Ref } from 'react';
 import type { Coordinate } from '@waylog/utility';
+import type { MapStyleRule } from './map.style';
 
 export type { Coordinate };
 
@@ -35,11 +36,8 @@ export interface MapProps  {
   clustering?: boolean;
   clusterGridSize?: number;
   onBoundsChange?: (bounds: MapBounds) => void;
-  /**
-   * 지도 바탕 스타일. 기본은 파스텔이고, 방문 지역을 색으로 읽는 화면은
-   * 도로가 폴리곤을 가리므로 'visited-region' 으로 지운다.
-   */
-  styleVariant?: 'pastel' | 'visited-region';
+  /** 지도 바탕 스타일. 기본은 파스텔이며 소비처가 필요하면 덮어쓴다 */
+  style?: MapStyleRule[];
 }
 
 export type MarkerColor = 'default' | 'selected' | 'disabled' | (string & {});
