@@ -53,8 +53,8 @@ export function UserProfileScreen({ userId }: { userId: string }) {
   return (
     <ScrollView
       ref={profileScrollRef}
-      style={{ flex: 1, backgroundColor: palette.background }}
-      contentContainerStyle={{ paddingTop: insets.top, paddingBottom: insets.bottom + 24 }}
+      style={{ flex: 1, backgroundColor: palette.background, paddingTop: insets.top }}
+      contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
       showsVerticalScrollIndicator={false}
       scrollEnabled={!isMapInteracting}
       // 웹의 position: sticky 와 같다. 탭바가 위에 붙어 남는다.
