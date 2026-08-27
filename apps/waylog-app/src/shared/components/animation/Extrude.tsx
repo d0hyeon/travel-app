@@ -1,157 +1,178 @@
-import { useCallback, useEffect, useRef, useState, type PropsWithChildren } from 'react'
-import { View, type StyleProp, type ViewStyle } from 'react-native'
-import Animated, {
+import { useCallback, useEffect, useState } from 'react'
+import { View, type LayoutChangeEvent, type StyleProp, type ViewStyle } from 'react-native'
+import {
   Easing,
-  runOnJS,
-  useAnimatedReaction,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-type ExtrudeProps = PropsWithChildren<{
+const EXTRUDE_EASING = Easing.bezier(0.4, 0, 0.2, 1)
+const EXTRUDE_DURATION = 300
+const LAYOUT_DURATION = 200
+
+type ExtrudeAxis = 'x' | 'y' | 'both'
+
+type Point = { x: number; y: number }
+
+interface ExtrudeOptions {
   active: boolean
-  target: View | null
+
+  /**
+   * 이동을 허용할 축.
+   *
+   * 'y'면 source와 target의 x가 같다고 보고 수직으로만 옮긴다.
+   */
+  axis?: ExtrudeAxis
 
   duration?: number
 
   fadeTarget?: boolean
+}
 
-  axis?: 'x' | 'y' | 'both'
+interface ExtrudeNodeBinding {
+  ref: (node: View | null) => void
+  style: StyleProp<ViewStyle>
+}
 
-  style?: StyleProp<ViewStyle>
-}>
+interface ExtrudeBinding {
+  /** 옮겨갈 대상. 눌린 자리는 높이가 접힌다. */
+  source: ExtrudeNodeBinding & { onLayout: (event: LayoutChangeEvent) => void }
 
-/** 웹 shared/components/animation/Extrude의 네이티브 대응 컴포넌트. */
-export function Extrude({
+  /** 도착 지점. active일 때 페이드아웃된다. */
+  target: ExtrudeNodeBinding
+
+  /** source가 원래 차지하던 자리. 접힘 애니메이션이 걸린다. */
+  placeholderStyle: StyleProp<ViewStyle>
+}
+
+/**
+ * source를 target 자리로 밀어넣는다.
+ *
+ * 웹 shared/components/animation/Extrude의 네이티브 대응.
+ *
+ * SharedElementTransition(FLIP)과는 수렴점이 다르다.
+ * FLIP은 항상 제자리(translate 0)로 정착하지만
+ * Extrude는 active인 동안 target 자리에 머물러야 한다.
+ * 그래서 오프셋을 직접 소유한다.
+ *
+ * target의 opacity를 명령형으로 쓰지 않고 style로 돌려주는 것도 핵심이다.
+ * Fabric의 shadow tree는 불변이라 setNativeProps로 넣은 값은
+ * 다음 commit에서 React의 props로 덮여 사라진다.
+ */
+export function useExtrude({
   active,
-  target,
-  children,
-  duration = 300,
-  fadeTarget = true,
   axis = 'both',
-  style,
-}: ExtrudeProps) {
-  const [source, setSource] = useState<View | null>(null)
+  duration = EXTRUDE_DURATION,
+  fadeTarget = true,
+}: ExtrudeOptions): ExtrudeBinding {
+  const [sourceNode, setSourceNode] = useState<View | null>(null)
+  const [targetNode, setTargetNode] = useState<View | null>(null)
   const [sourceHeight, setSourceHeight] = useState(0)
-  const safeAreaInsets = useSafeAreaInsets()
-
-  /**
-   * 최초 위치 고정
-   * transform 누적 방지
-   */
-  const initialRectRef = useRef<{ x: number; y: number } | null>(null)
-  const [initialRect, setInitialRect] = useState<{ x: number; y: number } | null>(null)
 
   const translateX = useSharedValue(0)
   const translateY = useSharedValue(0)
   const targetOpacity = useSharedValue(1)
 
-  /**
-   * 최초 rect 저장
-   */
   useEffect(() => {
-    if (source == null) return
+    if (sourceNode == null || targetNode == null) return
 
-    const frame = requestAnimationFrame(() => {
-      source.measureInWindow((x, y) => {
-        if (initialRectRef.current != null) return
+    const timing = { duration, easing: EXTRUDE_EASING }
 
-        const rect = {
-          x: x < safeAreaInsets.left ? x + safeAreaInsets.left : x,
-          y: y < safeAreaInsets.top ? y + safeAreaInsets.top : y,
-        }
-        initialRectRef.current = rect
-        setInitialRect(rect)
-      })
-    })
-
-    return () => cancelAnimationFrame(frame)
-  }, [source, safeAreaInsets.left, safeAreaInsets.top])
-
-  /**
-   * target fade
-   *
-   * 웹은 target 노드에 CSS transition을 걸지만
-   * RN은 외부 노드에 트랜지션을 걸 수 없다.
-   * 대신 shared value로 트윈을 만들고 매 프레임 노드에 반영한다.
-   */
-  const applyTargetOpacity = useCallback((opacity: number) => {
-    target?.setNativeProps({ style: { opacity } })
-  }, [target])
-
-  useAnimatedReaction(
-    () => targetOpacity.get(),
-    (opacity, previous) => {
-      if (opacity === previous) return
-      runOnJS(applyTargetOpacity)(opacity)
-    },
-    [applyTargetOpacity],
-  )
-
-  useEffect(() => {
-    if (target == null) return
-
-    const timing = { duration, easing: Easing.bezier(0.4, 0, 0.2, 1) }
-
-    /**
-     * 위치 측정과 무관하므로 먼저 건다.
-     */
     if (fadeTarget) {
       targetOpacity.set(withTiming(active ? 0 : 1, timing))
     }
 
-    if (initialRect == null) return
+    if (!active) {
+      translateX.set(withTiming(0, timing))
+      translateY.set(withTiming(0, timing))
+      return
+    }
 
-    const frame = requestAnimationFrame(() => {
-      target.measureInWindow((targetX, targetY) => {
-        const rawDx = targetX - initialRect.x
-        const rawDy = targetY - initialRect.y
-        const dx = axis === 'y' ? 0 : rawDx
-        const dy = axis === 'x' ? 0 : rawDy
+    let isCancelled = false
 
-        translateX.set(withTiming(active ? dx : 0, timing))
-        translateY.set(withTiming(active ? dy : 0, timing))
-      })
-    })
+    /**
+     * source는 제자리에 남고 transform으로만 target 자리에 가 있는 것처럼 보인다.
+     * 매번 다시 재므로 회전이나 레이아웃 변화에도 좌표가 낡지 않는다.
+     */
+    const moveToTarget = async () => {
+      const [sourceOrigin, targetOrigin] = await Promise.all([
+        measureOrigin(sourceNode),
+        measureOrigin(targetNode),
+      ])
 
-    return () => cancelAnimationFrame(frame)
-  }, [active, target, initialRect, duration, fadeTarget, axis, translateX, translateY, targetOpacity])
+      if (isCancelled) return
+
+      /**
+       * 측정값에는 진행 중인 transform이 이미 반영되어 있다.
+       * 현재 이동량을 빼야 원래 자리 기준의 오프셋이 나온다.
+       * 빼지 않으면 왕복할 때마다 이동량이 누적된다.
+       */
+      const restingSource = {
+        x: sourceOrigin.x - translateX.get(),
+        y: sourceOrigin.y - translateY.get(),
+      }
+
+      const offset = getAxisOffset(restingSource, targetOrigin, axis)
+      translateX.set(withTiming(offset.x, timing))
+      translateY.set(withTiming(offset.y, timing))
+    }
+
+    moveToTarget()
+
+    return () => { isCancelled = true }
+  }, [active, sourceNode, targetNode, axis, duration, fadeTarget, translateX, translateY, targetOpacity])
 
   const motionStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.get() }, { translateY: translateY.get() }],
   }))
 
-  const layoutStyle = useAnimatedStyle(() => {
+  const targetStyle = useAnimatedStyle(() => ({ opacity: targetOpacity.get() }))
+
+  const placeholderStyle = useAnimatedStyle(() => {
     if (sourceHeight === 0) return {}
 
     return {
-      height: withTiming(active && initialRect != null ? 0 : sourceHeight, {
-        duration: 200,
-        easing: Easing.bezier(0.4, 0, 0.2, 1),
+      height: withTiming(active ? 0 : sourceHeight, {
+        duration: LAYOUT_DURATION,
+        easing: EXTRUDE_EASING,
       }),
     }
   })
 
-  return (
-    <Animated.View style={[{ overflow: 'visible' }, layoutStyle]}>
-      <View
-        collapsable={false}
-        ref={useCallback((node: View | null) => { setSource(node) }, [])}
-        onLayout={(event) => {
-          const measuredHeight = event.nativeEvent.layout.height
-          if (sourceHeight === 0 && measuredHeight > 0) setSourceHeight(measuredHeight)
-        }}
-        style={[
-          { alignSelf: 'flex-start', flexGrow: 0, flexShrink: 0 },
-          sourceHeight > 0 && { position: 'absolute', left: 0, top: 0 },
-        ]}
-      >
-        <Animated.View style={[motionStyle, style]}>
-          {children}
-        </Animated.View>
-      </View>
-    </Animated.View>
-  )
+  return {
+    source: {
+      ref: useCallback((node: View | null) => { setSourceNode(node) }, []),
+      style: motionStyle,
+      onLayout: useCallback((event: LayoutChangeEvent) => {
+        const measuredHeight = event.nativeEvent.layout.height
+        setSourceHeight((current) => (current === 0 ? measuredHeight : current))
+      }, []),
+    },
+    target: {
+      ref: useCallback((node: View | null) => { setTargetNode(node) }, []),
+      style: targetStyle,
+    },
+    placeholderStyle,
+  }
 }
+
+function measureOrigin(node: View): Promise<Point> {
+  return new Promise((resolve) => {
+    node.measureInWindow((x, y) => resolve({ x, y }))
+  })
+}
+
+/**
+ * source가 target 자리로 가는 데 필요한 이동량.
+ *
+ * 허용되지 않은 축은 0으로 눌러 그 방향으로는 움직이지 않게 한다.
+ */
+function getAxisOffset(source: Point, target: Point, axis: ExtrudeAxis): Point {
+  return {
+    x: axis === 'y' ? 0 : target.x - source.x,
+    y: axis === 'x' ? 0 : target.y - source.y,
+  }
+}
+
+export type { ExtrudeBinding, ExtrudeAxis }

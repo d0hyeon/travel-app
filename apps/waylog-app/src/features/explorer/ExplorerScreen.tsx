@@ -1,8 +1,9 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { SeasonLabel, useRegionTourismTrends } from '@waylog/domains/modules/tourism-trend'
 import { formatKoreanCount } from '@waylog/utility'
-import { Suspense, useCallback, useState } from 'react'
+import { Suspense, useState } from 'react'
 import { Pressable, ScrollView, View, useWindowDimensions } from 'react-native'
+import Animated from 'react-native-reanimated'
 import { useRouter } from 'expo-router'
 import { getCoordinateByLocation, type Location } from '@waylog/domains/modules/location'
 import type { PlaceCategoryType } from '@waylog/domains/modules/place'
@@ -14,7 +15,7 @@ import { useOverlay } from '../../shared/hooks/useOverlay'
 import { palette, radius } from '../../shared/config/tokens'
 import { ExplorerFilterBar } from './ExplorerFilterBar'
 import { FilterNavigation } from './FilterNavigation'
-import { Extrude } from '../../shared/components/animation/Extrude'
+import { useExtrude } from '../../shared/components/animation/Extrude'
 import { ExplorerPlaceCard, ExplorerPlaceRow } from './ExplorerPlaceCard'
 import { useExplorerFilterParams } from './useExplorerFilterParams'
 import { useAttentionPlaces, useExploredPlaces, useMostSavedPlaces, useRecentHotPlaces, type ExplorerPlace } from './useExplorerData'
@@ -44,34 +45,44 @@ export function ExplorerScreen({ mode = 'catalog', bottomContentInset = 0 }: Exp
   const [months, setMonths] = useState<PeriodMonths>(3)
   const title = getExplorerTitle(mode)
   const router = useRouter()
-  const [titleNode, setTitleNode] = useState<View | null>(null)
   const { isScrollDown, onScroll } = useScrollStatus()
-  const titleRef = useCallback((node: View | null) => { setTitleNode(node) }, [])
-
+  const extrude = useExtrude({ active: isScrollDown, axis: mode === 'catalog' ? 'y' : 'both' })
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: palette.background }}>
       <View style={{ height: 50, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           {mode !== 'catalog' && <Pressable onPress={() => router.back()} hitSlop={8}><MaterialIcons name="arrow-back" size={22} color={palette.text} /></Pressable>}
-          <View collapsable={false} ref={titleRef}><Typography variant="h6">{title}</Typography></View>
+          <Animated.View collapsable={false} ref={extrude.target.ref} style={extrude.target.style}>
+            <Typography variant="h6">{title}</Typography>
+          </Animated.View>
         </View>
         <ExplorerViewToggle value={viewMode} onChange={setViewMode} />
       </View>
 
       <FilterNavigation>
-        <Extrude active={isScrollDown} target={titleNode} axis={mode === 'catalog' ? 'y' : 'both'}>
-          <View style={{ paddingBottom: 8 }}>
+        <Animated.View style={[{ overflow: 'visible' }, extrude.placeholderStyle]}>
+          <Animated.View
+            collapsable={false}
+            ref={extrude.source.ref}
+            onLayout={extrude.source.onLayout}
+            style={[
+              { alignSelf: 'flex-start', flexGrow: 0, flexShrink: 0, position: 'absolute', left: 0, top: 0, paddingBottom: 8 },
+              extrude.source.style,
+            ]}
+          >
             <ExplorerFilterBar>
               {mode === 'recent-hot' && <PeriodFilterChip months={months} onChange={setMonths} />}
             </ExplorerFilterBar>
-          </View>
-        </Extrude>
+          </Animated.View>
+        </Animated.View>
       </FilterNavigation>
 
       <View style={{ flex: 1 }}>
         {mode === 'catalog' ? (
-          <ExplorerCatalogContent location={location} category={category} viewMode={viewMode} bottomContentInset={bottomContentInset} onScroll={onScroll} />
+          <Suspense>
+            <ExplorerCatalogContent location={location} category={category} viewMode={viewMode} bottomContentInset={bottomContentInset} onScroll={onScroll} />
+          </Suspense>
         ) : (
           <Suspense fallback={viewMode === 'map' ? <ExplorerMapSkeleton /> : <ExplorerGridSkeleton />}>
             <ExplorerRankingContent mode={mode} location={location} category={category} viewMode={viewMode} months={months} onScroll={onScroll} />
