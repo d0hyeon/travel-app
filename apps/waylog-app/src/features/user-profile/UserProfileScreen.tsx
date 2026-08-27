@@ -18,6 +18,8 @@ export function UserProfileScreen({ userId }: { userId: string }) {
   const insets = useSafeAreaInsets()
   const [currentTab, selectTab] = useQueryParamState<ProfileTab>('tab', { defaultValue: 'feed', parse: parseProfileTab })
   const [isSigningOut, setIsSigningOut] = useState(false)
+  // 지도를 만지는 동안 세로 스크롤을 멈춘다. 두 제스처가 겹치면 지도가 끊긴다.
+  const [isMapInteracting, setIsMapInteracting] = useState(false)
   const profileScrollRef = useRef<ScrollView>(null)
   const recordsContentOffset = useRef<number | null>(null)
 
@@ -53,6 +55,7 @@ export function UserProfileScreen({ userId }: { userId: string }) {
       style={{ flex: 1, backgroundColor: palette.background }}
       contentContainerStyle={{ paddingTop: insets.top, paddingBottom: insets.bottom + 24 }}
       showsVerticalScrollIndicator={false}
+      scrollEnabled={!isMapInteracting}
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <ProfileHeader userId={userId} />
@@ -71,7 +74,7 @@ export function UserProfileScreen({ userId }: { userId: string }) {
           if (typeof recordsOffset !== 'number') return
           recordsContentOffset.current = recordsOffset
         }}>
-          <ProfileRecordsTab userId={userId} />
+          <ProfileRecordsTab userId={userId} onMapInteractionChange={setIsMapInteracting} />
         </View>
       )}
     </ScrollView>

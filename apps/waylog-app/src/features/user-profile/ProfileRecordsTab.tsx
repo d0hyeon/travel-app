@@ -10,7 +10,11 @@ import { deriveVisitedLocations, type VisitedLocation } from './user-profile.uti
 import { UserTripPhotoList } from './UserTripPhotoList'
 import { useOverlay } from '../../shared/hooks/useOverlay'
 
-export function ProfileRecordsTab({ userId }: { userId: string }) {
+export function ProfileRecordsTab({ userId, onMapInteractionChange }: {
+  userId: string
+  /** 지도를 만지는 동안 바깥 세로 스크롤을 멈추기 위해 알린다 */
+  onMapInteractionChange?: (isInteracting: boolean) => void
+}) {
   const { data: trips } = useUserTrips(userId)
   const visitedLocations = useMemo(() => deriveVisitedLocations(trips), [trips])
   const [selectedLocation, setSelectedLocation] = useState<VisitedLocation | null>(null)
@@ -45,7 +49,15 @@ export function ProfileRecordsTab({ userId }: { userId: string }) {
 
   return (
     <View style={{ flex: 1 }}>
-      <View style={{ height: 420, backgroundColor: '#EDF2F7' }}>
+      <View
+        style={{ height: 420, backgroundColor: '#EDF2F7' }}
+        onStartShouldSetResponderCapture={() => {
+          onMapInteractionChange?.(true)
+          return false
+        }}
+        onTouchEnd={() => onMapInteractionChange?.(false)}
+        onTouchCancel={() => onMapInteractionChange?.(false)}
+      >
         <Pressable onPress={() => setIsLocationVisible((visible) => !visible)} style={{ position: 'absolute', right: 8, top: 8, zIndex: 2, padding: 8, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.85)' }}>
           <MaterialIcons name={isLocationVisible ? 'visibility' : 'visibility-off'} size={18} color={palette.textSecondary} />
         </Pressable>
