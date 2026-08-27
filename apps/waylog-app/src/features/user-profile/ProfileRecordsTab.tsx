@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { useEffect, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import { Pressable, ScrollView, View } from 'react-native'
 import { Map } from '../../shared/components/Map'
 import { BottomSheet } from '../../shared/components/bottom-sheet/BottomSheet'
@@ -28,7 +28,11 @@ export function ProfileRecordsTab({ userId }: { userId: string }) {
             {selectedLocation.trips.map((trip) => (
               <View key={trip.id}>
                 <Typography variant="body2" fontWeight="bold">{trip.name}</Typography>
-                <UserTripPhotoList tripId={trip.id} />
+                {/* 사진 조회가 서스펜드해도 루트 경계까지 올라가지 않게 여기서 받는다.
+                    올라가면 화면 전체가 다시 마운트되어 지도 위치가 초기화된다. */}
+                <Suspense fallback={<Typography variant="caption" color="text.secondary">사진을 불러오는 중…</Typography>}>
+                  <UserTripPhotoList tripId={trip.id} />
+                </Suspense>
               </View>
             ))}
           </ScrollView>
