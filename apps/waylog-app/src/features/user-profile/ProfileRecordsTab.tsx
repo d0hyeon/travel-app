@@ -1,7 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { Suspense, useEffect, useMemo, useState } from 'react'
-import { Pressable, ScrollView, View, useWindowDimensions } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { Pressable, View } from 'react-native'
 import { Map } from '../../shared/components/Map'
 import { BottomSheet } from '../../shared/components/bottom-sheet/BottomSheet'
 import { Stack, Typography } from '../../shared/components/mui'
@@ -12,17 +11,17 @@ import { deriveVisitedLocations, type VisitedLocation } from './user-profile.uti
 import { UserTripPhotoList } from './UserTripPhotoList'
 import { useOverlay } from '../../shared/hooks/useOverlay'
 
-export function ProfileRecordsTab({ userId, onMapInteractionChange }: {
+export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChange }: {
   userId: string
+  /** 안전 영역을 뺀 화면 높이. 지도가 이 높이를 채운다 */
+  viewportHeight: number
   /** 지도를 만지는 동안 바깥 세로 스크롤을 멈추기 위해 알린다 */
   onMapInteractionChange?: (isInteracting: boolean) => void
 }) {
   const { data: trips } = useUserTrips(userId)
-  const { height: screenHeight } = useWindowDimensions()
-  const insets = useSafeAreaInsets()
-  // useWindowDimensions 는 노치·홈 인디케이터를 포함한 전체 높이다.
-  // 화면이 이미 안전 영역만큼 패딩을 주므로 그만큼 빼야 지도가 넘치지 않는다.
-  const mapHeight = screenHeight - insets.top - insets.bottom - TAB_BAR_HEIGHT
+
+  // 웹의 calc(100svh - 40px) 과 같다. 탭바를 뺀 만큼을 지도에 준다.
+  const mapHeight = Math.max(viewportHeight - TAB_BAR_HEIGHT, 0)
   const visitedLocations = useMemo(() => deriveVisitedLocations(trips), [trips])
   const [selectedLocation, setSelectedLocation] = useState<VisitedLocation | null>(null)
   const [isLocationVisible, setIsLocationVisible] = useState(true)
@@ -34,19 +33,17 @@ export function ProfileRecordsTab({ userId, onMapInteractionChange }: {
     const closeOverlay = locationOverlay.open(({ isOpen, onClose }) => (
       <BottomSheet isOpen={isOpen} snapPoints={[0.6, 0.8]} defaultSnapIndex={0} safeArea onDismiss={onClose}>
         <BottomSheet.Header><LocationMetaInfo value={selectedLocation} /></BottomSheet.Header>
-        <BottomSheet.Body>
-          <ScrollView contentContainerStyle={{ padding: 16, gap: 16 }}>
-            {selectedLocation.trips.map((trip) => (
-              <View key={trip.id}>
-                <Typography variant="body2" fontWeight="bold">{trip.name}</Typography>
-                {/* 사진 조회가 서스펜드해도 루트 경계까지 올라가지 않게 여기서 받는다.
-                    올라가면 화면 전체가 다시 마운트되어 지도 위치가 초기화된다. */}
-                <Suspense fallback={<Typography variant="caption" color="text.secondary">사진을 불러오는 중…</Typography>}>
-                  <UserTripPhotoList tripId={trip.id} />
-                </Suspense>
-              </View>
-            ))}
-          </ScrollView>
+        <BottomSheet.Body sx={{ padding: 16, gap: 16 }}>
+          {selectedLocation.trips.map((trip) => (
+            <View key={trip.id}>
+              <Typography variant="body2" fontWeight="bold">{trip.name}</Typography>
+              {/* 사진 조회가 서스펜드해도 루트 경계까지 올라가지 않게 여기서 받는다.
+                  올라가면 화면 전체가 다시 마운트되어 지도 위치가 초기화된다. */}
+              <Suspense fallback={<Typography variant="caption" color="text.secondary">사진을 불러오는 중…</Typography>}>
+                <UserTripPhotoList tripId={trip.id} />
+              </Suspense>
+            </View>
+          ))}
         </BottomSheet.Body>
       </BottomSheet>
     ))
