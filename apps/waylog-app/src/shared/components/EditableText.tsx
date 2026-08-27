@@ -1,14 +1,15 @@
 import { useAsyncEffect } from '@waylog/react'
-import { ComponentProps, useEffect, useState, type ReactNode } from 'react'
+import { ComponentProps, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { ControllerFieldState, ControllerRenderProps } from 'react-hook-form'
 import { Pressable, useWindowDimensions, View, type TextInputProps } from 'react-native'
 import { TextInput } from 'react-native-gesture-handler'
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { useKeyboardMetrics } from '../hooks/env/useKeyboardMetrics'
-import { useFlipAnimation, useMeasureInWindow } from './EditableText.motion'
+import { useMeasureInWindow } from './EditableText.motion'
 import { TextOverlayField } from './mui/TextOverlayField'
 import { getTypographyStyle, Typography, type TypographyProps } from './mui/Typography'
 import { Text } from './Text'
+import { useSharedElementTransition } from './animation/SharedElementTransition'
 
 type FormValues = { value: string }
 
@@ -125,79 +126,71 @@ type Rect = {
 };
 
 function Field(props: ComponentProps<typeof TextOverlayField>) {
-  const { metrics: keyboardPosition } = useKeyboardMetrics();
+  const { metrics: keyboardPosition, isActive: isActivedKeyboard } = useKeyboardMetrics();
   const { width: screenWidth } = useWindowDimensions();
 
-  const [sourceRect, setSourceRect] = useState<Rect | null>(null);
-  const source = useMeasureInWindow<TextInput>(setSourceRect);
-
-  const flip = useFlipAnimation(TRANSITION_CONFIG);
+  const textRef = useRef(null);
+  const overlayInputRef = useRef(null);
   const scale = useSharedValue(1);
+  const { play, translateX, translateY } = useSharedElementTransition();
+
   const transformStyle = useAnimatedStyle(() => ({
     transform: [
-      { translateX: flip.translateX.get() },
-      { translateY: flip.translateY.get() },
+      { translateX: translateX.get() },
+      { translateY: translateY.get() },
       { scale: scale.get() },
     ],
   }));
 
-
-  const overlay = useMeasureInWindow<View>();
   const opacity = useSharedValue(0);
   const opacityStyle = useAnimatedStyle(() => ({ opacity: opacity.get() }));
 
-  useAsyncEffect(async () => {
-    if (sourceRect == null) return;
+  useEffect(() => {
+    if (!isActivedKeyboard || !props.isOpen) return;
 
-    const last = await overlay.getCurrentRect();
-    flip.play({ first: sourceRect, last });
-    opacity.set(withTiming(1, { duration: 200 }))
+    play({ from: textRef.current, to: overlayInputRef.current, ...TRANSITION_CONFIG });
+    opacity.set(withTiming(1, { duration: 200 }));
     scale.set(withTiming(OVERLAY_SCALE, TRANSITION_CONFIG));
-  }, [sourceRect]);
+  }, [props.isOpen, isActivedKeyboard]);
 
   return (
     <>
-      <Text
-        ref={source.ref}
-        style={props.sx}
-        numberOfLines={1}
-      >
+      <Text ref={textRef} style={props.sx} numberOfLines={1}>
         {props.value}
       </Text>
 
-      {sourceRect != null && (
-        <View
-          pointerEvents="box-none"
-          style={{
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            top: 0,
-            height: keyboardPosition?.screenY,
-            alignItems: 'center',
-            justifyContent: 'center',
+
+      <View
+        pointerEvents="box-none"
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          top: 0,
+          height: keyboardPosition?.screenY,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <TextOverlayField
+          {...props}
+          isOpen
+          sx={{
+            minHeight: 14,
+            maxWidth: (screenWidth - 24 * 2) / OVERLAY_SCALE
           }}
-        >
-          <TextOverlayField
-            {...props}
-            isOpen
-            sx={{
-              minHeight: 14,
-              maxWidth: (screenWidth - 24 * 2) / OVERLAY_SCALE
-            }}
-            slotProps={{
-              body: {
-                as: Animated.View,
-                ref: overlay.ref,
-                style: [
-                  { alignSelf: 'center' },
-                  transformStyle, opacityStyle,
-                ],
-              },
-            }}
-          />
-        </View>
-      )}
+          slotProps={{
+            body: {
+              as: Animated.View,
+              style: [
+                { alignSelf: 'center' },
+                transformStyle, opacityStyle
+              ],
+            },
+            input: { ref: overlayInputRef },
+          }}
+        />
+      </View>
     </>
   );
 }

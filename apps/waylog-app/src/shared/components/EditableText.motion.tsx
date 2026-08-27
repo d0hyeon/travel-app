@@ -67,6 +67,7 @@ export function useMeasureInWindow<T extends View | TextInput>(
 
   return {
     ref: register,
+    current: nodeRef.current,
     getCurrentRect,
   };
 }
