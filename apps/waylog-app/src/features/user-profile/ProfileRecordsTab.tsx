@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { Suspense, useEffect, useMemo, useState } from 'react'
-import { Pressable, ScrollView, View } from 'react-native'
+import { Pressable, ScrollView, View, useWindowDimensions } from 'react-native'
 import { Map } from '../../shared/components/Map'
 import { BottomSheet } from '../../shared/components/bottom-sheet/BottomSheet'
 import { Stack, Typography } from '../../shared/components/mui'
@@ -16,6 +16,7 @@ export function ProfileRecordsTab({ userId, onMapInteractionChange }: {
   onMapInteractionChange?: (isInteracting: boolean) => void
 }) {
   const { data: trips } = useUserTrips(userId)
+  const { height: screenHeight } = useWindowDimensions()
   const visitedLocations = useMemo(() => deriveVisitedLocations(trips), [trips])
   const [selectedLocation, setSelectedLocation] = useState<VisitedLocation | null>(null)
   const [isLocationVisible, setIsLocationVisible] = useState(true)
@@ -50,7 +51,7 @@ export function ProfileRecordsTab({ userId, onMapInteractionChange }: {
   return (
     <View style={{ flex: 1 }}>
       <View
-        style={{ height: 420, backgroundColor: '#EDF2F7' }}
+        style={{ height: screenHeight - TAB_BAR_HEIGHT, backgroundColor: '#EDF2F7' }}
         onStartShouldSetResponderCapture={() => {
           onMapInteractionChange?.(true)
           return false
@@ -75,6 +76,9 @@ export function ProfileRecordsTab({ userId, onMapInteractionChange }: {
     </View>
   )
 }
+
+// 웹의 calc(100svh - 40px) 과 같다. 탭바를 뺀 만큼을 지도에 준다.
+const TAB_BAR_HEIGHT = 40
 
 function LocationMetaInfo({ value }: { value: VisitedLocation }) {
   return <Stack direction="row" alignItems="center" sx={{ gap: 8 }}><View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: palette.primary }} /><Typography variant="subtitle1">{value.location}</Typography><Typography variant="caption" color="text.secondary">{value.countryName}</Typography></Stack>

@@ -62,7 +62,7 @@ export function UserProfileScreen({ userId }: { userId: string }) {
         {auth.id === userId && <Pressable disabled={isSigningOut} onPress={handleSignOut} style={{ padding: 16 }}><MaterialIcons name="logout" size={22} color="#d32f2f" /></Pressable>}
       </View>
       <ProfileStatStrip userId={userId} />
-      <Tabs value={currentTab} onChange={(_, next) => { if (next === 'feed' || next === 'records') selectTab(next) }}>
+      <Tabs fullWidth value={currentTab} onChange={(_, next) => { if (next === 'feed' || next === 'records') selectTab(next) }}>
         <Tab value="feed" label="피드" />
         <Tab value="records" label="기록" />
       </Tabs>
