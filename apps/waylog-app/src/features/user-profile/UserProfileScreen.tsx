@@ -30,16 +30,20 @@ export function UserProfileScreen({ userId }: { userId: string }) {
     }
   }
 
+  // 기록 탭을 연 순간에만 그 위치로 옮긴다.
+  // onLayout 에서 매번 스크롤하면 바텀시트가 열릴 때마다 화면이 다시 튕긴다.
   useEffect(() => {
     if (currentTab !== 'records') return
 
-    const scrollToRecords = () => {
+    let frame = requestAnimationFrame(function scrollWhenMeasured() {
       const targetOffset = recordsContentOffset.current
-      if (targetOffset == null) return
+      if (targetOffset == null) {
+        frame = requestAnimationFrame(scrollWhenMeasured)
+        return
+      }
       profileScrollRef.current?.scrollTo({ y: targetOffset, animated: true })
-    }
+    })
 
-    const frame = requestAnimationFrame(scrollToRecords)
     return () => cancelAnimationFrame(frame)
   }, [currentTab])
 
@@ -66,7 +70,6 @@ export function UserProfileScreen({ userId }: { userId: string }) {
           const recordsOffset = event?.nativeEvent?.layout?.y
           if (typeof recordsOffset !== 'number') return
           recordsContentOffset.current = recordsOffset
-          requestAnimationFrame(() => profileScrollRef.current?.scrollTo({ y: recordsOffset, animated: true }))
         }}>
           <ProfileRecordsTab userId={userId} />
         </View>
