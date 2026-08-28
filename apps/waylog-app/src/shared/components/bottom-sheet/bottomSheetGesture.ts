@@ -22,3 +22,25 @@ export function clampSheetHeight(height: number, maximumHeight: number): number 
   'worklet'
   return Math.min(Math.max(height, 0), maximumHeight)
 }
+
+export function getSheetTranslateY({
+  visibleHeight,
+  maximumHeight,
+}: {
+  visibleHeight: number
+  maximumHeight: number
+}): number {
+  'worklet'
+  return Math.max(maximumHeight - visibleHeight, 0)
+}
+
+export function getSheetBodyHeight({
+  visibleHeight,
+  handleHeight,
+}: {
+  visibleHeight: number
+  handleHeight: number
+}): number {
+  'worklet'
+  return Math.max(visibleHeight - handleHeight, 0)
+}

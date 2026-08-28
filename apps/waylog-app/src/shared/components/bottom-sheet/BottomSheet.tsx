@@ -37,7 +37,9 @@ import { Box, Stack, Typography, sxToStyle, type BoxProps, type StackProps, type
 import { palette, zLayer } from '../../config/tokens'
 import {
   clampSheetHeight,
+  getSheetBodyHeight,
   getGestureOwner,
+  getSheetTranslateY,
   hasGestureDirection,
 } from './bottomSheetGesture'
 import { usePreservedCallback } from '@waylog/react'
@@ -58,6 +60,8 @@ interface SheetDragContextValue {
    * 먼저 붙은 쪽이 조용히 죽는다. 붙이는 곳마다 자기 것을 만든다.
    */
   createPan: () => PanGesture
+  /** 헤더·비스크롤 본문처럼 스크롤과 경합하지 않는 영역의 시트 끌기 */
+  createDirectPan: () => PanGesture
 }
 
 const SheetDragContext = createContext<SheetDragContextValue | null>(null)
@@ -73,11 +77,6 @@ function useSheetDrag(): SheetDragContextValue {
 // GestureArea 는 자기를 감싼 본문의 제스처를 지목해 막는다.
 // 그 인스턴스를 알아야 하므로 본문이 자기 것을 아래로 내려준다.
 const BodyPanContext = createContext<PanGesture | null>(null)
-
-// 스크롤 컨테이너 안이라는 표시. 시트 하나가 보는 스크롤 위치는 하나뿐이라,
-// 중첩된 스크롤이 각자 자기 위치를 쓰면 서로 덮어써 판정이 뒤집힌다.
-// 안쪽은 자기 제스처·위치 추적을 갖지 않고 바깥에 맡긴다.
-const IsInsideScrollContext = createContext(false)
 
 interface BottomSheetProps {
   children: ReactNode
@@ -101,6 +100,7 @@ interface BottomSheetProps {
 }
 
 const SPRING = { damping: 20, stiffness: 200, mass: 0.6 } as const
+const HANDLE_AREA_HEIGHT = 32
 
 // 키보드보다 빠르게 붙는다. 그대로 맞추면 굼떠 보인다.
 // 내려갈 때는 시트가 먼저 자리를 비켜야 답답하지 않아 더 줄인다.
@@ -234,7 +234,7 @@ export function BottomSheet({
   const wasAtTop = useSharedValue(true)
 
   // 핸들 바 전용. 스크롤과 경합할 일이 없어 양보 판정 없이 바로 끈다.
-  const handlePan = useMemo(
+  const createDirectPan = useCallback(
     () =>
       Gesture.Pan()
         .onStart(() => {
@@ -248,6 +248,7 @@ export function BottomSheet({
         }),
     [startH, sheetH, settleAtRest],
   )
+  const handlePan = useMemo(() => createDirectPan(), [createDirectPan])
 
   // 본문용. 규칙은 두 줄이다.
   //  - 아래로: 스크롤이 최상단이면 시트를 내리고, 아니면 스크롤에 맡긴다.
@@ -345,28 +346,40 @@ export function BottomSheet({
 
     // 화면 밖으로는 나갈 수 없다. 100% 스냅이어도 상단 안전영역은 남긴다.
     const limit = baseH - lift
-    const content = Math.min(sheetH.get(), limit)
+    const visibleHeight = Math.min(sheetH.get(), limit)
+    const expandedHeight = Math.min(maxH.get() || visibleHeight, limit)
 
     return {
-      // RN 은 border-box 라 height 가 padding 을 포함한다.
-      // 채우는 만큼 더해야 내용이 쓸 자리가 그대로 남는다.
-      height: content + lift,
+      // 항상 가장 큰 스냅 높이로 레이아웃을 잡고, 작은 스냅은 시트 전체를
+      // 아래로 보낸다. 그래서 BottomActions도 화면 바닥에 고정되지 않고
+      // 헤더·본문과 함께 움직인다.
+      height: expandedHeight + lift,
       paddingBottom: lift,
+      transform: [{ translateY: getSheetTranslateY({ visibleHeight, maximumHeight: expandedHeight }) }],
     }
   })
 
   const dragContext = useMemo(
-    () => ({ scrollY, createPan, isSheetOwner }),
-    [scrollY, createPan, isSheetOwner],
+    () => ({ scrollY, createPan, createDirectPan, isSheetOwner }),
+    [scrollY, createPan, createDirectPan, isSheetOwner],
   )
 
-  const bodyStyle = useAnimatedStyle(() => ({
-    flex: 1,
-    // 하단 안전영역은 시트가 화면 바닥에 닿을 때만 필요하다.
-    // 아래에 형제가 자리를 차지하면 그쪽이 이미 처리하므로 여기서 더하면
-    // 시트와 그 형제 사이가 벌어진다.
-    paddingBottom: kbLift.get() > 0 ? 0 : safeBottom,
-  }))
+  const bodyStyle = useAnimatedStyle(() => {
+    const lift = kbLift.get()
+    const visibleHeight = Math.min(sheetH.get(), baseH - lift)
+
+    return {
+      // 시트 전체는 최대 높이로 렌더링하지만 본문 뷰포트는 현재 보이는
+      // 높이만 쓴다. 그래야 스크롤 끝의 콘텐츠가 화면 밖에 남지 않는다.
+      height: getSheetBodyHeight({ visibleHeight, handleHeight: HANDLE_AREA_HEIGHT }),
+      flexGrow: 0,
+      flexShrink: 0,
+      // 하단 안전영역은 시트가 화면 바닥에 닿을 때만 필요하다.
+      // 아래에 형제가 자리를 차지하면 그쪽이 이미 처리하므로 여기서 더하면
+      // 시트와 그 형제 사이가 벌어진다.
+      paddingBottom: lift > 0 ? 0 : safeBottom,
+    }
+  })
 
   return (
     <View
@@ -377,41 +390,59 @@ export function BottomSheet({
       {isOpen === true && <Pressable style={styles.backdrop} onPress={onDismiss} />}
 
       <Animated.View style={[styles.sheet, sheetStyle, sxToStyle(sx)]}>
-        <GestureDetector gesture={handlePan}>
-          <View style={styles.handleArea} hitSlop={{ top: 8, bottom: 8, left: 24, right: 24 }}>
-            <View style={styles.handle} />
-          </View>
-        </GestureDetector>
+        <SheetDragContext.Provider value={dragContext}>
+          <GestureDetector gesture={handlePan}>
+            <View style={styles.handleArea} hitSlop={{ top: 8, bottom: 8, left: 24, right: 24 }}>
+              <View style={styles.handle} />
+            </View>
+          </GestureDetector>
 
-        {/* 남은 자리를 본문이 모두 갖는다. 스크롤은 이 안에서 일어난다. */}
-        <Animated.View style={bodyStyle}>
-          <SheetDragContext.Provider value={dragContext}>
+          {/* 남은 자리를 본문이 모두 갖는다. 스크롤은 이 안에서 일어난다. */}
+          <Animated.View style={bodyStyle}>
             {children}
-          </SheetDragContext.Provider>
-        </Animated.View>
+          </Animated.View>
+        </SheetDragContext.Provider>
       </Animated.View>
     </View>
   )
 }
 
 function Header({ children, rightElement, sx, ...props }: StackProps & { rightElement?: ReactNode }) {
+  const { createDirectPan } = useSheetDrag()
+  const pan = useMemo(() => createDirectPan(), [createDirectPan])
+
   return (
-    <Stack
-      direction="row"
-      alignItems="center"
-      justifyContent="space-between"
-      sx={{ px: 2, py: 1, ...(sx ?? {}) }}
-      {...props}
-    >
-      {/* 문자열을 그대로 받으면 RN 이 렌더하지 못한다. 제목은 감싸준다. */}
-      {typeof children === 'string' ? <Typography variant="h6">{children}</Typography> : children}
-      {rightElement}
-    </Stack>
+    <GestureDetector gesture={pan}>
+      <View>
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{ px: 2, py: 1, ...(sx ?? {}) }}
+          {...props}
+        >
+          {/* 문자열을 그대로 받으면 RN 이 렌더하지 못한다. 제목은 감싸준다. */}
+          {typeof children === 'string' ? <Typography variant="h6">{children}</Typography> : children}
+          {rightElement}
+        </Stack>
+      </View>
+    </GestureDetector>
   )
 }
 
 function Body({ children, sx, ...props }: BoxProps) {
-  return <Box sx={{ flex: 1, ...(sx ?? {}) }} {...props}>{children}</Box>
+  const { createDirectPan } = useSheetDrag()
+  const pan = useMemo(() => createDirectPan(), [createDirectPan])
+
+  return (
+    <GestureDetector gesture={pan}>
+      <View style={{ flex: 1 }}>
+        <BodyPanContext.Provider value={pan}>
+          <Box sx={{ flex: 1, ...(sx ?? {}) }} {...props}>{children}</Box>
+        </BodyPanContext.Provider>
+      </View>
+    </GestureDetector>
+  )
 }
 
 /**
@@ -434,7 +465,6 @@ function SheetScrollView({
   ...props
 }: ScrollViewProps & { ref?: Ref<Animated.ScrollView> }) {
   const { scrollY, createPan, isSheetOwner } = useSheetDrag()
-  const isInsideScroll = useContext(IsInsideScrollContext)
   const parentPan = useContext(BodyPanContext)
   const scrollRef = useAnimatedRef<Animated.ScrollView>()
 
@@ -446,7 +476,7 @@ function SheetScrollView({
   // 그쪽이 주인이고, 여기서 또 쓰면 서로 덮어써 판정이 뒤집힌다.
   // 가로도 마찬가지로 시트 판정에 쓰이면 안 된다.
   const ownOffset = useSharedValue(0)
-  const isOwner = !isInsideScroll && horizontal !== true
+  const isOwner = horizontal !== true
   useScrollOffset(scrollRef, isOwner ? scrollY : ownOffset)
 
 
@@ -457,11 +487,11 @@ function SheetScrollView({
   const nativeScroll = useMemo(() => Gesture.Native(), [])
   const pan = useMemo(() => createPan(), [createPan])
   const scrollAndPan = useMemo(() => {
-    if (isInsideScroll && parentPan != null) {
+    if (parentPan != null) {
       nativeScroll.blocksExternalGesture(parentPan)
     }
     return Gesture.Simultaneous(nativeScroll, pan)
-  }, [isInsideScroll, nativeScroll, pan, parentPan])
+  }, [nativeScroll, pan, parentPan])
 
   // 시트가 끄는 동안만 멈춘다. UI 스레드에서 바로 반영된다.
   const scrollProps = useAnimatedProps(() => ({

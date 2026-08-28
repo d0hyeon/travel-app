@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
   clampSheetHeight,
+  getSheetBodyHeight,
   getGestureOwner,
+  getSheetTranslateY,
   hasGestureDirection,
 } from './bottomSheetGesture'
 
@@ -25,6 +27,26 @@ describe('clampSheetHeight', () => {
     expect(clampSheetHeight(-10, 600)).toBe(0)
     expect(clampSheetHeight(320, 600)).toBe(320)
     expect(clampSheetHeight(800, 600)).toBe(600)
+  })
+})
+
+describe('getSheetTranslateY', () => {
+  it('moves the whole sheet down by the height hidden below the active snap point', () => {
+    expect(getSheetTranslateY({ visibleHeight: 300, maximumHeight: 600 })).toBe(300)
+  })
+
+  it('keeps the fully expanded sheet at the bottom edge', () => {
+    expect(getSheetTranslateY({ visibleHeight: 600, maximumHeight: 600 })).toBe(0)
+  })
+})
+
+describe('getSheetBodyHeight', () => {
+  it('uses only the visible sheet space below the drag handle as the scroll viewport', () => {
+    expect(getSheetBodyHeight({ visibleHeight: 300, handleHeight: 32 })).toBe(268)
+  })
+
+  it('does not create a negative body viewport while a sheet is closed', () => {
+    expect(getSheetBodyHeight({ visibleHeight: 0, handleHeight: 32 })).toBe(0)
   })
 })
 
