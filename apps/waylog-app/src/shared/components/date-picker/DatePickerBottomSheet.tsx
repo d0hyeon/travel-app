@@ -69,21 +69,23 @@ export function DatePickerBottomSheet(props: DatePickerBottomSheetProps) {
       snapPoints={step === 'time' ? SNAP_POINTS.time : SNAP_POINTS.date}
       safeArea
     >
-      <BottomSheet.Scrollable>
-        {props.type === 'range' ? (
-          <DatePicker type="range" value={range} onChange={setRange} />
-        ) : (
-          <DatePicker
-            type={props.type ?? 'date'}
-            value={day ?? undefined}
-            step={step}
-            minuteStep={props.minuteStep ?? DEFAULT_MINUTE_STEP}
-            onChange={setDay}
-            onStepChange={setStep}
-          />
-        )}
-      </BottomSheet.Scrollable>
+      <BottomSheet.Body>
+        <BottomSheet.GestureArea>
+          {props.type === 'range' ? (
+            <DatePicker type="range" value={range} onChange={setRange} />
+          ) : (
+            <DatePicker
+              type={props.type ?? 'date'}
+              value={day ?? undefined}
+              step={step}
+              minuteStep={props.minuteStep ?? DEFAULT_MINUTE_STEP}
+              onChange={setDay}
+              onStepChange={setStep}
+            />
+          )}
+        </BottomSheet.GestureArea>
 
+      </BottomSheet.Body>
       <BottomSheet.BottomActions>
         <Button fullWidth size="large" onClick={step === 'time' ? () => setStep('date') : onDismiss}>
           {step === 'time' ? '이전' : '취소'}

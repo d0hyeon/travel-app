@@ -1,6 +1,7 @@
 import { eachDayOfInterval, getHours, isToday as getIsToday } from 'date-fns'
 import { Suspense, useMemo, useRef, useState } from 'react'
-import { ScrollView, useWindowDimensions } from 'react-native'
+import { useWindowDimensions } from 'react-native'
+import type Animated from 'react-native-reanimated'
 import { useCurrentTime } from '@waylog/react'
 import type { Coordinate } from '@waylog/utility'
 import { formatDisplayDate, formatShortDate } from '@waylog/utility'
@@ -87,7 +88,7 @@ function Resolved({ tripId, initialDate }: Pick<Props, 'tripId' | 'initialDate'>
 function DayPartForecast({ coordinate, date }: { coordinate: Coordinate; date: string }) {
   const { data: weatherForecast } = useDailyWeatherForecast({ coordinate, date })
   const { width } = useWindowDimensions()
-  const scrollRef = useRef<ScrollView>(null)
+  const scrollRef = useRef<Animated.ScrollView>(null)
   const now = useCurrentTime()
   const [activeDayPart, setActiveDayPart] = useState<DayPart>(
     () => DAY_PARTS[getInitialDayPartIndex(date, now)].dayPart,
@@ -131,7 +132,7 @@ function DayPartForecast({ coordinate, date }: { coordinate: Coordinate; date: s
           ))}
         </ToggleButtonGroup>
 
-        <ScrollView
+        <BottomSheet.ScrollView
           ref={scrollRef}
           horizontal
           pagingEnabled
@@ -153,7 +154,7 @@ function DayPartForecast({ coordinate, date }: { coordinate: Coordinate; date: s
               </ErrorBoundary>
             </Stack>
           ))}
-        </ScrollView>
+        </BottomSheet.ScrollView>
       </Stack>
       <Typography
         variant="caption"

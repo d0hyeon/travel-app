@@ -50,11 +50,12 @@ export function useCommunityRouteDetailOverlay() {
 function CommunityRouteDetailSheet({ communityTrip, tripId, isOpen, onClose }: Props) {
   return (
     <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.85, 1]} defaultSnapIndex={0}>
-      <BottomSheet.Body sx={{ padding: 0 }}>
-        <Suspense fallback={<DetailSkeleton />}>
-          <DetailContent communityTrip={communityTrip} tripId={tripId} />
-        </Suspense>
-      </BottomSheet.Body>
+      {/* 스크롤은 안쪽 DetailContent 의 Body 가 갖는다. 여기서 또 감싸면
+          스크롤 컨테이너가 중첩돼 높이가 무너지고, 시트 판정이 어느 쪽
+          스크롤 위치를 볼지 어긋난다. */}
+      <Suspense fallback={<DetailSkeleton />}>
+        <DetailContent communityTrip={communityTrip} tripId={tripId} />
+      </Suspense>
     </BottomSheet>
   )
 }
@@ -136,7 +137,7 @@ function DetailContent({
         </View>
       )}
 
-      <BottomSheet.Scrollable>
+      <BottomSheet.Body>
         {currentRoute?.places.length === 0 && (
           <Typography variant="body2" color="text.secondary" sx={{ padding: 16 }}>
             경로에 장소가 없어요
@@ -151,7 +152,7 @@ function DetailContent({
             alreadyAdded={myPlaceIds.includes(place.id)}
           />
         ))}
-      </BottomSheet.Scrollable>
+      </BottomSheet.Body>
     </Stack>
   )
 }

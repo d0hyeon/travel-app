@@ -115,7 +115,7 @@ apps/
 │   │       ├── components/
 │   │       │   ├── mui/        # MUI 호환 계층 — 웹 코드를 그대로 옮기기 위함
 │   │       │   ├── Map/        # react-native-maps 구현
-│   │       │   ├── bottom-sheet/ # 자체 구현 (Reanimated) — 웹과 같은 공개 API
+│   │       │   ├── bottom-sheet/ # 자체 구현 (Reanimated) — 웹과 같은 공개 API. Body 스크롤·GestureArea
 │   │       │   ├── action-sheet/ # 하단 액션 시트 (Modal + 슬라이드업). PopMenu 가 트리거를 얹어 쓴다
 │   │       │   ├── date-picker/ # 날짜·기간·시각 선택 (바텀시트 + 스와이프 달력)
 │   │       │   └── dnd/        # 제스처 기반 정렬 목록 (드래그 핸들)
@@ -720,6 +720,77 @@ src/
 - 여닫는 시트는 화면 안에 직접 두지 말고 `useOverlay` 로 띄운다. 오버레이 층은
   `OverlayProvider` 가 `Stack` 바깥에 두는 형제라 화면의 `BottomArea` 와 아예
   겹칠 일이 없다. 화면에 상주하는 시트만 형제로 둔다 (여행 장소·경로 탭).
+
+**시트 끌기와 본문 스크롤 — 누가 터치를 갖는가**
+
+핸들 바뿐 아니라 본문에서도 시트를 끌 수 있다. 웹 `BottomSheet.Body` 와 같은 규칙이다.
+
+- 본문이 **최상단(`scrollY <= 0`)일 때 아래로 당기면** 시트가 끌린다.
+- 그 밖에는 스크롤이 가져간다. 위로 당기면 언제나 스크롤이다.
+- 판정은 **활성화 전**에 내린다 (`manualActivation` + `onTouchesMove`).
+  `onStart` 는 이미 ACTIVE 로 넘어온 뒤라 늦다. 거기서 물러나도 터치는 제스처가
+  붙잡은 채여서 스크롤도 시트도 안 움직이는 먹통 드래그가 된다.
+  스크롤 몫이면 `manager.fail()` 로 양보하고, 시트 몫이면 `manager.activate()` 한다.
+- 핸들 바는 스크롤과 경합하지 않아 판정 없이 바로 끈다. 본문과 다른 제스처다.
+- 스크롤이 없는 본문은 `scrollY` 가 0 에서 움직이지 않아 항상 시트가 끌린다.
+  "스크롤 있음/없음"을 따로 분기하지 않는 이유다.
+
+스크롤 위치는 `useAnimatedScrollHandler` 로 UI 스레드에 둔다. 제스처가 같은 프레임에서
+읽어야 최상단 여부를 지연 없이 판정할 수 있다.
+
+**터치를 독점해야 하는 영역 — `BottomSheet.GestureArea`**
+
+순서 변경 목록·지도처럼 자기 제스처를 갖는 것은 `GestureArea` 로 감싼다.
+`blocksExternalGesture` 로 본문의 시트 제스처를 지역적으로 이긴다.
+
+```jsx
+<BottomSheet.Body>
+  <Tabs />                        {/* 여기선 시트가 끌린다 */}
+  <ScrollViewContainer>           {/* 정렬 기능이 소유 */}
+    <SortableList />
+  </ScrollViewContainer>
+</BottomSheet.Body>
+```
+
+시트 전체를 끄는 `disabled` prop 을 두지 않은 이유는, 실제 요구가 **영역 단위**이기
+때문이다. 한 시트 안에 끌어도 되는 영역과 안 되는 영역이 같이 있다 (여행 경로 탭).
+
+`NestedReorderableList` 를 쓸 때는 해당 기능이 `ScrollViewContainer` 컨텍스트를
+소유한다. 정렬 라이브러리의 제약은 바텀시트 API에 넣지 않는다.
+
+제스처 인스턴스는 붙이는 곳마다 새로 만든다 (`createPan`). 한 인스턴스를 두 곳에
+붙이면 나중에 붙은 쪽이 `handlerTag` 를 가져가 먼저 붙은 쪽이 조용히 죽는다.
+
+**시트 안의 스크롤은 전부 `BottomSheet.ScrollView` 를 쓴다. 가로도 포함이다.**
+
+맨 `ScrollView` 를 쓰면 그 자식이 터치를 독점해 시트 판정까지 오지 않는다.
+자식 스크롤은 자기 네이티브 핸들러를 갖는데, 시트 제스처와 관계가 없으면
+gesture-handler 는 자식을 우선한다. 그래서 시트 위 빈 자리나 핸들 바에서는
+시트가 끌리는데 스크롤 위에서 당기면 스크롤만 되는 증상이 난다.
+
+`BottomSheet.ScrollView` 는 `Gesture.Simultaneous` 로 시트 제스처와 자기를 묶어
+둘 다 인식되게 하고, 어느 쪽이 움직일지는 시트의 방향·최상단 판정이 정한다.
+`@gorhom/bottom-sheet` 의 `BottomSheetScrollView` 와 같은 방식이다.
+
+세로 스크롤은 자기 위치를 시트에 알려 최상단 판정에 쓰이고, 가로 스크롤은
+알리지 않는다 (시트가 보는 것은 세로 위치뿐이라 가로 값을 쓰면 어긋난다).
+깊이는 상관없다 — `Body` 바로 아래든 몇 겹 안쪽이든 같다.
+
+```jsx
+<BottomSheet.Body>
+  <BottomSheet.ScrollView>…</BottomSheet.ScrollView>
+  <BottomSheet.ScrollView horizontal>…</BottomSheet.ScrollView>
+</BottomSheet.Body>
+```
+
+`scrollTo` 가 필요하면 `ref` 를 그대로 넘긴다 (`Animated.ScrollView` 타입이다).
+
+시트 **밖**의 스크롤은 해당 없다. 화면 본문은 그냥 `ScrollView` 를 쓴다.
+
+`Body` 자체를 중첩하지는 않는다. 스크롤 컨테이너가 겹쳐 높이가 무너진다.
+
+`settle` 은 스냅이 바뀔 때마다 새로 만들어지므로 제스처가 직접 의존하면 안 된다.
+ref 로 붙잡아야 끌던 도중 스냅이 바뀌어도 제스처가 갈아끼워지지 않는다.
 
 **시트 닫기 콜백 — `onDismiss` 와 `onClose`**
 

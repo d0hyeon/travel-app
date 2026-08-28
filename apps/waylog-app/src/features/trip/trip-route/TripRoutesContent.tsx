@@ -2,6 +2,7 @@ import { findNearestPlace } from '@waylog/domains/modules/trip'
 import { formatDisplayDate, formatShortDate } from '@waylog/utility'
 import { useDayTripRoutes, useTrip, useTripPlaces } from '@waylog/domains/modules/trip'
 import { MaterialIcons } from '@expo/vector-icons'
+import { ScrollViewContainer } from 'react-native-reorderable-list'
 import { Fragment, useMemo, useRef, useState } from 'react'
 import { Box, Button, Chip, IconButton, Stack, Tab, Tabs, Typography } from '../../../shared/components/mui'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
@@ -199,7 +200,8 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
             }
           }}
         >
-          <BottomSheet.Body sx={{ paddingBottom: 40 }}>
+          <BottomSheet.Body>
+            <ScrollViewContainer style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 40 }}>
             {/* 여행 일자 선택 */}
             <Tabs
               value={selectedDate}
@@ -235,82 +237,85 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                   지도에서 장소를 눌러 경로에 추가하세요
                 </Typography>
               ) : (
-                <SortableList
-                  items={currentPlaces}
-                  onSort={(changed) => {
-                    update({
-                      routeId: currentRoute.id,
-                      placeIds: changed.items.map((x) => x.id),
-                    })
-                  }}
-                  renderItem={(place, idx) => {
-                    const inboundLeg = legByArrivalPlaceId.get(place.id)
-                    const isHidden = currentRoute.hiddenPlaces.includes(place.id)
+                <BottomSheet.GestureArea>
+                  <SortableList
+                    items={currentPlaces}
+                    onSort={(changed) => {
+                      update({
+                        routeId: currentRoute.id,
+                        placeIds: changed.items.map((x) => x.id),
+                      })
+                    }}
+                    renderItem={(place, idx) => {
+                      const inboundLeg = legByArrivalPlaceId.get(place.id)
+                      const isHidden = currentRoute.hiddenPlaces.includes(place.id)
 
-                    return (
-                      <Fragment key={place.id}>
-                        <SortableList.Item id={place.id}>
-                          {inboundLeg != null && inboundLeg.duration > 0 && (
-                            <RouteLegItem leg={inboundLeg} />
-                          )}
-                          <TripRoutePlaceListItem
-                            data={place}
-                            focused={focusedId === place.id}
-                            onClick={() => {
-                              setFocusedId(place.id)
-                              mapRef.current?.panTo(place.lat, place.lng)
-                            }}
-                            leftAddon={(
-                              <SortableItem.Handle id={place.id}>
-                                <MaterialIcons name="drag-indicator" size={24} color="#787c7e" />
-                              </SortableItem.Handle>
+                      return (
+                        <Fragment key={place.id}>
+                          <SortableList.Item id={place.id}>
+                            {inboundLeg != null && inboundLeg.duration > 0 && (
+                              <RouteLegItem leg={inboundLeg} />
                             )}
-                            title={
-                              <Stack direction="row" alignItems="center" gap={0.5}>
-                                <Dot>
-                                  <Typography sx={{ color: '#fff', fontSize: 11, fontWeight: '900' }}>
-                                    {idx + 1}
-                                  </Typography>
-                                </Dot>
-                                <ListItem.Title>{place.name}</ListItem.Title>
-                                <IconButton
-                                  size="small"
-                                  onClick={() =>
-                                    toggleVisible({ routeId: currentRoute.id, placeId: place.id })
-                                  }
-                                >
-                                  <MaterialIcons
-                                    name={isHidden ? 'visibility-off' : 'visibility'}
-                                    size={18}
-                                    color={isHidden ? '#bbb' : '#787c7e'}
-                                  />
-                                </IconButton>
-                              </Stack>
-                            }
-                            rightAddon={
-                              <TripRoutePlaceListItem.Actions
-                                tripId={tripId}
-                                date={selectedDate}
-                                routeId={currentRoute.id}
-                                placeId={place.id}
-                              />
-                            }
-                          >
-                            <NoteEditor
-                              notes={place.routeNotes ?? []}
-                              onChange={(memos) =>
-                                updateNotes({ placeId: place.id, routeId: currentRoute.id, memos })
+                            <TripRoutePlaceListItem
+                              data={place}
+                              focused={focusedId === place.id}
+                              onClick={() => {
+                                setFocusedId(place.id)
+                                mapRef.current?.panTo(place.lat, place.lng)
+                              }}
+                              leftAddon={(
+                                <SortableItem.Handle id={place.id}>
+                                  <MaterialIcons name="drag-indicator" size={24} color="#787c7e" />
+                                </SortableItem.Handle>
+                              )}
+                              title={
+                                <Stack direction="row" alignItems="center" gap={0.5}>
+                                  <Dot>
+                                    <Typography sx={{ color: '#fff', fontSize: 11, fontWeight: '900' }}>
+                                      {idx + 1}
+                                    </Typography>
+                                  </Dot>
+                                  <ListItem.Title>{place.name}</ListItem.Title>
+                                  <IconButton
+                                    size="small"
+                                    onClick={() =>
+                                      toggleVisible({ routeId: currentRoute.id, placeId: place.id })
+                                    }
+                                  >
+                                    <MaterialIcons
+                                      name={isHidden ? 'visibility-off' : 'visibility'}
+                                      size={18}
+                                      color={isHidden ? '#bbb' : '#787c7e'}
+                                    />
+                                  </IconButton>
+                                </Stack>
                               }
-                              action="dialog"
-                            />
-                          </TripRoutePlaceListItem>
-                        </SortableList.Item>
-                      </Fragment>
-                    )
-                  }}
-                />
+                              rightAddon={
+                                <TripRoutePlaceListItem.Actions
+                                  tripId={tripId}
+                                  date={selectedDate}
+                                  routeId={currentRoute.id}
+                                  placeId={place.id}
+                                />
+                              }
+                            >
+                              <NoteEditor
+                                notes={place.routeNotes ?? []}
+                                onChange={(memos) =>
+                                  updateNotes({ placeId: place.id, routeId: currentRoute.id, memos })
+                                }
+                                action="dialog"
+                              />
+                            </TripRoutePlaceListItem>
+                          </SortableList.Item>
+                        </Fragment>
+                      )
+                    }}
+                  />
+                </BottomSheet.GestureArea>
               )}
             </Box>
+            </ScrollViewContainer>
           </BottomSheet.Body>
         </BottomSheet>
       </Box>

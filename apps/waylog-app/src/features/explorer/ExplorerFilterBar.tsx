@@ -18,7 +18,7 @@ export function ExplorerFilterBar({ children }: PropsWithChildren) {
       <BottomSheet isOpen={isOpen} onDismiss={close} snapPoints={[0.75]}>
         <BottomSheet.Header>지역 선택</BottomSheet.Header>
         <BottomSheet.Body>
-          <ScrollView contentContainerStyle={{ padding: 16, gap: 4 }}>
+          <BottomSheet.ScrollView contentContainerStyle={{ padding: 16, gap: 4 }}>
             <OptionRow label="전체 지역" selected={location == null} onPress={() => { setLocation(undefined); close() }} />
             {Locations.map((candidate) => (
               <OptionRow
@@ -28,7 +28,7 @@ export function ExplorerFilterBar({ children }: PropsWithChildren) {
                 onPress={() => { setLocation(candidate); close() }}
               />
             ))}
-          </ScrollView>
+          </BottomSheet.ScrollView>
         </BottomSheet.Body>
       </BottomSheet>
     ))
@@ -39,7 +39,7 @@ export function ExplorerFilterBar({ children }: PropsWithChildren) {
       <BottomSheet isOpen={isOpen} onDismiss={close} snapPoints={[0.65]}>
         <BottomSheet.Header>카테고리 선택</BottomSheet.Header>
         <BottomSheet.Body>
-          <ScrollView contentContainerStyle={{ padding: 16, gap: 4 }}>
+          <BottomSheet.ScrollView contentContainerStyle={{ padding: 16, gap: 4 }}>
             <OptionRow label="전체 카테고리" selected={category == null} onPress={() => { setCategory(undefined); close() }} />
             {EXPLORER_CATEGORY_TYPES.map((candidate) => (
               <OptionRow
@@ -49,7 +49,7 @@ export function ExplorerFilterBar({ children }: PropsWithChildren) {
                 onPress={() => { setCategory(candidate); close() }}
               />
             ))}
-          </ScrollView>
+          </BottomSheet.ScrollView>
         </BottomSheet.Body>
       </BottomSheet>
     ))

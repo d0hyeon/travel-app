@@ -3,7 +3,7 @@ import * as ImagePicker from 'expo-image-picker'
 import type { Photo } from '@waylog/domains/modules/photo'
 import { useTripPlaces } from '@waylog/domains/modules/trip'
 import { useEffect, useMemo, useState } from 'react'
-import { ActivityIndicator, FlatList, Pressable, ScrollView, useWindowDimensions } from 'react-native'
+import { ActivityIndicator, FlatList, Pressable, useWindowDimensions } from 'react-native'
 import * as Linking from 'expo-linking'
 import { Box, Button, Chip, Stack, Typography } from '../../../shared/components/mui'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
@@ -294,7 +294,7 @@ function PhotoViewerSheet({ isOpen, photos, initialIndex, places, onUpdate, onDe
         </Pressable>
       </BottomSheet.Header>
       <BottomSheet.Body sx={{ backgroundColor: '#010101' }}>
-        <ScrollView
+        <BottomSheet.ScrollView
           horizontal
           pagingEnabled
           scrollEnabled={!isZooming}
@@ -311,7 +311,7 @@ function PhotoViewerSheet({ isOpen, photos, initialIndex, places, onUpdate, onDe
               <ZoomArea uri={item.url} width={width} height={520} onZoomingChange={setIsZooming} />
             </Box>
           ))}
-        </ScrollView>
+        </BottomSheet.ScrollView>
       </BottomSheet.Body>
       <Stack alignItems="center" sx={{ flexGrow: 0, paddingVertical: 8, backgroundColor: '#010101' }}>
         <Pressable

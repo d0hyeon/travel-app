@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Pressable, ScrollView, View, useWindowDimensions } from 'react-native'
+import { Pressable, View, useWindowDimensions } from 'react-native'
 import type { Photo } from '@waylog/domains/modules/photo'
 import { useTripPhotos } from '../trip/trip-photo/useTripPhotos'
 import { BottomSheet } from '../../shared/components/bottom-sheet/BottomSheet'
@@ -27,5 +27,30 @@ function PhotoPreviewSheet({ isOpen, onClose, photos, initialIndex }: { isOpen: 
   const { width } = useWindowDimensions()
   const currentPhoto = photos[currentIndex]
 
-  return <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.9]} safeArea sx={{ backgroundColor: '#111' }}><BottomSheet.Header><Typography color="#fff">사진 {currentIndex + 1} / {photos.length}</Typography></BottomSheet.Header><BottomSheet.Body><ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false} contentOffset={{ x: initialIndex * width, y: 0 }} onMomentumScrollEnd={(event) => setCurrentIndex(Math.round(event.nativeEvent.contentOffset.x / event.nativeEvent.layoutMeasurement.width))}>{photos.map((photo) => <View key={photo.id} style={{ width, justifyContent: 'center' }}><LoadableImage source={{ uri: photo.url }} style={{ width: '100%', height: 360 }} resizeMode="contain" /></View>)}</ScrollView><Typography variant="caption" color="#fff" sx={{ padding: 16 }}>{currentPhoto?.createdAt.slice(0, 10)}</Typography></BottomSheet.Body></BottomSheet>
+  return (
+    <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.9]} safeArea sx={{ backgroundColor: '#111' }}>
+      <BottomSheet.Header>
+        <Typography color="#fff">사진 {currentIndex + 1} / {photos.length}</Typography>
+      </BottomSheet.Header>
+      <BottomSheet.Body>
+        <BottomSheet.ScrollView
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          contentOffset={{ x: initialIndex * width, y: 0 }}
+          onMomentumScrollEnd={(event) => {
+            setCurrentIndex(Math.round(event.nativeEvent.contentOffset.x / event.nativeEvent.layoutMeasurement.width))
+          }}>
+          {photos.map((photo) =>
+            <View key={photo.id} style={{ width, justifyContent: 'center' }}>
+              <LoadableImage source={{ uri: photo.url }} style={{ width: '100%', height: 360 }} resizeMode="contain" />
+            </View>
+          )}
+        </BottomSheet.ScrollView>
+        <Typography variant="caption" color="#fff" sx={{ padding: 16 }}>
+          {currentPhoto?.createdAt.slice(0, 10)}
+        </Typography>
+      </BottomSheet.Body>
+    </BottomSheet>
+  )
 }

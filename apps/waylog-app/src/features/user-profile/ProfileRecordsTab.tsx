@@ -33,17 +33,19 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
     const closeOverlay = locationOverlay.open(({ isOpen, onClose }) => (
       <BottomSheet isOpen={isOpen} snapPoints={[0.6, 0.8]} defaultSnapIndex={0} safeArea onDismiss={onClose}>
         <BottomSheet.Header><LocationMetaInfo value={selectedLocation} /></BottomSheet.Header>
-        <BottomSheet.Body sx={{ padding: 16, gap: 16 }}>
-          {selectedLocation.trips.map((trip) => (
-            <View key={trip.id}>
-              <Typography variant="body2" fontWeight="bold">{trip.name}</Typography>
-              {/* 사진 조회가 서스펜드해도 루트 경계까지 올라가지 않게 여기서 받는다.
-                  올라가면 화면 전체가 다시 마운트되어 지도 위치가 초기화된다. */}
-              <Suspense fallback={<Typography variant="caption" color="text.secondary">사진을 불러오는 중…</Typography>}>
-                <UserTripPhotoList tripId={trip.id} />
-              </Suspense>
-            </View>
-          ))}
+        <BottomSheet.Body>
+          <BottomSheet.ScrollView contentContainerStyle={{ padding: 16, gap: 16 }}>
+            {selectedLocation.trips.map((trip) => (
+              <View key={trip.id}>
+                <Typography variant="body2" fontWeight="bold">{trip.name}</Typography>
+                {/* 사진 조회가 서스펜드해도 루트 경계까지 올라가지 않게 여기서 받는다.
+                    올라가면 화면 전체가 다시 마운트되어 지도 위치가 초기화된다. */}
+                <Suspense fallback={<Typography variant="caption" color="text.secondary">사진을 불러오는 중…</Typography>}>
+                  <UserTripPhotoList tripId={trip.id} />
+                </Suspense>
+              </View>
+            ))}
+          </BottomSheet.ScrollView>
         </BottomSheet.Body>
       </BottomSheet>
     ))

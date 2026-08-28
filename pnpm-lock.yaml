@@ -65,9 +65,6 @@ importers:
       '@waylog/react':
         specifier: workspace:*
         version: link:../../packages/react
-      '@waylog/typing':
-        specifier: workspace:*
-        version: link:../../packages/typing
       '@waylog/utility':
         specifier: workspace:*
         version: link:../../packages/utility
@@ -162,6 +159,9 @@ importers:
       typescript:
         specifier: ~5.9.3
         version: 5.9.3
+      vitest:
+        specifier: ^3.2.6
+        version: 3.2.6(@edge-runtime/vm@3.2.0)(@types/node@25.9.3)(@vitest/ui@3.2.6)(happy-dom@20.10.3)(jiti@2.7.0)(lightningcss@1.32.0)(msw@2.14.6(@types/node@25.9.3)(typescript@5.9.3))(terser@5.48.0)(tsx@4.22.4)(yaml@2.9.0)
 
   apps/waylog-web:
     dependencies:
@@ -216,9 +216,6 @@ importers:
       '@waylog/react':
         specifier: workspace:*
         version: link:../../packages/react
-      '@waylog/typing':
-        specifier: workspace:*
-        version: link:../../packages/typing
       '@waylog/utility':
         specifier: workspace:*
         version: link:../../packages/utility
@@ -388,9 +385,6 @@ importers:
       '@waylog/react':
         specifier: workspace:*
         version: link:../react
-      '@waylog/typing':
-        specifier: workspace:*
-        version: link:../typing
       '@waylog/utility':
         specifier: workspace:*
         version: link:../utility
@@ -427,17 +421,8 @@ importers:
         specifier: ~5.9.3
         version: 5.9.3
 
-  packages/typing:
-    devDependencies:
-      typescript:
-        specifier: ~5.9.3
-        version: 5.9.3
-
   packages/utility:
     dependencies:
-      '@waylog/typing':
-        specifier: workspace:*
-        version: link:../typing
       date-fns:
         specifier: ^4.1.0
         version: 4.4.0

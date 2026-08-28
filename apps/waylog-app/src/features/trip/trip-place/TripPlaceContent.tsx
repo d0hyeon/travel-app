@@ -113,30 +113,32 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
             }
           }}
         >
-          <BottomSheet.Body style={{ paddingHorizontal: 12 }} sx={{ paddingBottom: 40, }}>
-            <Typography variant="caption" color="text.secondary" style={{ marginBottom: 12 }}>
-              확정 ({plannedPlaces.length}) / 후보 ({candidatePlaces.length})
-            </Typography>
+          <BottomSheet.Body>
+            <BottomSheet.ScrollView contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 40 }}>
+              <Typography variant="caption" color="text.secondary" style={{ marginBottom: 12 }}>
+                확정 ({plannedPlaces.length}) / 후보 ({candidatePlaces.length})
+              </Typography>
 
-            <Stack gap={0.75}>
-              {plannedPlaces.map((place) => (
-                <TripPlaceItemButton
-                  key={place.id}
-                  place={place}
-                  onClick={() => handlePlaceClick(place)}
-                  focused={place.id === focusedId}
-                  sx={{ borderColor: palette.primary }}
-                />
-              ))}
-              {candidatePlaces.map((place) => (
-                <TripPlaceItemButton
-                  key={place.id}
-                  place={place}
-                  onClick={() => handlePlaceClick(place)}
-                  focused={place.id === focusedId}
-                />
-              ))}
-            </Stack>
+              <Stack gap={0.75}>
+                {plannedPlaces.map((place) => (
+                  <TripPlaceItemButton
+                    key={place.id}
+                    place={place}
+                    onClick={() => handlePlaceClick(place)}
+                    focused={place.id === focusedId}
+                    sx={{ borderColor: palette.primary }}
+                  />
+                ))}
+                {candidatePlaces.map((place) => (
+                  <TripPlaceItemButton
+                    key={place.id}
+                    place={place}
+                    onClick={() => handlePlaceClick(place)}
+                    focused={place.id === focusedId}
+                  />
+                ))}
+              </Stack>
+            </BottomSheet.ScrollView>
           </BottomSheet.Body>
         </BottomSheet>
 

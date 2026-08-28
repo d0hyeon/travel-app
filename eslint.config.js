@@ -43,7 +43,8 @@ export default defineConfig([
       "@typescript-eslint/no-unsafe-function-type": "off",
       "@typescript-eslint/no-unused-vars": "off",
       "no-async-promise-executor": "off",
-      "@typescript-eslint/ban-ts-comment": "off"
+      "@typescript-eslint/ban-ts-comment": "off",
+      "react-hooks/static-components": "off"
     },
   },
 ])

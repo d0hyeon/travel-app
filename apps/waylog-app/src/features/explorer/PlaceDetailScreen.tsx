@@ -88,14 +88,14 @@ function PlacePhotoViewer({ photos, initialIndex, isOpen, onClose }: { photos: s
     <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.9]} safeArea sx={{ backgroundColor: '#111' }}>
       <BottomSheet.Header><Typography color="#fff">사진 {currentIndex + 1} / {photos.length}</Typography></BottomSheet.Header>
       <BottomSheet.Body>
-        <ScrollView
+        <BottomSheet.ScrollView
           horizontal
           pagingEnabled
           contentOffset={{ x: initialIndex * width, y: 0 }}
           onMomentumScrollEnd={(event) => setCurrentIndex(Math.round(event.nativeEvent.contentOffset.x / width))}
         >
           {photos.map((photoUrl) => <LoadableImage key={photoUrl} source={{ uri: photoUrl }} style={{ width, height: 420 }} resizeMode="contain" />)}
-        </ScrollView>
+        </BottomSheet.ScrollView>
       </BottomSheet.Body>
     </BottomSheet>
   )
