@@ -27,7 +27,6 @@ export default function GoogleMap({
   clustering = false,
   clusterGridSize = 60,
   onBoundsChange,
-  style = pastelMapStyle,
   children,
   ...boxProps
 }: Props) {
@@ -42,7 +41,7 @@ export default function GoogleMap({
         center: center ?? defaultCenter,
         zoom: 10,
         disableDefaultUI: true,
-        styles: style,
+        styles: pastelMapStyle,
       })
     )
   }, [container]);

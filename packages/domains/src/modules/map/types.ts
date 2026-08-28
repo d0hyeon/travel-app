@@ -1,16 +1,15 @@
-import type { ReactNode, Ref } from 'react';
-import type { Coordinate } from '@waylog/utility';
-import type { MapStyleRule } from './map.style';
+import type { ReactNode, Ref } from "react";
+import type { Coordinate } from "@waylog/utility";
 
 export type { Coordinate };
 
 // 웹이 쓰는 지도 제공자. 소비자가 고를 수 있는 값이다.
-export type MapProvider = 'kakao' | 'google';
+export type MapProvider = "kakao" | "google";
 
 // 구현 종류 전체. 앱은 react-native-maps 구현을 갖는다.
-export type MapType = MapProvider | 'native';
+export type MapType = MapProvider | "native";
 
-export type AutoFocus = 'marker' | 'path' | false;
+export type AutoFocus = "marker" | "path" | false;
 
 export interface MapRef {
   panTo: (lat: number, lng: number, level?: number) => void;
@@ -27,7 +26,7 @@ export interface MapBounds {
 export interface MapRenderProps {
   zoom: number;
 }
-export interface MapProps  {
+export interface MapProps {
   defaultCenter?: Coordinate;
   center?: Coordinate;
   autoFocus?: AutoFocus;
@@ -36,18 +35,16 @@ export interface MapProps  {
   clustering?: boolean;
   clusterGridSize?: number;
   onBoundsChange?: (bounds: MapBounds) => void;
-  /** 지도 바탕 스타일. 기본은 파스텔이며 소비처가 필요하면 덮어쓴다 */
-  style?: MapStyleRule[];
 }
 
-export type MarkerColor = 'default' | 'selected' | 'disabled' | (string & {});
+export type MarkerColor = "default" | "selected" | "disabled" | (string & {});
 export interface MarkerProps {
   id?: string;
   lat: number;
   lng: number;
   label?: string;
   tooltip?: string | string[];
-  variant?: 'pin' | 'circle';
+  variant?: "pin" | "circle";
   color?: MarkerColor;
   opacity?: number;
   outlined?: boolean;
@@ -60,7 +57,7 @@ export interface MarkerCallbackData {
   lat: number;
   lng: number;
   label?: string;
-  variant?: 'pin' | 'circle';
+  variant?: "pin" | "circle";
 }
 
 export interface PathProps {
@@ -101,7 +98,7 @@ export interface MarkerData {
   position: Coordinate;
   label?: string;
   tooltip?: string | string[];
-  variant?: 'pin' | 'circle';
+  variant?: "pin" | "circle";
   color?: MarkerColor;
   opacity?: number;
   outlined?: boolean;

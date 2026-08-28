@@ -21,6 +21,7 @@ import { StyleSheet, useWindowDimensions } from 'react-native'
 import MapView, { PROVIDER_GOOGLE, type Region } from 'react-native-maps'
 import { NativeMapCluster } from './NativeMapCluster'
 import { NativeMapMarker } from './NativeMapMarker'
+import { Sx } from '../mui'
 
 // 웹은 level(1~14, 작을수록 확대), RN 은 delta(작을수록 확대)로 배율을 다룬다.
 const DEFAULT_DELTA = 0.02
@@ -51,8 +52,8 @@ export function NativeMap({
   clustering,
   clusterGridSize = 50,
   onBoundsChange,
-  style = pastelMapStyle,
-}: MapProps) {
+  sx
+}: MapProps & { sx?: Sx }) {
   const mapRef = useRef<MapView>(null)
   const [zoom, setZoom] = useState(() => deltaToZoom(DEFAULT_DELTA))
   const [region, setRegion] = useState<Region | null>(null)
@@ -71,8 +72,8 @@ export function NativeMap({
         })
       },
       // 네이티브 지도는 레이아웃 변경 시 스스로 다시 그린다.
-      relayout: () => {},
-      focus: () => {},
+      relayout: () => { },
+      focus: () => { },
     }),
     [],
   )
@@ -118,8 +119,8 @@ export function NativeMap({
     <MapView
       ref={mapRef}
       provider={PROVIDER_GOOGLE}
-      style={StyleSheet.absoluteFill}
-      customMapStyle={style}
+      style={[StyleSheet.absoluteFill, sx]}
+      customMapStyle={pastelMapStyle}
       initialRegion={
         initial && {
           latitude: initial.lat,
@@ -142,29 +143,29 @@ export function NativeMap({
       {(clustered == null
         ? rendered
         : [
-            ...others,
-            ...clustered.map((cluster) =>
-              cluster.markers.length === 1 ? (
-                findMarker(rendered, cluster.markers[0]!.id)
-              ) : (
-                <NativeMapCluster
-                  key={cluster.id}
-                  latitude={cluster.center.lat}
-                  longitude={cluster.center.lng}
-                  count={cluster.markers.length}
-                  onTap={() =>
-                    mapRef.current?.fitToCoordinates(
-                      cluster.markers.map((marker) => ({
-                        latitude: marker.position.lat,
-                        longitude: marker.position.lng,
-                      })),
-                      { edgePadding: { top: 80, right: 80, bottom: 80, left: 80 }, animated: true },
-                    )
-                  }
-                />
-              ),
+          ...others,
+          ...clustered.map((cluster) =>
+            cluster.markers.length === 1 ? (
+              findMarker(rendered, cluster.markers[0]!.id)
+            ) : (
+              <NativeMapCluster
+                key={cluster.id}
+                latitude={cluster.center.lat}
+                longitude={cluster.center.lng}
+                count={cluster.markers.length}
+                onTap={() =>
+                  mapRef.current?.fitToCoordinates(
+                    cluster.markers.map((marker) => ({
+                      latitude: marker.position.lat,
+                      longitude: marker.position.lng,
+                    })),
+                    { edgePadding: { top: 80, right: 80, bottom: 80, left: 80 }, animated: true },
+                  )
+                }
+              />
             ),
-          ]) as ReactNode}
+          ),
+        ]) as ReactNode}
     </MapView>
   )
 }
