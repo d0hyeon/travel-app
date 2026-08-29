@@ -86,7 +86,7 @@ export function TripListScreen() {
 
       <Fab
         onClick={openTripCreation}
-        sx={{ position: 'absolute', right: 16, bottom: insets.bottom + 12 }}
+        sx={{ position: 'absolute', right: 20, bottom: 20 }}
       >
         <Typography sx={{ color: '#fff', fontSize: 28, lineHeight: 30, fontWeight: '400' }}>+</Typography>
       </Fab>
