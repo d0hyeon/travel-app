@@ -135,8 +135,7 @@ test.describe('TripBasicInfoContent — 기본정보 탭 (데스크탑)', () => 
     await page.goto(TRIP_URL)
     await waitForAppLoad(page)
 
-    // ChatFab은 aria-label이 없는 플로팅 버튼 → ChatIcon을 가진 버튼으로 특정
-    await page.locator('button').filter({ has: page.locator('[data-testid="ChatIcon"]') }).click()
+    await page.getByRole('button', { name: '채팅 열기' }).click()
 
     await expect(page.getByText('안녕하세요!')).toBeVisible()
     await expect(page.getByText('반가워요 :)')).toBeVisible()
