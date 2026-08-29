@@ -15,9 +15,11 @@ import {
   Platform,
   Pressable,
   StyleSheet,
+  TextInput,
   useWindowDimensions,
   View,
   type ScrollViewProps,
+  type ViewStyle,
 } from 'react-native'
 import { Gesture, GestureDetector, type PanGesture } from 'react-native-gesture-handler'
 import Animated, {
@@ -62,6 +64,8 @@ interface SheetDragContextValue {
   createPan: () => PanGesture
   /** 헤더·비스크롤 본문처럼 스크롤과 경합하지 않는 영역의 시트 끌기 */
   createDirectPan: () => PanGesture
+  /** 키보드가 열려 있는 동안만 true. Body 가 이때만 스크롤 가능해진다 */
+  isKeyboardVisible: boolean
 }
 
 const SheetDragContext = createContext<SheetDragContextValue | null>(null)
@@ -322,6 +326,10 @@ export function BottomSheet({
   // 키보드와 완전히 동기되지는 않지만 움직임 자체는 자연스러워진다.
   const kbLift = useSharedValue(0)
 
+  // Will* 이벤트는 iOS 전용이라 애니메이션 타이밍(kbLift)에만 쓴다.
+  // 본문 스크롤 전환은 플랫폼 공통인 Did* 로 별도로 잡는다.
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false)
+
   useEffect(() => {
     const show = Keyboard.addListener('keyboardWillShow', (event) => {
       kbLift.set(withTiming(event.endCoordinates.height, {
@@ -331,10 +339,14 @@ export function BottomSheet({
     const hide = Keyboard.addListener('keyboardWillHide', (event) => {
       kbLift.set(withTiming(0, { duration: toLiftDuration(event.duration, true) }))
     })
+    const didShow = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true))
+    const didHide = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false))
 
     return () => {
       show.remove()
       hide.remove()
+      didShow.remove()
+      didHide.remove()
     }
   }, [kbLift])
 
@@ -344,8 +356,9 @@ export function BottomSheet({
     // 키보드와의 사이가 구멍이 아니라 여백으로 읽힌다.
     const lift = kbLift.get()
 
-    // 화면 밖으로는 나갈 수 없다. 100% 스냅이어도 상단 안전영역은 남긴다.
-    const limit = baseH - lift
+    // 화면 밖으로는 나갈 수 없다. 100% 스냅이어도, 키보드가 밀어 올려도
+    // 상단 안전영역(다이나믹 아일랜드 등)은 항상 남긴다.
+    const limit = baseH - lift - insets.top
     const visibleHeight = Math.min(sheetH.get(), limit)
     const expandedHeight = Math.min(maxH.get() || visibleHeight, limit)
 
@@ -360,13 +373,13 @@ export function BottomSheet({
   })
 
   const dragContext = useMemo(
-    () => ({ scrollY, createPan, createDirectPan, isSheetOwner }),
-    [scrollY, createPan, createDirectPan, isSheetOwner],
+    () => ({ scrollY, createPan, createDirectPan, isSheetOwner, isKeyboardVisible }),
+    [scrollY, createPan, createDirectPan, isSheetOwner, isKeyboardVisible],
   )
 
   const bodyStyle = useAnimatedStyle(() => {
     const lift = kbLift.get()
-    const visibleHeight = Math.min(sheetH.get(), baseH - lift)
+    const visibleHeight = Math.min(sheetH.get(), baseH - lift - insets.top)
 
     return {
       // 시트 전체는 최대 높이로 렌더링하지만 본문 뷰포트는 현재 보이는
@@ -441,6 +454,72 @@ function Body({ children, sx, ...props }: BoxProps) {
           <Box sx={{ flex: 1, ...(sx ?? {}) }} {...props}>{children}</Box>
         </BodyPanContext.Provider>
       </View>
+    </GestureDetector>
+  )
+}
+
+/**
+ * 입력 필드만 있는 단순 폼 전용. 지도·정렬 목록처럼 `GestureArea` 를 쓰는
+ * 시트는 이 컴포넌트를 쓰지 않는다 — 스크롤 전환이 그 flex 레이아웃을 깬다.
+ *
+ * 평소엔 `Body` 처럼 보이지만, `View` 대신 `scrollEnabled={false}` 인
+ * `SheetScrollView` 다. 키보드가 열려 있을 때만 스크롤을 켜고 포커스된
+ * 필드로 자동 스크롤한다. `View`/`ScrollView` 를 조건부로 바꿔치기하면 그
+ * 아래 `TextInput` 까지 통째로 리마운트돼 포커스가 끊기고 키보드가 닫힌다 —
+ * 그래서 컴포넌트 종류는 항상 같게 두고 `scrollEnabled` 만 바꾼다.
+ *
+ * 시트 드래그 결합은 `SheetScrollView` 와 같은 방식(`Gesture.Native` +
+ * `Simultaneous`)을 쓴다. `GestureDetector` 에 `pan` 만 걸면 네이티브 스크롤
+ * responder 를 가진 자식을 gesture-handler 가 우선해 드래그가 씹힌다.
+ */
+function KeyboardAwareBody({ children, sx, style, width, height, flex, minWidth, position, textAlign, ...props }: BoxProps) {
+  const { scrollY, createPan, isKeyboardVisible } = useSheetDrag()
+  const scrollRef = useAnimatedRef<Animated.ScrollView>()
+
+  useScrollOffset(scrollRef, scrollY)
+
+  const nativeScroll = useMemo(() => Gesture.Native(), [])
+  const pan = useMemo(() => createPan(), [createPan])
+  const scrollAndPan = useMemo(() => Gesture.Simultaneous(nativeScroll, pan), [nativeScroll, pan])
+
+  // 포커스가 옮겨가는 순간(키보드가 이미 떠 있는 채로 다음 필드로 넘어갈 때도
+  // 포함)마다 그 필드가 키보드 위로 오도록 스크롤한다.
+  // Did* 이벤트라 포커스가 먼저 잡힌 뒤 온다 — currentlyFocusedInput 이 그
+  // 시점에 최신 값이다. currentlyFocusedField(노드 핸들 반환)는 deprecated 라
+  // 인스턴스를 반환하는 쪽을 쓴다 — scrollResponderScrollNativeHandleToKeyboard
+  // 는 nodeHandle 과 인스턴스를 모두 받는다.
+  useEffect(() => {
+    if (!isKeyboardVisible) return
+
+    const focused = TextInput.State.currentlyFocusedInput()
+    if (focused == null) return
+
+    scrollRef.current?.getScrollResponder()?.scrollResponderScrollNativeHandleToKeyboard(focused, 16, true)
+  }, [isKeyboardVisible, scrollRef])
+
+  // Box 가 하던 축약 prop → 스타일 변환을 그대로 재현한다.
+  // 스크롤 콘텐츠 컨테이너라 sx 는 contentContainerStyle 로 가야
+  // padding 등이 콘텐츠에 붙는다 (평소엔 스크롤이 꺼져 있어도 동일하게 적용).
+  const contentStyle = [
+    { width, height, flex, minWidth, position, alignItems: textAlign === 'center' ? 'center' : undefined } as ViewStyle,
+    sxToStyle(sx),
+    style,
+  ]
+
+  return (
+    <GestureDetector gesture={scrollAndPan}>
+      <BodyPanContext.Provider value={pan}>
+        <Animated.ScrollView
+          ref={scrollRef}
+          style={{ flex: 1 }}
+          scrollEnabled={isKeyboardVisible}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={contentStyle}
+          {...props}
+        >
+          {children}
+        </Animated.ScrollView>
+      </BodyPanContext.Provider>
     </GestureDetector>
   )
 }
@@ -530,11 +609,14 @@ function GestureArea({ children, sx, ...props }: BoxProps) {
   )
 
   // GestureDetector 는 자식의 ref 로 붙는다. Box 는 forwardRef 가 아니라
-  // ref 가 spread 순서에 얹혀 가므로, 여기서는 View 를 직접 둔다.
+  // ref 가 spread 순서에 얹혀 가므로, 여기서는 View 를 직접 두고 children 을
+  // 바로 담는다 — 레이어를 하나만 둬야 그 사이에서 flex 상속이 끊기지 않는다.
+  // flex: 1 은 기본값일 뿐이다. 부모 크기를 그대로 채워 레이아웃에 개입하지
+  // 않는 것이 기본 동작이고, sx 로 주면 그대로 덮어써 원하는 크기를 준다.
   return (
     <GestureDetector gesture={block}>
-      <View style={sxToStyle(sx)}>
-        <Box {...props}>{children}</Box>
+      <View style={[{ flex: 1 }, sxToStyle(sx)]} {...props}>
+        {children}
       </View>
     </GestureDetector>
   )
@@ -561,6 +643,7 @@ function BottomActions({ children, sx, ...props }: StackProps) {
 
 BottomSheet.Header = Header
 BottomSheet.Body = Body
+BottomSheet.KeyboardAwareBody = KeyboardAwareBody
 BottomSheet.ScrollView = SheetScrollView
 BottomSheet.GestureArea = GestureArea
 BottomSheet.BottomActions = BottomActions
