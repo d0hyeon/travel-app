@@ -5,6 +5,7 @@ import { palette } from '../../src/shared/config/tokens'
 export default function HomeTabsLayout() {
   return (
     <Tabs
+      backBehavior="history"
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: palette.primary,
