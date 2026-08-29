@@ -43,7 +43,11 @@ export default function RootLayout() {
           <OverlayProvider>
             <Suspense fallback={<Loading />}>
               <ChatNotificationGateway />
-              <Stack screenOptions={{ headerShown: false }} />
+              <Stack screenOptions={{ headerShown: false }}>
+                {/* 인증 판정 후 곧바로 리다이렉트되는 진입점이다. 전환 애니메이션이 보이면
+                    로그인된 사용자도 매번 화면이 한 번 전환되는 것처럼 보인다. */}
+                <Stack.Screen name="index" options={{ animation: 'none' }} />
+              </Stack>
             </Suspense>
           </OverlayProvider>
           <StatusBar style="auto" />
