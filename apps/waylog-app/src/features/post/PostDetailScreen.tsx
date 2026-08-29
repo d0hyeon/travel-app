@@ -10,6 +10,7 @@ import { Stack, Typography } from '../../shared/components/mui'
 import { palette } from '../../shared/config/tokens'
 import { PostAuthor } from './PostAuthor'
 import { PostLikeButton } from './PostLikeButton'
+import { PostMenu } from './PostMenu'
 import { LoadableImage } from '../../shared/components/LoadableImage'
 
 interface Props {
@@ -38,12 +39,16 @@ function ResolvedPostDetail({ postId }: Props) {
       <Stack
         direction="row"
         alignItems="center"
+        justifyContent="space-between"
         sx={{ paddingTop: insets.top + 4, paddingHorizontal: 12, paddingBottom: 8, backgroundColor: palette.background }}
       >
-        <Pressable accessibilityLabel="뒤로가기" onPress={() => router.back()} style={{ padding: 8 }}>
-          <MaterialIcons name="arrow-back" size={22} color={palette.text} />
-        </Pressable>
-        <Typography variant="subtitle1" sx={{ marginLeft: 4 }}>포스트</Typography>
+        <Stack direction="row" alignItems="center">
+          <Pressable accessibilityLabel="뒤로가기" onPress={() => router.back()} style={{ padding: 8 }}>
+            <MaterialIcons name="arrow-back" size={22} color={palette.text} />
+          </Pressable>
+          <Typography variant="subtitle1" sx={{ marginLeft: 4 }}>포스트</Typography>
+        </Stack>
+        <PostMenu postId={postId} onDelete={() => router.back()} />
       </Stack>
 
       <ScrollView
