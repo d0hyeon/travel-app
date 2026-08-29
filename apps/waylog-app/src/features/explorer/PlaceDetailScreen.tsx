@@ -1,8 +1,8 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { usePlace } from '@waylog/domains/modules/place'
 import { useRouter } from 'expo-router'
-import { Pressable, ScrollView, View, useWindowDimensions } from 'react-native'
-import { useState } from 'react'
+import { ActivityIndicator, Pressable, ScrollView, View, useWindowDimensions } from 'react-native'
+import { Suspense, useState } from 'react'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Map } from '../../shared/components/Map'
 import { Tab, Tabs, Typography } from '../../shared/components/mui'
@@ -39,7 +39,18 @@ export function PlaceDetailScreen({ placeId }: { placeId: string }) {
         <Tab value="info" label="기본정보" />
         <Tab value="feed" label="피드" />
       </Tabs>
-      {currentTab === 'info' ? <PlaceInfoContent placeId={placeId} /> : <PlaceFeedContent placeId={placeId} />}
+      {/* 루트의 전역 Suspense 가 여기서 잡히지 않으면 탭 전환마다 화면 전체가 로딩으로 바뀐다. */}
+      <Suspense fallback={<TabContentLoading />}>
+        {currentTab === 'info' ? <PlaceInfoContent placeId={placeId} /> : <PlaceFeedContent placeId={placeId} />}
+      </Suspense>
+    </View>
+  )
+}
+
+function TabContentLoading() {
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 80 }}>
+      <ActivityIndicator />
     </View>
   )
 }
