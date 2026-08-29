@@ -775,7 +775,44 @@ gesture-handler 는 자식을 우선한다. 그래서 시트 위 빈 자리나 �
 
 `BottomSheet.ScrollView` 는 `Gesture.Simultaneous` 로 시트 제스처와 자기를 묶어
 둘 다 인식되게 하고, 어느 쪽이 움직일지는 시트의 방향·최상단 판정이 정한다.
-`@gorhom/bottom-sheet` 의 `BottomSheetScrollView` 와 같은 방식이다.
+
+**시트 최대 높이는 상단 안전영역(다이나믹 아일랜드 등)을 넘지 않는다**
+
+`sheetStyle`/`bodyStyle` 의 `limit` 계산은 `baseH - lift - insets.top` 이다.
+키보드가 시트를 밀어 올릴 때(`lift`)도 상단 안전영역은 항상 남긴다.
+100% 스냅이어도 마찬가지라, 스냅 포인트를 정할 때 이 여백을 따로 뺄 필요는 없다.
+
+**입력 필드가 키보드에 가리는 시트 — `BottomSheet.KeyboardAwareBody`**
+
+`BottomSheet.Body` 는 항상 고정 `View` 라 키보드가 열려도 내부 스크롤이 없다.
+필드가 여러 개인 폼은 키보드가 뜨면 아래쪽 필드가 가려질 수 있다.
+
+`KeyboardAwareBody` 는 겉보기엔 `Body` 와 같지만 내부는 항상
+`SheetScrollView`(`scrollEnabled` 만 다르다)다. 키보드가 없을 땐
+`scrollEnabled={false}` 라 스크롤이 죽고 시트 드래그(`pan`)만 산다 — 평소의
+`Body` 와 동작이 같다. 키보드가 뜨면 `scrollEnabled={true}` 로 바뀌어
+스크롤이 생기고, 포커스된 `TextInput` 으로 자동 스크롤한다
+(`TextInput.State.currentlyFocusedInput` + `scrollResponderScrollNativeHandleToKeyboard`,
+RN 내장 API — 별도 라이브러리 없이 동작한다).
+
+**컴포넌트 종류(`View` ↔ `ScrollView`)를 조건부로 바꿔치기하지 않는다.**
+그 아래 `TextInput` 까지 통째로 리마운트돼 포커스가 끊기고 키보드가 스스로
+닫힌다. 그래서 항상 같은 `Animated.ScrollView` 를 렌더하고 `scrollEnabled` 값만
+바꾼다. 시트 드래그 결합도 `SheetScrollView` 와 같은 방식
+(`Gesture.Native()` + `Gesture.Simultaneous`)을 그대로 쓴다 — `GestureDetector`
+에 `pan` 만 걸면 네이티브 스크롤 responder 를 가진 자식을 gesture-handler 가
+우선해 드래그가 씹힌다.
+
+```jsx
+<BottomSheet.KeyboardAwareBody sx={{ paddingHorizontal: 16 }}>
+  <ExpenseForm ... />
+</BottomSheet.KeyboardAwareBody>
+```
+
+**`GestureArea`(지도·정렬 목록)나 `BottomSheet.ScrollView` 를 이미 품고 있는
+시트는 `KeyboardAwareBody` 를 쓰지 않는다.** `scrollY` 는 시트당 하나뿐인
+공유 값이라 같은 시트 안에 다른 스크롤 판정 소비자를 또 두면 충돌한다.
+단순 입력 폼(`ExpenseForm` 처럼 `TextField`·`Chip`·`DateField` 나열)에만 쓴다.
 
 세로 스크롤은 자기 위치를 시트에 알려 최상단 판정에 쓰이고, 가로 스크롤은
 알리지 않는다 (시트가 보는 것은 세로 위치뿐이라 가로 값을 쓰면 어긋난다).
@@ -888,6 +925,21 @@ ref 로 붙잡아야 끌던 도중 스냅이 바뀌어도 제스처가 갈아끼
 - 프로필: `/u/[userId]` 라우트와 피드 사진 그리드·기록 탭·로그아웃을 추가했다. 피드 사진 조회는 피드와 동일한 공용 포스트 모델을 사용하며 사진을 누르면 포스트 상세로 이동한다. 기록 탭을 선택하면 지도 상단이 화면 상단에 맞도록 자동 스크롤한다.
 - 원격 이미지: `apps/waylog-app/src/shared/components/LoadableImage.tsx`가 이미지 로딩 중 동일한 박스 크기의 스켈레톤을 표시한다. 프로필·피드·포스트 상세·탐색·장소·여행 사진 UI에서 공통으로 사용한다.
 - 통계는 요청 범위에서 제외했으며 구현하지 않았다.
+- 장소 검색: `features/place/place-search/`를 웹 구조(`PlaceSearchBottomSheet` → 키워드 확정 시 `PlaceSearchSelectScreen` 상세 화면 전환, `useLastSearchKeywords` 최근 검색어)와 동일하게 맞췄다. 상세 화면은 웹의 지도+리스트 `SplitView`(좌우 리사이즈) 대신 지도(상단 고정 비율)+리스트(하단 `FlatList`) 세로 배치로 대체했고, 페이지네이션은 `IntersectionArea` 대신 `FlatList`의 `onEndReached`를 쓴다. 최근 검색어 저장은 웹 `useStorageState`(localStorage 동기) 대신 앱 `useStorageStore`(AsyncStorage 비동기) 위에 만료 필터링을 직접 구현했다. 데스크탑 전용 `PlaceSearchDialog`/`usePlaceSearchDialog`는 이식 대상에서 제외했다.
+
+### 2026-08-29 앱 QA 보완
+
+- 여행 상세의 일차 탭·지도 설정은 바텀시트 내부 목록만 스크롤하고, 설정 스위치는 controlled value로 즉시 반영한다.
+- 사진 탭은 장소 필터, 선택 상태 오버레이, 공개 뱃지, 사진 상세 확대 영역을 앱 레이아웃에 맞춰 보완했다.
+- 피드 작성은 단계별 뒤로가기와 진행률 표시를 제공하고, 포스트 상세는 작성자에게만 메뉴를 노출한다.
+- 공용 버튼·스켈레톤·프로그레스바에 로딩/비활성/값 변경 모션을 추가하고 지도 핀의 시각 크기와 터치 영역을 분리했다.
+- 홈 탭과 여행 상세 탭에 `backBehavior="history"`를 설정했다. 여행 상세 탭 전환은 구현했지만 iOS Simulator의 `back --system`이 React Navigation의 탭 뒤로가기를 발생시키지 않아 홈 탭의 피드 → 탐색 → 뒤로가기 시나리오는 별도 재검증이 필요하다.
+- `Skeleton`의 레이아웃 폭과 셔머 위치를 React state가 아닌 Reanimated shared value로 관리해 마운트 중 state-update 경고를 제거했다. 새 런타임에서 해당 경고는 재현되지 않았다.
+- 네이티브 경로 타임라인의 순서 아이콘을 웹과 동일한 20px로 맞췄다. 경로 목록은 중첩 리스트 대신 단일 `ReorderableList`와 스크롤 가능한 header를 사용하며, 실제 바텀시트에서 장소 행이 스크롤되고 새 `VirtualizedLists should never be nested` 경고가 재발하지 않음을 확인했다.
+- 경로 행에는 `useIsActive`/`shouldUpdateActiveItem`와 `onDragStart` 상태 동기화 기반 좌우 2px primary 보더를 연결했다. 내부 리스트는 단일 `ReorderableList`로 유지하고 바텀시트 팬과 분리했지만, iOS agent-device에서 핸들 gesture 명령은 성공해도 active lifecycle과 실제 순서 변경이 발생하지 않아 드래그 보더 QA는 실패·재검증 대기 상태다.
+- `agent-device 0.20.10`으로 iPhone 17 Simulator의 여행 목록·여행 상세·경로·사진·프로필 기록 화면을 직접 확인했다. 사진 상세는 `사진 메뉴`, 사진 순번, 장소 지정·삭제·닫기 액션을 확인했으며 실제 삭제는 수행하지 않았다. 프로필 기록의 지역 마커는 `제주` 지역 바텀시트를 열고 국가·여행·사진 없음 상태를 표시했다.
+- 메모 행의 제목이 빈 문자열·공백이면 내용 미리보기로 대체하고, 내용도 비어 있으면 `메모`를 표시하도록 네이티브·웹 목록과 고정 메모를 통일했다. 전용 Vitest 4개가 통과했다.
+- 현재 QA 메모리는 `.omc/qa-memory.json`이 단일 권위 소스이며, 이번 스냅샷의 12개 항목 중 10개를 런타임/코드 증거로 완료했다. 탭 뒤로가기와 드래그 활성 보더는 실패 사유·재작업 조건과 함께 미완료로 유지한다.
 
 ### 웹과 동일 구현이 불가능한 항목
 
