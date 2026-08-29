@@ -42,13 +42,13 @@ export function TripRouteMapFloatingControls() {
                 </Typography>
                 <Row label="접어 보기" description="거리가 가까운 마커끼리 합쳐서 보여져요">
                   <Switch
-                    defaultChecked={viewConfig.isCluasterlingView}
+                    checked={viewConfig.isCluasterlingView}
                     onChange={(_, checked) => setViewConfig({ isCluasterlingView: checked })}
                   />
                 </Row>
                 <Row label="계획된 장소만 보기">
                   <Switch
-                    defaultChecked={!viewConfig.isVisibleAllMarkers}
+                    checked={!viewConfig.isVisibleAllMarkers}
                     onChange={(_, checked) => setViewConfig({ isVisibleAllMarkers: !checked })}
                   />
                 </Row>
@@ -60,7 +60,7 @@ export function TripRouteMapFloatingControls() {
                 </Typography>
                 <Row label="이동 시간 보기">
                   <Switch
-                    defaultChecked={viewConfig.isVisibleRouteLegs}
+                    checked={viewConfig.isVisibleRouteLegs}
                     onChange={(_, checked) => setViewConfig({ isVisibleRouteLegs: checked })}
                   />
                 </Row>

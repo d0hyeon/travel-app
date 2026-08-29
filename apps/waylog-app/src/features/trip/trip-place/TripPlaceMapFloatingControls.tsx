@@ -43,7 +43,7 @@ export function TripPlaceMapFloatingControls() {
               </Typography>
               <Row label="접어 보기" description="거리가 가까운 마커끼리 합쳐서 보여져요">
                 <Switch
-                  defaultChecked={isClusteringView}
+                  checked={isClusteringView}
                   onChange={(_, checked) => setCluastering(checked)}
                 />
               </Row>
