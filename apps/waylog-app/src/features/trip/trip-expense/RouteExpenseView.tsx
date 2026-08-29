@@ -3,10 +3,10 @@ import { formatDisplayDate, formatShortDate } from '@waylog/utility'
 import { useTrip } from '@waylog/domains/modules/trip'
 import { useTripMembers } from '@waylog/domains/modules/trip-member'
 import { MaterialIcons } from '@expo/vector-icons'
-import { ScrollView } from 'react-native'
 import { Box, IconButton, Stack, Typography } from '../../../shared/components/mui'
 import { palette } from '../../../shared/config/tokens'
 import { Map } from '../../../shared/components/Map'
+import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { useExpenseFormBottomSheet } from './useExpenseFormOverlay'
 
 interface Props {
@@ -27,15 +27,15 @@ export function RouteExpenseView({ tripId }: Props) {
   const routePlaces = Object.values(placesByDay).flat()
 
   return (
-    <Stack gap={16}>
-      <Box sx={{ flex: 1, height: 260 }}>
-        <Map sx={{ height: 260 }} defaultCenter={{ lat: trip.lat, lng: trip.lng }}>
+    <Stack sx={{ flex: 1 }} gap={4}>
+      <Box sx={{ height: 360 }}>
+        <Map sx={{ height: 360 }} defaultCenter={{ lat: trip.lat, lng: trip.lng }}>
           {routePlaces.map((place) => (
             <Map.Marker key={`${place.routeId}:${place.id}`} lat={place.lat} lng={place.lng} label={place.name} />
           ))}
         </Map>
       </Box>
-      <Stack sx={{ flex: 1, paddingHorizontal: 16 }} gap={2}>
+      <BottomSheet.ScrollView contentContainerStyle={{ paddingHorizontal: 16, gap: 16 }}>
         {tripDates.map((date, dayIndex) => {
           const places = placesByDay[dayIndex] ?? []
 
@@ -55,7 +55,7 @@ export function RouteExpenseView({ tripId }: Props) {
                 </Typography>
               </Stack>
 
-              <Stack as={ScrollView} gap={1}>
+              <Stack gap={1}>
                 {places.map((place, index) => {
                   const amount = amountByPlaceId.get(place.id) ?? 0
                   const placeExpenses = expensesByPlaceId.get(place.id) ?? []
@@ -101,7 +101,7 @@ export function RouteExpenseView({ tripId }: Props) {
             </Stack>
           )
         })}
-      </Stack>
+      </BottomSheet.ScrollView>
     </Stack>
   )
 }

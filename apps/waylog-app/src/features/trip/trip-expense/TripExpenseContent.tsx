@@ -51,12 +51,10 @@ export default function TripExpenseContent({ tripId }: Props) {
       <TripDetailHeader />
       <ExpenseHeader tripId={tripId} />
 
-      <Stack direction="row" alignItems="center" justifyContent="space-between">
-        <Tabs value={currentSubTab} onChange={(_, value) => selectSubTab(value as SubTab)}>
-          <Tab value="list" label="지출 내역" />
-          <Tab value="settlement" label="정산" />
-        </Tabs>
-      </Stack>
+      <Tabs fullWidth value={currentSubTab} onChange={(_, value) => selectSubTab(value as SubTab)}>
+        <Tab value="list" label="지출 내역" />
+        <Tab value="settlement" label="정산" />
+      </Tabs>
 
       {!hasMember ? (
         <Typography color="text.secondary" sx={{ padding: 24, textAlign: 'center' }}>
