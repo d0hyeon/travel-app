@@ -3,6 +3,7 @@ import { Skeleton, Stack, Typography, type StackProps } from "@mui/material";
 import { Suspense } from "react";
 import { ListItem } from "~shared/components/ListItem";
 import { useTripMemo } from '@waylog/domains/modules/trip-memo';
+import { getMemoDisplayTitle } from './memoTitle';
 import { generatePath, Link } from 'react-router';
 import { AppRoute } from '~app/routes';
 
@@ -41,8 +42,10 @@ function TripPinnedMemosContent({ tripId, throwOnEmpty, ...props }: Props) {
     <Stack gap={1} {...props}>
       {pinnedMemos.map((memo) => {
         const preview = memo.content;
-        const title = memo.title ?? preview;
-        const previewText = memo.title ? preview : null;
+        const displayTitle = getMemoDisplayTitle(memo.title, memo.content);
+        const trimmedTitle = memo.title?.trim() ?? '';
+        const hasExplicitTitle = trimmedTitle.length > 0;
+        const previewText = hasExplicitTitle ? preview : null;
 
         return (
           <Link key={memo.id} to={generatePath(AppRoute.여행_메모_상세, { tripId, memoId: memo.id })}>
@@ -54,7 +57,7 @@ function TripPinnedMemosContent({ tripId, throwOnEmpty, ...props }: Props) {
               }}
             >
               <Typography variant="caption" sx={{ wordBreak: 'break-word' }}>
-                {title}
+                {displayTitle}
               </Typography>
               {previewText && (
                 <Typography

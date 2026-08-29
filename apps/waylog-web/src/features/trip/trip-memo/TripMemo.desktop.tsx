@@ -13,6 +13,7 @@ import { useOverlay } from '~shared/hooks/useOverlay';
 import { extractUrls } from '~shared/utils/urls';
 import { useTripMemo } from '@waylog/domains/modules/trip-memo';
 import { OgPreviewCard } from '~features/open-graph/OgPreviewCard';
+import { getMemoDisplayTitle } from './memoTitle';
 
 interface Props extends StackProps {
   tripId: string;
@@ -77,8 +78,10 @@ function TripMemoItem({ tripId, id }: ItemProps) {
   if (!memo) return null;
 
   const preview = memo.content.substring(0, PREVIEW_MAX_LENGTH).replace(/\n/g, ' ');
-  const title = memo.title ?? preview;
-  const previewText = memo.title ? preview : null;
+  const displayTitle = getMemoDisplayTitle(memo.title, memo.content, PREVIEW_MAX_LENGTH);
+  const trimmedTitle = memo.title?.trim() ?? '';
+  const hasExplicitTitle = trimmedTitle.length > 0;
+  const previewText = hasExplicitTitle ? preview : null;
 
   const handleDelete = async () => {
     if (await confirm('이 메모를 삭제하시겠습니까?')) {
@@ -116,7 +119,7 @@ function TripMemoItem({ tripId, id }: ItemProps) {
           wordBreak: 'break-word',
         }}
       >
-        {title}
+        {displayTitle}
       </Typography>
       {!!previewText && (
         <Typography variant="body2" color="textSecondary" sx={{ whiteSpace: 'nowrap', wordBreak: 'break-word', overflow: 'hidden', textOverflow: 'ellipsis' }}>
