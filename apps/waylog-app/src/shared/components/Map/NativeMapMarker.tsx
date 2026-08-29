@@ -1,10 +1,11 @@
-import { memo, type ReactNode } from 'react'
+import { memo, useEffect, type ReactNode } from 'react'
 import { usePreservedCallback } from '@waylog/react'
 import { Marker } from 'react-native-maps'
 import { resolveMarkerColor, type MarkerProps } from '@waylog/domains/modules/map'
 import { Image, View } from 'react-native'
 import Svg, { Circle, Path } from 'react-native-svg'
 import { Typography } from '../mui'
+import { useMapContext } from './MapContext'
 
 // 웹 MarkerProps 를 그대로 받는다.
 // hover·우클릭이 없는 자리는 길게 누르기로 대응한다.
@@ -14,6 +15,17 @@ import { Typography } from '../mui'
 interface NativeMarkerProps extends MarkerProps {
   icon?: ReactNode
 }
+
+// 라벨은 콘텐츠 크기에 맞추되, 지도를 과하게 가리지 않도록 상한을 둔다.
+const MAX_LABEL_WIDTH = 120
+
+// 시각 크기는 줄이되, 터치 영역은 그보다 넓게 둔다. react-native-maps 는
+// hitSlop 이 없어 Marker 의 실제 렌더 크기가 곧 터치 영역이므로, 아이콘을
+// 투명 패딩으로 감싸 터치 영역만 키운다.
+const TOUCH_TARGET_SIZE = 44
+const PIN_SIZE = { width: 17, height: 25 }
+const CIRCLE_SIZE = 18
+const THUMBNAIL_SIZE = 38
 
 function NativeMapMarkerView({
   id,
@@ -35,8 +47,25 @@ function NativeMapMarkerView({
   const handleClick = usePreservedCallback(() => onClick?.({ lat, lng, label, variant }))
   const handleContextMenu = usePreservedCallback(() => onContextMenu?.({ lat, lng, label, variant }))
 
+  // 부모가 자식 트리를 스캔하는 대신, 마운트 시점에 스스로 좌표를 등록한다.
+  // Suspense·조건부 렌더로 감싸인 마커도 부모의 정적 순회 없이 자동으로 반영된다.
+  const { config, extendBound } = useMapContext()
+  useEffect(() => {
+    if (config.autoFocus === 'marker') extendBound({ lat, lng })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // tracksViewChanges 를 겉모습이 바뀔 때마다 토글하면, 줌으로 마커 여러 개의
+  // variant 가 한꺼번에 바뀔 때 네이티브 스냅샷 재캡처가 몰려 크래시로 이어진다.
+  // 대신 겉모습을 이 Marker 엘리먼트의 key 에 실어 React 가 새 인스턴스로
+  // 마운트하게 한다 — 형제가 하나뿐이어도 key 가 바뀌면 재조정은 언마운트+마운트로
+  // 처리하므로, 소비자 쪽 key 없이 이 컴포넌트 내부에서만 해결된다.
+  // 마운트 시점엔 항상 스냅샷이 한 번 찍히므로 tracksViewChanges 는 계속 false 로 둔다.
+  const appearanceKey = `${label ?? ''}:${variant}:${resolved}:${opacity}:${outlined ?? false}:${thumbnailUrl ?? ''}`
+
   return (
     <Marker
+      key={appearanceKey}
       identifier={id}
       coordinate={{ latitude: lat, longitude: lng }}
       anchor={{ x: 0.5, y: 1 }}
@@ -48,10 +77,11 @@ function NativeMapMarkerView({
       onCalloutPress={handleContextMenu}
     >
       {/* 웹 marker.renderers 의 모양을 그대로 옮긴다. */}
-      <View style={{ alignItems: 'center' }}>
+      <View style={{ minWidth: 44, minHeight: 48, alignItems: 'center', justifyContent: 'flex-end' }}>
         {label != null && (
           <View
             style={{
+              maxWidth: MAX_LABEL_WIDTH,
               backgroundColor: resolved,
               paddingHorizontal: 6,
               paddingVertical: 2,
@@ -59,21 +89,29 @@ function NativeMapMarkerView({
               marginBottom: 2,
             }}
           >
-            <Typography sx={{ color: '#fff', fontSize: 11, fontWeight: '900' }}>
+            <Typography
+              numberOfLines={1}
+              ellipsizeMode="tail"
+              sx={{ color: '#fff', fontSize: 11, fontWeight: '900' }}
+            >
               {label}
             </Typography>
           </View>
         )}
 
-        {icon ?? (
-          <MarkerShape
-            variant={variant}
-            color={resolved}
-            opacity={opacity}
-            outlined={outlined}
-            thumbnailUrl={thumbnailUrl}
-          />
-        )}
+        {/* 시각 크기(MarkerShape)보다 터치 영역을 넓게 둔다. 하단 정렬로 감싸
+            앵커(좌표가 가리키는 지점)는 아이콘의 실제 바닥과 그대로 맞는다. */}
+        <View style={{ minWidth: TOUCH_TARGET_SIZE, minHeight: TOUCH_TARGET_SIZE, alignItems: 'center', justifyContent: 'flex-end' }}>
+          {icon ?? (
+            <MarkerShape
+              variant={variant}
+              color={resolved}
+              opacity={opacity}
+              outlined={outlined}
+              thumbnailUrl={thumbnailUrl}
+            />
+          )}
+        </View>
       </View>
     </Marker>
   )
@@ -94,9 +132,9 @@ function MarkerShape({ variant, color, opacity, outlined, thumbnailUrl }: ShapeP
       <View style={{ alignItems: 'center' }}>
         <View
           style={{
-            width: 48,
-            height: 48,
-            borderRadius: 24,
+            width: THUMBNAIL_SIZE,
+            height: THUMBNAIL_SIZE,
+            borderRadius: THUMBNAIL_SIZE / 2,
             borderWidth: 3,
             borderColor: color,
             overflow: 'hidden',
@@ -124,7 +162,7 @@ function MarkerShape({ variant, color, opacity, outlined, thumbnailUrl }: ShapeP
 
   if (variant === 'circle') {
     return (
-      <Svg width={16} height={16} viewBox="0 0 16 16">
+      <Svg width={CIRCLE_SIZE} height={CIRCLE_SIZE} viewBox="0 0 16 16">
         {outlined === true ? (
           <Circle cx={8} cy={8} r={6} fill="white" fillOpacity={0.9} stroke={color} strokeWidth={2.5} />
         ) : (
@@ -138,7 +176,7 @@ function MarkerShape({ variant, color, opacity, outlined, thumbnailUrl }: ShapeP
   }
 
   return (
-    <Svg width={24} height={34} viewBox="0 0 20 30">
+    <Svg width={PIN_SIZE.width} height={PIN_SIZE.height} viewBox="0 0 20 30">
       <Path
         d="M10 0C4.5 0 0 4.5 0 10c0 7.5 10 20 10 20s10-12.5 10-20c0-5.5-4.5-10-10-10z"
         fill={color}
