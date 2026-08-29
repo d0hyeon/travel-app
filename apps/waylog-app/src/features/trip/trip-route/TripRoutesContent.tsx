@@ -1,8 +1,8 @@
 import { findNearestPlace } from '@waylog/domains/modules/trip'
 import { formatDisplayDate, formatShortDate } from '@waylog/utility'
 import { useDayTripRoutes, useTrip, useTripPlaces } from '@waylog/domains/modules/trip'
+import { PlaceCategoryColorCode } from '@waylog/domains/modules/place'
 import { MaterialIcons } from '@expo/vector-icons'
-import { ScrollViewContainer } from 'react-native-reorderable-list'
 import { Fragment, useMemo, useRef, useState } from 'react'
 import { Box, Button, Chip, IconButton, Stack, Tab, Tabs, Typography } from '../../../shared/components/mui'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
@@ -14,7 +14,7 @@ import { useCurrentCoordinate } from '../../../shared/hooks/env/useCurrentCoordi
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
 import { palette } from '../../../shared/config/tokens'
-import { useRouteLegsPath } from './components/RoutePath'
+import { useRouteLegsPathList } from './components/RoutePath'
 import { TripRouteSelector } from './components/TripRouteSelector'
 import { TripRouteMapFloatingControls } from './components/TripRouteMapFloatingControls'
 import { PlaceSelectSheet } from './PlaceSelectSheet'
@@ -31,8 +31,9 @@ import { TripDetailHeader } from '../components/TripDetailHeader'
 import { ActionSheet } from '../../../shared/components/action-sheet/ActionSheet'
 import { Alert } from 'react-native'
 
-// 경로별 색상 팔레트 — 웹과 같은 값이다.
-const ROUTE_COLORS = ['#1976d2', '#e53935', '#43a047', '#fb8c00', '#8e24aa', '#00acc1']
+// 경로별 색상 팔레트 — 웹 값(#1976d2, #e53935, #43a047, #fb8c00, #8e24aa, #00acc1)에서
+// 채도를 낮추고 명도를 올려, 네이티브 지도 렌더링에서 과하게 쨍해 보이지 않도록 앱 전용으로 조정했다.
+const ROUTE_COLORS = ['#78a4cf', '#da9d9b', '#88b78a', '#deb179', '#ad6bbe', '#4bc3d2']
 
 function getRouteColor(index: number): string {
   return ROUTE_COLORS[index % ROUTE_COLORS.length]!
@@ -76,14 +77,19 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
     [currentRoute],
   )
   const legByArrivalPlaceId = useRouteLegs(visiblePlaces)
-  const currentLegs = useRouteLegsPath(visiblePlaces)
+
+  // 같은 날짜의 모든 route를 지도에 함께 그린다 (웹과 동일).
+  const visiblePlacesByRoute = useMemo(
+    () => routes.map((route) => route.places.filter((x) => !route.hiddenPlaces.includes(x.id))),
+    [routes],
+  )
+  const legsByRoute = useRouteLegsPathList(visiblePlacesByRoute)
 
   const currentPlaces = currentRoute?.places ?? []
 
   const mapRef = useRef<MapRef>(null)
   const overlay = useOverlay()
   const { openBottomsheet: openPlaceEditor } = usePlaceFormOverlay()
-  const [selectedPlace, setSelectedPlace] = useState<(typeof allPlaces)[number] | null>(null)
 
   // 여행 중이면 현재 위치로 이동하고 가장 가까운 장소를 잡아준다.
   const today = formatDisplayDate(new Date())
@@ -128,17 +134,22 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
         )}
         {/* 웹은 calc(%-10px) 를 쓰지만 RN 은 계산식을 못 읽는다. 비율만 남긴다. */}
         <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `${sheetRatio * 100}%` }}>
-          <Map ref={mapRef} defaultCenter={{ lat: trip.lat, lng: trip.lng }}>
+          <Map ref={mapRef} defaultCenter={{ lat: trip.lat, lng: trip.lng }} autoFocus="path">
             <TripMarineActivityMapMarkers tripId={trip.id} />
             {[
-              ...currentLegs.map((leg, index) => (
-                <Map.Path
-                  key={`leg_${index}`}
-                  coordinates={leg.coordinates}
-                  strokeColor={getRouteColor(0)}
-                  strokeWeight={5}
-                />
-              )),
+              ...routes.flatMap((route, routeIndex) => {
+                const isSelectedRoute = route.id === currentRoute?.id
+
+                return (legsByRoute[routeIndex] ?? []).map((leg, legIndex) => (
+                  <Map.Path
+                    key={`route_${route.id}_leg_${legIndex}`}
+                    coordinates={leg.coordinates}
+                    strokeColor={getRouteColor(routeIndex)}
+                    strokeWeight={isSelectedRoute ? 5 : 3}
+                    strokeOpacity={isSelectedRoute ? 1 : 0.6}
+                  />
+                ))
+              }),
               ...allPlaces.map((place) => {
                 const isInCurrentRoute = currentRoute?.placeIds.includes(place.id) ?? false
                 const orderInRoute = currentRoute?.placeIds.indexOf(place.id) ?? -1
@@ -149,7 +160,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                     lat={place.lat}
                     lng={place.lng}
                     label={isInCurrentRoute ? `${orderInRoute + 1}. ${place.name}` : place.name}
-                    color={isInCurrentRoute ? (place.id === focusedId ? 'selected' : 'default') : 'disabled'}
+                    color={isInCurrentRoute && place.category ? PlaceCategoryColorCode[place.category] : 'disabled'}
                     onClick={() => {
                       if (isInCurrentRoute) {
                         setFocusedId(place.id)
@@ -160,7 +171,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                           <ActionSheet.Item
                             onClick={async () => {
                               const updated = await openPlaceEditor({ tripId, placeId: place.id, defaultValues: place })
-                              if (updated) await updatePlace({ ...selectedPlace, ...updated })
+                              if (updated) await updatePlace({ ...place, ...updated })
                             }}
                           >
                             장소 수정
@@ -201,8 +212,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
           }}
         >
           <BottomSheet.Body>
-            <ScrollViewContainer style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 40 }}>
-            {/* 여행 일자 선택 */}
+            {/* 여행 일자 선택 — 바텀시트 상단에 고정하고, 아래 목록만 스크롤한다 */}
             <Tabs
               value={selectedDate}
               onChange={(_, date) => {
@@ -215,107 +225,111 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                 <Tab key={date} value={date} label={`${index + 1}일차`} />
               ))}
             </Tabs>
-            <Box sx={{ paddingHorizontal: 16, marginTop: 8 }}>
-              {/* 경로 선택 */}
-              <TripRouteSelector.Chip
-                tripId={tripId}
-                date={selectedDate}
-                value={currentRoute?.id}
-                onChange={(id) => setSelectedRouteId(id ?? '')}
-                onDelete={(id) => removeRoute(id)}
-                onAdd={() =>
-                  createRoute({
-                    tripId,
-                    name: `${formatShortDate(selectedDate)} 경로 ${routes.length + 1}`,
-                    scheduledDate: selectedDate,
-                  })
-                }
-              />
+            <BottomSheet.GestureArea sx={{ flex: 1, minHeight: 1 }}>
+              <Box sx={{ flex: 1, minHeight: 1 }}>
+                <SortableList
+                  key={`${selectedDate}:${currentRoute?.id ?? 'empty'}`}
+                  items={currentPlaces}
+                  header={(
+                    <Box sx={{ paddingHorizontal: 16, marginTop: 8 }}>
+                      <TripRouteSelector.Chip
+                        tripId={tripId}
+                        date={selectedDate}
+                        value={currentRoute?.id}
+                        onChange={(id) => setSelectedRouteId(id ?? '')}
+                        onDelete={(id) => removeRoute(id)}
+                        onAdd={() =>
+                          createRoute({
+                            tripId,
+                            name: `${formatShortDate(selectedDate)} 경로 ${routes.length + 1}`,
+                            scheduledDate: selectedDate,
+                          })
+                        }
+                      />
+                      {(currentRoute == null || currentRoute.places.length === 0) && (
+                        <Typography variant="caption" color="text.secondary" sx={{ paddingVertical: 24 }}>
+                          지도에서 장소를 눌러 경로에 추가하세요
+                        </Typography>
+                      )}
+                    </Box>
+                  )}
+                  onSort={(changed) => {
+                    if (currentRoute == null) return
+                    update({
+                      routeId: currentRoute.id,
+                      placeIds: changed.items.map((x) => x.id),
+                    })
+                  }}
+                  renderItem={(place, idx) => {
+                    if (currentRoute == null) return null
 
-              {currentRoute == null || currentRoute.places.length === 0 ? (
-                <Typography variant="caption" color="text.secondary" sx={{ paddingVertical: 24 }}>
-                  지도에서 장소를 눌러 경로에 추가하세요
-                </Typography>
-              ) : (
-                <BottomSheet.GestureArea>
-                  <SortableList
-                    items={currentPlaces}
-                    onSort={(changed) => {
-                      update({
-                        routeId: currentRoute.id,
-                        placeIds: changed.items.map((x) => x.id),
-                      })
-                    }}
-                    renderItem={(place, idx) => {
-                      const inboundLeg = legByArrivalPlaceId.get(place.id)
-                      const isHidden = currentRoute.hiddenPlaces.includes(place.id)
+                    const inboundLeg = legByArrivalPlaceId.get(place.id)
+                    const isHidden = currentRoute.hiddenPlaces.includes(place.id)
 
-                      return (
-                        <Fragment key={place.id}>
-                          <SortableList.Item id={place.id}>
-                            {inboundLeg != null && inboundLeg.duration > 0 && (
-                              <RouteLegItem leg={inboundLeg} />
+                    return (
+                      <Fragment key={place.id}>
+                        <SortableList.Item id={place.id}>
+                          {inboundLeg != null && inboundLeg.duration > 0 && (
+                            <RouteLegItem leg={inboundLeg} />
+                          )}
+                          <TripRoutePlaceListItem
+                            data={place}
+                            focused={focusedId === place.id}
+                            onClick={() => {
+                              setFocusedId(place.id)
+                              mapRef.current?.panTo(place.lat, place.lng)
+                            }}
+                            leftAddon={(
+                              <SortableItem.Handle id={place.id}>
+                                <MaterialIcons name="drag-indicator" size={24} color="#787c7e" />
+                              </SortableItem.Handle>
                             )}
-                            <TripRoutePlaceListItem
-                              data={place}
-                              focused={focusedId === place.id}
-                              onClick={() => {
-                                setFocusedId(place.id)
-                                mapRef.current?.panTo(place.lat, place.lng)
-                              }}
-                              leftAddon={(
-                                <SortableItem.Handle id={place.id}>
-                                  <MaterialIcons name="drag-indicator" size={24} color="#787c7e" />
-                                </SortableItem.Handle>
-                              )}
-                              title={
-                                <Stack direction="row" alignItems="center" gap={0.5}>
-                                  <Dot>
-                                    <Typography sx={{ color: '#fff', fontSize: 11, fontWeight: '900' }}>
-                                      {idx + 1}
-                                    </Typography>
-                                  </Dot>
-                                  <ListItem.Title>{place.name}</ListItem.Title>
-                                  <IconButton
-                                    size="small"
-                                    onClick={() =>
-                                      toggleVisible({ routeId: currentRoute.id, placeId: place.id })
-                                    }
-                                  >
-                                    <MaterialIcons
-                                      name={isHidden ? 'visibility-off' : 'visibility'}
-                                      size={18}
-                                      color={isHidden ? '#bbb' : '#787c7e'}
-                                    />
-                                  </IconButton>
-                                </Stack>
-                              }
-                              rightAddon={
-                                <TripRoutePlaceListItem.Actions
-                                  tripId={tripId}
-                                  date={selectedDate}
-                                  routeId={currentRoute.id}
-                                  placeId={place.id}
-                                />
-                              }
-                            >
-                              <NoteEditor
-                                notes={place.routeNotes ?? []}
-                                onChange={(memos) =>
-                                  updateNotes({ placeId: place.id, routeId: currentRoute.id, memos })
-                                }
-                                action="dialog"
+                            title={
+                              <Stack direction="row" alignItems="center" gap={0.5}>
+                                <Dot>
+                                  <Typography numberOfLines={1} sx={{ color: '#fff', fontSize: 11, fontWeight: '900' }}>
+                                    {idx + 1}
+                                  </Typography>
+                                </Dot>
+                                <ListItem.Title>{place.name}</ListItem.Title>
+                                <IconButton
+                                  size="small"
+                                  onClick={() =>
+                                    toggleVisible({ routeId: currentRoute.id, placeId: place.id })
+                                  }
+                                >
+                                  <MaterialIcons
+                                    name={isHidden ? 'visibility-off' : 'visibility'}
+                                    size={18}
+                                    color={isHidden ? '#bbb' : '#787c7e'}
+                                  />
+                                </IconButton>
+                              </Stack>
+                            }
+                            rightAddon={
+                              <TripRoutePlaceListItem.Actions
+                                tripId={tripId}
+                                date={selectedDate}
+                                routeId={currentRoute.id}
+                                placeId={place.id}
                               />
-                            </TripRoutePlaceListItem>
-                          </SortableList.Item>
-                        </Fragment>
-                      )
-                    }}
-                  />
-                </BottomSheet.GestureArea>
-              )}
-            </Box>
-            </ScrollViewContainer>
+                            }
+                          >
+                            <NoteEditor
+                              notes={place.routeNotes ?? []}
+                              onChange={(memos) =>
+                                updateNotes({ placeId: place.id, routeId: currentRoute.id, memos })
+                              }
+                              action="dialog"
+                            />
+                          </TripRoutePlaceListItem>
+                        </SortableList.Item>
+                      </Fragment>
+                    )
+                  }}
+                />
+              </Box>
+            </BottomSheet.GestureArea>
           </BottomSheet.Body>
         </BottomSheet>
       </Box>
