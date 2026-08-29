@@ -4,7 +4,7 @@ import { formatDistance, formatDuration } from '@waylog/utility';
 import { TransportIcon } from './TransportIcon';
 
 // 경로 순서를 나타내는 번호 원. 연결선이 이 폭의 중심에 정렬되도록 크기를 공유한다.
-const DOT_SIZE = 18;
+const DOT_SIZE = 20;
 
 
 interface RouteLegItemProps extends StackProps {

@@ -6,7 +6,7 @@ import { Typography, type StackProps } from '../../../shared/components/mui'
 import { TransportIcon } from './TransportIcon'
 
 // 경로 순서를 나타내는 번호 원. 연결선이 이 폭의 중심에 정렬되도록 크기를 공유한다.
-const DOT_SIZE = 18
+const DOT_SIZE = 20
 
 interface RouteLegItemProps extends StackProps {
   leg: RouteLeg
@@ -37,8 +37,8 @@ const Container = styled.View`
 `
 
 export const Dot = styled.View`
-  min-width: ${DOT_SIZE}px;
-  min-height: ${DOT_SIZE}px;
+  width: ${DOT_SIZE}px;
+  height: ${DOT_SIZE}px;
   border-radius: ${DOT_SIZE / 2}px;
   background-color: ${palette.primary};
   align-items: center;
