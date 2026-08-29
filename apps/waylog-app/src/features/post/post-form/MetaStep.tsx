@@ -6,12 +6,14 @@ import { BottomArea } from '../../../shared/components/BottomArea'
 import { LoadableImage } from '../../../shared/components/LoadableImage'
 import { Button, TextField, Typography } from '../../../shared/components/mui'
 import { palette } from '../../../shared/config/tokens'
+import { useKeyboardMetrics } from '../../../shared/hooks/env/useKeyboardMetrics'
 import { usePostPlacesBottomSheet } from './usePostPlacesBottomSheet'
 import { VISIBILITY_OPTIONS, usePostVisibilityBottomSheet } from './usePostVisibilityBottomSheet'
 import type { DraftPostPhoto, PostMetaValue, PostPlaceSelection } from './postForm.types'
 
 export function MetaStep({ tripId, photos, isPending, onSubmit }: { tripId: string | null; photos: DraftPostPhoto[]; isPending: boolean; onSubmit: (value: PostMetaValue) => Promise<void> }) {
   const { width } = useWindowDimensions()
+  const { metrics: keyboard } = useKeyboardMetrics()
   const [description, setDescription] = useState('')
   const [places, setPlaces] = useState<PostPlaceSelection[]>([])
   const [visibility, setVisibility] = useState<PostVisibilityValue>(PostVisibility.PRIVATE)
@@ -34,7 +36,7 @@ export function MetaStep({ tripId, photos, isPending, onSubmit }: { tripId: stri
 
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 20, paddingBottom: 24 }}>
+      <ScrollView contentContainerStyle={{ padding: 16, gap: 20, paddingBottom: 24 + (keyboard?.height ?? 0) }} keyboardShouldPersistTaps="handled">
         <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false}>{photos.map((photo) => <LoadableImage key={photo.id} source={{ uri: photo.uri }} style={{ width: photoWidth, aspectRatio: 1 }} resizeMode="cover" />)}</ScrollView>
         <TextField value={description} onChangeText={setDescription} placeholder="여행에 대해 한 줄 남겨주세요" multiline minRows={3} fullWidth />
         <View style={{ gap: 8 }}>
@@ -42,7 +44,7 @@ export function MetaStep({ tripId, photos, isPending, onSubmit }: { tripId: stri
           <OverlayField label="공개 범위" value={VISIBILITY_OPTIONS.find((option) => option.value === visibility)?.label ?? ''} onPress={() => void editVisibility()} />
         </View>
       </ScrollView>
-      <BottomArea position="static" sx={{ borderTopWidth: 1, borderTopColor: palette.divider }}><Button variant="contained" size="large" fullWidth disabled={isPending} onClick={() => void onSubmit({ description: description.trim(), places, visibility })}>{isPending ? '등록 중…' : '확인'}</Button></BottomArea>
+      <BottomArea position="static" sx={{ borderTopWidth: 1, borderTopColor: palette.divider, marginBottom: keyboard?.height ?? 0 }}><Button variant="contained" size="large" fullWidth disabled={isPending} onClick={() => void onSubmit({ description: description.trim(), places, visibility })}>{isPending ? '등록 중…' : '확인'}</Button></BottomArea>
     </View>
   )
 }
