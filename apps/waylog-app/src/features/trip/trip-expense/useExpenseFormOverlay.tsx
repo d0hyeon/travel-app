@@ -29,7 +29,7 @@ export function useExpenseFormBottomSheet(tripId: string) {
               <BottomSheet.Header>
                 {mode === 'edit' ? '결제 금액 수정' : '결제 금액'}
               </BottomSheet.Header>
-              <BottomSheet.Body sx={{ paddingHorizontal: 16 }}>
+              <BottomSheet.KeyboardAwareBody sx={{ paddingHorizontal: 16 }}>
                 <ExpenseForm
                   ref={(instance) => {
                     formRef.current = instance
@@ -41,7 +41,7 @@ export function useExpenseFormBottomSheet(tripId: string) {
                     close()
                   }}
                 />
-              </BottomSheet.Body>
+              </BottomSheet.KeyboardAwareBody>
               <BottomSheet.BottomActions>
                 <Button variant="outlined" fullWidth onClick={cancel}>
                   취소

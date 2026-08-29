@@ -12,6 +12,7 @@ import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { PopMenu } from '../../../shared/components/PopMenu'
 import { DateField } from '../../../shared/components/date-picker'
+import { palette } from '../../../shared/config/tokens'
 
 export interface PaymentField {
   memberId: string
@@ -116,54 +117,54 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
           <Button size="small" onClick={addPayer} disabled={paymentRows.length >= members.length}>추가</Button>
         </Stack>
         <Stack direction="row" gap={1} alignItems="flex-end">
-        <Stack gap={0.5} sx={{ flex: 3 }}>
-          <Pressable onPress={() => overlay.open(({ isOpen, close }) => (
-            <BottomSheet isOpen={isOpen} onDismiss={close} snapPoints={[0.4]} defaultSnapIndex={0} safeArea>
-              <BottomSheet.Body sx={{ paddingHorizontal: 0, paddingVertical: 8 }}>
-                {members.map((member) => (
-                  <Pressable key={member.id} onPress={() => { setValue('payments', [{ memberId: member.id, amount: 0 }]); close() }} style={{ paddingHorizontal: 20, paddingVertical: 16 }}>
-                    <Typography>{member.name}</Typography>
-                  </Pressable>
-                ))}
-              </BottomSheet.Body>
-            </BottomSheet>
-          ))} style={{ position: 'relative' }}>
-            <TextField pointerEvents="none" placeholder="결제자" variant="standard" value={members.find((member) => member.id === payerId)?.name ?? ''} fullWidth editable={false} />
-            <MaterialIcons name="arrow-drop-down" size={24} color="#777" style={{ position: 'absolute', right: 0, bottom: 8 }} />
-          </Pressable>
-        </Stack>
-        <Stack sx={{ flex: 7, position: 'relative' }}>
-          <TextField
-            placeholder="0"
-            sx={{ textAlign: 'right', paddingRight: 72 }}
-            variant="standard"
-            keyboardType="number-pad"
-            value={amount}
-            onChangeText={setAmount}
-          />
-          <Stack sx={{ position: 'absolute', right: 0, bottom: 7 }}>
-            <PopMenu
-              trigger={(
-                <Stack direction="row" alignItems="center" gap={0.5}>
-                  <Typography color="primary">{CurrencyCodeLabel[currency] ?? currency}</Typography>
-                  <MaterialIcons name="swap-horiz" size={22} color="#4C84FF" />
-                </Stack>
-              )}
-              items={CurrencyCodeMap && Object.values(CurrencyCodeMap).map((code) => (
-                <PopMenu.Item key={code} onClick={() => setValue('currency', code)}>
-                  <Typography sx={{ color: currency === code ? '#4C84FF' : '#666' }}>
-                    {CurrencyCodeLabel[code]}
-                  </Typography>
-                </PopMenu.Item>
-              ))}
-            />
+          <Stack gap={0.5} sx={{ flex: 3 }}>
+            <Pressable onPress={() => overlay.open(({ isOpen, close }) => (
+              <BottomSheet isOpen={isOpen} onDismiss={close} snapPoints={[0.4]} defaultSnapIndex={0} safeArea>
+                <BottomSheet.Body sx={{ paddingHorizontal: 0, paddingVertical: 8 }}>
+                  {members.map((member) => (
+                    <Pressable key={member.id} onPress={() => { setValue('payments', [{ memberId: member.id, amount: 0 }]); close() }} style={{ paddingHorizontal: 20, paddingVertical: 16 }}>
+                      <Typography>{member.name}</Typography>
+                    </Pressable>
+                  ))}
+                </BottomSheet.Body>
+              </BottomSheet>
+            ))} style={{ position: 'relative' }}>
+              <TextField pointerEvents="none" placeholder="결제자" variant="standard" value={members.find((member) => member.id === payerId)?.name ?? ''} fullWidth editable={false} />
+              <MaterialIcons name="arrow-drop-down" size={24} color="#777" style={{ position: 'absolute', right: 0, bottom: 8 }} />
+            </Pressable>
           </Stack>
-        </Stack>
-        {paymentRows.length > 1 && (
-          <Pressable onPress={() => setValue('payments', paymentRows.slice(0, -1))}>
-            <MaterialIcons name="delete" size={22} color="#aaa" />
-          </Pressable>
-        )}
+          <Stack sx={{ flex: 7, position: 'relative' }}>
+            <TextField
+              placeholder="0"
+              sx={{ textAlign: 'right', paddingRight: 72 }}
+              variant="standard"
+              keyboardType="number-pad"
+              value={amount}
+              onChangeText={setAmount}
+            />
+            <Stack sx={{ position: 'absolute', right: 0, bottom: 7 }}>
+              <PopMenu
+                trigger={(
+                  <Stack direction="row" alignItems="center" gap={0.5}>
+                    <Typography color="primary">{CurrencyCodeLabel[currency] ?? currency}</Typography>
+                    <MaterialIcons name="swap-horiz" size={22} color="#4C84FF" />
+                  </Stack>
+                )}
+                items={CurrencyCodeMap && Object.values(CurrencyCodeMap).map((code) => (
+                  <PopMenu.Item key={code} onClick={() => setValue('currency', code)}>
+                    <Typography sx={{ color: currency === code ? '#4C84FF' : '#666' }}>
+                      {CurrencyCodeLabel[code]}
+                    </Typography>
+                  </PopMenu.Item>
+                ))}
+              />
+            </Stack>
+          </Stack>
+          {paymentRows.length > 1 && (
+            <Pressable onPress={() => setValue('payments', paymentRows.slice(0, -1))}>
+              <MaterialIcons name="delete" size={22} color="#aaa" />
+            </Pressable>
+          )}
         </Stack>
       </Stack>
 
@@ -205,11 +206,28 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
           <Typography variant="caption" color="text.secondary">
             장소 (선택)
           </Typography>
-          <TextField
-            placeholder="장소 검색..."
-            variant="standard"
-            value={places.find((place) => place.placeId === placeId)?.name ?? ''}
-            fullWidth
+          <PopMenu
+            trigger={
+              <TextField
+                pointerEvents="none"
+                placeholder="장소 선택"
+                variant="standard"
+                value={places.find((place) => place.placeId === placeId)?.name ?? ''}
+                fullWidth
+                editable={false}
+              />
+            }
+            items={places.map((place) => (
+              <PopMenu.Item
+                key={place.placeId}
+                onClick={() => setValue('placeId', place.placeId)}
+                icon={place.placeId === placeId ? <MaterialIcons name="check" size={18} color="#4C84FF" /> : undefined}
+              >
+                <Typography sx={{ color: place.placeId === placeId ? '#4C84FF' : palette.text }}>
+                  {place.name}
+                </Typography>
+              </PopMenu.Item>
+            ))}
           />
         </Stack>
       )}
