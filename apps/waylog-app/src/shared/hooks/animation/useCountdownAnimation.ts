@@ -1,11 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-
-// React 19.1 에는 useEffectEvent 가 없다. 최신 콜백을 ref 로 들고 같은 역할을 한다.
-function useEffectEvent<T extends (...args: never[]) => unknown>(handler: T): T {
-  const ref = useRef(handler);
-  ref.current = handler;
-  return useCallback(((...args: never[]) => ref.current(...args)) as T, []);
-}
+import { useEffect, useMemo, useState } from "react";
 import { useVariation } from "@waylog/react";
 
 export interface CountAnimationOptions {
@@ -30,8 +23,6 @@ export function useCountAnimation(
     return Math.abs(targetValue - getPrevValue()) * (_duration ?? 20)
   }, [targetValue, durationTarget, _duration]);
 
-  const handleEnd = useEffectEvent(() => onEnd?.());
-  
   useEffect(() => {
     if (!enabled) {
       setDisplayValue(targetValue)
@@ -60,7 +51,7 @@ export function useCountAnimation(
         if (progress < 1) {
           animationId = requestAnimationFrame(animate)
         } else {
-          handleEnd();
+          onEnd?.();
         }
       }
 
@@ -71,7 +62,7 @@ export function useCountAnimation(
       clearTimeout(timeoutId);
       if (animationId) cancelAnimationFrame(animationId);
     }
-  }, [targetValue, enabled, duration, delay])
+  }, [targetValue, enabled, duration, delay, durationTarget, onEnd, getPrevValue, setPrevValue])
 
   return displayValue;
 }
