@@ -4,7 +4,7 @@ import { useTrip } from "@waylog/domains/modules/trip";
 import { useDailyWeatherForecast } from "@waylog/domains/modules/weather";
 import { PRECIPITATION_SNOW_TYPES } from "@waylog/domains/modules/weather";
 import { WeatherIcon } from "~features/weather/WeatherIcon";
-import { ErrorBoundary } from "~shared/components/ErrorBoundary";
+import { ErrorBoundary } from "@waylog/react";
 import { useIsMobile } from "~shared/hooks/env/useIsMobile";
 import { useOverlay } from "~shared/hooks/useOverlay";
 import { arrayIncludes, assert } from "@waylog/utility";

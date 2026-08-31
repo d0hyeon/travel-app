@@ -1,5 +1,5 @@
 import type { ComponentProps, PropsWithChildren } from "react";
-import { ErrorBoundary } from "./ErrorBoundary";
+import { ErrorBoundary } from "@waylog/react";
 import { Alert, AlertTitle, Button, Typography } from "@mui/material";
 
 export function CommonErrorBoundary(props: ComponentProps<typeof ErrorBoundary>) {

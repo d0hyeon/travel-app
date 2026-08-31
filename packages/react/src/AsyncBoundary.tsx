@@ -1,26 +1,30 @@
 import { Suspense, type ComponentProps, type ReactNode } from 'react'
-import { ErrorBoundary, type FallbackProps } from '../ErrorBoundary'
+import { ErrorBoundary, type FallbackProps } from './ErrorBoundary'
 
 type ErrorBoundaryProps = ComponentProps<typeof ErrorBoundary>
 export type RejectedFallbackProps = FallbackProps
 
 export interface AsyncBoundaryProps {
   resetKeys?: ErrorBoundaryProps['resetKeys']
-  rejectedFallback?: ErrorBoundaryProps['fallback']
+  rejectedFallback?: (props: RejectedFallbackProps) => ReactNode
   pendingFallback?: ReactNode
+  onError?: ErrorBoundaryProps['onError']
   children?: ReactNode
 }
 
-// 웹 shared/components/utils/AsyncBoundary.tsx 와 같은 역할이다.
-// 로딩과 에러라는 두 대기 상태를 한 경계에서 선언한다.
 export function AsyncBoundary({
   pendingFallback,
   rejectedFallback,
+  onError,
   resetKeys,
   children,
 }: AsyncBoundaryProps) {
   return (
-    <ErrorBoundary fallback={rejectedFallback} resetKeys={resetKeys}>
+    <ErrorBoundary
+      fallback={rejectedFallback}
+      onError={onError}
+      resetKeys={resetKeys}
+    >
       <Suspense fallback={pendingFallback}>{children}</Suspense>
     </ErrorBoundary>
   )

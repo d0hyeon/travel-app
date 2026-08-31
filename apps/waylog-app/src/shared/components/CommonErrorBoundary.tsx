@@ -1,6 +1,6 @@
 import type { ComponentProps } from 'react'
 import { palette, radius } from '../config/tokens'
-import { ErrorBoundary } from './ErrorBoundary'
+import { ErrorBoundary } from '@waylog/react'
 import { Button, Stack, Typography } from './mui'
 
 const ERROR_MAIN = '#d32f2f'
@@ -11,7 +11,7 @@ const ERROR_SURFACE = '#fdeded'
 export function CommonErrorBoundary(props: ComponentProps<typeof ErrorBoundary>) {
   return (
     <ErrorBoundary
-      fallback={({ error, reset }) => (
+      fallback={({ error, resetError }) => (
         <Stack
           direction="row"
           alignItems="center"
@@ -34,7 +34,7 @@ export function CommonErrorBoundary(props: ComponentProps<typeof ErrorBoundary>)
             </Typography>
           </Stack>
 
-          <Button size="small" variant="contained" color="error" onClick={reset}>
+          <Button size="small" variant="contained" color="error" onClick={resetError}>
             재시도
           </Button>
         </Stack>

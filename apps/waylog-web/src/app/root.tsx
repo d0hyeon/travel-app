@@ -11,7 +11,8 @@ import { OverlayProvider } from '~shared/hooks/useOverlay.context'
 import { RouteOverlayRenderer } from '~shared/hooks/extends/route-overlay/RouteOverlayRenderer'
 
 
-import { AuthErrorBoundary } from '~features/auth/AuthErrorBoundary'
+import { AuthErrorBoundary } from '@waylog/domains/clients'
+import { useAuthNavigate } from '~features/auth/AuthNavigate'
 import { CommonErrorBoundary } from '~shared/components/CommonErrorBoundary'
 import '~shared/index.css'
 import '~shared/reset.css'
@@ -61,6 +62,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function Root() {
+  const navigateToLogin = useAuthNavigate()
 
   return (
     <ThemeProvider theme={theme}>
@@ -71,7 +73,7 @@ export default function Root() {
             <OverlayProvider>
               <SearchParamProvider>
                 <Suspense fallback={<SplashScreen />}>
-                  <AuthErrorBoundary>
+                  <AuthErrorBoundary onSessionExpired={navigateToLogin}>
                     <Outlet />
                   </AuthErrorBoundary>
                 </Suspense>

@@ -12,8 +12,8 @@ import {
   type DayPart,
 } from '@waylog/domains/modules/weather'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
-import { ErrorBoundary } from '../../../shared/components/ErrorBoundary'
-import { AsyncBoundary } from '../../../shared/components/utils/AsyncBoundary'
+import { ErrorBoundary } from '@waylog/react'
+import { AsyncBoundary } from '@waylog/react'
 import {
   Stack,
   Tab,
@@ -79,7 +79,7 @@ function Resolved({ tripId, initialDate }: Pick<Props, 'tripId' | 'initialDate'>
       </BottomSheet.Header>
 
       <BottomSheet.Body sx={{ paddingHorizontal: 0 }}>
-        <AsyncBoundary resetKeys={[selectedDate]} rejectedFallback={<ForecastUnavailable />}>
+        <AsyncBoundary resetKeys={[selectedDate]} rejectedFallback={() => <ForecastUnavailable />}>
           <DayPartForecast
             coordinate={{ lat: trip.lat, lng: trip.lng }}
             date={selectedDate}

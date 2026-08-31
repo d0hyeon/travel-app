@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { Suspense } from 'react';
 import { BottomNavigation } from '~shared/components/BottomNavigation';
-import { ErrorBoundary } from '~shared/components/ErrorBoundary.tsx';
+import { ErrorBoundary } from '@waylog/react';
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile.tsx';
 import { SwitchCase } from '~shared/components/SwitchCase.tsx';
 import { useActivationSignal } from '~shared/hooks/interaction/useActivationSignal.ts';

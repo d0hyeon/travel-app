@@ -2,8 +2,8 @@ import 'react-native-url-polyfill/auto'
 import '../src/shared/polyfills'
 
 import { QueryClientProvider } from '@tanstack/react-query'
-import { AuthStateSync } from '@waylog/domains/clients'
-import { Stack } from 'expo-router'
+import { AuthErrorBoundary, AuthStateSync } from '@waylog/domains/clients'
+import { router, Stack } from 'expo-router'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
@@ -11,7 +11,6 @@ import { Suspense } from 'react'
 import { ActivityIndicator, View } from 'react-native'
 import { setupApi } from '../src/api-config'
 import { queryClient } from '../src/shared/query-client'
-import { AuthErrorBoundary } from '../src/features/auth/AuthErrorBoundary'
 import { OverlayProvider } from '../src/shared/hooks/useOverlay.context'
 import { useChatNotificationResponse } from '../src/features/trip/trip-chat/notification/useChatNotification'
 
@@ -35,7 +34,7 @@ export default function RootLayout() {
           <OverlayProvider>
             <Suspense fallback={<Loading />}>
               <ChatNotificationGateway />
-              <AuthErrorBoundary>
+              <AuthErrorBoundary onSessionExpired={() => router.replace('/login')}>
                 <Stack screenOptions={{ headerShown: false }}>
                   {/* 인증 판정 후 곧바로 리다이렉트되는 진입점이다. 전환 애니메이션이 보이면
                       로그인된 사용자도 매번 화면이 한 번 전환되는 것처럼 보인다. */}

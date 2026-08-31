@@ -7,7 +7,7 @@ import { HourlyForecastList } from "~features/weather/HourlyForecastList";
 import { hasDayPartForecast, useDailyWeatherForecast } from "@waylog/domains/modules/weather";
 import type { DayPart } from "@waylog/domains/modules/weather";
 import { BottomSheet } from "~shared/components/bottom-sheet/BottomSheet";
-import { ErrorBoundary } from "~shared/components/ErrorBoundary";
+import { ErrorBoundary } from "@waylog/react";
 import { useCurrentTime } from "@waylog/react";
 import type { Coordinate } from "@waylog/utility";
 import { formatDisplayDate, formatShortDate } from "@waylog/utility";

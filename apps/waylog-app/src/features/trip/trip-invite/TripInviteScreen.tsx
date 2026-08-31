@@ -2,7 +2,7 @@ import { useInvitedTrip } from '@waylog/domains/modules/trip'
 import { assert } from '@waylog/utility'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { Suspense, useTransition } from 'react'
-import { ErrorBoundary } from '../../../shared/components/ErrorBoundary'
+import { ErrorBoundary } from '@waylog/react'
 import {
   Box,
   Button,
@@ -25,11 +25,11 @@ export function TripInviteScreen() {
       }}
     >
       <ErrorBoundary
-        fallback={
+        fallback={() => (
           <Typography sx={{ color: '#d32f2f' }} textAlign="center">
             유효하지 않은 초대입니다.
           </Typography>
-        }
+        )}
       >
         <Suspense fallback={<CircularProgress />}>
           <Resolved />
