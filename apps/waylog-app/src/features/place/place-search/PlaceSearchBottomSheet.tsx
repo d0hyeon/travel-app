@@ -151,6 +151,7 @@ export function PlaceSearchBottomSheet({
         onDismiss={() => setDetailKeyword(null)}
         snapPoints={[0.95]}
         safeArea
+        backdrop={false}
       >
         <BottomSheet.Header
           rightElement={

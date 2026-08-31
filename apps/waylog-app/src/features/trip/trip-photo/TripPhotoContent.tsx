@@ -11,6 +11,7 @@ import { useConfirmDialog } from '../../../shared/components/confirm-dialog/useC
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { palette } from '../../../shared/config/tokens'
 import { useTripPhotos } from './useTripPhotos'
+import { usePhotoViewerState } from './usePhotoViewerState'
 import { TripDetailHeader } from '../components/TripDetailHeader'
 import { ZoomArea } from '../../../shared/components/photo/ZoomArea'
 import { LoadableImage } from '../../../shared/components/LoadableImage'
@@ -20,6 +21,16 @@ const GAP = 2
 
 interface Props {
   tripId: string
+}
+
+/**
+ * 사진 탭 데이터를 미리 받아 둔다. 웹 TripPhotoContent.mobile 의 preload 와 같은 역할.
+ *
+ * Expo Router 에는 라우트 진입 전에 이 함수를 불러 주는 지점이 없어
+ * 아직 호출부가 없다. 탭 전환 직전 연결은 향후 과제로 남긴다.
+ */
+export function preload(tripId: string) {
+  useTripPhotos.prefetch(tripId)
 }
 
 export function TripPhotoContent({ tripId }: Props) {
@@ -265,15 +276,10 @@ function PhotoViewerSheet({ isOpen, photos, initialIndex, places, onUpdate, onDe
   // 첫 렌더는 onLayout 이전이라 0으로 잡히면 사진이 통째로 안 보이므로,
   // 실측 전까지 쓸 값을 기존 고정값으로 남겨 두고 실측되면 갱신만 한다.
   const [imagePagerHeight, setImagePagerHeight] = useState(560)
-  const [viewerPhotos, setViewerPhotos] = useState(photos)
-  const [currentIndex, setCurrentIndex] = useState(initialIndex)
   const [isZooming, setIsZooming] = useState(false)
-  const currentPhoto = viewerPhotos[currentIndex]
+  const { viewerPhotos, currentIndex, currentPhoto, setCurrentIndex, updateCurrentPhoto } =
+    usePhotoViewerState({ photos, initialIndex, onUpdate })
   const currentPlace = places.find((place) => place.placeId === currentPhoto.placeId)
-  const updateCurrentPhoto = async (patch: { placeId?: string | null; isPublic?: boolean }) => {
-    await onUpdate({ photoId: currentPhoto.id, ...patch })
-    setViewerPhotos((items) => items.map((item) => item.id === currentPhoto.id ? { ...item, ...patch } : item))
-  }
 
   return (
     <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.95]} defaultSnapIndex={0} safeArea sx={{ backgroundColor: '#010101' }}>

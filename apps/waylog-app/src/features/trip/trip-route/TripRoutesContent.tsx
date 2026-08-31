@@ -14,7 +14,7 @@ import { useCurrentCoordinate } from '../../../shared/hooks/env/useCurrentCoordi
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
 import { palette } from '../../../shared/config/tokens'
-import { useRouteLegsPathList } from './components/RoutePath'
+import { useRouteLegsPathList } from './components/useRouteLegsPathList'
 import { TripRouteSelector } from './components/TripRouteSelector'
 import { TripRouteMapFloatingControls } from './components/TripRouteMapFloatingControls'
 import { PlaceSelectSheet } from './PlaceSelectSheet'

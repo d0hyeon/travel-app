@@ -124,6 +124,7 @@ export function BottomSheet({
   onDismiss,
   onClose,
   onSnapChange,
+  backdrop = true,
   safeArea = false,
   sx,
   ref,
@@ -400,7 +401,7 @@ export function BottomSheet({
       pointerEvents="box-none"
       onLayout={(e) => setHostH(Math.round(e.nativeEvent.layout.height))}
     >
-      {isOpen === true && <Pressable style={styles.backdrop} onPress={onDismiss} />}
+      {isOpen === true && backdrop && <Pressable style={styles.backdrop} onPress={onDismiss} />}
 
       <Animated.View style={[styles.sheet, sheetStyle, sxToStyle(sx)]}>
         <SheetDragContext.Provider value={dragContext}>

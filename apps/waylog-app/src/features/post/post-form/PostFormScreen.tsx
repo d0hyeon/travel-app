@@ -11,6 +11,7 @@ import { uploadPostPhoto } from '../../photo/photo.api'
 import { MetaStep } from './MetaStep'
 import { PhotoStep } from './PhotoStep'
 import { TripStep } from './TripStep'
+import { usePostForm } from './usePostForm'
 import type { DraftPostPhoto, PostMetaValue } from './postForm.types'
 
 const STEPS = ['trip', 'photo', 'meta'] as const
@@ -27,11 +28,28 @@ export function PostFormScreen() {
   const steps: readonly PostFormStep[] = initialTripId == null ? STEPS : STEPS.filter((candidate) => candidate !== 'trip')
   const [step, setStep] = useState<PostFormStep>(initialTripId == null ? 'trip' : 'photo')
   const [tripId, setTripId] = useState<string | null>(initialTripId ?? null)
-  const [photos, setPhotos] = useState<DraftPostPhoto[]>([])
-  const [error, setError] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const { mutateAsync: createPost, isPending } = useCreatePost()
+  const { mutateAsync: createPost } = useCreatePost()
   const stepIndex = steps.indexOf(step)
+
+  const { form, error, update, submit } = usePostForm({
+    onSubmit: async (value) => {
+      const isPublic = value.visibility !== PostVisibility.PRIVATE
+      const uploadedPhotos = await Promise.all(
+        value.photos.map(async (photo) => ({ ...(await uploadPostPhoto(tripId, photo.uri)), placeId: photo.placeId, isPublic })),
+      )
+      const post = await createPost({
+        tripId,
+        description: value.description,
+        visibility: value.visibility,
+        placeIds: value.places.map((place) => place.placeId),
+        photos: uploadedPhotos,
+      })
+      if (value.visibility === PostVisibility.PUBLIC) {
+        void Promise.all(value.photos.flatMap((photo) => photo.savedPhotoId == null ? [] : [updatePhoto(photo.savedPhotoId, { isPublic: true })]))
+      }
+      router.replace(`/post/${post.id}`)
+    },
+  })
 
   const goBack = () => {
     if (stepIndex <= 0) return router.back()
@@ -49,26 +67,6 @@ export function PostFormScreen() {
     })
   }, [navigation, stepIndex])
 
-  const submit = async (meta: PostMetaValue) => {
-    if (isSubmitting) return
-
-    setError(null)
-    setIsSubmitting(true)
-    try {
-      const isPublic = meta.visibility !== PostVisibility.PRIVATE
-      const uploadedPhotos = await Promise.all(photos.map(async (photo) => ({ ...(await uploadPostPhoto(tripId, photo.uri)), placeId: photo.placeId, isPublic })))
-      const post = await createPost({ tripId, description: meta.description, visibility: meta.visibility, placeIds: meta.places.map((place) => place.placeId), photos: uploadedPhotos })
-      if (meta.visibility === PostVisibility.PUBLIC) {
-        void Promise.all(photos.flatMap((photo) => photo.savedPhotoId == null ? [] : [updatePhoto(photo.savedPhotoId, { isPublic: true })]))
-      }
-      router.replace(`/post/${post.id}`)
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : '포스트를 등록하지 못했어요')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
   return (
     <View style={{ flex: 1, paddingTop: insets.top, paddingBottom: insets.bottom, backgroundColor: palette.background }}>
       <View style={{ height: 64, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 10, borderBottomWidth: 1, borderBottomColor: palette.divider }}>
@@ -77,11 +75,29 @@ export function PostFormScreen() {
         <View style={{ flexDirection: 'row', gap: 4 }}>{steps.map((candidate, index) => <View key={candidate} style={{ width: index === stepIndex ? 16 : 6, height: 6, borderRadius: 3, backgroundColor: index <= stepIndex ? palette.primary : 'rgba(0,0,0,0.12)' }} />)}</View>
       </View>
       <LinearProgress value={((stepIndex + 1) / steps.length) * 100} />
-      {error != null && <View style={{ padding: 12, backgroundColor: '#FFEBEE' }}><Typography color="error">{error}</Typography></View>}
+      {error != null && <View style={{ padding: 12, backgroundColor: '#FFEBEE' }}><Typography color="error">{error instanceof Error ? error.message : '포스트를 등록하지 못했어요'}</Typography></View>}
       <Suspense fallback={<ActivityIndicator style={{ flex: 1 }} />}>
         {step === 'trip' && <TripStep defaultValue={tripId} onNext={(nextTripId) => { setTripId(nextTripId); setStep('photo') }} />}
-        {step === 'photo' && <PhotoStep tripId={tripId} defaultValue={photos} onNext={(selectedPhotos) => { setPhotos(selectedPhotos); setStep('meta') }} />}
-        {step === 'meta' && <MetaStep tripId={tripId} photos={photos} isPending={isPending || isSubmitting} onSubmit={submit} />}
+        {step === 'photo' && (
+          <PhotoStep
+            tripId={tripId}
+            defaultValue={form.photos ?? []}
+            onNext={(selectedPhotos: DraftPostPhoto[]) => {
+              update({ photos: selectedPhotos })
+              setStep('meta')
+            }}
+          />
+        )}
+        {step === 'meta' && !!form.photos && (
+          <MetaStep
+            tripId={tripId}
+            photos={form.photos}
+            onNext={async (values: PostMetaValue) => {
+              update(values)
+              await submit()
+            }}
+          />
+        )}
       </Suspense>
     </View>
   )

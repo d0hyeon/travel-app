@@ -72,7 +72,7 @@ function Resolved() {
         variant="contained"
         size="large"
         onClick={handleJoin}
-        disabled={isPending}
+        loading={isPending}
         sx={{ width: 200 }}
       >
         참여하기

@@ -21,7 +21,7 @@ import MapView, { PROVIDER_GOOGLE, type Region } from 'react-native-maps'
 import { MapContext } from './MapContext'
 import { NativeMapCluster } from './NativeMapCluster'
 import { NativeMapMarker } from './NativeMapMarker'
-import { useBatchedCallback } from './useBatchedCallback'
+import { useBatchedCallback } from '../../hooks/useBatchedCallback'
 import { Sx } from '../mui'
 
 // 웹은 level(1~14, 작을수록 확대), RN 은 delta(작을수록 확대)로 배율을 다룬다.

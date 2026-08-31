@@ -4,21 +4,25 @@ import type { PropsWithChildren } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { TripWeatherForecastSheet } from "../TripWeatherForecastSheet";
 
-vi.mock("@waylog/domains/modules/weather", () => ({
-  useDailyWeatherForecast: ({ date }: { date: string }) => ({
-    data:
-      date === "2000-01-01"
-        ? undefined
-        : {
-            forecast: {
-              date,
-              summary: {},
-              periods: { am: {}, pm: {} },
-              hourly: [{ forecastAt: `${date}T13:00:00+09:00` }],
+vi.mock("@waylog/domains/modules/weather", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@waylog/domains/modules/weather")>();
+  return {
+    ...actual,
+    useDailyWeatherForecast: ({ date }: { date: string }) => ({
+      data:
+        date === "2000-01-01"
+          ? undefined
+          : {
+              forecast: {
+                date,
+                summary: {},
+                periods: { am: {}, pm: {} },
+                hourly: [{ forecastAt: `${date}T13:00:00+09:00` }],
+              },
             },
-          },
-  }),
-}));
+    }),
+  };
+});
 
 vi.mock("~features/weather/DailyWeatherInfoBox", () => ({
   DailyWeatherInfoBox: () => <div />,

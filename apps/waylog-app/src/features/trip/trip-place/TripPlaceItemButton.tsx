@@ -7,34 +7,27 @@ import { ListItem } from "../../../shared/components/ListItem";
 import { PopMenu } from "../../../shared/components/PopMenu";
 import { useConfirmDialog } from "../../../shared/components/confirm-dialog/useConfirmDialog";
 import { useTripPlaces } from '@waylog/domains/modules/trip';
-import { usePlaceFormOverlay } from '../trip-route/usePlaceFormOverlay';
+import { useTripPlaceFormOverlay } from './trip-place-form/useTripPlaceFormOverlay';
 
 interface ItemProps extends ComponentProps<typeof ListItem.Button> {
   place: TripPlace;
 }
 export function TripPlaceItemButton({ place, ...props }: ItemProps) {
   const confirm = useConfirmDialog();
-  const { remove, update } = useTripPlaces(place.tripId);
-  const { openBottomsheet: getUpdatedPlace } = usePlaceFormOverlay();
+  const { remove } = useTripPlaces(place.tripId);
+  const { openBottomSheet: openPlaceForm } = useTripPlaceFormOverlay();
 
   return (
     <ListItem.Button
       key={place.id}
       rightAddon={(
         <PlaceItemMenu
-          onEdit={async () => {
-            const updated = await getUpdatedPlace({
+          onEdit={() => {
+            void openPlaceForm({
               tripId: place.tripId,
               placeId: place.id,
               defaultValues: place,
               onDelete: () => remove(place.id),
-            });
-            if (!updated) return;
-            update({
-              ...updated,
-              id: place.id,
-              category: updated.category || undefined,
-              tags: updated.tags,
             });
           }}
           onDelete={async () => {

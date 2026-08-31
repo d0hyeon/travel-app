@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { useOverlay } from "../../../shared/hooks/useOverlay";
 import type { Coordinate } from "../../../shared/components/Map";
 import { PlaceSearchBottomSheet } from "./PlaceSearchBottomSheet";
-import { type PlaceSearchResult } from "./PlaceSearchDialog";
+import type { PlaceResult } from '@waylog/domains/modules/place'
 
 interface UsePlaceSearchBottomSheetOptions {
   service?: 'kakao' | 'google';
@@ -14,7 +14,7 @@ export function usePlaceSearchBottomSheet(options: UsePlaceSearchBottomSheetOpti
   const overlay = useOverlay();
 
   const searchPlace = useCallback(() => {
-    return new Promise<PlaceSearchResult | null>(resolve => {
+    return new Promise<PlaceResult | null>(resolve => {
       overlay.open(({ close, isOpen }) => (
         <PlaceSearchBottomSheet
           {...options}

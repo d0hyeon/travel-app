@@ -1,8 +1,13 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
 
+export interface FallbackProps {
+  error: Error
+  reset: () => void
+}
+
 interface Props {
   children: ReactNode
-  fallback?: ReactNode | ((props: { error: Error; reset: () => void }) => ReactNode)
+  fallback?: ReactNode | ((props: FallbackProps) => ReactNode)
   /** 값이 바뀌면 에러 상태를 푼다. 웹 ErrorBoundary 와 같은 동작이다. */
   resetKeys?: unknown[]
 }

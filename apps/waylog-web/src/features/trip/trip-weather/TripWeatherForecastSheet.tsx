@@ -4,7 +4,7 @@ import { Suspense, useMemo, useRef, useState, type ComponentProps } from "react"
 import { Swiper, SwiperSlide, type SwiperRef } from "swiper/react";
 import { DailyWeatherInfoBox } from "~features/weather/DailyWeatherInfoBox";
 import { HourlyForecastList } from "~features/weather/HourlyForecastList";
-import { useDailyWeatherForecast } from "@waylog/domains/modules/weather";
+import { hasDayPartForecast, useDailyWeatherForecast } from "@waylog/domains/modules/weather";
 import type { DayPart } from "@waylog/domains/modules/weather";
 import { BottomSheet } from "~shared/components/bottom-sheet/BottomSheet";
 import { ErrorBoundary } from "~shared/components/ErrorBoundary";
@@ -101,11 +101,7 @@ function DayPartForecast({ coordinate, date }: { coordinate: Coordinate; date: s
   if (weatherForecast == null) return <ForecastUnavailable />;
 
   const availableDayParts = DAY_PARTS.filter(({ dayPart }) =>
-    weatherForecast.forecast.hourly.some(({ forecastAt }) =>
-      dayPart === "am"
-        ? getHours(forecastAt) < AFTERNOON_START_HOUR
-        : getHours(forecastAt) >= AFTERNOON_START_HOUR,
-    ),
+    hasDayPartForecast(weatherForecast.forecast.hourly, dayPart),
   );
   const selectedDayPart =
     availableDayParts.find(({ dayPart }) => dayPart === activeDayPart) ??

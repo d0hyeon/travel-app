@@ -93,8 +93,13 @@ async function getRelations(postIds: string[]): Promise<Map<string, PostRelation
   }]))
 }
 
-export async function getFeed(): Promise<Post[]> {
-  const { data: posts, error } = await supabase.from('posts').select('*').order('created_at', { ascending: false })
+export async function getFeed(authorId?: string): Promise<Post[]> {
+  let query = supabase.from('posts').select('*').order('created_at', { ascending: false })
+  if (authorId != null) {
+    query = query.eq('author_id', authorId)
+  }
+
+  const { data: posts, error } = await query
   if (error) throw error
   const rows = posts ?? []
   const relationsByPostId = await getRelations(rows.map((post) => post.id))

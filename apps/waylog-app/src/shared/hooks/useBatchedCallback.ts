@@ -5,7 +5,6 @@ interface Options {
   once?: boolean
 }
 
-// 웹 shared/hooks/useBatchedCallback.ts 와 동일한 설계다.
 // 같은 프레임 안에서 여러 번 모인 항목을 한 번의 flush 로 묶는다.
 export function useBatchedCallback<T = never>(onFlush: (items: T[]) => void, { once = false }: Options = {}) {
   const itemsRef = useRef<T[]>([])

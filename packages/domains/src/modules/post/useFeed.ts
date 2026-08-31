@@ -4,7 +4,7 @@ import { getFeed, postKey } from './post.api'
 export function useFeed() {
   return useSuspenseQuery({
     queryKey: useFeed.key(),
-    queryFn: getFeed,
+    queryFn: () => getFeed(),
   })
 }
 

@@ -1,7 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { keepPreviousData } from '@tanstack/react-query'
 import type { Coordinate } from '@waylog/domains/modules/map'
 import { getRoadDirections, type RoadRoute } from '@waylog/domains/modules/route'
+import { useQuery } from '@waylog/react'
 import { isOverseasByCoordinate } from '@waylog/utility'
 
 // 웹과 같은 시그니처를 유지한다. 캐시 계층만 다르다 —
@@ -51,7 +52,7 @@ export function useRoadRoute({ waypoints, suspense = true }: UseRoadRouteOptions
     refetchInterval: false,
     refetchOnMount: false,
     placeholderData: keepPreviousData,
-    throwOnError: suspense,
+    suspense,
   })
 
   return { ...query, data: query.data ?? { coordinates: waypoints, legs: [] } }

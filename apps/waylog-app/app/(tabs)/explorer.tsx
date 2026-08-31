@@ -1,8 +1,8 @@
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
-import { ExplorerScreen } from '../../src/features/explorer/ExplorerScreen'
+import { ExplorerCatalogScreen } from '../../src/features/explorer/ExplorerCatalogScreen'
 
 export default function ExplorerTabRoute() {
   const bottomTabBarHeight = useBottomTabBarHeight()
 
-  return <ExplorerScreen bottomContentInset={bottomTabBarHeight} />
+  return <ExplorerCatalogScreen bottomContentInset={bottomTabBarHeight} />
 }

@@ -1,11 +1,9 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { deletePhoto, getPhotosByTripId, photoKey, updatePhoto, type Photo, type PhotoUpdate } from '@waylog/domains/modules/photo'
-import { findNearestPlace, tripKey, useTripPlaces } from '@waylog/domains/modules/trip'
+import { tripKey, useTripPlaces } from '@waylog/domains/modules/trip'
+import { queryClient as appQueryClient } from '../../../shared/query-client'
 import { uploadPhoto } from '../../photo/photo.api'
-import { toCoordinate } from '../../photo/exif.utils'
-
-// 웹과 같은 거리 기준을 쓴다 — web/features/photo/photo.utils.ts
-const PLACE_MATCH_DISTANCE_LIMIT = 500
+import { findNearestPlaceFromPhoto } from '../../photo/photo.utils'
 
 // 웹 useTripPhotos 와 같은 시그니처를 유지한다.
 // 웹은 File 을 받지만 앱은 picker 가 준 asset 을 받는다.
@@ -34,7 +32,7 @@ export function useTripPhotos(tripId: string) {
       for (const asset of assets) {
         const uploaded = await uploadPhoto({
           tripId,
-          placeId: placeId ?? findPlaceIdFromExif(asset.exif, places),
+          placeId: placeId ?? findNearestPlaceFromPhoto(asset.exif, places),
           uri: asset.uri,
           isPublic: false,
         })
@@ -69,17 +67,10 @@ export function useTripPhotos(tripId: string) {
 
 useTripPhotos.key = (tripId: string) => [tripKey, photoKey, tripId]
 
-/** 사진에 찍힌 좌표로 여행 장소를 추정한다. 웹 findNearestPlaceFromPhoto 와 같은 동작. */
-function findPlaceIdFromExif(
-  exif: Record<string, unknown> | null | undefined,
-  places: Array<{ placeId: string; lat: number; lng: number }>,
-): string | undefined {
-  const coordinate = toCoordinate(exif)
-  if (coordinate == null) return undefined
-
-  const nearest = findNearestPlace(coordinate, places, {
-    withinMeters: PLACE_MATCH_DISTANCE_LIMIT,
+/** 훅을 걸기 전에 캐시를 채운다. 웹 useTripPhotos.prefetch 와 같은 역할. */
+useTripPhotos.prefetch = (tripId: string) => {
+  void appQueryClient.prefetchQuery({
+    queryKey: useTripPhotos.key(tripId),
+    queryFn: () => getPhotosByTripId(tripId),
   })
-
-  return nearest?.placeId
 }

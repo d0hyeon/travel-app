@@ -1,9 +1,7 @@
-import { getHours } from "date-fns";
 import { useMemo } from "react";
+import { isInDayPart } from "./dayPart.utils";
 import { useDailyWeatherForecast, type UseDailyWeatherForecastParams } from "./useDailyWeatherForecast";
 import type { DayPart } from "./weather.types";
-
-const AFTERNOON_START_HOUR = 12;
 
 export interface UseHourlyForecastParams extends UseDailyWeatherForecastParams {
   dayPart?: DayPart;
@@ -20,13 +18,9 @@ export function useHourlyForecast({ dayPart, ...params }: UseHourlyForecastParam
     if (weatherForecast == null) return [];
 
     const { hourly } = weatherForecast.forecast;
-    if (dayPart === "am") {
-      return hourly.filter(x => getHours(x.forecastAt) < AFTERNOON_START_HOUR);
-    }
-    if (dayPart === "pm") {
-      return hourly.filter(x => getHours(x.forecastAt) >= AFTERNOON_START_HOUR);
-    }
-    return hourly;
+    if (dayPart == null) return hourly;
+
+    return hourly.filter(x => isInDayPart(x.forecastAt, dayPart));
   }, [dayPart, weatherForecast]);
 
   return { forecast: weatherForecast?.forecast ?? null, hourly };

@@ -1,7 +1,13 @@
+import { useTrip } from '@waylog/domains/modules/trip'
 import { useTripMembers } from '@waylog/domains/modules/trip-member'
+import { endOfDay, format as formatDate } from 'date-fns'
 import { forwardRef, useImperativeHandle } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import { DateField } from '../../../shared/components/date-picker'
 import { Chip, Stack, TextField, Typography } from '../../../shared/components/mui'
+
+// 웹과 저장 형식을 맞춘다.
+const DATE_TIME_PATTERN = 'yyyy-MM-dd HH:mm'
 
 export interface TripChecklistFormValue {
   title: string
@@ -25,9 +31,23 @@ interface Props {
 export const TripChecklistForm = forwardRef<TripChecklistFormRef, Props>(
   function TripChecklistForm({ tripId, defaultValues, onSubmit }, ref) {
     const { data: members } = useTripMembers(tripId)
-    const { control, handleSubmit, watch, setValue } = useForm<TripChecklistFormValue>({
+    const {
+      data: { endDate },
+    } = useTrip(tripId)
+    const {
+      control,
+      handleSubmit,
+      watch,
+      setValue,
+      formState: { errors },
+    } = useForm<TripChecklistFormValue>({
       defaultValues: { title: '', content: '', ...defaultValues },
     })
+
+    // 웹의 maxDate 를 승계한다. 앱 DateField 는 제약을 받지 않으므로 제출 시 검증한다.
+    const lastMoment = endOfDay(new Date(endDate))
+    const validateWithinTrip = (value?: string) =>
+      !value || new Date(value) <= lastMoment || '여행 종료일 이후로는 지정할 수 없습니다'
 
     useImperativeHandle(
       ref,
@@ -55,13 +75,47 @@ export const TripChecklistForm = forwardRef<TripChecklistFormRef, Props>(
           )}
         />
 
-        <Stack direction="row" gap={1}>
-          <Controller control={control} name="startedAt" render={({ field }) => (
-            <TextField placeholder="시작일" fullWidth variant="outlined" value={field.value ?? ''} onChangeText={field.onChange} />
-          )} />
-          <Controller control={control} name="endedAt" render={({ field }) => (
-            <TextField placeholder="종료일" fullWidth variant="outlined" value={field.value ?? ''} onChangeText={field.onChange} />
-          )} />
+        <Stack gap={0.5}>
+          <Stack direction="row" alignItems="center" gap={1}>
+            <Stack sx={{ flex: 1 }}>
+              <Controller
+                control={control}
+                name="startedAt"
+                rules={{ validate: validateWithinTrip }}
+                render={({ field }) => (
+                  <DateField
+                    type="dateTime"
+                    placeholder="시작"
+                    value={field.value ? new Date(field.value) : undefined}
+                    onChange={(date) => field.onChange(formatDate(date, DATE_TIME_PATTERN))}
+                  />
+                )}
+              />
+            </Stack>
+            <Typography variant="caption" color="text.secondary">
+              ~
+            </Typography>
+            <Stack sx={{ flex: 1 }}>
+              <Controller
+                control={control}
+                name="endedAt"
+                rules={{ validate: validateWithinTrip }}
+                render={({ field }) => (
+                  <DateField
+                    type="dateTime"
+                    placeholder="종료"
+                    value={field.value ? new Date(field.value) : undefined}
+                    onChange={(date) => field.onChange(formatDate(date, DATE_TIME_PATTERN))}
+                  />
+                )}
+              />
+            </Stack>
+          </Stack>
+          {(errors.startedAt ?? errors.endedAt) != null && (
+            <Typography variant="caption" color="error">
+              {errors.startedAt?.message ?? errors.endedAt?.message}
+            </Typography>
+          )}
         </Stack>
 
         <Controller

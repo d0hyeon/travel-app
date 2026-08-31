@@ -101,7 +101,7 @@
 apps/
 ├── waylog-app/                 # 네이티브 앱 (Expo SDK 54 + RN 0.81)
 │   ├── app/                    # Expo Router 라우트 (파일 기반)
-│   │   ├── _layout.tsx         # Provider 구성 (QueryClient·Auth·Overlay)
+│   │   ├── _layout.tsx         # Provider 구성 (QueryClient·Auth·Overlay·AuthErrorBoundary)
 │   │   ├── index.tsx           # 여행 목록
 │   │   ├── login.tsx
 │   │   ├── explorer.tsx        # 장소 탐색 카탈로그/지도
@@ -234,7 +234,9 @@ src/
 │   │   ├── useAuth.ts
 │   │   ├── useWebPushSubscription.ts
 │   │   ├── LoginPage.tsx
-│   │   └── AuthNavigate.tsx
+│   │   ├── AuthNavigate.tsx
+│   │   └── AuthErrorBoundary.tsx  # 세션 만료(AuthError) 시 로그인 화면으로 리다이렉트
+│   │                              # 앱 대응: waylog-app/src/features/auth/AuthErrorBoundary.tsx
 │   │
 │   ├── expense/                # 지출 도메인
 │   │   ├── expense.api.ts
@@ -347,6 +349,7 @@ src/
 │   │   ├── domestic-weather.api.ts # 기상청 예보 어댑터
 │   │   ├── weather.api.ts      # Open-Meteo 예보 어댑터
 │   │   ├── weather.types.ts
+│   │   ├── dayPart.utils.ts    # DayPart(am/pm) 시각 구간 판정 · 구간별 예보 유무 판정
 │   │   ├── useDailyWeatherForecast.ts
 │   │   └── useHourlyForecast.ts
 │   │
@@ -404,7 +407,7 @@ src/
 │       │   └── trip-chat-pannel/          # 채팅 패널 UI
 │       ├── trip-marine-activity/          # 여행 계획 탭용 해양 활동 지수 바/상세
 │       ├── trip-weather/                  # 여행 날짜별 날씨 UI
-│       │   ├── TripWeatherForecastSheet.tsx # DayPart(am/pm) 중 실제 시간별 데이터가 있는 구간만 노출
+│       │   ├── TripWeatherForecastSheet.tsx # DayPart(am/pm) 중 실제 시간별 데이터가 있는 구간만 노출 (판정은 weather/dayPart.utils)
 │       │   └── TripWeatherIconButton.tsx
 │       ├── trip-checklist/                # 체크리스트 탭
 │       ├── trip-community-routes/         # 커뮤니티 경로 탭
