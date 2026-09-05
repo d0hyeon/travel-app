@@ -32,7 +32,7 @@ function Resolved({ tripId }: Props) {
         <Typography variant="subtitle2" color="text.secondary">
           인원 ({members.length}명)
         </Typography>
-        <TripInviteButton tripId={tripId}>초대</TripInviteButton>
+        <TripInviteButton tripId={tripId} variant="contained">초대</TripInviteButton>
       </Stack>
 
       <Stack gap={1} sx={{ width: '100%' }}>

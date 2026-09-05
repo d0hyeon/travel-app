@@ -27,9 +27,11 @@ export function PastTripRow({ trip, onPress }: Props) {
             ) : (
               <>
                 <Typography sx={{ fontSize: 14, fontWeight: '900' }} numberOfLines={1}>{trip.name}</Typography>
-                <Stack direction="row" flexWrap="wrap" sx={{ gap: 4, marginTop: 4 }}>
-                  {trip.destinations.map((destination) => <DestinationChip key={destination} label={destination} />)}
-                </Stack>
+                {trip.destinations.length > 0 && (
+                  <Stack direction="row" flexWrap="wrap" sx={{ gap: 4, marginTop: 4 }}>
+                    {trip.destinations.map((destination) => <DestinationChip key={destination} label={destination} />)}
+                  </Stack>
+                )}
               </>
             )}
             <Stack direction="row" alignItems="center" gap={0.75} sx={{ marginTop: 8 }}>

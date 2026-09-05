@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { IconButton } from '../../../shared/components/mui/IconButton'
 import { palette } from '../../../shared/config/tokens'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
-import { FloatingControl } from '../trip-route/components/FloatingControl'
+import { FloatingControl } from '../components/FloatingControl'
 import { TripPlaceMapConfigDialog } from './TripPlaceMapConfigDialog'
 
 export function TripPlaceMapFloatingControls() {

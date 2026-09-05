@@ -25,9 +25,9 @@ export function TripInviteScreen() {
       }}
     >
       <ErrorBoundary
-        fallback={() => (
-          <Typography sx={{ color: '#d32f2f' }} textAlign="center">
-            유효하지 않은 초대입니다.
+        fallback={({ error }) => (
+          <Typography sx={{ color: palette.error }} textAlign="center">
+            {error.message}
           </Typography>
         )}
       >

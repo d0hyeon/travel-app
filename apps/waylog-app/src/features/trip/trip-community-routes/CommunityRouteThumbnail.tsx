@@ -9,7 +9,6 @@ import Svg, { Circle, Rect } from 'react-native-svg'
 const DOT_COLOR = '#1976d2'
 
 interface Props {
-  destinations: string[]
   previewRoutes: PreviewRoute[]
   width?: number
   height?: number

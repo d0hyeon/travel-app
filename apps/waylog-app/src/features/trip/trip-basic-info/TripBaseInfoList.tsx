@@ -5,7 +5,6 @@ import { useTrip } from "@waylog/domains/modules/trip";
 
 interface Props extends Omit<StackProps, 'direction'> {
   tripId: string;
-  editable?: boolean;
   size?: 'm' | 's';
   direction?: 'vertical' | 'horizontal'
 }
@@ -18,8 +17,9 @@ export function TripBaseInfoList({ direction = 'vertical', size = 'm', ...props 
   )
 }
 
-function Resolved({ tripId, editable, size, direction, ...props }: Props) {
+function Resolved({ tripId, size, direction, ...props }: Props) {
   const { data: trip } = useTrip(tripId);
+  const rowProps = toRowProps(direction);
 
   return (
     <Stack
@@ -27,17 +27,16 @@ function Resolved({ tripId, editable, size, direction, ...props }: Props) {
       direction="column"
       {...props}
     >
-      <Stack direction={direction === 'horizontal' ? 'row' : 'column'} justifyContent={direction === 'horizontal' ? 'space-between' : undefined}>
+      <Stack {...rowProps}>
         <Typography variant={size === 's' ? "caption" : "subtitle2"} color="text.secondary">
           목적지
         </Typography>
         <Typography variant={size === 's' ? 'body2' : "body1"}>{trip.destinations.join(', ')}</Typography>
       </Stack>
-      <Stack direction={direction === 'horizontal' ? 'row' : 'column'} justifyContent={direction === 'horizontal' ? 'space-between' : undefined}>
+      <Stack {...rowProps}>
         <Typography variant={size === 's' ? "caption" : "subtitle2"} color="text.secondary">
           여행 기간
         </Typography>
-        {/* 웹 모바일도 기간 편집을 노출하지 않는다 (editable 미사용) */}
         <Typography variant={size === 's' ? 'body2' : "body1"}>
           {formatShortDate(trip.startDate)} ~ {formatShortDate(trip.endDate)}
         </Typography>
@@ -48,20 +47,21 @@ function Resolved({ tripId, editable, size, direction, ...props }: Props) {
 
 
 function Pending({ size, direction, ...props }: Omit<Props, 'tripId'>) {
+  const rowProps = toRowProps(direction);
+
   return (
     <Stack
       gap={2}
-      direction={direction === 'horizontal' ? 'column' : 'row'}
-      justifyContent={direction === 'horizontal' ? 'space-between' : undefined}
+      direction="column"
       {...props}
     >
-      <Stack direction={direction === 'horizontal' ? 'column' : 'row'}>
+      <Stack {...rowProps}>
         <Typography variant={size === 's' ? "caption" : "subtitle2"} color="text.secondary">
           목적지
         </Typography>
         <Skeleton variant="text" />
       </Stack>
-      <Stack direction={direction === 'horizontal' ? 'column' : 'row'}>
+      <Stack {...rowProps}>
         <Typography variant={size === 's' ? "caption" : "subtitle2"} color="text.secondary">
           여행 기간
         </Typography>
@@ -69,4 +69,10 @@ function Pending({ size, direction, ...props }: Omit<Props, 'tripId'>) {
       </Stack>
     </Stack>
   )
+}
+
+function toRowProps(direction: 'vertical' | 'horizontal' = 'vertical') {
+  return direction === 'horizontal'
+    ? { direction: 'row' as const, justifyContent: 'space-between' as const }
+    : { direction: 'column' as const }
 }

@@ -1,4 +1,4 @@
-import { useCallback, type ComponentProps, type ReactNode } from 'react'
+import { useCallback, useRef, type ComponentProps, type ReactNode } from 'react'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { Button } from '../../../shared/components/mui'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
@@ -24,54 +24,69 @@ export function useExpenseFormBottomSheet(tripId: string) {
   const open = useCallback(
     ({ defaultValues, mode = 'create', renderActions, ...sheetProps }: OpenParams = {}) => {
       return new Promise<ExpenseFormValues | null>((resolve) => {
-        overlay.open(({ isOpen, close }) => {
-          const formRef = { current: null as ExpenseFormRef | null }
-
-          const cancel = () => {
-            resolve(null)
-            close()
-          }
-          const submit = () => formRef.current?.submit()
-
-          return (
-            <BottomSheet
-              isOpen={isOpen}
-              onDismiss={cancel}
-              safeArea
-              snapPoints={[0.8]}
-              defaultSnapIndex={0}
-              {...sheetProps}
-            >
-              <BottomSheet.Header>
-                {mode === 'edit' ? '결제 금액 수정' : '결제 금액'}
-              </BottomSheet.Header>
-              <BottomSheet.KeyboardAwareBody sx={{ paddingHorizontal: 16 }}>
-                <ExpenseForm
-                  ref={(instance) => {
-                    formRef.current = instance
-                  }}
-                  tripId={tripId}
-                  defaultValues={defaultValues}
-                  onSubmit={(data) => {
-                    resolve(data)
-                    close()
-                  }}
-                />
-              </BottomSheet.KeyboardAwareBody>
-              <BottomSheet.BottomActions>
-                {renderActions?.({ close: cancel, submit }) ?? (
-                  <ExpenseFormOverlayActions onCancel={cancel} onSubmit={submit} />
-                )}
-              </BottomSheet.BottomActions>
-            </BottomSheet>
-          )
-        })
+        overlay.open(({ isOpen, close }) => (
+          <ExpenseFormSheet
+            tripId={tripId}
+            defaultValues={defaultValues}
+            mode={mode}
+            renderActions={renderActions}
+            sheetProps={sheetProps}
+            isOpen={isOpen}
+            onSubmit={(data) => {
+              resolve(data)
+              close()
+            }}
+            onCancel={() => {
+              resolve(null)
+              close()
+            }}
+          />
+        ))
       })
     },
     [overlay, tripId],
   )
 
   return { open }
+}
+
+interface SheetProps {
+  tripId: string
+  defaultValues?: Partial<ExpenseFormValues>
+  mode: 'create' | 'edit'
+  renderActions?: (props: RenderProps) => ReactNode
+  sheetProps: Omit<ComponentProps<typeof BottomSheet>, 'isOpen' | 'onDismiss' | 'onClose' | 'children'>
+  isOpen: boolean
+  onSubmit: (data: ExpenseFormValues) => void
+  onCancel: () => void
+}
+
+function ExpenseFormSheet({ tripId, defaultValues, mode, renderActions, sheetProps, isOpen, onSubmit, onCancel }: SheetProps) {
+  const formRef = useRef<ExpenseFormRef>(null)
+  const submit = () => formRef.current?.submit()
+
+  return (
+    <BottomSheet
+      isOpen={isOpen}
+      onDismiss={onCancel}
+      safeArea
+      snapPoints={[0.8]}
+      defaultSnapIndex={0}
+      {...sheetProps}
+    >
+      <BottomSheet.Header>
+        {mode === 'edit' ? '결제 금액 수정' : '결제 금액'}
+      </BottomSheet.Header>
+      <BottomSheet.KeyboardAwareBody sx={{ paddingHorizontal: 16 }}>
+        <ExpenseForm ref={formRef} tripId={tripId} defaultValues={defaultValues} onSubmit={onSubmit} />
+      </BottomSheet.KeyboardAwareBody>
+      <BottomSheet.BottomActions>
+        {renderActions?.({ close: onCancel, submit }) ?? (
+          <ExpenseFormOverlayActions onCancel={onCancel} onSubmit={submit} />
+        )}
+      </BottomSheet.BottomActions>
+    </BottomSheet>
+  )
 }
 
 interface ActionsProps {

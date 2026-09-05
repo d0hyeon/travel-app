@@ -1,4 +1,5 @@
 import { useUnreadChatCount } from '@waylog/domains/modules/trip-chat'
+import { Suspense } from 'react'
 import { Box, Typography } from '../../../shared/components/mui'
 import { palette } from '../../../shared/config/tokens'
 import type { Sx } from '../../../shared/components/mui'
@@ -9,7 +10,15 @@ interface Props {
   sx?: Sx
 }
 
-export function TripUnreadCountBadge({ tripId, variant = 'fill', sx }: Props) {
+export function TripUnreadCountBadge(props: Props) {
+  return (
+    <Suspense fallback={null}>
+      <Resolved {...props} />
+    </Suspense>
+  )
+}
+
+function Resolved({ tripId, variant = 'fill', sx }: Props) {
   const count = useUnreadChatCount(tripId)
   if (count === 0) return null
 
@@ -28,7 +37,7 @@ export function TripUnreadCountBadge({ tripId, variant = 'fill', sx }: Props) {
         justifyContent: 'center',
         minWidth: 24,
         minHeight: 24,
-        ...(sx ?? {}),
+        ...sx,
       }}
     >
       <Typography

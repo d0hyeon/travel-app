@@ -38,7 +38,7 @@ export function PostVisibilityField({ defaultValue, onChange, hasTripContext }: 
               flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'space-between',
-              backgroundColor: selected ? '#EEF2FF' : palette.background,
+              backgroundColor: selected ? palette.primaryContainer : palette.background,
               opacity: disabled ? 0.4 : 1,
             }}
           >

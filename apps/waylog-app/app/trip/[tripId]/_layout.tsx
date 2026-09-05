@@ -6,6 +6,7 @@ import { palette } from '../../../src/shared/config/tokens'
 import { ErrorBoundary } from '@waylog/react'
 import { Button, Stack, Typography } from '../../../src/shared/components/mui'
 import { View } from 'react-native'
+import { TripDetailHeader } from '../../../src/features/trip/components/TripDetailHeader'
 
 // 웹 TripDetailPage.mobile 의 BottomNavigation 구성을 그대로 승계한다.
 // 정보 · 장소 · 계획 · 정산 · 사진
@@ -14,15 +15,18 @@ export default function TripDetailLayout() {
 
   return (
     <View style={{ flex: 1 }}>
-      <View style={{ flex: 1 }}>
-        <ErrorBoundary
-          fallback={({ resetError }) => (
-            <Stack sx={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-              <Typography color="text.secondary">여행 정보를 불러오지 못했어요</Typography>
-              <Button variant="contained" onClick={resetError} sx={{ marginTop: 12 }}>다시 시도</Button>
-            </Stack>
-          )}
-        >
+      <ErrorBoundary
+        fallback={({ resetError }) => (
+          <Stack sx={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+            <Typography color="text.secondary">여행 정보를 불러오지 못했어요</Typography>
+            <Button variant="contained" onClick={resetError} sx={{ marginTop: 12 }}>다시 시도</Button>
+          </Stack>
+        )}
+      >
+        <View style={{ paddingTop: insets.top }}>
+          <TripDetailHeader />
+        </View>
+        <View style={{ flex: 1 }}>
           <Tabs
             // 탭 전환 이력을 유지해 뒤로가기로 직전에 방문한 탭으로 돌아간다.
             backBehavior="history"
@@ -34,7 +38,6 @@ export default function TripDetailLayout() {
             )}
             screenOptions={{
               headerShown: false,
-              sceneStyle: { paddingTop: insets.top },
               tabBarActiveTintColor: palette.primary,
               tabBarInactiveTintColor: palette.grey,
             }}
@@ -48,8 +51,8 @@ export default function TripDetailLayout() {
             <Tabs.Screen name="checklist" options={{ href: null }} />
             <Tabs.Screen name="memo" options={{ href: null }} />
           </Tabs>
-        </ErrorBoundary>
-      </View>
+        </View>
+      </ErrorBoundary>
     </View>
   )
 }

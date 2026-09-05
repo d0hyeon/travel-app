@@ -14,7 +14,7 @@ import { useCurrentCoordinate } from '../../../shared/hooks/env/useCurrentCoordi
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
 import { palette } from '../../../shared/config/tokens'
-import { useRouteLegsPathList } from './components/useRouteLegsPathList'
+import { useRouteLegsPathList } from '../hooks/useRouteLegsPathList'
 import { TripRouteSelector } from './components/TripRouteSelector'
 import { TripRouteMapFloatingControls } from './components/TripRouteMapFloatingControls'
 import { PlaceSelectSheet } from './PlaceSelectSheet'
@@ -22,22 +22,14 @@ import { NoteEditor } from './RouteNoteList'
 import { TripRoutePlaceListItem } from './components/TripRoutePlaceListItem'
 import { Dot, RouteLegItem } from './RouteTimeline'
 import { useRouteLegs } from './useRouteLegs'
-import { usePlaceFormOverlay } from './usePlaceFormOverlay'
-import { FloatingControl } from './components/FloatingControl'
+import { useTripPlaceFormOverlay } from '../trip-place/trip-place-form/useTripPlaceFormOverlay'
+import { FloatingControl } from '../components/FloatingControl'
 import { useActiveTripDay } from './useActiveTripDay'
 import { TripMarineActivityMapMarkers } from '../trip-marine-activity/TripMarineActivityMapMarkers'
 import { TripWeatherIconButton } from '../trip-weather/TripWeatherIconButton'
-import { TripDetailHeader } from '../components/TripDetailHeader'
 import { ActionSheet } from '../../../shared/components/action-sheet/ActionSheet'
-import { Alert } from 'react-native'
-
-// 경로별 색상 팔레트 — 웹 값(#1976d2, #e53935, #43a047, #fb8c00, #8e24aa, #00acc1)에서
-// 채도를 낮추고 명도를 올려, 네이티브 지도 렌더링에서 과하게 쨍해 보이지 않도록 앱 전용으로 조정했다.
-const ROUTE_COLORS = ['#78a4cf', '#da9d9b', '#88b78a', '#deb179', '#ad6bbe', '#4bc3d2']
-
-function getRouteColor(index: number): string {
-  return ROUTE_COLORS[index % ROUTE_COLORS.length]!
-}
+import { useTripViewConfigValue } from './useTripViewConfig'
+import { getRouteColor } from '../trip-expense/routeExpenseView.utils'
 
 const BOTTOM_SHEET_RATIOS = [0.25, 0.5, 0.8, 1] as const
 const DEFAULT_BOTTOM_SHEET_RATIO = 0.5 satisfies (typeof BOTTOM_SHEET_RATIOS)[number]
@@ -48,7 +40,7 @@ interface RouteContentProps {
 
 export default function TripRoutesContent({ tripId }: RouteContentProps) {
   const { data: trip } = useTrip(tripId)
-  const { data: allPlaces, update: updatePlace } = useTripPlaces(tripId)
+  const { data: allPlaces } = useTripPlaces(tripId)
 
   // 웹과 같은 훅을 쓴다. 기본값 계산은 공유 getDefaultTripDay 가 한다.
   const { value: selectedDate, update: setSelectedDate } = useActiveTripDay(tripId)
@@ -87,9 +79,10 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
 
   const currentPlaces = currentRoute?.places ?? []
 
+  const viewConfig = useTripViewConfigValue()
   const mapRef = useRef<MapRef>(null)
   const overlay = useOverlay()
-  const { openBottomsheet: openPlaceEditor } = usePlaceFormOverlay()
+  const { openBottomSheet: openPlaceEditor } = useTripPlaceFormOverlay()
 
   // 여행 중이면 현재 위치로 이동하고 가장 가까운 장소를 잡아준다.
   const today = formatDisplayDate(new Date())
@@ -115,7 +108,6 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
 
   return (
     <>
-      <TripDetailHeader />
       <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
         <FloatingControl corner="top-left" zIndex={8}>
           <TripWeatherIconButton tripId={tripId} />
@@ -134,8 +126,17 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
         )}
         {/* 웹은 calc(%-10px) 를 쓰지만 RN 은 계산식을 못 읽는다. 비율만 남긴다. */}
         <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `${sheetRatio * 100}%` }}>
-          <Map ref={mapRef} defaultCenter={{ lat: trip.lat, lng: trip.lng }} autoFocus="path">
+          <Map
+            ref={mapRef}
+            defaultCenter={currentCoordinate ?? { lat: trip.lat, lng: trip.lng }}
+            autoFocus="path"
+            clustering={viewConfig.isCluasterlingView}
+            clusterGridSize={50}
+          >
             <TripMarineActivityMapMarkers tripId={trip.id} />
+            {isOngoingTrip && currentCoordinate != null && (
+              <Map.Marker id="current-location" variant="circle" lat={currentCoordinate.lat} lng={currentCoordinate.lng} />
+            )}
             {[
               ...routes.flatMap((route, routeIndex) => {
                 const isSelectedRoute = route.id === currentRoute?.id
@@ -150,11 +151,13 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                   />
                 ))
               }),
-              ...allPlaces.map((place) => {
+              ...allPlaces.flatMap((place) => {
                 const isInCurrentRoute = currentRoute?.placeIds.includes(place.id) ?? false
                 const orderInRoute = currentRoute?.placeIds.indexOf(place.id) ?? -1
 
-                return (
+                if (!viewConfig.isVisibleAllMarkers && !isInCurrentRoute) return []
+
+                return [
                   <Map.Marker
                     key={place.id}
                     lat={place.lat}
@@ -169,10 +172,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                       overlay.open(({ isOpen, close }) => (
                         <ActionSheet isOpen={isOpen} onClose={close}>
                           <ActionSheet.Item
-                            onClick={async () => {
-                              const updated = await openPlaceEditor({ tripId, placeId: place.id, defaultValues: place })
-                              if (updated) await updatePlace({ ...place, ...updated })
-                            }}
+                            onClick={() => openPlaceEditor({ tripId, placeId: place.id })}
                           >
                             장소 수정
                           </ActionSheet.Item>
@@ -191,8 +191,8 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                         </ActionSheet>
                       ))
                     }}
-                  />
-                )
+                  />,
+                ]
               }),
             ]}
           </Map>
@@ -213,18 +213,20 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
         >
           <BottomSheet.Body>
             {/* 여행 일자 선택 — 바텀시트 상단에 고정하고, 아래 목록만 스크롤한다 */}
-            <Tabs
-              value={selectedDate}
-              onChange={(_, date) => {
-                setSelectedDate(date)
-                setSelectedRouteId('')
-              }}
-              scrollable
-            >
-              {tripDates.map((date, index) => (
-                <Tab key={date} value={date} label={`${index + 1}일차`} />
-              ))}
-            </Tabs>
+            {tripDates.length > 1 && (
+              <Tabs
+                value={selectedDate}
+                onChange={(_, date) => {
+                  setSelectedDate(date)
+                  setSelectedRouteId('')
+                }}
+                scrollable
+              >
+                {tripDates.map((date) => (
+                  <Tab key={date} value={date} label={formatShortDate(date)} />
+                ))}
+              </Tabs>
+            )}
             <BottomSheet.GestureArea sx={{ flex: 1, minHeight: 1 }}>
               <Box sx={{ flex: 1, minHeight: 1 }}>
                 <SortableList
@@ -320,7 +322,6 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                               onChange={(memos) =>
                                 updateNotes({ placeId: place.id, routeId: currentRoute.id, memos })
                               }
-                              action="dialog"
                             />
                           </TripRoutePlaceListItem>
                         </SortableList.Item>
@@ -338,6 +339,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
           size="large"
           variant="contained"
           fullWidth
+          disabled={currentRoute == null}
           onClick={() => {
             overlay.open(({ isOpen, close }) => (
               <PlaceSelectSheet

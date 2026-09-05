@@ -28,27 +28,16 @@ function Resolved({ tripId }: Props) {
   const overlay = useOverlay();
 
   const handleAdd = () => {
-    overlay.open(({ isOpen, close }) => {
-      const formRef = { current: null as TripMemoFormRef | null };
-      return (
-        <BottomSheet isOpen={isOpen} onDismiss={close} safeArea>
-          <BottomSheet.Header>새 메모</BottomSheet.Header>
-          <BottomSheet.Body sx={{ paddingHorizontal: 16 }}>
-            <TripMemoForm
-              ref={(instance) => { formRef.current = instance }}
-              onSubmit={async ({ title, content }) => {
-                await add({ title: title || null, content });
-                close();
-              }}
-            />
-          </BottomSheet.Body>
-          <BottomSheet.BottomActions>
-            <Button onClick={close} variant="outlined" fullWidth>취소</Button>
-            <Button onClick={() => formRef.current?.submit()} variant="contained" fullWidth>저장</Button>
-          </BottomSheet.BottomActions>
-        </BottomSheet>
-      );
-    });
+    overlay.open(({ isOpen, close }) => (
+      <TripMemoFormSheet
+        isOpen={isOpen}
+        onClose={close}
+        onSubmit={async ({ title, content }) => {
+          await add({ title: title || null, content });
+          close();
+        }}
+      />
+    ));
   };
 
   return (
@@ -75,6 +64,29 @@ function Resolved({ tripId }: Props) {
         <MaterialIcons name="add" size={24} color="#fff" />
       </Fab>
     </Stack>
+  );
+}
+
+interface TripMemoFormSheetProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (value: { title: string | null; content: string }) => Promise<void>;
+}
+
+function TripMemoFormSheet({ isOpen, onClose, onSubmit }: TripMemoFormSheetProps) {
+  const formRef = useRef<TripMemoFormRef>(null);
+
+  return (
+    <BottomSheet isOpen={isOpen} onDismiss={onClose} safeArea>
+      <BottomSheet.Header>새 메모</BottomSheet.Header>
+      <BottomSheet.Body sx={{ paddingHorizontal: 16 }}>
+        <TripMemoForm ref={formRef} onSubmit={onSubmit} />
+      </BottomSheet.Body>
+      <BottomSheet.BottomActions>
+        <Button onClick={onClose} variant="outlined" fullWidth>취소</Button>
+        <Button onClick={() => formRef.current?.submit()} variant="contained" fullWidth>저장</Button>
+      </BottomSheet.BottomActions>
+    </BottomSheet>
   );
 }
 

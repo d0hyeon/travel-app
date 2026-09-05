@@ -55,10 +55,10 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
     defaultValues: {
       description: '',
       date: '',
-      currency: (currencies[0]?.code ?? 'KRW') as CurrencyCode,
+      currency: currencies[0]?.code ?? 'KRW',
       payments: myMemberId != null ? [{ memberId: myMemberId, amount: 0 }] : [],
-      splitAmong: members.map((member) => member.id),
       ...defaultValues,
+      splitAmong: defaultValues?.splitAmong ?? members.map((member) => member.id),
     },
   })
   const { fields: paymentFields, append, remove } = useFieldArray({ control, name: 'payments' })
@@ -79,12 +79,13 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
     ref,
     () => ({
       submit: () =>
-        void handleSubmit((values) =>
+        void handleSubmit((values) => {
+          if (values.splitAmong.length === 0) return
           onSubmit({
             ...values,
             payments: values.payments.filter((payment) => payment.memberId !== '' && payment.amount > 0),
-          }),
-        )(),
+          })
+        })(),
     }),
     [handleSubmit, onSubmit],
   )
@@ -104,7 +105,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
                 size="small"
                 variant={currency === item.code ? 'filled' : 'outlined'}
                 color={currency === item.code ? 'primary' : 'default'}
-                onClick={() => setValue('currency', item.code as CurrencyCode)}
+                onClick={() => setValue('currency', item.code)}
               />
             ))}
           </Stack>

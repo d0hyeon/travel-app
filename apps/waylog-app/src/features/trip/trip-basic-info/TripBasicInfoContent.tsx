@@ -15,7 +15,6 @@ import { TripMemo } from '../trip-memo/TripMemo'
 import { TripBaseInfoList } from './TripBaseInfoList'
 import { TripDDay } from './TripDDay'
 import { TripLeaveButton } from '../components/TripLeaveButton'
-import { TripDetailHeader } from '../components/TripDetailHeader'
 import { TripPostCreateCard } from './TripPostCreateCard'
 
 interface Props {
@@ -28,7 +27,6 @@ export function TripBasicInfoContent({ tripId }: Props) {
 
   return (
     <Stack sx={{ flex: 1, minHeight: 0 }}>
-      <TripDetailHeader />
       <Tabs value={currentTab} onChange={(_, value) => setCurrentTab(value)}>
         <Tab value="default" label="기본정보" />
         <Tab value="checklist" label="체크리스트" />
@@ -63,13 +61,9 @@ export function TripBasicInfoContent({ tripId }: Props) {
                 }}
               />
 
-              <ErrorBoundary>
-                <TripDeadlineChecklist tripId={tripId} gap={1} throwOnEmpty />
-              </ErrorBoundary>
+              <TripDeadlineChecklist tripId={tripId} gap={1} hideOnEmpty />
 
-              <ErrorBoundary>
-                <TripPinnedMemos tripId={tripId} throwOnEmpty />
-              </ErrorBoundary>
+              <TripPinnedMemos tripId={tripId} hideOnEmpty />
 
               <Stack gap={1} sx={{ width: '100%' }}>
                 <RecommendedPlaceListSection

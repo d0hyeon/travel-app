@@ -7,7 +7,7 @@ import { usePlacePhotos } from './useTripPlacePhotos'
 
 interface PlacePhotoSectionProps {
   tripId: string
-  placeId: string | undefined
+  placeId: string
 }
 
 /**
@@ -18,7 +18,6 @@ export function PlacePhotoSection({ tripId, placeId }: PlacePhotoSectionProps) {
   const { data: photos, upload, remove } = usePlacePhotos(tripId, placeId)
 
   const addPhoto = async () => {
-    if (placeId == null) return
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync()
     if (!permission.granted) return
     const result = await ImagePicker.launchImageLibraryAsync({

@@ -105,7 +105,15 @@ function PostPlaces({ places, onPlacePress }: Pick<Post, 'places'> & { onPlacePr
       <View style={{ height: 300, borderRadius: 12, overflow: 'hidden' }}>
         <Map defaultCenter={firstPlace}>
           {places.map((place) => (
-            <Map.Marker key={place.placeId} id={place.placeId} label={place.name} lat={place.lat} lng={place.lng} variant="pin" />
+            <Map.Marker
+              key={place.placeId}
+              id={place.placeId}
+              label={place.name}
+              lat={place.lat}
+              lng={place.lng}
+              variant="pin"
+              onClick={() => onPlacePress(place.placeId)}
+            />
           ))}
         </Map>
       </View>

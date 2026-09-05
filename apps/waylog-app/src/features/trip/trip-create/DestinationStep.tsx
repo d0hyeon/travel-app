@@ -17,11 +17,10 @@ export function DestinationStep({ defaultValue, onNext }: Props) {
       onSubmit={(locations) => {
         onNext(LocationOptions.filter((options) => locations.includes(options.name)))
       }}
-      renderActions={(params) => (
-        <BottomArea>
-          <LocationForm.SubmitButton {...params}>다음</LocationForm.SubmitButton>
-        </BottomArea>
-      )}
-    />
+    >
+      <BottomArea position="fixed" bottom={0}>
+        <LocationForm.SubmitButton>다음</LocationForm.SubmitButton>
+      </BottomArea>
+    </LocationForm>
   )
 }

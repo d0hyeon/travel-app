@@ -3,7 +3,10 @@
 
 export const palette = {
   primary: '#4C84FF',
+  primaryContainer: '#EEF2FF',
   warning: '#d68d06',
+  error: '#d32f2f',
+  errorContainer: '#FFEBEE',
   grey: '#787c7e',
   info: '#333',
   success: '#66BB6A',

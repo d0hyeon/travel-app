@@ -1,12 +1,8 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import type { ReactNode } from 'react'
-import { Modal, Pressable } from 'react-native'
-import { Box, Button, Stack, Switch, Typography } from '../../../../shared/components/mui'
 import { IconButton } from '../../../../shared/components/mui/IconButton'
-import { palette, radius } from '../../../../shared/config/tokens'
+import { palette } from '../../../../shared/config/tokens'
 import { useOverlay } from '../../../../shared/hooks/useOverlay'
-import { useTripViewConfig } from '../useTripViewConfig'
-import { FloatingControl } from './FloatingControl'
+import { FloatingControl } from '../../components/FloatingControl'
 import { TripRouteMapConfigDialog } from './TripRouteMapConfigDialog'
 
 export function TripRouteMapFloatingControls() {

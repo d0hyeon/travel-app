@@ -40,7 +40,7 @@ export function Button({
   sx,
 }: ButtonProps) {
   const dims = SIZE[size]
-  const main = color === 'error' ? '#d32f2f' : palette.primary
+  const main = color === 'error' ? palette.error : palette.primary
   const isInactive = disabled === true || loading === true
   const textColor = variant === 'contained' ? '#fff' : main
 

@@ -34,8 +34,10 @@ export function ChatPushNoticeCard(props: Props) {
             sx={{ borderRadius: 20 }}
             onClick={() => {
               startTransition(async () => {
-                const isGranted = await push.requestPermission()
-                if (!isGranted) return
+                if (!push.hasPermission) {
+                  const isGranted = await push.requestPermission()
+                  if (!isGranted) return
+                }
 
                 await push.subscribe()
               })
@@ -45,7 +47,7 @@ export function ChatPushNoticeCard(props: Props) {
           </Button>
         ) : (
           <NotificationCard.Text textAlign="center">
-            설정에서 알림을 킬 수 있어요.
+            설정에서 알림을 켤 수 있어요.
           </NotificationCard.Text>
         )}
       </NotificationCard>

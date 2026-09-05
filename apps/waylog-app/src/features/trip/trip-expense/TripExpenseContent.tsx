@@ -1,7 +1,7 @@
 import { useExpenses } from '@waylog/domains/modules/expense'
 import { useTripMembers } from '@waylog/domains/modules/trip-member'
 import { MaterialIcons } from '@expo/vector-icons'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { ScrollView } from 'react-native'
 import { Box, Button, Stack, Tab, Tabs, Typography } from '../../../shared/components/mui'
 import { palette } from '../../../shared/config/tokens'
@@ -12,7 +12,6 @@ import { SettlementSummary } from './SettlementSummary'
 import { useExpenseFormBottomSheet } from './useExpenseFormOverlay'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
-import { TripDetailHeader } from '../components/TripDetailHeader'
 
 interface Props {
   tripId: string
@@ -29,18 +28,17 @@ export default function TripExpenseContent({ tripId }: Props) {
   const hasMember = members.length > 0
 
   const handleAddExpense = async () => {
-    if (!hasMember) return
     const data = await formBottomSheet.open()
     if (data) create(data)
   }
 
   const handleOpenRouteExpense = () => {
-
-    if (!hasMember) return
     overlay.open(({ isOpen, close }) => (
       <BottomSheet isOpen={isOpen} onDismiss={close} snapPoints={[0.95]} defaultSnapIndex={0}>
         <BottomSheet.Body>
-          <RouteExpenseView tripId={tripId} />
+          <Suspense fallback={null}>
+            <RouteExpenseView tripId={tripId} />
+          </Suspense>
         </BottomSheet.Body>
       </BottomSheet>
     ))
@@ -48,7 +46,6 @@ export default function TripExpenseContent({ tripId }: Props) {
 
   return (
     <Box sx={{ flex: 1, backgroundColor: palette.background }}>
-      <TripDetailHeader />
       <ExpenseHeader tripId={tripId} />
 
       <Tabs fullWidth value={currentSubTab} onChange={(_, value) => selectSubTab(value as SubTab)}>

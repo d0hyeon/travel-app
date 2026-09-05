@@ -12,7 +12,6 @@ import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { palette } from '../../../shared/config/tokens'
 import { useTripPhotos } from './useTripPhotos'
 import { usePhotoViewerState } from './usePhotoViewerState'
-import { TripDetailHeader } from '../components/TripDetailHeader'
 import { ZoomArea } from '../../../shared/components/photo/ZoomArea'
 import { LoadableImage } from '../../../shared/components/LoadableImage'
 
@@ -21,16 +20,6 @@ const GAP = 2
 
 interface Props {
   tripId: string
-}
-
-/**
- * 사진 탭 데이터를 미리 받아 둔다. 웹 TripPhotoContent.mobile 의 preload 와 같은 역할.
- *
- * Expo Router 에는 라우트 진입 전에 이 함수를 불러 주는 지점이 없어
- * 아직 호출부가 없다. 탭 전환 직전 연결은 향후 과제로 남긴다.
- */
-export function preload(tripId: string) {
-  useTripPhotos.prefetch(tripId)
 }
 
 export function TripPhotoContent({ tripId }: Props) {
@@ -112,7 +101,6 @@ export function TripPhotoContent({ tripId }: Props) {
 
   return (
     <Box sx={{ flex: 1, backgroundColor: palette.background }}>
-      <TripDetailHeader />
       {/* 웹과 같이 장소 필터와 선택/완료 버튼을 한 행에 둔다. */}
       <Stack
         direction="row"
