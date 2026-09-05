@@ -70,7 +70,6 @@ function CommunityTripCard({ trip, onClick }: { trip: CommunityTrip; onClick: ()
         }}
       >
         <CommunityRouteThumbnail
-          destinations={trip.destinations}
           previewRoutes={trip.previewRoutes}
           width={140}
           height={80}
