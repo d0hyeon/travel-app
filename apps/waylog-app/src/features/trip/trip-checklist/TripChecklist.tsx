@@ -8,12 +8,9 @@ import { Suspense, useMemo, type ComponentProps, type MouseEvent } from "react";
 import { match, P } from 'ts-pattern';
 import { ListItem } from "../../../shared/components/ListItem";
 import { SwitchCase } from "../../../shared/components/SwitchCase";
-import { useOverlay } from "../../../shared/hooks/useOverlay";
 import { assert } from '@waylog/utility';
 import { useConfirmDialog } from "../../../shared/components/confirm-dialog/useConfirmDialog";
-import { BottomSheet } from "../../../shared/components/bottom-sheet/BottomSheet";
-import { Button } from "../../../shared/components/mui";
-import { TripChecklistForm, type TripChecklistFormRef } from "./TripChecklistForm";
+import { TripChecklistModifyMenuItem } from "./TripChecklistModifyMenuItem";
 import { formatRemainTime } from "@waylog/utility";
 import { useTripMembers } from '@waylog/domains/modules/trip-member';
 import { ERROR_DAYS_FROM_DEADLINE, WARNING_DAYS_FROM_DEADLINE } from '@waylog/domains/modules/trip-checklist';
@@ -245,55 +242,17 @@ type CheckMenuProps = {
 }
 
 function TripChecklistMenu({ id, tripId }: CheckMenuProps) {
-  const { data: { checklist }, remove, update } = useTripChecklist(tripId);
+  const { data: { checklist }, remove } = useTripChecklist(tripId);
   const confirm = useConfirmDialog();
-  const overlay = useOverlay();
 
-  const openEditor = () => {
-    const target = checklist.find(x => x.id === id);
-    if (target == null) return;
-
-    overlay.open(({ isOpen, close }) => {
-      const formRef = { current: null as TripChecklistFormRef | null };
-
-      return (
-        <BottomSheet isOpen={isOpen} onDismiss={close} snapPoints={[0.6]} defaultSnapIndex={0}>
-          <BottomSheet.Header>할 일 수정</BottomSheet.Header>
-          <BottomSheet.Body sx={{ paddingHorizontal: 16 }}>
-            <TripChecklistForm
-              ref={(instance) => { formRef.current = instance }}
-              tripId={tripId}
-              defaultValues={{
-                title: target.title,
-                content: target.content,
-                startedAt: target.startedAt,
-                endedAt: target.endedAt,
-                memberId: target.memberId,
-              }}
-              onSubmit={async (value) => {
-                await update({ id, ...value });
-                close();
-              }}
-            />
-          </BottomSheet.Body>
-          <BottomSheet.BottomActions>
-            <Button variant="outlined" fullWidth onClick={close}>취소</Button>
-            <Button variant="contained" fullWidth onClick={() => formRef.current?.submit()}>저장</Button>
-          </BottomSheet.BottomActions>
-        </BottomSheet>
-      );
-    });
-  };
+  const target = checklist.find(x => x.id === id);
+  assert(target != null, '존재하지 않는 항목입니다.');
 
   return (
     <PopMenu
       items={
         <>
-          <PopMenu.Item
-            onClick={openEditor}
-          >
-            수정
-          </PopMenu.Item>
+          <TripChecklistModifyMenuItem tripId={tripId} item={target} />
           <PopMenu.Item
             color="error"
             onClick={async () => {
