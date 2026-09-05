@@ -42,13 +42,19 @@ export function useNativePushSubscription() {
 
   const isSubscribed = registeredSubscription != null
 
+  const { data: permissionStatus, refetch: refetchPermission } = useSuspenseQuery({
+    queryKey: ['push_permission'],
+    queryFn: () => Notifications.getPermissionsAsync().then(({ status }) => status),
+  })
+  const hasPermission = permissionStatus === 'granted'
+
   const requestPermission = useCallback(async () => {
-    const { status: existing } = await Notifications.getPermissionsAsync()
-    if (existing === 'granted') return true
+    if (hasPermission) return true
 
     const { status } = await Notifications.requestPermissionsAsync()
+    await refetchPermission()
     return status === 'granted'
-  }, [])
+  }, [hasPermission, refetchPermission])
 
   const subscribe = useCallback(async () => {
     if (!isEnabled) {
@@ -85,6 +91,7 @@ export function useNativePushSubscription() {
   return {
     isEnabled,
     isSubscribed,
+    hasPermission,
     requestPermission,
     subscribe,
     unsubscribe,
