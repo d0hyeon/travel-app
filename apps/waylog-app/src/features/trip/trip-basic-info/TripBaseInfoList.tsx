@@ -19,6 +19,7 @@ export function TripBaseInfoList({ direction = 'vertical', size = 'm', ...props 
 
 function Resolved({ tripId, size, direction, ...props }: Props) {
   const { data: trip } = useTrip(tripId);
+  const rowProps = toRowProps(direction);
 
   return (
     <Stack
@@ -26,13 +27,13 @@ function Resolved({ tripId, size, direction, ...props }: Props) {
       direction="column"
       {...props}
     >
-      <Stack direction={direction === 'horizontal' ? 'row' : 'column'} justifyContent={direction === 'horizontal' ? 'space-between' : undefined}>
+      <Stack {...rowProps}>
         <Typography variant={size === 's' ? "caption" : "subtitle2"} color="text.secondary">
           목적지
         </Typography>
         <Typography variant={size === 's' ? 'body2' : "body1"}>{trip.destinations.join(', ')}</Typography>
       </Stack>
-      <Stack direction={direction === 'horizontal' ? 'row' : 'column'} justifyContent={direction === 'horizontal' ? 'space-between' : undefined}>
+      <Stack {...rowProps}>
         <Typography variant={size === 's' ? "caption" : "subtitle2"} color="text.secondary">
           여행 기간
         </Typography>
@@ -46,19 +47,21 @@ function Resolved({ tripId, size, direction, ...props }: Props) {
 
 
 function Pending({ size, direction, ...props }: Omit<Props, 'tripId'>) {
+  const rowProps = toRowProps(direction);
+
   return (
     <Stack
       gap={2}
       direction="column"
       {...props}
     >
-      <Stack direction={direction === 'horizontal' ? 'row' : 'column'} justifyContent={direction === 'horizontal' ? 'space-between' : undefined}>
+      <Stack {...rowProps}>
         <Typography variant={size === 's' ? "caption" : "subtitle2"} color="text.secondary">
           목적지
         </Typography>
         <Skeleton variant="text" />
       </Stack>
-      <Stack direction={direction === 'horizontal' ? 'row' : 'column'} justifyContent={direction === 'horizontal' ? 'space-between' : undefined}>
+      <Stack {...rowProps}>
         <Typography variant={size === 's' ? "caption" : "subtitle2"} color="text.secondary">
           여행 기간
         </Typography>
@@ -66,4 +69,10 @@ function Pending({ size, direction, ...props }: Omit<Props, 'tripId'>) {
       </Stack>
     </Stack>
   )
+}
+
+function toRowProps(direction: 'vertical' | 'horizontal' = 'vertical') {
+  return direction === 'horizontal'
+    ? { direction: 'row' as const, justifyContent: 'space-between' as const }
+    : { direction: 'column' as const }
 }
