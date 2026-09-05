@@ -1,11 +1,12 @@
-import { memo, useEffect, type ReactNode } from 'react'
+import { memo, useEffect, useState, type ReactNode } from 'react'
 import { usePreservedCallback } from '@waylog/react'
-import { Marker } from 'react-native-maps'
+import Mapbox from '@rnmapbox/maps'
 import { resolveMarkerColor, type MarkerProps } from '@waylog/domains/modules/map'
-import { Image, View } from 'react-native'
+import { Image, Pressable, View } from 'react-native'
 import Svg, { Circle, Path } from 'react-native-svg'
 import { Typography } from '../mui'
 import { useMapContext } from './MapContext'
+import { NativeMapTooltip } from './NativeMapTooltip'
 
 // 웹 MarkerProps 를 그대로 받는다.
 // hover·우클릭이 없는 자리는 길게 누르기로 대응한다.
@@ -19,8 +20,8 @@ interface NativeMarkerProps extends MarkerProps {
 // 라벨은 콘텐츠 크기에 맞추되, 지도를 과하게 가리지 않도록 상한을 둔다.
 const MAX_LABEL_WIDTH = 120
 
-// 시각 크기는 줄이되, 터치 영역은 그보다 넓게 둔다. react-native-maps 는
-// hitSlop 이 없어 Marker 의 실제 렌더 크기가 곧 터치 영역이므로, 아이콘을
+// 시각 크기는 줄이되, 터치 영역은 그보다 넓게 둔다. Mapbox MarkerView 는
+// hitSlop 이 없어 자식 뷰의 실제 렌더 크기가 곧 터치 영역이므로, 아이콘을
 // 투명 패딩으로 감싸 터치 영역만 키운다.
 const TOUCH_TARGET_SIZE = 44
 const PIN_SIZE = { width: 17, height: 25 }
@@ -28,7 +29,6 @@ const CIRCLE_SIZE = 18
 const THUMBNAIL_SIZE = 38
 
 function NativeMapMarkerView({
-  id,
   lat,
   lng,
   label,
@@ -55,65 +55,65 @@ function NativeMapMarkerView({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // tracksViewChanges 를 겉모습이 바뀔 때마다 토글하면, 줌으로 마커 여러 개의
-  // variant 가 한꺼번에 바뀔 때 네이티브 스냅샷 재캡처가 몰려 크래시로 이어진다.
-  // 대신 겉모습을 이 Marker 엘리먼트의 key 에 실어 React 가 새 인스턴스로
-  // 마운트하게 한다 — 형제가 하나뿐이어도 key 가 바뀌면 재조정은 언마운트+마운트로
-  // 처리하므로, 소비자 쪽 key 없이 이 컴포넌트 내부에서만 해결된다.
-  // 마운트 시점엔 항상 스냅샷이 한 번 찍히므로 tracksViewChanges 는 계속 false 로 둔다.
-  const appearanceKey = `${label ?? ''}:${variant}:${resolved}:${opacity}:${outlined ?? false}:${thumbnailUrl ?? ''}`
+  const [isTooltipVisible, setIsTooltipVisible] = useState(false)
+  const tooltipText = toTooltipText(tooltip)
 
   return (
-    <Marker
-      key={appearanceKey}
-      identifier={id}
-      coordinate={{ latitude: lat, longitude: lng }}
-      anchor={{ x: 0.5, y: 1 }}
-      tracksViewChanges={false}
-      // 웹은 hover 로 보여주지만 네이티브에는 hover 가 없다.
-      // 같은 정보를 말풍선으로 띄운다.
-      title={toTooltipText(tooltip)}
-      onPress={handleClick}
-      onCalloutPress={handleContextMenu}
-    >
-      {/* 웹 marker.renderers 의 모양을 그대로 옮긴다. */}
-      <View style={{ minWidth: 44, minHeight: 48, alignItems: 'center', justifyContent: 'flex-end' }}>
-        {label != null && (
-          <View
-            style={{
-              maxWidth: MAX_LABEL_WIDTH,
-              backgroundColor: resolved,
-              paddingHorizontal: 6,
-              paddingVertical: 2,
-              borderRadius: 10,
-              marginBottom: 2,
-            }}
-          >
-            <Typography
-              numberOfLines={1}
-              ellipsizeMode="tail"
-              sx={{ color: '#fff', fontSize: 11, fontWeight: '900' }}
-            >
-              {label}
-            </Typography>
-          </View>
-        )}
-
-        {/* 시각 크기(MarkerShape)보다 터치 영역을 넓게 둔다. 하단 정렬로 감싸
-            앵커(좌표가 가리키는 지점)는 아이콘의 실제 바닥과 그대로 맞는다. */}
-        <View style={{ minWidth: TOUCH_TARGET_SIZE, minHeight: TOUCH_TARGET_SIZE, alignItems: 'center', justifyContent: 'flex-end' }}>
-          {icon ?? (
-            <MarkerShape
-              variant={variant}
-              color={resolved}
-              opacity={opacity}
-              outlined={outlined}
-              thumbnailUrl={thumbnailUrl}
+    <Mapbox.MarkerView coordinate={[lng, lat]} anchor={{ x: 0.5, y: 1 }}>
+      <Pressable
+        onPress={() => {
+          handleClick()
+          if (tooltipText != null) setIsTooltipVisible((visible) => !visible)
+        }}
+        onLongPress={handleContextMenu}
+      >
+        {/* 웹 marker.renderers 의 모양을 그대로 옮긴다. */}
+        <View style={{ minWidth: 44, minHeight: 48, alignItems: 'center', justifyContent: 'flex-end' }}>
+          {tooltipText != null && (
+            <NativeMapTooltip
+              visible={isTooltipVisible}
+              text={tooltipText}
+              onRequestClose={() => setIsTooltipVisible(false)}
             />
           )}
+
+          {label != null && (
+            <View
+              style={{
+                maxWidth: MAX_LABEL_WIDTH,
+                backgroundColor: resolved,
+                paddingHorizontal: 6,
+                paddingVertical: 2,
+                borderRadius: 10,
+                marginBottom: 2,
+              }}
+            >
+              <Typography
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                sx={{ color: '#fff', fontSize: 11, fontWeight: '900' }}
+              >
+                {label}
+              </Typography>
+            </View>
+          )}
+
+          {/* 시각 크기(MarkerShape)보다 터치 영역을 넓게 둔다. 하단 정렬로 감싸
+              앵커(좌표가 가리키는 지점)는 아이콘의 실제 바닥과 그대로 맞는다. */}
+          <View style={{ minWidth: TOUCH_TARGET_SIZE, minHeight: TOUCH_TARGET_SIZE, alignItems: 'center', justifyContent: 'flex-end' }}>
+            {icon ?? (
+              <MarkerShape
+                variant={variant}
+                color={resolved}
+                opacity={opacity}
+                outlined={outlined}
+                thumbnailUrl={thumbnailUrl}
+              />
+            )}
+          </View>
         </View>
-      </View>
-    </Marker>
+      </Pressable>
+    </Mapbox.MarkerView>
   )
 }
 
@@ -187,8 +187,9 @@ function MarkerShape({ variant, color, opacity, outlined, thumbnailUrl }: ShapeP
   )
 }
 
-// 지도를 움직일 때마다 부모가 리렌더되어도 마커는 다시 그리지 않는다.
-// 콜백은 usePreservedCallback 이 최신 것을 부르므로 비교에서 제외해도 안전하다.
+// Mapbox MarkerView는 실제 네이티브 뷰(View Annotation)라 prop이 바뀌면
+// 표준 React 리렌더링으로 반영된다. react-native-maps Marker처럼 비트맵
+// 스냅샷 캐싱을 하지 않으므로 tracksViewChanges/key 리마운트 트릭이 더 이상 필요 없다.
 export const NativeMapMarker = memo(NativeMapMarkerView, (prev, next) =>
   prev.id === next.id &&
   prev.lat === next.lat &&
@@ -198,7 +199,8 @@ export const NativeMapMarker = memo(NativeMapMarkerView, (prev, next) =>
   prev.color === next.color &&
   prev.opacity === next.opacity &&
   prev.outlined === next.outlined &&
-  prev.thumbnailUrl === next.thumbnailUrl,
+  prev.thumbnailUrl === next.thumbnailUrl &&
+  prev.tooltip === next.tooltip,
 )
 
 function toTooltipText(tooltip: MarkerProps['tooltip']): string | undefined {
