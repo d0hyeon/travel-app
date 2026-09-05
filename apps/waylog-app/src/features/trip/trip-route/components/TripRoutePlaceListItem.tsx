@@ -60,7 +60,7 @@ TripRoutePlaceListItem.Actions = function TripRoutePlaceListItemActions({ tripId
   const editPlace = async () => {
     const updated = await getUpdatedPlace({ tripId, placeId: place.id });
     if (!updated) return;
-    updatePlace({ ...updated, id: place.id, category: updated.category || undefined, tags: updated.tags });
+    updatePlace({ ...updated, id: place.id, category: updated.category ?? null });
   };
 
   const removeFromRoute = async () => {
