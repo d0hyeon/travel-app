@@ -175,7 +175,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                         <ActionSheet isOpen={isOpen} onClose={close}>
                           <ActionSheet.Item
                             onClick={async () => {
-                              const updated = await openPlaceEditor({ tripId, placeId: place.id, defaultValues: place })
+                              const updated = await openPlaceEditor({ tripId, placeId: place.id })
                               if (updated) await updatePlace({ ...place, ...updated })
                             }}
                           >

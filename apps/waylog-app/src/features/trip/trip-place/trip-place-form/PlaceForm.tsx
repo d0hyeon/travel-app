@@ -5,11 +5,9 @@ import {
   type PlaceCategoryType,
 } from '@waylog/domains/modules/place'
 import { forwardRef, useImperativeHandle, useState } from 'react'
-import { Linking } from 'react-native'
 import { Controller, useForm } from 'react-hook-form'
 import { Box, Chip, Stack, TextField, Typography } from '../../../../shared/components/mui'
 import { PopMenu } from '../../../../shared/components/PopMenu'
-import { PlacePhotoSection } from '../PlacePhotoSection'
 
 export interface PlaceFormValues {
   name: string
@@ -18,7 +16,6 @@ export interface PlaceFormValues {
   category: PlaceCategoryType | null
   memo: string
   tags: string[]
-  placeId?: string
 }
 
 export interface PlaceFormRef {
@@ -26,14 +23,13 @@ export interface PlaceFormRef {
 }
 
 interface Props {
-  tripId: string
   defaultValues?: Partial<PlaceFormValues>
   onSubmit: (data: PlaceFormValues) => void
 }
 
 // 웹 PlaceForm 과 같은 값 모양을 유지한다.
 export const PlaceForm = forwardRef<PlaceFormRef, Props>(function PlaceForm(
-  { tripId, defaultValues, onSubmit },
+  { defaultValues, onSubmit },
   ref,
 ) {
   const { control, handleSubmit, watch, setValue } = useForm<PlaceFormValues>({
@@ -58,16 +54,6 @@ export const PlaceForm = forwardRef<PlaceFormRef, Props>(function PlaceForm(
 
   return (
     <Stack gap={2}>
-      <Stack direction="row" gap={1}>
-        <Chip label="네이버" variant="outlined" onClick={() => void Linking.openURL(`https://search.naver.com/search.naver?query=${encodeURIComponent(watch('name'))}`)} />
-        <Chip label="인스타" variant="outlined" onClick={() => void Linking.openURL(`https://www.instagram.com/explore/search/keyword/?q=${encodeURIComponent(watch('name').replaceAll(' ', ''))}`)} />
-        <Chip label="구글" variant="outlined" onClick={() => void Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(watch('name'))}`)} />
-      </Stack>
-
-      <Typography variant="body1" color="text.secondary">
-        {watch('address')}
-      </Typography>
-
       <Stack gap={1}>
         <Typography variant="caption" color="text.secondary">
           카테고리
@@ -143,8 +129,6 @@ export const PlaceForm = forwardRef<PlaceFormRef, Props>(function PlaceForm(
           </Stack>
         )}
       </Stack>
-
-      <PlacePhotoSection tripId={tripId} placeId={defaultValues?.placeId} />
     </Stack>
   )
 })

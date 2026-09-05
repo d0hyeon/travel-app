@@ -26,8 +26,6 @@ export function TripPlaceItemButton({ place, ...props }: ItemProps) {
             void openPlaceForm({
               tripId: place.tripId,
               placeId: place.id,
-              defaultValues: place,
-              onDelete: () => remove(place.id),
             });
           }}
           onDelete={async () => {

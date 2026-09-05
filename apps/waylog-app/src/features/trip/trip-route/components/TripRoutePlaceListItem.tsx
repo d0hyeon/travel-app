@@ -58,7 +58,7 @@ TripRoutePlaceListItem.Actions = function TripRoutePlaceListItemActions({ tripId
   if (!route || !place) return null;
 
   const editPlace = async () => {
-    const updated = await getUpdatedPlace({ tripId, placeId: place.id, defaultValues: place });
+    const updated = await getUpdatedPlace({ tripId, placeId: place.id });
     if (!updated) return;
     updatePlace({ ...updated, id: place.id, category: updated.category || undefined, tags: updated.tags });
   };
