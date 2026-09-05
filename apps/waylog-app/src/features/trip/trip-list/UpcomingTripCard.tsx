@@ -42,9 +42,11 @@ export function UpcomingTripCard({ trip, onPress }: Props) {
             ) : (
               <>
                 <Typography sx={{ fontSize: 15, fontWeight: '900' }} numberOfLines={1}>{trip.name}</Typography>
-                <Stack direction="row" flexWrap="wrap" sx={{ gap: 4, marginTop: 4 }}>
-                  {trip.destinations.map((destination) => <DestinationChip key={destination} label={destination} />)}
-                </Stack>
+                {trip.destinations.length > 0 && (
+                  <Stack direction="row" flexWrap="wrap" sx={{ gap: 4, marginTop: 4 }}>
+                    {trip.destinations.map((destination) => <DestinationChip key={destination} label={destination} />)}
+                  </Stack>
+                )}
               </>
             )}
           </Box>
