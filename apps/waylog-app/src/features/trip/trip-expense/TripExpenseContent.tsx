@@ -1,7 +1,7 @@
 import { useExpenses } from '@waylog/domains/modules/expense'
 import { useTripMembers } from '@waylog/domains/modules/trip-member'
 import { MaterialIcons } from '@expo/vector-icons'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { ScrollView } from 'react-native'
 import { Box, Button, Stack, Tab, Tabs, Typography } from '../../../shared/components/mui'
 import { palette } from '../../../shared/config/tokens'
@@ -29,18 +29,17 @@ export default function TripExpenseContent({ tripId }: Props) {
   const hasMember = members.length > 0
 
   const handleAddExpense = async () => {
-    if (!hasMember) return
     const data = await formBottomSheet.open()
     if (data) create(data)
   }
 
   const handleOpenRouteExpense = () => {
-
-    if (!hasMember) return
     overlay.open(({ isOpen, close }) => (
       <BottomSheet isOpen={isOpen} onDismiss={close} snapPoints={[0.95]} defaultSnapIndex={0}>
         <BottomSheet.Body>
-          <RouteExpenseView tripId={tripId} />
+          <Suspense fallback={null}>
+            <RouteExpenseView tripId={tripId} />
+          </Suspense>
         </BottomSheet.Body>
       </BottomSheet>
     ))

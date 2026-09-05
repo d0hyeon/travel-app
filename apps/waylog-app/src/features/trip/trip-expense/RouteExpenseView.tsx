@@ -1,4 +1,4 @@
-import { formatCurrency, useExpensesByPlace, type PlaceWithRoute } from '@waylog/domains/modules/expense'
+import { formatByCurrencyCode, formatCurrency, useExpensesByPlace, type PlaceWithRoute } from '@waylog/domains/modules/expense'
 import { formatShortDate } from '@waylog/utility'
 import { useTrip, useTripPlaces, useTripRoutes } from '@waylog/domains/modules/trip'
 import { PlaceCategoryColorCode } from '@waylog/domains/modules/place'
@@ -231,7 +231,7 @@ export function RouteExpenseView({ tripId }: Props) {
                                         .join(' ')}
                                     </Typography>
                                     <Typography variant="body2" sx={{ flexShrink: 0 }}>
-                                      +{formatCurrency(expense.totalAmount)}
+                                      +{formatByCurrencyCode(expense.totalAmount, expense.currency)}
                                     </Typography>
                                   </Stack>
                                 </Pressable>
