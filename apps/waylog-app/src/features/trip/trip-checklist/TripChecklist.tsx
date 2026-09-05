@@ -252,7 +252,7 @@ function TripChecklistMenu({ id, tripId }: CheckMenuProps) {
     <PopMenu
       items={
         <>
-          <TripChecklistModifyMenuItem tripId={tripId} item={target} />
+          <TripChecklistModifyMenuItem tripId={tripId} id={target.id} />
           <PopMenu.Item
             color="error"
             onClick={async () => {

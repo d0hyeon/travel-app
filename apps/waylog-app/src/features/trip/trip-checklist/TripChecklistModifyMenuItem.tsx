@@ -1,33 +1,24 @@
 import { useRef } from 'react'
-import { useTripChecklist, type TripChecklist } from '@waylog/domains/modules/trip-checklist'
+import { assert } from '@waylog/utility'
+import { useTripChecklist } from '@waylog/domains/modules/trip-checklist'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { Button } from '../../../shared/components/mui'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { PopMenu } from '../../../shared/components/PopMenu'
-import { TripChecklistForm, type TripChecklistFormRef } from './TripChecklistForm'
+import { TripChecklistForm, type TripChecklistFormRef, type TripChecklistFormValue } from './TripChecklistForm'
 
 interface Props {
   tripId: string
-  item: TripChecklist
+  id: string
 }
 
 /** 체크리스트 항목 수정 메뉴 항목. 클릭 시 수정 시트를 연다. */
-export function TripChecklistModifyMenuItem({ tripId, item }: Props) {
-  const { update } = useTripChecklist(tripId)
+export function TripChecklistModifyMenuItem({ tripId, id }: Props) {
   const overlay = useOverlay()
 
   const openEditor = () => {
     overlay.open(({ isOpen, close }) => (
-      <TripChecklistModifySheet
-        isOpen={isOpen}
-        onClose={close}
-        tripId={tripId}
-        item={item}
-        onSubmit={async (value) => {
-          await update({ id: item.id, ...value })
-          close()
-        }}
-      />
+      <TripChecklistModifySheet isOpen={isOpen} onClose={close} tripId={tripId} id={id} />
     ))
   }
 
@@ -42,28 +33,35 @@ interface SheetProps {
   isOpen: boolean
   onClose: () => void
   tripId: string
-  item: TripChecklist
-  onSubmit: (value: Omit<TripChecklist, 'id' | 'tripId' | 'createdAt' | 'isCompleted'>) => Promise<void>
+  id: string
 }
 
-function TripChecklistModifySheet({ isOpen, onClose, tripId, item, onSubmit }: SheetProps) {
+function TripChecklistModifySheet({ isOpen, onClose, tripId, id }: SheetProps) {
+  const { data: { checklist }, update } = useTripChecklist(tripId)
+  const target = checklist.find(x => x.id === id)
+  assert(target != null, '존재하지 않는 항목입니다.')
   const formRef = useRef<TripChecklistFormRef>(null)
 
+  const handleSubmit = async (value: TripChecklistFormValue) => {
+    await update({ id, ...value })
+    onClose()
+  }
+
   return (
-    <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.6]} defaultSnapIndex={0}>
+    <BottomSheet isOpen={isOpen} onDismiss={onClose} safeArea snapPoints={[0.75]} defaultSnapIndex={0}>
       <BottomSheet.Header>할 일 수정</BottomSheet.Header>
       <BottomSheet.Body sx={{ paddingHorizontal: 16 }}>
         <TripChecklistForm
           ref={formRef}
           tripId={tripId}
           defaultValues={{
-            title: item.title,
-            content: item.content,
-            startedAt: item.startedAt,
-            endedAt: item.endedAt,
-            memberId: item.memberId,
+            title: target.title,
+            content: target.content,
+            startedAt: target.startedAt,
+            endedAt: target.endedAt,
+            memberId: target.memberId,
           }}
-          onSubmit={onSubmit}
+          onSubmit={handleSubmit}
         />
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
