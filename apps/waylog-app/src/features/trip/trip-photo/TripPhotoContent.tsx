@@ -12,7 +12,6 @@ import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { palette } from '../../../shared/config/tokens'
 import { useTripPhotos } from './useTripPhotos'
 import { usePhotoViewerState } from './usePhotoViewerState'
-import { TripDetailHeader } from '../components/TripDetailHeader'
 import { ZoomArea } from '../../../shared/components/photo/ZoomArea'
 import { LoadableImage } from '../../../shared/components/LoadableImage'
 
@@ -102,7 +101,6 @@ export function TripPhotoContent({ tripId }: Props) {
 
   return (
     <Box sx={{ flex: 1, backgroundColor: palette.background }}>
-      <TripDetailHeader />
       {/* 웹과 같이 장소 필터와 선택/완료 버튼을 한 행에 둔다. */}
       <Stack
         direction="row"

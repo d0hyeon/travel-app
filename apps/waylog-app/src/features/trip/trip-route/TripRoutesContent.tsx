@@ -27,7 +27,6 @@ import { FloatingControl } from '../components/FloatingControl'
 import { useActiveTripDay } from './useActiveTripDay'
 import { TripMarineActivityMapMarkers } from '../trip-marine-activity/TripMarineActivityMapMarkers'
 import { TripWeatherIconButton } from '../trip-weather/TripWeatherIconButton'
-import { TripDetailHeader } from '../components/TripDetailHeader'
 import { ActionSheet } from '../../../shared/components/action-sheet/ActionSheet'
 import { useTripViewConfigValue } from './useTripViewConfig'
 import { getRouteColor } from '../trip-expense/routeExpenseView.utils'
@@ -109,7 +108,6 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
 
   return (
     <>
-      <TripDetailHeader />
       <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
         <FloatingControl corner="top-left" zIndex={8}>
           <TripWeatherIconButton tripId={tripId} />

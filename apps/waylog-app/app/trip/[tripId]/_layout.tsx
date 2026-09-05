@@ -6,6 +6,7 @@ import { palette } from '../../../src/shared/config/tokens'
 import { ErrorBoundary } from '@waylog/react'
 import { Button, Stack, Typography } from '../../../src/shared/components/mui'
 import { View } from 'react-native'
+import { TripDetailHeader } from '../../../src/features/trip/components/TripDetailHeader'
 
 // 웹 TripDetailPage.mobile 의 BottomNavigation 구성을 그대로 승계한다.
 // 정보 · 장소 · 계획 · 정산 · 사진
@@ -23,6 +24,9 @@ export default function TripDetailLayout() {
             </Stack>
           )}
         >
+          <View style={{ paddingTop: insets.top }}>
+            <TripDetailHeader />
+          </View>
           <Tabs
             // 탭 전환 이력을 유지해 뒤로가기로 직전에 방문한 탭으로 돌아간다.
             backBehavior="history"
@@ -34,7 +38,6 @@ export default function TripDetailLayout() {
             )}
             screenOptions={{
               headerShown: false,
-              sceneStyle: { paddingTop: insets.top },
               tabBarActiveTintColor: palette.primary,
               tabBarInactiveTintColor: palette.grey,
             }}

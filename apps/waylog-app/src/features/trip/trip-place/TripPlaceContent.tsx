@@ -15,7 +15,6 @@ import { useRecommendedPlaceDetailOverlay } from '../trip-recommend/RecommendedP
 import { TripPlaceItemButton } from './TripPlaceItemButton';
 import { TripPlaceMapFloatingControls } from './TripPlaceMapFloatingControls';
 import { useTripPlaces } from '@waylog/domains/modules/trip';
-import { TripDetailHeader } from '../components/TripDetailHeader'
 
 // 웹은 zoom 이 커질수록 축소되는 스케일(레벨)을 쓰지만, 앱(deltaToZoom)은 반대로
 // zoom 이 커질수록 확대된다. 웹의 MICRO_ZOOM_LEVEL(8, "이 이상 축소되면")과 같은
@@ -54,7 +53,6 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
 
   return (
     <>
-      <TripDetailHeader />
       <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
         <TripPlaceMapFloatingControls />
         {/* Map (전체) */}

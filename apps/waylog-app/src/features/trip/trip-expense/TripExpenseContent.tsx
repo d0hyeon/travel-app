@@ -12,7 +12,6 @@ import { SettlementSummary } from './SettlementSummary'
 import { useExpenseFormBottomSheet } from './useExpenseFormOverlay'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
-import { TripDetailHeader } from '../components/TripDetailHeader'
 
 interface Props {
   tripId: string
@@ -47,7 +46,6 @@ export default function TripExpenseContent({ tripId }: Props) {
 
   return (
     <Box sx={{ flex: 1, backgroundColor: palette.background }}>
-      <TripDetailHeader />
       <ExpenseHeader tripId={tripId} />
 
       <Tabs fullWidth value={currentSubTab} onChange={(_, value) => selectSubTab(value as SubTab)}>
