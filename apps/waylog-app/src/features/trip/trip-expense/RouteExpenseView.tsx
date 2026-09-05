@@ -10,7 +10,7 @@ import { Box, IconButton, Stack, Typography } from '../../../shared/components/m
 import { palette } from '../../../shared/config/tokens'
 import { Map, type MapRef } from '../../../shared/components/Map'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
-import { useRouteLegsPathList } from '../trip-route/components/useRouteLegsPathList'
+import { useRouteLegsPathList } from '../hooks/useRouteLegsPathList'
 import { ExpenseFormDeletationActions } from './ExpenseFormDeletationActions'
 import { ExpenseFormOverlayActions, useExpenseFormBottomSheet } from './useExpenseFormOverlay'
 import { getRouteColor } from './routeExpenseView.utils'

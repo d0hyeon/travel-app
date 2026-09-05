@@ -6,7 +6,7 @@ import { IconButton } from '../../../../shared/components/mui/IconButton'
 import { palette, radius } from '../../../../shared/config/tokens'
 import { useOverlay } from '../../../../shared/hooks/useOverlay'
 import { useTripViewConfig } from '../useTripViewConfig'
-import { FloatingControl } from './FloatingControl'
+import { FloatingControl } from '../../components/FloatingControl'
 import { TripRouteMapConfigDialog } from './TripRouteMapConfigDialog'
 
 export function TripRouteMapFloatingControls() {

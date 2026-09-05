@@ -9,7 +9,7 @@ import { Switch } from '../../../shared/components/mui/Switch'
 import { palette, radius } from '../../../shared/config/tokens'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { useTripCluastering } from '../hooks/useTripCluastering'
-import { FloatingControl } from '../trip-route/components/FloatingControl'
+import { FloatingControl } from '../components/FloatingControl'
 
 interface Props extends Omit<ModalProps, 'visible'> {
   isOpen?: boolean;
