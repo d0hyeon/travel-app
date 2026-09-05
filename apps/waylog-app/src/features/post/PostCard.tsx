@@ -1,6 +1,13 @@
 import { PostVisibility, type Post } from '@waylog/domains/modules/post'
 import { MaterialIcons } from '@expo/vector-icons'
-import { Pressable, ScrollView, useWindowDimensions, type LayoutChangeEvent } from 'react-native'
+import {
+  Pressable,
+  ScrollView,
+  useWindowDimensions,
+  type LayoutChangeEvent,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+} from 'react-native'
 import React from 'react'
 import { Box, Stack, Typography } from '../../shared/components/mui'
 import { palette } from '../../shared/config/tokens'
@@ -55,16 +62,51 @@ export function PostCard({ post, onPress }: Props) {
 
 function PostPhotoGallery({ post, width, minHeight }: { post: Post; width: number; minHeight: number }) {
   const pageWidth = width > 0 ? width : '100%'
+  const [pageIndex, setPageIndex] = React.useState(0)
 
   if (post.photos.length === 0) {
     return <Box sx={{ aspectRatio: 1, minHeight, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.06)' }}><MaterialIcons name="image" size={40} color={palette.textSecondary} /></Box>
   }
 
+  const handleMomentumScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (width <= 0) return
+    const nextIndex = Math.round(event.nativeEvent.contentOffset.x / width)
+    setPageIndex(nextIndex)
+  }
+
   return (
-    <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false} style={{ minHeight }}>
-      {post.photos.map((photo) => (
-        <LoadableImage key={photo.url} source={{ uri: photo.url }} style={{ width: pageWidth, aspectRatio: 1, minHeight }} resizeMode="cover" />
-      ))}
-    </ScrollView>
+    <Box sx={{ position: 'relative' }}>
+      <ScrollView
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onMomentumScrollEnd={handleMomentumScrollEnd}
+        style={{ minHeight }}
+      >
+        {post.photos.map((photo) => (
+          <LoadableImage key={photo.url} source={{ uri: photo.url }} style={{ width: pageWidth, aspectRatio: 1, minHeight }} resizeMode="cover" />
+        ))}
+      </ScrollView>
+      {post.photos.length > 1 && (
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="center"
+          sx={{ position: 'absolute', bottom: 8, left: 0, right: 0, gap: 4 }}
+        >
+          {post.photos.map((photo, index) => (
+            <Box
+              key={photo.url}
+              sx={{
+                width: index === pageIndex ? 6 : 5,
+                height: index === pageIndex ? 6 : 5,
+                borderRadius: 3,
+                backgroundColor: index === pageIndex ? '#fff' : 'rgba(255,255,255,0.5)',
+              }}
+            />
+          ))}
+        </Stack>
+      )}
+    </Box>
   )
 }
