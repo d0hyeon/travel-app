@@ -59,11 +59,19 @@ function NativeMapMarkerView({
   const tooltipText = toTooltipText(tooltip)
 
   return (
+    // Mapbox.MarkerView는 id prop을 받지 않는다(누락이 아니라 타입에 없음).
+    // 클러스터링(NativeMap.tsx)은 React element의 props.id를 직접 읽으므로
+    // 여기서 네이티브 뷰로 전달할 필요가 없다.
     <Mapbox.MarkerView coordinate={[lng, lat]} anchor={{ x: 0.5, y: 1 }}>
       <Pressable
         onPress={() => {
+          // tooltip이 있으면 탭은 툴팁 토글 전용이다. onClick과 동시에 실행하면
+          // 상세 화면이 열리면서 툴팁도 뜨는 두 동작이 겹친다(상호 배타).
+          if (tooltipText != null) {
+            setIsTooltipVisible((visible) => !visible)
+            return
+          }
           handleClick()
-          if (tooltipText != null) setIsTooltipVisible((visible) => !visible)
         }}
         onLongPress={handleContextMenu}
       >
@@ -200,7 +208,9 @@ export const NativeMapMarker = memo(NativeMapMarkerView, (prev, next) =>
   prev.opacity === next.opacity &&
   prev.outlined === next.outlined &&
   prev.thumbnailUrl === next.thumbnailUrl &&
-  prev.tooltip === next.tooltip,
+  // tooltip이 string[] 이면 소비자가 매 렌더마다 새 배열을 만들어 넘기므로
+  // 참조 비교(===)는 항상 다르다고 판단한다. 정규화한 문자열로 비교한다.
+  toTooltipText(prev.tooltip) === toTooltipText(next.tooltip),
 )
 
 function toTooltipText(tooltip: MarkerProps['tooltip']): string | undefined {
