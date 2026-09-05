@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { Alert, Pressable } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Box, LinearProgress, Stack, Typography } from '../../../shared/components/mui'
+import { SwitchCase } from '../../../shared/components/SwitchCase'
 import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
 import { palette } from '../../../shared/config/tokens'
 import { DateStep } from './DateStep'
@@ -96,16 +97,20 @@ export function TripCreateScreen() {
         <Typography variant="h6">{STEP_LABELS[step]}</Typography>
       </Box>
 
-      {step === 'destination' && (
-        <DestinationStep defaultValue={destinations} onNext={handleDestinationNext} />
-      )}
-      {step === 'date' && <DateStep defaultValue={dateRange} onNext={handleDateNext} />}
-      {step === 'info' && destinations.length > 0 && (
-        <InfoStep
-          destination={destinations.map((d) => d.name).join(', ')}
-          onNext={handleInfoNext}
-        />
-      )}
+      <SwitchCase
+        value={step}
+        cases={{
+          destination: () => <DestinationStep defaultValue={destinations} onNext={handleDestinationNext} />,
+          date: () => <DateStep defaultValue={dateRange} onNext={handleDateNext} />,
+          info: () =>
+            destinations.length > 0 && (
+              <InfoStep
+                destination={destinations.map((d) => d.name).join(', ')}
+                onNext={handleInfoNext}
+              />
+            ),
+        }}
+      />
     </Box>
   )
 }
