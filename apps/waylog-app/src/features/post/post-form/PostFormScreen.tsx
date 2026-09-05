@@ -6,6 +6,7 @@ import { Suspense, useEffect, useState } from 'react'
 import { ActivityIndicator, Pressable, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { LinearProgress, Typography } from '../../../shared/components/mui'
+import { SwitchCase } from '../../../shared/components/SwitchCase'
 import { palette } from '../../../shared/config/tokens'
 import { uploadPostPhoto } from '../../photo/photo.api'
 import { MetaStep } from './MetaStep'
@@ -75,29 +76,37 @@ export function PostFormScreen() {
         <View style={{ flexDirection: 'row', gap: 4 }}>{steps.map((candidate, index) => <View key={candidate} style={{ width: index === stepIndex ? 16 : 6, height: 6, borderRadius: 3, backgroundColor: index <= stepIndex ? palette.primary : 'rgba(0,0,0,0.12)' }} />)}</View>
       </View>
       <LinearProgress value={((stepIndex + 1) / steps.length) * 100} />
-      {error != null && <View style={{ padding: 12, backgroundColor: '#FFEBEE' }}><Typography color="error">{error instanceof Error ? error.message : '포스트를 등록하지 못했어요'}</Typography></View>}
+      {error != null && <View style={{ padding: 12, backgroundColor: palette.errorContainer }}><Typography color="error">{error instanceof Error ? error.message : '포스트를 등록하지 못했어요'}</Typography></View>}
       <Suspense fallback={<ActivityIndicator style={{ flex: 1 }} />}>
-        {step === 'trip' && <TripStep defaultValue={tripId} onNext={(nextTripId) => { setTripId(nextTripId); setStep('photo') }} />}
-        {step === 'photo' && (
-          <PhotoStep
-            tripId={tripId}
-            defaultValue={form.photos ?? []}
-            onNext={(selectedPhotos: DraftPostPhoto[]) => {
-              update({ photos: selectedPhotos })
-              setStep('meta')
-            }}
-          />
-        )}
-        {step === 'meta' && !!form.photos && (
-          <MetaStep
-            tripId={tripId}
-            photos={form.photos}
-            onNext={async (values: PostMetaValue) => {
-              update(values)
-              await submit()
-            }}
-          />
-        )}
+        <SwitchCase
+          value={step}
+          cases={{
+            trip: () => (
+              <TripStep defaultValue={tripId} onNext={(nextTripId) => { setTripId(nextTripId); setStep('photo') }} />
+            ),
+            photo: () => (
+              <PhotoStep
+                tripId={tripId}
+                defaultValue={form.photos ?? []}
+                onNext={(selectedPhotos: DraftPostPhoto[]) => {
+                  update({ photos: selectedPhotos })
+                  setStep('meta')
+                }}
+              />
+            ),
+            meta: () =>
+              !!form.photos && (
+                <MetaStep
+                  tripId={tripId}
+                  photos={form.photos}
+                  onNext={async (values: PostMetaValue) => {
+                    update(values)
+                    await submit()
+                  }}
+                />
+              ),
+          }}
+        />
       </Suspense>
     </View>
   )
