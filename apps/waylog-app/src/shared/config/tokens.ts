@@ -4,6 +4,7 @@
 export const palette = {
   primary: '#4C84FF',
   warning: '#d68d06',
+  error: '#d32f2f',
   grey: '#787c7e',
   info: '#333',
   success: '#66BB6A',
