@@ -22,7 +22,7 @@ import { NoteEditor } from './RouteNoteList'
 import { TripRoutePlaceListItem } from './components/TripRoutePlaceListItem'
 import { Dot, RouteLegItem } from './RouteTimeline'
 import { useRouteLegs } from './useRouteLegs'
-import { usePlaceFormOverlay } from './usePlaceFormOverlay'
+import { useTripPlaceFormOverlay } from '../trip-place/trip-place-form/useTripPlaceFormOverlay'
 import { FloatingControl } from '../components/FloatingControl'
 import { useActiveTripDay } from './useActiveTripDay'
 import { TripMarineActivityMapMarkers } from '../trip-marine-activity/TripMarineActivityMapMarkers'
@@ -40,7 +40,7 @@ interface RouteContentProps {
 
 export default function TripRoutesContent({ tripId }: RouteContentProps) {
   const { data: trip } = useTrip(tripId)
-  const { data: allPlaces, update: updatePlace } = useTripPlaces(tripId)
+  const { data: allPlaces } = useTripPlaces(tripId)
 
   // 웹과 같은 훅을 쓴다. 기본값 계산은 공유 getDefaultTripDay 가 한다.
   const { value: selectedDate, update: setSelectedDate } = useActiveTripDay(tripId)
@@ -82,7 +82,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
   const viewConfig = useTripViewConfigValue()
   const mapRef = useRef<MapRef>(null)
   const overlay = useOverlay()
-  const { openBottomsheet: openPlaceEditor } = usePlaceFormOverlay()
+  const { openBottomSheet: openPlaceEditor } = useTripPlaceFormOverlay()
 
   // 여행 중이면 현재 위치로 이동하고 가장 가까운 장소를 잡아준다.
   const today = formatDisplayDate(new Date())
@@ -172,10 +172,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                       overlay.open(({ isOpen, close }) => (
                         <ActionSheet isOpen={isOpen} onClose={close}>
                           <ActionSheet.Item
-                            onClick={async () => {
-                              const updated = await openPlaceEditor({ tripId, placeId: place.id })
-                              if (updated) await updatePlace({ ...place, ...updated })
-                            }}
+                            onClick={() => openPlaceEditor({ tripId, placeId: place.id })}
                           >
                             장소 수정
                           </ActionSheet.Item>
