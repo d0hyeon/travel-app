@@ -1,6 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useId } from 'react'
 import type { PathProps } from '@waylog/domains/modules/map'
-import { Polyline } from 'react-native-maps'
+import Mapbox from '@rnmapbox/maps'
 import { useMapContext } from './MapContext'
 
 export function NativeMapPath({
@@ -12,6 +12,8 @@ export function NativeMapPath({
 }: PathProps) {
   // 부모가 자식 트리를 스캔하는 대신, 마운트 시점에 스스로 좌표를 등록한다.
   const { config, extendBound } = useMapContext()
+  const sourceId = useId()
+
   useEffect(() => {
     if (config.autoFocus === 'path') coordinates.forEach((coord) => extendBound(coord))
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -20,29 +22,31 @@ export function NativeMapPath({
   // 경로는 점이 둘 이상이어야 그려진다.
   if (coordinates.length < 2) return null
 
+  const geojson: GeoJSON.Feature<GeoJSON.LineString> = {
+    type: 'Feature',
+    properties: {},
+    geometry: {
+      type: 'LineString',
+      coordinates: coordinates.map((c) => [c.lng, c.lat]),
+    },
+  }
+
   return (
-    <Polyline
-      coordinates={coordinates.map((c) => ({ latitude: c.lat, longitude: c.lng }))}
-      strokeColor={withOpacity(strokeColor, strokeOpacity)}
-      strokeWidth={strokeWeight}
-      // 웹의 dashed/dotted 를 점선 간격으로 옮긴다.
-      lineDashPattern={toDashPattern(strokeStyle, strokeWeight)}
-    />
+    <Mapbox.ShapeSource id={`path-${sourceId}`} shape={geojson}>
+      <Mapbox.LineLayer
+        id={`path-line-${sourceId}`}
+        style={{
+          lineColor: strokeColor,
+          lineWidth: strokeWeight,
+          lineOpacity: strokeOpacity,
+          // 웹의 dashed/dotted 를 점선 간격으로 옮긴다.
+          lineDasharray: toDashPattern(strokeStyle, strokeWeight),
+          lineCap: 'round',
+          lineJoin: 'round',
+        }}
+      />
+    </Mapbox.ShapeSource>
   )
-}
-
-// RN Polyline 은 투명도를 따로 받지 않아 색상에 섞는다.
-function withOpacity(color: string, opacity: number): string {
-  if (opacity >= 1) return color
-
-  const hex = color.replace('#', '')
-  if (hex.length !== 6) return color
-
-  const r = parseInt(hex.slice(0, 2), 16)
-  const g = parseInt(hex.slice(2, 4), 16)
-  const b = parseInt(hex.slice(4, 6), 16)
-
-  return `rgba(${r},${g},${b},${opacity})`
 }
 
 function toDashPattern(style: string | undefined, weight: number): number[] | undefined {

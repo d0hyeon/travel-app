@@ -1,5 +1,6 @@
-import { Marker } from 'react-native-maps'
+import Mapbox from '@rnmapbox/maps'
 import Svg, { Circle, Text as SvgText } from 'react-native-svg'
+import { Pressable } from 'react-native'
 
 interface Props {
   latitude: number
@@ -21,28 +22,25 @@ export function NativeMapCluster({ latitude, longitude, count, onTap }: Props) {
   const half = size / 2
 
   return (
-    <Marker
-      coordinate={{ latitude, longitude }}
-      anchor={{ x: 0.5, y: 0.5 }}
-      tracksViewChanges={false}
-      onPress={onTap}
-    >
-      {/* 겹친 View 는 네이버 마커 안에서 깨진다. SVG 하나로 통째로 그린다. */}
-      <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        <Circle cx={half} cy={half} r={half} fill={ring} />
-        <Circle cx={half} cy={half} r={half - 6} fill={color} stroke="#fff" strokeWidth={2} />
-        <SvgText
-          x={half}
-          y={half}
-          fill="#fff"
-          fontSize={count >= 100 ? 16 : 18}
-          fontWeight="bold"
-          textAnchor="middle"
-          alignmentBaseline="central"
-        >
-          {String(count)}
-        </SvgText>
-      </Svg>
-    </Marker>
+    // Mapbox.MarkerView는 id prop을 받지 않는다(Task 3에서 확인됨. 타입·구현체 모두 없음).
+    <Mapbox.MarkerView coordinate={[longitude, latitude]} anchor={{ x: 0.5, y: 0.5 }}>
+      <Pressable onPress={onTap}>
+        <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+          <Circle cx={half} cy={half} r={half} fill={ring} />
+          <Circle cx={half} cy={half} r={half - 6} fill={color} stroke="#fff" strokeWidth={2} />
+          <SvgText
+            x={half}
+            y={half}
+            fill="#fff"
+            fontSize={count >= 100 ? 16 : 18}
+            fontWeight="bold"
+            textAnchor="middle"
+            alignmentBaseline="central"
+          >
+            {String(count)}
+          </SvgText>
+        </Svg>
+      </Pressable>
+    </Mapbox.MarkerView>
   )
 }
