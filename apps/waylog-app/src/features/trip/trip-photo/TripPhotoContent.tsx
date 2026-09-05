@@ -23,16 +23,6 @@ interface Props {
   tripId: string
 }
 
-/**
- * 사진 탭 데이터를 미리 받아 둔다. 웹 TripPhotoContent.mobile 의 preload 와 같은 역할.
- *
- * Expo Router 에는 라우트 진입 전에 이 함수를 불러 주는 지점이 없어
- * 아직 호출부가 없다. 탭 전환 직전 연결은 향후 과제로 남긴다.
- */
-export function preload(tripId: string) {
-  useTripPhotos.prefetch(tripId)
-}
-
 export function TripPhotoContent({ tripId }: Props) {
   const { data: photos, upload, remove, update, isUploading } = useTripPhotos(tripId)
   const { data: places } = useTripPlaces(tripId)

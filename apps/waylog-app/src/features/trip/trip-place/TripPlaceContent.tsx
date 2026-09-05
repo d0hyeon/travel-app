@@ -119,7 +119,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
           <BottomSheet.Body>
             <BottomSheet.ScrollView contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 40 }}>
               <Typography variant="caption" color="text.secondary" style={{ marginBottom: 12 }}>
-                확정 ({plannedPlaces.length}) / 후보 ({candidatePlaces.length})
+                계획 ({plannedPlaces.length}) / 후보 ({candidatePlaces.length})
               </Typography>
 
               <Stack gap={0.75}>
@@ -163,26 +163,3 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
     </>
   )
 }
-
-
-// function calcMarkerZoomThreshold(places: { lat: number; lng: number }[]): number {
-//   if (places.length < 2) return 8;
-
-//   const centerLat = places.reduce((s, p) => s + p.lat, 0) / places.length;
-//   const centerLng = places.reduce((s, p) => s + p.lng, 0) / places.length;
-//   const center = { lat: centerLat, lng: centerLng };
-
-//   const maxDist = Math.max(...places.map(p => calcDistance(center, p)));
-//   const base = (() => {
-//     if (maxDist > 200_000) return 4;
-//     if (maxDist > 80_000) return 5;
-//     if (maxDist > 25_000) return 6;
-//     if (maxDist > 8_000) return 7;
-//     return 8;
-//   })()
-
-//   // 장소가 밀집될수록 더 당겨야 라벨이 보이도록 임계값을 낮춤
-//   const densityPenalty = Math.floor(Math.log2(places.length / 3));
-
-//   return Math.max(3, base - densityPenalty);
-// }
