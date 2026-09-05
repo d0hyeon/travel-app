@@ -43,7 +43,12 @@ export function ExplorerCatalogScreen({ bottomContentInset = 0 }: Props) {
         </Suspense>
       ) : (
         <ScrollView style={{ flex: 1 }} onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={{ paddingTop: 16, gap: 24, paddingBottom: bottomContentInset + 24 }}>
-          <ErrorBoundary fallback={null}>
+          <ErrorBoundary
+            fallback={() => null}
+            onError={(error) => {
+              console.error('[explorer] 계절 인기 여행지 섹션 로드 실패', error)
+            }}
+          >
             <Suspense fallback={<SeasonalRegionsSummarySectionSkeleton />}>
               <SeasonalRegionsSummarySection />
             </Suspense>
