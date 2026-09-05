@@ -39,6 +39,8 @@ const Container = styled.View`
 export const Dot = styled.View`
   width: ${DOT_SIZE}px;
   height: ${DOT_SIZE}px;
+  min-width: ${DOT_SIZE}px;
+  flex-basis: ${DOT_SIZE}px;
   border-radius: ${DOT_SIZE / 2}px;
   background-color: ${palette.primary};
   align-items: center;

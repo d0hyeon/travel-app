@@ -18,7 +18,7 @@ export function RegionTrendCard({ trend, rank }: RegionTrendCardProps) {
   const regionLabel = getRegionLabel(trend.location)
 
   return (
-    <View style={{ padding: 16, height: '100%', borderRadius: radius.lg, borderWidth: 1, borderColor: palette.divider, backgroundColor: palette.background }}>
+    <View style={{ padding: 16, minHeight: 180, borderRadius: radius.lg, borderWidth: 1, borderColor: palette.divider, backgroundColor: palette.background }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
         <View style={{ width: 20, height: 20, borderRadius: 10, backgroundColor: palette.primary, alignItems: 'center', justifyContent: 'center' }}>
           <Typography variant="caption" fontWeight="bold" color="#fff" style={{ fontSize: 11 }}>

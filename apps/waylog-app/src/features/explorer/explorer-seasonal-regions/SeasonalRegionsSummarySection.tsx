@@ -15,7 +15,7 @@ export function SeasonalRegionsSummarySection() {
   const router = useRouter()
 
   return (
-    <View>
+    <View style={{ flex: 0, minHeight: 0, }}>
       <View style={{ paddingHorizontal: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 }}>
         <Typography variant="subtitle1">이번 {SeasonLabel[season]} 국내 인기 여행지</Typography>
         <Typography variant="caption" color="text.secondary">
@@ -28,7 +28,11 @@ export function SeasonalRegionsSummarySection() {
           <Typography variant="body2" color="text.secondary">자료를 찾을 수 없어요</Typography>
         </View>
       ) : (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 16, gap: 12, alignItems: 'flex-start' }}
+        >
           {topTrends.map((trend, index) => (
             <Pressable
               key={trend.location}
