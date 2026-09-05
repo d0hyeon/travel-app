@@ -15,46 +15,44 @@ export default function TripDetailLayout() {
 
   return (
     <View style={{ flex: 1 }}>
-      <View style={{ flex: 1 }}>
-        <ErrorBoundary
-          fallback={({ resetError }) => (
-            <Stack sx={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-              <Typography color="text.secondary">여행 정보를 불러오지 못했어요</Typography>
-              <Button variant="contained" onClick={resetError} sx={{ marginTop: 12 }}>다시 시도</Button>
-            </Stack>
-          )}
-        >
-          <View style={{ paddingTop: insets.top }}>
-            <TripDetailHeader />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Tabs
-              // 탭 전환 이력을 유지해 뒤로가기로 직전에 방문한 탭으로 돌아간다.
-              backBehavior="history"
-              tabBar={(props) => (
-                <AnimatedTabBar
-                  {...props}
-                  visibleNames={['index', 'place', 'route', 'expense', 'photo']}
-                />
-              )}
-              screenOptions={{
-                headerShown: false,
-                tabBarActiveTintColor: palette.primary,
-                tabBarInactiveTintColor: palette.grey,
-              }}
-            >
-              <Tabs.Screen name="index" options={{ tabBarIcon: ({ color }) => <MaterialIcons name="info" size={22} color={color} />, title: '정보' }} />
-              <Tabs.Screen name="place" options={{ tabBarIcon: ({ color }) => <MaterialIcons name="pin-drop" size={22} color={color} />, title: '장소' }} />
-              <Tabs.Screen name="route" options={{ tabBarIcon: ({ color }) => <MaterialIcons name="near-me" size={22} color={color} />, title: '계획' }} />
-              <Tabs.Screen name="expense" options={{ tabBarIcon: ({ color }) => <MaterialIcons name="receipt" size={22} color={color} />, title: '정산' }} />
-              <Tabs.Screen name="photo" options={{ tabBarIcon: ({ color }) => <MaterialIcons name="photo" size={22} color={color} />, title: '사진' }} />
-              {/* 웹 하단 네비게이션은 5개다. 준비·메모는 정보 탭에서 들어간다 */}
-              <Tabs.Screen name="checklist" options={{ href: null }} />
-              <Tabs.Screen name="memo" options={{ href: null }} />
-            </Tabs>
-          </View>
-        </ErrorBoundary>
-      </View>
+      <ErrorBoundary
+        fallback={({ resetError }) => (
+          <Stack sx={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+            <Typography color="text.secondary">여행 정보를 불러오지 못했어요</Typography>
+            <Button variant="contained" onClick={resetError} sx={{ marginTop: 12 }}>다시 시도</Button>
+          </Stack>
+        )}
+      >
+        <View style={{ paddingTop: insets.top }}>
+          <TripDetailHeader />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Tabs
+            // 탭 전환 이력을 유지해 뒤로가기로 직전에 방문한 탭으로 돌아간다.
+            backBehavior="history"
+            tabBar={(props) => (
+              <AnimatedTabBar
+                {...props}
+                visibleNames={['index', 'place', 'route', 'expense', 'photo']}
+              />
+            )}
+            screenOptions={{
+              headerShown: false,
+              tabBarActiveTintColor: palette.primary,
+              tabBarInactiveTintColor: palette.grey,
+            }}
+          >
+            <Tabs.Screen name="index" options={{ tabBarIcon: ({ color }) => <MaterialIcons name="info" size={22} color={color} />, title: '정보' }} />
+            <Tabs.Screen name="place" options={{ tabBarIcon: ({ color }) => <MaterialIcons name="pin-drop" size={22} color={color} />, title: '장소' }} />
+            <Tabs.Screen name="route" options={{ tabBarIcon: ({ color }) => <MaterialIcons name="near-me" size={22} color={color} />, title: '계획' }} />
+            <Tabs.Screen name="expense" options={{ tabBarIcon: ({ color }) => <MaterialIcons name="receipt" size={22} color={color} />, title: '정산' }} />
+            <Tabs.Screen name="photo" options={{ tabBarIcon: ({ color }) => <MaterialIcons name="photo" size={22} color={color} />, title: '사진' }} />
+            {/* 웹 하단 네비게이션은 5개다. 준비·메모는 정보 탭에서 들어간다 */}
+            <Tabs.Screen name="checklist" options={{ href: null }} />
+            <Tabs.Screen name="memo" options={{ href: null }} />
+          </Tabs>
+        </View>
+      </ErrorBoundary>
     </View>
   )
 }
