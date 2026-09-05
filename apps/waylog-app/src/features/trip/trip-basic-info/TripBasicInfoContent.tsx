@@ -63,13 +63,9 @@ export function TripBasicInfoContent({ tripId }: Props) {
                 }}
               />
 
-              <ErrorBoundary>
-                <TripDeadlineChecklist tripId={tripId} gap={1} throwOnEmpty />
-              </ErrorBoundary>
+              <TripDeadlineChecklist tripId={tripId} gap={1} hideOnEmpty />
 
-              <ErrorBoundary>
-                <TripPinnedMemos tripId={tripId} throwOnEmpty />
-              </ErrorBoundary>
+              <TripPinnedMemos tripId={tripId} hideOnEmpty />
 
               <Stack gap={1} sx={{ width: '100%' }}>
                 <RecommendedPlaceListSection

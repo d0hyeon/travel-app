@@ -9,36 +9,47 @@ import { getMemoDisplayTitle } from './memoTitle';
 
 interface Props extends StackProps {
   tripId: string;
-  throwOnEmpty?: boolean;
+  /** true면 고정된 메모가 없을 때 제목을 포함해 아무것도 렌더하지 않는다. */
+  hideOnEmpty?: boolean;
 }
 
-export function TripPinnedMemos({ tripId, ...props }: Props) {
+export function TripPinnedMemos(props: Props) {
+  return (
+    <Suspense fallback={<Pending {...props} />}>
+      <Resolved {...props} />
+    </Suspense>
+  );
+}
+
+function Pending({ tripId: _tripId, hideOnEmpty: _hideOnEmpty, ...props }: Props) {
   return (
     <Stack gap={1} sx={{ width: "100%" }} {...props}>
-      <Suspense fallback={(
-        <ListItem sx={{ width: "100%" }}>
-          <Skeleton variant='text' />
-        </ListItem>
-      )}>
-        <TripPinnedMemosContent tripId={tripId} {...props} />
-      </Suspense>
+      <Typography variant="subtitle2" color="text.secondary">
+        고정된 메모
+      </Typography>
+      <ListItem sx={{ width: "100%" }}>
+        <Skeleton variant='text' />
+      </ListItem>
     </Stack>
   );
 }
 
-
-function TripPinnedMemosContent({ tripId, throwOnEmpty, ...props }: Props) {
+function Resolved({ tripId, hideOnEmpty, ...props }: Props) {
   const { data: { pinnedMemos } } = useTripMemo(tripId);
   const router = useRouter();
 
-  if (pinnedMemos.length === 0) return null;
+  if (pinnedMemos.length === 0 && hideOnEmpty) return null;
 
   return (
-    <Stack gap={1} {...props}>
+    <Stack gap={1} sx={{ width: "100%" }} {...props}>
       <Typography variant="subtitle2" color="text.secondary">
         고정된 메모
       </Typography>
-      {pinnedMemos.map((memo) => {
+      {pinnedMemos.length === 0 ? (
+        <Typography variant="body2" color="text.secondary" sx={{ paddingVertical: 24 }}>
+          고정된 메모가 없어요
+        </Typography>
+      ) : pinnedMemos.map((memo) => {
         const preview = memo.content;
         const displayTitle = getMemoDisplayTitle(memo.title, memo.content);
         const trimmedTitle = memo.title?.trim() ?? '';

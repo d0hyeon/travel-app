@@ -6,7 +6,8 @@ import { Suspense } from "react";
 
 interface Props extends StackProps {
   tripId: string;
-  throwOnEmpty?: boolean;
+  /** true면 항목이 없을 때 아무것도 렌더하지 않는다. */
+  hideOnEmpty?: boolean;
 }
 
 
@@ -18,12 +19,10 @@ export function TripDeadlineChecklist(props: Props) {
   )
 }
 
-function Resolved({ tripId, throwOnEmpty, ...props }: Props) {
+function Resolved({ tripId, hideOnEmpty, ...props }: Props) {
   const { data: { deadlines } } = useTripChecklist(tripId);
 
-  // 웹은 throw 로 ErrorBoundary 가 섹션을 숨기지만, RN 개발 빌드는
-  // redbox 를 먼저 띄운다. 같은 결과를 null 로 만든다.
-  if (deadlines.length === 0 && throwOnEmpty) return null;
+  if (deadlines.length === 0 && hideOnEmpty) return null;
 
 
   return (
