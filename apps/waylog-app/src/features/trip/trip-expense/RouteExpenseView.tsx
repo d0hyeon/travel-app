@@ -1,51 +1,169 @@
-import { formatCurrency, useExpenses, useExpensesByPlace } from '@waylog/domains/modules/expense'
-import { formatDisplayDate, formatShortDate } from '@waylog/utility'
-import { useTrip } from '@waylog/domains/modules/trip'
+import { formatCurrency, useExpensesByPlace, type PlaceWithRoute } from '@waylog/domains/modules/expense'
+import { formatShortDate } from '@waylog/utility'
+import { useTrip, useTripPlaces, useTripRoutes } from '@waylog/domains/modules/trip'
+import { PlaceCategoryColorCode } from '@waylog/domains/modules/place'
 import { useTripMembers } from '@waylog/domains/modules/trip-member'
 import { MaterialIcons } from '@expo/vector-icons'
-import { ScrollView } from 'react-native'
+import { useMemo, useRef, useState } from 'react'
+import { Pressable, type LayoutChangeEvent, type NativeSyntheticEvent, type NativeScrollEvent } from 'react-native'
 import { Box, IconButton, Stack, Typography } from '../../../shared/components/mui'
 import { palette } from '../../../shared/config/tokens'
-import { Map } from '../../../shared/components/Map'
-import { useExpenseFormBottomSheet } from './useExpenseFormOverlay'
+import { Map, type MapRef } from '../../../shared/components/Map'
+import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
+import { useRouteLegsPathList } from '../trip-route/components/useRouteLegsPathList'
+import { ExpenseFormDeletationActions } from './ExpenseFormDeletationActions'
+import { ExpenseFormOverlayActions, useExpenseFormBottomSheet } from './useExpenseFormOverlay'
 
 interface Props {
   tripId: string
 }
 
+// 경로별 색상 팔레트 — trip-route 와 같은 값으로, 웹 색상에서 채도를 낮춰
+// 네이티브 지도에서 과하게 쨍해 보이지 않도록 조정한 앱 전용 값이다.
+const ROUTE_COLORS = ['#78a4cf', '#da9d9b', '#88b78a', '#deb179', '#ad6bbe', '#4bc3d2']
+
+function getRouteColor(index: number): string {
+  return ROUTE_COLORS[index % ROUTE_COLORS.length]!
+}
+
 // 웹 RouteExpenseView.mobile 을 옮긴다.
-// 일자별 경로를 따라가며 장소마다 쓴 금액을 보여준다.
+// 일자별 경로를 지도에 그리고, 장소마다 쓴 금액을 보여준다.
 export function RouteExpenseView({ tripId }: Props) {
   const { data: trip } = useTrip(tripId)
-  const { create } = useExpenses(tripId)
   const { data: members } = useTripMembers(tripId)
-  const expenseForm = useExpenseFormBottomSheet(tripId)
+  const { data: places } = useTripPlaces(tripId)
   const {
-    data: { placesByDay, tripDates, amountByPlaceId, expensesByPlaceId },
+    data: { routes },
+  } = useTripRoutes(tripId)
+  const {
+    data: { placesByDay, tripDates, amountByPlaceId, amongByPlaceId, expensesByPlaceId },
+    create,
+    update,
   } = useExpensesByPlace(tripId)
 
-  const routePlaces = Object.values(placesByDay).flat()
+  const mapRef = useRef<MapRef>(null)
+  const expenseForm = useExpenseFormBottomSheet(tripId)
+
+  // 일자별 스크롤 연동 — 목록에서 보이는 일차를 지도 강조에 반영한다.
+  // 웹은 IntersectionObserver 를 쓰지만 RN 에는 없어 섹션 위치를 재서 판정한다.
+  const [activeDayIndex, setActiveDayIndex] = useState(0)
+  const dayOffsetsRef = useRef<number[]>([])
+
+  const captureDayOffset = (dayIndex: number) => (event: LayoutChangeEvent) => {
+    dayOffsetsRef.current[dayIndex] = event.nativeEvent.layout.y
+  }
+
+  const syncActiveDay = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const scrollY = event.nativeEvent.contentOffset.y
+    const visibleDayIndex = dayOffsetsRef.current.reduce(
+      (lastPassed, offset, dayIndex) => (offset <= scrollY + 24 ? dayIndex : lastPassed),
+      0,
+    )
+    if (visibleDayIndex !== activeDayIndex) setActiveDayIndex(visibleDayIndex)
+  }
+
+  // 경로마다 도로 경로 좌표를 얻는다. 훅 호출 수가 렌더마다 바뀌지 않도록
+  // 경로 목록 전체를 한 번에 넘긴다.
+  const waypointsByRoute = useMemo(
+    () =>
+      routes.map((route) =>
+        route.placeIds
+          .map((placeId) => places.find((place) => place.id === placeId))
+          .filter((place) => place != null)
+          .map((place) => ({ lat: place.lat, lng: place.lng })),
+      ),
+    [routes, places],
+  )
+  const legsByRoute = useRouteLegsPathList(waypointsByRoute)
+
+  // 장소에 새 지출 추가
+  const addExpense = async (place: PlaceWithRoute) => {
+    const values = await expenseForm.open({
+      defaultValues: {
+        placeId: place.id,
+        description: place.name,
+        date: place.date,
+        splitAmong: amongByPlaceId.get(place.id),
+      },
+      renderActions: ({ close, submit }) => <ExpenseFormOverlayActions onCancel={close} onSubmit={submit} />,
+    })
+    if (values == null) return
+    create(values)
+  }
+
+  // 기존 지출 수정
+  const editExpense = async (place: PlaceWithRoute, expenseId: string) => {
+    const expense = (expensesByPlaceId.get(place.id) ?? []).find((item) => item.id === expenseId)
+    if (expense == null) return
+
+    const values = await expenseForm.open({
+      mode: 'edit',
+      defaultValues: expense,
+      renderActions: ({ close, submit }) => (
+        <ExpenseFormDeletationActions tripId={tripId} expenseId={expenseId} onClose={close} onSubmit={submit} />
+      ),
+    })
+    if (values == null) return
+    update({ expenseId, data: values })
+  }
 
   return (
-    <Stack gap={16}>
-      <Box sx={{ flex: 1, height: 260 }}>
-        <Map sx={{ height: 260 }} defaultCenter={{ lat: trip.lat, lng: trip.lng }}>
-          {routePlaces.map((place) => (
-            <Map.Marker key={`${place.routeId}:${place.id}`} lat={place.lat} lng={place.lng} label={place.name} />
-          ))}
+    <Stack sx={{ flex: 1 }} gap={4}>
+      <Box sx={{ height: 360 }}>
+        <Map ref={mapRef} sx={{ height: 360 }} defaultCenter={{ lat: trip.lat, lng: trip.lng }} autoFocus="path">
+          {[
+            // AIRMap 은 지도용이 아닌 자식을 만나면 내부 배열이 깨진다.
+            // 경로와 마커를 하나의 평탄한 배열로 넘긴다.
+            ...routes.flatMap((route, routeIndex) => {
+              const dayIndex = tripDates.indexOf(route.scheduledDate ?? '')
+              const isActiveDay = activeDayIndex === dayIndex
+
+              return (legsByRoute[routeIndex] ?? []).map((leg, legIndex) => (
+                <Map.Path
+                  key={`route_${route.id}_leg_${legIndex}`}
+                  coordinates={leg.coordinates}
+                  strokeColor={getRouteColor(dayIndex >= 0 ? dayIndex : routeIndex)}
+                  strokeWeight={isActiveDay ? 5 : 3}
+                  strokeOpacity={isActiveDay ? 1 : 0.4}
+                />
+              ))
+            }),
+            ...placesByDay.flatMap((dayPlaces, dayIndex) =>
+              dayPlaces.map((place) => (
+                <Map.Marker
+                  key={`${place.routeId}:${place.id}`}
+                  lat={place.lat}
+                  lng={place.lng}
+                  label={`${place.orderInRoute + 1}. ${place.name}`}
+                  color={
+                    place.category != null
+                      ? PlaceCategoryColorCode[place.category as keyof typeof PlaceCategoryColorCode]
+                      : getRouteColor(dayIndex)
+                  }
+                  opacity={activeDayIndex === dayIndex ? 1 : 0.5}
+                  onClick={() => addExpense(place)}
+                />
+              )),
+            ),
+          ]}
         </Map>
       </Box>
-      <Stack sx={{ flex: 1, paddingHorizontal: 16 }} gap={2}>
+      <BottomSheet.ScrollView
+        onScroll={syncActiveDay}
+        scrollEventThrottle={16}
+        contentContainerStyle={{ paddingHorizontal: 16, gap: 16 }}
+      >
         {tripDates.map((date, dayIndex) => {
-          const places = placesByDay[dayIndex] ?? []
-
-          const dayTotal = places.reduce(
-            (sum, place) => sum + (amountByPlaceId.get(place.id) ?? 0),
-            0,
-          )
+          const dayPlaces = placesByDay[dayIndex] ?? []
+          const dayTotal = dayPlaces.reduce((sum, place) => sum + (amountByPlaceId.get(place.id) ?? 0), 0)
 
           return (
-            <Stack key={date} gap={1}>
+            <Stack
+              key={date}
+              gap={1}
+              onLayout={captureDayOffset(dayIndex)}
+              sx={{ opacity: activeDayIndex === dayIndex ? 1 : 0.5 }}
+            >
               <Stack direction="row" justifyContent="space-between" alignItems="center">
                 <Typography variant="subtitle2" color="primary" sx={{ fontWeight: '800' }}>
                   {dayIndex + 1}일차 · {formatShortDate(date)}
@@ -55,53 +173,88 @@ export function RouteExpenseView({ tripId }: Props) {
                 </Typography>
               </Stack>
 
-              <Stack as={ScrollView} gap={1}>
-                {places.map((place, index) => {
-                  const amount = amountByPlaceId.get(place.id) ?? 0
-                  const placeExpenses = expensesByPlaceId.get(place.id) ?? []
+              {dayPlaces.length === 0 ? (
+                <Typography variant="body2" color="text.secondary">
+                  등록된 장소가 없습니다
+                </Typography>
+              ) : (
+                <Stack gap={1}>
+                  {dayPlaces.map((place) => {
+                    const amount = amountByPlaceId.get(place.id) ?? 0
+                    const placeExpenses = expensesByPlaceId.get(place.id) ?? []
 
-                  return (
-                    <Box
-                      key={`${place.routeId}:${place.id}`}
-                      sx={{ borderWidth: 1, borderColor: '#dddddd', borderRadius: 16, padding: 16 }}
-                    >
-                      <Stack direction="row" alignItems="center" gap={1}>
-                        <Box sx={{ width: 24, height: 24, borderRadius: 12, backgroundColor: palette.primary, alignItems: 'center', justifyContent: 'center' }}>
-                          <Typography sx={{ color: '#fff', fontWeight: '800' }}>{index + 1}</Typography>
-                        </Box>
-                        <Typography sx={{ flex: 1, fontWeight: '700' }}>{place.name}</Typography>
-                        <Typography color="primary">{amount > 0 ? formatCurrency(amount) : '-'}</Typography>
-                        <IconButton
-                          size="small"
-                          onClick={async () => {
-                            const values = await expenseForm.open({ defaultValues: { date: formatDisplayDate(date), placeId: place.id } })
-                            if (values != null) create(values)
-                          }}
-                        >
-                          <MaterialIcons name="playlist-add" size={22} color={palette.primary} />
-                        </IconButton>
-                      </Stack>
-                      {placeExpenses.length > 0 && (
-                        <Stack gap={0.5} sx={{ marginLeft: 24, marginRight: 12, paddingTop: 12 }}>
-                          {placeExpenses.map((expense) => (
-                            <Stack key={expense.id} direction="row" alignItems="center" gap={1} sx={{ minHeight: 48, backgroundColor: '#f5f5f5', borderWidth: 1, borderColor: '#e0e0e0', borderRadius: 24, paddingHorizontal: 12, paddingVertical: 6 }}>
-                              <Typography variant="body2" sx={{ flex: 1 }}>{expense.description}</Typography>
-                              <Typography variant="caption" color="text.secondary" sx={{ flexShrink: 0 }}>
-                                {expense.payments.map((payment) => members.find((member) => member.id === payment.memberId)?.name).filter(Boolean).join(' ')}
+                    return (
+                      <Pressable
+                        key={`${place.routeId}:${place.id}`}
+                        onPress={() => mapRef.current?.panTo(place.lat, place.lng)}
+                      >
+                        <Box sx={{ borderWidth: 1, borderColor: '#dddddd', borderRadius: 16, padding: 16 }}>
+                          <Stack direction="row" alignItems="center" gap={1}>
+                            <Box
+                              sx={{
+                                width: 24,
+                                height: 24,
+                                borderRadius: 12,
+                                backgroundColor: getRouteColor(dayIndex),
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              <Typography sx={{ color: '#fff', fontWeight: '800' }}>
+                                {place.orderInRoute + 1}
                               </Typography>
-                              <Typography variant="body2" sx={{ flexShrink: 0 }}>+{formatCurrency(expense.totalAmount)}</Typography>
+                            </Box>
+                            <Typography sx={{ flex: 1, fontWeight: '700' }}>{place.name}</Typography>
+                            <Typography color="primary">{amount > 0 ? formatCurrency(amount) : '-'}</Typography>
+                            <IconButton size="small" onClick={() => addExpense(place)}>
+                              <MaterialIcons name="playlist-add" size={22} color={palette.primary} />
+                            </IconButton>
+                          </Stack>
+                          {placeExpenses.length > 0 && (
+                            <Stack gap={0.5} sx={{ marginLeft: 24, marginRight: 12, paddingTop: 12 }}>
+                              {placeExpenses.map((expense) => (
+                                <Pressable key={expense.id} onPress={() => editExpense(place, expense.id)}>
+                                  <Stack
+                                    direction="row"
+                                    alignItems="center"
+                                    gap={1}
+                                    sx={{
+                                      minHeight: 48,
+                                      backgroundColor: '#f5f5f5',
+                                      borderWidth: 1,
+                                      borderColor: '#e0e0e0',
+                                      borderRadius: 24,
+                                      paddingHorizontal: 12,
+                                      paddingVertical: 6,
+                                    }}
+                                  >
+                                    <Typography variant="body2" sx={{ flex: 1 }}>
+                                      {expense.description}
+                                    </Typography>
+                                    <Typography variant="caption" color="text.secondary" sx={{ flexShrink: 0 }}>
+                                      {expense.payments
+                                        .map((payment) => members.find((member) => member.id === payment.memberId)?.name)
+                                        .filter(Boolean)
+                                        .join(' ')}
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ flexShrink: 0 }}>
+                                      +{formatCurrency(expense.totalAmount)}
+                                    </Typography>
+                                  </Stack>
+                                </Pressable>
+                              ))}
                             </Stack>
-                          ))}
-                        </Stack>
-                      )}
-                    </Box>
-                  )
-                })}
-              </Stack>
+                          )}
+                        </Box>
+                      </Pressable>
+                    )
+                  })}
+                </Stack>
+              )}
             </Stack>
           )
         })}
-      </Stack>
+      </BottomSheet.ScrollView>
     </Stack>
   )
 }

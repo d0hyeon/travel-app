@@ -1,78 +1,14 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
 import type { Location } from '@waylog/domains/modules/location'
 import type { PlaceCategoryType } from '@waylog/domains/modules/place'
 import { useMemo } from 'react'
-import {
-  explorerKey,
-  getExploredPlaces,
-  getMostSavedPlaces,
-  type ExploredPlace,
-  type MostSavedPlace,
-} from './explorer.api'
+import { useExploredPlaces } from './explorer-ranking/useExploredPlaces'
+import { useRecentHotPlaces } from './explorer-recent/useRecentHotPlaces'
+import { useMostSavedPlaces } from './explorer-saved/useMostSavedPlaces'
+import type { ExploredPlace, MostSavedPlace } from './explorer.api'
 
 interface PlaceFilters {
   location?: Location
   category?: PlaceCategoryType
-}
-
-export function useExploredPlaces(filters: PlaceFilters = {}) {
-  const query = useSuspenseQuery({
-    queryKey: [explorerKey, 'explored'],
-    queryFn: () => getExploredPlaces(),
-  })
-
-  const places = useMemo(() => {
-    const highestVisitorCount = Math.max(...query.data.map((place) => place.visitorCount), 0)
-    const minimumVisitorCount = highestVisitorCount / 2
-
-    return query.data
-      .filter((place) => place.visitorCount >= minimumVisitorCount)
-      .filter((place) => !filters.location || place.destinations.includes(filters.location))
-      .filter((place) => !filters.category || place.categories.includes(filters.category))
-      .toSorted((first, second) => second.visitorCount - first.visitorCount)
-  }, [filters.category, filters.location, query.data])
-
-  return { ...query, data: places }
-}
-
-export function useRecentHotPlaces(months: number, filters: PlaceFilters = {}) {
-  const query = useSuspenseQuery({
-    queryKey: [explorerKey, 'recent-hot', months],
-    queryFn: () => getExploredPlaces(getSinceDate(months)),
-  })
-
-  const places = useMemo(() => {
-    const highestScore = Math.max(...query.data.map((place) => place.score), 0)
-    const minimumScore = highestScore / 2
-
-    return query.data
-      .filter((place) => place.score >= minimumScore)
-      .filter((place) => !filters.location || place.destinations.includes(filters.location))
-      .filter((place) => !filters.category || place.categories.includes(filters.category))
-      .toSorted((first, second) => second.score - first.score)
-  }, [filters.category, filters.location, query.data])
-
-  return { ...query, data: places }
-}
-
-export function useMostSavedPlaces(filters: PlaceFilters = {}) {
-  const query = useSuspenseQuery({
-    queryKey: [explorerKey, 'most-saved'],
-    queryFn: getMostSavedPlaces,
-  })
-
-  const places = useMemo(() => {
-    const highestSaveCount = Math.max(...query.data.map((place) => place.saveCount), 0)
-    const minimumSaveCount = highestSaveCount / 2
-
-    return query.data
-      .filter((place) => place.saveCount >= minimumSaveCount)
-      .filter((place) => !filters.location || place.destinations.includes(filters.location))
-      .filter((place) => !filters.category || place.categories.includes(filters.category))
-      .toSorted((first, second) => second.saveCount - first.saveCount)
-  }, [filters.category, filters.location, query.data])
-
-  return { ...query, data: places }
 }
 
 export interface AttentionPlace {
@@ -175,12 +111,6 @@ function normalizeAttentionScores(places: AttentionPlace[]): AttentionPlace[] {
         : orderedPlaces.findIndex((orderedPlace) => orderedPlace.placeId === place.placeId) /
           (orderedPlaces.length - 1),
   }))
-}
-
-function getSinceDate(months: number): string {
-  const sinceDate = new Date()
-  sinceDate.setMonth(sinceDate.getMonth() - months)
-  return sinceDate.toISOString().split('T')[0] ?? ''
 }
 
 export type ExplorerPlace = ExploredPlace | MostSavedPlace

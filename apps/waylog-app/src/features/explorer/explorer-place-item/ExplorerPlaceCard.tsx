@@ -1,9 +1,9 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { PlaceCategoryColorCode, PlaceCategoryTypeLabel, type PlaceCategoryType } from '@waylog/domains/modules/place'
 import { Pressable, View } from 'react-native'
-import { palette, radius } from '../../shared/config/tokens'
-import { Typography } from '../../shared/components/mui'
-import { LoadableImage } from '../../shared/components/LoadableImage'
+import { palette, radius } from '../../../shared/config/tokens'
+import { Typography } from '../../../shared/components/mui'
+import { LoadableImage } from '../../../shared/components/LoadableImage'
 
 interface PlaceCardData {
   placeId: string

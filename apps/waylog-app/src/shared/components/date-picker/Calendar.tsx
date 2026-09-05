@@ -1,13 +1,13 @@
 import { addMonths } from 'date-fns'
-import { useCallback, useEffect, useImperativeHandle, type Ref } from 'react'
-import { StyleSheet, View, useWindowDimensions } from 'react-native'
-import { Gesture, GestureDetector } from 'react-native-gesture-handler'
-import Animated, {
-  runOnJS,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated'
+import { useCallback, useImperativeHandle, useLayoutEffect, useRef, type Ref } from 'react'
+import {
+  type NativeSyntheticEvent,
+  type NativeScrollEvent,
+  ScrollView,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+} from 'react-native'
 import { buildMonthMatrix } from './calendar.utils'
 import type { DateSelection } from './datePicker.model'
 import { Typography } from '../mui'
@@ -18,10 +18,6 @@ const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'] as cons
 
 // 달을 넘길 때 쓰는 방향. 이름으로 부호의 의미를 남긴다.
 const Direction = { Previous: -1, Next: 1 } as const
-
-const SWIPE_DISTANCE_THRESHOLD = 60
-const SWIPE_VELOCITY_THRESHOLD = 500
-const SLIDE_DURATION = 240
 
 /** 달 이동을 밖에서 시켜도 스와이프와 같은 애니메이션을 타게 한다. */
 export type CalendarRef = {
@@ -38,86 +34,47 @@ interface CalendarProps {
 }
 
 /**
- * 앞뒤 달을 양옆에 미리 깔아두고 통째로 민다.
- * 넘긴 뒤에는 새 커서 기준으로 다시 그려지므로 위치를 0으로 되돌린다.
+ * 앞뒤 달을 양옆에 미리 깔아두고 가운데 페이지(현재 달)를 기준으로 페이징한다.
+ * 페이징 애니메이션은 네이티브 ScrollView에 맡겨 JS 왕복 없이 매끄럽게 끝낸다.
+ * 스크롤이 완전히 멈춘 뒤에야 cursor를 갱신하고 위치를 조용히 가운데로 되돌리므로,
+ * 되돌리는 순간이 화면에 애니메이션으로 보이지 않는다.
  */
 export function Calendar({ cursor, selection, onCursorChange, onSelectDay, ref }: CalendarProps) {
   const { width } = useWindowDimensions()
-  const offsetX = useSharedValue(0)
-  const isSliding = useSharedValue(false)
+  const scrollRef = useRef<ScrollView>(null)
+  const cursorRef = useRef(cursor)
+  cursorRef.current = cursor
 
-  // 커서가 바뀌면 가운데 달이 교체된 것이므로 위치를 원점으로 되돌린다.
-  useEffect(() => {
-    offsetX.set(0)
-    isSliding.set(false)
-  }, [cursor, offsetX, isSliding])
+  // cursor가 바뀌어 가운데 달이 교체된 프레임에 맞춰 스크롤 위치를 원점으로 되돌린다.
+  // useLayoutEffect로 커밋과 같은 프레임에 묶어, 옛 달 위치로 보였다가 다시 튀는
+  // 깜빡임 없이 조용히 스왑되게 한다.
+  useLayoutEffect(() => {
+    scrollRef.current?.scrollTo({ x: width, animated: false })
+  }, [cursor, width])
 
-  const commitDirection = useCallback(
-    (direction: number) => {
-      onCursorChange(addMonths(cursor, direction))
+  const goTo = useCallback(
+    (direction: number, animated: boolean) => {
+      scrollRef.current?.scrollTo({ x: (1 + direction) * width, animated })
     },
-    [cursor, onCursorChange],
-  )
-
-  // 스와이프든 버튼이든 같은 길로 달을 넘긴다.
-  const slide = useCallback(
-    (direction: number) => {
-      if (isSliding.get()) return
-      isSliding.set(true)
-
-      offsetX.set(
-        withTiming(-direction * width, { duration: SLIDE_DURATION }, (finished) => {
-          if (finished === true) runOnJS(commitDirection)(direction)
-        }),
-      )
-    },
-    [commitDirection, width, offsetX, isSliding],
+    [width],
   )
 
   useImperativeHandle(
     ref as never,
     () => ({
-      slidePrevious: () => slide(Direction.Previous),
-      slideNext: () => slide(Direction.Next),
+      slidePrevious: () => goTo(Direction.Previous, true),
+      slideNext: () => goTo(Direction.Next, true),
     }),
-    [slide],
+    [goTo],
   )
 
-  const settle = useCallback(
-    (translationX: number, velocityX: number) => {
-      const isFarEnough = Math.abs(translationX) > SWIPE_DISTANCE_THRESHOLD
-      const isFastEnough = Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD
+  const handleScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const page = Math.round(event.nativeEvent.contentOffset.x / width)
+    const direction = page - 1
+    if (direction === 0) return
 
-      // 덜 끌었으면 원래 자리로 되돌린다.
-      if (!isFarEnough && !isFastEnough) {
-        offsetX.set(withTiming(0, { duration: SLIDE_DURATION }))
-        return
-      }
-
-      // 오른쪽으로 끌면 왼쪽에 깔린 이전 달이 따라 들어온다.
-      slide(translationX > 0 ? Direction.Previous : Direction.Next)
-    },
-    [slide, offsetX],
-  )
-
-  const pan = Gesture.Pan()
-    .activeOffsetX([-12, 12])
-    // 세로로 끄는 동안에는 시트가 제스처를 갖도록 비켜준다.
-    .failOffsetY([-16, 16])
-    .onUpdate((event) => {
-      if (isSliding.get()) return
-      offsetX.set(event.translationX)
-    })
-    .onEnd((event) => {
-      if (isSliding.get()) return
-      runOnJS(settle)(event.translationX, event.velocityX)
-    })
-
-  const trackStyle = useAnimatedStyle(() => ({
-    flexDirection: 'row',
-    width: width * 3,
-    transform: [{ translateX: offsetX.get() - width }],
-  }))
+    onCursorChange(addMonths(cursorRef.current, direction))
+  }
 
   const months = [
     addMonths(cursor, Direction.Previous),
@@ -138,15 +95,24 @@ export function Calendar({ cursor, selection, onCursorChange, onSelectDay, ref }
       </View>
 
       <View style={styles.viewport}>
-        <GestureDetector gesture={pan}>
-          <Animated.View style={trackStyle}>
-            {months.map((month) => (
-              <View key={month.toISOString()} style={{ width }}>
-                <MonthGrid month={month} selection={selection} onSelectDay={onSelectDay} />
-              </View>
-            ))}
-          </Animated.View>
-        </GestureDetector>
+        <ScrollView
+          ref={scrollRef}
+          horizontal
+          pagingEnabled
+          // normal(기본값)은 감속이 느려 화면이 페이지에 스냅된 뒤에도 momentum이
+          // 한참 남아 onMomentumScrollEnd가 손 뗀 시점과 다르게 들쭉날쭉 늦게 온다.
+          decelerationRate="fast"
+          showsHorizontalScrollIndicator={false}
+          // 초기 렌더에서도 가운데 페이지(현재 달)에서 시작한다.
+          contentOffset={{ x: width, y: 0 }}
+          onMomentumScrollEnd={handleScrollEnd}
+        >
+          {months.map((month) => (
+            <View key={month.toISOString()} style={{ width }}>
+              <MonthGrid month={month} selection={selection} onSelectDay={onSelectDay} />
+            </View>
+          ))}
+        </ScrollView>
       </View>
     </View>
   )

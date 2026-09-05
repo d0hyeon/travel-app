@@ -1,8 +1,8 @@
-import { useUserProfile } from '@waylog/domains/modules/user-profile'
-import { Avatar, Box, Stack, Typography } from '../../shared/components/mui'
+import { Box, Stack, Typography } from '../../shared/components/mui'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Pressable, type GestureResponderEvent } from 'react-native'
 import { palette } from '../../shared/config/tokens'
+import { UserProfile } from '../user-profile/UserProfile'
 
 interface Props {
   authorId: string
@@ -12,9 +12,6 @@ interface Props {
 }
 
 export function PostAuthor({ authorId, place, additionalPlaceCount = 0, onPress }: Props) {
-  const { data: profile } = useUserProfile(authorId)
-  const authorName = profile?.name ?? '사용자'
-
   const handlePress = (event: GestureResponderEvent) => {
     event.stopPropagation()
     onPress?.()
@@ -25,16 +22,11 @@ export function PostAuthor({ authorId, place, additionalPlaceCount = 0, onPress 
       onPress={handlePress}
       disabled={onPress == null}
       accessibilityRole={onPress == null ? undefined : 'button'}
-      accessibilityLabel={`${authorName} 포스트`}
+      accessibilityLabel="작성자 프로필"
       style={{ flex: 1, minWidth: 0 }}
     >
       <Stack direction="row" alignItems="center" sx={{ gap: 6, flex: 1 }}>
-        <Avatar src={profile?.profileUrl ?? undefined} sx={{ width: 28, height: 28 }}>
-          {profile?.name?.[0] ?? '?'}
-        </Avatar>
-        <Typography sx={{ fontSize: 12, fontWeight: '900', flexShrink: 1 }} numberOfLines={1}>
-          {authorName}
-        </Typography>
+        <UserProfile id={authorId} sx={{ flexShrink: 1 }} />
         {place && (
           <>
             <Box sx={{ width: 2, height: 2, borderRadius: 1, backgroundColor: palette.textSecondary }} />

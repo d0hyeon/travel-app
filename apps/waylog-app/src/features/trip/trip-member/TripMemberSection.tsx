@@ -1,6 +1,8 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { useTripMembers } from '@waylog/domains/modules/trip-member'
+import { useRouter } from 'expo-router'
 import { Suspense } from 'react'
+import { Pressable } from 'react-native'
 import { ListItem } from '../../../shared/components/ListItem'
 import { Skeleton, Stack, Typography } from '../../../shared/components/mui'
 import { TripInviteButton } from '../components/TripInviteButton'
@@ -19,6 +21,7 @@ export function TripMemberSection(props: Props) {
 }
 
 function Resolved({ tripId }: Props) {
+  const router = useRouter()
   const { data: members } = useTripMembers(tripId)
   // 호스트를 앞으로 보낸다.
   const orderedMembers = members.toSorted((a) => (a.isHost ? -1 : 0))
@@ -44,17 +47,19 @@ function Resolved({ tripId }: Props) {
         ) : (
           orderedMembers.map((member) => (
             <ListItem key={member.id} leftAddon={<MemberAvatar member={member} size={28} />}>
-              <Stack direction="row" alignItems="center" gap={0.5}>
-                <Typography variant="body2">{member.name || '(이름 없음)'}</Typography>
-                {member.isHost && (
-                  <>
-                    <MaterialIcons name="workspace-premium" size={14} color="#4C84FF" />
-                    <Typography variant="caption" color="text.secondary">
-                      호스트
-                    </Typography>
-                  </>
-                )}
-              </Stack>
+              <Pressable onPress={() => router.push(`/u/${member.userId}`)}>
+                <Stack direction="row" alignItems="center" gap={0.5}>
+                  <Typography variant="body2">{member.name || '(이름 없음)'}</Typography>
+                  {member.isHost && (
+                    <>
+                      <MaterialIcons name="workspace-premium" size={14} color="#4C84FF" />
+                      <Typography variant="caption" color="text.secondary">
+                        호스트
+                      </Typography>
+                    </>
+                  )}
+                </Stack>
+              </Pressable>
             </ListItem>
           ))
         )}

@@ -93,8 +93,13 @@ async function getRelations(postIds: string[]): Promise<Map<string, PostRelation
   }]))
 }
 
-export async function getFeed(): Promise<Post[]> {
-  const { data: posts, error } = await supabase.from('posts').select('*').order('created_at', { ascending: false })
+export async function getFeed(authorId?: string): Promise<Post[]> {
+  let query = supabase.from('posts').select('*').order('created_at', { ascending: false })
+  if (authorId != null) {
+    query = query.eq('author_id', authorId)
+  }
+
+  const { data: posts, error } = await query
   if (error) throw error
   const rows = posts ?? []
   const relationsByPostId = await getRelations(rows.map((post) => post.id))
@@ -179,6 +184,20 @@ export async function createPost(input: CreatePostInput): Promise<Post> {
   const createdPost = await getPostById(post.id)
   if (createdPost == null) throw new Error('포스트를 생성했지만 다시 조회할 수 없어요')
   return createdPost
+}
+
+export async function deletePost(postId: string): Promise<void> {
+  const { data: photos } = await supabase.from('post_photos').select('storage_path').eq('post_id', postId)
+
+  const { error } = await supabase.from('posts').delete().eq('id', postId)
+  if (error) throw error
+
+  if (photos && photos.length > 0) {
+    const storagePaths = photos.map((p) => p.storage_path)
+    await supabase.functions.invoke('storage-delete', {
+      body: { storagePaths },
+    })
+  }
 }
 
 export async function getLikeStatus(postId: string): Promise<{ count: number; liked: boolean }> {

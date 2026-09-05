@@ -1,13 +1,11 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs'
-import { useEffect } from 'react'
 import { Pressable, useWindowDimensions, View } from 'react-native'
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { palette } from '../config/tokens'
 import { Typography } from './mui'
 
-// 하단바에 활성 표시선을 두고 탭 전환 시 좌우로 움직인다.
+// 웹 BottomNavigation 과 같이 상단을 라운드 처리한다. 활성 여부는 아이콘·텍스트 색으로만 표시한다.
 interface Props extends BottomTabBarProps {
   /** 하단바에 보일 라우트 이름. 순서도 이 배열을 따른다 */
   visibleNames: string[]
@@ -20,15 +18,6 @@ export function AnimatedTabBar({ state, descriptors, navigation, visibleNames }:
   // 하단바에 노출할 탭만 소비자가 정한다. 숨김 화면까지 그리지 않는다.
   const routes = state.routes.filter((route) => visibleNames.includes(route.name))
   const tabWidth = width / Math.max(routes.length, 1)
-  const activeIndex = routes.findIndex((route) => route.key === state.routes[state.index]?.key)
-
-  const offset = useSharedValue(0)
-
-  useEffect(() => {
-    if (activeIndex >= 0) offset.value = withTiming(activeIndex * tabWidth, { duration: 220 })
-  }, [activeIndex, tabWidth])
-
-  const indicatorStyle = useAnimatedStyle(() => ({ transform: [{ translateX: offset.value }] }))
 
   return (
     <View
@@ -36,23 +25,15 @@ export function AnimatedTabBar({ state, descriptors, navigation, visibleNames }:
         flexDirection: 'row',
         paddingBottom: insets.bottom,
         backgroundColor: palette.background,
-        borderTopWidth: 1,
-        borderTopColor: palette.divider,
+        borderTopLeftRadius: 28,
+        borderTopRightRadius: 28,
+        shadowColor: '#000',
+        shadowOpacity: 0.15,
+        shadowOffset: { width: 0, height: -6 },
+        shadowRadius: 10,
+        elevation: 6,
       }}
     >
-      <Animated.View
-        style={[
-          {
-            position: 'absolute',
-            top: 0,
-            width: tabWidth,
-            height: 2,
-            backgroundColor: palette.primary,
-          },
-          indicatorStyle,
-        ]}
-      />
-
       {routes.map((route) => {
         const { options } = descriptors[route.key]!
         const isFocused = state.routes[state.index]?.key === route.key

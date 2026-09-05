@@ -27,12 +27,10 @@ export interface UserPostPhoto {
 }
 
 export async function getUserPostPhotos(userId: string): Promise<UserPostPhoto[]> {
-  const posts = await getFeed()
+  const posts = await getFeed(userId)
 
-  return posts
-    .filter((post) => post.authorId === userId)
-    .flatMap((post) => {
-      const [coverPhoto] = post.photos
-      return coverPhoto == null ? [] : [{ postId: post.id, url: coverPhoto.url }]
-    })
+  return posts.flatMap((post) => {
+    const [coverPhoto] = post.photos
+    return coverPhoto == null ? [] : [{ postId: post.id, url: coverPhoto.url }]
+  })
 }

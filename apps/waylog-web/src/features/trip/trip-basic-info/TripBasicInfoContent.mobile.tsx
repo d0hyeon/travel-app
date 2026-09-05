@@ -2,7 +2,7 @@ import { Box, Stack, Tab, Tabs, Typography } from "@mui/material"
 import { Suspense } from 'react'
 import { BottomArea } from '~shared/components/BottomArea'
 import { BottomNavigation } from '~shared/components/BottomNavigation'
-import { ErrorBoundary } from "~shared/components/ErrorBoundary"
+import { ErrorBoundary } from "@waylog/react"
 import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState'
 import { TripChecklist } from '../trip-checklist/TripChecklist'
 import { TripChecklistAddButton } from '../trip-checklist/TripChecklistAddButton'

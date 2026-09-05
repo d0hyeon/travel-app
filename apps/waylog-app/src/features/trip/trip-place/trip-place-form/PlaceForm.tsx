@@ -5,14 +5,11 @@ import {
   type PlaceCategoryType,
 } from '@waylog/domains/modules/place'
 import { forwardRef, useImperativeHandle, useState } from 'react'
-import { Linking, Pressable } from 'react-native'
-import * as ImagePicker from 'expo-image-picker'
-import { MaterialIcons } from '@expo/vector-icons'
+import { Linking } from 'react-native'
 import { Controller, useForm } from 'react-hook-form'
 import { Box, Chip, Stack, TextField, Typography } from '../../../../shared/components/mui'
 import { PopMenu } from '../../../../shared/components/PopMenu'
-import { useTripPhotos } from '../../trip-photo/useTripPhotos'
-import { LoadableImage } from '../../../../shared/components/LoadableImage'
+import { PlacePhotoSection } from '../PlacePhotoSection'
 
 export interface PlaceFormValues {
   name: string
@@ -53,17 +50,6 @@ export const PlaceForm = forwardRef<PlaceFormRef, Props>(function PlaceForm(
   const [tagInput, setTagInput] = useState('')
   const category = watch('category')
   const tags = watch('tags')
-  const placeId = defaultValues?.placeId
-  const { data: photos, upload, remove } = useTripPhotos(tripId)
-  const placePhotos = photos.filter((photo) => photo.placeId === placeId)
-
-  const addPhoto = async () => {
-    if (placeId == null) return
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync()
-    if (!permission.granted) return
-    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsMultipleSelection: true, quality: 1 })
-    if (!result.canceled) await upload({ assets: result.assets, placeId })
-  }
 
   useImperativeHandle(ref, () => ({ submit: () => void handleSubmit(onSubmit)() }), [
     handleSubmit,
@@ -158,21 +144,7 @@ export const PlaceForm = forwardRef<PlaceFormRef, Props>(function PlaceForm(
         )}
       </Stack>
 
-      <Stack gap={1}>
-        <Typography variant="subtitle2" sx={{ fontWeight: '800' }}>사진</Typography>
-        <Stack direction="row" gap={1} sx={{ flexWrap: 'wrap' }}>
-          <Pressable onPress={() => void addPhoto()}>
-            <Box sx={{ width: 96, height: 96, flexShrink: 0, borderWidth: 2, borderStyle: 'dashed', borderColor: '#dddddd', borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
-              <MaterialIcons name="add-photo-alternate" size={30} color="#777" />
-            </Box>
-          </Pressable>
-          {placePhotos.map((photo) => (
-            <Pressable key={photo.id} onLongPress={() => void remove(photo)}>
-              <LoadableImage source={{ uri: photo.url }} style={{ width: 96, height: 96, borderRadius: 12 }} resizeMode="cover" />
-            </Pressable>
-          ))}
-        </Stack>
-      </Stack>
+      <PlacePhotoSection tripId={tripId} placeId={defaultValues?.placeId} />
     </Stack>
   )
 })

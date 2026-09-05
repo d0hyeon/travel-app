@@ -17,7 +17,10 @@ import { TripPlaceMapFloatingControls } from './TripPlaceMapFloatingControls';
 import { useTripPlaces } from '@waylog/domains/modules/trip';
 import { TripDetailHeader } from '../components/TripDetailHeader'
 
-const MICRO_ZOOM_LEVEL = 8;
+// 웹은 zoom 이 커질수록 축소되는 스케일(레벨)을 쓰지만, 앱(deltaToZoom)은 반대로
+// zoom 이 커질수록 확대된다. 웹의 MICRO_ZOOM_LEVEL(8, "이 이상 축소되면")과 같은
+// 지점을 앱 스케일로 표현하면 "이 미만으로 축소되면"이 된다.
+const MICRO_ZOOM_LEVEL = 9;
 
 
 interface PlaceContentProps {
@@ -77,19 +80,19 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
                 {places.map(place => (
                   <Map.Marker
                     key={place.id}
-                    label={zoom > MICRO_ZOOM_LEVEL ? undefined : place.name}
+                    label={zoom < MICRO_ZOOM_LEVEL ? undefined : place.name}
                     lat={place.lat}
                     lng={place.lng}
                     color={place.category
                       ? PlaceCategoryColorCode[place.category]
                       : plannedPlaceIds.has(place.id) ? 'selected' : 'default'
                     }
-                    variant={zoom > MICRO_ZOOM_LEVEL ? 'circle' : 'pin'}
+                    variant={zoom < MICRO_ZOOM_LEVEL ? 'circle' : 'pin'}
                     onClick={() => setFocusedId(place.id)}
                   />
                 ))}
 
-                {zoom <= MICRO_ZOOM_LEVEL && (
+                {zoom >= MICRO_ZOOM_LEVEL && (
                   <Suspense>
                     <RecommendedMarkers
                       tripId={tripId}

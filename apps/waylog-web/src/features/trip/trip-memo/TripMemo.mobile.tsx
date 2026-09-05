@@ -10,6 +10,7 @@ import type { TripMemo as TripMemoType } from '@waylog/domains/modules/trip-memo
 import { TripMemoForm } from './TripMemoForm';
 import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet';
 import { formatDate } from 'date-fns';
+import { getMemoDisplayTitle } from './memoTitle';
 
 interface Props {
   tripId: string;
@@ -94,8 +95,10 @@ interface MemoRowProps {
 
 function MemoRow({ tripId, memo }: MemoRowProps) {
   const preview = memo.content.substring(0, PREVIEW_MAX_LENGTH);
-  const title = memo.title ?? preview;
-  const previewText = memo.title ? preview : null;
+  const displayTitle = getMemoDisplayTitle(memo.title, memo.content, PREVIEW_MAX_LENGTH);
+  const trimmedTitle = memo.title?.trim() ?? '';
+  const hasExplicitTitle = trimmedTitle.length > 0;
+  const previewText = hasExplicitTitle ? preview : null;
   const date = formatDate(memo.createdAt, 'yyyy-MM-dd');
   const to = generatePath(AppRoute.여행_메모_상세, { tripId, memoId: memo.id });
 
@@ -117,7 +120,7 @@ function MemoRow({ tripId, memo }: MemoRowProps) {
         <Stack direction="row" alignItems="center" gap={0.5}>
           {memo.isPinned && <PushPinIcon sx={{ fontSize: 12, color: 'primary.main', flexShrink: 0 }} />}
           <Typography variant="body2" fontWeight={600} noWrap>
-            {title}
+            {displayTitle}
           </Typography>
         </Stack>
         <Stack direction="row" gap={1} alignItems="baseline">

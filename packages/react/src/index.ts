@@ -1,3 +1,5 @@
+export * from './AsyncBoundary'
+export * from './ErrorBoundary'
 export * from './env/useCurrentTime'
 export * from './extends/useAsyncEffect'
 export * from './extends/useBooleanState'

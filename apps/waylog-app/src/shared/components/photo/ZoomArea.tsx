@@ -1,22 +1,32 @@
+import type { ReactNode } from 'react'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated'
 import { runOnJS } from 'react-native-reanimated'
 
 interface Props {
-  uri: string
-  width: number
-  height: number
-  onZoomingChange?: (isZooming: boolean) => void
+  children: ReactNode
+  width?: number
+  height?: number
+  onZoomStart?: () => void
+  onZoomEnd?: () => void
 }
 
 /** 웹 ZoomArea의 pinch, double-tap, 확대 상태 이동을 네이티브 제스처로 옮긴다. */
-export function ZoomArea({ uri, width, height, onZoomingChange }: Props) {
+export function ZoomArea({ children, width, height, onZoomStart, onZoomEnd }: Props) {
   const scale = useSharedValue(1)
   const startScale = useSharedValue(1)
   const translateX = useSharedValue(0)
   const translateY = useSharedValue(0)
   const startX = useSharedValue(0)
   const startY = useSharedValue(0)
+  const isZoomed = useSharedValue(false)
+
+  const notifyZoomChange = (zoomed: boolean) => {
+    if (zoomed === isZoomed.value) return
+    isZoomed.value = zoomed
+    if (zoomed) onZoomStart?.()
+    else onZoomEnd?.()
+  }
 
   const pinch = Gesture.Pinch()
     .onStart(() => {
@@ -24,12 +34,12 @@ export function ZoomArea({ uri, width, height, onZoomingChange }: Props) {
     })
     .onUpdate((event) => {
       scale.value = Math.min(4, Math.max(1, startScale.value * event.scale))
-      onZoomingChange != null && runOnJS(onZoomingChange)(scale.value > 1.01)
+      runOnJS(notifyZoomChange)(scale.value > 1.01)
     })
     .onEnd(() => {
       if (scale.value <= 1) {
         scale.value = withSpring(1)
-        onZoomingChange != null && runOnJS(onZoomingChange)(false)
+        runOnJS(notifyZoomChange)(false)
         translateX.value = withSpring(0)
         translateY.value = withSpring(0)
       }
@@ -56,7 +66,7 @@ export function ZoomArea({ uri, width, height, onZoomingChange }: Props) {
   const doubleTap = Gesture.Tap().numberOfTaps(2).onEnd(() => {
     const zoomedIn = scale.value > 1
     scale.value = withSpring(zoomedIn ? 1 : 2)
-    onZoomingChange != null && runOnJS(onZoomingChange)(!zoomedIn)
+    runOnJS(notifyZoomChange)(!zoomedIn)
     translateX.value = withSpring(0)
     translateY.value = withSpring(0)
   })
@@ -66,16 +76,17 @@ export function ZoomArea({ uri, width, height, onZoomingChange }: Props) {
   // 기본 배율에서는 pager와 동시에 제스처를 인식하고, 확대된 경우에만
   // pan의 이동값을 반영한다. 그래야 pager와 확대 이미지 이동이 공존한다.
   const gesture = Gesture.Simultaneous(doubleTap, pinch, pan)
-  const imageStyle = useAnimatedStyle(() => ({
-    width,
-    height,
+  const transformStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }, { translateY: translateY.value }, { scale: scale.value }],
   }))
 
+  // width/height 를 생략하면 부모 레이아웃이 준 자리를 그대로 채운다.
+  const sizeStyle = width == null && height == null ? { flex: 1 } : { width, height }
+
   return (
     <GestureDetector gesture={gesture}>
-      <Animated.View style={{ width, height, alignItems: 'center', justifyContent: 'center' }}>
-        <Animated.Image source={{ uri }} resizeMode="contain" style={imageStyle} />
+      <Animated.View style={[sizeStyle, { alignItems: 'center', justifyContent: 'center' }, transformStyle]}>
+        {children}
       </Animated.View>
     </GestureDetector>
   )

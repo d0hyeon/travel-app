@@ -1,9 +1,9 @@
 import { useAuth } from '@waylog/domains/clients'
 import { Redirect } from 'expo-router'
-import { ExplorerScreen } from '../../src/features/explorer/ExplorerScreen'
+import { TopVisitedScreen } from '../../src/features/explorer/explorer-ranking/TopVisitedScreen'
 
 export default function TopVisitedRoute() {
   const { data: auth } = useAuth({ required: false })
   if (auth == null) return <Redirect href="/login" />
-  return <ExplorerScreen mode="top-visited" />
+  return <TopVisitedScreen />
 }

@@ -1,6 +1,6 @@
 import { Stack } from '@mui/material'
 import { Suspense } from 'react'
-import { ErrorBoundary } from '~shared/components/ErrorBoundary'
+import { ErrorBoundary } from '@waylog/react'
 import { TopVisitedSummarySection } from './explorer-ranking/TopVisitedSummarySection'
 import { RecentHotSummarySection } from './explorer-recent/RecentHotSummarySection'
 import { MostSavedSummarySection } from './explorer-saved/MostSavedSummarySection'

@@ -28,6 +28,7 @@ function ChatFabBase({ tripId, unreadCount }: Props & { unreadCount: number }) {
     <Fab
       color="primary"
       onClick={() => open(tripId)}
+      aria-label="채팅 열기"
       sx={{
         position: 'fixed',
         bottom: 24,

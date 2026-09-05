@@ -3,7 +3,7 @@ import * as ImagePicker from 'expo-image-picker'
 import type { Photo } from '@waylog/domains/modules/photo'
 import { useTripPlaces } from '@waylog/domains/modules/trip'
 import { useEffect, useMemo, useState } from 'react'
-import { ActivityIndicator, FlatList, Pressable, useWindowDimensions } from 'react-native'
+import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, useWindowDimensions } from 'react-native'
 import * as Linking from 'expo-linking'
 import { Box, Button, Chip, Stack, Typography } from '../../../shared/components/mui'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
@@ -11,6 +11,7 @@ import { useConfirmDialog } from '../../../shared/components/confirm-dialog/useC
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { palette } from '../../../shared/config/tokens'
 import { useTripPhotos } from './useTripPhotos'
+import { usePhotoViewerState } from './usePhotoViewerState'
 import { TripDetailHeader } from '../components/TripDetailHeader'
 import { ZoomArea } from '../../../shared/components/photo/ZoomArea'
 import { LoadableImage } from '../../../shared/components/LoadableImage'
@@ -20,6 +21,16 @@ const GAP = 2
 
 interface Props {
   tripId: string
+}
+
+/**
+ * 사진 탭 데이터를 미리 받아 둔다. 웹 TripPhotoContent.mobile 의 preload 와 같은 역할.
+ *
+ * Expo Router 에는 라우트 진입 전에 이 함수를 불러 주는 지점이 없어
+ * 아직 호출부가 없다. 탭 전환 직전 연결은 향후 과제로 남긴다.
+ */
+export function preload(tripId: string) {
+  useTripPhotos.prefetch(tripId)
 }
 
 export function TripPhotoContent({ tripId }: Props) {
@@ -102,48 +113,50 @@ export function TripPhotoContent({ tripId }: Props) {
   return (
     <Box sx={{ flex: 1, backgroundColor: palette.background }}>
       <TripDetailHeader />
-      <Box
-        sx={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingHorizontal: 16,
-          paddingVertical: 12,
-        }}
+      {/* 웹과 같이 장소 필터와 선택/완료 버튼을 한 행에 둔다. */}
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent={placeOptions.length > 0 ? 'space-between' : 'flex-end'}
+        gap={1}
+        sx={{ paddingHorizontal: 16, paddingVertical: 12 }}
       >
-        <Box />
+        {placeOptions.length > 0 && (
+          <Stack direction="row" gap={0.5} sx={{ flex: 1, flexWrap: 'wrap' }}>
+            {placeOptions.map((place) => {
+              const isSelected = selectedPlaceIds.includes(place.placeId)
+
+              return (
+                <Chip
+                  key={place.placeId}
+                  label={place.name}
+                  size="small"
+                  variant={isSelected ? 'filled' : 'outlined'}
+                  color={isSelected ? 'primary' : 'default'}
+                  onClick={() =>
+                    setSelectedPlaceIds((curr) =>
+                      isSelected
+                        ? curr.filter((id) => id !== place.placeId)
+                        : [...curr, place.placeId],
+                    )
+                  }
+                />
+              )
+            })}
+          </Stack>
+        )}
         <Stack direction="row" gap={0.5} alignItems="center">
-          <Button size="small" onClick={() => setIsReadonly((curr) => !curr)}>
+          {isUploading && <ActivityIndicator />}
+          <Button
+            size="small"
+            variant="contained"
+            onClick={() => setIsReadonly((curr) => !curr)}
+            sx={{ borderRadius: 24, backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
+          >
             {isReadonly ? '선택' : '완료'}
           </Button>
-          {isUploading && <ActivityIndicator />}
         </Stack>
-      </Box>
-
-      {placeOptions.length > 0 && (
-        <Stack direction="row" gap={0.5} sx={{ paddingHorizontal: 16, paddingBottom: 8, flexWrap: 'wrap' }}>
-          {placeOptions.map((place) => {
-            const isSelected = selectedPlaceIds.includes(place.placeId)
-
-            return (
-              <Chip
-                key={place.placeId}
-                label={place.name}
-                size="small"
-                variant={isSelected ? 'filled' : 'outlined'}
-                color={isSelected ? 'primary' : 'default'}
-                onClick={() =>
-                  setSelectedPlaceIds((curr) =>
-                    isSelected
-                      ? curr.filter((id) => id !== place.placeId)
-                      : [...curr, place.placeId],
-                  )
-                }
-              />
-            )
-          })}
-        </Stack>
-      )}
+      </Stack>
 
       {!isReadonly && selectedPhotoIds.length > 0 && (
         <Stack direction="row" gap={1} sx={{ paddingHorizontal: 16, paddingBottom: 8 }}>
@@ -172,7 +185,7 @@ export function TripPhotoContent({ tripId }: Props) {
               setSelectedPhotoIds([])
             }}
           >
-            삭제
+            삭제 ({selectedPhotoIds.length}/{filteredPhotos.length})
           </Button>
         </Stack>
       )}
@@ -205,8 +218,20 @@ export function TripPhotoContent({ tripId }: Props) {
           <Pressable
             onPress={() => (isReadonly ? openPhotoDetails(item) : toggleSelect(item))}
             onLongPress={() => setIsReadonly(false)}
+            style={{ position: 'relative' }}
           >
             <LoadableImage source={{ uri: item.url }} style={{ width: size, height: size, borderRadius: 8 }} resizeMode="cover" />
+
+            {!isReadonly && selectedPhotoIds.includes(item.id) && (
+              <Box
+                pointerEvents="none"
+                sx={{
+                  ...StyleSheet.absoluteFillObject,
+                  borderRadius: 8,
+                  backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                }}
+              />
+            )}
 
             {/* 공개 사진 표시 */}
             {item.isPublic && (
@@ -246,16 +271,15 @@ interface PhotoViewerSheetProps {
 function PhotoViewerSheet({ isOpen, photos, initialIndex, places, onUpdate, onDelete, onClose }: PhotoViewerSheetProps) {
   const { width } = useWindowDimensions()
   const overlay = useOverlay()
-  const imagePagerHeight = 560
-  const [viewerPhotos, setViewerPhotos] = useState(photos)
-  const [currentIndex, setCurrentIndex] = useState(initialIndex)
+  // 웹은 ZoomArea 에 height="100%" 를 주어 시트 Body 를 그대로 채운다.
+  // 앱은 고정 픽셀로 재는 대신 실제 렌더된 Body 높이를 측정해 맞춘다.
+  // 첫 렌더는 onLayout 이전이라 0으로 잡히면 사진이 통째로 안 보이므로,
+  // 실측 전까지 쓸 값을 기존 고정값으로 남겨 두고 실측되면 갱신만 한다.
+  const [imagePagerHeight, setImagePagerHeight] = useState(560)
   const [isZooming, setIsZooming] = useState(false)
-  const currentPhoto = viewerPhotos[currentIndex]
+  const { viewerPhotos, currentIndex, currentPhoto, setCurrentIndex, updateCurrentPhoto } =
+    usePhotoViewerState({ photos, initialIndex, onUpdate })
   const currentPlace = places.find((place) => place.placeId === currentPhoto.placeId)
-  const updateCurrentPhoto = async (patch: { placeId?: string | null; isPublic?: boolean }) => {
-    await onUpdate({ photoId: currentPhoto.id, ...patch })
-    setViewerPhotos((items) => items.map((item) => item.id === currentPhoto.id ? { ...item, ...patch } : item))
-  }
 
   return (
     <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.95]} defaultSnapIndex={0} safeArea sx={{ backgroundColor: '#010101' }}>
@@ -293,7 +317,13 @@ function PhotoViewerSheet({ isOpen, photos, initialIndex, places, onUpdate, onDe
           <Typography sx={{ color: '#fff', fontSize: 24 }}>⋮</Typography>
         </Pressable>
       </BottomSheet.Header>
-      <BottomSheet.Body sx={{ backgroundColor: '#010101' }}>
+      <BottomSheet.Body
+        sx={{ backgroundColor: '#010101' }}
+        onLayout={(event) => {
+          const height = Math.round(event.nativeEvent.layout.height)
+          if (height > 0) setImagePagerHeight(height)
+        }}
+      >
         <BottomSheet.ScrollView
           horizontal
           pagingEnabled
@@ -303,12 +333,14 @@ function PhotoViewerSheet({ isOpen, photos, initialIndex, places, onUpdate, onDe
           showsHorizontalScrollIndicator={false}
           contentOffset={{ x: initialIndex * width, y: 0 }}
           onMomentumScrollEnd={(event) => setCurrentIndex(Math.round(event.nativeEvent.contentOffset.x / width))}
-          style={{ height: imagePagerHeight, flexGrow: 0 }}
+          style={{ height: imagePagerHeight, flex: 0 }}
           contentContainerStyle={{ height: imagePagerHeight }}
         >
           {viewerPhotos.map((item) => (
             <Box key={item.id} sx={{ width, height: imagePagerHeight, alignItems: 'center', justifyContent: 'center' }}>
-              <ZoomArea uri={item.url} width={width} height={520} onZoomingChange={setIsZooming} />
+              <ZoomArea width={width} height={imagePagerHeight} onZoomStart={() => setIsZooming(true)} onZoomEnd={() => setIsZooming(false)}>
+                <Image source={{ uri: item.url }} resizeMode="contain" style={{ width, height: imagePagerHeight }} />
+              </ZoomArea>
             </Box>
           ))}
         </BottomSheet.ScrollView>

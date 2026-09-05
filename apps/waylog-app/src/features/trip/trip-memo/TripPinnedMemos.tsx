@@ -5,6 +5,7 @@ import { Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ListItem } from "../../../shared/components/ListItem";
 import { useTripMemo } from '@waylog/domains/modules/trip-memo';
+import { getMemoDisplayTitle } from './memoTitle';
 
 interface Props extends StackProps {
   tripId: string;
@@ -39,8 +40,10 @@ function TripPinnedMemosContent({ tripId, throwOnEmpty, ...props }: Props) {
       </Typography>
       {pinnedMemos.map((memo) => {
         const preview = memo.content;
-        const title = memo.title ?? preview;
-        const previewText = memo.title ? preview : null;
+        const displayTitle = getMemoDisplayTitle(memo.title, memo.content);
+        const trimmedTitle = memo.title?.trim() ?? '';
+        const hasExplicitTitle = trimmedTitle.length > 0;
+        const previewText = hasExplicitTitle ? preview : null;
 
         return (
           <Pressable key={memo.id} onPress={() => router.push(`/trip/${tripId}/memo/${memo.id}`)}>
@@ -49,7 +52,7 @@ function TripPinnedMemosContent({ tripId, throwOnEmpty, ...props }: Props) {
               sx={{ paddingVertical: 8 }}
             >
               <Typography variant="caption">
-                {title}
+                {displayTitle}
               </Typography>
               {previewText && (
                 <Typography

@@ -11,7 +11,7 @@ import { useQueryParamState } from '../../shared/hooks/urls/useQueryParamState.t
 import { TripBasicInfoContent } from './trip-basic-info/TripBasicInfoContent.desktop';
 
 
-import { ErrorBoundary } from '~shared/components/ErrorBoundary.tsx';
+import { ErrorBoundary } from '@waylog/react';
 import { TopNavigation } from '~shared/components/layout/TopNavigation.desktop.tsx';
 import { PopMenu } from '~shared/components/PopMenu.tsx';
 import { SwitchCase } from '~shared/components/SwitchCase';

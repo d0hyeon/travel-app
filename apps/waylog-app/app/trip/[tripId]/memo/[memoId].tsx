@@ -6,6 +6,8 @@ import { ScrollView, ActivityIndicator } from 'react-native'
 import { IconButton, Stack, Typography } from '../../../../src/shared/components/mui'
 import { PopMenu } from '../../../../src/shared/components/PopMenu'
 import { useConfirmDialog } from '../../../../src/shared/components/confirm-dialog/useConfirmDialog'
+import { extractUrls, renderTextWithLinks } from '../../../../src/shared/utils/urls'
+import { OgPreviewCard } from '../../../../src/features/open-graph/OgPreviewCard'
 import { useTripMemo } from '@waylog/domains/modules/trip-memo'
 
 export default function TripMemoDetailRoute() {
@@ -26,6 +28,8 @@ function Resolved() {
   if (!memo) {
     return <Typography sx={{ padding: 24, textAlign: 'center' }}>메모를 찾을 수 없어요</Typography>
   }
+
+  const urls = extractUrls(memo.content)
 
   return (
     <Stack sx={{ flex: 1 }}>
@@ -63,8 +67,9 @@ function Resolved() {
           {formatDate(memo.createdAt, 'yyyy년 M월 d일 a h:mm')}
         </Typography>
         <Typography variant={memo.title ? 'body2' : 'body1'} sx={{ whiteSpace: 'pre-wrap' }}>
-          {memo.content}
+          {renderTextWithLinks(memo.content)}
         </Typography>
+        {urls.length > 0 && <OgPreviewCard url={urls[0]} />}
       </ScrollView>
     </Stack>
   )

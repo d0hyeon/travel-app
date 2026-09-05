@@ -10,7 +10,6 @@ import {
 import {
   Children,
   isValidElement,
-  useEffect,
   useImperativeHandle,
   useMemo,
   useRef,
@@ -19,8 +18,10 @@ import {
 } from 'react'
 import { StyleSheet, useWindowDimensions } from 'react-native'
 import MapView, { PROVIDER_GOOGLE, type Region } from 'react-native-maps'
+import { MapContext } from './MapContext'
 import { NativeMapCluster } from './NativeMapCluster'
 import { NativeMapMarker } from './NativeMapMarker'
+import { useBatchedCallback } from '../../hooks/useBatchedCallback'
 import { Sx } from '../mui'
 
 // 웹은 level(1~14, 작을수록 확대), RN 은 delta(작을수록 확대)로 배율을 다룬다.
@@ -83,24 +84,30 @@ export function NativeMap({
 
   const { markerProps, others } = splitMarkers(rendered)
 
-  // 마커의 좌표·개수가 그대로면 같은 문자열이 된다.
+  // 좌표·개수가 그대로면 같은 문자열이 된다.
   // rendered 는 부모가 리렌더할 때마다 새 배열이라 참조로는 비교할 수 없다.
   const markerIdentity = markerProps
     .map((marker, index) => `${marker.id ?? index}:${marker.lat},${marker.lng}`)
     .join('|')
 
-  // 웹과 같이 마커가 모두 담기도록 화면을 맞춘다. 최초 한 번만 한다.
-  const focusedRef = useRef(false)
-  useEffect(() => {
-    if (autoFocus === false || focusedRef.current || markerProps.length === 0) return
+  // 마커·경로가 부모에게 스캔당하는 대신, 마운트 시점에 스스로 좌표를 등록한다
+  // (웹 useViewportFit 과 동일한 설계). Suspense·조건부 렌더로 감싸인 자식도
+  // 정적 트리 순회 없이 자연스럽게 반영된다. 배치 후 최초 한 번만 화면을 맞춘다.
+  const boundsRef = useRef<{ lat: number; lng: number }[]>([])
+  const extendBound = useBatchedCallback<{ lat: number; lng: number }>((coords) => {
+    boundsRef.current.push(...coords)
+    if (boundsRef.current.length === 0) return
 
-    focusedRef.current = true
     mapRef.current?.fitToCoordinates(
-      markerProps.map((marker) => ({ latitude: marker.lat, longitude: marker.lng })),
+      boundsRef.current.map((coord) => ({ latitude: coord.lat, longitude: coord.lng })),
       { edgePadding: { top: 60, right: 60, bottom: 60, left: 60 }, animated: true },
     )
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoFocus, markerIdentity])
+  }, { once: true })
+
+  const mapContextValue = useMemo(
+    () => ({ extendBound, config: { autoFocus } }),
+    [extendBound, autoFocus],
+  )
 
   const clustered = useMemo(() => {
     if (clustering !== true || region == null || markerProps.length < 2) return null
@@ -116,57 +123,59 @@ export function NativeMap({
   }, [clustering, region, markerIdentity, clusterGridSize, width])
 
   return (
-    <MapView
-      ref={mapRef}
-      provider={PROVIDER_GOOGLE}
-      style={[StyleSheet.absoluteFill, sx]}
-      customMapStyle={pastelMapStyle}
-      initialRegion={
-        initial && {
-          latitude: initial.lat,
-          longitude: initial.lng,
-          latitudeDelta: DEFAULT_DELTA,
-          longitudeDelta: DEFAULT_DELTA,
+    <MapContext value={mapContextValue}>
+      <MapView
+        ref={mapRef}
+        provider={PROVIDER_GOOGLE}
+        style={[StyleSheet.absoluteFill, sx]}
+        customMapStyle={pastelMapStyle}
+        initialRegion={
+          initial && {
+            latitude: initial.lat,
+            longitude: initial.lng,
+            latitudeDelta: DEFAULT_DELTA,
+            longitudeDelta: DEFAULT_DELTA,
+          }
         }
-      }
-      // 이동이 끝난 뒤에만 다시 묶는다. 이동 중 계산하면 지도가 끊긴다.
-      // 같은 값으로 setState 하면 마커 전체가 다시 그려지므로 바뀔 때만 반영한다.
-      onRegionChangeComplete={(next) => {
-        setZoom((current) => {
-          const nextZoom = deltaToZoom(next.longitudeDelta)
-          return nextZoom === current ? current : nextZoom
-        })
-        setRegion((current) => (isSameRegion(current, next) ? current : next))
-        onBoundsChange?.(regionToBounds(next))
-      }}
-    >
-      {(clustered == null
-        ? rendered
-        : [
-          ...others,
-          ...clustered.map((cluster) =>
-            cluster.markers.length === 1 ? (
-              findMarker(rendered, cluster.markers[0]!.id)
-            ) : (
-              <NativeMapCluster
-                key={cluster.id}
-                latitude={cluster.center.lat}
-                longitude={cluster.center.lng}
-                count={cluster.markers.length}
-                onTap={() =>
-                  mapRef.current?.fitToCoordinates(
-                    cluster.markers.map((marker) => ({
-                      latitude: marker.position.lat,
-                      longitude: marker.position.lng,
-                    })),
-                    { edgePadding: { top: 80, right: 80, bottom: 80, left: 80 }, animated: true },
-                  )
-                }
-              />
+        // 이동이 끝난 뒤에만 다시 묶는다. 이동 중 계산하면 지도가 끊긴다.
+        // 같은 값으로 setState 하면 마커 전체가 다시 그려지므로 바뀔 때만 반영한다.
+        onRegionChangeComplete={(next) => {
+          setZoom((current) => {
+            const nextZoom = deltaToZoom(next.longitudeDelta)
+            return nextZoom === current ? current : nextZoom
+          })
+          setRegion((current) => (isSameRegion(current, next) ? current : next))
+          onBoundsChange?.(regionToBounds(next))
+        }}
+      >
+        {(clustered == null
+          ? rendered
+          : [
+            ...others,
+            ...clustered.map((cluster) =>
+              cluster.markers.length === 1 ? (
+                findMarker(rendered, cluster.markers[0]!.id)
+              ) : (
+                <NativeMapCluster
+                  key={cluster.id}
+                  latitude={cluster.center.lat}
+                  longitude={cluster.center.lng}
+                  count={cluster.markers.length}
+                  onTap={() =>
+                    mapRef.current?.fitToCoordinates(
+                      cluster.markers.map((marker) => ({
+                        latitude: marker.position.lat,
+                        longitude: marker.position.lng,
+                      })),
+                      { edgePadding: { top: 80, right: 80, bottom: 80, left: 80 }, animated: true },
+                    )
+                  }
+                />
+              ),
             ),
-          ),
-        ]) as ReactNode}
-    </MapView>
+          ]) as ReactNode}
+      </MapView>
+    </MapContext>
   )
 }
 

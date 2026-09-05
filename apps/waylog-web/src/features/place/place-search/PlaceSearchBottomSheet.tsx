@@ -19,15 +19,14 @@ import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
 import { ListItem } from '~shared/components/ListItem'
 import { useDebouncedValue } from '@waylog/react'
 import type { Coordinate, MapProvider } from '../../../shared/components/Map'
-import type { PlaceSearchResult } from './PlaceSearchDialog'
 import { PlaceSearchSelectScreen } from './PlaceSearchSelectScreen'
 import { useLaststSearchKeywords } from './useLaststSearchKeywords'
-import { usePlaceSearch } from '@waylog/domains/modules/place'
+import { usePlaceSearch, type PlaceResult } from '@waylog/domains/modules/place'
 
 interface Props {
   isOpen: boolean
   onClose: () => void
-  onSelect: (place: PlaceSearchResult) => void
+  onSelect: (place: PlaceResult) => void
   service?: MapProvider;
   center?: Coordinate;
 }
@@ -47,7 +46,7 @@ export function PlaceSearchBottomSheet({ isOpen, onClose, onSelect, center, serv
     if (isOpen) setKeyword('');
   }, [isOpen]);
 
-  const handleSelect = (place: PlaceSearchResult) => {
+  const handleSelect = (place: PlaceResult) => {
     onSelect(place)
     onClose()
   }

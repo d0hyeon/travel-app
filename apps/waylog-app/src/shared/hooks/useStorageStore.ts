@@ -1,37 +1,66 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { useCallback, useEffect, useState } from 'react'
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAsyncEffect } from "@waylog/react";
+import { use, useCallback, useEffect, useState } from "react";
 
-// 웹 useStorageStore 와 같은 [value, setValue] 시그니처를 유지한다.
-// 웹은 localStorage(동기), 앱은 AsyncStorage(비동기)라 초기값으로 먼저 그린 뒤 읽어온다.
-const cache = new Map<string, unknown>()
+interface Options {
+  suspense?: boolean;
+}
 
-export function useStorageStore<T>(key: string, initialValue: T): [T, (next: T) => void] {
-  const [value, setValue] = useState<T>(() => (cache.get(key) as T) ?? initialValue)
+export function useStorageStore<T>(
+  key: string,
+  initialValue: T,
+  options?: Options,
+): [T, (next: T) => void] {
+  const storageSuspend = Storage.load<T>(key);
+  const storageValue = options?.suspense ? use(storageSuspend) : null;
 
-  useEffect(() => {
-    if (cache.has(key)) return
+  const [value, setValue] = useState<T>(storageValue ?? initialValue);
 
-    let cancelled = false
-    AsyncStorage.getItem(key).then((stored) => {
-      if (cancelled || stored == null) return
-      const parsed = JSON.parse(stored) as T
-      cache.set(key, parsed)
-      setValue(parsed)
-    })
+  useAsyncEffect(async () => {
+    if (storageValue != null) return;
+
+    let cancelled = false;
+    const loadedValue = await storageSuspend;
+    if (!cancelled && loadedValue != null) {
+      setValue(loadedValue);
+    }
 
     return () => {
-      cancelled = true
-    }
-  }, [key])
+      cancelled = true;
+    };
+  }, [key]);
 
   const update = useCallback(
     (next: T) => {
-      cache.set(key, next)
-      setValue(next)
-      void AsyncStorage.setItem(key, JSON.stringify(next))
+      Storage.save(key, next);
+      setValue(next);
     },
     [key],
-  )
+  );
 
-  return [value, update]
+  return [value, update];
 }
+
+const Storage = {
+  load: <T>(key: string) => {
+    const cached = cache.get(key);
+    if (cached !== undefined) {
+      return Promise.resolve<T>(cached as T);
+    }
+
+    return new Promise<T | null>(async (resolve) => {
+      const raw = await AsyncStorage.getItem(key);
+      if (raw == null) {
+        return resolve(null);
+      }
+      const value = JSON.parse(raw);
+      cache.set(key, value);
+      resolve(value);
+    });
+  },
+  save: <T>(key: string, value: T) => {
+    cache.set(key, value);
+    AsyncStorage.setItem(key, JSON.stringify(value));
+  },
+};
+const cache = new Map<string, unknown>();

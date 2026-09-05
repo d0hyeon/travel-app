@@ -1,5 +1,5 @@
 import { Children, isValidElement, useCallback, useRef, type ReactNode } from 'react'
-import { Pressable, View } from 'react-native'
+import { Pressable, useWindowDimensions, View } from 'react-native'
 import { css } from '@emotion/native'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { palette } from '../../config/tokens'
@@ -35,6 +35,7 @@ export function Tabs({
   sx,
   children
 }: TabsProps) {
+  const { width: viewportWidth } = useWindowDimensions()
   const tabs = Children.toArray(children)
     .filter(isValidElement<TabProps>)
     .map((child) => child.props)
@@ -69,9 +70,9 @@ export function Tabs({
       horizontal
       showsHorizontalScrollIndicator={false}
       scrollEnabled={scrollable}
-      contentContainerStyle={fullWidth ? { flexGrow: 1 } : undefined}
+      contentContainerStyle={fullWidth ? { flexGrow: 1, minWidth: viewportWidth } : undefined}
     >
-      <View style={{ flexDirection: 'row', ...(fullWidth && { flex: 1 }) }}>
+      <View style={{ flexDirection: 'row', ...(fullWidth && { flex: 1, minWidth: viewportWidth }) }}>
         {tabs.map((tab) => {
           const selected = tab.value === value
 

@@ -9,6 +9,7 @@ import { useUserTrips } from './useUserTrips'
 import { deriveVisitedLocations, type VisitedLocation } from './user-profile.utils'
 import { UserTripPhotoList } from './UserTripPhotoList'
 import { useOverlay } from '../../shared/hooks/useOverlay'
+import { useStorageStore } from '../../shared/hooks/useStorageStore'
 
 export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChange }: {
   userId: string
@@ -23,7 +24,7 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
   const mapHeight = Math.max(viewportHeight - TAB_BAR_HEIGHT, 0)
   const visitedLocations = useMemo(() => deriveVisitedLocations(trips), [trips])
   const [selectedLocation, setSelectedLocation] = useState<VisitedLocation | null>(null)
-  const [isLocationVisible, setIsLocationVisible] = useState(true)
+  const [isLocationVisible, setIsLocationVisible] = useStorageStore('user-record-visible-location', true)
   const locationOverlay = useOverlay()
 
   useEffect(() => {
@@ -71,7 +72,7 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
         onTouchEnd={() => onMapInteractionChange?.(false)}
         onTouchCancel={() => onMapInteractionChange?.(false)}
       >
-        <Pressable onPress={() => setIsLocationVisible((visible) => !visible)} style={{ position: 'absolute', right: 8, top: 8, zIndex: 2, padding: 8, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.85)' }}>
+        <Pressable onPress={() => setIsLocationVisible(!isLocationVisible)} style={{ position: 'absolute', right: 8, top: 8, zIndex: 2, padding: 8, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.85)' }}>
           <MaterialIcons name={isLocationVisible ? 'visibility' : 'visibility-off'} size={18} color={palette.textSecondary} />
         </Pressable>
         <Map autoFocus="marker" clustering>

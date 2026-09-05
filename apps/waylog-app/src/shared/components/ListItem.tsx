@@ -42,6 +42,7 @@ export function ListItem<As extends ElementType = typeof View>({
         borderWidth: 1,
         borderColor: palette.divider,
         borderRadius: 12,
+        overflow: 'visible',
         ...(sx ?? {}),
       }}
       {...props}

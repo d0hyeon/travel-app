@@ -1,6 +1,6 @@
 import { PostVisibility, type Post } from '@waylog/domains/modules/post'
 import { MaterialIcons } from '@expo/vector-icons'
-import { Pressable, ScrollView, type LayoutChangeEvent } from 'react-native'
+import { Pressable, ScrollView, useWindowDimensions, type LayoutChangeEvent } from 'react-native'
 import React from 'react'
 import { Box, Stack, Typography } from '../../shared/components/mui'
 import { palette } from '../../shared/config/tokens'
@@ -15,6 +15,10 @@ interface Props {
 
 export function PostCard({ post, onPress }: Props) {
   const [cardWidth, setCardWidth] = React.useState(0)
+  // 카드 폭을 재기 전에는 정사각형 높이를 알 수 없어 레이아웃이 순간 시프트한다.
+  // 화면 폭 근사치를 최소 높이로 먼저 잡아 자리를 비워 둔다.
+  const { width: screenWidth } = useWindowDimensions()
+  const estimatedHeight = screenWidth - 32
 
   const handleCardLayout = (event: LayoutChangeEvent) => {
     const nextWidth = event?.nativeEvent?.layout?.width
@@ -25,7 +29,7 @@ export function PostCard({ post, onPress }: Props) {
   return (
     <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel="포스트 상세 보기">
       <Box onLayout={handleCardLayout} sx={{ overflow: 'hidden', borderRadius: 16, backgroundColor: '#fff' }}>
-        <PostPhotoGallery post={post} width={cardWidth} />
+        <PostPhotoGallery post={post} width={cardWidth} minHeight={estimatedHeight} />
         <Stack sx={{ gap: 8, paddingHorizontal: 12, paddingTop: 8, paddingBottom: 16 }}>
           <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ gap: 8 }}>
             <PostAuthor
@@ -49,17 +53,17 @@ export function PostCard({ post, onPress }: Props) {
   )
 }
 
-function PostPhotoGallery({ post, width }: { post: Post; width: number }) {
+function PostPhotoGallery({ post, width, minHeight }: { post: Post; width: number; minHeight: number }) {
   const pageWidth = width > 0 ? width : '100%'
 
   if (post.photos.length === 0) {
-    return <Box sx={{ aspectRatio: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.06)' }}><MaterialIcons name="image" size={40} color={palette.textSecondary} /></Box>
+    return <Box sx={{ aspectRatio: 1, minHeight, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.06)' }}><MaterialIcons name="image" size={40} color={palette.textSecondary} /></Box>
   }
 
   return (
-    <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false}>
+    <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false} style={{ minHeight }}>
       {post.photos.map((photo) => (
-        <LoadableImage key={photo.url} source={{ uri: photo.url }} style={{ width: pageWidth, aspectRatio: 1 }} resizeMode="cover" />
+        <LoadableImage key={photo.url} source={{ uri: photo.url }} style={{ width: pageWidth, aspectRatio: 1, minHeight }} resizeMode="cover" />
       ))}
     </ScrollView>
   )

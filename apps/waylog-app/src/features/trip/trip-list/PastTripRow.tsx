@@ -32,7 +32,7 @@ export function PastTripRow({ trip, onPress }: Props) {
                 </Stack>
               </>
             )}
-            <Stack direction="row" alignItems="center" gap={6} sx={{ marginTop: 8 }}>
+            <Stack direction="row" alignItems="center" gap={0.75} sx={{ marginTop: 8 }}>
               <Typography sx={{ color: palette.textSecondary, fontSize: 12 }}>{formatTripDate(trip.startDate)} ~ {formatTripDate(trip.endDate)}</Typography>
               {nights > 0 && <Typography sx={{ color: palette.textSecondary, fontSize: 11 }}>{nights}박 {days}일</Typography>}
             </Stack>

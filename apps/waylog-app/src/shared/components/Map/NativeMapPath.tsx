@@ -1,5 +1,7 @@
+import { useEffect } from 'react'
 import type { PathProps } from '@waylog/domains/modules/map'
 import { Polyline } from 'react-native-maps'
+import { useMapContext } from './MapContext'
 
 export function NativeMapPath({
   coordinates,
@@ -8,6 +10,13 @@ export function NativeMapPath({
   strokeOpacity = 1,
   strokeStyle,
 }: PathProps) {
+  // 부모가 자식 트리를 스캔하는 대신, 마운트 시점에 스스로 좌표를 등록한다.
+  const { config, extendBound } = useMapContext()
+  useEffect(() => {
+    if (config.autoFocus === 'path') coordinates.forEach((coord) => extendBound(coord))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [coordinates])
+
   // 경로는 점이 둘 이상이어야 그려진다.
   if (coordinates.length < 2) return null
 

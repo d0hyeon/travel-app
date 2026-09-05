@@ -1,14 +1,19 @@
 import { eachDayOfInterval, getHours, isToday as getIsToday } from 'date-fns'
-import { Suspense, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useWindowDimensions } from 'react-native'
 import type Animated from 'react-native-reanimated'
 import { useCurrentTime } from '@waylog/react'
 import type { Coordinate } from '@waylog/utility'
 import { formatDisplayDate, formatShortDate } from '@waylog/utility'
 import { useTrip } from '@waylog/domains/modules/trip'
-import { useDailyWeatherForecast, type DayPart } from '@waylog/domains/modules/weather'
+import {
+  hasDayPartForecast,
+  useDailyWeatherForecast,
+  type DayPart,
+} from '@waylog/domains/modules/weather'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
-import { ErrorBoundary } from '../../../shared/components/ErrorBoundary'
+import { ErrorBoundary } from '@waylog/react'
+import { AsyncBoundary } from '@waylog/react'
 import {
   Stack,
   Tab,
@@ -47,9 +52,9 @@ interface Props {
 export function TripWeatherForecastSheet({ tripId, initialDate, ...props }: Props) {
   return (
     <BottomSheet snapPoints={[0.95]} defaultSnapIndex={0} {...props}>
-      <Suspense fallback={null}>
+      <AsyncBoundary pendingFallback={null}>
         <Resolved tripId={tripId} initialDate={initialDate} />
-      </Suspense>
+      </AsyncBoundary>
     </BottomSheet>
   )
 }
@@ -74,12 +79,12 @@ function Resolved({ tripId, initialDate }: Pick<Props, 'tripId' | 'initialDate'>
       </BottomSheet.Header>
 
       <BottomSheet.Body sx={{ paddingHorizontal: 0 }}>
-        <ErrorBoundary resetKeys={[selectedDate]} fallback={<ForecastUnavailable />}>
+        <AsyncBoundary resetKeys={[selectedDate]} rejectedFallback={() => <ForecastUnavailable />}>
           <DayPartForecast
             coordinate={{ lat: trip.lat, lng: trip.lng }}
             date={selectedDate}
           />
-        </ErrorBoundary>
+        </AsyncBoundary>
       </BottomSheet.Body>
     </>
   )
@@ -97,11 +102,7 @@ function DayPartForecast({ coordinate, date }: { coordinate: Coordinate; date: s
   if (weatherForecast == null) return <ForecastUnavailable />
 
   const availableDayParts = DAY_PARTS.filter(({ dayPart }) =>
-    weatherForecast.forecast.hourly.some(({ forecastAt }) =>
-      dayPart === 'am'
-        ? getHours(forecastAt) < AFTERNOON_START_HOUR
-        : getHours(forecastAt) >= AFTERNOON_START_HOUR,
-    ),
+    hasDayPartForecast(weatherForecast.forecast.hourly, dayPart),
   )
   const selectedDayPart =
     availableDayParts.find(({ dayPart }) => dayPart === activeDayPart) ?? availableDayParts[0]
