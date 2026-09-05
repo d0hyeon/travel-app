@@ -13,9 +13,9 @@ interface RouteLegItemProps extends StackProps {
 }
 
 // 한 구간(leg)의 이동수단·예상시간·거리를 세로 연결선과 함께 표시하는 타임라인 항목.
-export function RouteLegItem({ leg }: RouteLegItemProps) {
+export function RouteLegItem({ leg, ...props }: RouteLegItemProps) {
   return (
-    <Container>
+    <Container {...props}>
       <Line />
       <Chip>
         <TransportIcon transport={leg.transport} size={14} />

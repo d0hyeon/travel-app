@@ -13,17 +13,10 @@ import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet
 import { useRouteLegsPathList } from '../trip-route/components/useRouteLegsPathList'
 import { ExpenseFormDeletationActions } from './ExpenseFormDeletationActions'
 import { ExpenseFormOverlayActions, useExpenseFormBottomSheet } from './useExpenseFormOverlay'
+import { getRouteColor } from './routeExpenseView.utils'
 
 interface Props {
   tripId: string
-}
-
-// 경로별 색상 팔레트 — trip-route 와 같은 값으로, 웹 색상에서 채도를 낮춰
-// 네이티브 지도에서 과하게 쨍해 보이지 않도록 조정한 앱 전용 값이다.
-const ROUTE_COLORS = ['#78a4cf', '#da9d9b', '#88b78a', '#deb179', '#ad6bbe', '#4bc3d2']
-
-function getRouteColor(index: number): string {
-  return ROUTE_COLORS[index % ROUTE_COLORS.length]!
 }
 
 // 웹 RouteExpenseView.mobile 을 옮긴다.

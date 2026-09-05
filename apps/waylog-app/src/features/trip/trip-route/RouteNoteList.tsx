@@ -8,8 +8,6 @@ import { useOverlay } from '../../../shared/hooks/useOverlay'
 interface Props {
   notes: string[]
   onChange: (notes: string[]) => void
-  /** 웹과 시그니처를 맞추기 위해 받는다. 앱은 항상 시트로 연다. */
-  action?: 'dialog' | 'inline'
 }
 
 // 웹 NoteEditor 와 같은 notes/onChange 계약을 유지한다.
@@ -52,7 +50,7 @@ export function NoteEditor({ notes, onChange }: Props) {
     <Stack gap={0.5} alignItems="flex-start" sx={{ marginTop: 8 }}>
       {notes.map((note, idx) => (
         <Pressable
-          key={note}
+          key={idx}
           onPress={() =>
             openEditor(
               note,
@@ -77,7 +75,7 @@ export function NoteEditor({ notes, onChange }: Props) {
 
       <Pressable onPress={() => openEditor('', (value) => onChange([...notes, value.trim()]))}>
         <Typography variant="body2" color="text.secondary" sx={{ fontSize: 12 }}>
-          + 메모 추가
+          + 경로 메모
         </Typography>
       </Pressable>
     </Stack>
