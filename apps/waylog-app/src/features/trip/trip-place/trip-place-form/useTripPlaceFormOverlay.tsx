@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useRef } from 'react'
 import { useTripPlaces } from '@waylog/domains/modules/trip'
 import { useConfirmDialog } from '../../../../shared/components/confirm-dialog/useConfirmDialog'
 import { BottomSheet } from '../../../../shared/components/bottom-sheet/BottomSheet'
@@ -20,8 +20,6 @@ interface OpenParams {
 // 앱은 화면 분기가 없으므로 시트 하나만 둔다.
 export function useTripPlaceFormOverlay() {
   const overlay = useOverlay()
-  const confirm = useConfirmDialog()
-  const placeDetail = usePlaceDetailOverlay()
 
   const openBottomSheet = useCallback(
     ({ tripId, placeId, defaultValues, onDelete }: OpenParams) => {
@@ -32,8 +30,6 @@ export function useTripPlaceFormOverlay() {
             placeId={placeId}
             defaultValues={defaultValues}
             isOpen={isOpen}
-            confirm={confirm}
-            onOpenDetail={placeDetail.open}
             onDelete={onDelete}
             onClose={() => {
               resolve()
@@ -43,7 +39,7 @@ export function useTripPlaceFormOverlay() {
         ))
       })
     },
-    [confirm, overlay, placeDetail],
+    [overlay],
   )
 
   return { openBottomSheet }
@@ -51,23 +47,14 @@ export function useTripPlaceFormOverlay() {
 
 interface SheetProps extends OpenParams {
   isOpen: boolean
-  confirm: (message: string) => Promise<boolean>
-  onOpenDetail: (placeId: string) => void
   onClose: () => void
 }
 
-function PlaceFormSheet({
-  tripId,
-  placeId,
-  defaultValues,
-  isOpen,
-  confirm,
-  onOpenDetail,
-  onDelete,
-  onClose,
-}: SheetProps) {
-  const { update } = useTripPlaces(tripId)
-  const formRef = { current: null as PlaceFormRef | null }
+function PlaceFormSheet({ tripId, placeId, defaultValues, isOpen, onDelete, onClose }: SheetProps) {
+  const { update, remove } = useTripPlaces(tripId)
+  const confirm = useConfirmDialog()
+  const placeDetail = usePlaceDetailOverlay()
+  const formRef = useRef<PlaceFormRef>(null)
 
   return (
     <BottomSheet
@@ -81,8 +68,7 @@ function PlaceFormSheet({
         <PlaceTitleButton
           name={defaultValues?.name ?? '장소 수정'}
           onClick={() => {
-            const detailPlaceId = defaultValues?.placeId
-            if (detailPlaceId != null) onOpenDetail(detailPlaceId)
+            if (placeId != null) placeDetail.open(placeId)
           }}
         />
         <Button
@@ -91,6 +77,7 @@ function PlaceFormSheet({
           size="small"
           onClick={async () => {
             if (await confirm('삭제하시겠습니까?')) {
+              await remove(placeId)
               onDelete?.()
               onClose()
             }
@@ -101,18 +88,11 @@ function PlaceFormSheet({
       </BottomSheet.Header>
       <BottomSheet.Body sx={{ paddingHorizontal: 16 }}>
         <PlaceForm
-          ref={(instance) => {
-            formRef.current = instance
-          }}
+          ref={formRef}
           tripId={tripId}
           defaultValues={defaultValues}
           onSubmit={(data) => {
-            void update({
-              id: placeId,
-              category: data.category,
-              memo: data.memo,
-              tags: data.tags,
-            })
+            void update({ ...data, id: placeId })
             onClose()
           }}
         />
