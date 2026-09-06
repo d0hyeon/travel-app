@@ -1,6 +1,6 @@
 import {
   clusterMarkers,
-  pastelMapStyle,
+  pastelMapboxStyle,
   type MapBounds,
   type MapProps,
   type MapRef,
@@ -141,8 +141,7 @@ export function NativeMap({
       <Mapbox.MapView
         ref={setMapInstance}
         style={[StyleSheet.absoluteFill, sxToStyle(sx)]}
-        // TODO(Task 8): pastelMapStyle을 Mapbox Style Spec으로 교체 전까지 임시 캐스팅
-        styleJSON={pastelMapStyle as never}
+        styleJSON={JSON.stringify(pastelMapboxStyle)}
         onCameraChanged={(state) => {
           const nextZoom = Math.round(state.properties.zoom)
           setZoom((current) => (nextZoom === current ? current : nextZoom))

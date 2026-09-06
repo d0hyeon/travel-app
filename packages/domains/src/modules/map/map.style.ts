@@ -32,3 +32,5 @@ export const pastelMapStyle: MapStyleRule[] = [
   { featureType: 'administrative.land_parcel', elementType: 'labels.text.fill', stylers: [{ color: '#a09080' }] },
   { featureType: 'landscape.natural', elementType: 'geometry', stylers: [{ color: '#ede8e0' }] },
 ];
+
+export { pastelMapboxStyle } from './map.style.mapbox'
