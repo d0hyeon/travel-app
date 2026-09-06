@@ -9,7 +9,7 @@ import {
   getLocationCoordinates,
 } from '../../polygon-layer.utils'
 import type { MapPolygonProps, PolygonStyleProps } from '../../polygon-layer.types'
-import type { GeoJsonFeatureCollection } from '../boundary/boundary.types'
+import type { GeoJsonFeatureCollection } from '@waylog/domains/modules/map'
 import { GoogleMapContext } from '../../MapContext'
 import { usePreservedCallback } from '@waylog/react'
 
