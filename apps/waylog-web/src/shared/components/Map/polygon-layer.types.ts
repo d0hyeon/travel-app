@@ -1,32 +1,13 @@
-import type { ReactElement, ReactNode } from 'react'
-import type { Country, Location } from '@waylog/domains/modules/location'
-import type { Coordinate } from './types'
+import type { ReactElement } from 'react'
+import type { MapPolygonProps, MapRegionProps } from '@waylog/domains/modules/map'
 
-export interface PolygonStyleProps {
-  color?: string
-  opacity?: number
-  strokeColor?: string
-}
-
-export type MapPolygonProps = PolygonStyleProps & {
-  coordinates: Coordinate[][]
-}
-
-export type MapRegionProps =
-  | (PolygonStyleProps & {
-      country: Country
-      location?: never
-    })
-  | (PolygonStyleProps & {
-      location: Location
-      country?: never
-    })
-
-export interface PolygonLayerProps extends PolygonStyleProps {
-  children?: ReactNode
-}
+export type {
+  PolygonStyleProps,
+  MapPolygonProps,
+  MapRegionProps,
+  PolygonLayerProps,
+  RegionLayerProps,
+} from '@waylog/domains/modules/map'
 
 export type PolygonElement = ReactElement<MapPolygonProps>
 export type RegionElement = ReactElement<MapRegionProps>
-
-export type RegionLayerProps = PolygonLayerProps

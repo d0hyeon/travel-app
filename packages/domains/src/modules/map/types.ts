@@ -1,5 +1,6 @@
 import type { ReactNode, Ref } from "react";
 import type { Coordinate } from "@waylog/utility";
+import type { Country, Location } from "../location";
 
 export type { Coordinate };
 
@@ -106,3 +107,24 @@ export interface MarkerData {
   onClick?: () => void;
   onContextMenu?: () => void;
 }
+
+// 지역구/국가 경계 색칠. 웹·앱 공용 계약 — 제공자가 미지원이면 null 렌더로 처리한다.
+export interface PolygonStyleProps {
+  color?: string;
+  opacity?: number;
+  strokeColor?: string;
+}
+
+export type MapPolygonProps = PolygonStyleProps & {
+  coordinates: Coordinate[][];
+};
+
+export type MapRegionProps =
+  | (PolygonStyleProps & { country: Country; location?: never })
+  | (PolygonStyleProps & { location: Location; country?: never });
+
+export interface PolygonLayerProps extends PolygonStyleProps {
+  children?: ReactNode;
+}
+
+export type RegionLayerProps = PolygonLayerProps;
