@@ -23,7 +23,11 @@ import { NativeMapCluster } from './NativeMapCluster'
 import { NativeMapMarker } from './NativeMapMarker'
 import { useBatchedCallback } from '../../hooks/useBatchedCallback'
 import { DEFAULT_DELTA, deltaToZoom, levelToDelta } from './NativeMap.utils'
+import { isCoordinateInBounds } from './useMapViewportCulling'
 import { sxToStyle, type Sx } from '../mui'
+
+// 화면 경계 바로 밖도 살짝 포함해 패닝 시 마커가 뚝 끊겨 나타나지 않게 한다.
+const VIEWPORT_PADDING_RATIO = 0.2
 
 Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN ?? '')
 
@@ -79,6 +83,22 @@ export function NativeMap({
     .map((marker, index) => `${marker.id ?? index}:${marker.lat},${marker.lng}`)
     .join('|')
 
+  // 화면 밖 마커는 그리지 않는다. MarkerView는 실제 네이티브 뷰라 동시 표시
+  // 상한(공식 권장 최대 ~100개)이 낮아, 뷰포트에 보이는 마커만 유지한다.
+  const visibleMarkerProps = useMemo(() => {
+    if (visibleBounds == null) return markerProps // 최초 마운트 시(bounds 미확정)는 전체 표시
+
+    const latPadding = (visibleBounds.north - visibleBounds.south) * VIEWPORT_PADDING_RATIO
+    const lngPadding = (visibleBounds.east - visibleBounds.west) * VIEWPORT_PADDING_RATIO
+    const padding = Math.max(latPadding, lngPadding)
+
+    return markerProps.filter((marker) =>
+      isCoordinateInBounds({ lat: marker.lat, lng: marker.lng }, visibleBounds, padding),
+    )
+    // markerProps 는 매 렌더마다 새 배열이므로 값이 같은지로 비교한다.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [markerIdentity, visibleBounds])
+
   // 마커·경로가 부모에게 스캔당하는 대신, 마운트 시점에 스스로 좌표를 등록한다
   // (웹 useViewportFit 과 동일한 설계). Suspense·조건부 렌더로 감싸인 자식도
   // 정적 트리 순회 없이 자연스럽게 반영된다. 배치 후 최초 한 번만 화면을 맞춘다.
@@ -103,15 +123,16 @@ export function NativeMap({
   )
 
   const clustered = useMemo(() => {
-    if (clustering !== true || visibleBounds == null || markerProps.length < 2) return null
+    if (clustering !== true || visibleBounds == null || visibleMarkerProps.length < 2) return null
 
-    const data: MarkerData[] = markerProps.map((marker, index) => ({
+    const data: MarkerData[] = visibleMarkerProps.map((marker, index) => ({
       id: marker.id ?? String(index),
       position: { lat: marker.lat, lng: marker.lng },
     }))
 
     return clusterMarkers(data, createToPixel(visibleBounds, width), clusterGridSize)
-    // markerProps 는 매 렌더마다 새 배열이므로 값이 같은지로 비교한다.
+    // visibleMarkerProps 는 매 렌더마다 새 배열이므로, 이미 그 내용을 결정하는
+    // markerIdentity·visibleBounds 로 값이 같은지 비교한다.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clustering, visibleBounds, markerIdentity, clusterGridSize, width])
 
@@ -140,7 +161,7 @@ export function NativeMap({
           }}
         />
         {(clustered == null
-          ? rendered
+          ? [...others, ...visibleMarkerProps.map((marker, index) => findMarker(rendered, marker.id ?? String(index)))]
           : [
             ...others,
             ...clustered.map((cluster) =>
