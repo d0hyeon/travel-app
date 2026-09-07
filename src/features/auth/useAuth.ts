@@ -65,10 +65,12 @@ export function AuthStateSync() {
         
         if (event === 'USER_UPDATED' && session?.user != null) {
           const meta = session.user.user_metadata;
-          const name = meta.nickname ?? meta.name ?? meta.full_name ?? '';
-          const avatarUrl = meta.picture ?? meta.avatar_url ?? null;
 
-          await updateProfile({ id: session.user.id, name, avatar: avatarUrl });
+          await updateProfile({
+            id: session.user.id,
+            name: meta?.name,
+            avatar: meta?.picture,
+          });
         }
       });
 

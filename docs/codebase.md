@@ -464,6 +464,11 @@ src/
   `prompt` 상태에서는 이 호출 자체가 브라우저 권한 팝업을 띄우는 트리거가 된다.
 - `denied`일 때만 호출을 건너뛴다.
 
+### 인증 메타데이터 동기화
+
+- `AuthStateSync`는 `USER_UPDATED` 이벤트에서 Supabase 사용자 메타데이터를 프로필에 반영한다.
+- 프로필 이름과 아바타는 각각 `user_metadata.name`, `user_metadata.picture`를 사용하며, 값이 없으면 `undefined`로 전달한다.
+
 ### 계획 탭 동시 편집
 
 `routes.place_ids` / `place_memos` / `hidden_places`는 blob 컬럼이며, 클라이언트가 배열 전체를 만들어 `updateRoute`로 덮어쓴다. 여러 명이 동시에 편집하면 유실이 발생할 수 있다.
