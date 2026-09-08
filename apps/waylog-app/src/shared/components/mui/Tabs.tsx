@@ -1,4 +1,4 @@
-import { Children, isValidElement, useCallback, useRef, type ReactNode } from 'react'
+import { Children, isValidElement, useCallback, useEffect, useRef, type ReactNode } from 'react'
 import { Pressable, useWindowDimensions, View } from 'react-native'
 import { css } from '@emotion/native'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
@@ -44,6 +44,7 @@ export function Tabs({
   // 상태로 두면 ScrollView 가 자식을 붙이기 전에 온 onLayout 이
   // 아직 마운트되지 않은 컴포넌트를 갱신하려 해 경고가 난다.
   const tabLayouts = useRef<Record<string, { x: number; width: number }>>({})
+  const scrollRef = useRef<ScrollView>(null)
   const indicatorX = useSharedValue(0)
   const indicatorWidth = useSharedValue(0)
 
@@ -57,6 +58,21 @@ export function Tabs({
     [indicatorWidth, indicatorX],
   )
 
+  // 탭을 누르지 않고 value 만 바뀌는 경우(스와이프로 페이지 이동 등)에도
+  // 활성바가 따라가야 한다.
+  useEffect(() => {
+    moveIndicator(value)
+
+    // 활성 탭이 화면 밖이면 인디케이터만 움직이고 보이지 않는다. 같이 스크롤한다.
+    if (!scrollable) return
+    const layout = tabLayouts.current[value]
+    if (layout == null) return
+    scrollRef.current?.scrollTo({
+      x: Math.max(layout.x + layout.width / 2 - viewportWidth / 2, 0),
+      animated: true,
+    })
+  }, [value, moveIndicator, viewportWidth, scrollable])
+
   const indicatorStyle = useAnimatedStyle(() => ({
     width: indicatorWidth.value,
     transform: [{ translateX: indicatorX.value }],
@@ -64,6 +80,7 @@ export function Tabs({
 
   return (
     <ScrollView
+      ref={scrollRef}
       style={{
         flexGrow: 0, borderBottomWidth: 1, borderBottomColor: palette.divider, ...sxToStyle(sx)
       }}
