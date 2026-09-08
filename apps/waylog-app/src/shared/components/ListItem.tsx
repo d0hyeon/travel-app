@@ -92,7 +92,11 @@ function ListItemButton({
       }}
       {...props}
     >
-      <Pressable onPress={onClick}>{children}</Pressable>
+      {/* 스타일 없는 Pressable 은 컨텐츠 폭으로 수축한다.
+          그 안의 제목 행이 함께 눌려 순번 원이 찌그러진다. */}
+      <Pressable onPress={onClick} style={{ width: '100%' }}>
+        {children}
+      </Pressable>
     </ListItem>
   )
 }
@@ -104,9 +108,9 @@ ListItem.Title = ({
   rightAddon,
   ...props
 }: TypographyProps & { leftAddon?: ReactNode; rightAddon?: ReactNode }) => (
-  <Stack gap={1} direction="row" alignItems="center">
+  <Stack gap={1} direction="row" alignItems="center" sx={{ minWidth: 0, flexShrink: 1 }}>
     {leftAddon}
-    <Typography sx={{ fontSize: 13 }} {...props} />
+    <Typography numberOfLines={1} sx={{ fontSize: 13, flexShrink: 1 }} {...props} />
     {rightAddon}
   </Stack>
 )
