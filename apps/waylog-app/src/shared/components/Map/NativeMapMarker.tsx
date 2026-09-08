@@ -9,21 +9,12 @@ import { useMapContext } from './MapContext'
 import { useRegisterMapMarker } from './useMapMarkerRegistry'
 import { NativeMapTooltip } from './NativeMapTooltip'
 
-// 웹 MarkerProps 를 그대로 받는다.
-// hover·우클릭이 없는 자리는 길게 누르기로 대응한다.
-//
-// icon 은 앱에만 있다. 웹은 SVG 를 data URI 로 만들어 thumbnailUrl 에 넣지만
-// RN 의 Image 는 SVG data URI 를 못 읽어 그릴 것을 직접 받는다.
 interface NativeMarkerProps extends MarkerProps {
   icon?: ReactNode
 }
 
-// 라벨은 콘텐츠 크기에 맞추되, 지도를 과하게 가리지 않도록 상한을 둔다.
 const MAX_LABEL_WIDTH = 120
 
-// 시각 크기는 줄이되, 터치 영역은 그보다 넓게 둔다. Mapbox MarkerView 는
-// hitSlop 이 없어 자식 뷰의 실제 렌더 크기가 곧 터치 영역이므로, 아이콘을
-// 투명 패딩으로 감싸 터치 영역만 키운다.
 const TOUCH_TARGET_SIZE = 44
 const PIN_SIZE = { width: 17, height: 25 }
 const CIRCLE_SIZE = 18
@@ -45,16 +36,11 @@ function NativeMapMarkerView({
   onContextMenu,
 }: NativeMarkerProps) {
   const resolved = resolveMarkerColor(color, variant)
-  // 콜백은 비교 대상이 아니므로 항상 최신 것을 호출하도록 고정한다.
   const handleClick = usePreservedCallback(() => onClick?.({ lat, lng, label, variant }))
   const handleContextMenu = usePreservedCallback(() => onContextMenu?.({ lat, lng, label, variant }))
 
-  // id가 없는 마커는 좌표로 식별한다. NativeMap.tsx의 클러스터링 계산이
-  // 이 동일한 키로 이 마커를 다시 찾아 visibleMarkerIds에 넣어준다.
   const registryId = id ?? `${lat},${lng}`
 
-  // 부모가 자식 트리를 스캔하는 대신, 마운트 시점에 스스로 좌표를 등록한다.
-  // Suspense·조건부 렌더로 감싸인 마커도 부모의 정적 순회 없이 자동으로 반영된다.
   const { config, extendBound, visibleMarkerIds } = useMapContext()
   useRegisterMapMarker({ id: registryId, lat, lng })
 
@@ -66,25 +52,13 @@ function NativeMapMarkerView({
   const [isTooltipVisible, setIsTooltipVisible] = useState(false)
   const tooltipText = toTooltipText(tooltip)
 
-  // visibleMarkerIds는 뷰포트 컬링 없이 항상 전체 마커를 담으므로 이 분기는
-  // 사실상 항상 통과한다. 레지스트리 등록(useRegisterMapMarker)은 이 분기보다
-  // 먼저 실행되어야 하므로 Rules of Hooks에 따라 반드시 모든 훅 호출 이후에 반환한다.
   const isVisible = visibleMarkerIds == null || visibleMarkerIds.has(registryId)
   if (!isVisible) return null
 
   return (
-    // Mapbox.MarkerView는 id prop을 받지 않는다(누락이 아니라 타입에 없음).
-    // 클러스터링(NativeMap.tsx)은 React element의 props.id를 직접 읽으므로
-    // 여기서 네이티브 뷰로 전달할 필요가 없다.
-    //
-    // allowOverlap 기본값은 false라 화면상 가까운 마커끼리 자동으로 collapse되어
-    // 하나만 남고 나머지는 숨겨진다(줌인해서 픽셀 간격이 벌어져야 다시 나타남).
-    // 클러스터링 여부와 별개로 항상 개별 마커가 보이도록 명시적으로 켠다.
     <Mapbox.MarkerView coordinate={[lng, lat]} anchor={{ x: 0.5, y: 1 }} allowOverlap>
       <Pressable
         onPress={() => {
-          // tooltip이 있으면 탭은 툴팁 토글 전용이다. onClick과 동시에 실행하면
-          // 상세 화면이 열리면서 툴팁도 뜨는 두 동작이 겹친다(상호 배타).
           if (tooltipText != null) {
             setIsTooltipVisible((visible) => !visible)
             return
@@ -93,7 +67,6 @@ function NativeMapMarkerView({
         }}
         onLongPress={handleContextMenu}
       >
-        {/* 웹 marker.renderers 의 모양을 그대로 옮긴다. */}
         <View style={{ minWidth: 44, minHeight: 48, alignItems: 'center', justifyContent: 'flex-end' }}>
           {tooltipText != null && (
             <NativeMapTooltip
@@ -124,8 +97,6 @@ function NativeMapMarkerView({
             </View>
           )}
 
-          {/* 시각 크기(MarkerShape)보다 터치 영역을 넓게 둔다. 하단 정렬로 감싸
-              앵커(좌표가 가리키는 지점)는 아이콘의 실제 바닥과 그대로 맞는다. */}
           <View style={{ minWidth: TOUCH_TARGET_SIZE, minHeight: TOUCH_TARGET_SIZE, alignItems: 'center', justifyContent: 'flex-end' }}>
             {icon ?? (
               <MarkerShape
@@ -152,7 +123,6 @@ interface ShapeProps {
 }
 
 function MarkerShape({ variant, color, opacity, outlined, thumbnailUrl }: ShapeProps) {
-  // 사진이 있으면 원형 썸네일 + 아래 꼬리 (웹과 동일)
   if (thumbnailUrl != null) {
     return (
       <View style={{ alignItems: 'center' }}>
@@ -213,9 +183,6 @@ function MarkerShape({ variant, color, opacity, outlined, thumbnailUrl }: ShapeP
   )
 }
 
-// Mapbox MarkerView는 실제 네이티브 뷰(View Annotation)라 prop이 바뀌면
-// 표준 React 리렌더링으로 반영된다. react-native-maps Marker처럼 비트맵
-// 스냅샷 캐싱을 하지 않으므로 tracksViewChanges/key 리마운트 트릭이 더 이상 필요 없다.
 export const NativeMapMarker = memo(NativeMapMarkerView, (prev, next) =>
   prev.id === next.id &&
   prev.lat === next.lat &&
@@ -226,8 +193,6 @@ export const NativeMapMarker = memo(NativeMapMarkerView, (prev, next) =>
   prev.opacity === next.opacity &&
   prev.outlined === next.outlined &&
   prev.thumbnailUrl === next.thumbnailUrl &&
-  // tooltip이 string[] 이면 소비자가 매 렌더마다 새 배열을 만들어 넘기므로
-  // 참조 비교(===)는 항상 다르다고 판단한다. 정규화한 문자열로 비교한다.
   toTooltipText(prev.tooltip) === toTooltipText(next.tooltip),
 )
 
