@@ -25,6 +25,8 @@ export interface ButtonProps {
   startIcon?: ReactNode
   onClick?: () => void
   sx?: Sx
+  /** 라벨 텍스트에만 적용한다. sx 는 컨테이너로 간다. */
+  textSx?: Sx
 }
 
 export function Button({
@@ -38,6 +40,7 @@ export function Button({
   startIcon,
   onClick,
   sx,
+  textSx,
 }: ButtonProps) {
   const dims = SIZE[size]
   const main = color === 'error' ? palette.error : palette.primary
@@ -87,6 +90,7 @@ export function Button({
           fontSize: dims.fontSize,
           fontWeight: '900',
           color: textColor,
+          ...(textSx ?? {}),
         }}
       >
         {children}
