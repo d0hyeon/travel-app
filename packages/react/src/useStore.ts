@@ -101,11 +101,10 @@ export function useStoreValue<T, V = T>(
   selector?: (state: T) => V,
 ) {
   const getValue = selector ?? ((state) => state);
-  if (!store.resolved) use(store.promise);
-  const lastStateRef = useRef<V | T | null>(null);
 
-  return useSyncExternalStore(store.subscribe, () => {
-    if (!store.resolved) throw new Error("초기화가 완료되지 않았습니다.");
+  const lastStateRef = useRef<V | T | null>(null);
+  const currState = useSyncExternalStore(store.subscribe, () => {
+    if (!store.resolved) return null;
     const currState = getValue(store.getState());
     if (isPrimitive(currState)) return currState;
 
@@ -115,6 +114,10 @@ export function useStoreValue<T, V = T>(
     lastStateRef.current = currState;
     return currState;
   });
+
+  if (!store.resolved) use(store.promise);
+
+  return currState;
 }
 
 export function useSetStoreValue<T>(store: Store<T>) {
