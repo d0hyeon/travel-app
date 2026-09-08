@@ -8,6 +8,9 @@ export interface MapContextValue {
   extendBound: (value: Coordinate) => void
   config: { autoFocus: AutoFocus }
   map: Mapbox.MapView | null
+  // 컬링·클러스터링 계산 결과. null이면 계산 전이거나 두 기능 모두 비활성 —
+  // 이 경우 마커는 항상 자신을 렌더링한다(과거 basemap 동작과 동일).
+  visibleMarkerIds: Set<string> | null
 }
 
 export const MapContext = createContext<MapContextValue | null>(null)
