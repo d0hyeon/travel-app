@@ -23,7 +23,9 @@ export function NativeMapCluster({ latitude, longitude, count, onTap }: Props) {
 
   return (
     // Mapbox.MarkerView는 id prop을 받지 않는다(Task 3에서 확인됨. 타입·구현체 모두 없음).
-    <Mapbox.MarkerView coordinate={[longitude, latitude]} anchor={{ x: 0.5, y: 0.5 }}>
+    // allowOverlap 기본값은 false라 화면상 가까운 클러스터 핀끼리도 collapse될 수
+    // 있어 명시적으로 켠다(NativeMapMarker.tsx와 동일한 이유).
+    <Mapbox.MarkerView coordinate={[longitude, latitude]} anchor={{ x: 0.5, y: 0.5 }} allowOverlap>
       <Pressable onPress={onTap}>
         <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
           <Circle cx={half} cy={half} r={half} fill={ring} />

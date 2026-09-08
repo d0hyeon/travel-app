@@ -76,7 +76,11 @@ function NativeMapMarkerView({
     // Mapbox.MarkerView는 id prop을 받지 않는다(누락이 아니라 타입에 없음).
     // 클러스터링(NativeMap.tsx)은 React element의 props.id를 직접 읽으므로
     // 여기서 네이티브 뷰로 전달할 필요가 없다.
-    <Mapbox.MarkerView coordinate={[lng, lat]} anchor={{ x: 0.5, y: 1 }}>
+    //
+    // allowOverlap 기본값은 false라 화면상 가까운 마커끼리 자동으로 collapse되어
+    // 하나만 남고 나머지는 숨겨진다(줌인해서 픽셀 간격이 벌어져야 다시 나타남).
+    // 클러스터링 여부와 별개로 항상 개별 마커가 보이도록 명시적으로 켠다.
+    <Mapbox.MarkerView coordinate={[lng, lat]} anchor={{ x: 0.5, y: 1 }} allowOverlap>
       <Pressable
         onPress={() => {
           // tooltip이 있으면 탭은 툴팁 토글 전용이다. onClick과 동시에 실행하면
