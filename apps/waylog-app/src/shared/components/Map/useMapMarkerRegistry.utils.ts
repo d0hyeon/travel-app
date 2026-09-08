@@ -46,7 +46,14 @@ export function computeMarkerVisibility({
 
   const clusters = clusterMarkers(data, toPixel(visibleBounds), clusterGridSize)
 
-  return { visibleMarkerIds: new Set(visibleMarkers.map((marker) => marker.id)), clusters }
+  // 클러스터 UI(NativeMapCluster)가 그룹을 대신 그리므로, 그룹에 묶인 마커는
+  // 개별 마커로 중복 렌더링되면 안 된다. 싱글턴 클러스터(묶이지 않은 마커)만
+  // 개별 마커로 보여준다.
+  const singletonMarkerIds = clusters
+    .filter((cluster) => cluster.markers.length === 1)
+    .map((cluster) => cluster.markers[0]!.id)
+
+  return { visibleMarkerIds: new Set(singletonMarkerIds), clusters }
 }
 
 function filterByViewport(

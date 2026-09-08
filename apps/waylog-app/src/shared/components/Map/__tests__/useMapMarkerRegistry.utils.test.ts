@@ -103,6 +103,31 @@ describe('computeMarkerVisibility', () => {
     expect(result.clusters).not.toBeNull()
     expect(result.clusters).toHaveLength(1)
     expect(result.clusters![0]!.markers).toHaveLength(2)
+    // 이 테스트에서 갱신: a, b 모두 하나의 클러스터로 묶이므로 개별로는 보이지 않는다.
+    expect(result.visibleMarkerIds.size).toBe(0)
+  })
+
+  it('클러스터로 묶인 마커는 visibleMarkerIds에서 제외된다(중복 렌더링 방지)', () => {
+    const markers = [
+      { id: 'a', lat: 37.5, lng: 126.5 },
+      { id: 'b', lat: 37.5001, lng: 126.5001 }, // a와 가까워 클러스터로 묶임
+      { id: 'far', lat: 37.9, lng: 126.9 }, // 멀리 떨어져 단독(싱글턴) 클러스터
+    ]
+
+    const result = computeMarkerVisibility({
+      markers,
+      visibleBounds: BOUNDS,
+      clustering: true,
+      clusterGridSize: 50,
+      toPixel: toPixelStub,
+      paddingRatio: 0.2,
+    })
+
+    // a, b는 클러스터로 묶였으므로 개별 마커로는 보이면 안 된다.
+    expect(result.visibleMarkerIds.has('a')).toBe(false)
+    expect(result.visibleMarkerIds.has('b')).toBe(false)
+    // far는 혼자라 싱글턴 클러스터이므로 개별 마커로 보여야 한다.
+    expect(result.visibleMarkerIds.has('far')).toBe(true)
   })
 
   it('id가 없는 마커는 좌표 기반 키로 클러스터링 결과에서 식별된다', () => {
