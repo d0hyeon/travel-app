@@ -72,6 +72,16 @@ export function NativeMap({
     [],
   )
 
+  // 카메라 이동 중에도 bounds를 갱신해야 컬링·클러스터링이 첫 프레임부터 반영된다.
+  // onCameraChanged는 프레임마다 발동하므로 한 프레임에 여러 번 와도 마지막 값만 반영한다.
+  const scheduleBoundsUpdate = useBatchedCallback<MapBounds>((updates) => {
+    const bounds = updates.at(-1)
+    if (bounds == null) return
+
+    setVisibleBounds(bounds)
+    onBoundsChange?.(bounds)
+  })
+
   const initial = center ?? defaultCenter
   const rendered = typeof children === 'function' ? children({ zoom }) : children
 
@@ -79,9 +89,7 @@ export function NativeMap({
 
   // 좌표·개수가 그대로면 같은 문자열이 된다.
   // rendered 는 부모가 리렌더할 때마다 새 배열이라 참조로는 비교할 수 없다.
-  const markerIdentity = markerProps
-    .map((marker, index) => `${marker.id ?? index}:${marker.lat},${marker.lng}`)
-    .join('|')
+  const markerIdentity = markerProps.map((marker) => markerKey(marker)).join('|')
 
   // 화면 밖 마커는 그리지 않는다. MarkerView는 실제 네이티브 뷰라 동시 표시
   // 상한(공식 권장 최대 ~100개)이 낮아, 뷰포트에 보이는 마커만 유지한다.
@@ -125,8 +133,8 @@ export function NativeMap({
   const clustered = useMemo(() => {
     if (clustering !== true || visibleBounds == null || visibleMarkerProps.length < 2) return null
 
-    const data: MarkerData[] = visibleMarkerProps.map((marker, index) => ({
-      id: marker.id ?? String(index),
+    const data: MarkerData[] = visibleMarkerProps.map((marker) => ({
+      id: markerKey(marker),
       position: { lat: marker.lat, lng: marker.lng },
     }))
 
@@ -145,11 +153,9 @@ export function NativeMap({
         onCameraChanged={(state) => {
           const nextZoom = Math.round(state.properties.zoom)
           setZoom((current) => (nextZoom === current ? current : nextZoom))
-        }}
-        onMapIdle={(state) => {
+
           const bounds = visibleBoundsToMapBounds(state.properties.bounds)
-          setVisibleBounds(bounds)
-          onBoundsChange?.(bounds)
+          scheduleBoundsUpdate(bounds)
         }}
       >
         <Mapbox.Camera
@@ -160,7 +166,7 @@ export function NativeMap({
           }}
         />
         {(clustered == null
-          ? [...others, ...visibleMarkerProps.map((marker, index) => findMarker(rendered, marker.id ?? String(index)))]
+          ? [...others, ...visibleMarkerProps.map((marker) => findMarker(rendered, markerKey(marker)))]
           : [
             ...others,
             ...clustered.map((cluster) =>
@@ -223,13 +229,19 @@ function createToPixel(bounds: MapBounds, width: number): ToPixel {
 }
 
 // 혼자 남은 클러스터는 원래 마커를 그대로 쓴다.
-function findMarker(children: ReactNode, id: string): ReactNode {
+function findMarker(children: ReactNode, key: string): ReactNode {
   return (
     Children.toArray(children).find(
-      (child, index) =>
+      (child) =>
         isValidElement<MarkerElementProps>(child) &&
         child.type === NativeMapMarker &&
-        (child.props.id ?? String(index)) === id,
+        markerKey(child.props) === key,
     ) ?? null
   )
+}
+
+// 배열 인덱스는 컬링·클러스터링 단계마다 다른 배열을 기준으로 매겨져
+// 서로 어긋난다. id가 없는 마커는 좌표로 식별해 어느 단계에서 계산해도 같은 값이 나오게 한다.
+function markerKey(marker: Pick<MarkerElementProps, 'id' | 'lat' | 'lng'>): string {
+  return marker.id ?? `${marker.lat},${marker.lng}`
 }
