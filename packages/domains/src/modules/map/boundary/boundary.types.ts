@@ -1,4 +1,4 @@
-import type { Location } from '@waylog/domains/modules/location'
+import type { Location } from '../../location'
 
 export type GeoJsonGeometry = {
   type: 'Polygon' | 'MultiPolygon'

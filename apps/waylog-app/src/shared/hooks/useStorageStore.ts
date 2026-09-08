@@ -1,9 +1,39 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useAsyncEffect } from "@waylog/react";
-import { use, useCallback, useEffect, useState } from "react";
+import { use, useCallback, useSyncExternalStore } from "react";
 
 interface Options {
   suspense?: boolean;
+}
+
+interface Store<T> {
+  value: T;
+  listeners: Set<VoidFunction>;
+  loaded: boolean;
+  promise: Promise<void> | null;
+}
+
+const storageStore = new Map<string, Store<unknown>>();
+
+function getOrCreateStore<T>(key: string, initialValue: T): Store<T> {
+  const existing = storageStore.get(key);
+  if (existing != null) return existing as Store<T>;
+
+  const store: Store<T> = {
+    value: initialValue,
+    listeners: new Set(),
+    loaded: false,
+    promise: null,
+  };
+  storageStore.set(key, store);
+
+  store.promise = AsyncStorage.getItem(key).then((raw) => {
+    if (raw != null) store.value = JSON.parse(raw);
+    store.loaded = true;
+    store.promise = null;
+    store.listeners.forEach((listener) => listener());
+  });
+
+  return store;
 }
 
 export function useStorageStore<T>(
@@ -11,56 +41,35 @@ export function useStorageStore<T>(
   initialValue: T,
   options?: Options,
 ): [T, (next: T) => void] {
-  const storageSuspend = Storage.load<T>(key);
-  const storageValue = options?.suspense ? use(storageSuspend) : null;
+  const getStore = useCallback(
+    () => getOrCreateStore(key, initialValue),
+    [key, initialValue],
+  );
 
-  const [value, setValue] = useState<T>(storageValue ?? initialValue);
+  if (options?.suspense === true) {
+    const store = getStore();
+    if (!store.loaded && store.promise != null) use(store.promise);
+  }
 
-  useAsyncEffect(async () => {
-    if (storageValue != null) return;
-
-    let cancelled = false;
-    const loadedValue = await storageSuspend;
-    if (!cancelled && loadedValue != null) {
-      setValue(loadedValue);
-    }
-
-    return () => {
-      cancelled = true;
-    };
-  }, [key]);
+  const value = useSyncExternalStore(
+    (listener) => {
+      const store = getStore();
+      store.listeners.add(listener);
+      return () => store.listeners.delete(listener);
+    },
+    () => getStore().value,
+  );
 
   const update = useCallback(
     (next: T) => {
-      Storage.save(key, next);
-      setValue(next);
+      const store = getStore();
+      store.value = next;
+      store.loaded = true;
+      AsyncStorage.setItem(key, JSON.stringify(next));
+      store.listeners.forEach((listener) => listener());
     },
-    [key],
+    [key, getStore],
   );
 
   return [value, update];
 }
-
-const Storage = {
-  load: <T>(key: string) => {
-    const cached = cache.get(key);
-    if (cached !== undefined) {
-      return Promise.resolve<T>(cached as T);
-    }
-
-    return new Promise<T | null>(async (resolve) => {
-      const raw = await AsyncStorage.getItem(key);
-      if (raw == null) {
-        return resolve(null);
-      }
-      const value = JSON.parse(raw);
-      cache.set(key, value);
-      resolve(value);
-    });
-  },
-  save: <T>(key: string, value: T) => {
-    cache.set(key, value);
-    AsyncStorage.setItem(key, JSON.stringify(value));
-  },
-};
-const cache = new Map<string, unknown>();

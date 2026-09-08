@@ -1,50 +1,39 @@
 import {
-  clusterMarkers,
-  pastelMapStyle,
+  pastelMapboxStyle,
   type MapBounds,
   type MapProps,
   type MapRef,
-  type MarkerData,
-  type ToPixel,
 } from '@waylog/domains/modules/map'
-import {
-  Children,
-  isValidElement,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from 'react'
+import { useImperativeHandle, useMemo, useRef, useState, type ReactNode } from 'react'
 import { StyleSheet, useWindowDimensions } from 'react-native'
-import MapView, { PROVIDER_GOOGLE, type Region } from 'react-native-maps'
+import Mapbox, { type MapState } from '@rnmapbox/maps'
 import { MapContext } from './MapContext'
 import { NativeMapCluster } from './NativeMapCluster'
-import { NativeMapMarker } from './NativeMapMarker'
 import { useBatchedCallback } from '../../hooks/useBatchedCallback'
-import { Sx } from '../mui'
+import { DEFAULT_DELTA, deltaToZoom, levelToDelta } from './NativeMap.utils'
+import { MapMarkerRegistryProvider, useRegisteredMapMarkers } from './useMapMarkerRegistry'
+import { computeMarkerVisibility } from './useMapMarkerRegistry.utils'
+import { sxToStyle, type Sx } from '../mui'
 
-// 웹은 level(1~14, 작을수록 확대), RN 은 delta(작을수록 확대)로 배율을 다룬다.
-const DEFAULT_DELTA = 0.02
+Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN ?? '')
 
-function levelToDelta(level: number): number {
-  return DEFAULT_DELTA * 2 ** (level - 3)
+const VIEWPORT_PADDING_RATIO = 0.2
+
+function visibleBoundsToMapBounds(bounds: MapState['properties']['bounds']): MapBounds {
+  const [eastLng, northLat] = bounds.ne
+  const [westLng, southLat] = bounds.sw
+  return { north: northLat, south: southLat, east: eastLng, west: westLng }
 }
 
-function deltaToZoom(delta: number): number {
-  return Math.round(Math.log2(360 / delta))
+export function NativeMap(props: MapProps & { sx?: Sx }) {
+  return (
+    <MapMarkerRegistryProvider>
+      <NativeMapInner {...props} />
+    </MapMarkerRegistryProvider>
+  )
 }
 
-function regionToBounds(region: Region): MapBounds {
-  return {
-    north: region.latitude + region.latitudeDelta / 2,
-    south: region.latitude - region.latitudeDelta / 2,
-    east: region.longitude + region.longitudeDelta / 2,
-    west: region.longitude - region.longitudeDelta / 2,
-  }
-}
-
-export function NativeMap({
+function NativeMapInner({
   autoFocus = 'marker',
   defaultCenter,
   center,
@@ -53,11 +42,12 @@ export function NativeMap({
   clustering,
   clusterGridSize = 50,
   onBoundsChange,
-  sx
+  sx,
 }: MapProps & { sx?: Sx }) {
-  const mapRef = useRef<MapView>(null)
+  const cameraRef = useRef<Mapbox.Camera>(null)
   const [zoom, setZoom] = useState(() => deltaToZoom(DEFAULT_DELTA))
-  const [region, setRegion] = useState<Region | null>(null)
+  const [visibleBounds, setVisibleBounds] = useState<MapBounds | null>(null)
+  const [mapInstance, setMapInstance] = useState<Mapbox.MapView | null>(null)
   const { width } = useWindowDimensions()
 
   useImperativeHandle<MapRef, MapRef>(
@@ -65,174 +55,117 @@ export function NativeMap({
     () => ({
       panTo: (lat, lng, level) => {
         const delta = level == null ? DEFAULT_DELTA : levelToDelta(level)
-        mapRef.current?.animateToRegion({
-          latitude: lat,
-          longitude: lng,
-          latitudeDelta: delta,
-          longitudeDelta: delta,
+        cameraRef.current?.setCamera({
+          centerCoordinate: [lng, lat],
+          zoomLevel: deltaToZoom(delta),
+          animationDuration: 300,
         })
       },
-      // 네이티브 지도는 레이아웃 변경 시 스스로 다시 그린다.
       relayout: () => { },
       focus: () => { },
     }),
     [],
   )
 
+  const scheduleBoundsUpdate = useBatchedCallback<MapBounds>((updates) => {
+    const bounds = updates.at(-1)
+    if (bounds == null) return
+
+    setVisibleBounds(bounds)
+    onBoundsChange?.(bounds)
+  })
+
   const initial = center ?? defaultCenter
   const rendered = typeof children === 'function' ? children({ zoom }) : children
 
-  const { markerProps, others } = splitMarkers(rendered)
+  const { markers } = useRegisteredMapMarkers()
 
-  // 좌표·개수가 그대로면 같은 문자열이 된다.
-  // rendered 는 부모가 리렌더할 때마다 새 배열이라 참조로는 비교할 수 없다.
-  const markerIdentity = markerProps
-    .map((marker, index) => `${marker.id ?? index}:${marker.lat},${marker.lng}`)
-    .join('|')
-
-  // 마커·경로가 부모에게 스캔당하는 대신, 마운트 시점에 스스로 좌표를 등록한다
-  // (웹 useViewportFit 과 동일한 설계). Suspense·조건부 렌더로 감싸인 자식도
-  // 정적 트리 순회 없이 자연스럽게 반영된다. 배치 후 최초 한 번만 화면을 맞춘다.
   const boundsRef = useRef<{ lat: number; lng: number }[]>([])
   const extendBound = useBatchedCallback<{ lat: number; lng: number }>((coords) => {
     boundsRef.current.push(...coords)
     if (boundsRef.current.length === 0) return
 
-    mapRef.current?.fitToCoordinates(
-      boundsRef.current.map((coord) => ({ latitude: coord.lat, longitude: coord.lng })),
-      { edgePadding: { top: 60, right: 60, bottom: 60, left: 60 }, animated: true },
+    const lats = boundsRef.current.map((coord) => coord.lat)
+    const lngs = boundsRef.current.map((coord) => coord.lng)
+    cameraRef.current?.fitBounds(
+      [Math.max(...lngs), Math.max(...lats)],
+      [Math.min(...lngs), Math.min(...lats)],
+      60,
+      600,
     )
   }, { once: true })
 
-  const mapContextValue = useMemo(
-    () => ({ extendBound, config: { autoFocus } }),
-    [extendBound, autoFocus],
+  const { visibleMarkerIds, clusters } = useMemo(
+    () =>
+      computeMarkerVisibility({
+        markers,
+        visibleBounds,
+        clustering: clustering === true,
+        clusterGridSize,
+        toPixel: (bounds) => createToPixel(bounds, width),
+        paddingRatio: VIEWPORT_PADDING_RATIO,
+      }),
+    [markers, visibleBounds, clustering, clusterGridSize, width],
   )
 
-  const clustered = useMemo(() => {
-    if (clustering !== true || region == null || markerProps.length < 2) return null
-
-    const data: MarkerData[] = markerProps.map((marker, index) => ({
-      id: marker.id ?? String(index),
-      position: { lat: marker.lat, lng: marker.lng },
-    }))
-
-    return clusterMarkers(data, createToPixel(region, width), clusterGridSize)
-    // markerProps 는 매 렌더마다 새 배열이므로 값이 같은지로 비교한다.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clustering, region, markerIdentity, clusterGridSize, width])
+  const mapContextValue = useMemo(
+    () => ({ extendBound, config: { autoFocus }, map: mapInstance, visibleMarkerIds }),
+    [extendBound, autoFocus, mapInstance, visibleMarkerIds],
+  )
 
   return (
     <MapContext value={mapContextValue}>
-      <MapView
-        ref={mapRef}
-        provider={PROVIDER_GOOGLE}
-        style={[StyleSheet.absoluteFill, sx]}
-        customMapStyle={pastelMapStyle}
-        initialRegion={
-          initial && {
-            latitude: initial.lat,
-            longitude: initial.lng,
-            latitudeDelta: DEFAULT_DELTA,
-            longitudeDelta: DEFAULT_DELTA,
-          }
-        }
-        // 이동이 끝난 뒤에만 다시 묶는다. 이동 중 계산하면 지도가 끊긴다.
-        // 같은 값으로 setState 하면 마커 전체가 다시 그려지므로 바뀔 때만 반영한다.
-        onRegionChangeComplete={(next) => {
-          setZoom((current) => {
-            const nextZoom = deltaToZoom(next.longitudeDelta)
-            return nextZoom === current ? current : nextZoom
-          })
-          setRegion((current) => (isSameRegion(current, next) ? current : next))
-          onBoundsChange?.(regionToBounds(next))
+      <Mapbox.MapView
+        ref={setMapInstance}
+        style={[StyleSheet.absoluteFill, sxToStyle(sx)]}
+        styleJSON={JSON.stringify(pastelMapboxStyle)}
+        rotateEnabled={false}
+        onCameraChanged={(state) => {
+          const nextZoom = Math.round(state.properties.zoom)
+          setZoom((current) => (nextZoom === current ? current : nextZoom))
+
+          const bounds = visibleBoundsToMapBounds(state.properties.bounds)
+          scheduleBoundsUpdate(bounds)
         }}
       >
-        {(clustered == null
-          ? rendered
-          : [
-            ...others,
-            ...clustered.map((cluster) =>
-              cluster.markers.length === 1 ? (
-                findMarker(rendered, cluster.markers[0]!.id)
-              ) : (
-                <NativeMapCluster
-                  key={cluster.id}
-                  latitude={cluster.center.lat}
-                  longitude={cluster.center.lng}
-                  count={cluster.markers.length}
-                  onTap={() =>
-                    mapRef.current?.fitToCoordinates(
-                      cluster.markers.map((marker) => ({
-                        latitude: marker.position.lat,
-                        longitude: marker.position.lng,
-                      })),
-                      { edgePadding: { top: 80, right: 80, bottom: 80, left: 80 }, animated: true },
-                    )
-                  }
-                />
-              ),
-            ),
-          ]) as ReactNode}
-      </MapView>
+        <Mapbox.Camera
+          ref={cameraRef}
+          defaultSettings={{
+            centerCoordinate: initial ? [initial.lng, initial.lat] : undefined,
+            zoomLevel: deltaToZoom(DEFAULT_DELTA),
+          }}
+        />
+        {rendered as ReactNode}
+        {clusters?.map((cluster) =>
+          cluster.markers.length > 1 ? (
+            <NativeMapCluster
+              key={cluster.id}
+              latitude={cluster.center.lat}
+              longitude={cluster.center.lng}
+              count={cluster.markers.length}
+              onTap={() => {
+                const lats = cluster.markers.map((marker) => marker.position.lat)
+                const lngs = cluster.markers.map((marker) => marker.position.lng)
+                cameraRef.current?.fitBounds(
+                  [Math.max(...lngs), Math.max(...lats)],
+                  [Math.min(...lngs), Math.min(...lats)],
+                  80,
+                  600,
+                )
+              }}
+            />
+          ) : null,
+        )}
+      </Mapbox.MapView>
     </MapContext>
   )
 }
 
-// 화면에서 구분되지 않을 만큼의 이동은 같은 위치로 본다.
-// 손가락을 뗄 때마다 미세하게 달라지는 값으로 다시 묶으면 마커가 통째로 다시 그려진다.
-const REGION_EPSILON = 1e-6
+function createToPixel(bounds: MapBounds, width: number) {
+  const scale = width / (bounds.east - bounds.west)
 
-function isSameRegion(current: Region | null, next: Region): boolean {
-  if (current == null) return false
-
-  return (
-    Math.abs(current.latitude - next.latitude) < REGION_EPSILON &&
-    Math.abs(current.longitude - next.longitude) < REGION_EPSILON &&
-    Math.abs(current.latitudeDelta - next.latitudeDelta) < REGION_EPSILON &&
-    Math.abs(current.longitudeDelta - next.longitudeDelta) < REGION_EPSILON
-  )
-}
-
-type MarkerElementProps = React.ComponentProps<typeof NativeMapMarker>
-
-// 자식 중 마커만 분리한다. 클러스터링이 켜지면 마커는 묶어서 그린다.
-function splitMarkers(children: ReactNode): {
-  markerProps: MarkerElementProps[]
-  others: ReactNode[]
-} {
-  const markerProps: MarkerElementProps[] = []
-  const others: ReactNode[] = []
-
-  Children.toArray(children).forEach((child) => {
-    if (isValidElement<MarkerElementProps>(child) && child.type === NativeMapMarker) {
-      markerProps.push(child.props)
-      return
-    }
-    others.push(child)
+  return (coord: { lat: number; lng: number }) => ({
+    x: (coord.lng - bounds.west) * scale,
+    y: (bounds.north - coord.lat) * scale,
   })
-
-  return { markerProps, others }
-}
-
-// 좌표를 화면 픽셀로 옮긴다. 클러스터링이 픽셀 거리 기준이라 필요하다.
-function createToPixel(region: Region, width: number): ToPixel {
-  const scale = width / region.longitudeDelta
-
-  return (coord) => ({
-    x: (coord.lng - region.longitude) * scale,
-    y: (region.latitude - coord.lat) * scale,
-  })
-}
-
-// 혼자 남은 클러스터는 원래 마커를 그대로 쓴다.
-function findMarker(children: ReactNode, id: string): ReactNode {
-  return (
-    Children.toArray(children).find(
-      (child, index) =>
-        isValidElement<MarkerElementProps>(child) &&
-        child.type === NativeMapMarker &&
-        (child.props.id ?? String(index)) === id,
-    ) ?? null
-  )
 }
