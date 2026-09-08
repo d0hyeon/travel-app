@@ -5,7 +5,7 @@ import { BottomSheet } from '../../shared/components/bottom-sheet/BottomSheet'
 import { Chip, Stack, Typography } from '../../shared/components/mui'
 import { useOverlay } from '../../shared/hooks/useOverlay'
 
-/** @package { PlaceDetailSheet.tsx } */
+/** @package { place-detail/PlaceDetailSheet.tsx } */
 export function useTripSelectSheet(options: Trip[]) {
   const overlay = useOverlay()
 

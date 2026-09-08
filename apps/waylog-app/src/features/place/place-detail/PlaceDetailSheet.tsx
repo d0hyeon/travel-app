@@ -112,9 +112,6 @@ export function PlaceDetailBody({ placeId }: { placeId: string }) {
 
   return (
     <Stack gap={10}>
-      <Text variant="h6" bold numberOfLines={1}>
-        {place.name}
-      </Text>
 
       <MapArea>
         <Map defaultCenter={{ lat: place.lat, lng: place.lng }}>

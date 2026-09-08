@@ -6,6 +6,7 @@ import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet
 import { Button, Stack, Typography } from '../../../shared/components/mui'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { PlaceDetailBody } from '../../place/place-detail/PlaceDetailSheet'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 interface Props {
   place: RecommendedPlace
@@ -41,13 +42,13 @@ function RecommendedPlaceDetailSheet({ place, tripId, isOpen, onClose }: Props) 
       <BottomSheet.Header>
         <Typography variant="h6">{place.name}</Typography>
       </BottomSheet.Header>
-      <BottomSheet.Body>
+      <BottomSheet.Body style={{ paddingHorizontal: 16 }}>
         <Suspense fallback={<ActivityIndicator />}>
           <PlaceDetailBody placeId={place.id} />
         </Suspense>
       </BottomSheet.Body>
-      <BottomSheet.BottomActions>
-        <Stack direction="row" gap={1}>
+      <SafeAreaView>
+        <BottomSheet.BottomActions>
           <Button fullWidth variant="outlined" size="large" onClick={onClose}>
             닫기
           </Button>
@@ -60,8 +61,8 @@ function RecommendedPlaceDetailSheet({ place, tripId, isOpen, onClose }: Props) 
           >
             장소에 담기
           </Button>
-        </Stack>
-      </BottomSheet.BottomActions>
+        </BottomSheet.BottomActions>
+      </SafeAreaView>
     </BottomSheet>
   )
 }

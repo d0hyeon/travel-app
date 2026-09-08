@@ -46,7 +46,7 @@ export function TripBasicInfoContent({ tripId }: Props) {
                 </Suspense>
               </ErrorBoundary>
 
-                {/* 여행 정보 */}
+              {/* 여행 정보 */}
               <TripBaseInfoList
                 tripId={tripId}
                 direction="horizontal"
