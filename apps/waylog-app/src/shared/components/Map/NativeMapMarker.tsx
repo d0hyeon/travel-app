@@ -49,7 +49,7 @@ function NativeMapMarkerView({
   const handleClick = usePreservedCallback(() => onClick?.({ lat, lng, label, variant }))
   const handleContextMenu = usePreservedCallback(() => onContextMenu?.({ lat, lng, label, variant }))
 
-  // id가 없는 마커는 좌표로 식별한다. NativeMap.tsx의 컬링·클러스터링이
+  // id가 없는 마커는 좌표로 식별한다. NativeMap.tsx의 클러스터링 계산이
   // 이 동일한 키로 이 마커를 다시 찾아 visibleMarkerIds에 넣어준다.
   const registryId = id ?? `${lat},${lng}`
 
@@ -66,9 +66,9 @@ function NativeMapMarkerView({
   const [isTooltipVisible, setIsTooltipVisible] = useState(false)
   const tooltipText = toTooltipText(tooltip)
 
-  // 컬링되었거나 클러스터에 묶여 숨겨져야 하는 마커는 스스로 렌더링을 멈춘다.
-  // 레지스트리 등록(useRegisterMapMarker)은 이 분기보다 먼저 실행되어야 하므로
-  // Rules of Hooks에 따라 반드시 모든 훅 호출 이후에 반환한다.
+  // visibleMarkerIds는 뷰포트 컬링 없이 항상 전체 마커를 담으므로 이 분기는
+  // 사실상 항상 통과한다. 레지스트리 등록(useRegisterMapMarker)은 이 분기보다
+  // 먼저 실행되어야 하므로 Rules of Hooks에 따라 반드시 모든 훅 호출 이후에 반환한다.
   const isVisible = visibleMarkerIds == null || visibleMarkerIds.has(registryId)
   if (!isVisible) return null
 

@@ -12,29 +12,10 @@ function toPixelStub(bounds: typeof BOUNDS) {
 }
 
 describe('computeMarkerVisibility', () => {
-  it('visibleBounds가 null이면 모든 마커를 보여준다(클러스터링도 비활성)', () => {
+  it('뷰포트 컬링 없이 등록된 마커를 모두 보여준다', () => {
     const markers = [
       { id: 'a', lat: 37.5, lng: 126.5 },
-      { id: 'b', lat: 40, lng: 130 }, // bounds 밖 좌표라도 포함
-    ]
-
-    const result = computeMarkerVisibility({
-      markers,
-      visibleBounds: null,
-      clustering: true,
-      clusterGridSize: 50,
-      toPixel: toPixelStub,
-      paddingRatio: 0.2,
-    })
-
-    expect(result.visibleMarkerIds).toEqual(new Set(['a', 'b']))
-    expect(result.clusters).toBeNull()
-  })
-
-  it('bounds 밖 마커는 컬링되어 visibleMarkerIds에서 빠진다', () => {
-    const markers = [
-      { id: 'inside', lat: 37.5, lng: 126.5 },
-      { id: 'outside', lat: 40, lng: 130 },
+      { id: 'far', lat: 40, lng: 130 }, // BOUNDS 밖 좌표라도 그대로 포함된다
     ]
 
     const result = computeMarkerVisibility({
@@ -43,14 +24,31 @@ describe('computeMarkerVisibility', () => {
       clustering: false,
       clusterGridSize: 50,
       toPixel: toPixelStub,
-      paddingRatio: 0.2,
     })
 
-    expect(result.visibleMarkerIds).toEqual(new Set(['inside']))
+    expect(result.visibleMarkerIds).toEqual(new Set(['a', 'far']))
     expect(result.clusters).toBeNull()
   })
 
-  it('clustering이 false면 clusters는 null이고 컬링만 적용된다', () => {
+  it('visibleBounds가 null이면 클러스터링을 계산하지 않고 전체를 보여준다', () => {
+    const markers = [
+      { id: 'a', lat: 37.5, lng: 126.5 },
+      { id: 'b', lat: 37.5001, lng: 126.5001 },
+    ]
+
+    const result = computeMarkerVisibility({
+      markers,
+      visibleBounds: null,
+      clustering: true,
+      clusterGridSize: 50,
+      toPixel: toPixelStub,
+    })
+
+    expect(result.visibleMarkerIds).toEqual(new Set(['a', 'b']))
+    expect(result.clusters).toBeNull()
+  })
+
+  it('clustering이 false면 clusters는 null이고 전체 마커를 보여준다', () => {
     const markers = [
       { id: 'a', lat: 37.5, lng: 126.5 },
       { id: 'b', lat: 37.5001, lng: 126.5001 },
@@ -62,7 +60,6 @@ describe('computeMarkerVisibility', () => {
       clustering: false,
       clusterGridSize: 50,
       toPixel: toPixelStub,
-      paddingRatio: 0.2,
     })
 
     expect(result.clusters).toBeNull()
@@ -78,7 +75,6 @@ describe('computeMarkerVisibility', () => {
       clustering: true,
       clusterGridSize: 50,
       toPixel: toPixelStub,
-      paddingRatio: 0.2,
     })
 
     expect(result.clusters).toBeNull()
@@ -97,7 +93,6 @@ describe('computeMarkerVisibility', () => {
       clustering: true,
       clusterGridSize: 50,
       toPixel: toPixelStub,
-      paddingRatio: 0.2,
     })
 
     expect(result.clusters).not.toBeNull()
@@ -118,12 +113,11 @@ describe('computeMarkerVisibility', () => {
       clustering: true,
       clusterGridSize: 50,
       toPixel: toPixelStub,
-      paddingRatio: 0.2,
     })
 
-    // visibleMarkerIds는 뷰포트 컬링 결과만 반영한다 — 클러스터 그룹 여부와
-    // 무관하게 컬링을 통과한 마커는 모두 남는다. 클러스터 토글마다 다수 마커가
-    // 마운트·언마운트되어 프레임 드랍을 일으키던 문제를 막기 위한 결정이다.
+    // 클러스터 그룹 멤버를 숨기면 클러스터 토글·줌마다 다수 마커가 한꺼번에
+    // 마운트·언마운트되어 프레임 드랍을 일으켰다 — 그룹 여부와 무관하게
+    // 등록된 마커는 모두 visibleMarkerIds에 남는다.
     expect(result.visibleMarkerIds.has('a')).toBe(true)
     expect(result.visibleMarkerIds.has('b')).toBe(true)
     expect(result.visibleMarkerIds.has('far')).toBe(true)
@@ -140,7 +134,6 @@ describe('computeMarkerVisibility', () => {
       clustering: true,
       clusterGridSize: 50,
       toPixel: toPixelStub,
-      paddingRatio: 0.2,
     })
 
     expect(result.visibleMarkerIds.has('37.5,126.5')).toBe(true)

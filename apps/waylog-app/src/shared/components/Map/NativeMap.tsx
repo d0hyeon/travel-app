@@ -15,9 +15,6 @@ import { MapMarkerRegistryProvider, useRegisteredMapMarkers } from './useMapMark
 import { computeMarkerVisibility } from './useMapMarkerRegistry.utils'
 import { sxToStyle, type Sx } from '../mui'
 
-// 화면 경계 바로 밖도 살짝 포함해 패닝 시 마커가 뚝 끊겨 나타나지 않게 한다.
-const VIEWPORT_PADDING_RATIO = 0.2
-
 Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN ?? '')
 
 function visibleBoundsToMapBounds(bounds: MapState['properties']['bounds']): MapBounds {
@@ -102,10 +99,12 @@ function NativeMapInner({
     )
   }, { once: true })
 
-  // 뷰포트 컬링만 visibleMarkerIds(마커 자가 렌더 여부)에 반영한다. 클러스터
-  // 그룹 멤버까지 숨기면 클러스터 토글마다 다수 마커가 한꺼번에 마운트·언마운트되어
-  // MarkerView(네이티브 뷰) 삽입·삭제가 몰려 프레임 드랍을 일으킨다 — clusters는
-  // 그 위에 겹쳐 그리는 오버레이로만 쓴다(개별 마커·클러스터 핀 동시 표시를 감수한다).
+  // 모든 등록 마커를 항상 보여준다(뷰포트 컬링 없음). autoFocus="path"인
+  // 화면처럼 마커가 카메라 위치 결정에 관여하지 않으면, 경로 데이터가 늦거나
+  // 없을 때 카메라가 마커와 무관한 위치에 고정되고 컬링이 모든 마커를 걸러내
+  // 사용자가 지도를 직접 조작하기 전까지 아무 마커도 안 보이는 결함으로
+  // 이어졌다. 클러스터링만 선택적으로 적용하고, 클러스터 UI는 개별 마커 위에
+  // 겹쳐 그리는 오버레이로만 쓴다(중복 표시를 감수한다).
   const { visibleMarkerIds, clusters } = useMemo(
     () =>
       computeMarkerVisibility({
@@ -114,7 +113,6 @@ function NativeMapInner({
         clustering: clustering === true,
         clusterGridSize,
         toPixel: (bounds) => createToPixel(bounds, width),
-        paddingRatio: VIEWPORT_PADDING_RATIO,
       }),
     [markers, visibleBounds, clustering, clusterGridSize, width],
   )
