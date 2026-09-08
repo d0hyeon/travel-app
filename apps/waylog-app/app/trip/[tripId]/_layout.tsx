@@ -23,13 +23,13 @@ export default function TripDetailLayout() {
           </Stack>
         )}
       >
-        <View style={{ paddingTop: insets.top }}>
+        <View style={{ paddingTop: insets.top, backgroundColor: palette.background }}>
           <TripDetailHeader />
         </View>
         <View style={{ flex: 1 }}>
           <Tabs
-            // 탭 전환 이력을 유지해 뒤로가기로 직전에 방문한 탭으로 돌아간다.
-            backBehavior="history"
+            // 탭은 replace 로 동작한다. 뒤로가기는 직전 탭이 아니라 여행 화면을 벗어난다.
+            backBehavior="none"
             tabBar={(props) => (
               <AnimatedTabBar
                 {...props}
