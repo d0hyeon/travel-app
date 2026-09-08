@@ -1,5 +1,7 @@
 export interface AuthUser {
   id: string
+  name?: string
+  avatar?: string
 }
 export interface AuthSession { user: AuthUser }
 export type AuthProvider = 'kakao'

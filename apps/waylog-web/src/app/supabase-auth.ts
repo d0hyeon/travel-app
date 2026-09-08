@@ -1,13 +1,21 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { SupabaseClient, User } from '@supabase/supabase-js'
 import type { Database } from '@waylog/domains/clients'
-import type { AuthService } from '@waylog/domains/clients'
+import type { AuthService, AuthUser } from '@waylog/domains/clients'
+
+function toAuthUser(user: User): AuthUser {
+  return {
+    id: user.id,
+    name: user.user_metadata?.name,
+    avatar: user.user_metadata?.picture,
+  }
+}
 
 export function createAuthService(client: SupabaseClient<Database>): AuthService {
   return {
     async readSession() {
       const { data, error } = await client.auth.getSession()
       if (error) throw error
-      return data.session == null ? null : { user: { id: data.session.user.id } }
+      return data.session == null ? null : { user: toAuthUser(data.session.user) }
     },
     async signIn(input) {
       const { error } = await client.auth.signInWithPassword(input)
@@ -22,7 +30,8 @@ export function createAuthService(client: SupabaseClient<Database>): AuthService
       if (error) throw error
     },
     onAuthStateChange(callback) {
-      const { data } = client.auth.onAuthStateChange((_event, session) => callback(session == null ? null : { user: { id: session.user.id } }))
+      const { data } = client.auth.onAuthStateChange((_event, session) =>
+        callback(session == null ? null : { user: toAuthUser(session.user) }))
       return () => data.subscription.unsubscribe()
     },
   }
