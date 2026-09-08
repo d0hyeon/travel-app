@@ -17,6 +17,8 @@ import { sxToStyle, type Sx } from '../mui'
 
 Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN ?? '')
 
+const VIEWPORT_PADDING_RATIO = 0.2
+
 function visibleBoundsToMapBounds(bounds: MapState['properties']['bounds']): MapBounds {
   const [eastLng, northLat] = bounds.ne
   const [westLng, southLat] = bounds.sw
@@ -59,15 +61,12 @@ function NativeMapInner({
           animationDuration: 300,
         })
       },
-      // 네이티브 지도는 레이아웃 변경 시 스스로 다시 그린다.
       relayout: () => { },
       focus: () => { },
     }),
     [],
   )
 
-  // 카메라 이동 중에도 bounds를 갱신해야 컬링·클러스터링이 첫 프레임부터 반영된다.
-  // onCameraChanged는 프레임마다 발동하므로 한 프레임에 여러 번 와도 마지막 값만 반영한다.
   const scheduleBoundsUpdate = useBatchedCallback<MapBounds>((updates) => {
     const bounds = updates.at(-1)
     if (bounds == null) return
@@ -79,9 +78,6 @@ function NativeMapInner({
   const initial = center ?? defaultCenter
   const rendered = typeof children === 'function' ? children({ zoom }) : children
 
-  // 마커·경로가 부모에게 스캔당하는 대신, 마운트 시점에 스스로 좌표를 등록한다
-  // (웹 useViewportFit 과 동일한 설계). Suspense·조건부 렌더·Fragment로 감싸인
-  // 자식도 정적 트리 순회 없이 자연스럽게 반영된다.
   const { markers } = useRegisteredMapMarkers()
 
   const boundsRef = useRef<{ lat: number; lng: number }[]>([])
@@ -99,12 +95,6 @@ function NativeMapInner({
     )
   }, { once: true })
 
-  // 모든 등록 마커를 항상 보여준다(뷰포트 컬링 없음). autoFocus="path"인
-  // 화면처럼 마커가 카메라 위치 결정에 관여하지 않으면, 경로 데이터가 늦거나
-  // 없을 때 카메라가 마커와 무관한 위치에 고정되고 컬링이 모든 마커를 걸러내
-  // 사용자가 지도를 직접 조작하기 전까지 아무 마커도 안 보이는 결함으로
-  // 이어졌다. 클러스터링만 선택적으로 적용하고, 클러스터 UI는 개별 마커 위에
-  // 겹쳐 그리는 오버레이로만 쓴다(중복 표시를 감수한다).
   const { visibleMarkerIds, clusters } = useMemo(
     () =>
       computeMarkerVisibility({
@@ -113,6 +103,7 @@ function NativeMapInner({
         clustering: clustering === true,
         clusterGridSize,
         toPixel: (bounds) => createToPixel(bounds, width),
+        paddingRatio: VIEWPORT_PADDING_RATIO,
       }),
     [markers, visibleBounds, clustering, clusterGridSize, width],
   )
@@ -169,7 +160,6 @@ function NativeMapInner({
   )
 }
 
-// 좌표를 화면 픽셀로 옮긴다. 클러스터링이 픽셀 거리 기준이라 필요하다.
 function createToPixel(bounds: MapBounds, width: number) {
   const scale = width / (bounds.east - bounds.west)
 

@@ -10,7 +10,6 @@ interface Props {
   onTap?: () => void
 }
 
-// 카카오·구글처럼 개수에 따라 크기와 색이 커진다.
 function getStyle(count: number) {
   if (count >= 100) return { size: 64, color: '#e53935', ring: 'rgba(229,57,53,0.3)' }
   if (count >= 10) return { size: 56, color: '#fb8c00', ring: 'rgba(251,140,0,0.3)' }
@@ -22,9 +21,6 @@ export function NativeMapCluster({ latitude, longitude, count, onTap }: Props) {
   const half = size / 2
 
   return (
-    // Mapbox.MarkerView는 id prop을 받지 않는다(Task 3에서 확인됨. 타입·구현체 모두 없음).
-    // allowOverlap 기본값은 false라 화면상 가까운 클러스터 핀끼리도 collapse될 수
-    // 있어 명시적으로 켠다(NativeMapMarker.tsx와 동일한 이유).
     <Mapbox.MarkerView coordinate={[longitude, latitude]} anchor={{ x: 0.5, y: 0.5 }} allowOverlap>
       <Pressable onPress={onTap}>
         <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
