@@ -1,4 +1,4 @@
-import { useMutation, useSuspenseQuery, type MutationOptions } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useSuspenseQuery, type MutationOptions } from "@tanstack/react-query";
 import {
   createTripPlace,
   deleteTripPlace,
@@ -97,5 +97,8 @@ useTripPlaces.key = (id: string) => [tripKey, placeKey, id];
 useTripPlaces.query = (id: string) => ({
   queryKey: useTripPlaces.key(id),
   queryFn: () => getTripPlacesByTripId(id),
+  // 무효화 뒤 재조회하는 동안 이전 목록을 그대로 보여준다.
+  // 이게 없으면 useSuspenseQuery 가 다시 suspend 해서 화면 전체가 폴백으로 바뀐다.
+  placeholderData: keepPreviousData,
   ...TRIP_PLAN_REFETCH,
 })
