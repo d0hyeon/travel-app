@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { Pressable } from 'react-native'
 import { runOnJS } from 'react-native-reanimated'
 import ReorderableList, {
@@ -34,7 +34,9 @@ export function SortableList<T extends { id: string }>({
   header,
 }: Props<T>) {
   const [items, setItems] = useState(_items);
-  const [activeIndex, setActiveIndex] = useState(-1)
+  const [activeIndex, setActiveIndex] = useState(-1);
+
+  useEffect(() => setItems(_items), [_items])
   const handleDragStart = ({ index }: { index: number }) => {
     'worklet'
     runOnJS(setActiveIndex)(index)
