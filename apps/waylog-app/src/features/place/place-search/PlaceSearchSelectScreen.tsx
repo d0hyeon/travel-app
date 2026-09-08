@@ -1,7 +1,6 @@
 import { calcDistance } from '@waylog/utility'
 import { usePlaceSearch, type PlaceResult } from '@waylog/domains/modules/place'
 import type { Coordinate, MapBounds, MapProvider, MapRef } from '@waylog/domains/modules/map'
-import { usePreservedValue } from '@waylog/react'
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { ActivityIndicator, FlatList, View } from 'react-native'
 import { Map } from '../../../shared/components/Map'
@@ -36,6 +35,8 @@ interface Props {
 // SplitView(리사이즈 가능한 좌우 분할)는 데스크탑 전용 표현이라 대응 개념이 없다.
 export function PlaceSearchSelectScreen({ keyword, center, mapServiceProvider = 'kakao', onSelect }: Props) {
   const [searchCenter, setSearchCenter] = useState(center)
+  // 버튼 노출 판정 기준. 실제로 검색에 쓴 중심을 따라간다.
+  const [searchedCenter, setSearchedCenter] = useState<Coordinate | null>(center ?? null)
   const { data: results, hasNextPage, isFetchingNextPage, fetchNextPage } = usePlaceSearch({
     keyword,
     service: mapServiceProvider,
@@ -52,8 +53,9 @@ export function PlaceSearchSelectScreen({ keyword, center, mapServiceProvider = 
   }, [keyword])
 
   const [mapBoundsCenter, setMapBoundsCenter] = useState<Coordinate | null>(null)
-  const getLastSearchedCenter = usePreservedValue(mapBoundsCenter)
-  const isFarFromLastSearch = mapBoundsCenter != null && isFarEnough(mapBoundsCenter, getLastSearchedCenter())
+  // 직전 렌더의 지도 중심이 아니라 실제로 검색에 쓴 중심과 비교해야 한다.
+  // 자기 자신과 비교하면 다음 렌더에서 거리가 0 이 되어 버튼이 뜨자마자 사라진다.
+  const isFarFromLastSearch = mapBoundsCenter != null && isFarEnough(mapBoundsCenter, searchedCenter)
 
   const [isPendingSelect, startTransition] = useTransition()
 
@@ -64,7 +66,13 @@ export function PlaceSearchSelectScreen({ keyword, center, mapServiceProvider = 
           ref={mapRef}
           defaultCenter={center}
           autoFocus="marker"
-          onBoundsChange={(bounds) => setMapBoundsCenter(boundsToCenter(bounds))}
+          onBoundsChange={(bounds) => {
+            const nextCenter = boundsToCenter(bounds)
+            setMapBoundsCenter(nextCenter)
+            // center 없이 열리면 비교 기준이 없다. 첫 지도 중심을 기준으로 삼는다.
+            // searchCenter 를 건드리면 쿼리 키가 바뀌어 불필요한 재검색이 돈다.
+            setSearchedCenter((current) => current ?? nextCenter)
+          }}
         >
           {results.map((place, index) => (
             <Map.Marker
@@ -81,7 +89,10 @@ export function PlaceSearchSelectScreen({ keyword, center, mapServiceProvider = 
             <Chip
               label="이 장소에서 검색"
               color="primary"
-              onClick={() => setSearchCenter(mapBoundsCenter!)}
+              onClick={() => {
+                setSearchCenter(mapBoundsCenter)
+                setSearchedCenter(mapBoundsCenter)
+              }}
             />
           </View>
         )}
