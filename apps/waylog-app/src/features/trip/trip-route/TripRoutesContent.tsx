@@ -3,7 +3,7 @@ import { formatDisplayDate, formatShortDate } from '@waylog/utility'
 import { useDayTripRoutes, useTrip, useTripPlaces } from '@waylog/domains/modules/trip'
 import { PlaceCategoryColorCode } from '@waylog/domains/modules/place'
 import { MaterialIcons } from '@expo/vector-icons'
-import { Fragment, useMemo, useRef, useState } from 'react'
+import { Fragment, Suspense, useMemo, useRef, useState } from 'react'
 import { Box, Button, Chip, IconButton, Stack, Tab, Tabs, Typography } from '../../../shared/components/mui'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { ListItem } from '../../../shared/components/ListItem'
@@ -133,7 +133,11 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
             clustering={viewConfig.isCluasterlingView}
             clusterGridSize={50}
           >
-            <TripMarineActivityMapMarkers tripId={trip.id} />
+            {/* 날짜별로 suspend 한다. 경계가 없으면 탭 경계까지 올라가
+                지도까지 폴백으로 바뀌며 보던 위치가 초기화된다. */}
+            <Suspense fallback={null}>
+              <TripMarineActivityMapMarkers tripId={trip.id} />
+            </Suspense>
             {isOngoingTrip && currentCoordinate != null && (
               <Map.Marker id="current-location" variant="circle" lat={currentCoordinate.lat} lng={currentCoordinate.lng} />
             )}
@@ -230,10 +234,12 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
             <BottomSheet.GestureArea sx={{ flex: 1, minHeight: 1 }}>
               <Box sx={{ flex: 1, minHeight: 1 }}>
                 <SortableList
-                  key={`${selectedDate}:${currentRoute?.id ?? 'empty'}`}
+                  key={currentRoute?.id ?? 'empty'}
                   items={currentPlaces}
+                  paddingHorizontal={16}
+                  scrollToId={focusedId}
                   header={(
-                    <Box sx={{ paddingHorizontal: 16, marginTop: 8 }}>
+                    <Box sx={{ marginTop: 8 }}>
                       <TripRouteSelector.Chip
                         tripId={tripId}
                         date={selectedDate}
@@ -287,25 +293,19 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                               </SortableItem.Handle>
                             )}
                             title={
-                              <Stack direction="row" alignItems="center" gap={0.5}>
+                              <Stack direction="row" alignItems="center" gap={0.5} sx={{ flex: 1, minWidth: 0 }}>
                                 <Dot>
-                                  <Typography numberOfLines={1} sx={{ color: '#fff', fontSize: 11, fontWeight: '900' }}>
+                                  <Typography sx={{ color: '#fff', fontSize: 11, fontWeight: '900' }}>
                                     {idx + 1}
                                   </Typography>
                                 </Dot>
                                 <ListItem.Title>{place.name}</ListItem.Title>
-                                <IconButton
-                                  size="small"
-                                  onClick={() =>
-                                    toggleVisible({ routeId: currentRoute.id, placeId: place.id })
-                                  }
-                                >
-                                  <MaterialIcons
-                                    name={isHidden ? 'visibility-off' : 'visibility'}
-                                    size={18}
-                                    color={isHidden ? '#bbb' : '#787c7e'}
-                                  />
-                                </IconButton>
+                                <MaterialIcons
+                                  name={isHidden ? 'visibility-off' : 'visibility'}
+                                  size={18}
+                                  color={isHidden ? '#bbb' : '#787c7e'}
+                                  onPress={() => toggleVisible({ routeId: currentRoute.id, placeId: place.id })}
+                                />
                               </Stack>
                             }
                             rightAddon={
