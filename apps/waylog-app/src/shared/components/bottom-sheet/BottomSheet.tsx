@@ -230,6 +230,7 @@ export function BottomSheet({
   // 직전 프레임의 누적 이동량. 프레임별 변화량을 내기 위해 들고 있는다.
   const lastY = useSharedValue(0)
   const touchStartY = useSharedValue(0)
+  const touchStartX = useSharedValue(0)
 
   // 이번 제스처를 시트가 가져갈지, 스크롤에 넘길지. 첫 움직임에 한 번 정한다.
   // null 은 아직 정하지 않았다는 뜻이다.
@@ -278,13 +279,15 @@ export function BottomSheet({
 
           wasAtTop.set(scrollY.get() <= 0)
           touchStartY.set(touch.absoluteY)
+          touchStartX.set(touch.absoluteX)
         })
         .onTouchesMove((event, manager) => {
           const touch = event.changedTouches[0]
           if (touch == null) return
 
           const translationY = touch.absoluteY - touchStartY.get()
-          if (!hasGestureDirection(translationY)) return
+          const translationX = touch.absoluteX - touchStartX.get()
+          if (!hasGestureDirection(translationY, translationX)) return
 
           if (getGestureOwner({ startedAtTop: wasAtTop.get(), deltaY: translationY }) === 'sheet') {
             manager.activate()

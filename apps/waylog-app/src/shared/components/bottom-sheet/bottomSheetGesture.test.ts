@@ -56,4 +56,13 @@ describe('hasGestureDirection', () => {
     expect(hasGestureDirection(6)).toBe(true)
     expect(hasGestureDirection(-6)).toBe(true)
   })
+
+  it('leaves horizontal swipes to the pager even when the finger drifts vertically', () => {
+    expect(hasGestureDirection(8, 40)).toBe(false)
+    expect(hasGestureDirection(-8, -40)).toBe(false)
+  })
+
+  it('keeps vertical drags with the sheet when they beat the horizontal drift', () => {
+    expect(hasGestureDirection(40, 8)).toBe(true)
+  })
 })
