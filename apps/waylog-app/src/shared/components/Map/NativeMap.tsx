@@ -1,29 +1,18 @@
 import {
-  clusterMarkers,
   pastelMapboxStyle,
   type MapBounds,
   type MapProps,
   type MapRef,
-  type MarkerData,
-  type ToPixel,
 } from '@waylog/domains/modules/map'
-import {
-  Children,
-  isValidElement,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from 'react'
+import { useImperativeHandle, useMemo, useRef, useState, type ReactNode } from 'react'
 import { StyleSheet, useWindowDimensions } from 'react-native'
 import Mapbox, { type MapState } from '@rnmapbox/maps'
 import { MapContext } from './MapContext'
 import { NativeMapCluster } from './NativeMapCluster'
-import { NativeMapMarker } from './NativeMapMarker'
 import { useBatchedCallback } from '../../hooks/useBatchedCallback'
 import { DEFAULT_DELTA, deltaToZoom, levelToDelta } from './NativeMap.utils'
-import { isCoordinateInBounds } from './useMapViewportCulling'
+import { MapMarkerRegistryProvider, useRegisteredMapMarkers } from './useMapMarkerRegistry'
+import { computeMarkerVisibility } from './useMapMarkerRegistry.utils'
 import { sxToStyle, type Sx } from '../mui'
 
 // 화면 경계 바로 밖도 살짝 포함해 패닝 시 마커가 뚝 끊겨 나타나지 않게 한다.
@@ -37,7 +26,15 @@ function visibleBoundsToMapBounds(bounds: MapState['properties']['bounds']): Map
   return { north: northLat, south: southLat, east: eastLng, west: westLng }
 }
 
-export function NativeMap({
+export function NativeMap(props: MapProps & { sx?: Sx }) {
+  return (
+    <MapMarkerRegistryProvider>
+      <NativeMapInner {...props} />
+    </MapMarkerRegistryProvider>
+  )
+}
+
+function NativeMapInner({
   autoFocus = 'marker',
   defaultCenter,
   center,
@@ -46,7 +43,7 @@ export function NativeMap({
   clustering,
   clusterGridSize = 50,
   onBoundsChange,
-  sx
+  sx,
 }: MapProps & { sx?: Sx }) {
   const cameraRef = useRef<Mapbox.Camera>(null)
   const [zoom, setZoom] = useState(() => deltaToZoom(DEFAULT_DELTA))
@@ -85,31 +82,11 @@ export function NativeMap({
   const initial = center ?? defaultCenter
   const rendered = typeof children === 'function' ? children({ zoom }) : children
 
-  const { markerProps, others } = splitMarkers(rendered)
-
-  // 좌표·개수가 그대로면 같은 문자열이 된다.
-  // rendered 는 부모가 리렌더할 때마다 새 배열이라 참조로는 비교할 수 없다.
-  const markerIdentity = markerProps.map((marker) => markerKey(marker)).join('|')
-
-  // 화면 밖 마커는 그리지 않는다. MarkerView는 실제 네이티브 뷰라 동시 표시
-  // 상한(공식 권장 최대 ~100개)이 낮아, 뷰포트에 보이는 마커만 유지한다.
-  const visibleMarkerProps = useMemo(() => {
-    if (visibleBounds == null) return markerProps // 최초 마운트 시(bounds 미확정)는 전체 표시
-
-    const latPadding = (visibleBounds.north - visibleBounds.south) * VIEWPORT_PADDING_RATIO
-    const lngPadding = (visibleBounds.east - visibleBounds.west) * VIEWPORT_PADDING_RATIO
-    const padding = Math.max(latPadding, lngPadding)
-
-    return markerProps.filter((marker) =>
-      isCoordinateInBounds({ lat: marker.lat, lng: marker.lng }, visibleBounds, padding),
-    )
-    // markerProps 는 매 렌더마다 새 배열이므로 값이 같은지로 비교한다.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [markerIdentity, visibleBounds])
-
   // 마커·경로가 부모에게 스캔당하는 대신, 마운트 시점에 스스로 좌표를 등록한다
-  // (웹 useViewportFit 과 동일한 설계). Suspense·조건부 렌더로 감싸인 자식도
-  // 정적 트리 순회 없이 자연스럽게 반영된다. 배치 후 최초 한 번만 화면을 맞춘다.
+  // (웹 useViewportFit 과 동일한 설계). Suspense·조건부 렌더·Fragment로 감싸인
+  // 자식도 정적 트리 순회 없이 자연스럽게 반영된다.
+  const { markers } = useRegisteredMapMarkers()
+
   const boundsRef = useRef<{ lat: number; lng: number }[]>([])
   const extendBound = useBatchedCallback<{ lat: number; lng: number }>((coords) => {
     boundsRef.current.push(...coords)
@@ -125,24 +102,25 @@ export function NativeMap({
     )
   }, { once: true })
 
-  const mapContextValue = useMemo(
-    () => ({ extendBound, config: { autoFocus }, map: mapInstance }),
-    [extendBound, autoFocus, mapInstance],
+  // 뷰포트 컬링 → 클러스터링 순서로 계산한다. 결과(visibleMarkerIds)는 각 마커가
+  // 스스로 렌더 여부를 판단하는 데 쓰이고, clusters는 클러스터 UI를 그리는 데 쓰인다.
+  const { visibleMarkerIds, clusters } = useMemo(
+    () =>
+      computeMarkerVisibility({
+        markers,
+        visibleBounds,
+        clustering: clustering === true,
+        clusterGridSize,
+        toPixel: (bounds) => createToPixel(bounds, width),
+        paddingRatio: VIEWPORT_PADDING_RATIO,
+      }),
+    [markers, visibleBounds, clustering, clusterGridSize, width],
   )
 
-  const clustered = useMemo(() => {
-    if (clustering !== true || visibleBounds == null || visibleMarkerProps.length < 2) return null
-
-    const data: MarkerData[] = visibleMarkerProps.map((marker) => ({
-      id: markerKey(marker),
-      position: { lat: marker.lat, lng: marker.lng },
-    }))
-
-    return clusterMarkers(data, createToPixel(visibleBounds, width), clusterGridSize)
-    // visibleMarkerProps 는 매 렌더마다 새 배열이므로, 이미 그 내용을 결정하는
-    // markerIdentity·visibleBounds 로 값이 같은지 비교한다.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clustering, visibleBounds, markerIdentity, clusterGridSize, width])
+  const mapContextValue = useMemo(
+    () => ({ extendBound, config: { autoFocus }, map: mapInstance, visibleMarkerIds }),
+    [extendBound, autoFocus, mapInstance, visibleMarkerIds],
+  )
 
   return (
     <MapContext value={mapContextValue}>
@@ -165,83 +143,38 @@ export function NativeMap({
             zoomLevel: deltaToZoom(DEFAULT_DELTA),
           }}
         />
-        {(clustered == null
-          ? [...others, ...visibleMarkerProps.map((marker) => findMarker(rendered, markerKey(marker)))]
-          : [
-            ...others,
-            ...clustered.map((cluster) =>
-              cluster.markers.length === 1 ? (
-                findMarker(rendered, cluster.markers[0]!.id)
-              ) : (
-                <NativeMapCluster
-                  key={cluster.id}
-                  latitude={cluster.center.lat}
-                  longitude={cluster.center.lng}
-                  count={cluster.markers.length}
-                  onTap={() => {
-                    const lats = cluster.markers.map((marker) => marker.position.lat)
-                    const lngs = cluster.markers.map((marker) => marker.position.lng)
-                    cameraRef.current?.fitBounds(
-                      [Math.max(...lngs), Math.max(...lats)],
-                      [Math.min(...lngs), Math.min(...lats)],
-                      80,
-                      600,
-                    )
-                  }}
-                />
-              ),
-            ),
-          ]) as ReactNode}
+        {rendered as ReactNode}
+        {clusters?.map((cluster) =>
+          cluster.markers.length > 1 ? (
+            <NativeMapCluster
+              key={cluster.id}
+              latitude={cluster.center.lat}
+              longitude={cluster.center.lng}
+              count={cluster.markers.length}
+              onTap={() => {
+                const lats = cluster.markers.map((marker) => marker.position.lat)
+                const lngs = cluster.markers.map((marker) => marker.position.lng)
+                cameraRef.current?.fitBounds(
+                  [Math.max(...lngs), Math.max(...lats)],
+                  [Math.min(...lngs), Math.min(...lats)],
+                  80,
+                  600,
+                )
+              }}
+            />
+          ) : null,
+        )}
       </Mapbox.MapView>
     </MapContext>
   )
 }
 
-type MarkerElementProps = React.ComponentProps<typeof NativeMapMarker>
-
-// 자식 중 마커만 분리한다. 클러스터링이 켜지면 마커는 묶어서 그린다.
-function splitMarkers(children: ReactNode): {
-  markerProps: MarkerElementProps[]
-  others: ReactNode[]
-} {
-  const markerProps: MarkerElementProps[] = []
-  const others: ReactNode[] = []
-
-  Children.toArray(children).forEach((child) => {
-    if (isValidElement<MarkerElementProps>(child) && child.type === NativeMapMarker) {
-      markerProps.push(child.props)
-      return
-    }
-    others.push(child)
-  })
-
-  return { markerProps, others }
-}
-
 // 좌표를 화면 픽셀로 옮긴다. 클러스터링이 픽셀 거리 기준이라 필요하다.
-function createToPixel(bounds: MapBounds, width: number): ToPixel {
+function createToPixel(bounds: MapBounds, width: number) {
   const scale = width / (bounds.east - bounds.west)
 
-  return (coord) => ({
+  return (coord: { lat: number; lng: number }) => ({
     x: (coord.lng - bounds.west) * scale,
     y: (bounds.north - coord.lat) * scale,
   })
-}
-
-// 혼자 남은 클러스터는 원래 마커를 그대로 쓴다.
-function findMarker(children: ReactNode, key: string): ReactNode {
-  return (
-    Children.toArray(children).find(
-      (child) =>
-        isValidElement<MarkerElementProps>(child) &&
-        child.type === NativeMapMarker &&
-        markerKey(child.props) === key,
-    ) ?? null
-  )
-}
-
-// 배열 인덱스는 컬링·클러스터링 단계마다 다른 배열을 기준으로 매겨져
-// 서로 어긋난다. id가 없는 마커는 좌표로 식별해 어느 단계에서 계산해도 같은 값이 나오게 한다.
-function markerKey(marker: Pick<MarkerElementProps, 'id' | 'lat' | 'lng'>): string {
-  return marker.id ?? `${marker.lat},${marker.lng}`
 }
