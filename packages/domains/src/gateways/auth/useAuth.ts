@@ -2,7 +2,7 @@ import { useSuspenseQuery, type UseSuspenseQueryResult } from '@tanstack/react-q
 import { createStore, useStoreValue } from '@waylog/react'
 import { useEffect } from 'react'
 import type { UserProfile } from '../../modules/user-profile'
-import { getUserProfileById } from '../../modules/user-profile'
+import { getUserProfileById, createProfileIfAbsent } from '../../modules/user-profile'
 import { assert } from '../../utils'
 import { getAuthService } from './auth.service'
 import type { AuthSession, AuthUser } from './auth.types'
@@ -31,6 +31,8 @@ export const getAuth = getSession
 export function AuthStateSync() {
   useEffect(() => getAuthService().onAuthStateChange((session) => {
     sessionStore.setState(session)
+    if (session == null) return
+    void createProfileIfAbsent(session.user)
   }), [])
   return null
 }
