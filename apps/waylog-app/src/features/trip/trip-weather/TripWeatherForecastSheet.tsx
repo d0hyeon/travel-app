@@ -23,6 +23,8 @@ import {
   Typography,
 } from '../../../shared/components/mui'
 import { DailyWeatherInfoBox } from '../../weather/DailyWeatherInfoBox'
+import { isPageWithinRenderWindow } from '../../../shared/components/pagerWindow'
+import { toForecastPages, toPageIndex } from './weatherForecastPager'
 import { HourlyForecastList } from '../../weather/HourlyForecastList'
 
 const DAY_PARTS = [
@@ -61,17 +63,38 @@ export function TripWeatherForecastSheet({ tripId, initialDate, ...props }: Prop
 
 function Resolved({ tripId, initialDate }: Pick<Props, 'tripId' | 'initialDate'>) {
   const { data: trip } = useTrip(tripId)
-  const [selectedDate, selectDate] = useState(initialDate)
+  const { width } = useWindowDimensions()
+  const scrollRef = useRef<Animated.ScrollView>(null)
+  const now = useCurrentTime()
 
   const tripDates = useMemo(
     () => eachDayOfInterval({ start: trip.startDate, end: trip.endDate }).map(formatDisplayDate),
     [trip.startDate, trip.endDate],
   )
+  const pages = useMemo(() => toForecastPages(tripDates), [tripDates])
+
+  const [activeIndex, setActiveIndex] = useState(() =>
+    toPageIndex(tripDates, initialDate, DAY_PARTS[getInitialDayPartIndex(initialDate, now)].dayPart),
+  )
+  const activePage = pages[activeIndex] ?? pages[0]
+
+  const scrollToPage = (index: number) => {
+    setActiveIndex(index)
+    scrollRef.current?.scrollTo({ x: index * width, animated: true })
+  }
+
+  if (activePage == null) return <ForecastUnavailable />
 
   return (
     <>
-      <BottomSheet.Header>
-        <Tabs value={selectedDate} onChange={(_, date) => selectDate(date)}>
+      {/* 탭이 헤더 폭을 온전히 쓰도록 좌우 패딩을 없앤다. */}
+      <BottomSheet.Header sx={{ px: 0 }}>
+        <Tabs
+          value={activePage.date}
+          onChange={(_, date) => scrollToPage(toPageIndex(tripDates, date, 'am'))}
+          scrollable
+          sx={{ width: '100%' }}
+        >
           {tripDates.map((date) => (
             <Tab key={date} value={date} label={formatShortDate(date)} />
           ))}
@@ -79,84 +102,87 @@ function Resolved({ tripId, initialDate }: Pick<Props, 'tripId' | 'initialDate'>
       </BottomSheet.Header>
 
       <BottomSheet.Body sx={{ paddingHorizontal: 0 }}>
-        <AsyncBoundary resetKeys={[selectedDate]} rejectedFallback={() => <ForecastUnavailable />}>
-          <DayPartForecast
-            coordinate={{ lat: trip.lat, lng: trip.lng }}
-            date={selectedDate}
-          />
-        </AsyncBoundary>
+        <Stack gap={1} sx={{ flex: 1, minHeight: 0 }}>
+          <ToggleButtonGroup
+            value={activePage.dayPart}
+            exclusive
+            size="small"
+            onChange={(_, dayPart) =>
+              dayPart && scrollToPage(toPageIndex(tripDates, activePage.date, dayPart as DayPart))
+            }
+            sx={{ alignSelf: 'flex-end', marginTop: 12, marginRight: 12 }}
+          >
+            {DAY_PARTS.map(({ dayPart, label }) => (
+              <ToggleButton key={dayPart} value={dayPart}>
+                {label}
+              </ToggleButton>
+            ))}
+          </ToggleButtonGroup>
+
+          {/* 여행 전체를 한 줄로 편다. 오전에서 왼쪽 끝, 오후에서 오른쪽 끝으로
+              밀면 그대로 인접 날짜로 넘어간다. */}
+          <BottomSheet.ScrollView
+            ref={scrollRef}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            contentOffset={{ x: activeIndex * width, y: 0 }}
+            onMomentumScrollEnd={(event) => {
+              const index = Math.round(event.nativeEvent.contentOffset.x / width)
+              if (index !== activeIndex) setActiveIndex(index)
+            }}
+          >
+            {pages.map((page, index) => (
+              <Stack
+                key={`${page.date}:${page.dayPart}`}
+                gap={1}
+                sx={{ width, paddingHorizontal: 12 }}
+              >
+                {/* 화면에서 먼 페이지는 그리지 않는다. 그 날짜 예보도 요청되지 않는다. */}
+                {isPageWithinRenderWindow(index, activeIndex) && (
+                  <AsyncBoundary
+                    resetKeys={[page.date, page.dayPart]}
+                    rejectedFallback={() => <ForecastUnavailable />}
+                    pendingFallback={null}
+                  >
+                    <ForecastPageContent
+                      coordinate={{ lat: trip.lat, lng: trip.lng }}
+                      date={page.date}
+                      dayPart={page.dayPart}
+                    />
+                  </AsyncBoundary>
+                )}
+              </Stack>
+            ))}
+          </BottomSheet.ScrollView>
+        </Stack>
       </BottomSheet.Body>
     </>
   )
 }
 
-function DayPartForecast({ coordinate, date }: { coordinate: Coordinate; date: string }) {
+function ForecastPageContent({
+  coordinate,
+  date,
+  dayPart,
+}: {
+  coordinate: Coordinate
+  date: string
+  dayPart: DayPart
+}) {
   const { data: weatherForecast } = useDailyWeatherForecast({ coordinate, date })
-  const { width } = useWindowDimensions()
-  const scrollRef = useRef<Animated.ScrollView>(null)
-  const now = useCurrentTime()
-  const [activeDayPart, setActiveDayPart] = useState<DayPart>(
-    () => DAY_PARTS[getInitialDayPartIndex(date, now)].dayPart,
-  )
 
   if (weatherForecast == null) return <ForecastUnavailable />
-
-  const availableDayParts = DAY_PARTS.filter(({ dayPart }) =>
-    hasDayPartForecast(weatherForecast.forecast.hourly, dayPart),
-  )
-  const selectedDayPart =
-    availableDayParts.find(({ dayPart }) => dayPart === activeDayPart) ?? availableDayParts[0]
-
-  if (!selectedDayPart) return <ForecastUnavailable />
-
-  // 웹은 Swiper 로 넘긴다. RN 은 페이징 스크롤이 같은 동작을 낸다.
-  const selectDayPart = (dayPart: DayPart) => {
-    const index = availableDayParts.findIndex((item) => item.dayPart === dayPart)
-    setActiveDayPart(dayPart)
-    scrollRef.current?.scrollTo({ x: index * width, animated: true })
-  }
+  if (!hasDayPartForecast(weatherForecast.forecast.hourly, dayPart)) return <ForecastUnavailable />
 
   return (
     <>
-      <Stack gap={1}>
-        <ToggleButtonGroup
-          value={selectedDayPart.dayPart}
-          exclusive
-          size="small"
-          onChange={(_, dayPart) => dayPart && selectDayPart(dayPart as DayPart)}
-          sx={{ alignSelf: 'flex-end', marginTop: 12, marginRight: 12 }}
-        >
-          {availableDayParts.map(({ dayPart, label }) => (
-            <ToggleButton key={dayPart} value={dayPart}>
-              {label}
-            </ToggleButton>
-          ))}
-        </ToggleButtonGroup>
-
-        <BottomSheet.ScrollView
-          ref={scrollRef}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          contentOffset={{ x: availableDayParts.indexOf(selectedDayPart) * width, y: 0 }}
-          onMomentumScrollEnd={(event) => {
-            const index = Math.round(event.nativeEvent.contentOffset.x / width)
-            const dayPart = availableDayParts[index]
-            if (dayPart) setActiveDayPart(dayPart.dayPart)
-          }}
-        >
-          {availableDayParts.map(({ dayPart }) => (
-            <Stack key={dayPart} gap={1} sx={{ width, paddingHorizontal: 12 }}>
-              <ErrorBoundary resetKeys={[date, dayPart]}>
-                <DailyWeatherInfoBox coordinate={coordinate} date={date} dayPart={dayPart} />
-              </ErrorBoundary>
-              <ErrorBoundary resetKeys={[date, dayPart]}>
-                <HourlyForecastList coordinate={coordinate} date={date} dayPart={dayPart} />
-              </ErrorBoundary>
-            </Stack>
-          ))}
-        </BottomSheet.ScrollView>
-      </Stack>
+      <ErrorBoundary resetKeys={[date, dayPart]}>
+        <DailyWeatherInfoBox coordinate={coordinate} date={date} dayPart={dayPart} />
+      </ErrorBoundary>
+      <ErrorBoundary resetKeys={[date, dayPart]}>
+        <HourlyForecastList coordinate={coordinate} date={date} dayPart={dayPart} />
+      </ErrorBoundary>
       <Typography
         variant="caption"
         color="text.secondary"
