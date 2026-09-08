@@ -1,11 +1,14 @@
 import { eachDayOfInterval } from 'date-fns'
-import { Suspense, useCallback, useMemo, useState } from 'react'
+import { Suspense, useCallback, useMemo, useRef, useState } from 'react'
 import { MarineActivityType, type MarineActivityIndex } from '@waylog/domains/modules/marine-activity'
 import { useDailyMarineActivityIndices } from '@waylog/domains/modules/marine-activity'
 import { formatDisplayDate, formatShortDate } from '@waylog/utility'
 import type { Trip } from '@waylog/domains/modules/trip'
 import { useTrip } from '@waylog/domains/modules/trip'
+import { useWindowDimensions } from 'react-native'
+import type Animated from 'react-native-reanimated'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
+import { isPageWithinRenderWindow } from '../../../shared/components/pagerWindow'
 import { Box, Stack, Tab, Tabs, Typography } from '../../../shared/components/mui'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { palette } from '../../../shared/config/tokens'
@@ -53,7 +56,8 @@ function TripMarineActivityDetailSheet({
   initialDate,
   ...detailParams
 }: TripMarineActivityDetailOverlayProps) {
-  const [selectedDate, selectDate] = useState(initialDate)
+  const { width } = useWindowDimensions()
+  const scrollRef = useRef<Animated.ScrollView>(null)
   const tripDates = useMemo(
     () =>
       eachDayOfInterval({
@@ -63,20 +67,53 @@ function TripMarineActivityDetailSheet({
     [detailParams.trip],
   )
 
+  const [activeIndex, setActiveIndex] = useState(() => {
+    const index = tripDates.indexOf(initialDate)
+    return index < 0 ? 0 : index
+  })
+  const selectedDate = tripDates[activeIndex] ?? initialDate
+
+  const scrollToDate = (date: string) => {
+    const index = tripDates.indexOf(date)
+    if (index < 0) return
+    setActiveIndex(index)
+    scrollRef.current?.scrollTo({ x: index * width, animated: true })
+  }
+
   return (
     <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.9]} defaultSnapIndex={0}>
       <BottomSheet.Header direction="row" justifyContent="space-between">
         <Typography variant="subtitle1">{placeName}</Typography>
       </BottomSheet.Header>
       <BottomSheet.Body sx={{ paddingHorizontal: 0 }}>
-        <Tabs value={selectedDate} onChange={(_, date) => selectDate(date)}>
+        <Tabs value={selectedDate} onChange={(_, date) => scrollToDate(date)} scrollable>
           {tripDates.map((date) => (
             <Tab key={date} value={date} label={formatShortDate(date)} />
           ))}
         </Tabs>
-        <Suspense>
-          <TripMarineActivityDetailContent date={selectedDate} {...detailParams} />
-        </Suspense>
+        {/* 날짜를 한 줄로 편다. 좌우로 밀면 인접 날짜로 넘어간다. */}
+        <BottomSheet.ScrollView
+          ref={scrollRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          contentOffset={{ x: activeIndex * width, y: 0 }}
+          onMomentumScrollEnd={(event) => {
+            const index = Math.round(event.nativeEvent.contentOffset.x / width)
+            if (index !== activeIndex) setActiveIndex(index)
+          }}
+        >
+          {tripDates.map((date, index) => (
+            <Box key={date} sx={{ width }}>
+              {/* 화면에서 먼 날짜는 그리지 않아 예보를 요청하지 않는다. */}
+              {isPageWithinRenderWindow(index, activeIndex) && (
+                <Suspense>
+                  <TripMarineActivityDetailContent date={date} {...detailParams} />
+                </Suspense>
+              )}
+            </Box>
+          ))}
+        </BottomSheet.ScrollView>
       </BottomSheet.Body>
     </BottomSheet>
   )
