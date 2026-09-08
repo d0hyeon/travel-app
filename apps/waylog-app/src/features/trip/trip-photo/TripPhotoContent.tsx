@@ -5,11 +5,13 @@ import { useTripPlaces } from '@waylog/domains/modules/trip'
 import { useEffect, useMemo, useState } from 'react'
 import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, useWindowDimensions } from 'react-native'
 import * as Linking from 'expo-linking'
-import { Box, Button, Chip, Stack, Typography } from '../../../shared/components/mui'
+import { Box, Button, Stack, Typography } from '../../../shared/components/mui'
+import { BottomArea } from '../../../shared/components/BottomArea'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { useConfirmDialog } from '../../../shared/components/confirm-dialog/useConfirmDialog'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { palette } from '../../../shared/config/tokens'
+import { MultiSelectDropdown } from '../../../shared/components/MultiSelectDropdown'
 import { useTripPhotos } from './useTripPhotos'
 import { usePhotoViewerState } from './usePhotoViewerState'
 import { ZoomArea } from '../../../shared/components/photo/ZoomArea'
@@ -17,6 +19,7 @@ import { LoadableImage } from '../../../shared/components/LoadableImage'
 
 const COLUMNS = 3
 const GAP = 2
+const LIST_PADDING = 16
 
 interface Props {
   tripId: string
@@ -32,6 +35,7 @@ export function TripPhotoContent({ tripId }: Props) {
   const [selectedPlaceIds, setSelectedPlaceIds] = useState<string[]>([])
   const [selectedPhotoIds, setSelectedPhotoIds] = useState<string[]>([])
   const [isReadonly, setIsReadonly] = useState(true)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     if (isReadonly) setSelectedPhotoIds([])
@@ -62,7 +66,7 @@ export function TripPhotoContent({ tripId }: Props) {
     setSelectedPhotoIds((curr) =>
       curr.includes(photo.id) ? curr.filter((id) => id !== photo.id) : [...curr, photo.id],
     )
-  const size = (width - GAP * (COLUMNS - 1)) / COLUMNS
+  const size = (width - LIST_PADDING * 2 - GAP * (COLUMNS - 1)) / COLUMNS
 
   const pick = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync()
@@ -110,31 +114,17 @@ export function TripPhotoContent({ tripId }: Props) {
         sx={{ paddingHorizontal: 16, paddingVertical: 12 }}
       >
         {placeOptions.length > 0 && (
-          <Stack direction="row" gap={0.5} sx={{ flex: 1, flexWrap: 'wrap' }}>
-            {placeOptions.map((place) => {
-              const isSelected = selectedPlaceIds.includes(place.placeId)
-
-              return (
-                <Chip
-                  key={place.placeId}
-                  label={place.name}
-                  size="small"
-                  variant={isSelected ? 'filled' : 'outlined'}
-                  color={isSelected ? 'primary' : 'default'}
-                  onClick={() =>
-                    setSelectedPlaceIds((curr) =>
-                      isSelected
-                        ? curr.filter((id) => id !== place.placeId)
-                        : [...curr, place.placeId],
-                    )
-                  }
-                />
-              )
-            })}
-          </Stack>
+          <MultiSelectDropdown
+            placeholder="장소"
+            options={placeOptions.map((place) => ({
+              value: place.placeId,
+              label: place.name,
+            }))}
+            value={selectedPlaceIds}
+            onChange={setSelectedPlaceIds}
+          />
         )}
         <Stack direction="row" gap={0.5} alignItems="center">
-          {isUploading && <ActivityIndicator />}
           <Button
             size="small"
             variant="contained"
@@ -146,49 +136,22 @@ export function TripPhotoContent({ tripId }: Props) {
         </Stack>
       </Stack>
 
-      {!isReadonly && selectedPhotoIds.length > 0 && (
-        <Stack direction="row" gap={1} sx={{ paddingHorizontal: 16, paddingBottom: 8 }}>
-          <Button
-            size="small"
-            variant="outlined"
-            onClick={() => {
-              selectedPhotoIds.forEach((photoId) => {
-                const photo = photos.find((x) => x.id === photoId)
-                if (photo != null) update({ photoId, isPublic: !photo.isPublic })
-              })
-              setSelectedPhotoIds([])
-            }}
-          >
-            공개 전환 ({selectedPhotoIds.length})
-          </Button>
-          <Button
-            size="small"
-            color="error"
-            onClick={async () => {
-              if (!(await confirm('선택한 사진을 삭제할까요?'))) return
-              for (const photoId of selectedPhotoIds) {
-                const photo = photos.find((x) => x.id === photoId)
-                if (photo != null) await remove(photo)
-              }
-              setSelectedPhotoIds([])
-            }}
-          >
-            삭제 ({selectedPhotoIds.length}/{filteredPhotos.length})
-          </Button>
-        </Stack>
-      )}
-
       <FlatList
         data={galleryItems}
         keyExtractor={(item) => item.id}
         numColumns={COLUMNS}
         columnWrapperStyle={{ gap: GAP }}
-        contentContainerStyle={{ gap: GAP }}
+        contentContainerStyle={{
+          gap: GAP,
+          paddingHorizontal: LIST_PADDING,
+          paddingBottom: 16,
+        }}
         renderItem={({ item }) => (
           'kind' in item ? (
             <Pressable
               accessibilityLabel="사진 추가"
-              onPress={pick}
+              // 업로드 중에는 다시 고르지 못하게 막는다.
+              onPress={isUploading ? undefined : pick}
               style={{
                 width: size,
                 height: size,
@@ -198,9 +161,14 @@ export function TripPhotoContent({ tripId }: Props) {
                 borderStyle: 'dashed',
                 borderColor: '#d5d5d5',
                 borderRadius: 8,
+                opacity: isUploading ? 0.4 : 1,
               }}
             >
-              <MaterialIcons name="add-photo-alternate" size={22} color={palette.textSecondary} />
+              {isUploading ? (
+                <ActivityIndicator />
+              ) : (
+                <MaterialIcons name="add-photo-alternate" size={22} color={palette.textSecondary} />
+              )}
             </Pressable>
           ) : (
           <Pressable
@@ -242,6 +210,37 @@ export function TripPhotoContent({ tripId }: Props) {
         )}
       />
 
+      {/* 웹과 같이 선택 모드에서는 하단 고정 삭제 버튼만 둔다.
+          공개 전환은 사진을 열었을 때 뷰어 안에서 한다. */}
+      {!isReadonly && (
+        <BottomArea position="static">
+          <Button
+            size="large"
+            color="error"
+            variant="contained"
+            fullWidth
+            textSx={{ fontWeight: '600' }}
+            disabled={selectedPhotoIds.length === 0}
+            loading={isDeleting}
+            onClick={async () => {
+              if (!(await confirm('정말 삭제하시겠어요?'))) return
+
+              setIsDeleting(true)
+              try {
+                for (const photoId of selectedPhotoIds) {
+                  const photo = photos.find((x) => x.id === photoId)
+                  if (photo != null) await remove(photo)
+                }
+                setSelectedPhotoIds([])
+              } finally {
+                setIsDeleting(false)
+              }
+            }}
+          >
+            삭제 ({selectedPhotoIds.length}/{filteredPhotos.length})
+          </Button>
+        </BottomArea>
+      )}
     </Box>
   )
 }
