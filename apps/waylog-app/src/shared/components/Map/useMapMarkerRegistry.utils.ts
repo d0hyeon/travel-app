@@ -25,6 +25,12 @@ interface ComputeMarkerVisibilityParams {
 // 뷰포트 컬링 → 클러스터링 순서로 계산한다. 컬링을 먼저 적용해 MarkerView
 // 동시 표시 상한(공식 권장 최대 ~100개)을 넘지 않게 한 뒤, 화면에 남은
 // 마커만 클러스터링 대상으로 삼는다.
+//
+// visibleMarkerIds는 뷰포트 컬링 결과만 반영한다. 클러스터 그룹 멤버까지
+// 여기서 제외하면, 클러스터링 토글이나 줌으로 그룹 구성이 바뀔 때마다
+// 다수 마커가 한꺼번에 마운트·언마운트되어 MarkerView(네이티브 뷰) 삽입·삭제가
+// 몰려 프레임 드랍을 일으킨다. 클러스터 UI는 이 결과와 무관하게 개별 마커
+// 위에 겹쳐 그리는 오버레이로만 쓴다(개별 마커·클러스터 핀 동시 표시를 감수한다).
 export function computeMarkerVisibility({
   markers,
   visibleBounds,
@@ -34,9 +40,10 @@ export function computeMarkerVisibility({
   paddingRatio,
 }: ComputeMarkerVisibilityParams): MarkerVisibility {
   const visibleMarkers = filterByViewport(markers, visibleBounds, paddingRatio)
+  const visibleMarkerIds = new Set(visibleMarkers.map((marker) => marker.id))
 
   if (!clustering || visibleBounds == null || visibleMarkers.length < 2) {
-    return { visibleMarkerIds: new Set(visibleMarkers.map((marker) => marker.id)), clusters: null }
+    return { visibleMarkerIds, clusters: null }
   }
 
   const data: MarkerData[] = visibleMarkers.map((marker) => ({
@@ -46,14 +53,7 @@ export function computeMarkerVisibility({
 
   const clusters = clusterMarkers(data, toPixel(visibleBounds), clusterGridSize)
 
-  // 클러스터 UI(NativeMapCluster)가 그룹을 대신 그리므로, 그룹에 묶인 마커는
-  // 개별 마커로 중복 렌더링되면 안 된다. 싱글턴 클러스터(묶이지 않은 마커)만
-  // 개별 마커로 보여준다.
-  const singletonMarkerIds = clusters
-    .filter((cluster) => cluster.markers.length === 1)
-    .map((cluster) => cluster.markers[0]!.id)
-
-  return { visibleMarkerIds: new Set(singletonMarkerIds), clusters }
+  return { visibleMarkerIds, clusters }
 }
 
 function filterByViewport(

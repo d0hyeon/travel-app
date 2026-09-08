@@ -103,11 +103,9 @@ describe('computeMarkerVisibility', () => {
     expect(result.clusters).not.toBeNull()
     expect(result.clusters).toHaveLength(1)
     expect(result.clusters![0]!.markers).toHaveLength(2)
-    // 이 테스트에서 갱신: a, b 모두 하나의 클러스터로 묶이므로 개별로는 보이지 않는다.
-    expect(result.visibleMarkerIds.size).toBe(0)
   })
 
-  it('클러스터로 묶인 마커는 visibleMarkerIds에서 제외된다(중복 렌더링 방지)', () => {
+  it('클러스터로 묶인 마커도 visibleMarkerIds에 남는다(클러스터 핀과 겹쳐 그려짐)', () => {
     const markers = [
       { id: 'a', lat: 37.5, lng: 126.5 },
       { id: 'b', lat: 37.5001, lng: 126.5001 }, // a와 가까워 클러스터로 묶임
@@ -123,10 +121,11 @@ describe('computeMarkerVisibility', () => {
       paddingRatio: 0.2,
     })
 
-    // a, b는 클러스터로 묶였으므로 개별 마커로는 보이면 안 된다.
-    expect(result.visibleMarkerIds.has('a')).toBe(false)
-    expect(result.visibleMarkerIds.has('b')).toBe(false)
-    // far는 혼자라 싱글턴 클러스터이므로 개별 마커로 보여야 한다.
+    // visibleMarkerIds는 뷰포트 컬링 결과만 반영한다 — 클러스터 그룹 여부와
+    // 무관하게 컬링을 통과한 마커는 모두 남는다. 클러스터 토글마다 다수 마커가
+    // 마운트·언마운트되어 프레임 드랍을 일으키던 문제를 막기 위한 결정이다.
+    expect(result.visibleMarkerIds.has('a')).toBe(true)
+    expect(result.visibleMarkerIds.has('b')).toBe(true)
     expect(result.visibleMarkerIds.has('far')).toBe(true)
   })
 
