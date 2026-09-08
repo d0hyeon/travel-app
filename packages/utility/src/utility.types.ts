@@ -2,3 +2,5 @@ export type OmitPartial<T, Key extends keyof T> = Partial<Omit<T, Key>> & Pick<T
 export type PickPartial<T, Key extends keyof T> = Partial<Pick<T, Key>> & Omit<T, Key>;
 export type PickRequired<T, Key extends keyof T> = Required<Pick<T, Key>> & Omit<T, Key>;
 export type ValueOf<T> = T[keyof T];
+
+export type NonEmptyArray<T> = [T, ...T[]];
