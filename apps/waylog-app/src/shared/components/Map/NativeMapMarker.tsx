@@ -84,7 +84,7 @@ function NativeMapMarkerView({
                 paddingHorizontal: 6,
                 paddingVertical: 2,
                 borderRadius: 10,
-                marginBottom: 2,
+                marginBottom: 8,
               }}
             >
               <Typography
@@ -97,7 +97,7 @@ function NativeMapMarkerView({
             </View>
           )}
 
-          <View style={{ minWidth: TOUCH_TARGET_SIZE, minHeight: TOUCH_TARGET_SIZE, alignItems: 'center', justifyContent: 'flex-end' }}>
+          <View style={{ minWidth: TOUCH_TARGET_SIZE, alignItems: 'center', justifyContent: 'flex-end' }}>
             {icon ?? (
               <MarkerShape
                 variant={variant}
