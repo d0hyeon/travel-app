@@ -35,7 +35,6 @@ function Resolved({ tripId, onClick, ...props }: Props) {
             opacity={0.8}
             outlined={!thumbnailUrl}
             thumbnailUrl={thumbnailUrl}
-            tooltip={[place.recommendLabel, place.name]}
             onClick={() => onClick?.(place)}
             {...props}
           />

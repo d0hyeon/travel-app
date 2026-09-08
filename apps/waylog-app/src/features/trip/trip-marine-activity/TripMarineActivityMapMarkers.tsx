@@ -35,10 +35,6 @@ export function TripMarineActivityMapMarkers({ tripId }: TripMarineActivityMapMa
           lat={markerItem.coordinate.lat}
           lng={markerItem.coordinate.lng}
           label={markerItem.placeName}
-          tooltip={markerItem.indices.map((index) => {
-            const activityLabel = index.type === 'beach' ? '해수욕' : '스킨스쿠버'
-            return `${activityLabel}: ${index.gradeLabel}`
-          })}
           icon={<MarineActivityMarkerIcon markerItem={markerItem} />}
           onClick={() => {
             if (!activedTripDate) return
