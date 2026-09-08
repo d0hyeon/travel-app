@@ -1,5 +1,5 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
-import { Pressable } from 'react-native'
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
+import { Pressable, type FlatList } from 'react-native'
 import { runOnJS } from 'react-native-reanimated'
 import ReorderableList, {
   reorderItems,
@@ -9,6 +9,7 @@ import ReorderableList, {
 } from 'react-native-reorderable-list'
 import { Box, type BoxProps } from '../mui'
 import { palette } from '../../config/tokens'
+import { impactAsync, ImpactFeedbackStyle } from 'expo-haptics'
 
 // 웹 dnd/SortableList 와 같은 공개 인터페이스를 유지한다.
 // 내부는 @dnd-kit(DOM) 대신 react-native-reorderable-list 를 쓴다.
@@ -20,6 +21,10 @@ type Props<T extends { id: string }> = {
   renderItem?: (item: T, index: number) => ReactNode
   disabled?: boolean
   header?: ReactNode
+  /** 목록 좌우 여백. 행과 헤더에 함께 적용된다. */
+  paddingHorizontal?: number
+  /** 이 id 의 항목이 보이도록 스크롤한다. 지도에서 장소를 고를 때 쓴다. */
+  scrollToId?: string | null
   children?: ReactNode
 }
 
@@ -32,11 +37,24 @@ export function SortableList<T extends { id: string }>({
   renderItem,
   disabled,
   header,
+  paddingHorizontal = 0,
+  scrollToId,
 }: Props<T>) {
   const [items, setItems] = useState(_items);
   const [activeIndex, setActiveIndex] = useState(-1);
 
   useEffect(() => setItems(_items), [_items])
+
+  const listRef = useRef<FlatList<T>>(null)
+
+  useEffect(() => {
+    if (scrollToId == null) return
+
+    const index = items.findIndex((item) => item.id === scrollToId)
+    if (index < 0) return
+
+    listRef.current?.scrollToIndex({ index, viewPosition: 0.5, animated: true })
+  }, [scrollToId, items])
   const handleDragStart = ({ index }: { index: number }) => {
     'worklet'
     runOnJS(setActiveIndex)(index)
@@ -53,15 +71,20 @@ export function SortableList<T extends { id: string }>({
 
   return (
     <ReorderableList
+      ref={listRef}
       data={items}
       keyExtractor={(item) => item.id}
       style={{ flex: 1 }}
-      contentContainerStyle={{ paddingBottom: 40 }}
+      contentContainerStyle={{ paddingBottom: 40, paddingHorizontal }}
       ListHeaderComponent={header == null ? undefined : () => <>{header}</>}
       shouldUpdateActiveItem
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onReorder={handleReorder}
+      // 행 높이가 제각각이라 목표 항목이 화면 밖이면 계산이 빗나간다. 근사 위치로 다시 잡는다.
+      onScrollToIndexFailed={({ index, averageItemLength }) => {
+        listRef.current?.scrollToOffset({ offset: index * averageItemLength, animated: true })
+      }}
       renderItem={({ item, index }) => (
         <Row disabled={disabled} active={activeIndex === index}>{renderItem?.(item, index)}</Row>
       )}
@@ -109,7 +132,14 @@ function Handle({ children, sx, id: _id }: Omit<BoxProps, 'id'> & { id: string |
   if (drag == null) return <Box sx={{ alignItems: 'center', ...(sx ?? {}) }}>{children}</Box>
 
   return (
-    <Pressable onLongPress={drag} delayLongPress={500} hitSlop={8}>
+    <Pressable
+      onLongPress={() => {
+        void impactAsync(ImpactFeedbackStyle.Medium)
+        drag()
+      }}
+      delayLongPress={500}
+      hitSlop={8}
+    >
       <Box sx={{ justifyContent: 'center', alignItems: 'center', ...(sx ?? {}) }}>{children}</Box>
     </Pressable>
   )
