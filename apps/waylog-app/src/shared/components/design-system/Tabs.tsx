@@ -1,10 +1,9 @@
 import { Children, isValidElement, useCallback, useEffect, useRef, type ReactNode } from 'react'
-import { Pressable, useWindowDimensions, View } from 'react-native'
+import { Pressable, useWindowDimensions, View, type StyleProp, type ViewStyle } from 'react-native'
 import { css } from '@emotion/native'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { palette } from '../../config/tokens'
 import { Typography } from './Typography'
-import { sxToStyle, type Sx } from './sx'
 import { ScrollView } from 'react-native-gesture-handler'
 
 export interface TabProps {
@@ -24,7 +23,7 @@ export interface TabsProps {
   scrollable?: boolean;
   /** MUI variant="fullWidth" 와 같다. 탭이 폭을 균등하게 나눠 가진다 */
   fullWidth?: boolean
-  sx?: Sx
+  style?: StyleProp<ViewStyle>
 }
 
 export function Tabs({
@@ -32,7 +31,7 @@ export function Tabs({
   onChange,
   scrollable = false,
   fullWidth = false,
-  sx,
+  style,
   children
 }: TabsProps) {
   const { width: viewportWidth } = useWindowDimensions()
@@ -81,9 +80,7 @@ export function Tabs({
   return (
     <ScrollView
       ref={scrollRef}
-      style={{
-        flexGrow: 0, borderBottomWidth: 1, borderBottomColor: palette.divider, ...sxToStyle(sx)
-      }}
+      style={[{ flexGrow: 0, borderBottomWidth: 1, borderBottomColor: palette.divider }, style]}
       horizontal
       showsHorizontalScrollIndicator={false}
       scrollEnabled={scrollable}
@@ -115,7 +112,7 @@ export function Tabs({
             >
               <Typography
                 variant="body2"
-                sx={{ color: selected ? palette.primary : palette.textSecondary }}
+                style={{ color: selected ? palette.primary : palette.textSecondary }}
               >
                 {tab.label}
               </Typography>

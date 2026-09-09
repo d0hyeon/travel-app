@@ -15,11 +15,11 @@ export function Badge({ badgeContent = 0, max = 99, color = 'error', children }:
   const isVisible = badgeContent > 0
 
   return (
-    <Box sx={{ position: 'relative' }}>
+    <Box style={{ position: 'relative' }}>
       {children}
       {isVisible && (
         <Box
-          sx={{
+          style={{
             position: 'absolute',
             top: -6,
             right: -6,
@@ -32,7 +32,7 @@ export function Badge({ badgeContent = 0, max = 99, color = 'error', children }:
             justifyContent: 'center',
           }}
         >
-          <Typography sx={{ fontSize: 10, fontWeight: '700', color: '#fff', lineHeight: 12 }}>
+          <Typography style={{ fontSize: 10, fontWeight: '700', color: '#fff', lineHeight: 12 }}>
             {badgeContent > max ? `${max}+` : badgeContent}
           </Typography>
         </Box>

@@ -1,18 +1,17 @@
-import { Pressable } from 'react-native'
+import { Pressable, type StyleProp, type ViewStyle } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 import { palette } from '../../config/tokens'
 import { Box } from './Box'
 import { Typography } from './Typography'
-import type { Sx } from './sx'
 
 export interface ChipProps {
   label: string
   size?: 'small' | 'medium'
   variant?: 'filled' | 'outlined'
   color?: 'primary' | 'default'
-  onClick?: () => void
+  onPress?: () => void
   onDelete?: () => void
-  sx?: Sx
+  style?: StyleProp<ViewStyle>
 }
 
 export function Chip({
@@ -20,36 +19,38 @@ export function Chip({
   size = 'medium',
   variant = 'filled',
   color = 'default',
-  onClick,
+  onPress,
   onDelete,
-  sx,
+  style,
 }: ChipProps) {
   const isPrimary = color === 'primary'
   const filled = variant === 'filled'
 
   return (
-    <Pressable onPress={onClick}>
+    <Pressable onPress={onPress}>
       <Box
-        sx={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 4,
-          paddingHorizontal: size === 'small' ? 8 : 12,
-          paddingVertical: size === 'small' ? 3 : 6,
-          borderRadius: 12,
-          borderWidth: filled ? 0 : 1,
-          borderColor: isPrimary ? palette.primary : palette.divider,
-          backgroundColor: filled
-            ? isPrimary
-              ? palette.primary
-              : 'rgba(0,0,0,0.08)'
-            : 'transparent',
-          alignSelf: 'flex-start',
-          ...(sx ?? {}),
-        }}
+        style={[
+          {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 4,
+            paddingHorizontal: size === 'small' ? 8 : 12,
+            paddingVertical: size === 'small' ? 3 : 6,
+            borderRadius: 12,
+            borderWidth: filled ? 0 : 1,
+            borderColor: isPrimary ? palette.primary : palette.divider,
+            backgroundColor: filled
+              ? isPrimary
+                ? palette.primary
+                : 'rgba(0,0,0,0.08)'
+              : 'transparent',
+            alignSelf: 'flex-start',
+          },
+          style,
+        ]}
       >
         <Typography
-          sx={{
+          style={{
             fontSize: size === 'small' ? 11 : 13,
             color: filled && isPrimary ? '#fff' : palette.text,
           }}

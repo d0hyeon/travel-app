@@ -1,16 +1,15 @@
-import { Pressable } from 'react-native'
+import { Pressable, type StyleProp, type ViewStyle } from 'react-native'
 import { palette } from '../../config/tokens'
 import { Typography } from './Typography'
-import { sxToStyle, type Sx } from './sx'
 
 export interface CheckboxProps {
   checked?: boolean
   size?: 'small' | 'medium'
   onChange?: (event?: unknown) => void
-  sx?: Sx
+  style?: StyleProp<ViewStyle>
 }
 
-export function Checkbox({ checked = false, size = 'medium', onChange, sx }: CheckboxProps) {
+export function Checkbox({ checked = false, size = 'medium', onChange, style }: CheckboxProps) {
   const box = size === 'small' ? 18 : 22
   return (
     <Pressable
@@ -26,11 +25,11 @@ export function Checkbox({ checked = false, size = 'medium', onChange, sx }: Che
           alignItems: 'center',
           justifyContent: 'center',
         },
-        sxToStyle(sx),
+        style,
       ]}
     >
       {checked && (
-        <Typography sx={{ color: '#fff', fontSize: size === 'small' ? 11 : 13, fontWeight: '900' }}>
+        <Typography style={{ color: '#fff', fontSize: size === 'small' ? 11 : 13, fontWeight: '900' }}>
           ✓
       </Typography>
       )}

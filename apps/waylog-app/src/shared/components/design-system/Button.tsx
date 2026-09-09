@@ -1,9 +1,8 @@
 import type { ReactNode } from 'react'
-import { ActivityIndicator, Pressable } from 'react-native'
+import { ActivityIndicator, Pressable, type StyleProp, type TextStyle, type ViewStyle } from 'react-native'
 import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { palette, radius } from '../../config/tokens'
 import { Typography } from './Typography'
-import { sxToStyle, type Sx } from './sx'
 
 // 웹 theme.ts 의 MuiButton size variant 를 모바일 수치로 옮긴다.
 const SIZE = {
@@ -23,10 +22,10 @@ export interface ButtonProps {
   loading?: boolean
   fullWidth?: boolean
   startIcon?: ReactNode
-  onClick?: () => void
-  sx?: Sx
-  /** 라벨 텍스트에만 적용한다. sx 는 컨테이너로 간다. */
-  textSx?: Sx
+  onPress?: () => void
+  style?: StyleProp<ViewStyle>
+  /** 라벨 텍스트에만 적용한다. style 은 컨테이너로 간다. */
+  textStyle?: StyleProp<TextStyle>
 }
 
 export function Button({
@@ -38,9 +37,9 @@ export function Button({
   loading,
   fullWidth,
   startIcon,
-  onClick,
-  sx,
-  textSx,
+  onPress,
+  style,
+  textStyle,
 }: ButtonProps) {
   const dims = SIZE[size]
   const main = color === 'error' ? palette.error : palette.primary
@@ -59,7 +58,7 @@ export function Button({
 
   return (
     <AnimatedPressable
-      onPress={isInactive ? undefined : onClick}
+      onPress={isInactive ? undefined : onPress}
       style={[
         {
           height: dims.height,
@@ -78,7 +77,7 @@ export function Button({
           ...(fullWidth ? { flex: 1, alignSelf: 'center' } : { alignSelf: 'flex-start' }),
         },
         animatedContainerStyle,
-        sxToStyle(sx),
+        style,
       ]}
     >
       {startIcon}
@@ -86,12 +85,10 @@ export function Button({
         <ActivityIndicator size="small" color={textColor} />
       </Animated.View>
       <Typography
-        sx={{
-          fontSize: dims.fontSize,
-          fontWeight: '900',
-          color: textColor,
-          ...(textSx ?? {}),
-        }}
+        style={[
+          { fontSize: dims.fontSize, fontWeight: '900', color: textColor },
+          textStyle,
+        ]}
       >
         {children}
       </Typography>

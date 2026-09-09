@@ -15,7 +15,7 @@ export function LinearProgress({ value = 0 }: LinearProgressProps) {
   }))
 
   return (
-    <Box sx={{ height: 2, backgroundColor: palette.divider, borderRadius: 1 }}>
+    <Box style={{ height: 2, backgroundColor: palette.divider, borderRadius: 1 }}>
       <Animated.View
         style={[
           {

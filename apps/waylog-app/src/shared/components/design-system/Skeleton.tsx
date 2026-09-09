@@ -1,17 +1,16 @@
 import { LinearGradient } from 'expo-linear-gradient'
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated'
-import { StyleSheet, type LayoutChangeEvent } from 'react-native'
+import { StyleSheet, type LayoutChangeEvent, type StyleProp, type ViewStyle } from 'react-native'
 import { Box } from './Box'
-import type { Sx } from './sx'
 
 export interface SkeletonProps {
   width?: number | string
   height?: number | string
   variant?: 'text' | 'rectangular' | 'rounded' | 'circular'
-  sx?: Sx
+  style?: StyleProp<ViewStyle>
 }
 
-export function Skeleton({ width = '100%', height = 16, variant = 'text', sx }: SkeletonProps) {
+export function Skeleton({ width = '100%', height = 16, variant = 'text', style }: SkeletonProps) {
   const shimmerWidth = useSharedValue(0)
   const translateX = useSharedValue(0)
 
@@ -32,14 +31,16 @@ export function Skeleton({ width = '100%', height = 16, variant = 'text', sx }: 
   return (
     <Box
       onLayout={handleLayout}
-      sx={{
-        width,
-        height,
-        borderRadius: variant === 'circular' ? 999 : variant === 'text' ? 4 : variant === 'rounded' ? 12 : 8,
-        backgroundColor: 'rgba(0,0,0,0.08)',
-        overflow: 'hidden',
-        ...(sx ?? {}),
-      }}
+      style={[
+        {
+          width,
+          height,
+          borderRadius: variant === 'circular' ? 999 : variant === 'text' ? 4 : variant === 'rounded' ? 12 : 8,
+          backgroundColor: 'rgba(0,0,0,0.08)',
+          overflow: 'hidden',
+        },
+        style,
+      ]}
     >
       <Animated.View style={[StyleSheet.absoluteFill, animatedStyle]}>
         <LinearGradient

@@ -1,9 +1,8 @@
 import { Children, isValidElement, type ReactNode } from 'react'
-import { Pressable } from 'react-native'
+import { Pressable, type StyleProp, type ViewStyle } from 'react-native'
 import { palette, radius } from '../../config/tokens'
 import { Box } from './Box'
 import { Typography } from './Typography'
-import type { Sx } from './sx'
 
 export interface ToggleButtonProps {
   value: string
@@ -22,23 +21,25 @@ export interface ToggleButtonGroupProps {
   exclusive?: boolean
   size?: 'small' | 'medium'
   children?: ReactNode
-  sx?: Sx
+  style?: StyleProp<ViewStyle>
 }
 
-export function ToggleButtonGroup({ value, onChange, children, sx }: ToggleButtonGroupProps) {
+export function ToggleButtonGroup({ value, onChange, children, style }: ToggleButtonGroupProps) {
   const buttons = Children.toArray(children)
     .filter(isValidElement<ToggleButtonProps>)
     .map((child) => child.props)
 
   return (
     <Box
-      sx={{
-        flexDirection: 'row',
-        backgroundColor: 'rgba(0,0,0,0.08)',
-        padding: 2,
-        borderRadius: radius.md,
-        ...(sx ?? {}),
-      }}
+      style={[
+        {
+          flexDirection: 'row',
+          backgroundColor: 'rgba(0,0,0,0.08)',
+          padding: 2,
+          borderRadius: radius.md,
+        },
+        style,
+      ]}
     >
       {buttons.map((button) => {
         const isSelected = button.value === value
@@ -55,7 +56,7 @@ export function ToggleButtonGroup({ value, onChange, children, sx }: ToggleButto
             }}
           >
             <Typography
-              sx={{
+              style={{
                 fontSize: 11,
                 color: isSelected ? palette.text : palette.textSecondary,
               }}

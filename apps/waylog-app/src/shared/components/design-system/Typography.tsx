@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
 import { Text as RNText, type TextProps as RNTextProps } from 'react-native'
 import { palette } from '../../config/tokens'
-import { sxToStyle, type Sx } from './sx'
 
 // 웹 theme.ts 의 값을 그대로 옮긴다. 앱은 모바일이므로
 // breakpoints.down('md') 쪽 수치를 쓴다.
@@ -48,7 +47,6 @@ export interface TypographyProps extends RNTextProps {
   textAlign?: 'left' | 'center' | 'right'
   py?: number
   px?: number
-  sx?: Sx
   children?: ReactNode
 }
 
@@ -66,7 +64,6 @@ export function Typography({
   textAlign,
   py,
   px,
-  sx,
   style,
   ...rest
 }: TypographyProps) {
@@ -88,7 +85,6 @@ export function Typography({
           paddingVertical: py != null ? py * 8 : undefined,
           paddingHorizontal: px != null ? px * 8 : undefined,
         },
-        sxToStyle(sx),
         style,
       ]}
       numberOfLines={noWrap === true ? 1 : rest.numberOfLines}

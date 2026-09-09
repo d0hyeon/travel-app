@@ -1,10 +1,9 @@
-import type { ComponentProps, ElementType, ReactNode } from 'react'
-import { View, type ViewStyle } from 'react-native'
-import { sxToStyle, type Sx } from './sx'
-import { PropsWithAs, toComponent } from './typings'
+import type { ElementType, ReactNode } from 'react'
+import { View, type StyleProp, type ViewStyle } from 'react-native'
+import { PropsWithAs } from './typings'
 
 export interface StackProps {
-  sx?: Sx
+  style?: StyleProp<ViewStyle>
   /** 웹 코드를 그대로 옮기기 위한 MUI 축약 prop */
   width?: number | string
   flex?: number
@@ -36,7 +35,6 @@ export interface StackProps {
 
 
 export function Stack<As extends ElementType = typeof View>({
-  sx,
   style,
   spacing,
   direction = 'column',
@@ -80,7 +78,6 @@ export function Stack<As extends ElementType = typeof View>({
           paddingVertical: py != null ? py * 8 : undefined,
           padding: p != null ? p * 8 : undefined,
         } as ViewStyle,
-        sxToStyle(sx),
         style,
       ]}
       {...rest}

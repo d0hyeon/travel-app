@@ -1,22 +1,21 @@
 import type { ReactNode } from 'react'
-import { Pressable } from 'react-native'
+import { Pressable, type StyleProp, type ViewStyle } from 'react-native'
 import { palette } from '../../config/tokens'
-import { sxToStyle, type Sx } from './sx'
 
 export interface FabProps {
   children?: ReactNode
-  onClick?: () => void
+  onPress?: () => void
   color?: 'primary' | 'default'
   size?: 'small' | 'medium' | 'large'
-  sx?: Sx
+  style?: StyleProp<ViewStyle>
 }
 
-export function Fab({ children, onClick, color = 'primary', size = 'medium', sx }: FabProps) {
+export function Fab({ children, onPress, color = 'primary', size = 'medium', style }: FabProps) {
   const box = size === 'small' ? 40 : size === 'large' ? 64 : 56
 
   return (
     <Pressable
-      onPress={onClick}
+      onPress={onPress}
       style={[
         {
           width: box,
@@ -31,7 +30,7 @@ export function Fab({ children, onClick, color = 'primary', size = 'medium', sx 
           shadowOffset: { width: 0, height: 2 },
           elevation: 4,
         },
-        sxToStyle(sx),
+        style,
       ]}
     >
       {children}

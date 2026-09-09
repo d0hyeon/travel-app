@@ -1,7 +1,6 @@
 import { View, TextInput, type TextInputProps } from 'react-native'
 import { palette, radius } from '../../config/tokens'
 import { Typography } from './Typography'
-import { sxToStyle, type Sx } from './sx'
 import { Ref } from 'react'
 
 export interface TextFieldProps extends Omit<TextInputProps, 'style'> {
@@ -11,7 +10,7 @@ export interface TextFieldProps extends Omit<TextInputProps, 'style'> {
   /** MUI 처럼 입력 위에 이름을 얹는다. */
   label?: string
   size?: 'small' | 'medium'
-  sx?: Sx
+  style?: TextInputProps['style']
   ref?: Ref<TextInput>
 }
 
@@ -23,7 +22,7 @@ export function TextField({
   minRows = 1,
   label,
   size,
-  sx,
+  style,
   ...rest
 }: TextFieldProps) {
   const input = (
@@ -45,7 +44,7 @@ export function TextField({
           borderColor: palette.divider,
           borderRadius: variant === 'outlined' ? radius.md : 0,
         },
-        sxToStyle(sx),
+        style,
       ]}
       {...rest}
     />

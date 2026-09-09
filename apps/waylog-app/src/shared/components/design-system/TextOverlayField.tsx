@@ -16,7 +16,7 @@ export type TextOverlayFieldProps = TextFieldProps & {
 const Body = styled.View({ padding: 16 })
 
 // 어두운 전체 화면 위에 TextField 하나만 띄운다.
-export function TextOverlayField({ isOpen, onClose, slotProps, sx, ...textFieldProps }: TextOverlayFieldProps) {
+export function TextOverlayField({ isOpen, onClose, slotProps, style, ...textFieldProps }: TextOverlayFieldProps) {
 
   return (
     <Modal transparent visible={isOpen} animationType="fade" onDismiss={onClose}>
@@ -29,12 +29,14 @@ export function TextOverlayField({ isOpen, onClose, slotProps, sx, ...textFieldP
               returnKeyType="done"
               {...textFieldProps}
               {...slotProps?.input}
-              sx={{
-                backgroundColor: 'transparent',
-                color: '#fff',
-                borderBottomColor: '#fff',
-                ...sx,
-              }}
+              style={[
+                {
+                  backgroundColor: 'transparent',
+                  color: '#fff',
+                  borderBottomColor: '#fff',
+                },
+                style,
+              ]}
             />
           </Body>
         </TextOverlayBackdrop>
