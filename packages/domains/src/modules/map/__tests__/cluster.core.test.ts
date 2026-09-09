@@ -40,3 +40,33 @@ describe('clusterMarkers', () => {
     expect(clusterMarkers([], toPixel, 10)).toEqual([])
   })
 })
+
+describe('클러스터 식별자', () => {
+  it('구성이 바뀌어도 대표 마커가 남아 있으면 같은 식별자를 유지한다', () => {
+    const before = clusterMarkers([marker('a', 0, 0), marker('b', 1, 1)], toPixel, 10)
+    const after = clusterMarkers([marker('a', 0, 0), marker('b', 1, 1), marker('c', 2, 2)], toPixel, 10)
+
+    expect(before[0]!.id).toBe(after[0]!.id)
+  })
+
+  it('한 프레임 안에서 식별자가 겹치지 않는다', () => {
+    const clusters = clusterMarkers(
+      [marker('a', 0, 0), marker('b', 1, 1), marker('y', 100, 100), marker('z', 101, 101)],
+      toPixel,
+      10,
+    )
+    const ids = clusters.map((cluster) => cluster.id)
+
+    expect(new Set(ids).size).toBe(ids.length)
+  })
+
+  it('서로 다른 마커로 이루어진 클러스터는 다른 식별자를 가진다', () => {
+    const clusters = clusterMarkers(
+      [marker('a', 0, 0), marker('b', 1, 1), marker('y', 100, 100), marker('z', 101, 101)],
+      toPixel,
+      10,
+    )
+
+    expect(clusters[0]!.id).not.toBe(clusters[1]!.id)
+  })
+})

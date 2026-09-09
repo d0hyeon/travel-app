@@ -57,9 +57,8 @@ export function clusterMarkers(markers: MarkerData[], toPixel: ToPixel, gridSize
     if (nearMarkers.length >= 2) {
       const centerLat = nearMarkers.reduce((sum, m) => sum + m.position.lat, 0) / nearMarkers.length;
       const centerLng = nearMarkers.reduce((sum, m) => sum + m.position.lng, 0) / nearMarkers.length;
-      // map 이 새 배열을 만들므로 sort 가 원본을 건드리지 않는다.
-      const stableId = nearMarkers.map(m => m.id).sort().join(',');
-      clusters.push({ id: `cluster_${stableId}`, center: { lat: centerLat, lng: centerLng }, markers: nearMarkers });
+      const [representativeId] = nearMarkers.map(m => m.id).toSorted();
+      clusters.push({ id: `cluster_${representativeId}`, center: { lat: centerLat, lng: centerLng }, markers: nearMarkers });
     } else {
       clusters.push({ id: `single_${marker.id}`, center: marker.position, markers: [marker] });
     }
