@@ -1,8 +1,7 @@
-import styled from '@emotion/native'
 import { createTripPlace, usePlace } from '@waylog/domains/modules/place'
 import { useRouter } from 'expo-router'
 import { Suspense } from 'react'
-import { ActivityIndicator, Modal, Pressable, ScrollView, View } from 'react-native'
+import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import { Button, Stack, Typography } from '~/shared/components/design-system'
 import { Map } from '../../../shared/components/Map'
 import { palette, radius } from '../../../shared/config/tokens'
@@ -10,26 +9,26 @@ import { useScheduledTrips } from '../../trip/useScheduledTrips'
 import { PlacePhotoList } from '../PlacePhotoList'
 import { useTripSelectSheet } from '../useTripSelectSheet'
 
-const Backdrop = styled.Pressable`
-  flex: 1;
-  background-color: rgba(0, 0, 0, 0.4);
-  justify-content: flex-end;
-`
-
-const Sheet = styled.View`
-  background-color: ${palette.background};
-  border-top-left-radius: ${radius.xxl}px;
-  border-top-right-radius: ${radius.xxl}px;
-  padding: 16px;
-  gap: 12px;
-  max-height: 85%;
-`
-
-const MapArea = styled.View`
-  height: 180px;
-  border-radius: ${radius.md}px;
-  overflow: hidden;
-`
+const styles = StyleSheet.create({
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    justifyContent: 'flex-end',
+  },
+  sheet: {
+    backgroundColor: palette.background,
+    borderTopLeftRadius: radius.xxl,
+    borderTopRightRadius: radius.xxl,
+    padding: 16,
+    gap: 12,
+    maxHeight: '85%',
+  },
+  mapArea: {
+    height: 180,
+    borderRadius: radius.md,
+    overflow: 'hidden',
+  },
+})
 
 interface Props {
   placeId: string
@@ -42,10 +41,10 @@ interface Props {
 export function PlaceDetailSheet({ placeId, isOpen, onClose }: Props) {
   return (
     <Modal visible={isOpen} transparent animationType="slide" onRequestClose={onClose}>
-      <Backdrop onPress={onClose}>
+      <Pressable style={styles.backdrop} onPress={onClose}>
         {/* 시트 안쪽 탭이 배경으로 전달되지 않도록 막는다 */}
         <Pressable onPress={(event) => event.stopPropagation()}>
-          <Sheet>
+          <View style={styles.sheet}>
             <Suspense fallback={<ActivityIndicator />}>
               <ScrollView showsVerticalScrollIndicator={false}>
                 <PlaceDetailBody placeId={placeId} />
@@ -53,9 +52,9 @@ export function PlaceDetailSheet({ placeId, isOpen, onClose }: Props) {
               </ScrollView>
               <AddTripButton placeId={placeId} onDone={onClose} />
             </Suspense>
-          </Sheet>
+          </View>
         </Pressable>
-      </Backdrop>
+      </Pressable>
     </Modal>
   )
 }
@@ -112,11 +111,11 @@ export function PlaceDetailBody({ placeId }: { placeId: string }) {
   return (
     <Stack gap={1.25}>
 
-      <MapArea>
+      <View style={styles.mapArea}>
         <Map defaultCenter={{ lat: place.lat, lng: place.lng }}>
           <Map.Marker lat={place.lat} lng={place.lng} label={place.name} />
         </Map>
-      </MapArea>
+      </View>
 
       {place.address != null && place.address !== '' && (
         <Typography variant="body2" color={palette.textSecondary}>

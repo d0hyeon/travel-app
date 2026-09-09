@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": {
-    "@emotion/native": "^11.11.0",
-    "@emotion/primitives-core": "^11.13.2",
-    "@emotion/react": "^11.14.0",
     "@expo/vector-icons": "^15.1.1",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-navigation/bottom-tabs": "^7.18.17",
@@ -46,7 +43,6 @@
     "ts-pattern": "^5.9.0"
   },
   "devDependencies": {
-    "@emotion/babel-plugin": "^11.13.5",
     "@types/react": "~19.1.17",
     "dotenv": "^17.4.2",
     "typescript": "~5.9.3",

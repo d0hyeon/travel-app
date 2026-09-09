@@ -1,6 +1,5 @@
 import { Children, isValidElement, useCallback, useEffect, useRef, type ReactNode } from 'react'
-import { Pressable, useWindowDimensions, View, type StyleProp, type ViewStyle } from 'react-native'
-import { css } from '@emotion/native'
+import { Pressable, StyleSheet, useWindowDimensions, View, type StyleProp, type ViewStyle } from 'react-native'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { palette } from '../../config/tokens'
 import { Typography } from './Typography'
@@ -80,13 +79,13 @@ export function Tabs({
   return (
     <ScrollView
       ref={scrollRef}
-      style={[{ flexGrow: 0, borderBottomWidth: 1, borderBottomColor: palette.divider }, style]}
+      style={[styles.root, style]}
       horizontal
       showsHorizontalScrollIndicator={false}
       scrollEnabled={scrollable}
       contentContainerStyle={fullWidth ? { flexGrow: 1, minWidth: viewportWidth } : undefined}
     >
-      <View style={{ flexDirection: 'row', ...(fullWidth && { flex: 1, minWidth: viewportWidth }) }}>
+      <View style={[styles.tabRow, fullWidth && { flex: 1, minWidth: viewportWidth }]}>
         {tabs.map((tab) => {
           const selected = tab.value === value
 
@@ -103,16 +102,11 @@ export function Tabs({
                 // 첫 측정 때는 선택된 탭이 아직 자리를 모른다. 측정된 김에 붙인다.
                 if (selected) moveIndicator(tab.value)
               }}
-              style={{
-                alignItems: 'center',
-                paddingHorizontal: 16,
-                paddingVertical: 12,
-                ...(fullWidth && { flex: 1 }),
-              }}
+              style={[styles.tab, fullWidth && styles.tabFullWidth]}
             >
               <Typography
                 variant="body2"
-                style={{ color: selected ? palette.primary : palette.textSecondary }}
+                style={selected ? styles.selectedLabel : styles.label}
               >
                 {tab.label}
               </Typography>
@@ -120,7 +114,23 @@ export function Tabs({
           )
         })}
       </View>
-      <Animated.View style={[{ position: 'absolute', bottom: -1, left: 0, height: 3, backgroundColor: palette.primary }, indicatorStyle]} />
+      <Animated.View style={[styles.indicator, indicatorStyle]} />
     </ScrollView>
   )
 }
+
+const styles = StyleSheet.create({
+  root: { flexGrow: 0, borderBottomWidth: 1, borderBottomColor: palette.divider },
+  tabRow: { flexDirection: 'row' },
+  tab: { alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12 },
+  tabFullWidth: { flex: 1 },
+  label: { color: palette.textSecondary },
+  selectedLabel: { color: palette.primary },
+  indicator: {
+    position: 'absolute',
+    bottom: -1,
+    left: 0,
+    height: 3,
+    backgroundColor: palette.primary,
+  },
+})
