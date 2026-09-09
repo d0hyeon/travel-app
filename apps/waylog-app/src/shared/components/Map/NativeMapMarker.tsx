@@ -1,7 +1,7 @@
 import { memo, useEffect, useState, type ReactNode } from 'react'
 import { usePreservedCallback } from '@waylog/react'
 import Mapbox from '@rnmapbox/maps'
-import { resolveMarkerColor, type MarkerProps } from '@waylog/domains/modules/map'
+import { resolveMarkerColor, type MarkerCallbackData, type MarkerProps } from '@waylog/domains/modules/map'
 import { Image, Pressable, View } from 'react-native'
 import Svg, { Circle, Path } from 'react-native-svg'
 import { Typography } from '~/shared/components/design-system'
@@ -9,8 +9,9 @@ import { useMapContext } from './MapContext'
 import { useRegisterMapMarker } from './useMapMarkerRegistry'
 import { NativeMapTooltip } from './NativeMapTooltip'
 
-interface NativeMarkerProps extends MarkerProps {
+interface NativeMarkerProps extends Omit<MarkerProps, 'onClick'> {
   icon?: ReactNode
+  onPress?: (marker: MarkerCallbackData) => void
 }
 
 const MAX_LABEL_WIDTH = 120
