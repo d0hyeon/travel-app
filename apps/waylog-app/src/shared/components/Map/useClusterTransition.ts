@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Cluster } from '@waylog/domains/modules/map'
 import {
   findAbsorbedClusters,
@@ -18,17 +18,26 @@ export interface TransitioningCluster {
 
 export function useClusterTransition(clusters: Cluster[] | null): TransitioningCluster[] {
   const [leaving, setLeaving] = useState<AbsorbedCluster[]>([])
-  const [origins, setOrigins] = useState<Map<string, Cluster['center']>>(new Map())
   const previousRef = useRef<Cluster[]>([])
   const timersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>())
 
-  useEffect(() => {
+  // 출발점은 클러스터가 처음 그려지는 그 렌더에 있어야 한다. effect 로 미루면
+  // 이미 목적지에 마운트된 뒤라 움직일 구간이 없다.
+  const { absorbed, origins } = useMemo(() => {
     const next = clusters ?? []
-    const absorbed = findAbsorbedClusters(previousRef.current, next)
-    const emerged = findEmergedClusters(previousRef.current, next)
+    const previous = previousRef.current
     previousRef.current = next
 
-    setOrigins(new Map(emerged.map((entry) => [entry.cluster.id, entry.origin])))
+    return {
+      absorbed: findAbsorbedClusters(previous, next),
+      origins: new Map(
+        findEmergedClusters(previous, next).map((entry) => [entry.cluster.id, entry.origin]),
+      ),
+    }
+  }, [clusters])
+
+  useEffect(() => {
+    const next = clusters ?? []
 
     const revivedIds = new Set(next.map((cluster) => cluster.id))
     for (const [id, timer] of timersRef.current) {
@@ -54,7 +63,7 @@ export function useClusterTransition(clusters: Cluster[] | null): TransitioningC
         }, EXIT_DURATION),
       )
     }
-  }, [clusters])
+  }, [clusters, absorbed])
 
   useEffect(() => {
     const timers = timersRef.current
