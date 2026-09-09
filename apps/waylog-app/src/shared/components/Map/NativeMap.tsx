@@ -1,29 +1,29 @@
 import {
   pastelMapboxStyle,
-  type MapBounds,
   type MapProps,
   type MapRef,
 } from '@waylog/domains/modules/map'
-import { useImperativeHandle, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useImperativeHandle, useMemo, useRef, useState, type ReactNode } from 'react'
 import { StyleSheet, useWindowDimensions } from 'react-native'
-import Mapbox, { type MapState } from '@rnmapbox/maps'
+import Mapbox from '@rnmapbox/maps'
 import { MapContext } from './MapContext'
 import { NativeMapCluster } from './NativeMapCluster'
 import { useBatchedCallback } from '../../hooks/useBatchedCallback'
-import { DEFAULT_DELTA, deltaToZoom, levelToDelta } from './NativeMap.utils'
+import { DEFAULT_DELTA, deltaToZoom } from './NativeMap.utils'
 import { MapMarkerRegistryProvider, useRegisteredMapMarkers } from './useMapMarkerRegistry'
 import { computeMarkerVisibility } from './useMapMarkerRegistry.utils'
+import { useMapCamera } from './useMapCamera'
+import { useClusterTransition } from './useClusterTransition'
 import { sxToStyle, type Sx } from '../mui'
 
 Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN ?? '')
 
 const VIEWPORT_PADDING_RATIO = 0.2
 
-function visibleBoundsToMapBounds(bounds: MapState['properties']['bounds']): MapBounds {
-  const [eastLng, northLat] = bounds.ne
-  const [westLng, southLat] = bounds.sw
-  return { north: northLat, south: southLat, east: eastLng, west: westLng }
-}
+// 클러스터를 눌렀을 때 묶인 마커들 주위로 남길 여백. 작을수록 바짝 당긴다.
+const CLUSTER_TAP_PADDING = 80
+const CLUSTER_TAP_DURATION = 400
+
 
 export function NativeMap(props: MapProps & { sx?: Sx }) {
   return (
@@ -44,36 +44,24 @@ function NativeMapInner({
   onBoundsChange,
   sx,
 }: MapProps & { sx?: Sx }) {
-  const cameraRef = useRef<Mapbox.Camera>(null)
   const [zoom, setZoom] = useState(() => deltaToZoom(DEFAULT_DELTA))
-  const [visibleBounds, setVisibleBounds] = useState<MapBounds | null>(null)
   const [mapInstance, setMapInstance] = useState<Mapbox.MapView | null>(null)
-  const { width } = useWindowDimensions()
+  const { width: screenWidth } = useWindowDimensions()
+
+  const { camera, ref: cameraRef, fitTo, panTo, track } = useMapCamera({
+    screenWidth,
+    onSettle: onBoundsChange,
+  })
 
   useImperativeHandle<MapRef, MapRef>(
     ref as never,
     () => ({
-      panTo: (lat, lng, level) => {
-        const delta = level == null ? DEFAULT_DELTA : levelToDelta(level)
-        cameraRef.current?.setCamera({
-          centerCoordinate: [lng, lat],
-          zoomLevel: deltaToZoom(delta),
-          animationDuration: 300,
-        })
-      },
+      panTo: (lat, lng, level) => panTo({ lat, lng }, level),
       relayout: () => { },
       focus: () => { },
     }),
-    [],
+    [panTo],
   )
-
-  const scheduleBoundsUpdate = useBatchedCallback<MapBounds>((updates) => {
-    const bounds = updates.at(-1)
-    if (bounds == null) return
-
-    setVisibleBounds(bounds)
-    onBoundsChange?.(bounds)
-  })
 
   const initial = center ?? defaultCenter
   const rendered = typeof children === 'function' ? children({ zoom }) : children
@@ -83,30 +71,22 @@ function NativeMapInner({
   const boundsRef = useRef<{ lat: number; lng: number }[]>([])
   const extendBound = useBatchedCallback<{ lat: number; lng: number }>((coords) => {
     boundsRef.current.push(...coords)
-    if (boundsRef.current.length === 0) return
-
-    const lats = boundsRef.current.map((coord) => coord.lat)
-    const lngs = boundsRef.current.map((coord) => coord.lng)
-    cameraRef.current?.fitBounds(
-      [Math.max(...lngs), Math.max(...lats)],
-      [Math.min(...lngs), Math.min(...lats)],
-      60,
-      600,
-    )
+    fitTo(boundsRef.current)
   }, { once: true })
 
   const { visibleMarkerIds, clusters } = useMemo(
     () =>
       computeMarkerVisibility({
         markers,
-        visibleBounds,
+        camera,
         clustering: clustering === true,
         clusterGridSize,
-        toPixel: (bounds) => createToPixel(bounds, width),
         paddingRatio: VIEWPORT_PADDING_RATIO,
       }),
-    [markers, visibleBounds, clustering, clusterGridSize, width],
+    [markers, camera, clustering, clusterGridSize],
   )
+
+  const transitioningClusters = useClusterTransition(clusters)
 
   const mapContextValue = useMemo(
     () => ({ extendBound, config: { autoFocus }, map: mapInstance, visibleMarkerIds }),
@@ -124,8 +104,7 @@ function NativeMapInner({
           const nextZoom = Math.round(state.properties.zoom)
           setZoom((current) => (nextZoom === current ? current : nextZoom))
 
-          const bounds = visibleBoundsToMapBounds(state.properties.bounds)
-          scheduleBoundsUpdate(bounds)
+          track(state)
         }}
       >
         <Mapbox.Camera
@@ -136,36 +115,29 @@ function NativeMapInner({
           }}
         />
         {rendered as ReactNode}
-        {clusters?.map((cluster) =>
-          cluster.markers.length > 1 ? (
+        {transitioningClusters.map(({ cluster, destination, isLeaving, origin }) =>
+          // 클러스터로 흡수되며 사라지는 단일 마커도 빨려들어가는 모션을 위해 여기서 그린다.
+          cluster.markers.length > 1 || isLeaving ? (
             <NativeMapCluster
               key={cluster.id}
               latitude={cluster.center.lat}
               longitude={cluster.center.lng}
               count={cluster.markers.length}
-              onTap={() => {
-                const lats = cluster.markers.map((marker) => marker.position.lat)
-                const lngs = cluster.markers.map((marker) => marker.position.lng)
-                cameraRef.current?.fitBounds(
-                  [Math.max(...lngs), Math.max(...lats)],
-                  [Math.min(...lngs), Math.min(...lats)],
-                  80,
-                  600,
-                )
-              }}
+              leavingTo={isLeaving ? destination : undefined}
+              emergingFrom={origin}
+              onTap={
+                isLeaving
+                  ? undefined
+                  : () =>
+                    fitTo(
+                      cluster.markers.map((marker) => marker.position),
+                      { padding: CLUSTER_TAP_PADDING, duration: CLUSTER_TAP_DURATION },
+                    )
+              }
             />
           ) : null,
         )}
       </Mapbox.MapView>
     </MapContext>
   )
-}
-
-function createToPixel(bounds: MapBounds, width: number) {
-  const scale = width / (bounds.east - bounds.west)
-
-  return (coord: { lat: number; lng: number }) => ({
-    x: (coord.lng - bounds.west) * scale,
-    y: (bounds.north - coord.lat) * scale,
-  })
 }
