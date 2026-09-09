@@ -1,11 +1,10 @@
 import { assert } from '@waylog/utility'
-import { useGlobalSearchParams } from 'expo-router'
+import { useLocalSearchParams } from 'expo-router'
 
-// 웹 useTripId 와 같은 역할이다.
-// 탭은 비활성 화면도 미리 마운트하는데, useLocalSearchParams 는 활성 라우트의
-// 파라미터만 주므로 비활성 탭에서 undefined 가 된다. 전역 파라미터를 읽는다.
+// 전역 파라미터는 앱이 공유하는 값 하나라 다른 화면으로 이동하면 곧바로 갱신된다.
+// 여행 화면은 아직 언마운트되지 않아 한 번 더 렌더되므로 그때 tripId 를 잃는다.
 export function useTripId() {
-  const { tripId } = useGlobalSearchParams<{ tripId: string }>()
+  const { tripId } = useLocalSearchParams<{ tripId?: string }>()
   assert(!!tripId, 'tripId is required')
 
   return tripId
