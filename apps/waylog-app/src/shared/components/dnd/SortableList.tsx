@@ -1,5 +1,6 @@
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Pressable, type FlatList } from 'react-native'
+import { Gesture } from 'react-native-gesture-handler'
 import { runOnJS } from 'react-native-reanimated'
 import ReorderableList, {
   reorderItems,
@@ -14,6 +15,15 @@ import { impactAsync, ImpactFeedbackStyle } from 'expo-haptics'
 // 웹 dnd/SortableList 와 같은 공개 인터페이스를 유지한다.
 // 내부는 @dnd-kit(DOM) 대신 react-native-reorderable-list 를 쓴다.
 export type SortEvent<T> = { from: number; to: number; items: T[] }
+
+// 핸들을 눌러 끌기까지의 지연.
+const HANDLE_DRAG_ACTIVATION_DELAY_MS = 120
+
+// pan 이 드래그를 넘겨받기까지의 지연. 핸들보다 "약간 길어야" 한다(라이브러리 README 지침).
+// pan 은 기본적으로 손가락이 움직여야 활성화되는데, 그러면 들어올린 뒤 움직이지 않고
+// 손을 떼었을 때 해제 신호(onFinalize)가 오지 않아 항목이 들린 채 남는다.
+// 시간 기반으로 바꿔 움직임 없이도 활성화되게 한다.
+const PAN_TAKEOVER_DELAY_MS = HANDLE_DRAG_ACTIVATION_DELAY_MS + 20
 
 type Props<T extends { id: string }> = {
   items: T[]
@@ -63,6 +73,11 @@ export function SortableList<T extends { id: string }>({
     'worklet'
     runOnJS(setActiveIndex)(-1)
   }
+  const dragPanGesture = useMemo(
+    () => Gesture.Pan().activateAfterLongPress(PAN_TAKEOVER_DELAY_MS),
+    [],
+  )
+
   const handleReorder = ({ from, to }: ReorderableListReorderEvent) => {
     const next = reorderItems(items, from, to)
     setItems(next);
@@ -78,6 +93,7 @@ export function SortableList<T extends { id: string }>({
       contentContainerStyle={{ paddingBottom: 40, paddingHorizontal }}
       ListHeaderComponent={header == null ? undefined : () => <>{header}</>}
       shouldUpdateActiveItem
+      panGesture={dragPanGesture}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onReorder={handleReorder}
@@ -96,9 +112,13 @@ export function SortableList<T extends { id: string }>({
 function Row({ disabled, active, children }: { disabled?: boolean; active?: boolean; children?: ReactNode }) {
   const isActive = useIsActive() || active === true
   const drag = useReorderableDrag()
+  const startDrag = () => {
+    impactAsync(ImpactFeedbackStyle.Medium).catch(() => {})
+    drag()
+  }
 
   return (
-    <DragContext.Provider value={disabled === true ? null : drag}>
+    <DragContext.Provider value={disabled === true ? null : startDrag}>
       <Box
         sx={{
           borderLeftWidth: isActive ? 2 : 0,
@@ -125,7 +145,8 @@ export const SortableItem = {
   Handle: Handle,
 }
 
-// 웹과 같이 이 자리를 잡아야만 끌리고, children 으로 받은 아이콘을 그대로 쓴다.
+// 누르는 즉시(onPressIn) 끌면 안 된다. 라이브러리의 pan 은 state 가 IDLE 일 때만
+// 시작 좌표를 잡는데, 그 전에 들어올리면 이 조건이 깨져 해제되지 않는다.
 function Handle({ children, sx, id: _id }: Omit<BoxProps, 'id'> & { id: string | number }) {
   const drag = useContext(DragContext)
 
@@ -133,11 +154,8 @@ function Handle({ children, sx, id: _id }: Omit<BoxProps, 'id'> & { id: string |
 
   return (
     <Pressable
-      onLongPress={() => {
-        void impactAsync(ImpactFeedbackStyle.Medium)
-        drag()
-      }}
-      delayLongPress={500}
+      onLongPress={drag}
+      delayLongPress={HANDLE_DRAG_ACTIVATION_DELAY_MS}
       hitSlop={8}
     >
       <Box sx={{ justifyContent: 'center', alignItems: 'center', ...(sx ?? {}) }}>{children}</Box>
