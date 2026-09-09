@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { Pressable } from 'react-native'
+import { StyleSheet, Pressable } from 'react-native'
 import { Stack, Typography, type TypographyVariant } from '~/shared/components/design-system'
 
 interface PlaceTitleButtonProps {
@@ -15,7 +15,7 @@ export function PlaceTitleButton({ name, onPress, variant = 'h6' }: PlaceTitleBu
   return (
     <Pressable onPress={onPress}>
       <Stack direction="row" gap={0.5} alignItems="center">
-        <Typography variant={variant} noWrap style={{ fontWeight: '800' }}>
+        <Typography variant={variant} noWrap style={styles.title}>
           {name}
         </Typography>
         <MaterialIcons name="chevron-right" size={28} color="#666" />
@@ -23,3 +23,7 @@ export function PlaceTitleButton({ name, onPress, variant = 'h6' }: PlaceTitleBu
     </Pressable>
   )
 }
+
+const styles = StyleSheet.create({
+  title: { fontWeight: '800' },
+})

@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import { useInvitedTrip } from '@waylog/domains/modules/trip'
 import { assert } from '@waylog/utility'
 import { useLocalSearchParams, useRouter } from 'expo-router'
@@ -15,18 +16,11 @@ import { palette } from '../../../shared/config/tokens'
 export function TripInviteScreen() {
   return (
     <Box
-      style={{
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 24,
-        paddingHorizontal: 24,
-        backgroundColor: palette.background,
-      }}
+      style={styles.screen}
     >
       <ErrorBoundary
         fallback={({ error }) => (
-          <Typography style={{ color: palette.error }} textAlign="center">
+          <Typography style={styles.errorMessage} textAlign="center">
             {error.message}
           </Typography>
         )}
@@ -73,10 +67,16 @@ function Resolved() {
         size="large"
         onPress={handleJoin}
         loading={isPending}
-        style={{ width: 200 }}
+        style={styles.joinButton}
       >
         참여하기
       </Button>
     </>
   )
 }
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 24, paddingHorizontal: 24, backgroundColor: palette.background },
+  errorMessage: { color: palette.error },
+  joinButton: { width: 200 },
+})

@@ -21,15 +21,7 @@ export function Avatar({ src, children, style }: AvatarProps) {
   return (
     <Box
       style={[
-        {
-          width: size,
-          height: size,
-          borderRadius: size / 2,
-          backgroundColor: 'rgba(0,0,0,0.08)',
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'hidden',
-        },
+        [styles.box, { width: size, height: size, borderRadius: size / 2 }],
         style,
       ]}
     >
@@ -37,10 +29,7 @@ export function Avatar({ src, children, style }: AvatarProps) {
         <LoadableImage source={{ uri: src }} style={{ width: size, height: size }} resizeMode="cover" />
       ) : (
         <Typography
-          style={{
-            fontSize: typeof flatStyle.fontSize === 'number' ? flatStyle.fontSize : size / 2,
-            color: palette.textSecondary,
-          }}
+          style={[styles.typography, { fontSize: typeof flatStyle.fontSize === 'number' ? flatStyle.fontSize : size / 2 }]}
         >
           {children}
         </Typography>
@@ -48,3 +37,15 @@ export function Avatar({ src, children, style }: AvatarProps) {
     </Box>
   )
 }
+
+const styles = StyleSheet.create({
+  box: {
+    backgroundColor: 'rgba(0,0,0,0.08)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  typography: {
+    color: palette.textSecondary,
+  },
+})

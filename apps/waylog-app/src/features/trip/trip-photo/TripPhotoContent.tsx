@@ -104,14 +104,14 @@ export function TripPhotoContent({ tripId }: Props) {
   }
 
   return (
-    <Box style={{ flex: 1, backgroundColor: palette.background }}>
+    <Box style={styles.container}>
       {/* 웹과 같이 장소 필터와 선택/완료 버튼을 한 행에 둔다. */}
       <Stack
         direction="row"
         alignItems="center"
         justifyContent={placeOptions.length > 0 ? 'space-between' : 'flex-end'}
         gap={1}
-        style={{ paddingHorizontal: 16, paddingVertical: 12 }}
+        style={styles.toolbar}
       >
         {placeOptions.length > 0 && (
           <MultiSelectDropdown
@@ -129,7 +129,7 @@ export function TripPhotoContent({ tripId }: Props) {
             size="small"
             variant="contained"
             onPress={() => setIsReadonly((curr) => !curr)}
-            style={{ borderRadius: 24, backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
+            style={styles.selectionButton}
           >
             {isReadonly ? '선택' : '완료'}
           </Button>
@@ -140,29 +140,15 @@ export function TripPhotoContent({ tripId }: Props) {
         data={galleryItems}
         keyExtractor={(item) => item.id}
         numColumns={COLUMNS}
-        columnWrapperStyle={{ gap: GAP }}
-        contentContainerStyle={{
-          gap: GAP,
-          paddingHorizontal: LIST_PADDING,
-          paddingBottom: 16,
-        }}
+        columnWrapperStyle={styles.photoRow}
+        contentContainerStyle={styles.photoList}
         renderItem={({ item }) => (
           'kind' in item ? (
             <Pressable
               accessibilityLabel="사진 추가"
               // 업로드 중에는 다시 고르지 못하게 막는다.
               onPress={isUploading ? undefined : pick}
-              style={{
-                width: size,
-                height: size,
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderWidth: 1,
-                borderStyle: 'dashed',
-                borderColor: '#d5d5d5',
-                borderRadius: 8,
-                opacity: isUploading ? 0.4 : 1,
-              }}
+              style={[styles.uploadButton, { width: size, height: size, opacity: isUploading ? 0.4 : 1 }]}
             >
               {isUploading ? (
                 <ActivityIndicator />
@@ -174,9 +160,9 @@ export function TripPhotoContent({ tripId }: Props) {
             <Pressable
               onPress={() => (isReadonly ? openPhotoDetails(item) : toggleSelect(item))}
               onLongPress={() => setIsReadonly(false)}
-              style={{ position: 'relative' }}
+              style={styles.photoItem}
             >
-              <LoadableImage source={{ uri: item.url }} style={{ width: size, height: size, borderRadius: 8 }} resizeMode="cover" />
+              <LoadableImage source={{ uri: item.url }} style={[styles.photo, { width: size, height: size }]} resizeMode="cover" />
 
               {!isReadonly && selectedPhotoIds.includes(item.id) && (
                 <Box
@@ -191,13 +177,13 @@ export function TripPhotoContent({ tripId }: Props) {
 
               {/* 공개 사진 표시 */}
               {item.isPublic && (
-                <Box style={{ position: 'absolute', top: 4, left: 4 }}>
+                <Box style={styles.visibilityBadge}>
                   <MaterialIcons name="public" size={16} color="#fff" />
                 </Box>
               )}
 
               {!isReadonly && (
-                <Box style={{ position: 'absolute', top: 4, right: 4 }}>
+                <Box style={styles.selectionBadge}>
                   <MaterialIcons
                     name={selectedPhotoIds.includes(item.id) ? 'check-circle' : 'radio-button-unchecked'}
                     size={20}
@@ -219,7 +205,7 @@ export function TripPhotoContent({ tripId }: Props) {
             color="error"
             variant="contained"
             fullWidth
-            textStyle={{ fontWeight: '600' }}
+            textStyle={styles.buttonLabel}
             disabled={selectedPhotoIds.length === 0}
             loading={isDeleting}
             onPress={async () => {
@@ -269,43 +255,43 @@ function PhotoViewerSheet({ isOpen, photos, initialIndex, places, onUpdate, onDe
   const currentPlace = places.find((place) => place.placeId === currentPhoto.placeId)
 
   return (
-    <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.95]} defaultSnapIndex={0} safeArea style={{ backgroundColor: '#010101' }}>
-      <BottomSheet.Header alignItems="center" justifyContent="center" style={{ backgroundColor: '#010101' }}>
-        <Typography variant="body2" style={{ color: '#fff', fontWeight: '800' }}>{currentIndex + 1} / {viewerPhotos.length}</Typography>
+    <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.95]} defaultSnapIndex={0} safeArea style={styles.viewerBackground}>
+      <BottomSheet.Header alignItems="center" justifyContent="center" style={styles.viewerBackground}>
+        <Typography variant="body2" style={styles.photoCounter}>{currentIndex + 1} / {viewerPhotos.length}</Typography>
         <Pressable
           accessibilityLabel="사진 메뉴"
           onPress={() => overlay.open(({ isOpen: menuOpen, close: closeMenu }) => (
             <BottomSheet isOpen={menuOpen} onDismiss={closeMenu} snapPoints={[0.4]} defaultSnapIndex={0} safeArea>
-              <BottomSheet.Body style={{ paddingHorizontal: 0, paddingVertical: 8 }}>
-                <Pressable onPress={() => { void Linking.openURL(currentPhoto.url); closeMenu() }} style={{ paddingHorizontal: 20, paddingVertical: 16 }}>
+              <BottomSheet.Body style={styles.menuBody}>
+                <Pressable onPress={() => { void Linking.openURL(currentPhoto.url); closeMenu() }} style={styles.menuItem}>
                   <Stack direction="row" justifyContent="space-between" alignItems="center">
-                    <Typography style={{ fontSize: 16 }}>다운로드</Typography>
+                    <Typography style={styles.menuItemLabel}>다운로드</Typography>
                     <MaterialIcons name="download-for-offline" size={26} color="#222" />
                   </Stack>
                 </Pressable>
-                <Typography style={{ paddingHorizontal: 20, paddingVertical: 12, color: '#777', fontWeight: '700' }}>공개 설정</Typography>
-                <Pressable onPress={async () => { await updateCurrentPhoto({ isPublic: true }); closeMenu() }} style={{ paddingLeft: 36, paddingRight: 20, paddingVertical: 16 }}>
+                <Typography style={styles.menuHeading}>공개 설정</Typography>
+                <Pressable onPress={async () => { await updateCurrentPhoto({ isPublic: true }); closeMenu() }} style={styles.visibilityMenuItem}>
                   <Stack direction="row" justifyContent="space-between" alignItems="center">
-                    <Typography style={{ color: currentPhoto.isPublic ? '#4c84ff' : '#222', fontSize: 16 }}>공개</Typography>
+                    <Typography style={[styles.menuItemLabel, { color: currentPhoto.isPublic ? '#4c84ff' : '#222' }]}>공개</Typography>
                     {currentPhoto.isPublic && <MaterialIcons name="check" size={26} color="#222" />}
                   </Stack>
                 </Pressable>
-                <Pressable onPress={async () => { await updateCurrentPhoto({ isPublic: false }); closeMenu() }} style={{ paddingLeft: 36, paddingRight: 20, paddingVertical: 16 }}>
+                <Pressable onPress={async () => { await updateCurrentPhoto({ isPublic: false }); closeMenu() }} style={styles.visibilityMenuItem}>
                   <Stack direction="row" justifyContent="space-between" alignItems="center">
-                    <Typography style={{ color: !currentPhoto.isPublic ? '#4c84ff' : '#222', fontSize: 16 }}>비공개</Typography>
+                    <Typography style={[styles.menuItemLabel, { color: !currentPhoto.isPublic ? '#4c84ff' : '#222' }]}>비공개</Typography>
                     {!currentPhoto.isPublic && <MaterialIcons name="check" size={26} color="#222" />}
                   </Stack>
                 </Pressable>
               </BottomSheet.Body>
             </BottomSheet>
           ))}
-          style={{ position: 'absolute', right: 12, padding: 8 }}
+          style={styles.menuTrigger}
         >
-          <Typography style={{ color: '#fff', fontSize: 24 }}>⋮</Typography>
+          <Typography style={styles.menuIcon}>⋮</Typography>
         </Pressable>
       </BottomSheet.Header>
       <BottomSheet.Body
-        style={{ backgroundColor: '#010101' }}
+        style={styles.viewerBackground}
         onLayout={(event) => {
           const height = Math.round(event.nativeEvent.layout.height)
           if (height > 0) setImagePagerHeight(height)
@@ -320,11 +306,11 @@ function PhotoViewerSheet({ isOpen, photos, initialIndex, places, onUpdate, onDe
           showsHorizontalScrollIndicator={false}
           contentOffset={{ x: initialIndex * width, y: 0 }}
           onMomentumScrollEnd={(event) => setCurrentIndex(Math.round(event.nativeEvent.contentOffset.x / width))}
-          style={{ height: imagePagerHeight, flex: 0 }}
+          style={[styles.imagePager, { height: imagePagerHeight }]}
           contentContainerStyle={{ height: imagePagerHeight }}
         >
           {viewerPhotos.map((item) => (
-            <Box key={item.id} style={{ width, height: imagePagerHeight, alignItems: 'center', justifyContent: 'center' }}>
+            <Box key={item.id} style={[styles.imagePage, { width, height: imagePagerHeight }]}>
               <ZoomArea width={width} height={imagePagerHeight} onZoomStart={() => setIsZooming(true)} onZoomEnd={() => setIsZooming(false)}>
                 <Image source={{ uri: item.url }} resizeMode="contain" style={{ width, height: imagePagerHeight }} />
               </ZoomArea>
@@ -332,19 +318,19 @@ function PhotoViewerSheet({ isOpen, photos, initialIndex, places, onUpdate, onDe
           ))}
         </BottomSheet.ScrollView>
       </BottomSheet.Body>
-      <Stack alignItems="center" style={{ flexGrow: 0, paddingVertical: 8, backgroundColor: '#010101' }}>
+      <Stack alignItems="center" style={styles.placeSelector}>
         <Pressable
           accessibilityLabel="사진 장소 지정"
           onPress={() => overlay.open(({ isOpen: pickerOpen, close: closePicker }) => (
             <BottomSheet isOpen={pickerOpen} onDismiss={closePicker} snapPoints={[0.5]} defaultSnapIndex={0} safeArea>
-              <BottomSheet.Body style={{ paddingHorizontal: 0, paddingVertical: 8 }}>
+              <BottomSheet.Body style={styles.menuBody}>
                 {[{ id: 'none', label: '장소 미지정' }, ...places.map((place) => ({ id: place.placeId, label: place.name }))].map((option) => {
                   const isUnassigned = option.id === 'none'
                   const isSelected = isUnassigned ? currentPhoto.placeId == null : currentPhoto.placeId === option.id
                   return (
-                    <Pressable key={option.id} onPress={async () => { await updateCurrentPhoto({ placeId: isUnassigned ? null : option.id }); closePicker() }} style={{ paddingHorizontal: 20, paddingVertical: 16, backgroundColor: isSelected ? '#eef4ff' : '#fff' }}>
+                    <Pressable key={option.id} onPress={async () => { await updateCurrentPhoto({ placeId: isUnassigned ? null : option.id }); closePicker() }} style={[styles.menuItem, { backgroundColor: isSelected ? '#eef4ff' : '#fff' }]}>
                       <Stack direction="row" justifyContent="space-between" alignItems="center">
-                        <Typography style={{ color: isUnassigned ? '#888' : '#222', fontSize: 16 }}>{option.label}</Typography>
+                        <Typography style={[styles.menuItemLabel, { color: isUnassigned ? '#888' : '#222' }]}>{option.label}</Typography>
                         {isSelected && <MaterialIcons name="check" size={24} color="#4c84ff" />}
                       </Stack>
                     </Pressable>
@@ -353,19 +339,47 @@ function PhotoViewerSheet({ isOpen, photos, initialIndex, places, onUpdate, onDe
               </BottomSheet.Body>
             </BottomSheet>
           ))}
-          style={{ paddingHorizontal: 12, paddingVertical: 8 }}
+          style={styles.placeTrigger}
         >
           <Stack direction="row" alignItems="center" gap={0.75}>
             <MaterialIcons name="location-on" size={20} color="#fff" />
-            <Typography style={{ color: '#fff' }}>{currentPlace?.name ?? '장소 미지정'}</Typography>
+            <Typography style={styles.placeLabel}>{currentPlace?.name ?? '장소 미지정'}</Typography>
             <MaterialIcons name="edit" size={18} color="#fff" />
           </Stack>
         </Pressable>
       </Stack>
-      <BottomSheet.BottomActions style={{ backgroundColor: '#010101' }}>
+      <BottomSheet.BottomActions style={styles.viewerBackground}>
         <Button variant="outlined" color="error" fullWidth onPress={() => void onDelete(currentPhoto)}>삭제</Button>
         <Button variant="contained" fullWidth onPress={onClose}>닫기</Button>
       </BottomSheet.BottomActions>
     </BottomSheet>
   )
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: palette.background },
+  toolbar: { paddingHorizontal: 16, paddingVertical: 12 },
+  selectionButton: { borderRadius: 24, backgroundColor: 'rgba(0, 0, 0, 0.3)' },
+  photoRow: { gap: GAP },
+  photoList: { gap: GAP, paddingHorizontal: LIST_PADDING, paddingBottom: 16 },
+  uploadButton: { alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderStyle: 'dashed', borderColor: '#d5d5d5', borderRadius: 8 },
+  photoItem: { position: 'relative' },
+  photo: { borderRadius: 8 },
+  visibilityBadge: { position: 'absolute', top: 4, left: 4 },
+  selectionBadge: { position: 'absolute', top: 4, right: 4 },
+  buttonLabel: { fontWeight: '600' },
+  viewerBackground: { backgroundColor: '#010101' },
+  photoCounter: { color: '#fff', fontWeight: '800' },
+  menuBody: { paddingHorizontal: 0, paddingVertical: 8 },
+  menuItem: { paddingHorizontal: 20, paddingVertical: 16 },
+  menuItemLabel: { fontSize: 16 },
+  menuHeading: { paddingHorizontal: 20, paddingVertical: 12, color: '#777', fontWeight: '700' },
+  visibilityMenuItem: { paddingLeft: 36, paddingRight: 20, paddingVertical: 16 },
+  menuTrigger: { position: 'absolute', right: 12, padding: 8 },
+  menuIcon: { color: '#fff', fontSize: 24 },
+  imagePager: { flex: 0 },
+  imagePage: { alignItems: 'center', justifyContent: 'center' },
+  placeSelector: { flexGrow: 0, paddingVertical: 8, backgroundColor: '#010101' },
+  placeTrigger: { paddingHorizontal: 12, paddingVertical: 8 },
+  placeLabel: { color: '#fff' },
+})

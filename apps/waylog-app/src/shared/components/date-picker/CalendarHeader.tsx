@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 import { format } from 'date-fns'
 import { Stack, IconButton, Typography } from '~/shared/components/design-system'
@@ -11,7 +12,7 @@ interface CalendarHeaderProps {
 
 export function CalendarHeader({ cursor, onPreviousMonth, onNextMonth }: CalendarHeaderProps) {
   return (
-    <Stack direction="row" alignItems="center" justifyContent="space-between" style={{ paddingHorizontal: 8, paddingVertical: 8 }}>
+    <Stack direction="row" alignItems="center" justifyContent="space-between" style={styles.stack}>
       <IconButton onPress={onPreviousMonth}>
         <MaterialIcons name="chevron-left" size={24} color={palette.text} />
       </IconButton>
@@ -24,3 +25,10 @@ export function CalendarHeader({ cursor, onPreviousMonth, onNextMonth }: Calenda
     </Stack>
   )
 }
+
+const styles = StyleSheet.create({
+  stack: {
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+  },
+})

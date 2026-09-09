@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import { useRef } from 'react'
 import { assert } from '@waylog/utility'
 import { useTripChecklist } from '@waylog/domains/modules/trip-checklist'
@@ -50,7 +51,7 @@ function TripChecklistModifySheet({ isOpen, onClose, tripId, id }: SheetProps) {
   return (
     <BottomSheet isOpen={isOpen} onDismiss={onClose} safeArea snapPoints={[0.75]} defaultSnapIndex={0}>
       <BottomSheet.Header>할 일 수정</BottomSheet.Header>
-      <BottomSheet.Body style={{ paddingHorizontal: 16 }}>
+      <BottomSheet.Body style={styles.tripChecklistModifySheetBody}>
         <TripChecklistForm
           ref={formRef}
           tripId={tripId}
@@ -71,3 +72,7 @@ function TripChecklistModifySheet({ isOpen, onClose, tripId, id }: SheetProps) {
     </BottomSheet>
   )
 }
+
+const styles = StyleSheet.create({
+  tripChecklistModifySheetBody: { paddingHorizontal: 16 },
+})

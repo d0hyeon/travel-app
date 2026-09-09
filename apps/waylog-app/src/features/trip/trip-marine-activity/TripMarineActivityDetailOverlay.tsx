@@ -5,7 +5,7 @@ import { useDailyMarineActivityIndices } from '@waylog/domains/modules/marine-ac
 import { formatDisplayDate, formatShortDate } from '@waylog/utility'
 import type { Trip } from '@waylog/domains/modules/trip'
 import { useTrip } from '@waylog/domains/modules/trip'
-import { useWindowDimensions } from 'react-native'
+import { StyleSheet, useWindowDimensions } from 'react-native'
 import type Animated from 'react-native-reanimated'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { isPageWithinRenderWindow } from '../../../shared/components/pagerWindow'
@@ -85,7 +85,7 @@ function TripMarineActivityDetailSheet({
       <BottomSheet.Header direction="row" justifyContent="space-between">
         <Typography variant="subtitle1">{placeName}</Typography>
       </BottomSheet.Header>
-      <BottomSheet.Body style={{ paddingHorizontal: 0 }}>
+      <BottomSheet.Body style={styles.sheetBody}>
         <Tabs value={selectedDate} onChange={(_, date) => scrollToDate(date)} scrollable>
           {tripDates.map((date) => (
             <Tab key={date} value={date} label={formatShortDate(date)} />
@@ -136,14 +136,14 @@ function TripMarineActivityDetailContent({
   const selectedIndex = data?.indices?.find?.((index) => index.placeCode === placeCode)
 
   return (
-    <Box style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16 }}>
+    <Box style={styles.content}>
       {selectedIndex ? (
         <Stack gap={2}>
           <MarineActivityGrade index={selectedIndex} />
           <MarineActivityMetrics index={selectedIndex} />
         </Stack>
       ) : (
-        <Stack alignItems="center" style={{ paddingVertical: 48 }}>
+        <Stack alignItems="center" style={styles.emptyState}>
           <Typography variant="body2" color="text.secondary">
             선택 날짜에 제공되는 해양 지수가 없어요
           </Typography>
@@ -208,3 +208,9 @@ function getGradeColor(grade: MarineActivityIndex['grade']) {
   if (grade === 'bad' || grade === 'veryBad') return palette.warning
   return palette.text
 }
+
+const styles = StyleSheet.create({
+  sheetBody: { paddingHorizontal: 0 },
+  content: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16 },
+  emptyState: { paddingVertical: 48 },
+})

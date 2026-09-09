@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons';
 import { Box, Skeleton, Stack, Typography, type StackProps } from "~/shared/components/design-system";
 import { Checkbox } from "~/shared/components/design-system/Checkbox";
@@ -50,7 +51,7 @@ function Resolved({ tripId }: Props) {
     <Stack gap={1}>
       {checklist.length > 0
         ? checklist.map(x => <TripChecklist.Item id={x.id} key={x.id} tripId={tripId} />)
-        : <Typography variant="body2" color="text.secondary" style={{ paddingVertical: 24 }}>체크리스트가 없어요</Typography>}
+        : <Typography variant="body2" color="text.secondary" style={styles.emptyMessage}>체크리스트가 없어요</Typography>}
     </Stack>
   )
 }
@@ -99,11 +100,7 @@ function TripChecklistItem({ tripId, id, ...props }: ItemProps) {
   return (
     <ListItem
       style={[
-        {
-          borderColor: value.isCompleted ? 'rgba(76,132,255,0.4)' : 'rgba(221,221,221,0.4)',
-          borderWidth: value.isCompleted ? 2 : 1,
-          paddingVertical: 16,
-        },
+        [styles.checklistItem, { borderColor: value.isCompleted ? 'rgba(76,132,255,0.4)' : 'rgba(221,221,221,0.4)', borderWidth: value.isCompleted ? 2 : 1 }],
         animatedStyle,
       ]}
       as={Animated.View}
@@ -118,7 +115,7 @@ function TripChecklistItem({ tripId, id, ...props }: ItemProps) {
               withTiming(360, { duration: 300 }, () => rotation.set(0)),
             )
           }}
-          style={{ padding: 0 }}
+          style={styles.checkbox}
         />
       )}
       rightAddon={<TripChecklistMenu tripId={tripId} id={value.id} />}
@@ -136,7 +133,7 @@ function TripChecklistItem({ tripId, id, ...props }: ItemProps) {
               defaultComponent={() => <MaterialIcons name="access-time" size={16} color="#787c7e" />}
             />
           )}
-          <ListItem.Title style={value.isCompleted ? { opacity: 0.5 } : {}}>
+          <ListItem.Title style={value.isCompleted ? styles.completedTitle : {}}>
             {value.title}
           </ListItem.Title>
         </Stack>
@@ -145,19 +142,19 @@ function TripChecklistItem({ tripId, id, ...props }: ItemProps) {
         {(!!startTimeText || !!endTimeText) && (
           <ListItem.Text
             color={!value.isCompleted ? status : undefined}
-            style={value.isCompleted ? { opacity: 0.5 } : {}}
+            style={value.isCompleted ? styles.completedTitle : {}}
           >
             {startTimeText} ~ {endTimeText}{remainTimeText ? ` (${remainTimeText})` : ''}
           </ListItem.Text>
         )}
         <Stack direction="row" justifyContent="space-between" alignItems="center" gap={0.5}>
           {!!value.content && value.content.trim() !== '' && (
-            <ListItem.Text style={value.isCompleted ? { opacity: 0.5 } : {}}>
+            <ListItem.Text style={value.isCompleted ? styles.completedTitle : {}}>
               {value.content}
             </ListItem.Text>
           )}
           {담당자 && (
-            <Box style={{ flex: 0 }}>
+            <Box style={styles.actions}>
               <Chip
                 size="small"
                 label={`${담당자.name}`}
@@ -194,9 +191,9 @@ function ReadonlyItem({ id, tripId, ...props }: ItemProps) {
       alignItems="flex-start"
       justifyContent="flex-start"
       gap={0.5}
-      style={{ borderColor: 'rgba(221,221,221,0.4)' }}
+      style={styles.readonlyItem}
       leftAddon={(
-        <Box style={{ minWidth: 20 }}>
+        <Box style={styles.completionIcon}>
           <SwitchCase
             value={status}
             cases={{
@@ -229,7 +226,7 @@ function ReadonlyItem({ id, tripId, ...props }: ItemProps) {
             <Chip
               size="small"
               label={member.name}
-              style={{ height: 20 }}
+              style={styles.assignee}
             />
           )}
         </Box>
@@ -270,3 +267,14 @@ function TripChecklistMenu({ id, tripId }: CheckMenuProps) {
     />
   )
 }
+
+const styles = StyleSheet.create({
+  emptyMessage: { paddingVertical: 24 },
+  checklistItem: { paddingVertical: 16 },
+  checkbox: { padding: 0 },
+  completedTitle: { opacity: 0.5 },
+  actions: { flex: 0 },
+  readonlyItem: { borderColor: 'rgba(221,221,221,0.4)' },
+  completionIcon: { minWidth: 20 },
+  assignee: { height: 20 },
+})

@@ -1,5 +1,5 @@
 import { useRef, useState, type ReactNode } from 'react'
-import { Pressable } from 'react-native'
+import { StyleSheet, Pressable } from 'react-native'
 import { palette } from '../config/tokens'
 import { ActionSheet } from './action-sheet/ActionSheet'
 import { Typography } from '~/shared/components/design-system'
@@ -37,7 +37,7 @@ export function PopMenu({ children, items, trigger }: MenuProps) {
     <>
       {trigger != null ? <Pressable onPress={openMenu}>{trigger}</Pressable> : (
         <IconButton size="small" onPress={openMenu}>
-          {children ?? <Typography style={{ fontSize: 18, color: palette.textSecondary }}>⋮</Typography>}
+          {children ?? <Typography style={styles.typography}>⋮</Typography>}
         </IconButton>
       )}
 
@@ -49,3 +49,10 @@ export function PopMenu({ children, items, trigger }: MenuProps) {
 }
 
 PopMenu.Item = ActionSheet.Item
+
+const styles = StyleSheet.create({
+  typography: {
+    fontSize: 18,
+    color: palette.textSecondary,
+  },
+})

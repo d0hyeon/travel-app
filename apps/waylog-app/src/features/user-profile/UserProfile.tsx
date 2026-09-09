@@ -1,5 +1,5 @@
 import { assert } from '@waylog/utility'
-import type { TextStyle, ViewStyle } from 'react-native'
+import { StyleSheet, type TextStyle, type ViewStyle } from 'react-native'
 import { Avatar, Stack, Typography, type StackProps } from '~/shared/components/design-system'
 import { useUserProfile } from './useUserProfile'
 
@@ -10,20 +10,6 @@ export const UserProfileSize = {
 } as const
 export type UserProfileSize = typeof UserProfileSize[keyof typeof UserProfileSize]
 
-const USER_PROFILE_SIZE_STYLE = {
-  [UserProfileSize.small]: {
-    avatar: 20,
-    fontSize: 11,
-  },
-  [UserProfileSize.medium]: {
-    avatar: 28,
-    fontSize: 13,
-  },
-  [UserProfileSize.large]: {
-    avatar: 36,
-    fontSize: 15,
-  },
-} as const
 
 interface Props extends StackProps {
   id: string
@@ -32,7 +18,7 @@ interface Props extends StackProps {
 
 export function UserProfile({ id, size = UserProfileSize.medium, ...props }: Props) {
   const { data: profile } = useUserProfile(id)
-  const sizeStyle = USER_PROFILE_SIZE_STYLE[size]
+  const style = stylesBySize[size]
 
   assert(profile != null, '존재하지 않는 사용자 ID입니다.')
 
@@ -40,13 +26,29 @@ export function UserProfile({ id, size = UserProfileSize.medium, ...props }: Pro
     <Stack direction="row" alignItems="center" gap={1} {...props}>
       <Avatar
         src={profile.profileUrl ?? undefined}
-        style={{ width: sizeStyle.avatar, height: sizeStyle.avatar, fontSize: sizeStyle.avatar * 0.5 } as ViewStyle & TextStyle}
+        style={style.avatar}
       >
         {profile.name?.[0] ?? '?'}
       </Avatar>
-      <Typography style={{ fontSize: sizeStyle.fontSize, lineHeight: 1.2 }} numberOfLines={1}>
+      <Typography style={style.text} numberOfLines={1}>
         {profile.name}
       </Typography>
     </Stack>
   )
+}
+
+
+const stylesBySize = {
+  [UserProfileSize.small]: StyleSheet.create({
+    avatar: { width: 20, height: 20, fontSize: 20 * 0.5 },
+    text: { fontSize: 11 }
+  }),
+  [UserProfileSize.medium]: StyleSheet.create({
+    avatar: { width: 28, height: 28, fontSize: 28 * 0.5 },
+    text: { fontSize: 13 }
+  }),
+  [UserProfileSize.large]: StyleSheet.create({
+    avatar: { width: 36, height: 36, fontSize: 36 * 0.5 },
+    text: { fontSize: 15 }
+  })
 }

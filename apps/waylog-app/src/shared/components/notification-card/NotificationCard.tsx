@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { type ReactNode } from 'react'
 import { Box, IconButton, Stack, Typography } from '~/shared/components/design-system'
 import type { TypographyProps } from '~/shared/components/design-system'
-import type { StyleProp, ViewStyle } from 'react-native'
+import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native'
 import { palette, radius } from '../../config/tokens'
 
 export interface NotificationCardProps {
@@ -25,16 +25,7 @@ function NotificationCard({
   return (
     <Box
       style={[
-        {
-          paddingVertical: 14,
-          paddingHorizontal: 28,
-          borderRadius: radius.xl,
-          backgroundColor: palette.background,
-          alignItems: 'flex-start',
-          flexDirection: 'row',
-          position: 'relative',
-          // RN 은 boxShadow 대신 elevation·shadow* 를 쓴다.
-          ...(isShadow
+        [styles.box2, { ...(isShadow
             ? {
               shadowColor: '#000',
               shadowOpacity: 0.3,
@@ -45,20 +36,19 @@ function NotificationCard({
             : {
               borderWidth: 1.5,
               borderColor: palette.divider,
-            }),
-        },
+            }) }],
         style,
       ]}
     >
-      {leading && <Box style={{ paddingTop: 2 }}>{leading}</Box>}
+      {leading && <Box style={styles.box}>{leading}</Box>}
 
-      <Stack style={{ flex: 1 }}>{children}</Stack>
+      <Stack style={styles.stack}>{children}</Stack>
 
       {onClose && (
         <IconButton
           size="small"
           onPress={onClose}
-          style={{ position: 'absolute', top: 8, right: 8 }}
+          style={styles.iconButton}
         >
           <MaterialIcons name="close" size={18} color={palette.textSecondary} />
         </IconButton>
@@ -68,14 +58,44 @@ function NotificationCard({
 }
 
 function Title(props: TypographyProps) {
-  return <Typography variant="body2" style={{ marginBottom: 8 }} {...props} />
+  return <Typography variant="body2" style={styles.titleTypography} {...props} />
 }
 
 function Text(props: TypographyProps) {
-  return <Typography variant="caption" color="text.secondary" style={{ marginTop: 4 }} {...props} />
+  return <Typography variant="caption" color="text.secondary" style={styles.textTypography} {...props} />
 }
 
 NotificationCard.Title = Title
 NotificationCard.Text = Text
 
 export { NotificationCard }
+
+const styles = StyleSheet.create({
+  box: {
+    paddingTop: 2,
+  },
+  stack: {
+    flex: 1,
+  },
+  iconButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+  },
+  titleTypography: {
+    marginBottom: 8,
+  },
+  textTypography: {
+    marginTop: 4,
+  },
+
+  box2: {
+    paddingVertical: 14,
+    paddingHorizontal: 28,
+    borderRadius: radius.xl,
+    backgroundColor: palette.background,
+    alignItems: 'flex-start',
+    flexDirection: 'row',
+    position: 'relative',
+  },
+})

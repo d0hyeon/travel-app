@@ -8,7 +8,7 @@ import {
 } from '@waylog/domains/modules/expense'
 import { useTrip } from '@waylog/domains/modules/trip'
 import { useState } from 'react'
-import { Pressable } from 'react-native'
+import { StyleSheet, Pressable } from 'react-native'
 import { Stack, TextField, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../shared/config/tokens'
 import { useExpenseSummary } from './useExpenseSummary'
@@ -31,13 +31,13 @@ export function ExpenseHeader({ tripId }: Props) {
       gap={1}
       justifyContent="space-between"
       alignItems="flex-end"
-      style={{ paddingHorizontal: 16, paddingVertical: 12, backgroundColor: palette.primary }}
+      style={styles.header}
     >
-      <Stack alignItems="flex-start" style={{ flex: 1 }}>
-        <Typography variant="caption" style={{ color: '#fff' }}>
+      <Stack alignItems="flex-start" style={styles.summary}>
+        <Typography variant="caption" style={styles.title}>
           총 지출
         </Typography>
-        <Typography variant="h6" style={{ color: '#fff' }}>
+        <Typography variant="h6" style={styles.title}>
           {formatCurrency(totalInKRW)}
         </Typography>
       </Stack>
@@ -79,7 +79,7 @@ function ExchangeRateField({ code, value, onSubmit }: FieldProps) {
         keyboardType="number-pad"
         value={draft}
         onChangeText={setDraft}
-        style={{ minWidth: 90, color: '#fff', fontSize: 11, textAlign: 'right' }}
+        style={styles.exchangeRateInput}
         onBlur={() => {
           const rate = Number(draft.replace(/[^0-9.]/g, ''))
           if (rate > 0) onSubmit(rate)
@@ -93,10 +93,18 @@ function ExchangeRateField({ code, value, onSubmit }: FieldProps) {
     <Pressable onPress={() => setIsEditing(true)}>
       <Typography
         variant="caption"
-        style={{ color: '#fff', fontSize: 11, textDecorationLine: 'underline' }}
+        style={styles.exchangeRateLink}
       >
         {code} {value.toLocaleString()}원
       </Typography>
     </Pressable>
   )
 }
+
+const styles = StyleSheet.create({
+  header: { paddingHorizontal: 16, paddingVertical: 12, backgroundColor: palette.primary },
+  summary: { flex: 1 },
+  title: { color: '#fff' },
+  exchangeRateInput: { minWidth: 90, color: '#fff', fontSize: 11, textAlign: 'right' },
+  exchangeRateLink: { color: '#fff', fontSize: 11, textDecorationLine: 'underline' },
+})

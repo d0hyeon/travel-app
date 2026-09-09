@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Box, Button, Fab, Skeleton, Stack, Typography } from '~/shared/components/design-system';
 import { Suspense, useRef } from 'react';
 import { useRouter } from 'expo-router';
-import { Pressable } from 'react-native';
+import { StyleSheet, Pressable } from 'react-native';
 import { useOverlay } from '../../../shared/hooks/useOverlay';
 import { useTripMemo } from '@waylog/domains/modules/trip-memo';
 import type { TripMemo as TripMemoType } from '@waylog/domains/modules/trip-memo';
@@ -41,10 +41,10 @@ function Resolved({ tripId }: Props) {
   };
 
   return (
-    <Stack style={{ height: '100%', position: 'relative' }}>
-      <Box style={{ flex: 1 }}>
+    <Stack style={styles.container}>
+      <Box style={styles.content}>
         {memos.length === 0 ? (
-          <Typography variant="body2" color="text.secondary" style={{ textAlign: 'center', paddingVertical: 48 }}>
+          <Typography variant="body2" color="text.secondary" style={styles.emptyMessage}>
             메모가 없어요
           </Typography>
         ) : memos
@@ -59,7 +59,7 @@ function Resolved({ tripId }: Props) {
         color="primary"
         size="medium"
         onPress={handleAdd}
-        style={{ position: 'absolute', bottom: 16, right: 16 }}
+        style={styles.addButton}
       >
         <MaterialIcons name="add" size={24} color="#fff" />
       </Fab>
@@ -79,7 +79,7 @@ function TripMemoFormSheet({ isOpen, onClose, onSubmit }: TripMemoFormSheetProps
   return (
     <BottomSheet isOpen={isOpen} onDismiss={onClose} safeArea>
       <BottomSheet.Header>새 메모</BottomSheet.Header>
-      <BottomSheet.Body style={{ paddingHorizontal: 16 }}>
+      <BottomSheet.Body style={styles.formBody}>
         <TripMemoForm ref={formRef} onSubmit={onSubmit} />
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
@@ -111,9 +111,9 @@ function MemoRow({ tripId, memo }: MemoRowProps) {
       <Stack
         direction="row"
         alignItems="center"
-        style={{ paddingHorizontal: 16, paddingVertical: 12 }}
+        style={styles.memoRow}
       >
-        <Stack gap={0.5} style={{ flex: 1, minWidth: 0 }}>
+        <Stack gap={0.5} style={styles.memoText}>
           <Stack direction="row" alignItems="center" gap={0.5}>
             {memo.isPinned && <MaterialIcons name="push-pin" size={12} color="#4C84FF" />}
             <Typography variant="body2" numberOfLines={1}>
@@ -140,7 +140,7 @@ function MemoListSkeleton() {
   return (
     <Stack>
       {Array.from({ length: 4 }).map((_, i) => (
-        <Stack key={i} gap={0.5} style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
+        <Stack key={i} gap={0.5} style={styles.memoRow}>
           <Skeleton variant="text" width="60%" />
           <Skeleton variant="text" width="80%" />
         </Stack>
@@ -148,3 +148,13 @@ function MemoListSkeleton() {
     </Stack>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { height: '100%', position: 'relative' },
+  content: { flex: 1 },
+  emptyMessage: { textAlign: 'center', paddingVertical: 48 },
+  addButton: { position: 'absolute', bottom: 16, right: 16 },
+  formBody: { paddingHorizontal: 16 },
+  memoRow: { paddingHorizontal: 16, paddingVertical: 12 },
+  memoText: { flex: 1, minWidth: 0 },
+})

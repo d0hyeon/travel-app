@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router'
 import { getCoordinateByLocation, type Location } from '@waylog/domains/modules/location'
-import { View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { Map } from '../../../shared/components/Map'
 import { Typography } from '~/shared/components/design-system'
 import { buildExplorerPlaceDetailPath } from '../explorer.utils'
@@ -23,7 +23,7 @@ export function ExplorerMap({ places, location }: Props) {
   const defaultCenter = location == null ? undefined : getCoordinateByLocation(location)
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.map}>
       <Map defaultCenter={defaultCenter} autoFocus="marker" clustering clusterGridSize={60}>
         {places.map((place) => (
           <Map.Marker
@@ -37,9 +37,14 @@ export function ExplorerMap({ places, location }: Props) {
           />
         ))}
       </Map>
-      <View pointerEvents="none" style={{ position: 'absolute', left: 16, right: 16, bottom: 16, padding: 10, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.92)' }}>
+      <View pointerEvents="none" style={styles.emptyNotice}>
         <Typography variant="caption" color="text.secondary">마커를 누르면 장소 정보를 볼 수 있어요</Typography>
       </View>
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  map: { flex: 1 },
+  emptyNotice: { position: 'absolute', left: 16, right: 16, bottom: 16, padding: 10, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.92)' },
+})

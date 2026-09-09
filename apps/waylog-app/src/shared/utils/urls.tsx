@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Linking } from 'react-native'
+import { StyleSheet, Linking } from 'react-native'
 import { Text } from 'react-native'
 import { palette } from '../config/tokens'
 
@@ -24,7 +24,7 @@ export function renderTextWithLinks(text: string): ReactNode {
       result.push(
         <Text
           key={index}
-          style={{ color: palette.primary, textDecorationLine: 'underline' }}
+          style={styles.renderTextWithLinksText}
           onPress={() => void Linking.openURL(urls[index])}
         >
           {urls[index]}
@@ -36,3 +36,10 @@ export function renderTextWithLinks(text: string): ReactNode {
 }
 
 export { queryParams, withQueryParams } from '@waylog/utility'
+
+const styles = StyleSheet.create({
+  renderTextWithLinksText: {
+    color: palette.primary,
+    textDecorationLine: 'underline',
+  },
+})

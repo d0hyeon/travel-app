@@ -2,7 +2,7 @@ import type { PlaceCategoryType } from '@waylog/domains/modules/place'
 import type { Location } from '@waylog/domains/modules/location'
 import { useRouter } from 'expo-router'
 import { Suspense } from 'react'
-import { ScrollView } from 'react-native'
+import { StyleSheet, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { ErrorBoundary } from '@waylog/react'
 import { palette } from '../../shared/config/tokens'
@@ -28,7 +28,7 @@ export function ExplorerCatalogScreen({ bottomContentInset = 0 }: Props) {
   const { isScrollDown, onScroll } = useScrollStatus()
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: palette.background }}>
+    <SafeAreaView style={styles.screen}>
       <ExplorerScreenHeader
         title="탐색"
         isScrollDown={isScrollDown}
@@ -42,7 +42,7 @@ export function ExplorerCatalogScreen({ bottomContentInset = 0 }: Props) {
           <ExplorerCatalogMap location={location} category={category} />
         </Suspense>
       ) : (
-        <ScrollView style={{ flex: 1 }} onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={{ paddingTop: 16, gap: 24, paddingBottom: bottomContentInset + 24 }}>
+        <ScrollView style={styles.scroll} onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={[styles.content, { paddingBottom: bottomContentInset + 24 }]}>
           <ErrorBoundary
             fallback={() => null}
             onError={(error) => {
@@ -72,3 +72,9 @@ function ExplorerCatalogMap({ location, category }: { location?: Location; categ
   const attentionPlaces = useAttentionPlaces({ location, category })
   return <ExplorerMap places={attentionPlaces} location={location} />
 }
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: palette.background },
+  scroll: { flex: 1 },
+  content: { paddingTop: 16, gap: 24 },
+})

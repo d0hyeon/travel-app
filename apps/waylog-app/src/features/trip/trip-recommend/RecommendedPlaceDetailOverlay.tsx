@@ -1,7 +1,7 @@
 import { useAddTripPlace } from '@waylog/domains/modules/trip'
 import type { RecommendedPlace } from '@waylog/domains/modules/trip-recommend'
 import { Suspense, useCallback } from 'react'
-import { ActivityIndicator } from 'react-native'
+import { StyleSheet, ActivityIndicator } from 'react-native'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { Button, Stack, Typography } from '~/shared/components/design-system'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
@@ -42,7 +42,7 @@ function RecommendedPlaceDetailSheet({ place, tripId, isOpen, onClose }: Props) 
       <BottomSheet.Header>
         <Typography variant="h6">{place.name}</Typography>
       </BottomSheet.Header>
-      <BottomSheet.Body style={{ paddingHorizontal: 16 }}>
+      <BottomSheet.Body style={styles.recommendedPlaceDetailSheetBody}>
         <Suspense fallback={<ActivityIndicator />}>
           <PlaceDetailBody placeId={place.id} />
         </Suspense>
@@ -66,3 +66,7 @@ function RecommendedPlaceDetailSheet({ place, tripId, isOpen, onClose }: Props) 
     </BottomSheet>
   )
 }
+
+const styles = StyleSheet.create({
+  recommendedPlaceDetailSheetBody: { paddingHorizontal: 16 },
+})

@@ -1,6 +1,6 @@
 import { PostVisibility, type PostVisibility as PostVisibilityValue } from '@waylog/domains/modules/post'
 import { useState } from 'react'
-import { Pressable, View } from 'react-native'
+import { StyleSheet, Pressable, View } from 'react-native'
 import { Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../../../shared/config/tokens'
 
@@ -20,7 +20,7 @@ export function PostVisibilityField({ defaultValue, onChange, hasTripContext }: 
   const [value, setValue] = useState(defaultValue)
 
   return (
-    <View style={{ borderWidth: 1, borderColor: palette.divider, borderRadius: radius.lg, overflow: 'hidden' }}>
+    <View style={styles.options}>
       {VISIBILITY_OPTIONS.map((option) => {
         const disabled = option.value === PostVisibility.MEMBERS && !hasTripContext
         const selected = option.value === value
@@ -32,15 +32,7 @@ export function PostVisibilityField({ defaultValue, onChange, hasTripContext }: 
               onChange(option.value)
               setValue(option.value)
             }}
-            style={{
-              minHeight: 56,
-              paddingHorizontal: 14,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              backgroundColor: selected ? palette.primaryContainer : palette.background,
-              opacity: disabled ? 0.4 : 1,
-            }}
+            style={[styles.option, { backgroundColor: selected ? palette.primaryContainer : palette.background, opacity: disabled ? 0.4 : 1 }]}
           >
             <Typography variant="body2">{option.label}</Typography>
             <Typography variant="caption" color="text.secondary">
@@ -52,3 +44,8 @@ export function PostVisibilityField({ defaultValue, onChange, hasTripContext }: 
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  options: { borderWidth: 1, borderColor: palette.divider, borderRadius: radius.lg, overflow: 'hidden' },
+  option: { minHeight: 56, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+})

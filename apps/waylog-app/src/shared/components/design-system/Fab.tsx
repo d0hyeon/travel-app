@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Pressable, type StyleProp, type ViewStyle } from 'react-native'
+import { StyleSheet, Pressable, type StyleProp, type ViewStyle } from 'react-native'
 import { palette } from '../../config/tokens'
 
 export interface FabProps {
@@ -17,19 +17,7 @@ export function Fab({ children, onPress, color = 'primary', size = 'medium', sty
     <Pressable
       onPress={onPress}
       style={[
-        {
-          width: box,
-          height: box,
-          borderRadius: box / 2,
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: color === 'primary' ? palette.primary : '#fff',
-          shadowColor: '#000',
-          shadowOpacity: 0.2,
-          shadowRadius: 6,
-          shadowOffset: { width: 0, height: 2 },
-          elevation: 4,
-        },
+        [styles.pressable, [styles.pressable2, { width: box, height: box, borderRadius: box / 2, backgroundColor: color === 'primary' ? palette.primary : '#fff' }]],
         style,
       ]}
     >
@@ -37,3 +25,18 @@ export function Fab({ children, onPress, color = 'primary', size = 'medium', sty
     </Pressable>
   )
 }
+
+const styles = StyleSheet.create({
+  pressable: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+
+  pressable2: {
+    shadowOffset: { width: 0, height: 2 },
+  },
+})

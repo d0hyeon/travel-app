@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { ActivityIndicator, Pressable, type StyleProp, type TextStyle, type ViewStyle } from 'react-native'
+import { StyleSheet, ActivityIndicator, Pressable, type StyleProp, type TextStyle, type ViewStyle } from 'react-native'
 import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { palette, radius } from '../../config/tokens'
 import { Typography } from './Typography'
@@ -60,33 +60,18 @@ export function Button({
     <AnimatedPressable
       onPress={isInactive ? undefined : onPress}
       style={[
-        {
-          height: dims.height,
-          borderRadius: dims.borderRadius,
-          paddingHorizontal: dims.paddingHorizontal,
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 4,
-          backgroundColor: variant === 'contained' ? main : 'transparent',
-          borderWidth: variant === 'outlined' ? 1 : 0,
-          borderColor: main,
-          // 부모가 row 면 alignSelf 는 세로 정렬이라 너비가 늘지 않는다.
-          // 주축을 채우려면 flex 로 늘린다. 다만 stretch 를 함께 주면
-          // 교차축까지 늘어나 지정한 height 를 넘겨 버린다.
-          ...(fullWidth ? { flex: 1, alignSelf: 'center' } : { alignSelf: 'flex-start' }),
-        },
+        [styles.animatedPressable, { height: dims.height, borderRadius: dims.borderRadius, paddingHorizontal: dims.paddingHorizontal, backgroundColor: variant === 'contained' ? main : 'transparent', borderWidth: variant === 'outlined' ? 1 : 0, borderColor: main, ...(fullWidth ? { flex: 1, alignSelf: 'center' } : { alignSelf: 'flex-start' }) }],
         animatedContainerStyle,
         style,
       ]}
     >
       {startIcon}
-      <Animated.View style={[{ overflow: 'hidden', alignItems: 'center' }, animatedLoaderStyle]}>
+      <Animated.View style={[styles.view, animatedLoaderStyle]}>
         <ActivityIndicator size="small" color={textColor} />
       </Animated.View>
       <Typography
         style={[
-          { fontSize: dims.fontSize, fontWeight: '900', color: textColor },
+          [styles.typography, { fontSize: dims.fontSize, color: textColor }],
           textStyle,
         ]}
       >
@@ -97,3 +82,20 @@ export function Button({
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
+
+const styles = StyleSheet.create({
+  view: {
+    overflow: 'hidden',
+    alignItems: 'center',
+  },
+  typography: {
+    fontWeight: '900',
+  },
+
+  animatedPressable: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+  },
+})

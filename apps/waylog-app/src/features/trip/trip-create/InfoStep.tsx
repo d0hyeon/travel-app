@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import { useState, useTransition } from 'react'
 import { BottomArea } from '../../../shared/components/BottomArea'
 import { Box, Button, TextField, Typography } from '~/shared/components/design-system'
@@ -13,7 +14,7 @@ export function InfoStep({ destination, onNext }: Props) {
 
   return (
     <>
-      <Box style={{ paddingHorizontal: 24 }}>
+      <Box style={styles.fields}>
         <TextField
           label="여행 이름"
           placeholder={`${destination} 여행`}
@@ -22,7 +23,7 @@ export function InfoStep({ destination, onNext }: Props) {
           size="small"
           fullWidth
         />
-        <Typography variant="body2" color="text.secondary" style={{ marginTop: 24 }}>
+        <Typography variant="body2" color="text.secondary" style={styles.description}>
           멤버는 여행 생성 후 초대 링크로 추가할 수 있어요
         </Typography>
       </Box>
@@ -41,3 +42,8 @@ export function InfoStep({ destination, onNext }: Props) {
     </>
   )
 }
+
+const styles = StyleSheet.create({
+  fields: { paddingHorizontal: 24 },
+  description: { marginTop: 24 },
+})

@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import { useTripChecklist } from '@waylog/domains/modules/trip-checklist'
 import { useRef } from 'react'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
@@ -49,7 +50,7 @@ function TripChecklistFormSheet({ isOpen, onClose, tripId, onSubmit }: TripCheck
   return (
     <BottomSheet isOpen={isOpen} onDismiss={onClose} safeArea snapPoints={[0.75]} defaultSnapIndex={0}>
       <BottomSheet.Header>체크리스트</BottomSheet.Header>
-      <BottomSheet.Body style={{ paddingHorizontal: 16 }}>
+      <BottomSheet.Body style={styles.tripChecklistFormSheetBody}>
         <TripChecklistForm ref={formRef} tripId={tripId} onSubmit={onSubmit} />
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
@@ -63,3 +64,7 @@ function TripChecklistFormSheet({ isOpen, onClose, tripId, onSubmit }: TripCheck
     </BottomSheet>
   )
 }
+
+const styles = StyleSheet.create({
+  tripChecklistFormSheetBody: { paddingHorizontal: 16 },
+})

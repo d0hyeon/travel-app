@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Modal, ModalProps, Pressable } from 'react-native'
+import { StyleSheet, Modal, ModalProps, Pressable } from 'react-native'
 import { Box, Button, Stack, Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../config/tokens'
 
@@ -15,22 +15,11 @@ export function MapConfigDialog({ isOpen, title = '지도 설정', children, ...
     <Modal visible={isOpen} transparent animationType="fade" {...props}>
       <Pressable
         onPress={props.onDismiss}
-        style={{
-          flex: 1,
-          backgroundColor: 'rgba(0,0,0,0.4)',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: 24,
-        }}
+        style={styles.backdrop}
       >
-        <Pressable onPress={(event) => event.stopPropagation()} style={{ width: '100%' }}>
+        <Pressable onPress={(event) => event.stopPropagation()} style={styles.dialogTarget}>
           <Box
-            style={{
-              backgroundColor: palette.background,
-              borderRadius: radius.xxl,
-              padding: 20,
-              gap: 16,
-            }}
+            style={styles.dialog}
           >
             <Typography variant="h6">{title}</Typography>
 
@@ -57,7 +46,7 @@ interface RowProps {
 MapConfigDialog.Row = function Row({ label, description, children }: RowProps) {
   return (
     <Stack direction="row" alignItems="center" justifyContent="space-between">
-      <Box style={{ flex: 1 }}>
+      <Box style={styles.optionContent}>
         <Typography variant="body2">{label}</Typography>
         {description != null && (
           <Typography variant="caption" color="text.secondary">
@@ -80,3 +69,25 @@ MapConfigDialog.Section = function Section({ label, children }: { label: string;
     </Stack>
   )
 }
+
+const styles = StyleSheet.create({
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  dialogTarget: {
+    width: '100%',
+  },
+  dialog: {
+    backgroundColor: palette.background,
+    borderRadius: radius.xxl,
+    padding: 20,
+    gap: 16,
+  },
+  optionContent: {
+    flex: 1,
+  },
+})

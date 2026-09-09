@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { useAuth, signOut } from '@waylog/domains/clients'
 import { useEffect, useRef, useState } from 'react'
-import { Pressable, ScrollView, View } from 'react-native'
+import { StyleSheet, Pressable, ScrollView, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useQueryParamState } from '../../shared/hooks/useQueryParamState'
 import { Tabs, Tab } from '~/shared/components/design-system'
@@ -53,25 +53,25 @@ export function UserProfileScreen({ userId }: { userId: string }) {
 
   return (
     <SafeAreaView
-      style={{ flex: 1, backgroundColor: palette.background }}
+      style={styles.screen}
       onLayout={(event) => setViewportHeight(event.nativeEvent.layout.height)}
     >
       <ScrollView
         ref={profileScrollRef}
-        style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: 24 }}
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
         scrollEnabled={!isMapInteracting}
         // 웹의 position: sticky 와 같다. 탭바가 위에 붙어 남는다.
         stickyHeaderIndices={[TAB_BAR_CHILD_INDEX]}
       >
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <View style={styles.header}>
           <ProfileHeader userId={userId} />
-          {auth.id === userId && <Pressable disabled={isSigningOut} onPress={handleSignOut} style={{ padding: 16 }}><MaterialIcons name="logout" size={22} color="#d32f2f" /></Pressable>}
+          {auth.id === userId && <Pressable disabled={isSigningOut} onPress={handleSignOut} style={styles.signOutButton}><MaterialIcons name="logout" size={22} color="#d32f2f" /></Pressable>}
         </View>
         <ProfileStatStrip userId={userId} />
         <View
-          style={{ backgroundColor: palette.background }}
+          style={styles.tabs}
           onLayout={(event) => {
             const offset = event?.nativeEvent?.layout?.y
             if (typeof offset !== 'number') return
@@ -99,3 +99,12 @@ const TAB_BAR_CHILD_INDEX = 2
 function parseProfileTab(value: string): ProfileTab {
   return value === 'records' ? 'records' : 'feed'
 }
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: palette.background },
+  scroll: { flex: 1 },
+  content: { paddingBottom: 24 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  signOutButton: { padding: 16 },
+  tabs: { backgroundColor: palette.background },
+})

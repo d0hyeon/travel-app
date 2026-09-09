@@ -5,7 +5,7 @@ import { PlaceCategoryColorCode } from '@waylog/domains/modules/place'
 import { useTripMembers } from '@waylog/domains/modules/trip-member'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useMemo, useRef, useState } from 'react'
-import { Pressable, type LayoutChangeEvent, type NativeSyntheticEvent, type NativeScrollEvent } from 'react-native'
+import { Pressable, StyleSheet, type LayoutChangeEvent, type NativeSyntheticEvent, type NativeScrollEvent } from 'react-native'
 import { Box, IconButton, Stack, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../shared/config/tokens'
 import { Map, type MapRef } from '../../../shared/components/Map'
@@ -101,9 +101,9 @@ export function RouteExpenseView({ tripId }: Props) {
   }
 
   return (
-    <Stack style={{ flex: 1 }} gap={4}>
-      <Box style={{ height: 360 }}>
-        <Map ref={mapRef} style={{ height: 360 }} defaultCenter={{ lat: trip.lat, lng: trip.lng }} autoFocus="path">
+    <Stack style={styles.container} gap={4}>
+      <Box style={styles.mapBox}>
+        <Map ref={mapRef} style={styles.mapBox} defaultCenter={{ lat: trip.lat, lng: trip.lng }} autoFocus="path">
           {[
             // AIRMap 은 지도용이 아닌 자식을 만나면 내부 배열이 깨진다.
             // 경로와 마커를 하나의 평탄한 배열로 넘긴다.
@@ -144,7 +144,7 @@ export function RouteExpenseView({ tripId }: Props) {
       <BottomSheet.ScrollView
         onScroll={syncActiveDay}
         scrollEventThrottle={16}
-        contentContainerStyle={{ paddingHorizontal: 16, gap: 16 }}
+        contentContainerStyle={styles.scrollContent}
       >
         {tripDates.map((date, dayIndex) => {
           const dayPlaces = placesByDay[dayIndex] ?? []
@@ -155,10 +155,10 @@ export function RouteExpenseView({ tripId }: Props) {
               key={date}
               gap={1}
               onLayout={captureDayOffset(dayIndex)}
-              style={{ opacity: activeDayIndex === dayIndex ? 1 : 0.5 }}
+              style={activeDayIndex === dayIndex ? styles.dayFocused : styles.dayUnfocused}
             >
               <Stack direction="row" justifyContent="space-between" alignItems="center">
-                <Typography variant="subtitle2" color="primary" style={{ fontWeight: '800' }}>
+                <Typography variant="subtitle2" color="primary" style={styles.dayTitle}>
                   {dayIndex + 1}일차 · {formatShortDate(date)}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
@@ -181,56 +181,41 @@ export function RouteExpenseView({ tripId }: Props) {
                         key={`${place.routeId}:${place.id}`}
                         onPress={() => mapRef.current?.panTo(place.lat, place.lng)}
                       >
-                        <Box style={{ borderWidth: 1, borderColor: '#dddddd', borderRadius: 16, padding: 16 }}>
+                        <Box style={styles.placeCard}>
                           <Stack direction="row" alignItems="center" gap={1}>
                             <Box
-                              style={{
-                                width: 24,
-                                height: 24,
-                                borderRadius: 12,
-                                backgroundColor: getRouteColor(dayIndex),
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                              }}
+                              style={[styles.orderBadge, { backgroundColor: getRouteColor(dayIndex) }]}
                             >
-                              <Typography style={{ color: '#fff', fontWeight: '800' }}>
+                              <Typography style={styles.orderLabel}>
                                 {place.orderInRoute + 1}
                               </Typography>
                             </Box>
-                            <Typography style={{ flex: 1, fontWeight: '700' }}>{place.name}</Typography>
+                            <Typography style={styles.placeName}>{place.name}</Typography>
                             <Typography color="primary">{amount > 0 ? formatCurrency(amount) : '-'}</Typography>
                             <IconButton size="small" onPress={() => addExpense(place)}>
                               <MaterialIcons name="playlist-add" size={22} color={palette.primary} />
                             </IconButton>
                           </Stack>
                           {placeExpenses.length > 0 && (
-                            <Stack gap={0.5} style={{ marginLeft: 24, marginRight: 12, paddingTop: 12 }}>
+                            <Stack gap={0.5} style={styles.expenseList}>
                               {placeExpenses.map((expense) => (
                                 <Pressable key={expense.id} onPress={() => editExpense(place, expense.id)}>
                                   <Stack
                                     direction="row"
                                     alignItems="center"
                                     gap={1}
-                                    style={{
-                                      minHeight: 48,
-                                      backgroundColor: '#f5f5f5',
-                                      borderWidth: 1,
-                                      borderColor: '#e0e0e0',
-                                      borderRadius: 24,
-                                      paddingHorizontal: 12,
-                                      paddingVertical: 6,
-                                    }}
+                                    style={styles.expenseRow}
                                   >
-                                    <Typography variant="body2" style={{ flex: 1 }}>
+                                    <Typography variant="body2" style={styles.expenseDescription}>
                                       {expense.description}
                                     </Typography>
-                                    <Typography variant="caption" color="text.secondary" style={{ flexShrink: 0 }}>
+                                    <Typography variant="caption" color="text.secondary" style={styles.expenseAmount}>
                                       {expense.payments
                                         .map((payment) => members.find((member) => member.id === payment.memberId)?.name)
                                         .filter(Boolean)
                                         .join(' ')}
                                     </Typography>
-                                    <Typography variant="body2" style={{ flexShrink: 0 }}>
+                                    <Typography variant="body2" style={styles.expenseAmount}>
                                       +{formatByCurrencyCode(expense.totalAmount, expense.currency)}
                                     </Typography>
                                   </Stack>
@@ -251,3 +236,20 @@ export function RouteExpenseView({ tripId }: Props) {
     </Stack>
   )
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  mapBox: { height: 360 },
+  scrollContent: { paddingHorizontal: 16, gap: 16 },
+  dayFocused: { opacity: 1 },
+  dayUnfocused: { opacity: 0.5 },
+  dayTitle: { fontWeight: '800' },
+  placeCard: { borderWidth: 1, borderColor: '#dddddd', borderRadius: 16, padding: 16 },
+  orderBadge: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  orderLabel: { color: '#fff', fontWeight: '800' },
+  placeName: { flex: 1, fontWeight: '700' },
+  expenseList: { marginLeft: 24, marginRight: 12, paddingTop: 12 },
+  expenseRow: { minHeight: 48, backgroundColor: '#f5f5f5', borderWidth: 1, borderColor: '#e0e0e0', borderRadius: 24, paddingHorizontal: 12, paddingVertical: 6 },
+  expenseDescription: { flex: 1 },
+  expenseAmount: { flexShrink: 0 },
+})

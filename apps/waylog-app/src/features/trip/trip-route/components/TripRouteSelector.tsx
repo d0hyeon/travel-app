@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons';
 import { Chip, IconButton, Stack, type StackProps } from "~/shared/components/design-system";
 import { useConfirmDialog } from "../../../../shared/components/confirm-dialog/useConfirmDialog";
@@ -30,7 +31,7 @@ function RouteChip({
   const confirm = useConfirmDialog()
 
   return (
-    <Stack direction="row" gap={1} alignItems="center" style={{ marginBottom: 16, flexWrap: 'wrap' }} {...props}>
+    <Stack direction="row" gap={1} alignItems="center" style={styles.routeChips} {...props}>
       {routes.map((route, index) => (
         <Chip
           key={route.id}
@@ -58,3 +59,6 @@ function RouteChip({
     </Stack>
   )
 }
+const styles = StyleSheet.create({
+  routeChips: { marginBottom: 16, flexWrap: 'wrap' },
+})

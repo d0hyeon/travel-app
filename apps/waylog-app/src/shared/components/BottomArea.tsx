@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Stack, type StackProps } from '~/shared/components/design-system'
 import { palette, zLayer } from '../config/tokens'
@@ -18,21 +19,21 @@ export function BottomArea({
       direction="row"
       gap={1}
       style={[
-        {
-          padding: 8,
-          // 웹은 fixed 로 띄울 때만 safe-area 를 더한다.
-          // 흐름에 놓인 static 은 부모가 이미 안전영역을 피해 있어 더하면 과하다.
-          paddingBottom: position === 'static' ? (bottom ?? 8) : (bottom ?? 8) + insets.bottom,
-          width: '100%',
-          backgroundColor: palette.background,
-          zIndex: zLayer.bottomArea,
-          ...(position === 'fixed'
+        [styles.stack, { paddingBottom: position === 'static' ? (bottom ?? 8) : (bottom ?? 8) + insets.bottom, ...(position === 'fixed'
             ? ({ position: 'absolute', bottom: 0, left: 0, right: 0 } as const)
-            : {}),
-        },
+            : {}) }],
         style,
       ]}
       {...props}
     />
   )
 }
+
+const styles = StyleSheet.create({
+  stack: {
+    padding: 8,
+    width: '100%',
+    backgroundColor: palette.background,
+    zIndex: zLayer.bottomArea,
+  },
+})

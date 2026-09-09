@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Suspense } from 'react'
-import { ScrollView } from 'react-native'
+import { StyleSheet, ScrollView } from 'react-native'
 import { Box, Fab, Stack, Typography } from '~/shared/components/design-system'
 import { palette } from '../../shared/config/tokens'
 import { PostCard } from './PostCard'
@@ -12,11 +12,11 @@ export function FeedScreen() {
   const router = useRouter()
 
   return (
-    <Box style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
+    <Box style={styles.screen}>
       <Suspense fallback={null}>
         <Contents />
       </Suspense>
-      <Fab size="large" onPress={() => router.push('/post/new')} style={{ position: 'absolute', right: 20, bottom: 20 }}><MaterialIcons name="add" size={30} color="#fff" /></Fab>
+      <Fab size="large" onPress={() => router.push('/post/new')} style={styles.createButton}><MaterialIcons name="add" size={30} color="#fff" /></Fab>
     </Box>
   )
 }
@@ -32,21 +32,31 @@ function Contents() {
 
   return (
     <ScrollView
-      contentContainerStyle={{ paddingTop: insets.top, paddingHorizontal: 16, paddingBottom: insets.bottom + 96 }}
+      contentContainerStyle={[styles.content, { paddingTop: insets.top, paddingBottom: insets.bottom + 96 }]}
       showsVerticalScrollIndicator={false}
     >
-      <Typography style={{ color: palette.text, fontSize: 20, fontWeight: '900', paddingVertical: 18 }}>
+      <Typography style={styles.title}>
         피드
       </Typography>
       {posts.length === 0 ? (
-        <Box style={{ alignItems: 'center', paddingVertical: 80 }}>
-          <Typography style={{ color: palette.textSecondary, fontSize: 14 }}>아직 포스트가 없어요</Typography>
+        <Box style={styles.emptyState}>
+          <Typography style={styles.emptyMessage}>아직 포스트가 없어요</Typography>
         </Box>
       ) : (
-        <Stack style={{ gap: 16 }}>
+        <Stack style={styles.posts}>
           {posts.map((post) => <PostCard key={post.id} post={post} onPress={() => openPost(post.id)} />)}
         </Stack>
       )}
     </ScrollView>
   )
 }
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: '#F5F6F8' },
+  createButton: { position: 'absolute', right: 20, bottom: 20 },
+  content: { paddingHorizontal: 16 },
+  title: { color: palette.text, fontSize: 20, fontWeight: '900', paddingVertical: 18 },
+  emptyState: { alignItems: 'center', paddingVertical: 80 },
+  emptyMessage: { color: palette.textSecondary, fontSize: 14 },
+  posts: { gap: 16 },
+})

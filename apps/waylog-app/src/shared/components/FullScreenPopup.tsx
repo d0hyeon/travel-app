@@ -47,11 +47,7 @@ export function FullScreenPopup({ isOpen, onClose, children }: FullScreenPopupPr
     <Animated.View
       style={[
         StyleSheet.absoluteFill,
-        {
-          backgroundColor: palette.background,
-          paddingTop: insets.top,
-          flexDirection: 'column',
-        },
+        [styles.view, { paddingTop: insets.top }],
         animatedStyle,
       ]}
     >
@@ -59,3 +55,10 @@ export function FullScreenPopup({ isOpen, onClose, children }: FullScreenPopupPr
     </Animated.View>
   )
 }
+
+const styles = StyleSheet.create({
+  view: {
+    backgroundColor: palette.background,
+    flexDirection: 'column',
+  },
+})

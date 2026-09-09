@@ -1,6 +1,6 @@
 import { eachDayOfInterval, getHours, isToday as getIsToday } from 'date-fns'
 import { useMemo, useRef, useState } from 'react'
-import { useWindowDimensions } from 'react-native'
+import { StyleSheet, useWindowDimensions } from 'react-native'
 import type Animated from 'react-native-reanimated'
 import { useCurrentTime } from '@waylog/react'
 import type { Coordinate } from '@waylog/utility'
@@ -88,12 +88,12 @@ function Resolved({ tripId, initialDate }: Pick<Props, 'tripId' | 'initialDate'>
   return (
     <>
       {/* 탭이 헤더 폭을 온전히 쓰도록 좌우 패딩을 없앤다. */}
-      <BottomSheet.Header style={{ paddingHorizontal: 0 }}>
+      <BottomSheet.Header style={styles.header}>
         <Tabs
           value={activePage.date}
           onChange={(_, date) => scrollToPage(toPageIndex(tripDates, date, 'am'))}
           scrollable
-          style={{ width: '100%' }}
+          style={styles.tabs}
         >
           {tripDates.map((date) => (
             <Tab key={date} value={date} label={formatShortDate(date)} />
@@ -101,8 +101,8 @@ function Resolved({ tripId, initialDate }: Pick<Props, 'tripId' | 'initialDate'>
         </Tabs>
       </BottomSheet.Header>
 
-      <BottomSheet.Body style={{ paddingHorizontal: 0 }}>
-        <Stack gap={1} style={{ flex: 1, minHeight: 0 }}>
+      <BottomSheet.Body style={styles.header}>
+        <Stack gap={1} style={styles.content}>
           <ToggleButtonGroup
             value={activePage.dayPart}
             exclusive
@@ -110,7 +110,7 @@ function Resolved({ tripId, initialDate }: Pick<Props, 'tripId' | 'initialDate'>
             onChange={(_, dayPart) =>
               dayPart && scrollToPage(toPageIndex(tripDates, activePage.date, dayPart as DayPart))
             }
-            style={{ alignSelf: 'flex-end', marginTop: 12, marginRight: 12 }}
+            style={styles.viewToggle}
           >
             {DAY_PARTS.map(({ dayPart, label }) => (
               <ToggleButton key={dayPart} value={dayPart}>
@@ -136,7 +136,7 @@ function Resolved({ tripId, initialDate }: Pick<Props, 'tripId' | 'initialDate'>
               <Stack
                 key={`${page.date}:${page.dayPart}`}
                 gap={1}
-                style={{ width, paddingHorizontal: 12 }}
+                style={[styles.forecastPages, { width }]}
               >
                 {/* 화면에서 먼 페이지는 그리지 않는다. 그 날짜 예보도 요청되지 않는다. */}
                 {isPageWithinRenderWindow(index, activeIndex) && (
@@ -187,7 +187,7 @@ function ForecastPageContent({
         variant="caption"
         color="text.secondary"
         textAlign="right"
-        style={{ paddingVertical: 4, paddingHorizontal: 16, marginTop: 8 }}
+        style={styles.forecastTitle}
       >
         출처 : {weatherForecast.provider}
       </Typography>
@@ -197,10 +197,20 @@ function ForecastPageContent({
 
 function ForecastUnavailable() {
   return (
-    <Stack alignItems="center" style={{ paddingVertical: 48 }}>
+    <Stack alignItems="center" style={styles.unavailableState}>
       <Typography variant="body2" color="text.secondary">
         이 날짜는 예보를 제공하지 않아요
       </Typography>
     </Stack>
   )
 }
+
+const styles = StyleSheet.create({
+  header: { paddingHorizontal: 0 },
+  tabs: { width: '100%' },
+  content: { flex: 1, minHeight: 0 },
+  viewToggle: { alignSelf: 'flex-end', marginTop: 12, marginRight: 12 },
+  forecastPages: { paddingHorizontal: 12 },
+  forecastTitle: { paddingVertical: 4, paddingHorizontal: 16, marginTop: 8 },
+  unavailableState: { paddingVertical: 48 },
+})

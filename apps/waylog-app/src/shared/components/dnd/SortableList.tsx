@@ -9,7 +9,7 @@ import {
   type ReactNode,
   type Ref,
 } from 'react'
-import { Pressable, type FlatList } from 'react-native'
+import { StyleSheet, Pressable, type FlatList } from 'react-native'
 import { Gesture } from 'react-native-gesture-handler'
 import { runOnJS } from 'react-native-reanimated'
 import ReorderableList, {
@@ -110,8 +110,8 @@ export function SortableList<T extends { id: string }>({
       ref={listRef}
       data={items}
       keyExtractor={(item) => item.id}
-      style={{ flex: 1 }}
-      contentContainerStyle={{ paddingBottom: 40, paddingHorizontal }}
+      style={styles.list}
+      contentContainerStyle={[styles.listContent, { paddingHorizontal }]}
       ListHeaderComponent={header == null ? undefined : () => <>{header}</>}
       shouldUpdateActiveItem
       panGesture={dragPanGesture}
@@ -141,12 +141,7 @@ function Row({ disabled, active, children }: { disabled?: boolean; active?: bool
   return (
     <DragContext.Provider value={disabled === true ? null : startDrag}>
       <Box
-        style={{
-          borderLeftWidth: isActive ? 2 : 0,
-          borderRightWidth: isActive ? 2 : 0,
-          paddingHorizontal: isActive ? 2 : 0,
-          borderColor: palette.primary,
-        }}
+        style={[styles.row, { borderLeftWidth: isActive ? 2 : 0, borderRightWidth: isActive ? 2 : 0, paddingHorizontal: isActive ? 2 : 0 }]}
       >
         {children}
       </Box>
@@ -171,7 +166,7 @@ export const SortableItem = {
 function Handle({ children, style, id: _id }: Omit<BoxProps, 'id'> & { id: string | number }) {
   const drag = useContext(DragContext)
 
-  if (drag == null) return <Box style={[{ alignItems: 'center' }, style]}>{children}</Box>
+  if (drag == null) return <Box style={[styles.idleHandle, style]}>{children}</Box>
 
   return (
     <Pressable
@@ -180,15 +175,37 @@ function Handle({ children, style, id: _id }: Omit<BoxProps, 'id'> & { id: strin
       hitSlop={8}
       // 행 높이를 세로로 가득 채우고, 본문과의 간격까지 눌리는 영역으로 흡수한다.
       // 아이콘 크기는 그대로 두고 여백만 먹는다.
-      style={{
-        alignSelf: 'stretch',
-        marginRight: -HANDLE_CONTENT_GAP,
-        paddingRight: HANDLE_CONTENT_GAP,
-      }}
+      style={styles.dragHandle}
     >
-      <Box style={[{ flex: 1, justifyContent: 'center', alignItems: 'center' }, style]}>
+      <Box style={[styles.handleContent, style]}>
         {children}
       </Box>
     </Pressable>
   )
 }
+
+const styles = StyleSheet.create({
+  list: {
+    flex: 1,
+  },
+  row: {
+    borderColor: palette.primary,
+  },
+  idleHandle: {
+    alignItems: 'center',
+  },
+  dragHandle: {
+    alignSelf: 'stretch',
+    marginRight: -HANDLE_CONTENT_GAP,
+    paddingRight: HANDLE_CONTENT_GAP,
+  },
+  handleContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  listContent: {
+    paddingBottom: 40,
+  },
+})

@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons';
 import { Box } from '~/shared/components/design-system';
 import type { ReactNode } from 'react';
@@ -22,12 +23,12 @@ export function TripRoutePlaceListItem({ title, data: place, children, ...listIt
       {title ?? <ListItem.Title>{place.name}</ListItem.Title>}
       <Box>
         {!!place.address && (
-          <ListItem.Text variant="body2" color="text.secondary" style={{ fontSize: 12 }}>
+          <ListItem.Text variant="body2" color="text.secondary" style={styles.tripRoutePlaceListItemText}>
             {place.address}
           </ListItem.Text>
         )}
         {!!place.memo && (
-          <ListItem.Text variant="body2" color="text.secondary" style={{ fontSize: 12 }}>
+          <ListItem.Text variant="body2" color="text.secondary" style={styles.tripRoutePlaceListItemText}>
             {place.memo}
           </ListItem.Text>
         )}
@@ -77,3 +78,7 @@ TripRoutePlaceListItem.Actions = function TripRoutePlaceListItemActions({ tripId
     />
   );
 };
+
+const styles = StyleSheet.create({
+  tripRoutePlaceListItemText: { fontSize: 12 },
+})

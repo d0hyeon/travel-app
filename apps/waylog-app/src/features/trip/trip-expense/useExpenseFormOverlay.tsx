@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import { useCallback, useRef, type ComponentProps, type ReactNode } from 'react'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { Button } from '~/shared/components/design-system'
@@ -77,7 +78,7 @@ function ExpenseFormSheet({ tripId, defaultValues, mode, renderActions, sheetPro
       <BottomSheet.Header>
         {mode === 'edit' ? '결제 금액 수정' : '결제 금액'}
       </BottomSheet.Header>
-      <BottomSheet.KeyboardAwareBody style={{ paddingHorizontal: 16 }}>
+      <BottomSheet.KeyboardAwareBody style={styles.expenseFormSheetKeyboardAwareBody}>
         <ExpenseForm ref={formRef} tripId={tripId} defaultValues={defaultValues} onSubmit={onSubmit} />
       </BottomSheet.KeyboardAwareBody>
       <BottomSheet.BottomActions>
@@ -110,3 +111,7 @@ export function ExpenseFormOverlayActions({ onCancel, onSubmit, secondary }: Act
     </>
   )
 }
+
+const styles = StyleSheet.create({
+  expenseFormSheetKeyboardAwareBody: { paddingHorizontal: 16 },
+})

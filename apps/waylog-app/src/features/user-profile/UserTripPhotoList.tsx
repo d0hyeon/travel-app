@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Image, Pressable, View, useWindowDimensions } from 'react-native'
+import { StyleSheet, Image, Pressable, View, useWindowDimensions } from 'react-native'
 import type { Photo } from '@waylog/domains/modules/photo'
 import { useTripPhotos } from '../trip/trip-photo/useTripPhotos'
 import { BottomSheet } from '../../shared/components/bottom-sheet/BottomSheet'
@@ -19,8 +19,8 @@ export function UserTripPhotoList({ tripId }: { tripId: string }) {
   if (photos.length === 0) return <Typography variant="caption" color="text.secondary">사진이 없어요</Typography>
 
   return (
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginTop: 8 }}>
-      {photos.map((photo, index) => <Pressable key={photo.id} onPress={() => overlay.open(({ isOpen, close }) => <PhotoPreviewSheet isOpen={isOpen} onClose={close} photos={photos} initialIndex={index} />)}><LoadableImage source={{ uri: photo.url }} style={{ width: cellSize, height: cellSize, borderRadius: 6 }} resizeMode="cover" /></Pressable>)}
+    <View style={styles.photoGrid}>
+      {photos.map((photo, index) => <Pressable key={photo.id} onPress={() => overlay.open(({ isOpen, close }) => <PhotoPreviewSheet isOpen={isOpen} onClose={close} photos={photos} initialIndex={index} />)}><LoadableImage source={{ uri: photo.url }} style={[styles.thumbnail, { width: cellSize, height: cellSize }]} resizeMode="cover" /></Pressable>)}
     </View>
   )
 }
@@ -37,21 +37,21 @@ function PhotoPreviewSheet({ isOpen, onClose, photos, initialIndex }: { isOpen: 
   const currentPhoto = photos[currentIndex]
 
   return (
-    <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.95]} defaultSnapIndex={0} safeArea style={{ backgroundColor: '#010101' }}>
-      <BottomSheet.Header alignItems="center" justifyContent="center" style={{ backgroundColor: '#010101' }}>
+    <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.95]} defaultSnapIndex={0} safeArea style={styles.viewer}>
+      <BottomSheet.Header alignItems="center" justifyContent="center" style={styles.viewer}>
         {currentPhoto?.isPublic === true && (
-          <PhotoVisibilityBadge style={{ position: 'absolute', left: 16 }} />
+          <PhotoVisibilityBadge style={styles.visibilityBadge} />
         )}
-        <Typography variant="body2" style={{ color: '#fff', fontWeight: '800' }}>{currentIndex + 1} / {photos.length}</Typography>
+        <Typography variant="body2" style={styles.photoCounter}>{currentIndex + 1} / {photos.length}</Typography>
       </BottomSheet.Header>
       <BottomSheet.Body
-        style={{ backgroundColor: '#010101' }}
+        style={styles.viewer}
         onLayout={(event) => {
           const height = Math.round(event.nativeEvent.layout.height)
           if (height > 0) setImagePagerHeight(height)
         }}
       >
-        <BottomSheet.GestureArea style={{ height: '100%' }}>
+        <BottomSheet.GestureArea style={styles.gestureArea}>
           <ScrollView
             horizontal
             pagingEnabled
@@ -61,11 +61,11 @@ function PhotoPreviewSheet({ isOpen, onClose, photos, initialIndex }: { isOpen: 
             showsHorizontalScrollIndicator={false}
             contentOffset={{ x: initialIndex * width, y: 0 }}
             onMomentumScrollEnd={(event) => setCurrentIndex(Math.round(event.nativeEvent.contentOffset.x / width))}
-            style={{ height: imagePagerHeight, flex: 0 }}
+            style={[styles.pager, { height: imagePagerHeight }]}
             contentContainerStyle={{ height: imagePagerHeight }}
           >
             {photos.map((photo) => (
-              <View key={photo.id} style={{ width, height: imagePagerHeight, alignItems: 'center', justifyContent: 'center' }}>
+              <View key={photo.id} style={[styles.photoPage, { width, height: imagePagerHeight }]}>
                 <ZoomArea width={width} height={imagePagerHeight} onZoomStart={() => setIsZooming(true)} onZoomEnd={() => setIsZooming(false)}>
                   <Image source={{ uri: photo.url }} resizeMode="contain" style={{ width, height: imagePagerHeight }} />
                 </ZoomArea>
@@ -74,9 +74,20 @@ function PhotoPreviewSheet({ isOpen, onClose, photos, initialIndex }: { isOpen: 
           </ScrollView>
         </BottomSheet.GestureArea>
       </BottomSheet.Body>
-      <BottomSheet.BottomActions style={{ backgroundColor: '#010101' }}>
+      <BottomSheet.BottomActions style={styles.viewer}>
         <Button size="large" variant="contained" fullWidth onPress={onClose}>닫기</Button>
       </BottomSheet.BottomActions>
     </BottomSheet>
   )
 }
+
+const styles = StyleSheet.create({
+  photoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginTop: 8 },
+  thumbnail: { borderRadius: 6 },
+  viewer: { backgroundColor: '#010101' },
+  visibilityBadge: { position: 'absolute', left: 16 },
+  photoCounter: { color: '#fff', fontWeight: '800' },
+  gestureArea: { height: '100%' },
+  pager: { flex: 0 },
+  photoPage: { alignItems: 'center', justifyContent: 'center' },
+})

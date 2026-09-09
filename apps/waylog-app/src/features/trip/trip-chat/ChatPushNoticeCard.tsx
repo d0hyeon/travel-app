@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import { useLoading } from '@waylog/react'
 import { useState } from 'react'
 import { useNativePushSubscription } from '../../auth/useNativePushSubscription'
@@ -31,7 +32,7 @@ export function ChatPushNoticeCard(props: Props) {
           <Button
             variant="contained"
             disabled={isLoading}
-            style={{ borderRadius: 20 }}
+            style={styles.chatPushNoticeCardButton}
             onPress={() => {
               startTransition(async () => {
                 if (!push.hasPermission) {
@@ -54,3 +55,7 @@ export function ChatPushNoticeCard(props: Props) {
     </SlideReveal>
   )
 }
+
+const styles = StyleSheet.create({
+  chatPushNoticeCardButton: { borderRadius: 20 },
+})

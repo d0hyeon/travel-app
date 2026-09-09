@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { useCommunityRoutes, type CommunityTrip } from '@waylog/domains/modules/community-route'
 import { Suspense } from 'react'
-import { Pressable, ScrollView } from 'react-native'
+import { StyleSheet, Pressable, ScrollView } from 'react-native'
 import { Box, Skeleton, Stack, Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../../shared/config/tokens'
 import { useCommunityRouteDetailOverlay } from './CommunityRouteDetailOverlay'
@@ -60,21 +60,14 @@ function CommunityTripCard({ trip, onPress }: { trip: CommunityTrip; onPress: ()
   return (
     <Pressable onPress={onPress}>
       <Box
-        style={{
-          width: 140,
-          borderRadius: radius.md,
-          borderWidth: 1,
-          borderColor: palette.divider,
-          backgroundColor: palette.background,
-          overflow: 'hidden',
-        }}
+        style={[styles.card, { borderRadius: radius.md }]}
       >
         <CommunityRouteThumbnail
           previewRoutes={trip.previewRoutes}
           width={140}
           height={80}
         />
-        <Stack style={{ padding: 8 }}>
+        <Stack style={styles.details}>
           <Stack direction="row" alignItems="center" gap={0.5}>
             <MaterialIcons name="people" size={11} color={palette.textSecondary} />
             <Typography variant="caption" color="text.secondary">
@@ -99,3 +92,8 @@ function CommunityRoutesSkeleton() {
     </Stack>
   )
 }
+
+const styles = StyleSheet.create({
+  card: { width: 140, borderWidth: 1, borderColor: palette.divider, backgroundColor: palette.background, overflow: 'hidden' },
+  details: { padding: 8 },
+})

@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from 'react'
 import { palette } from '../../../shared/config/tokens'
-import { View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 
 /**
  * 웹 explorer-view/FilterNavigation의 네이티브 대응 컴포넌트.
@@ -13,16 +13,14 @@ export function FilterNavigation({ children }: PropsWithChildren) {
   return (
     <View
       style={[
-        {
-          zIndex: 10,
-          paddingHorizontal: 16,
-          backgroundColor: palette.background,
-          borderBottomWidth: 1,
-          borderBottomColor: palette.divider,
-        },
+        styles.navigation,
       ]}
     >
       {children}
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  navigation: { zIndex: 10, paddingHorizontal: 16, backgroundColor: palette.background, borderBottomWidth: 1, borderBottomColor: palette.divider },
+})

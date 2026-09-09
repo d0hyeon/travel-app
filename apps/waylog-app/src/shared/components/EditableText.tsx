@@ -1,7 +1,7 @@
 import { useAsyncEffect } from '@waylog/react'
 import { ComponentProps, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { ControllerFieldState, ControllerRenderProps } from 'react-hook-form'
-import { Pressable, Text, useWindowDimensions, View, type TextInputProps } from 'react-native'
+import { StyleSheet, Pressable, Text, useWindowDimensions, View, type TextInputProps } from 'react-native'
 import { TextInput } from 'react-native-gesture-handler'
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { useKeyboardMetrics } from '../hooks/env/useKeyboardMetrics'
@@ -87,7 +87,7 @@ export function EditableText<Value extends string | number>({
   if (!isEditing) {
     return (
       <Pressable accessibilityRole="button" onPress={actions.edit}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+        <View style={styles.displayRow}>
           <Typography numberOfLines={1} {...typographyProps}>
             {format(value)}
           </Typography>
@@ -161,23 +161,12 @@ function Field(props: ComponentProps<typeof TextOverlayField>) {
 
       <View
         pointerEvents="box-none"
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          top: 0,
-          height: keyboardPosition?.screenY,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
+        style={[styles.overlay, { height: keyboardPosition?.screenY }]}
       >
         <TextOverlayField
           {...props}
           isOpen
-          style={{
-            minHeight: 14,
-            maxWidth: (screenWidth - 24 * 2) / OVERLAY_SCALE
-          }}
+          style={[styles.input, { maxWidth: (screenWidth - 24 * 2) / OVERLAY_SCALE }]}
           slotProps={{
             body: {
               as: Animated.View,
@@ -193,3 +182,21 @@ function Field(props: ComponentProps<typeof TextOverlayField>) {
     </>
   );
 }
+const styles = StyleSheet.create({
+  displayRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  overlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  input: {
+    minHeight: 14,
+  },
+})

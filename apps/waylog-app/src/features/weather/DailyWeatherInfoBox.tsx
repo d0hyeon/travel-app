@@ -4,7 +4,7 @@ import { Suspense } from 'react'
 import { Box, Skeleton, Stack, Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../shared/config/tokens'
 import { WeatherIcon } from './WeatherIcon'
-import type { StyleProp, ViewStyle } from 'react-native'
+import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native'
 
 interface Props extends UseDailyWeatherForecastParams {
   dayPart?: DayPart
@@ -33,11 +33,11 @@ function Resolved({ coordinate, date, dayPart, style }: Props) {
     <Box style={style}>
       <Stack alignItems="center" gap={1} style={BOX_STYLE}>
         <Stack direction="row" gap={0.5}>
-          <Typography variant="body2" style={{ color: palette.primary }}>
+          <Typography variant="body2" style={styles.lowTemperature}>
             {forecast.minimumTemperature}도
           </Typography>
           <Typography variant="body2">/</Typography>
-          <Typography variant="body2" style={{ color: '#d32f2f' }}>
+          <Typography variant="body2" style={styles.highTemperature}>
             {forecast.maximumTemperature}도
           </Typography>
         </Stack>
@@ -68,3 +68,8 @@ const BOX_STYLE = {
   borderWidth: 1,
   borderColor: palette.divider,
 } as const
+
+const styles = StyleSheet.create({
+  lowTemperature: { color: palette.primary },
+  highTemperature: { color: '#d32f2f' },
+})

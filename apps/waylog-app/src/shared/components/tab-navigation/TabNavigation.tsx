@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import { useState } from 'react'
 import { BlurView } from 'expo-blur'
 import { LinearGradient } from 'expo-linear-gradient'
@@ -59,14 +60,14 @@ export function TabNavigation({ variant, value, defaultValue, onChange, children
 
   return (
     <TabNavigationContext.Provider value={{ activeKey, variant, onSelect: handleSelect }}>
-      <Animated.View style={[{ flexDirection: 'row', overflow: 'hidden' }, containerStyle]}>
-        <Animated.View style={[{ position: 'absolute', inset: 0 }, defaultGradientStyle]}>
+      <Animated.View style={[styles.container, containerStyle]}>
+        <Animated.View style={[styles.gradient, defaultGradientStyle]}>
           <LinearGradient
             colors={[palette.background, '#f4f5f7']}
-            style={{ flex: 1 }}
+            style={styles.gradientFill}
           />
         </Animated.View>
-        {isApple && <BlurView intensity={80} tint="light" style={{ position: 'absolute', inset: 0 }} />}
+        {isApple && <BlurView intensity={80} tint="light" style={styles.blur} />}
         {children}
       </Animated.View>
     </TabNavigationContext.Provider>
@@ -75,3 +76,21 @@ export function TabNavigation({ variant, value, defaultValue, onChange, children
 
 TabNavigation.Item = TabNavigationItem
 TabNavigation.HEIGHT = HEIGHT
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    overflow: 'hidden',
+  },
+  gradient: {
+    position: 'absolute',
+    inset: 0,
+  },
+  gradientFill: {
+    flex: 1,
+  },
+  blur: {
+    position: 'absolute',
+    inset: 0,
+  },
+})

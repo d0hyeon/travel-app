@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import { findNearestPlace } from '@waylog/domains/modules/trip'
 import { formatDisplayDate, formatShortDate } from '@waylog/utility'
 import { useDayTripRoutes, useTrip, useTripPlaces } from '@waylog/domains/modules/trip'
@@ -115,7 +116,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
 
   return (
     <>
-      <Box style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+      <Box style={styles.container}>
         <FloatingControl corner="top-left" zIndex={8}>
           <TripWeatherIconButton tripId={tripId} />
         </FloatingControl>
@@ -125,14 +126,14 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
             <IconButton
               size="small"
               onPress={() => mapRef.current?.panTo(currentCoordinate.lat, currentCoordinate.lng)}
-              style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
+              style={styles.mapControl}
             >
               <MaterialIcons name="my-location" size={20} color={palette.primary} />
             </IconButton>
           </FloatingControl>
         )}
         {/* 웹은 calc(%-10px) 를 쓰지만 RN 은 계산식을 못 읽는다. 비율만 남긴다. */}
-        <Box style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `${sheetRatio * 100}%` }}>
+        <Box style={[styles.mapArea, { bottom: `${sheetRatio * 100}%` }]}>
           <Map
             ref={mapRef}
             defaultCenter={currentCoordinate ?? { lat: trip.lat, lng: trip.lng }}
@@ -238,15 +239,15 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                 ))}
               </Tabs>
             )}
-            <BottomSheet.GestureArea style={{ flex: 1, minHeight: 1 }}>
-              <Box style={{ flex: 1, minHeight: 1 }}>
+            <BottomSheet.GestureArea style={styles.sheetContent}>
+              <Box style={styles.sheetContent}>
                 <SortableList
                   key={currentRoute?.id ?? 'empty'}
                   items={currentPlaces}
                   paddingHorizontal={16}
                   ref={listRef}
                   header={(
-                    <Box style={{ marginTop: 8 }}>
+                    <Box style={styles.routeHeader}>
                       <TripRouteSelector.Chip
                         tripId={tripId}
                         date={selectedDate}
@@ -262,7 +263,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                         }
                       />
                       {(currentRoute == null || currentRoute.places.length === 0) && (
-                        <Typography variant="caption" color="text.secondary" style={{ paddingVertical: 24 }}>
+                        <Typography variant="caption" color="text.secondary" style={styles.emptyMessage}>
                           지도에서 장소를 눌러 경로에 추가하세요
                         </Typography>
                       )}
@@ -300,9 +301,9 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                               </SortableItem.Handle>
                             )}
                             title={
-                              <Stack direction="row" alignItems="center" gap={0.5} style={{ flex: 1, minWidth: 0 }}>
+                              <Stack direction="row" alignItems="center" gap={0.5} style={styles.placeTitle}>
                                 <Dot>
-                                  <Typography style={{ color: '#fff', fontSize: 11, fontWeight: '900' }}>
+                                  <Typography style={styles.placeOrderLabel}>
                                     {idx + 1}
                                   </Typography>
                                 </Dot>
@@ -369,3 +370,14 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
     </>
   )
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, position: 'relative', overflow: 'hidden' },
+  mapControl: { backgroundColor: 'rgba(255, 255, 255, 0.8)' },
+  mapArea: { position: 'absolute', top: 0, left: 0, right: 0 },
+  sheetContent: { flex: 1, minHeight: 1 },
+  routeHeader: { marginTop: 8 },
+  emptyMessage: { paddingVertical: 24 },
+  placeTitle: { flex: 1, minWidth: 0 },
+  placeOrderLabel: { color: '#fff', fontSize: 11, fontWeight: '900' },
+})

@@ -1,4 +1,4 @@
-import { Pressable, View } from 'react-native'
+import { StyleSheet, Pressable, View } from 'react-native'
 import { Typography } from '~/shared/components/design-system'
 
 interface Props {
@@ -8,7 +8,7 @@ interface Props {
 
 export function SectionHeader({ title, onMore }: Props) {
   return (
-    <View style={{ paddingHorizontal: 16, marginBottom: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+    <View style={styles.header}>
       <Typography variant="subtitle1">{title}</Typography>
       <Pressable onPress={onMore}>
         <Typography variant="caption" color="text.secondary">더보기 ›</Typography>
@@ -16,3 +16,7 @@ export function SectionHeader({ title, onMore }: Props) {
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  header: { paddingHorizontal: 16, marginBottom: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+})

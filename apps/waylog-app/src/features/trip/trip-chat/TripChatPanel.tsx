@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { useTripChatMessages, markAsRead, useChatActivation } from '@waylog/domains/modules/trip-chat'
 import { Suspense, useMemo, useState, type ReactNode } from 'react'
-import { FlatList, KeyboardAvoidingView, Platform, TextInput } from 'react-native'
+import { StyleSheet, FlatList, KeyboardAvoidingView, Platform, TextInput } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { IconButton, Skeleton, Stack, Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../../shared/config/tokens'
@@ -15,7 +15,7 @@ interface Props {
 
 export function TripChatPanel({ tripId, header }: Props) {
   return (
-    <Stack style={{ flex: 1 }}>
+    <Stack style={styles.container}>
       {header}
       <Suspense fallback={<Pending />}>
         <Resolved tripId={tripId} />
@@ -35,12 +35,7 @@ TripChatPanel.Header = function Header({ rightElement, children }: HeaderProps) 
       direction="row"
       alignItems="center"
       justifyContent="space-between"
-      style={{
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderBottomWidth: 1,
-        borderBottomColor: palette.divider,
-      }}
+      style={styles.header}
     >
       {children ?? <Typography variant="subtitle1">채팅</Typography>}
       {rightElement}
@@ -75,11 +70,11 @@ function Resolved({ tripId }: Props) {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <Suspense>
-        <ChatPushNoticeCard style={{ margin: 16 }} />
+        <ChatPushNoticeCard style={styles.pushNotice} />
       </Suspense>
 
       {/* 메시지가 수백 개가 되면 한 번에 그리는 비용이 커밋을 수백 ms 막는다.
@@ -89,13 +84,13 @@ function Resolved({ tripId }: Props) {
         data={reversedMessages}
         keyExtractor={(message) => message.id}
         renderItem={({ item }) => <TripChatMessage message={item} />}
-        contentContainerStyle={{ padding: 16, gap: 12, flexGrow: 1 }}
+        contentContainerStyle={styles.messages}
         ListEmptyComponent={
           <Typography
             variant="body2"
             color="text.secondary"
             textAlign="center"
-            style={{ paddingVertical: 32 }}
+            style={styles.emptyMessage}
           >
             첫 메시지를 보내보세요!
           </Typography>
@@ -106,13 +101,7 @@ function Resolved({ tripId }: Props) {
         direction="row"
         alignItems="flex-end"
         gap={1}
-        style={{
-          padding: 12,
-          paddingBottom: insets.bottom + 12,
-          borderTopWidth: 1,
-          borderTopColor: palette.divider,
-          backgroundColor: palette.background,
-        }}
+        style={[styles.composer, { paddingBottom: insets.bottom + 12 }]}
       >
         <TextInput
           multiline
@@ -120,16 +109,7 @@ function Resolved({ tripId }: Props) {
           onChangeText={setContent}
           placeholder="메시지를 입력하세요"
           placeholderTextColor={palette.textSecondary}
-          style={{
-            flex: 1,
-            maxHeight: 96,
-            backgroundColor: 'rgba(0,0,0,0.06)',
-            borderRadius: radius.xl,
-            paddingHorizontal: 12,
-            paddingVertical: 8,
-            fontSize: 14,
-            color: palette.text,
-          }}
+          style={[styles.messageInput, { borderRadius: radius.xl }]}
         />
         <IconButton onPress={submit} disabled={sendMessage.isPending}>
           <MaterialIcons
@@ -145,10 +125,21 @@ function Resolved({ tripId }: Props) {
 
 function Pending() {
   return (
-    <Stack style={{ flex: 1, padding: 16, gap: 12 }}>
+    <Stack style={styles.skeleton}>
       {[0, 1, 2].map((index) => (
         <Skeleton key={index} variant="rounded" height={40} width={`${60 + index * 10}%`} />
       ))}
     </Stack>
   )
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  header: { paddingHorizontal: 16, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: palette.divider },
+  pushNotice: { margin: 16 },
+  messages: { padding: 16, gap: 12, flexGrow: 1 },
+  emptyMessage: { paddingVertical: 32 },
+  composer: { padding: 12, borderTopWidth: 1, borderTopColor: palette.divider, backgroundColor: palette.background },
+  messageInput: { flex: 1, maxHeight: 96, backgroundColor: 'rgba(0,0,0,0.06)', paddingHorizontal: 12, paddingVertical: 8, fontSize: 14, color: palette.text },
+  skeleton: { flex: 1, padding: 16, gap: 12 },
+})

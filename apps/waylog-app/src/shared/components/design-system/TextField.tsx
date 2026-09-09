@@ -1,4 +1,4 @@
-import { View, TextInput, type TextInputProps } from 'react-native'
+import { StyleSheet, View, TextInput, type TextInputProps } from 'react-native'
 import { palette, radius } from '../../config/tokens'
 import { Typography } from './Typography'
 import { Ref } from 'react'
@@ -31,19 +31,7 @@ export function TextField({
       multiline={multiline}
       placeholderTextColor={palette.textSecondary}
       style={[
-        {
-          fontSize: 14,
-          color: palette.text,
-          width: fullWidth ? '100%' : undefined,
-          paddingHorizontal: variant === 'standard' ? 0 : 12,
-          paddingVertical: 8,
-          minHeight: multiline ? minRows * 20 : 40,
-          textAlignVertical: multiline ? 'top' : 'center',
-          borderWidth: variant === 'outlined' ? 1 : 0,
-          borderBottomWidth: 1,
-          borderColor: palette.divider,
-          borderRadius: variant === 'outlined' ? radius.md : 0,
-        },
+        [styles.inputTextInput, { width: fullWidth ? '100%' : undefined, paddingHorizontal: variant === 'standard' ? 0 : 12, minHeight: multiline ? minRows * 20 : 40, textAlignVertical: multiline ? 'top' : 'center', borderWidth: variant === 'outlined' ? 1 : 0, borderRadius: variant === 'outlined' ? radius.md : 0 }],
         style,
       ]}
       {...rest}
@@ -53,7 +41,7 @@ export function TextField({
   if (label == null) return input
 
   return (
-    <View style={{ width: fullWidth ? '100%' : undefined, gap: 4 }}>
+    <View style={[styles.view, { width: fullWidth ? '100%' : undefined }]}>
       <Typography variant="caption" color="text.secondary">
         {label}
       </Typography>
@@ -61,3 +49,16 @@ export function TextField({
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  inputTextInput: {
+    fontSize: 14,
+    color: palette.text,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderColor: palette.divider,
+  },
+  view: {
+    gap: 4,
+  },
+})

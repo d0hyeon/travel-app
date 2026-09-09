@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router'
-import { ScrollView, useWindowDimensions, View } from 'react-native'
+import { StyleSheet, ScrollView, useWindowDimensions, View } from 'react-native'
 import { ExplorerPlaceCard } from '../explorer-place-item/ExplorerPlaceCard'
 import { buildExplorerPlaceDetailPath } from '../explorer.utils'
 import { ExplorerEmptyState } from './ExplorerEmptyState'
@@ -18,8 +18,8 @@ export function ExplorerRankingGrid({ places, countLabel, onScroll }: Props) {
   const router = useRouter()
 
   return (
-    <ScrollView style={{ flex: 1 }} onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={{ paddingTop: 16, paddingBottom: 40 }}>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, paddingHorizontal: 16 }}>
+    <ScrollView style={styles.scroll} onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={styles.content}>
+      <View style={styles.grid}>
         {places.map((place) => (
           <ExplorerPlaceCard
             key={place.placeId}
@@ -33,3 +33,9 @@ export function ExplorerRankingGrid({ places, countLabel, onScroll }: Props) {
     </ScrollView>
   )
 }
+
+const styles = StyleSheet.create({
+  scroll: { flex: 1 },
+  content: { paddingTop: 16, paddingBottom: 40 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, paddingHorizontal: 16 },
+})

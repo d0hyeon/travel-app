@@ -2,7 +2,7 @@ import { useTrips } from '@waylog/domains/modules/trip'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
-import { Alert, Pressable } from 'react-native'
+import { StyleSheet, Alert, Pressable } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Box, LinearProgress, Stack, Typography } from '~/shared/components/design-system'
 import { SwitchCase } from '../../../shared/components/SwitchCase'
@@ -78,22 +78,22 @@ export function TripCreateScreen() {
   }
 
   return (
-    <Box style={{ flex: 1, backgroundColor: palette.background, paddingTop: insets.top }}>
-      <Stack direction="row" alignItems="center" style={{ paddingHorizontal: 12, paddingVertical: 8 }}>
+    <Box style={[styles.screen, { paddingTop: insets.top }]}>
+      <Stack direction="row" alignItems="center" style={styles.header}>
         <Pressable
           accessibilityLabel="뒤로가기"
           onPress={() => router.back()}
-          style={{ padding: 4 }}
+          style={styles.backButton}
         >
           <MaterialIcons name="arrow-back" size={22} color={palette.text} />
         </Pressable>
-        <Typography variant="body2" style={{ paddingHorizontal: 8 }}>
+        <Typography variant="body2" style={styles.stepLabel}>
           여행 계획 세우기
         </Typography>
       </Stack>
       <LinearProgress value={((currentIndex + 1) / STEPS.length) * 100} />
 
-      <Box style={{ paddingHorizontal: 24, paddingTop: 24, paddingBottom: 32 }}>
+      <Box style={styles.actions}>
         <Typography variant="h6">{STEP_LABELS[step]}</Typography>
       </Box>
 
@@ -114,3 +114,11 @@ export function TripCreateScreen() {
     </Box>
   )
 }
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: palette.background },
+  header: { paddingHorizontal: 12, paddingVertical: 8 },
+  backButton: { padding: 4 },
+  stepLabel: { paddingHorizontal: 8 },
+  actions: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 32 },
+})

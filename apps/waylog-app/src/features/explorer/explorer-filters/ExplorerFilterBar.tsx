@@ -1,6 +1,6 @@
 import { PlaceCategoryTypeLabel } from '@waylog/domains/modules/place'
 import type { PropsWithChildren } from 'react'
-import { Pressable, ScrollView } from 'react-native'
+import { StyleSheet, Pressable, ScrollView } from 'react-native'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { Chip, Typography } from '~/shared/components/design-system'
@@ -18,7 +18,7 @@ export function ExplorerFilterBar({ children }: PropsWithChildren) {
       <BottomSheet isOpen={isOpen} onDismiss={close} snapPoints={[0.75]}>
         <BottomSheet.Header>지역 선택</BottomSheet.Header>
         <BottomSheet.Body>
-          <BottomSheet.ScrollView contentContainerStyle={{ padding: 16, gap: 4 }}>
+          <BottomSheet.ScrollView contentContainerStyle={styles.options}>
             <OptionRow label="전체 지역" selected={location == null} onPress={() => { setLocation(undefined); close() }} />
             {Locations.map((candidate) => (
               <OptionRow
@@ -39,7 +39,7 @@ export function ExplorerFilterBar({ children }: PropsWithChildren) {
       <BottomSheet isOpen={isOpen} onDismiss={close} snapPoints={[0.65]}>
         <BottomSheet.Header>카테고리 선택</BottomSheet.Header>
         <BottomSheet.Body>
-          <BottomSheet.ScrollView contentContainerStyle={{ padding: 16, gap: 4 }}>
+          <BottomSheet.ScrollView contentContainerStyle={styles.options}>
             <OptionRow label="전체 카테고리" selected={category == null} onPress={() => { setCategory(undefined); close() }} />
             {EXPLORER_CATEGORY_TYPES.map((candidate) => (
               <OptionRow
@@ -56,7 +56,7 @@ export function ExplorerFilterBar({ children }: PropsWithChildren) {
   }
 
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }} contentContainerStyle={{ gap: 8 }}>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filters} contentContainerStyle={styles.filtersContent}>
       <Chip label={location ?? '지역'} size="small" variant="outlined" color={location ? 'primary' : 'default'} onPress={openLocationPicker} />
       <Chip label={category == null ? '카테고리' : PlaceCategoryTypeLabel[category]} size="small" variant="outlined" color={category ? 'primary' : 'default'} onPress={openCategoryPicker} />
       {children}
@@ -66,7 +66,7 @@ export function ExplorerFilterBar({ children }: PropsWithChildren) {
 
 function OptionRow({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
   return (
-    <Pressable onPress={onPress} style={{ minHeight: 44, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderRadius: 8, backgroundColor: selected ? `${palette.primary}12` : 'transparent' }}>
+    <Pressable onPress={onPress} style={[styles.option, { backgroundColor: selected ? `${palette.primary}12` : 'transparent' }]}>
       <Typography variant="body2" fontWeight={selected ? 'bold' : 'medium'} color={selected ? 'primary' : 'text.primary'}>
         {label}
       </Typography>
@@ -74,3 +74,10 @@ function OptionRow({ label, selected, onPress }: { label: string; selected: bool
     </Pressable>
   )
 }
+
+const styles = StyleSheet.create({
+  options: { padding: 16, gap: 4 },
+  filters: { flexGrow: 0 },
+  filtersContent: { gap: 8 },
+  option: { minHeight: 44, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderRadius: 8 },
+})

@@ -1,7 +1,7 @@
 import { useFocusEffect } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { Suspense, useCallback } from 'react'
-import { ActivityIndicator, View } from 'react-native'
+import { StyleSheet, ActivityIndicator, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Typography } from '~/shared/components/design-system'
 import { palette } from '../../../shared/config/tokens'
@@ -29,9 +29,9 @@ export function PostFormFunnel({ startStep = 'trip', defaultValue, onStepChange,
   const { values, error, update, submit } = usePostForm({ defaultValue, onSubmit })
 
   return (
-    <View style={{ flex: 1, paddingTop: insets.top, paddingBottom: insets.bottom, backgroundColor: palette.background }}>
+    <View style={[styles.screen, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
       {error != null && (
-        <View style={{ padding: 12, backgroundColor: palette.errorContainer }}>
+        <View style={styles.errorNotice}>
           <Typography color="error">{error instanceof Error ? error.message : '포스트를 등록하지 못했어요'}</Typography>
         </View>
       )}
@@ -91,5 +91,11 @@ export function PostFormFunnel({ startStep = 'trip', defaultValue, onStepChange,
 function StepBoundary({ step, onFocus, children }: { step: PostFormStep; onFocus?: (step: PostFormStep) => void; children: React.ReactNode }) {
   // Navigator 바깥에서는 현재 스텝을 읽을 수 없어 스텝이 스스로 알린다.
   useFocusEffect(useCallback(() => onFocus?.(step), [step, onFocus]))
-  return <Suspense fallback={<ActivityIndicator style={{ flex: 1 }} />}>{children}</Suspense>
+  return <Suspense fallback={<ActivityIndicator style={styles.loading} />}>{children}</Suspense>
 }
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: palette.background },
+  errorNotice: { padding: 12, backgroundColor: palette.errorContainer },
+  loading: { flex: 1 },
+})

@@ -1,4 +1,4 @@
-import { Pressable, View } from 'react-native'
+import { StyleSheet, Pressable, View } from 'react-native'
 import { Typography } from '~/shared/components/design-system'
 
 interface Props {
@@ -14,23 +14,35 @@ export function NativeMapTooltip({ visible, text, onRequestClose }: Props) {
   return (
     <Pressable
       onPress={onRequestClose}
-      style={{
-        position: 'absolute',
-        bottom: '100%',
-        left: '50%',
-        transform: [{ translateX: -60 }],
-        marginBottom: 8,
-        width: 120,
-        padding: 8,
-        borderRadius: 8,
-        backgroundColor: 'rgba(0,0,0,0.85)',
-      }}
+      style={[styles.container, styles.position]}
     >
       <View>
-        <Typography numberOfLines={4} style={{ color: '#fff', fontSize: 12, textAlign: 'center' }}>
+        <Typography numberOfLines={4} style={styles.label}>
           {text}
         </Typography>
       </View>
     </Pressable>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    position: 'absolute',
+    bottom: '100%',
+    left: '50%',
+    marginBottom: 8,
+    width: 120,
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: 'rgba(0,0,0,0.85)',
+  },
+  label: {
+    color: '#fff',
+    fontSize: 12,
+    textAlign: 'center',
+  },
+
+  position: {
+    transform: [{ translateX: -60 }],
+  },
+})

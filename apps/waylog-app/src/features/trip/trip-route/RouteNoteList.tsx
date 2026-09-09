@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Pressable } from 'react-native'
+import { StyleSheet, Pressable } from 'react-native'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { Button, Stack, TextField, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../shared/config/tokens'
@@ -47,7 +47,7 @@ export function NoteEditor({ notes, onChange }: Props) {
   }
 
   return (
-    <Stack gap={0.5} alignItems="flex-start" style={{ marginTop: 8 }}>
+    <Stack gap={0.5} alignItems="flex-start" style={styles.notes}>
       {notes.map((note, idx) => (
         <Pressable
           key={idx}
@@ -61,12 +61,7 @@ export function NoteEditor({ notes, onChange }: Props) {
         >
           <Typography
             variant="body2"
-            style={{
-              fontSize: 12,
-              color: palette.primary,
-              borderBottomWidth: 1,
-              borderColor: palette.primary,
-            }}
+            style={styles.editLink}
           >
             {note}
           </Typography>
@@ -74,7 +69,7 @@ export function NoteEditor({ notes, onChange }: Props) {
       ))}
 
       <Pressable onPress={() => openEditor('', (value) => onChange([...notes, value.trim()]))}>
-        <Typography variant="body2" color="text.secondary" style={{ fontSize: 12 }}>
+        <Typography variant="body2" color="text.secondary" style={styles.emptyMessage}>
           + 경로 메모
         </Typography>
       </Pressable>
@@ -96,7 +91,7 @@ function NoteSheet({ isOpen, initial, onClose, onConfirm, onDelete }: NoteSheetP
   return (
     <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.4]} defaultSnapIndex={0}>
       <BottomSheet.Header>메모</BottomSheet.Header>
-      <BottomSheet.Body style={{ paddingHorizontal: 16 }}>
+      <BottomSheet.Body style={styles.sheetBody}>
         <TextField
           autoFocus
           placeholder="메모를 입력하세요"
@@ -120,3 +115,10 @@ function NoteSheet({ isOpen, initial, onClose, onConfirm, onDelete }: NoteSheetP
     </BottomSheet>
   )
 }
+
+const styles = StyleSheet.create({
+  notes: { marginTop: 8 },
+  editLink: { fontSize: 12, color: palette.primary, borderBottomWidth: 1, borderColor: palette.primary },
+  emptyMessage: { fontSize: 12 },
+  sheetBody: { paddingHorizontal: 16 },
+})

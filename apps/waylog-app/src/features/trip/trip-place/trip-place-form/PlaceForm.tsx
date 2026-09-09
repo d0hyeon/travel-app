@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import {
   PlaceCategoryColorCode,
   PlaceCategoryTypeLabel,
@@ -74,7 +75,7 @@ export const PlaceForm = forwardRef<PlaceFormRef, Props>(function PlaceForm(
               {PlaceCategoryTypes.map((type) => (
                 <PopMenu.Item key={type} onPress={() => setValue('category', type)}>
                   <Stack direction="row" gap={1} alignItems="center">
-                    <Box style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: PlaceCategoryColorCode[type] }} />
+                    <Box style={[styles.categoryDot, { backgroundColor: PlaceCategoryColorCode[type] }]} />
                     <Typography>{PlaceCategoryTypeLabel[type]}</Typography>
                   </Stack>
                 </PopMenu.Item>
@@ -117,7 +118,7 @@ export const PlaceForm = forwardRef<PlaceFormRef, Props>(function PlaceForm(
           }}
         />
         {tags.length > 0 && (
-          <Stack direction="row" gap={0.5} style={{ flexWrap: 'wrap' }}>
+          <Stack direction="row" gap={0.5} style={styles.categories}>
             {tags.map((tag) => (
               <Chip
                 key={tag}
@@ -131,4 +132,9 @@ export const PlaceForm = forwardRef<PlaceFormRef, Props>(function PlaceForm(
       </Stack>
     </Stack>
   )
+})
+
+const styles = StyleSheet.create({
+  categoryDot: { width: 12, height: 12, borderRadius: 6 },
+  categories: { flexWrap: 'wrap' },
 })

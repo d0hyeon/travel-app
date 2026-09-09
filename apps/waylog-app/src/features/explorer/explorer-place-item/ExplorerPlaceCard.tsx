@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { PlaceCategoryColorCode, PlaceCategoryTypeLabel, type PlaceCategoryType } from '@waylog/domains/modules/place'
-import { Pressable, View } from 'react-native'
+import { StyleSheet, Pressable, View } from 'react-native'
 import { palette, radius } from '../../../shared/config/tokens'
 import { Typography } from '~/shared/components/design-system'
 import { LoadableImage } from '../../../shared/components/LoadableImage'
@@ -28,22 +28,16 @@ export function ExplorerPlaceCard({ place, onPress, width }: Props) {
   return (
     <Pressable onPress={onPress} style={{ width, flex: width == null ? 1 : undefined }}>
       <View
-        style={{
-          borderWidth: 1,
-          borderColor: palette.divider,
-          borderRadius: radius.lg,
-          overflow: 'hidden',
-          backgroundColor: palette.background,
-        }}
+        style={styles.card}
       >
-        <View style={{ aspectRatio: 1, backgroundColor: `${accentColor}22`, alignItems: 'center', justifyContent: 'center' }}>
+        <View style={[styles.cover, { backgroundColor: `${accentColor}22` }]}>
           {place.thumbnailUrl == null ? (
             <MaterialIcons name="location-on" size={36} color={accentColor} />
           ) : (
-            <LoadableImage source={{ uri: place.thumbnailUrl }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+            <LoadableImage source={{ uri: place.thumbnailUrl }} style={styles.photo} resizeMode="cover" />
           )}
         </View>
-        <View style={{ padding: 12, gap: 3 }}>
+        <View style={styles.details}>
           <Typography variant="body2" fontWeight="bold" numberOfLines={1}>
             {place.name}
           </Typography>
@@ -69,16 +63,16 @@ export function ExplorerPlaceRow({ place, onPress }: Omit<Props, 'width'>) {
   return (
     <Pressable
       onPress={onPress}
-      style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: palette.divider }}
+      style={styles.listItem}
     >
-      <View style={{ width: 64, height: 64, borderRadius: radius.md, overflow: 'hidden', backgroundColor: `${accentColor}22`, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={[styles.thumbnail, { backgroundColor: `${accentColor}22` }]}>
         {place.thumbnailUrl == null ? (
           <MaterialIcons name="location-on" size={24} color={accentColor} />
         ) : (
-          <LoadableImage source={{ uri: place.thumbnailUrl }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+          <LoadableImage source={{ uri: place.thumbnailUrl }} style={styles.photo} resizeMode="cover" />
         )}
       </View>
-      <View style={{ flex: 1, gap: 3 }}>
+      <View style={styles.listDetails}>
         <Typography variant="body2" fontWeight="bold" numberOfLines={1}>
           {place.name}
         </Typography>
@@ -92,3 +86,13 @@ export function ExplorerPlaceRow({ place, onPress }: Omit<Props, 'width'>) {
     </Pressable>
   )
 }
+
+const styles = StyleSheet.create({
+  card: { borderWidth: 1, borderColor: palette.divider, borderRadius: radius.lg, overflow: 'hidden', backgroundColor: palette.background },
+  cover: { aspectRatio: 1, alignItems: 'center', justifyContent: 'center' },
+  photo: { width: '100%', height: '100%' },
+  details: { padding: 12, gap: 3 },
+  listItem: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: palette.divider },
+  thumbnail: { width: 64, height: 64, borderRadius: radius.md, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
+  listDetails: { flex: 1, gap: 3 },
+})

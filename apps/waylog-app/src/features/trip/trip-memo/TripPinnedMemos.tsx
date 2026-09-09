@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { Skeleton, Stack, Typography, type StackProps } from "~/shared/components/design-system";
 import { Suspense } from "react";
-import { Pressable } from 'react-native';
+import { StyleSheet, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ListItem } from "../../../shared/components/ListItem";
 import { useTripMemo } from '@waylog/domains/modules/trip-memo';
@@ -23,11 +23,11 @@ export function TripPinnedMemos(props: Props) {
 
 function Pending({ tripId: _tripId, hideOnEmpty: _hideOnEmpty, ...props }: Props) {
   return (
-    <Stack gap={1} style={{ width: "100%" }} {...props}>
+    <Stack gap={1} style={styles.fullWidth} {...props}>
       <Typography variant="subtitle2" color="text.secondary">
         고정된 메모
       </Typography>
-      <ListItem style={{ width: "100%" }}>
+      <ListItem style={styles.fullWidth}>
         <Skeleton variant='text' />
       </ListItem>
     </Stack>
@@ -41,12 +41,12 @@ function Resolved({ tripId, hideOnEmpty, ...props }: Props) {
   if (pinnedMemos.length === 0 && hideOnEmpty) return null;
 
   return (
-    <Stack gap={1} style={{ width: "100%" }} {...props}>
+    <Stack gap={1} style={styles.fullWidth} {...props}>
       <Typography variant="subtitle2" color="text.secondary">
         고정된 메모
       </Typography>
       {pinnedMemos.length === 0 ? (
-        <Typography variant="body2" color="text.secondary" style={{ paddingVertical: 24 }}>
+        <Typography variant="body2" color="text.secondary" style={styles.emptyMessage}>
           고정된 메모가 없어요
         </Typography>
       ) : pinnedMemos.map((memo) => {
@@ -60,7 +60,7 @@ function Resolved({ tripId, hideOnEmpty, ...props }: Props) {
           <Pressable key={memo.id} onPress={() => router.push(`/trip/${tripId}/memo/${memo.id}`)}>
             <ListItem
               leftAddon={<MaterialIcons name="push-pin" size={16} color="#4C84FF" />}
-              style={{ paddingVertical: 8 }}
+              style={styles.memoItem}
             >
               <Typography variant="caption">
                 {displayTitle}
@@ -81,3 +81,9 @@ function Resolved({ tripId, hideOnEmpty, ...props }: Props) {
     </Stack>
   );
 }
+
+const styles = StyleSheet.create({
+  fullWidth: { width: "100%" },
+  emptyMessage: { paddingVertical: 24 },
+  memoItem: { paddingVertical: 8 },
+})

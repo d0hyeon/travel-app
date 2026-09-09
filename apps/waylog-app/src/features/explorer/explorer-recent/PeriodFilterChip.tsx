@@ -1,4 +1,4 @@
-import { Pressable, View } from 'react-native'
+import { StyleSheet, Pressable, View } from 'react-native'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { Chip, Typography } from '~/shared/components/design-system'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
@@ -25,7 +25,7 @@ export function PeriodFilterChip({ months, onChange }: Props) {
           <BottomSheet isOpen={isOpen} onDismiss={close}>
             <BottomSheet.Header>기간 선택</BottomSheet.Header>
             <BottomSheet.Body>
-              <View style={{ padding: 16, gap: 8 }}>
+              <View style={styles.options}>
                 {RECENT_HOT_PERIOD_OPTIONS.map((option) => (
                   <Pressable
                     key={option.value}
@@ -33,7 +33,7 @@ export function PeriodFilterChip({ months, onChange }: Props) {
                       onChange(option.value)
                       close()
                     }}
-                    style={{ paddingVertical: 12, flexDirection: 'row', justifyContent: 'space-between' }}
+                    style={styles.option}
                   >
                     <Typography fontWeight={option.value === months ? 'bold' : 'medium'}>{option.label}</Typography>
                     {option.value === months && <Typography color="primary">✓</Typography>}
@@ -47,3 +47,8 @@ export function PeriodFilterChip({ months, onChange }: Props) {
     />
   )
 }
+
+const styles = StyleSheet.create({
+  options: { padding: 16, gap: 8 },
+  option: { paddingVertical: 12, flexDirection: 'row', justifyContent: 'space-between' },
+})

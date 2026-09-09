@@ -2,7 +2,7 @@ import { useExpenses } from '@waylog/domains/modules/expense'
 import { useTripMembers } from '@waylog/domains/modules/trip-member'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Suspense, useState } from 'react'
-import { ScrollView } from 'react-native'
+import { StyleSheet, ScrollView } from 'react-native'
 import { Box, Button, Stack, Tab, Tabs, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../shared/config/tokens'
 import { ExpenseHeader } from './ExpenseHeader'
@@ -45,7 +45,7 @@ export default function TripExpenseContent({ tripId }: Props) {
   }
 
   return (
-    <Box style={{ flex: 1, backgroundColor: palette.background }}>
+    <Box style={styles.container}>
       <ExpenseHeader tripId={tripId} />
 
       <Tabs fullWidth value={currentSubTab} onChange={(_, value) => selectSubTab(value as SubTab)}>
@@ -54,24 +54,24 @@ export default function TripExpenseContent({ tripId }: Props) {
       </Tabs>
 
       {!hasMember ? (
-        <Typography color="text.secondary" style={{ padding: 24, textAlign: 'center' }}>
+        <Typography color="text.secondary" style={styles.emptyMessage}>
           먼저 기본 정보 탭에서 인원을 추가해주세요
         </Typography>
       ) : (
-        <ScrollView contentContainerStyle={{ padding: 16 }}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
           {currentSubTab === 'list' && <ExpenseList tripId={tripId} />}
           {currentSubTab === 'settlement' && <SettlementSummary tripId={tripId} />}
         </ScrollView>
       )}
 
-      <Stack direction="row" gap={1} style={{ padding: 8 }}>
+      <Stack direction="row" gap={1} style={styles.actions}>
         <Button
           size="large"
           variant="outlined"
           disabled={!hasMember}
           onPress={handleOpenRouteExpense}
           startIcon={<MaterialIcons name="route" size={18} color="#4C84FF" />}
-          style={{ flex: 1 }}
+          style={styles.actionButton}
         >
           경로 기반
         </Button>
@@ -81,7 +81,7 @@ export default function TripExpenseContent({ tripId }: Props) {
           disabled={!hasMember}
           onPress={handleAddExpense}
           startIcon={<MaterialIcons name="add" size={18} color="#fff" />}
-          style={{ flex: 1 }}
+          style={styles.actionButton}
         >
           지출 추가
         </Button>
@@ -89,3 +89,11 @@ export default function TripExpenseContent({ tripId }: Props) {
     </Box>
   )
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: palette.background },
+  emptyMessage: { padding: 24, textAlign: 'center' },
+  scrollContent: { padding: 16 },
+  actions: { padding: 8 },
+  actionButton: { flex: 1 },
+})

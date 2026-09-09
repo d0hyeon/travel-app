@@ -2,7 +2,7 @@ import { memo, useEffect, useState, type ReactNode } from 'react'
 import { usePreservedCallback } from '@waylog/react'
 import Mapbox from '@rnmapbox/maps'
 import { resolveMarkerColor, type MarkerCallbackData, type MarkerProps } from '@waylog/domains/modules/map'
-import { Image, Pressable, View } from 'react-native'
+import { StyleSheet, Image, Pressable, View } from 'react-native'
 import Svg, { Circle, Path } from 'react-native-svg'
 import { Typography } from '~/shared/components/design-system'
 import { useMapContext } from './MapContext'
@@ -68,7 +68,7 @@ function NativeMapMarkerView({
         }}
         onLongPress={handleContextMenu}
       >
-        <View style={{ minWidth: 44, minHeight: 48, alignItems: 'center', justifyContent: 'flex-end' }}>
+        <View style={styles.labelTouchArea}>
           {tooltipText != null && (
             <NativeMapTooltip
               visible={isTooltipVisible}
@@ -79,26 +79,19 @@ function NativeMapMarkerView({
 
           {label != null && (
             <View
-              style={{
-                maxWidth: MAX_LABEL_WIDTH,
-                backgroundColor: resolved,
-                paddingHorizontal: 6,
-                paddingVertical: 2,
-                borderRadius: 10,
-                marginBottom: 8,
-              }}
+              style={[styles.labelBubble, { backgroundColor: resolved }]}
             >
               <Typography
                 numberOfLines={1}
                 ellipsizeMode="tail"
-                style={{ color: '#fff', fontSize: 11, fontWeight: '900' }}
+                style={styles.labelText}
               >
                 {label}
               </Typography>
             </View>
           )}
 
-          <View style={{ minWidth: TOUCH_TARGET_SIZE, alignItems: 'center', justifyContent: 'flex-end' }}>
+          <View style={styles.markerTouchArea}>
             {icon ?? (
               <MarkerShape
                 variant={variant}
@@ -126,32 +119,14 @@ interface ShapeProps {
 function MarkerShape({ variant, color, opacity, outlined, thumbnailUrl }: ShapeProps) {
   if (thumbnailUrl != null) {
     return (
-      <View style={{ alignItems: 'center' }}>
+      <View style={styles.marker}>
         <View
-          style={{
-            width: THUMBNAIL_SIZE,
-            height: THUMBNAIL_SIZE,
-            borderRadius: THUMBNAIL_SIZE / 2,
-            borderWidth: 3,
-            borderColor: color,
-            overflow: 'hidden',
-            backgroundColor: '#eee',
-          }}
+          style={[styles.thumbnailFrame, { borderColor: color }]}
         >
-          <Image source={{ uri: thumbnailUrl }} style={{ width: '100%', height: '100%' }} />
+          <Image source={{ uri: thumbnailUrl }} style={styles.thumbnail} />
         </View>
         <View
-          style={{
-            width: 0,
-            height: 0,
-            borderLeftWidth: 5,
-            borderRightWidth: 5,
-            borderTopWidth: 6,
-            borderLeftColor: 'transparent',
-            borderRightColor: 'transparent',
-            borderTopColor: color,
-            marginTop: -1,
-          }}
+          style={[styles.pointer, { borderTopColor: color }]}
         />
       </View>
     )
@@ -201,3 +176,54 @@ function toTooltipText(tooltip: MarkerProps['tooltip']): string | undefined {
   if (tooltip == null) return undefined
   return Array.isArray(tooltip) ? tooltip.join('\n') : tooltip
 }
+
+const styles = StyleSheet.create({
+  labelTouchArea: {
+    minWidth: 44,
+    minHeight: 48,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  labelBubble: {
+    maxWidth: MAX_LABEL_WIDTH,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 10,
+    marginBottom: 8,
+  },
+  labelText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  markerTouchArea: {
+    minWidth: TOUCH_TARGET_SIZE,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  marker: {
+    alignItems: 'center',
+  },
+  thumbnailFrame: {
+    width: THUMBNAIL_SIZE,
+    height: THUMBNAIL_SIZE,
+    borderRadius: THUMBNAIL_SIZE / 2,
+    borderWidth: 3,
+    overflow: 'hidden',
+    backgroundColor: '#eee',
+  },
+  thumbnail: {
+    width: '100%',
+    height: '100%',
+  },
+  pointer: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 5,
+    borderRightWidth: 5,
+    borderTopWidth: 6,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    marginTop: -1,
+  },
+})

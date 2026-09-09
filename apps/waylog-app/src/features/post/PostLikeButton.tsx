@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { usePostLikes } from '@waylog/domains/modules/post'
-import { Pressable } from 'react-native'
+import { StyleSheet, Pressable } from 'react-native'
 import { Stack, Typography } from '~/shared/components/design-system'
 import { palette } from '../../shared/config/tokens'
 
@@ -8,7 +8,7 @@ export function PostLikeButton({ postId }: { postId: string }) {
   const { data, toggle, canLike } = usePostLikes(postId)
 
   return (
-    <Stack direction="row" alignItems="center" style={{ gap: 4 }}>
+    <Stack direction="row" alignItems="center" style={styles.likeCount}>
       <Pressable
         onPress={(event) => {
           event.stopPropagation()
@@ -20,7 +20,12 @@ export function PostLikeButton({ postId }: { postId: string }) {
       >
         <MaterialIcons name={data.liked ? 'favorite' : 'favorite-border'} size={22} color={data.liked ? '#D32F2F' : palette.textSecondary} />
       </Pressable>
-      <Typography style={{ fontSize: 11, color: palette.textSecondary }}>{data.count}</Typography>
+      <Typography style={styles.countLabel}>{data.count}</Typography>
     </Stack>
   )
 }
+
+const styles = StyleSheet.create({
+  likeCount: { gap: 4 },
+  countLabel: { fontSize: 11, color: palette.textSecondary },
+})

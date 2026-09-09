@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import { Box, Stack, Typography } from "~/shared/components/design-system";
 import { palette } from "../../../shared/config/tokens";
 import { Suspense, useMemo, useRef, useState } from "react";
@@ -53,18 +54,12 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
 
   return (
     <>
-      <Box style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+      <Box style={styles.container}>
         <TripPlaceMapFloatingControls />
         {/* Map (전체) */}
         {/* 웹은 calc(%-10px) 를 쓰지만 RN 은 계산식을 못 읽는다. 비율만 남긴다. */}
         <Box
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: `${sheetRatio * 100}%`,
-          }}
+          style={[styles.mapArea, { bottom: `${sheetRatio * 100}%` }]}
         >
           <Map
             ref={mapRef}
@@ -115,8 +110,8 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
           }}
         >
           <BottomSheet.Body>
-            <BottomSheet.ScrollView contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 40 }}>
-              <Typography variant="caption" color="text.secondary" style={{ marginBottom: 12 }}>
+            <BottomSheet.ScrollView contentContainerStyle={styles.listContent}>
+              <Typography variant="caption" color="text.secondary" style={styles.listHeading}>
                 계획 ({plannedPlaces.length}) / 후보 ({candidatePlaces.length})
               </Typography>
 
@@ -127,7 +122,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
                     place={place}
                     onPress={() => handlePlaceClick(place)}
                     focused={place.id === focusedId}
-                    style={{ borderColor: palette.primary }}
+                    style={styles.selectedPlace}
                   />
                 ))}
                 {candidatePlaces.map((place) => (
@@ -161,3 +156,11 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
     </>
   )
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, position: 'relative', overflow: 'hidden' },
+  mapArea: { position: 'absolute', top: 0, left: 0, right: 0 },
+  listContent: { paddingHorizontal: 12, paddingBottom: 40 },
+  listHeading: { marginBottom: 12 },
+  selectedPlace: { borderColor: palette.primary },
+})

@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import type { PostVisibility as PostVisibilityValue } from '@waylog/domains/modules/post'
 import { useCallback, useState } from 'react'
 import { BottomSheet } from '../../../../shared/components/bottom-sheet/BottomSheet'
@@ -64,7 +65,7 @@ function PostVisibilitySheet({
   return (
     <BottomSheet isOpen={isOpen} onDismiss={onCancel} snapPoints={[0.48]} safeArea>
       <BottomSheet.Header>공개 범위</BottomSheet.Header>
-      <BottomSheet.Body style={{ paddingHorizontal: 16 }}>
+      <BottomSheet.Body style={styles.body}>
         <PostVisibilityField defaultValue={visibility} onChange={setVisibility} hasTripContext={tripId != null} />
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
@@ -78,3 +79,7 @@ function PostVisibilitySheet({
     </BottomSheet>
   )
 }
+
+const styles = StyleSheet.create({
+  body: { paddingHorizontal: 16 },
+})

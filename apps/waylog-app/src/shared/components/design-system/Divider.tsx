@@ -1,4 +1,4 @@
-import { type StyleProp, type ViewStyle } from 'react-native'
+import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native'
 import { palette } from '../../config/tokens'
 import { Box } from './Box'
 
@@ -13,14 +13,15 @@ export function Divider({ orientation = 'horizontal', style }: DividerProps) {
   return (
     <Box
       style={[
-        {
-          width: isVertical ? 1 : undefined,
-          height: isVertical ? undefined : 1,
-          alignSelf: isVertical ? 'stretch' : undefined,
-          backgroundColor: palette.divider,
-        },
+        [styles.box, { width: isVertical ? 1 : undefined, height: isVertical ? undefined : 1, alignSelf: isVertical ? 'stretch' : undefined }],
         style,
       ]}
     />
   )
 }
+
+const styles = StyleSheet.create({
+  box: {
+    backgroundColor: palette.divider,
+  },
+})

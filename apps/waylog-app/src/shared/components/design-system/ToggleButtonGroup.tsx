@@ -1,5 +1,5 @@
 import { Children, isValidElement, type ReactNode } from 'react'
-import { Pressable, type StyleProp, type ViewStyle } from 'react-native'
+import { StyleSheet, Pressable, type StyleProp, type ViewStyle } from 'react-native'
 import { palette, radius } from '../../config/tokens'
 import { Box } from './Box'
 import { Typography } from './Typography'
@@ -32,12 +32,7 @@ export function ToggleButtonGroup({ value, onChange, children, style }: ToggleBu
   return (
     <Box
       style={[
-        {
-          flexDirection: 'row',
-          backgroundColor: 'rgba(0,0,0,0.08)',
-          padding: 2,
-          borderRadius: radius.md,
-        },
+        styles.box,
         style,
       ]}
     >
@@ -48,18 +43,10 @@ export function ToggleButtonGroup({ value, onChange, children, style }: ToggleBu
           <Pressable
             key={button.value}
             onPress={() => onChange(null, isSelected ? null : button.value)}
-            style={{
-              paddingHorizontal: 10,
-              paddingVertical: 4,
-              borderRadius: radius.sm + 2,
-              backgroundColor: isSelected ? '#fff' : 'transparent',
-            }}
+            style={[styles.pressable, { backgroundColor: isSelected ? '#fff' : 'transparent' }]}
           >
             <Typography
-              style={{
-                fontSize: 11,
-                color: isSelected ? palette.text : palette.textSecondary,
-              }}
+              style={[styles.typography, { color: isSelected ? palette.text : palette.textSecondary }]}
             >
               {button.children}
             </Typography>
@@ -69,3 +56,20 @@ export function ToggleButtonGroup({ value, onChange, children, style }: ToggleBu
     </Box>
   )
 }
+
+const styles = StyleSheet.create({
+  box: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(0,0,0,0.08)',
+    padding: 2,
+    borderRadius: radius.md,
+  },
+  pressable: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: radius.sm + 2,
+  },
+  typography: {
+    fontSize: 11,
+  },
+})

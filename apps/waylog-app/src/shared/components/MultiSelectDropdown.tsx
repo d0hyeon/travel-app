@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { useState } from 'react'
-import { Pressable } from 'react-native'
+import { StyleSheet, Pressable } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { BottomSheet } from './bottom-sheet/BottomSheet'
 import { ListItem } from './ListItem'
@@ -43,19 +43,9 @@ export function MultiSelectDropdown({
           />
         ))
       }
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        height: 34,
-        paddingHorizontal: 12,
-        borderRadius: 999,
-        borderWidth: 1,
-        borderColor: palette.divider,
-        backgroundColor: 'rgba(255,255,255,0.92)',
-      }}
+      style={styles.pressable}
     >
-      <Typography variant="body2" numberOfLines={1} style={{ fontSize: 13, maxWidth: 180 }}>
+      <Typography variant="body2" numberOfLines={1} style={styles.typography}>
         {getDisplayLabel(value, options, placeholder)}
       </Typography>
       <MaterialIcons name="keyboard-arrow-down" size={18} color={palette.textSecondary} />
@@ -87,7 +77,7 @@ function MultiSelectSheet({
   return (
     <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.7]} defaultSnapIndex={0}>
       <BottomSheet.Header>{placeholder}</BottomSheet.Header>
-      <BottomSheet.Body style={{ paddingHorizontal: 16 }}>
+      <BottomSheet.Body style={styles.multiSelectSheetBody}>
         <Stack gap={0.5}>
           {options.map((option) => (
             <ListItem.Button
@@ -123,3 +113,24 @@ function MultiSelectSheet({
     </BottomSheet>
   )
 }
+
+const styles = StyleSheet.create({
+  pressable: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    height: 34,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: palette.divider,
+    backgroundColor: 'rgba(255,255,255,0.92)',
+  },
+  typography: {
+    fontSize: 13,
+    maxWidth: 180,
+  },
+  multiSelectSheetBody: {
+    paddingHorizontal: 16,
+  },
+})

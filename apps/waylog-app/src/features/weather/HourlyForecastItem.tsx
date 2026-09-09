@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import { formatDate, isSameHour } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { useCurrentTime } from '@waylog/react'
@@ -32,13 +33,7 @@ export function HourlyForecastItem({ forecast, precipitationType }: Props) {
   return (
     <Stack
       gap={0.5}
-      style={{
-        paddingVertical: 8,
-        paddingHorizontal: 12,
-        borderRadius: 16,
-        borderWidth: 1,
-        borderColor: isCurrentHour ? palette.primary : palette.divider,
-      }}
+      style={[styles.forecastCard, { borderColor: isCurrentHour ? palette.primary : palette.divider }]}
     >
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Typography variant="subtitle2">
@@ -46,11 +41,7 @@ export function HourlyForecastItem({ forecast, precipitationType }: Props) {
         </Typography>
         <Stack direction="row" alignItems="center" gap={0.5}>
           <Box
-            style={{
-              borderRadius: 999,
-              padding: 4,
-              backgroundColor: isSnowy ? 'rgba(0,0,0,0.4)' : undefined,
-            }}
+            style={[styles.weatherIcon, { backgroundColor: isSnowy ? 'rgba(0,0,0,0.4)' : undefined }]}
           >
             <WeatherIcon size={16} {...forecast} />
           </Box>
@@ -64,15 +55,15 @@ export function HourlyForecastItem({ forecast, precipitationType }: Props) {
         </Stack>
       </Stack>
 
-      <Stack direction="row" alignItems="center" gap={1} style={{ paddingLeft: 4 }}>
+      <Stack direction="row" alignItems="center" gap={1} style={styles.metrics}>
         {forecast.temperature != null && (
           <>
             <Metric label="기온" value={`${forecast.temperature}도`} />
-            <Divider orientation="vertical" style={{ height: 10, alignSelf: 'center' }} />
+            <Divider orientation="vertical" style={styles.metricDivider} />
           </>
         )}
         <Metric label="습도" value={`${forecast.humidity}%`} />
-        <Divider orientation="vertical" style={{ height: 10, alignSelf: 'center' }} />
+        <Divider orientation="vertical" style={styles.metricDivider} />
         <Metric label="풍속" value={`${forecast.windSpeed}m/s`} />
       </Stack>
     </Stack>
@@ -85,9 +76,17 @@ function Metric({ label, value }: { label: string; value: string }) {
       <Typography variant="caption" color="text.secondary">
         {label}
       </Typography>
-      <Typography variant="caption" style={{ color: palette.primary }}>
+      <Typography variant="caption" style={styles.precipitation}>
         {value}
       </Typography>
     </Stack>
   )
 }
+
+const styles = StyleSheet.create({
+  forecastCard: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 16, borderWidth: 1 },
+  weatherIcon: { borderRadius: 999, padding: 4 },
+  metrics: { paddingLeft: 4 },
+  metricDivider: { height: 10, alignSelf: 'center' },
+  precipitation: { color: palette.primary },
+})

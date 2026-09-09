@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import type { ReactNode } from 'react'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated'
@@ -85,9 +86,16 @@ export function ZoomArea({ children, width, height, onZoomStart, onZoomEnd }: Pr
 
   return (
     <GestureDetector gesture={gesture}>
-      <Animated.View style={[sizeStyle, { alignItems: 'center', justifyContent: 'center' }, transformStyle]}>
+      <Animated.View style={[sizeStyle, styles.view, transformStyle]}>
         {children}
       </Animated.View>
     </GestureDetector>
   )
 }
+
+const styles = StyleSheet.create({
+  view: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+})

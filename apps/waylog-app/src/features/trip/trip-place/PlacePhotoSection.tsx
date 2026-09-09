@@ -1,6 +1,6 @@
 import * as ImagePicker from 'expo-image-picker'
 import { MaterialIcons } from '@expo/vector-icons'
-import { Pressable } from 'react-native'
+import { StyleSheet, Pressable } from 'react-native'
 import { Box, Stack, Typography } from '~/shared/components/design-system'
 import { LoadableImage } from '../../../shared/components/LoadableImage'
 import { usePlacePhotos } from './useTripPlacePhotos'
@@ -30,19 +30,26 @@ export function PlacePhotoSection({ tripId, placeId }: PlacePhotoSectionProps) {
 
   return (
     <Stack gap={1}>
-      <Typography variant="subtitle2" style={{ fontWeight: '800' }}>사진</Typography>
-      <Stack direction="row" gap={1} style={{ flexWrap: 'wrap' }}>
+      <Typography variant="subtitle2" style={styles.title}>사진</Typography>
+      <Stack direction="row" gap={1} style={styles.photoList}>
         <Pressable onPress={() => void addPhoto()}>
-          <Box style={{ width: 96, height: 96, flexShrink: 0, borderWidth: 2, borderStyle: 'dashed', borderColor: '#dddddd', borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+          <Box style={styles.uploadButton}>
             <MaterialIcons name="add-photo-alternate" size={30} color="#777" />
           </Box>
         </Pressable>
         {photos.map((photo) => (
           <Pressable key={photo.id} onLongPress={() => void remove(photo)}>
-            <LoadableImage source={{ uri: photo.url }} style={{ width: 96, height: 96, borderRadius: 12 }} resizeMode="cover" />
+            <LoadableImage source={{ uri: photo.url }} style={styles.photo} resizeMode="cover" />
           </Pressable>
         ))}
       </Stack>
     </Stack>
   )
 }
+
+const styles = StyleSheet.create({
+  title: { fontWeight: '800' },
+  photoList: { flexWrap: 'wrap' },
+  uploadButton: { width: 96, height: 96, flexShrink: 0, borderWidth: 2, borderStyle: 'dashed', borderColor: '#dddddd', borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  photo: { width: 96, height: 96, borderRadius: 12 },
+})

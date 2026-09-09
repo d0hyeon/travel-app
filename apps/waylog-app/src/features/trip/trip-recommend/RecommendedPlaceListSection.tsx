@@ -3,7 +3,7 @@ import { PlaceCategoryColorCode } from '@waylog/domains/modules/place'
 import { useRecommendedPlaces } from '@waylog/domains/modules/trip-recommend'
 import type { RecommendedPlace } from '@waylog/domains/modules/trip-recommend'
 import { Suspense, type ReactNode } from 'react'
-import { Pressable, ScrollView } from 'react-native'
+import { StyleSheet, Pressable, ScrollView } from 'react-native'
 import { Box, Chip, Skeleton, Stack, Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../../shared/config/tokens'
 import { useRecommendedPlaceDetailOverlay } from './RecommendedPlaceDetailOverlay'
@@ -58,27 +58,14 @@ function RecommendedPlaceCard({
   return (
     <Pressable onPress={onPress}>
       <Box
-        style={{
-          width: 110,
-          borderRadius: radius.sm,
-          overflow: 'hidden',
-          borderWidth: 1,
-          borderColor: palette.divider,
-        }}
+        style={[styles.card, { borderRadius: radius.sm }]}
       >
-        <Box style={{ position: 'relative' }}>
+        <Box style={styles.imageArea}>
           <Box
-            style={{
-              width: '100%',
-              height: 72,
-              backgroundColor: accentColor ? `${accentColor}22` : 'rgba(0,0,0,0.06)',
-              alignItems: 'center',
-              justifyContent: 'center',
-              overflow: 'hidden',
-            }}
+            style={[styles.imagePlaceholder, { backgroundColor: accentColor ? `${accentColor}22` : 'rgba(0,0,0,0.06)' }]}
           >
             {place.photos[0] ? (
-              <LoadableImage source={{ uri: place.photos[0] }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+              <LoadableImage source={{ uri: place.photos[0] }} style={styles.image} resizeMode="cover" />
             ) : (
               <MaterialIcons name="room" size={28} color={accentColor ?? palette.textSecondary} />
             )}
@@ -87,16 +74,11 @@ function RecommendedPlaceCard({
             <Chip
               label={`${place.tripCount}회`}
               size="small"
-              style={{
-                position: 'absolute',
-                top: 4,
-                right: 4,
-                backgroundColor: 'rgba(0,0,0,0.55)',
-              }}
+              style={styles.categoryBadge}
             />
           )}
         </Box>
-        <Box style={{ padding: 6 }}>
+        <Box style={styles.details}>
           <Typography variant="caption" numberOfLines={1}>
             {place.name}
           </Typography>
@@ -118,3 +100,12 @@ function RecommendedPlacesSkeleton() {
     </Stack>
   )
 }
+
+const styles = StyleSheet.create({
+  card: { width: 110, overflow: 'hidden', borderWidth: 1, borderColor: palette.divider },
+  imageArea: { position: 'relative' },
+  imagePlaceholder: { width: '100%', height: 72, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  image: { width: '100%', height: '100%' },
+  categoryBadge: { position: 'absolute', top: 4, right: 4, backgroundColor: 'rgba(0,0,0,0.55)' },
+  details: { padding: 6 },
+})

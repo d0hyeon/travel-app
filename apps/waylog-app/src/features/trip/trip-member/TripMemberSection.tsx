@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { useTripMembers } from '@waylog/domains/modules/trip-member'
 import { useRouter } from 'expo-router'
 import { Suspense } from 'react'
-import { Pressable } from 'react-native'
+import { StyleSheet, Pressable } from 'react-native'
 import { ListItem } from '../../../shared/components/ListItem'
 import { Skeleton, Stack, Typography } from '~/shared/components/design-system'
 import { TripInviteButton } from '../components/TripInviteButton'
@@ -27,7 +27,7 @@ function Resolved({ tripId }: Props) {
   const orderedMembers = members.toSorted((a) => (a.isHost ? -1 : 0))
 
   return (
-    <Stack gap={1} style={{ width: '100%' }}>
+    <Stack gap={1} style={styles.container}>
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Typography variant="subtitle2" color="text.secondary">
           인원 ({members.length}명)
@@ -35,12 +35,12 @@ function Resolved({ tripId }: Props) {
         <TripInviteButton tripId={tripId} variant="contained">초대</TripInviteButton>
       </Stack>
 
-      <Stack gap={1} style={{ width: '100%' }}>
+      <Stack gap={1} style={styles.container}>
         {orderedMembers.length === 0 ? (
           <Typography
             variant="body2"
             color="text.secondary"
-            style={{ paddingVertical: 16, textAlign: 'center' }}
+            style={styles.emptyMessage}
           >
             초대 링크로 멤버를 추가해보세요
           </Typography>
@@ -70,7 +70,7 @@ function Resolved({ tripId }: Props) {
 
 function Pending() {
   return (
-    <Stack gap={1} style={{ width: '100%' }}>
+    <Stack gap={1} style={styles.container}>
       {Array.from({ length: 2 }).map((_, key) => (
         <ListItem key={key}>
           <Skeleton />
@@ -79,3 +79,8 @@ function Pending() {
     </Stack>
   )
 }
+
+const styles = StyleSheet.create({
+  container: { width: '100%' },
+  emptyMessage: { paddingVertical: 16, textAlign: 'center' },
+})

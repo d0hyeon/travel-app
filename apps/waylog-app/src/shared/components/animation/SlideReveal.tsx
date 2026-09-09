@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -41,7 +41,7 @@ export function SlideReveal({ children, open = true, delay = 0, duration = 800 }
   if (!isPrepared) {
     return (
       <View
-        style={{ position: 'absolute', opacity: 0 }}
+        style={styles.measurement}
         onLayout={(event) => setHeight(event.nativeEvent.layout.height)}
       >
         {children}
@@ -50,6 +50,16 @@ export function SlideReveal({ children, open = true, delay = 0, duration = 800 }
   }
 
   return (
-    <Animated.View style={[{ overflow: 'hidden' }, animatedStyle]}>{children}</Animated.View>
+    <Animated.View style={[styles.content, animatedStyle]}>{children}</Animated.View>
   )
 }
+
+const styles = StyleSheet.create({
+  measurement: {
+    position: 'absolute',
+    opacity: 0,
+  },
+  content: {
+    overflow: 'hidden',
+  },
+})

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Pressable, type StyleProp, type ViewStyle } from 'react-native'
+import { StyleSheet, Pressable, type StyleProp, type ViewStyle } from 'react-native'
 
 export interface IconButtonProps {
   children?: ReactNode
@@ -16,14 +16,7 @@ export function IconButton({ children, onPress, size = 'medium', disabled, style
     <Pressable
       onPress={disabled ? undefined : onPress}
       style={[
-        {
-          width: box,
-          height: box,
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderRadius: box / 2,
-          opacity: disabled ? 0.4 : 1,
-        },
+        [styles.pressable, { width: box, height: box, borderRadius: box / 2, opacity: disabled ? 0.4 : 1 }],
         style,
       ]}
     >
@@ -31,3 +24,10 @@ export function IconButton({ children, onPress, size = 'medium', disabled, style
     </Pressable>
   )
 }
+
+const styles = StyleSheet.create({
+  pressable: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+})

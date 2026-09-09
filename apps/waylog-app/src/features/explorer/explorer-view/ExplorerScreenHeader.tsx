@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import type { PropsWithChildren, ReactNode } from 'react'
-import { Pressable, View } from 'react-native'
+import { StyleSheet, Pressable, View } from 'react-native'
 import Animated from 'react-native-reanimated'
 import { useExtrude } from '../../../shared/components/animation/Extrude'
 import { Typography } from '~/shared/components/design-system'
@@ -39,8 +39,8 @@ export function ExplorerScreenHeader({
 
   return (
     <>
-      <View style={{ height: 50, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+      <View style={styles.header}>
+        <View style={styles.titleRow}>
           {showBack && (
             <Pressable onPress={() => router.back()} hitSlop={8}>
               <MaterialIcons name="arrow-back" size={22} color={palette.text} />
@@ -54,13 +54,13 @@ export function ExplorerScreenHeader({
       </View>
 
       <FilterNavigation>
-        <Animated.View style={[{ overflow: 'visible' }, extrude.placeholderStyle]}>
+        <Animated.View style={[styles.filterSource, extrude.placeholderStyle]}>
           <Animated.View
             collapsable={false}
             ref={extrude.source.ref}
             onLayout={extrude.source.onLayout}
             style={[
-              { alignSelf: 'flex-start', flexGrow: 0, flexShrink: 0, position: 'absolute', left: 0, top: 0, paddingBottom: 8 },
+              styles.filterTarget,
               extrude.source.style,
             ]}
           >
@@ -71,3 +71,10 @@ export function ExplorerScreenHeader({
     </>
   )
 }
+
+const styles = StyleSheet.create({
+  header: { height: 50, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  filterSource: { overflow: 'visible' },
+  filterTarget: { alignSelf: 'flex-start', flexGrow: 0, flexShrink: 0, position: 'absolute', left: 0, top: 0, paddingBottom: 8 },
+})

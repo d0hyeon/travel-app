@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react'
-import { Linking } from 'react-native'
+import { StyleSheet, Linking } from 'react-native'
 import { assert } from '@waylog/utility'
 import { useTripPlaces } from '@waylog/domains/modules/trip'
 import { useConfirmDialog } from '../../../../shared/components/confirm-dialog/useConfirmDialog'
@@ -84,8 +84,8 @@ function PlaceFormSheet({ tripId, placeId, isOpen, onClose }: SheetProps) {
           삭제
         </Button>
       </BottomSheet.Header>
-      <BottomSheet.Body style={{ paddingHorizontal: 16 }}>
-        <Stack direction="row" gap={1} style={{ marginBottom: 16 }}>
+      <BottomSheet.Body style={styles.sheetBody}>
+        <Stack direction="row" gap={1} style={styles.header}>
           <Chip label="네이버" variant="outlined" onPress={() => void Linking.openURL(`https://search.naver.com/search.naver?query=${encodeURIComponent(place.name)}`)} />
           <Chip label="인스타" variant="outlined" onPress={() => void Linking.openURL(`https://www.instagram.com/explore/search/keyword/?q=${encodeURIComponent(place.name.replaceAll(' ', ''))}`)} />
           <Chip label="구글" variant="outlined" onPress={() => void Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(place.name)}`)} />
@@ -111,3 +111,8 @@ function PlaceFormSheet({ tripId, placeId, isOpen, onClose }: SheetProps) {
     </BottomSheet>
   )
 }
+
+const styles = StyleSheet.create({
+  sheetBody: { paddingHorizontal: 16 },
+  header: { marginBottom: 16 },
+})

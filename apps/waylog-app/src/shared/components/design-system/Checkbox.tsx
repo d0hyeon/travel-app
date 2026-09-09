@@ -1,4 +1,4 @@
-import { Pressable, type StyleProp, type ViewStyle } from 'react-native'
+import { StyleSheet, Pressable, type StyleProp, type ViewStyle } from 'react-native'
 import { palette } from '../../config/tokens'
 import { Typography } from './Typography'
 
@@ -15,24 +15,28 @@ export function Checkbox({ checked = false, size = 'medium', onChange, style }: 
     <Pressable
       onPress={() => onChange?.()}
       style={[
-        {
-          width: box,
-          height: box,
-          borderRadius: 4,
-          borderWidth: 2,
-          borderColor: checked ? palette.primary : palette.divider,
-          backgroundColor: checked ? palette.primary : 'transparent',
-          alignItems: 'center',
-          justifyContent: 'center',
-        },
+        [styles.pressable, { width: box, height: box, borderColor: checked ? palette.primary : palette.divider, backgroundColor: checked ? palette.primary : 'transparent' }],
         style,
       ]}
     >
       {checked && (
-        <Typography style={{ color: '#fff', fontSize: size === 'small' ? 11 : 13, fontWeight: '900' }}>
+        <Typography style={[styles.typography, { fontSize: size === 'small' ? 11 : 13 }]}>
           ✓
       </Typography>
       )}
     </Pressable>
   )
 }
+
+const styles = StyleSheet.create({
+  pressable: {
+    borderRadius: 4,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  typography: {
+    color: '#fff',
+    fontWeight: '900',
+  },
+})

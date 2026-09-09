@@ -8,7 +8,7 @@ import { createTripPlace } from '@waylog/domains/modules/place'
 import { useTripPlaces } from '@waylog/domains/modules/trip'
 import type { Coordinate } from '@waylog/utility'
 import { Suspense, useCallback, useMemo, useState } from 'react'
-import { View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { useRoadRoute } from '../../route/road-route/useRoadRoute'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { Map } from '../../../shared/components/Map'
@@ -83,7 +83,7 @@ function DetailContent({
 
   if (routes.length === 0) {
     return (
-      <Box style={{ padding: 24 }}>
+      <Box style={styles.errorState}>
         <Typography variant="body2" color="text.secondary">
           아직 등록된 경로가 없어요
         </Typography>
@@ -96,7 +96,7 @@ function DetailContent({
     : undefined
 
   return (
-    <Stack style={{ flex: 1 }}>
+    <Stack style={styles.content}>
       {tabRoutes.length > 1 && (
         <Tabs value={selectedRouteId} onChange={(_, value) => setSelectedRouteId(value)}>
           {tabRoutes.map((route, index) => {
@@ -114,7 +114,7 @@ function DetailContent({
       )}
 
       {mapCenter && currentRoute && currentRoute.places.length >= 2 && (
-        <View style={{ height: 200 }}>
+        <View style={styles.map}>
           <Map defaultCenter={mapCenter} autoFocus="path">
             {currentRoute.places.map((place, index) => (
               <Map.Marker
@@ -139,7 +139,7 @@ function DetailContent({
 
       <BottomSheet.Body>
         {currentRoute?.places.length === 0 && (
-          <Typography variant="body2" color="text.secondary" style={{ padding: 16 }}>
+          <Typography variant="body2" color="text.secondary" style={styles.emptyMessage}>
             경로에 장소가 없어요
           </Typography>
         )}
@@ -185,30 +185,17 @@ function PlaceRow({ place, index, tripId, alreadyAdded }: PlaceRowProps) {
       direction="row"
       alignItems="center"
       gap={1.5}
-      style={{
-        paddingVertical: 10,
-        paddingHorizontal: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: palette.divider,
-      }}
+      style={styles.placeRow}
     >
       <Box
-        style={{
-          width: 24,
-          height: 24,
-          borderRadius: 12,
-          backgroundColor: palette.primary,
-          alignItems: 'center',
-          justifyContent: 'center',
-          opacity: isAdded ? 0.4 : 1,
-        }}
+        style={[styles.orderBadge, { opacity: isAdded ? 0.4 : 1 }]}
       >
-        <Typography style={{ fontSize: 11, fontWeight: '900', color: '#fff' }}>
+        <Typography style={styles.orderLabel}>
           {index + 1}
         </Typography>
       </Box>
 
-      <Stack style={{ flex: 1 }}>
+      <Stack style={styles.content}>
         <Typography
           variant="body2"
           numberOfLines={1}
@@ -226,7 +213,7 @@ function PlaceRow({ place, index, tripId, alreadyAdded }: PlaceRowProps) {
       {isAdded ? (
         <Stack direction="row" alignItems="center" gap={0.5}>
           <MaterialIcons name="check" size={14} color={palette.success} />
-          <Typography variant="caption" style={{ color: palette.success }}>
+          <Typography variant="caption" style={styles.addedLabel}>
             추가됨
           </Typography>
         </Stack>
@@ -258,7 +245,7 @@ function RoadPath({ waypoints }: { waypoints: Coordinate[] }) {
 
 function DetailSkeleton() {
   return (
-    <Stack gap={1.5} style={{ padding: 16 }}>
+    <Stack gap={1.5} style={styles.emptyMessage}>
       <Skeleton variant="rounded" height={180} />
       {[0, 1, 2].map((index) => (
         <Stack key={index} direction="row" alignItems="center" gap={1}>
@@ -269,3 +256,14 @@ function DetailSkeleton() {
     </Stack>
   )
 }
+
+const styles = StyleSheet.create({
+  errorState: { padding: 24 },
+  content: { flex: 1 },
+  map: { height: 200 },
+  emptyMessage: { padding: 16 },
+  placeRow: { paddingVertical: 10, paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: palette.divider },
+  orderBadge: { width: 24, height: 24, borderRadius: 12, backgroundColor: palette.primary, alignItems: 'center', justifyContent: 'center' },
+  orderLabel: { fontSize: 11, fontWeight: '900', color: '#fff' },
+  addedLabel: { color: palette.success },
+})

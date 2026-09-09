@@ -3,7 +3,7 @@ import type { Coordinate, MapProvider } from '@waylog/domains/modules/map'
 import { useDebouncedValue } from '@waylog/react'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useState } from 'react'
-import { ActivityIndicator, FlatList, Keyboard, Pressable, TextInput, View } from 'react-native'
+import { StyleSheet, ActivityIndicator, FlatList, Keyboard, Pressable, TextInput, View } from 'react-native'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { ListItem } from '../../../shared/components/ListItem'
 import { IconButton, Typography } from '~/shared/components/design-system'
@@ -63,7 +63,7 @@ export function PlaceSearchBottomSheet({
     <>
       <BottomSheet isOpen={isOpen} onDismiss={handleClose} snapPoints={[0.95]} safeArea>
         <BottomSheet.Header>
-          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+          <View style={styles.searchBar}>
             <TextInput
               value={keyword}
               onChangeText={setKeyword}
@@ -73,50 +73,35 @@ export function PlaceSearchBottomSheet({
               onSubmitEditing={() => {
                 if (keyword !== '') openDetail(keyword)
               }}
-              style={{
-                flex: 1,
-                height: 40,
-                borderRadius: radius.lg,
-                borderWidth: 1,
-                borderColor: palette.divider,
-                paddingHorizontal: 12,
-                fontSize: 14,
-                color: palette.text,
-              }}
+              style={styles.searchInput}
             />
             <IconButton
               onPress={() => keyword !== '' && openDetail(keyword)}
-              style={{ marginLeft: 4 }}
+              style={styles.searchButton}
             >
               <MaterialIcons name="search" size={20} color={palette.text} />
             </IconButton>
           </View>
         </BottomSheet.Header>
-        <BottomSheet.Body style={{ paddingHorizontal: 16 }} onTouchStart={() => Keyboard.dismiss()}>
-          {isLoading && <ActivityIndicator style={{ paddingVertical: 32 }} color={palette.primary} />}
+        <BottomSheet.Body style={styles.body} onTouchStart={() => Keyboard.dismiss()}>
+          {isLoading && <ActivityIndicator style={styles.loading} color={palette.primary} />}
 
           {!isLoading && results.length === 0 && keyword !== '' && (
-            <Typography color="text.secondary" textAlign="center" style={{ paddingVertical: 32 }}>
+            <Typography color="text.secondary" textAlign="center" style={styles.emptyState}>
               검색 결과가 없습니다
             </Typography>
           )}
 
           {!isLoading && results.length === 0 && keyword === '' && (
-            <View style={{ paddingTop: 16 }}>
+            <View style={styles.recommendations}>
               <Typography variant="body2">최근 검색어</Typography>
-              <View style={{ marginTop: 16, gap: 4 }}>
+              <View style={styles.recentSearches}>
                 {recentKeywords.map((value) => (
                   <View
                     key={value}
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      borderBottomWidth: 1,
-                      borderColor: palette.divider,
-                    }}
+                    style={styles.recentSearchRow}
                   >
-                    <Pressable onPress={() => openDetail(value)} style={{ flex: 1, paddingVertical: 10 }}>
+                    <Pressable onPress={() => openDetail(value)} style={styles.recentSearchButton}>
                       <Typography variant="body2" color="text.secondary">
                         {value}
                       </Typography>
@@ -134,7 +119,7 @@ export function PlaceSearchBottomSheet({
             <FlatList
               data={results}
               keyExtractor={(place) => place.externalId}
-              contentContainerStyle={{ gap: 4 }}
+              contentContainerStyle={styles.resultsContent}
               renderItem={({ item }) => (
                 <ListItem.Button onPress={() => handleSelect(item)}>
                   <ListItem.Title>{item.name}</ListItem.Title>
@@ -176,3 +161,17 @@ export function PlaceSearchBottomSheet({
     </>
   )
 }
+
+const styles = StyleSheet.create({
+  searchBar: { flex: 1, flexDirection: 'row', alignItems: 'center' },
+  searchInput: { flex: 1, height: 40, borderRadius: radius.lg, borderWidth: 1, borderColor: palette.divider, paddingHorizontal: 12, fontSize: 14, color: palette.text },
+  searchButton: { marginLeft: 4 },
+  body: { paddingHorizontal: 16 },
+  loading: { paddingVertical: 32 },
+  emptyState: { paddingVertical: 32 },
+  recommendations: { paddingTop: 16 },
+  recentSearches: { marginTop: 16, gap: 4 },
+  recentSearchRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: palette.divider },
+  recentSearchButton: { flex: 1, paddingVertical: 10 },
+  resultsContent: { gap: 4 },
+})

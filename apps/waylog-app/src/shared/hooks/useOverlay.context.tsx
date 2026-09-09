@@ -28,7 +28,7 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
     <OverlayContext.Provider value={{ mount, unmount }}>
       {/* 오버레이 층이 화면 크기를 갖도록 전체를 감싼다.
           크기가 없는 부모 아래에서는 바텀시트가 높이를 못 잡아 보이지 않는다. */}
-      <View style={{ flex: 1 }}>
+      <View style={styles.overlayProviderView}>
         {children}
 
         {/* pointerEvents="box-none" 이라 빈 곳의 터치는 아래로 통과한다. */}
@@ -44,3 +44,9 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
     </OverlayContext.Provider>
   )
 }
+
+const styles = StyleSheet.create({
+  overlayProviderView: {
+    flex: 1,
+  },
+})

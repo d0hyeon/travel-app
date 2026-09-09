@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { Suspense, useEffect, useMemo, useState } from 'react'
-import { Pressable, View } from 'react-native'
+import { StyleSheet, Pressable, View } from 'react-native'
 import { Map } from '../../shared/components/Map'
 import { BottomSheet } from '../../shared/components/bottom-sheet/BottomSheet'
 import { Stack, Typography } from '~/shared/components/design-system'
@@ -34,7 +34,7 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
       <BottomSheet isOpen={isOpen} snapPoints={[0.6, 0.8]} defaultSnapIndex={0} safeArea onDismiss={onClose}>
         <BottomSheet.Header><LocationMetaInfo value={selectedLocation} /></BottomSheet.Header>
         <BottomSheet.Body>
-          <BottomSheet.ScrollView contentContainerStyle={{ padding: 16, gap: 16 }}>
+          <BottomSheet.ScrollView contentContainerStyle={styles.locationDetails}>
             {selectedLocation.trips.map((trip) => (
               <View key={trip.id}>
                 <Typography variant="body2" fontWeight="bold">{trip.name}</Typography>
@@ -62,9 +62,9 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.records}>
       <View
-        style={{ height: mapHeight, backgroundColor: '#EDF2F7' }}
+        style={[styles.map, { height: mapHeight }]}
         onStartShouldSetResponderCapture={() => {
           onMapInteractionChange?.(true)
           return false
@@ -72,7 +72,7 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
         onTouchEnd={() => onMapInteractionChange?.(false)}
         onTouchCancel={() => onMapInteractionChange?.(false)}
       >
-        <Pressable onPress={() => setIsLocationVisible(!isLocationVisible)} style={{ position: 'absolute', right: 8, top: 8, zIndex: 2, padding: 8, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.85)' }}>
+        <Pressable onPress={() => setIsLocationVisible(!isLocationVisible)} style={styles.locationToggle}>
           <MaterialIcons name={isLocationVisible ? 'visibility' : 'visibility-off'} size={18} color={palette.textSecondary} />
         </Pressable>
         <Map autoFocus="marker" clustering>
@@ -89,8 +89,8 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
           ))}
         </Map>
       </View>
-      <View style={{ padding: 16, gap: 8 }}>
-        {visitedLocations.map((visitedLocation) => <Pressable key={visitedLocation.location} onPress={() => setSelectedLocation(visitedLocation)} style={{ paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: palette.divider }}><Stack direction="row" alignItems="center" justifyContent="space-between"><Typography variant="body2" fontWeight="bold">{visitedLocation.location}</Typography><Typography variant="caption" color="text.secondary">{visitedLocation.visitCount}회 방문 · {formatLastVisit(visitedLocation.lastVisitedAt)}</Typography></Stack></Pressable>)}
+      <View style={styles.locationList}>
+        {visitedLocations.map((visitedLocation) => <Pressable key={visitedLocation.location} onPress={() => setSelectedLocation(visitedLocation)} style={styles.locationRow}><Stack direction="row" alignItems="center" justifyContent="space-between"><Typography variant="body2" fontWeight="bold">{visitedLocation.location}</Typography><Typography variant="caption" color="text.secondary">{visitedLocation.visitCount}회 방문 · {formatLastVisit(visitedLocation.lastVisitedAt)}</Typography></Stack></Pressable>)}
       </View>
     </View>
   )
@@ -100,10 +100,21 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
 const TAB_BAR_HEIGHT = 40
 
 function LocationMetaInfo({ value }: { value: VisitedLocation }) {
-  return <Stack direction="row" alignItems="center" style={{ gap: 8 }}><View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: palette.primary }} /><Typography variant="subtitle1">{value.location}</Typography><Typography variant="caption" color="text.secondary">{value.countryName}</Typography></Stack>
+  return <Stack direction="row" alignItems="center" style={styles.locationTitle}><View style={styles.locationDot} /><Typography variant="subtitle1">{value.location}</Typography><Typography variant="caption" color="text.secondary">{value.countryName}</Typography></Stack>
 }
 
 function formatLastVisit(isoDate: string): string {
   const [year, month] = isoDate.split('-')
   return `${year ?? ''}.${month ?? ''}`
 }
+
+const styles = StyleSheet.create({
+  locationDetails: { padding: 16, gap: 16 },
+  records: { flex: 1 },
+  map: { backgroundColor: '#EDF2F7' },
+  locationToggle: { position: 'absolute', right: 8, top: 8, zIndex: 2, padding: 8, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.85)' },
+  locationList: { padding: 16, gap: 8 },
+  locationRow: { paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: palette.divider },
+  locationTitle: { gap: 8 },
+  locationDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: palette.primary },
+})

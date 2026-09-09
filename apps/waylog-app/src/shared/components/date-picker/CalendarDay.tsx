@@ -37,7 +37,7 @@ export function CalendarDay({ day, month, selection, onPress }: CalendarDayProps
       <View
         style={[
           styles.rangeBand,
-          isSelected && { backgroundColor: palette.primary },
+          isSelected && styles.view,
           (isStart || isLoneEdge) && styles.bandStart,
           (isEnd || isLoneEdge) && styles.bandEnd,
         ]}
@@ -63,4 +63,8 @@ const styles = StyleSheet.create({
   },
   bandStart: { borderTopLeftRadius: radius.xxl, borderBottomLeftRadius: radius.xxl },
   bandEnd: { borderTopRightRadius: radius.xxl, borderBottomRightRadius: radius.xxl },
+
+  view: {
+    backgroundColor: palette.primary,
+  },
 })

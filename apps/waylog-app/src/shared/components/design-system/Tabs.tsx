@@ -83,9 +83,9 @@ export function Tabs({
       horizontal
       showsHorizontalScrollIndicator={false}
       scrollEnabled={scrollable}
-      contentContainerStyle={fullWidth ? { flexGrow: 1, minWidth: viewportWidth } : undefined}
+      contentContainerStyle={fullWidth ? [styles.scrollViewContent, { minWidth: viewportWidth }] : undefined}
     >
-      <View style={[styles.tabRow, fullWidth && { flex: 1, minWidth: viewportWidth }]}>
+      <View style={[styles.tabRow, fullWidth && [styles.view, { minWidth: viewportWidth }]]}>
         {tabs.map((tab) => {
           const selected = tab.value === value
 
@@ -132,5 +132,12 @@ const styles = StyleSheet.create({
     left: 0,
     height: 3,
     backgroundColor: palette.primary,
+  },
+
+  scrollViewContent: {
+    flexGrow: 1,
+  },
+  view: {
+    flex: 1,
   },
 })

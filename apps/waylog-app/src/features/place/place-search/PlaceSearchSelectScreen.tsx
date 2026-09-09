@@ -2,7 +2,7 @@ import { calcDistance } from '@waylog/utility'
 import { usePlaceSearch, type PlaceResult } from '@waylog/domains/modules/place'
 import type { Coordinate, MapBounds, MapProvider, MapRef } from '@waylog/domains/modules/map'
 import { useEffect, useRef, useState, useTransition } from 'react'
-import { ActivityIndicator, FlatList, View } from 'react-native'
+import { StyleSheet, ActivityIndicator, FlatList, View } from 'react-native'
 import { Map } from '../../../shared/components/Map'
 import { Button, Chip } from '~/shared/components/design-system'
 import { ListItem } from '../../../shared/components/ListItem'
@@ -60,8 +60,8 @@ export function PlaceSearchSelectScreen({ keyword, center, mapServiceProvider = 
   const [isPendingSelect, startTransition] = useTransition()
 
   return (
-    <View style={{ flex: 1 }}>
-      <View style={{ height: '40%', position: 'relative' }}>
+    <View style={styles.screen}>
+      <View style={styles.mapArea}>
         <Map
           ref={mapRef}
           defaultCenter={center}
@@ -85,7 +85,7 @@ export function PlaceSearchSelectScreen({ keyword, center, mapServiceProvider = 
           ))}
         </Map>
         {isFarFromLastSearch && (
-          <View style={{ position: 'absolute', top: 12, alignSelf: 'center' }}>
+          <View style={styles.searchStatus}>
             <Chip
               label="이 장소에서 검색"
               color="primary"
@@ -99,10 +99,10 @@ export function PlaceSearchSelectScreen({ keyword, center, mapServiceProvider = 
       </View>
 
       <FlatList
-        style={{ flex: 1 }}
+        style={styles.results}
         data={results}
         keyExtractor={(place) => place.externalId}
-        contentContainerStyle={{ gap: 8, padding: 16 }}
+        contentContainerStyle={styles.resultsContent}
         onEndReached={() => {
           if (hasNextPage && !isFetchingNextPage) fetchNextPage()
         }}
@@ -127,7 +127,7 @@ export function PlaceSearchSelectScreen({ keyword, center, mapServiceProvider = 
           </ListItem>
         )}
         ListFooterComponent={
-          isFetchingNextPage ? <ActivityIndicator style={{ paddingVertical: 8 }} color={palette.primary} /> : null
+          isFetchingNextPage ? <ActivityIndicator style={styles.loadingMore} color={palette.primary} /> : null
         }
       />
     </View>
@@ -137,7 +137,17 @@ export function PlaceSearchSelectScreen({ keyword, center, mapServiceProvider = 
 function MarkerDot({ color }: { color: string }) {
   return (
     <View
-      style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: color }}
+      style={[styles.categoryDot, { backgroundColor: color }]}
     />
   )
 }
+
+const styles = StyleSheet.create({
+  screen: { flex: 1 },
+  mapArea: { height: '40%', position: 'relative' },
+  searchStatus: { position: 'absolute', top: 12, alignSelf: 'center' },
+  results: { flex: 1 },
+  resultsContent: { gap: 8, padding: 16 },
+  loadingMore: { paddingVertical: 8 },
+  categoryDot: { width: 12, height: 12, borderRadius: 6 },
+})

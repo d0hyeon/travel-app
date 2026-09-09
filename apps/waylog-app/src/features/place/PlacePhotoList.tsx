@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Pressable, ScrollView, useWindowDimensions } from 'react-native'
+import { StyleSheet, Pressable, ScrollView, useWindowDimensions } from 'react-native'
 import { BottomSheet } from '../../shared/components/bottom-sheet/BottomSheet'
 import { LoadableImage } from '../../shared/components/LoadableImage'
 import { Typography } from '~/shared/components/design-system'
@@ -25,10 +25,10 @@ export function PlacePhotoList({ placeId }: Props) {
   }
 
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.photoStrip}>
       {photos.map((photo, index) => (
         <Pressable key={photo.id} onPress={() => openPhotoViewer(index)}>
-          <LoadableImage source={{ uri: photo.url }} style={{ width: 100, height: 80, borderRadius: 8 }} resizeMode="cover" />
+          <LoadableImage source={{ uri: photo.url }} style={styles.thumbnail} resizeMode="cover" />
         </Pressable>
       ))}
     </ScrollView>
@@ -47,7 +47,7 @@ function PhotoViewerSheet({ photos, initialIndex, isOpen, onClose }: PhotoViewer
   const [currentIndex, setCurrentIndex] = useState(initialIndex)
 
   return (
-    <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.9]} safeArea style={{ backgroundColor: '#111' }}>
+    <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.9]} safeArea style={styles.viewer}>
       <BottomSheet.Header>
         <Typography color="#fff">사진 {currentIndex + 1} / {photos.length}</Typography>
       </BottomSheet.Header>
@@ -59,10 +59,17 @@ function PhotoViewerSheet({ photos, initialIndex, isOpen, onClose }: PhotoViewer
           onMomentumScrollEnd={(event) => setCurrentIndex(Math.round(event.nativeEvent.contentOffset.x / width))}
         >
           {photos.map((photoUrl) => (
-            <LoadableImage key={photoUrl} source={{ uri: photoUrl }} style={{ width, height: 420 }} resizeMode="contain" />
+            <LoadableImage key={photoUrl} source={{ uri: photoUrl }} style={[styles.viewerPhoto, { width }]} resizeMode="contain" />
           ))}
         </BottomSheet.ScrollView>
       </BottomSheet.Body>
     </BottomSheet>
   )
 }
+
+const styles = StyleSheet.create({
+  photoStrip: { gap: 8 },
+  thumbnail: { width: 100, height: 80, borderRadius: 8 },
+  viewer: { backgroundColor: '#111' },
+  viewerPhoto: { height: 420 },
+})

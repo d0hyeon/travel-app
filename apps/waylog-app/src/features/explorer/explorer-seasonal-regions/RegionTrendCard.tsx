@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { LocationRegion } from '@waylog/domains/modules/location'
 import type { RegionTourismTrend } from '@waylog/domains/modules/tourism-trend'
 import { formatKoreanCount } from '@waylog/utility'
-import { View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../../shared/config/tokens'
 
@@ -18,10 +18,10 @@ export function RegionTrendCard({ trend, rank }: RegionTrendCardProps) {
   const regionLabel = getRegionLabel(trend.location)
 
   return (
-    <View style={{ padding: 16, minHeight: 180, borderRadius: radius.lg, borderWidth: 1, borderColor: palette.divider, backgroundColor: palette.background }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-        <View style={{ width: 20, height: 20, borderRadius: 10, backgroundColor: palette.primary, alignItems: 'center', justifyContent: 'center' }}>
-          <Typography variant="caption" fontWeight="bold" color="#fff" style={{ fontSize: 11 }}>
+    <View style={styles.card}>
+      <View style={styles.heading}>
+        <View style={styles.rankBadge}>
+          <Typography variant="caption" fontWeight="bold" color="#fff" style={styles.rankLabel}>
             {rank}
           </Typography>
         </View>
@@ -35,7 +35,7 @@ export function RegionTrendCard({ trend, rank }: RegionTrendCardProps) {
         )}
       </View>
 
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 12 }}>
+      <View style={styles.statistics}>
         <MaterialIcons name={isRising ? 'trending-up' : 'trending-down'} size={20} color={isRising ? palette.primary : palette.textSecondary} />
         <Typography variant="h6" fontWeight="bold" color={trendColor}>
           {isRising ? '+' : '-'}
@@ -47,7 +47,7 @@ export function RegionTrendCard({ trend, rank }: RegionTrendCardProps) {
         {formatKoreanCount(Math.abs(trend.visitorGrowth))}명 {isRising ? '증가' : '감소'}
       </Typography>
 
-      <Typography variant="caption" color="text.secondary" numberOfLines={1} style={{ marginTop: 'auto', paddingTop: 8 }}>
+      <Typography variant="caption" color="text.secondary" numberOfLines={1} style={styles.description}>
         {formatKoreanCount(trend.visitorCount)}명 방문
       </Typography>
     </View>
@@ -61,3 +61,12 @@ function getRegionLabel(location: RegionTourismTrend['location']) {
   if (region.startsWith(location)) return null
   return region
 }
+
+const styles = StyleSheet.create({
+  card: { padding: 16, minHeight: 180, borderRadius: radius.lg, borderWidth: 1, borderColor: palette.divider, backgroundColor: palette.background },
+  heading: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  rankBadge: { width: 20, height: 20, borderRadius: 10, backgroundColor: palette.primary, alignItems: 'center', justifyContent: 'center' },
+  rankLabel: { fontSize: 11 },
+  statistics: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 12 },
+  description: { marginTop: 'auto', paddingTop: 8 },
+})

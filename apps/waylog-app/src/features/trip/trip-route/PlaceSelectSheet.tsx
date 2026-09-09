@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import { useTripPlaces } from '@waylog/domains/modules/trip'
 import { useState } from 'react'
 import { MaterialIcons } from '@expo/vector-icons'
@@ -33,9 +34,9 @@ export function PlaceSelectSheet({
   return (
     <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.7]} defaultSnapIndex={0}>
       <BottomSheet.Header>경로에 장소 추가</BottomSheet.Header>
-      <BottomSheet.Body style={{ paddingHorizontal: 16 }}>
+      <BottomSheet.Body style={styles.sheetBody}>
         {candidates.length === 0 ? (
-          <Typography variant="body2" color="text.secondary" style={{ paddingVertical: 24 }}>
+          <Typography variant="body2" color="text.secondary" style={styles.emptyMessage}>
             추가할 수 있는 장소가 없어요
           </Typography>
         ) : (
@@ -77,3 +78,8 @@ export function PlaceSelectSheet({
     </BottomSheet>
   )
 }
+
+const styles = StyleSheet.create({
+  sheetBody: { paddingHorizontal: 16 },
+  emptyMessage: { paddingVertical: 24 },
+})

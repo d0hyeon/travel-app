@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Box, Stack, Typography } from "~/shared/components/design-system"
 import { convertToKRW } from '@waylog/domains/modules/expense'
@@ -44,8 +45,8 @@ export function SettlementSummary({ tripId, formatAmount = formatCurrency }: Pro
             const { paidInKRW, fairShare } = memberPaidMap.get(memberId) ?? { paidInKRW: 0, fairShare: 0 }
 
             return (
-              <Box key={memberId} style={{ borderWidth: 1, borderColor: "rgba(0,0,0,0.12)", borderRadius: 16 }}>
-                <Box style={{ padding: 16 }}>
+              <Box key={memberId} style={styles.card}>
+                <Box style={styles.content}>
                   <Stack direction="row" justifyContent="space-between" alignItems="center">
                     <Stack direction="row" gap={1.5} alignItems="center">
                       <MemberAvatar member={member} size={24} />
@@ -72,7 +73,7 @@ export function SettlementSummary({ tripId, formatAmount = formatCurrency }: Pro
                             {balance > 0 ? '+' : ''}{formatAmount(balance)}
                           </Typography>
                         </Stack>
-                        <Box style={{ height: 1, backgroundColor: "rgba(0,0,0,0.12)" }} />
+                        <Box style={styles.divider} />
                         <Stack direction="row" gap={2} justifyContent="space-between">
                           <Typography variant="caption" color="text.secondary" fontWeight="medium">
                             총 지출금
@@ -91,7 +92,7 @@ export function SettlementSummary({ tripId, formatAmount = formatCurrency }: Pro
         </Stack>
       </Box>
 
-      <Box style={{ height: 1, backgroundColor: "rgba(0,0,0,0.12)" }} />
+      <Box style={styles.divider} />
 
       {/* 정산 방법 */}
       <Box>
@@ -110,8 +111,8 @@ export function SettlementSummary({ tripId, formatAmount = formatCurrency }: Pro
               if (!from || !to) return null
 
               return (
-                <Box key={`${settlement.from}-${settlement.to}-${index}`} style={{ borderWidth: 1, borderColor: "rgba(0,0,0,0.12)", borderRadius: 16 }}>
-                  <Box style={{ padding: 16 }}>
+                <Box key={`${settlement.from}-${settlement.to}-${index}`} style={styles.card}>
+                  <Box style={styles.content}>
                     <Stack direction="row" alignItems="center" justifyContent="space-between">
                       <Stack direction="row" alignItems="center" gap={1}>
                         <Box textAlign="center">
@@ -136,3 +137,9 @@ export function SettlementSummary({ tripId, formatAmount = formatCurrency }: Pro
     </Stack>
   )
 }
+
+const styles = StyleSheet.create({
+  card: { borderWidth: 1, borderColor: "rgba(0,0,0,0.12)", borderRadius: 16 },
+  content: { padding: 16 },
+  divider: { height: 1, backgroundColor: "rgba(0,0,0,0.12)" },
+})

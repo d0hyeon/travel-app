@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import { Suspense, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { palette } from '../../../shared/config/tokens'
@@ -19,7 +20,7 @@ export function RecentHotScreen() {
   const { isScrollDown, onScroll } = useScrollStatus()
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: palette.background }}>
+    <SafeAreaView style={styles.screen}>
       <ExplorerScreenHeader
         title="핫플레이스"
         showBack
@@ -56,3 +57,7 @@ function RecentHotContent({
 
   return <ExplorerRankingGrid places={places} countLabel={(place) => ('visitorCount' in place ? `${place.visitorCount.toLocaleString()}번 방문` : '')} onScroll={onScroll} />
 }
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: palette.background },
+})

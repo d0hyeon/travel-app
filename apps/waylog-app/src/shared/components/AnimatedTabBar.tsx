@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs'
-import { Pressable, useWindowDimensions, View } from 'react-native'
+import { StyleSheet, Pressable, useWindowDimensions, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { palette } from '../config/tokens'
 import { Typography } from '~/shared/components/design-system'
@@ -21,18 +21,7 @@ export function AnimatedTabBar({ state, descriptors, navigation, visibleNames }:
 
   return (
     <View
-      style={{
-        flexDirection: 'row',
-        paddingBottom: insets.bottom,
-        backgroundColor: palette.background,
-        borderTopLeftRadius: 28,
-        borderTopRightRadius: 28,
-        shadowColor: '#000',
-        shadowOpacity: 0.15,
-        shadowOffset: { width: 0, height: -6 },
-        shadowRadius: 10,
-        elevation: 6,
-      }}
+      style={[styles.tab, [styles.label, { paddingBottom: insets.bottom }]]}
     >
       {routes.map((route) => {
         const { options } = descriptors[route.key]!
@@ -53,15 +42,40 @@ export function AnimatedTabBar({ state, descriptors, navigation, visibleNames }:
                 navigation.navigate(route.name, currentRoute.params)
               }
             }}
-            style={{ width: tabWidth, alignItems: 'center', paddingVertical: 8, gap: 2 }}
+            style={[styles.tabRow, { width: tabWidth }]}
           >
             {options.tabBarIcon?.({ focused: isFocused, color, size: 22 }) ?? (
               <MaterialIcons name="circle" size={22} color={color} />
             )}
-            <Typography style={{ fontSize: 11, color }}>{options.title ?? route.name}</Typography>
+            <Typography style={[styles.container, { color }]}>{options.title ?? route.name}</Typography>
           </Pressable>
         )
       })}
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  tab: {
+    flexDirection: 'row',
+    backgroundColor: palette.background,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  tabRow: {
+    alignItems: 'center',
+    paddingVertical: 8,
+    gap: 2,
+  },
+
+  label: {
+    shadowOffset: { width: 0, height: -6 },
+  },
+  container: {
+    fontSize: 11,
+  },
+})

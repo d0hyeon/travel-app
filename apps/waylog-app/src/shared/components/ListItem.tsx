@@ -1,5 +1,5 @@
 import type { ElementType, ReactNode } from 'react'
-import { Pressable, View } from 'react-native'
+import { StyleSheet, Pressable, View } from 'react-native'
 import { palette } from '../config/tokens'
 import {
   Box,
@@ -37,14 +37,7 @@ export function ListItem<As extends ElementType = typeof View>({
       direction="row"
       justifyContent="space-between"
       style={[
-        {
-          paddingHorizontal: 12,
-          paddingVertical: 8,
-          borderWidth: 1,
-          borderColor: palette.divider,
-          borderRadius: 12,
-          overflow: 'visible',
-        },
+        styles.container,
         style,
       ]}
       {...props}
@@ -53,10 +46,10 @@ export function ListItem<As extends ElementType = typeof View>({
         direction="row"
         gap={gap ?? 1}
         alignItems={alignItems}
-        style={{ width: '100%', minWidth: 0, flex: 1 }}
+        style={styles.content}
       >
         {leftAddon}
-        <Stack gap={0.5} style={{ flex: 1, minWidth: 0 }}>
+        <Stack gap={0.5} style={styles.textArea}>
           {children}
         </Stack>
       </Stack>
@@ -87,18 +80,14 @@ function ListItemButton({
       leftAddon={leftAddon}
       rightAddon={rightAddon}
       style={[
-        {
-          width: '100%',
-          // 웹은 :focus 에 primary 20% 배경을 준다.
-          ...(focused ? { backgroundColor: 'rgba(76,132,255,0.2)' } : {}),
-        },
+        [styles.buttonLayout, { ...(focused ? { backgroundColor: 'rgba(76,132,255,0.2)' } : {}) }],
         style,
       ]}
       {...props}
     >
       {/* 스타일 없는 Pressable 은 컨텐츠 폭으로 수축한다.
           그 안의 제목 행이 함께 눌려 순번 원이 찌그러진다. */}
-      <Pressable onPress={onPress} style={{ width: '100%' }}>
+      <Pressable onPress={onPress} style={styles.button}>
         {children}
       </Pressable>
     </ListItem>
@@ -112,9 +101,9 @@ ListItem.Title = ({
   rightAddon,
   ...props
 }: TypographyProps & { leftAddon?: ReactNode; rightAddon?: ReactNode }) => (
-  <Stack gap={1} direction="row" alignItems="center" style={{ minWidth: 0, flexShrink: 1 }}>
+  <Stack gap={1} direction="row" alignItems="center" style={styles.detail}>
     {leftAddon}
-    <Typography numberOfLines={1} style={{ fontSize: 13, flexShrink: 1 }} {...props} />
+    <Typography numberOfLines={1} style={styles.detailText} {...props} />
     {rightAddon}
   </Stack>
 )
@@ -129,7 +118,7 @@ ListItem.Text = ({
     <Typography
       variant="caption"
       color="text.secondary"
-      style={{ fontSize: 12 }}
+      style={styles.secondaryText}
       {...props}
     />
     {rightAddon}
@@ -139,19 +128,63 @@ ListItem.Text = ({
 ListItem.Ordering = ({ style, children, ...props }: BoxProps) => (
   <Box
     style={[
-      {
-        width: 20,
-        height: 20,
-        borderRadius: 10,
-        backgroundColor: palette.primary,
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
-      },
+      styles.badge,
       style,
     ]}
     {...props}
   >
-    <Typography style={{ color: '#fff', fontSize: 11, fontWeight: '900' }}>{children}</Typography>
+    <Typography style={styles.badgeText}>{children}</Typography>
   </Box>
 )
+
+const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: palette.divider,
+    borderRadius: 12,
+    overflow: 'visible',
+  },
+  content: {
+    width: '100%',
+    minWidth: 0,
+    flex: 1,
+  },
+  textArea: {
+    flex: 1,
+    minWidth: 0,
+  },
+  button: {
+    width: '100%',
+  },
+  detail: {
+    minWidth: 0,
+    flexShrink: 1,
+  },
+  detailText: {
+    fontSize: 13,
+    flexShrink: 1,
+  },
+  secondaryText: {
+    fontSize: 12,
+  },
+  badge: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: palette.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '900',
+  },
+
+  buttonLayout: {
+    width: '100%',
+  },
+})

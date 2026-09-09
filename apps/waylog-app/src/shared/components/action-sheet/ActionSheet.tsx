@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useRef, type ReactNode } from 'react'
-import { Animated, Modal, Pressable, ScrollView } from 'react-native'
+import { StyleSheet, Animated, Modal, Pressable, ScrollView } from 'react-native'
 import { palette, radius } from '../../config/tokens'
 import { Box, Stack, Typography } from '~/shared/components/design-system'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -38,30 +38,17 @@ export function ActionSheet({ isOpen, onClose, children }: ActionSheetProps) {
 
   return (
     <Modal visible={isOpen} transparent animationType="none" onRequestClose={onClose}>
-      <Box style={{ flex: 1, justifyContent: 'flex-end' }}>
+      <Box style={styles.container}>
         <Animated.View
-          style={{
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0,
-            opacity: backdropOpacity,
-            backgroundColor: 'rgba(0,0,0,0.3)',
-          }}
+          style={[styles.backdrop, { opacity: backdropOpacity }]}
         >
-          <Pressable onPress={onClose} style={{ flex: 1 }} />
+          <Pressable onPress={onClose} style={styles.backdropTarget} />
         </Animated.View>
         <Animated.View style={{ transform: [{ translateY: sheetTranslateY }] }}>
           <Box
-            style={{
-              backgroundColor: palette.background,
-              borderTopLeftRadius: radius.xxl,
-              borderTopRightRadius: radius.xxl,
-              paddingVertical: 8,
-            }}
+            style={styles.sheet}
           >
-            <ScrollView style={{ maxHeight: MAX_SHEET_HEIGHT }} bounces={false}>
+            <ScrollView style={styles.scrollArea} bounces={false}>
               <ActionSheetCloseContext.Provider value={onClose}>
                 <Box style={{ paddingBottom: insets.bottom, }}>
                   {children}
@@ -93,7 +80,7 @@ ActionSheet.Item = function ActionSheetItem({ onPress, icon, children, color = '
         close()
         onPress?.()
       }}
-      style={{ paddingHorizontal: 20, paddingVertical: 14 }}
+      style={styles.item}
     >
       <Stack direction="row" gap={1} alignItems="center">
         {icon}
@@ -107,3 +94,34 @@ ActionSheet.Item = function ActionSheetItem({ onPress, icon, children, color = '
     </Pressable>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  backdrop: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  backdropTarget: {
+    flex: 1,
+  },
+  sheet: {
+    backgroundColor: palette.background,
+    borderTopLeftRadius: radius.xxl,
+    borderTopRightRadius: radius.xxl,
+    paddingVertical: 8,
+  },
+  scrollArea: {
+    maxHeight: MAX_SHEET_HEIGHT,
+  },
+  item: {
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+  },
+})

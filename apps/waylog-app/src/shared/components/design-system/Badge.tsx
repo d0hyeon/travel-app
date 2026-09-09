@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import type { ReactNode } from 'react'
 import { palette } from '../../config/tokens'
 import { Box } from './Box'
@@ -15,24 +16,13 @@ export function Badge({ badgeContent = 0, max = 99, color = 'error', children }:
   const isVisible = badgeContent > 0
 
   return (
-    <Box style={{ position: 'relative' }}>
+    <Box style={styles.container}>
       {children}
       {isVisible && (
         <Box
-          style={{
-            position: 'absolute',
-            top: -6,
-            right: -6,
-            minWidth: 18,
-            height: 18,
-            paddingHorizontal: 5,
-            borderRadius: 9,
-            backgroundColor: color === 'error' ? '#d32f2f' : palette.primary,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+          style={[styles.badge, { backgroundColor: color === 'error' ? '#d32f2f' : palette.primary }]}
         >
-          <Typography style={{ fontSize: 10, fontWeight: '700', color: '#fff', lineHeight: 12 }}>
+          <Typography style={styles.label}>
             {badgeContent > max ? `${max}+` : badgeContent}
           </Typography>
         </Box>
@@ -40,3 +30,26 @@ export function Badge({ badgeContent = 0, max = 99, color = 'error', children }:
     </Box>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    position: 'relative',
+  },
+  badge: {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+    minWidth: 18,
+    height: 18,
+    paddingHorizontal: 5,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  label: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#fff',
+    lineHeight: 12,
+  },
+})

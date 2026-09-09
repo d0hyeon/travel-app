@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import { Suspense } from 'react'
 import { useTrip } from '@waylog/domains/modules/trip'
 import { arrayIncludes, assert } from '@waylog/utility'
@@ -61,7 +62,7 @@ function Resolved({ tripId }: Props) {
   return (
     <IconButton
       onPress={openHourlyForecastSheet}
-      style={hasSnowForecast ? { backgroundColor: 'rgba(0,0,0,0.4)' } : undefined}
+      style={hasSnowForecast ? styles.resolvedIconButton : undefined}
     >
       <WeatherIcon
         skyCondition={weatherForecast.forecast.summary.skyCondition}
@@ -70,3 +71,7 @@ function Resolved({ tripId }: Props) {
     </IconButton>
   )
 }
+
+const styles = StyleSheet.create({
+  resolvedIconButton: { backgroundColor: 'rgba(0,0,0,0.4)' },
+})

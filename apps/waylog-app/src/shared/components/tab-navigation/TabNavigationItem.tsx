@@ -1,4 +1,4 @@
-import { Pressable } from 'react-native'
+import { StyleSheet, Pressable } from 'react-native'
 import Animated, {
   Easing,
   interpolateColor,
@@ -32,12 +32,7 @@ export function TabNavigationItem({ value, label, icon }: TabNavigationItemProps
   return (
     <Pressable
       onPress={() => onSelect(value)}
-      style={{
-        flex: 1,
-        alignItems: 'center',
-        gap: 2,
-        paddingVertical: variant === 'apple' ? 0 : 8,
-      }}
+      style={[styles.pressable, { paddingVertical: variant === 'apple' ? 0 : 8 }]}
     >
       <Animated.View style={iconStyle}>
         {icon({ color: focused ? palette.primary : palette.grey, focused })}
@@ -48,3 +43,11 @@ export function TabNavigationItem({ value, label, icon }: TabNavigationItemProps
     </Pressable>
   )
 }
+
+const styles = StyleSheet.create({
+  pressable: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 2,
+  },
+})

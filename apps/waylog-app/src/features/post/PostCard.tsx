@@ -1,6 +1,6 @@
 import { PostVisibility, type Post } from '@waylog/domains/modules/post'
 import { MaterialIcons } from '@expo/vector-icons'
-import {
+import { StyleSheet,
   Pressable,
   ScrollView,
   useWindowDimensions,
@@ -35,10 +35,10 @@ export function PostCard({ post, onPress }: Props) {
 
   return (
     <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel="포스트 상세 보기">
-      <Box onLayout={handleCardLayout} style={{ overflow: 'hidden', borderRadius: 16, backgroundColor: '#fff' }}>
+      <Box onLayout={handleCardLayout} style={styles.card}>
         <PostPhotoGallery post={post} width={cardWidth} minHeight={estimatedHeight} />
-        <Stack style={{ gap: 8, paddingHorizontal: 12, paddingTop: 8, paddingBottom: 16 }}>
-          <Stack direction="row" alignItems="center" justifyContent="space-between" style={{ gap: 8 }}>
+        <Stack style={styles.content}>
+          <Stack direction="row" alignItems="center" justifyContent="space-between" style={styles.header}>
             <PostAuthor
               authorId={post.authorId}
               place={post.places[0]?.name}
@@ -47,11 +47,11 @@ export function PostCard({ post, onPress }: Props) {
             />
             <PostLikeButton postId={post.id} />
           </Stack>
-          {post.description && <Typography style={{ color: palette.textSecondary, fontSize: 13, paddingHorizontal: 4 }}>{post.description}</Typography>}
+          {post.description && <Typography style={styles.description}>{post.description}</Typography>}
           {post.visibility !== PostVisibility.PUBLIC && (
-            <Stack direction="row" alignItems="center" style={{ gap: 4 }}>
+            <Stack direction="row" alignItems="center" style={styles.visibility}>
               <MaterialIcons name="lock-outline" size={14} color={palette.textSecondary} />
-              <Typography style={{ color: palette.textSecondary, fontSize: 11 }}>비공개</Typography>
+              <Typography style={styles.visibilityLabel}>비공개</Typography>
             </Stack>
           )}
         </Stack>
@@ -65,7 +65,7 @@ function PostPhotoGallery({ post, width, minHeight }: { post: Post; width: numbe
   const [pageIndex, setPageIndex] = React.useState(0)
 
   if (post.photos.length === 0) {
-    return <Box style={{ aspectRatio: 1, minHeight, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.06)' }}><MaterialIcons name="image" size={40} color={palette.textSecondary} /></Box>
+    return <Box style={[styles.photoPlaceholder, { minHeight }]}><MaterialIcons name="image" size={40} color={palette.textSecondary} /></Box>
   }
 
   const handleMomentumScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -75,7 +75,7 @@ function PostPhotoGallery({ post, width, minHeight }: { post: Post; width: numbe
   }
 
   return (
-    <Box style={{ position: 'relative' }}>
+    <Box style={styles.photos}>
       <ScrollView
         horizontal
         pagingEnabled
@@ -84,7 +84,7 @@ function PostPhotoGallery({ post, width, minHeight }: { post: Post; width: numbe
         style={{ minHeight }}
       >
         {post.photos.map((photo) => (
-          <LoadableImage key={photo.url} source={{ uri: photo.url }} style={{ width: pageWidth, aspectRatio: 1, minHeight }} resizeMode="cover" />
+          <LoadableImage key={photo.url} source={{ uri: photo.url }} style={[styles.photo, { width: pageWidth, minHeight }]} resizeMode="cover" />
         ))}
       </ScrollView>
       {post.photos.length > 1 && (
@@ -92,17 +92,12 @@ function PostPhotoGallery({ post, width, minHeight }: { post: Post; width: numbe
           direction="row"
           alignItems="center"
           justifyContent="center"
-          style={{ position: 'absolute', bottom: 8, left: 0, right: 0, gap: 4 }}
+          style={styles.pagination}
         >
           {post.photos.map((photo, index) => (
             <Box
               key={photo.url}
-              style={{
-                width: index === pageIndex ? 6 : 5,
-                height: index === pageIndex ? 6 : 5,
-                borderRadius: 3,
-                backgroundColor: index === pageIndex ? '#fff' : 'rgba(255,255,255,0.5)',
-              }}
+              style={[styles.paginationDot, { width: index === pageIndex ? 6 : 5, height: index === pageIndex ? 6 : 5, backgroundColor: index === pageIndex ? '#fff' : 'rgba(255,255,255,0.5)' }]}
             />
           ))}
         </Stack>
@@ -110,3 +105,17 @@ function PostPhotoGallery({ post, width, minHeight }: { post: Post; width: numbe
     </Box>
   )
 }
+
+const styles = StyleSheet.create({
+  card: { overflow: 'hidden', borderRadius: 16, backgroundColor: '#fff' },
+  content: { gap: 8, paddingHorizontal: 12, paddingTop: 8, paddingBottom: 16 },
+  header: { gap: 8 },
+  description: { color: palette.textSecondary, fontSize: 13, paddingHorizontal: 4 },
+  visibility: { gap: 4 },
+  visibilityLabel: { color: palette.textSecondary, fontSize: 11 },
+  photoPlaceholder: { aspectRatio: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.06)' },
+  photos: { position: 'relative' },
+  photo: { aspectRatio: 1 },
+  pagination: { position: 'absolute', bottom: 8, left: 0, right: 0, gap: 4 },
+  paginationDot: { borderRadius: 3 },
+})

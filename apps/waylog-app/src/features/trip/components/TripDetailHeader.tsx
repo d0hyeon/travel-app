@@ -1,6 +1,6 @@
 import { useTrip } from '@waylog/domains/modules/trip'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { Pressable } from 'react-native'
+import { StyleSheet, Pressable } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Suspense } from 'react'
 import { Box, Skeleton, Stack } from '~/shared/components/design-system'
@@ -18,12 +18,12 @@ export function TripDetailHeader() {
 
 function TripDetailHeaderSkeleton() {
   return (
-    <Stack direction="row" alignItems="center" style={{ paddingHorizontal: 12, paddingVertical: 8, backgroundColor: palette.background }}>
-      <Box style={{ width: 22, height: 22, marginHorizontal: 4 }} />
-      <Stack style={{ flex: 1, paddingHorizontal: 8, paddingVertical: 4 }}>
-        <Skeleton variant="text" style={{ width: '50%' }} />
+    <Stack direction="row" alignItems="center" style={styles.header}>
+      <Box style={styles.iconPlaceholder} />
+      <Stack style={styles.titleArea}>
+        <Skeleton variant="text" style={styles.titlePlaceholder} />
       </Stack>
-      <Box style={{ width: 22, height: 22, marginHorizontal: 4 }} />
+      <Box style={styles.iconPlaceholder} />
     </Stack>
   )
 }
@@ -33,15 +33,15 @@ function Resolved() {
   const router = useRouter()
   const { data: trip, update } = useTrip(tripId)
   return (
-    <Stack direction="row" alignItems="center" style={{ paddingHorizontal: 12, paddingVertical: 8, backgroundColor: palette.background }}>
-      <Pressable accessibilityLabel="뒤로가기" onPress={() => router.back()} style={{ padding: 4 }}>
+    <Stack direction="row" alignItems="center" style={styles.header}>
+      <Pressable accessibilityLabel="뒤로가기" onPress={() => router.back()} style={styles.backButton}>
         <MaterialIcons name="arrow-back" size={22} color={palette.text} />
       </Pressable>
-      <Stack style={{ flex: 1, paddingHorizontal: 8, paddingVertical: 4 }}>
+      <Stack style={styles.titleArea}>
         <EditableText
           value={trip.name}
           variant="subtitle2"
-          style={{ fontWeight: '900' }}
+          style={styles.title}
           endIcon={<MaterialIcons name="edit" size={15} color={palette.grey} />}
           onSubmit={async (name) => {
             await update({ name: name.trim() })
@@ -52,3 +52,12 @@ function Resolved() {
     </Stack>
   )
 }
+
+const styles = StyleSheet.create({
+  header: { paddingHorizontal: 12, paddingVertical: 8, backgroundColor: palette.background },
+  iconPlaceholder: { width: 22, height: 22, marginHorizontal: 4 },
+  titleArea: { flex: 1, paddingHorizontal: 8, paddingVertical: 4 },
+  titlePlaceholder: { width: '50%' },
+  backButton: { padding: 4 },
+  title: { fontWeight: '900' },
+})

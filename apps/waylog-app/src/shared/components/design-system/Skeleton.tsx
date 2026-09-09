@@ -32,13 +32,7 @@ export function Skeleton({ width = '100%', height = 16, variant = 'text', style 
     <Box
       onLayout={handleLayout}
       style={[
-        {
-          width,
-          height,
-          borderRadius: variant === 'circular' ? 999 : variant === 'text' ? 4 : variant === 'rounded' ? 12 : 8,
-          backgroundColor: 'rgba(0,0,0,0.08)',
-          overflow: 'hidden',
-        },
+        [styles.box, { width, height, borderRadius: variant === 'circular' ? 999 : variant === 'text' ? 4 : variant === 'rounded' ? 12 : 8 }],
         style,
       ]}
     >
@@ -53,3 +47,10 @@ export function Skeleton({ width = '100%', height = 16, variant = 'text', style 
     </Box>
   )
 }
+
+const styles = StyleSheet.create({
+  box: {
+    backgroundColor: 'rgba(0,0,0,0.08)',
+    overflow: 'hidden',
+  },
+})

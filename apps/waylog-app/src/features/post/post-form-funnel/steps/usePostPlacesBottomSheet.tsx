@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { upsertPlace } from '@waylog/domains/modules/place'
 import { useTripPlaces } from '@waylog/domains/modules/trip'
 import { Suspense, useCallback, useState } from 'react'
-import { Pressable, View } from 'react-native'
+import { StyleSheet, Pressable, View } from 'react-native'
 import { BottomSheet } from '../../../../shared/components/bottom-sheet/BottomSheet'
 import { Button, Chip, Skeleton, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../../shared/config/tokens'
@@ -95,10 +95,10 @@ function PostPlacesSheet({
   return (
     <BottomSheet isOpen={isOpen} onDismiss={onCancel} snapPoints={[0.75]} safeArea>
       <BottomSheet.Header>위치</BottomSheet.Header>
-      <BottomSheet.Body style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
-        <View style={{ gap: 12 }}>
+      <BottomSheet.Body style={styles.body}>
+        <View style={styles.content}>
           {places.length > 0 && (
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            <View style={styles.selectedPlaces}>
               {places.map((place) => (
                 <Chip key={place.placeId} label={place.name} onDelete={() => togglePlace(place)} />
               ))}
@@ -106,7 +106,7 @@ function PostPlacesSheet({
           )}
           <Pressable
             onPress={() => void addSearchedPlace()}
-            style={{ paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+            style={styles.addPlace}
           >
             <Typography>장소 검색해서 추가</Typography>
             <MaterialIcons name="search" size={20} color={palette.textSecondary} />
@@ -148,16 +148,16 @@ function TripPlaceSelection({
     )
 
   return (
-    <View style={{ gap: 6 }}>
+    <View style={styles.results}>
       {tripPlaces.map((place) => {
         const checked = selected.some((candidate) => candidate.placeId === place.placeId)
         return (
           <Pressable
             key={place.id}
             onPress={() => onToggle({ placeId: place.placeId, name: place.name, address: place.address || null })}
-            style={{ paddingVertical: 10, flexDirection: 'row', alignItems: 'center' }}
+            style={styles.placeRow}
           >
-            <View style={{ flex: 1 }}>
+            <View style={styles.placeDetails}>
               <Typography variant="body2">{place.name}</Typography>
               <Typography variant="caption" color="text.secondary">
                 {place.address}
@@ -173,10 +173,21 @@ function TripPlaceSelection({
 
 function PlaceListSkeleton() {
   return (
-    <View style={{ gap: 8 }}>
+    <View style={styles.emptyState}>
       {Array.from({ length: 3 }).map((_, index) => (
         <Skeleton key={index} width="100%" height={52} />
       ))}
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  body: { paddingHorizontal: 16, paddingBottom: 16 },
+  content: { gap: 12 },
+  selectedPlaces: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  addPlace: { paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  results: { gap: 6 },
+  placeRow: { paddingVertical: 10, flexDirection: 'row', alignItems: 'center' },
+  placeDetails: { flex: 1 },
+  emptyState: { gap: 8 },
+})

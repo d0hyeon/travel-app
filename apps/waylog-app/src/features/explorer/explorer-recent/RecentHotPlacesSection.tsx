@@ -1,7 +1,7 @@
 import type { Location } from '@waylog/domains/modules/location'
 import type { PlaceCategoryType } from '@waylog/domains/modules/place'
 import { useRouter } from 'expo-router'
-import { ScrollView, View } from 'react-native'
+import { StyleSheet, ScrollView, View } from 'react-native'
 import { ExplorerPlaceCard } from '../explorer-place-item/ExplorerPlaceCard'
 import { buildExplorerPlaceDetailPath } from '../explorer.utils'
 import { ExplorerEmptyState } from '../explorer-view/ExplorerEmptyState'
@@ -24,7 +24,7 @@ export function RecentHotPlacesSection({ location, category }: Props) {
       {places.length === 0 ? (
         <ExplorerEmptyState />
       ) : (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.placesContent}>
           {places.map((place) => (
             <ExplorerPlaceCard
               key={place.placeId}
@@ -38,3 +38,7 @@ export function RecentHotPlacesSection({ location, category }: Props) {
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  placesContent: { paddingHorizontal: 16, gap: 12 },
+})

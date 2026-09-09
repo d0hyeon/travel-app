@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons';
 import { Box, Stack } from "~/shared/components/design-system";
 import { Chip } from "~/shared/components/design-system/Chip";
@@ -40,28 +41,23 @@ export function TripPlaceItemButton({ place, ...props }: ItemProps) {
       <Stack direction="row" gap={0.5} alignItems="center">
         {!!place.category && (
           <Box
-            style={{
-              width: 12,
-              height: 12,
-              borderRadius: 6,
-              backgroundColor: PlaceCategoryColorCode[place.category],
-            }}
+            style={[styles.categoryDot, { backgroundColor: PlaceCategoryColorCode[place.category] }]}
           />
         )}
         <ListItem.Title>{place.name}</ListItem.Title>
       </Stack>
       {!!place.address && (
-        <ListItem.Text variant="body2" color="text.secondary" style={{ fontSize: 12 }}>
+        <ListItem.Text variant="body2" color="text.secondary" style={styles.description}>
           {place.address}
         </ListItem.Text>
       )}
       {!!place.memo && (
-        <ListItem.Text variant="body2" color="text.secondary" style={{ fontSize: 12 }}>
+        <ListItem.Text variant="body2" color="text.secondary" style={styles.description}>
           {place.memo}
         </ListItem.Text>
       )}
       {place.tags.length > 0 && (
-        <Stack direction="row" gap={0.5} style={{ flexWrap: 'wrap', marginTop: 4 }}>
+        <Stack direction="row" gap={0.5} style={styles.tags}>
           {place.tags.map(x => (
             <Chip key={x} label={x} size="small" />
           ))}
@@ -92,3 +88,9 @@ function PlaceItemMenu({ onEdit, onDelete }: PlaceItemMenuProps) {
     />
   )
 }
+
+const styles = StyleSheet.create({
+  categoryDot: { width: 12, height: 12, borderRadius: 6 },
+  description: { fontSize: 12 },
+  tags: { flexWrap: 'wrap', marginTop: 4 },
+})

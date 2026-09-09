@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import { useMemo } from 'react'
 import { Stack, Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../shared/config/tokens'
@@ -11,7 +12,7 @@ export function ProfileStatStrip({ userId }: { userId: string }) {
   const countryCount = useMemo(() => countUniqueCountries(trips), [trips])
 
   return (
-    <Stack direction="row" gap={2} style={{ marginHorizontal: 16, padding: 4, borderRadius: radius.lg, backgroundColor: '#f5f5f7' }}>
+    <Stack direction="row" gap={2} style={styles.statistics}>
       <StatCell value={trips.length} label="여행" />
       <StatCell value={countryCount} label="나라" />
       <StatCell value={photos.length.toLocaleString()} label="사진" />
@@ -20,5 +21,11 @@ export function ProfileStatStrip({ userId }: { userId: string }) {
 }
 
 function StatCell({ value, label }: { value: number | string; label: string }) {
-  return <Stack flex={1} alignItems="center" gap={2} style={{ paddingVertical: 8 }}><Typography style={{ fontSize: 16, fontWeight: 'bold', color: palette.text }}>{value}</Typography><Typography variant="caption" color="text.secondary">{label}</Typography></Stack>
+  return <Stack flex={1} alignItems="center" gap={2} style={styles.statistic}><Typography style={styles.count}>{value}</Typography><Typography variant="caption" color="text.secondary">{label}</Typography></Stack>
 }
+
+const styles = StyleSheet.create({
+  statistics: { marginHorizontal: 16, padding: 4, borderRadius: radius.lg, backgroundColor: '#f5f5f7' },
+  statistic: { paddingVertical: 8 },
+  count: { fontSize: 16, fontWeight: 'bold', color: palette.text },
+})

@@ -1,6 +1,6 @@
 import { useOpenGraph } from '@waylog/domains/modules/open-graph'
 import { Suspense } from 'react'
-import { Linking, Pressable } from 'react-native'
+import { StyleSheet, Linking, Pressable } from 'react-native'
 import { Box, Skeleton, Stack, Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../shared/config/tokens'
 import { LoadableImage } from '../../shared/components/LoadableImage'
@@ -22,19 +22,14 @@ function Resolved({ url }: Props) {
 
   return (
     <Pressable onPress={() => void Linking.openURL(data.url)}>
-      <Box style={{ borderWidth: 1, borderColor: palette.divider, borderRadius: radius.md }}>
+      <Box style={styles.card}>
         {data.image ? (
-          <Stack direction="row" gap={1.5} style={{ padding: 12 }}>
+          <Stack direction="row" gap={1.5} style={styles.content}>
             <LoadableImage
               source={{ uri: data.image }}
-              style={{
-                width: 80,
-                height: 80,
-                borderRadius: radius.sm,
-                backgroundColor: 'rgba(0,0,0,0.08)',
-              }}
+              style={styles.thumbnail}
             />
-            <Stack style={{ flex: 1, gap: 2 }}>
+            <Stack style={styles.description}>
               {data.title && (
                 <Typography variant="body2" numberOfLines={1}>
                   {data.title}
@@ -51,7 +46,7 @@ function Resolved({ url }: Props) {
             </Stack>
           </Stack>
         ) : (
-          <Stack style={{ padding: 12, gap: 2 }}>
+          <Stack style={styles.fallbackContent}>
             {data.title && (
               <Typography variant="body2" numberOfLines={1}>
                 {data.title}
@@ -69,10 +64,10 @@ function Resolved({ url }: Props) {
 
 function Pending() {
   return (
-    <Box style={{ borderWidth: 1, borderColor: palette.divider, borderRadius: radius.md }}>
-      <Stack direction="row" gap={1} style={{ padding: 12 }}>
+    <Box style={styles.card}>
+      <Stack direction="row" gap={1} style={styles.content}>
         <Skeleton variant="rectangular" width={80} height={60} />
-        <Stack style={{ flex: 1, gap: 4 }}>
+        <Stack style={styles.loadingDescription}>
           <Skeleton variant="text" width="80%" />
           <Skeleton variant="text" width="60%" />
         </Stack>
@@ -88,3 +83,12 @@ function getDomain(url: string): string {
     return url
   }
 }
+
+const styles = StyleSheet.create({
+  card: { borderWidth: 1, borderColor: palette.divider, borderRadius: radius.md },
+  content: { padding: 12 },
+  thumbnail: { width: 80, height: 80, borderRadius: radius.sm, backgroundColor: 'rgba(0,0,0,0.08)' },
+  description: { flex: 1, gap: 2 },
+  fallbackContent: { padding: 12, gap: 2 },
+  loadingDescription: { flex: 1, gap: 4 },
+})

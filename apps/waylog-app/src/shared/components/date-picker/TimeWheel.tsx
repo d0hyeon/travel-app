@@ -83,7 +83,7 @@ function WheelColumn({ options, value, suffix, onChange }: WheelColumnProps) {
         index,
       })}
       // 위아래 여백만큼 채워야 첫 항목과 끝 항목도 가운데로 올라온다.
-      contentContainerStyle={{ paddingVertical: ITEM_HEIGHT * ((VISIBLE_COUNT - 1) / 2) }}
+      contentContainerStyle={styles.wheelColumnFlatListContent}
       onMomentumScrollEnd={handleSettle}
       renderItem={({ item }) => {
         const isSelected = item === value
@@ -121,5 +121,9 @@ const styles = StyleSheet.create({
     height: ITEM_HEIGHT,
     borderRadius: radius.md,
     backgroundColor: 'rgba(76,132,255,0.10)',
+  },
+
+  wheelColumnFlatListContent: {
+    paddingVertical: ITEM_HEIGHT * ((VISIBLE_COUNT - 1) / 2),
   },
 })

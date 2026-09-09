@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import type { ComponentProps } from 'react'
 import { palette, radius } from '../config/tokens'
 import { ErrorBoundary } from '@waylog/react'
@@ -17,15 +18,9 @@ export function CommonErrorBoundary(props: ComponentProps<typeof ErrorBoundary>)
           alignItems="center"
           justifyContent="space-between"
           gap={8}
-          style={{
-            margin: 16,
-            marginHorizontal: 12,
-            padding: 12,
-            borderRadius: radius.md,
-            backgroundColor: ERROR_SURFACE,
-          }}
+          style={styles.container}
         >
-          <Stack gap={2} style={{ flexShrink: 1 }}>
+          <Stack gap={2} style={styles.message}>
             <Typography variant="subtitle1" color={ERROR_MAIN}>
               에러가 발생했어요!
             </Typography>
@@ -43,3 +38,16 @@ export function CommonErrorBoundary(props: ComponentProps<typeof ErrorBoundary>)
     />
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    margin: 16,
+    marginHorizontal: 12,
+    padding: 12,
+    borderRadius: radius.md,
+    backgroundColor: ERROR_SURFACE,
+  },
+  message: {
+    flexShrink: 1,
+  },
+})

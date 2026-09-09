@@ -1,4 +1,4 @@
-import { Modal, Pressable } from 'react-native'
+import { StyleSheet, Modal, Pressable } from 'react-native'
 import { palette, radius } from '../../config/tokens'
 import { Box, Stack, Typography } from '~/shared/components/design-system'
 import { Button } from '~/shared/components/design-system/Button'
@@ -26,22 +26,11 @@ export default function ConfirmDialog({
     <Modal visible={isOpen} transparent animationType="fade" onRequestClose={onCancel}>
       <Pressable
         onPress={onCancel}
-        style={{
-          flex: 1,
-          backgroundColor: 'rgba(0,0,0,0.4)',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: 24,
-        }}
+        style={styles.backdrop}
       >
-        <Pressable onPress={(event) => event.stopPropagation()} style={{ width: '100%' }}>
+        <Pressable onPress={(event) => event.stopPropagation()} style={styles.dialogTarget}>
           <Box
-            style={{
-              backgroundColor: palette.background,
-              borderRadius: radius.xxl,
-              padding: 20,
-              gap: 16,
-            }}
+            style={styles.dialog}
           >
             <Stack gap={1}>
               <Typography variant="h6">{title}</Typography>
@@ -66,3 +55,22 @@ export default function ConfirmDialog({
     </Modal>
   )
 }
+
+const styles = StyleSheet.create({
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  dialogTarget: {
+    width: '100%',
+  },
+  dialog: {
+    backgroundColor: palette.background,
+    borderRadius: radius.xxl,
+    padding: 20,
+    gap: 16,
+  },
+})

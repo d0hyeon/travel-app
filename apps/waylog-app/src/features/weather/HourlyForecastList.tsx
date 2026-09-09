@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import { formatDate, getHours, isToday as getIsToday, set } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { Suspense, useMemo } from 'react'
@@ -74,23 +75,17 @@ function HourlyForecastListSkeleton({
         <Stack
           key={hour}
           gap={0.5}
-          style={{
-            paddingVertical: 8,
-            paddingHorizontal: 12,
-            borderRadius: 16,
-            borderWidth: 1,
-            borderColor: palette.divider,
-          }}
+          style={styles.forecastCard}
         >
           <Typography variant="subtitle2">
             {formatDate(set(now, { hours: hour }), 'b h시', { locale: ko })}
           </Typography>
 
-          <Stack direction="row" alignItems="center" gap={1} style={{ paddingLeft: 4 }}>
+          <Stack direction="row" alignItems="center" gap={1} style={styles.metrics}>
             <PendingMetric label="기온" />
-            <Divider orientation="vertical" style={{ height: 10, alignSelf: 'center' }} />
+            <Divider orientation="vertical" style={styles.metricDivider} />
             <PendingMetric label="습도" />
-            <Divider orientation="vertical" style={{ height: 10, alignSelf: 'center' }} />
+            <Divider orientation="vertical" style={styles.metricDivider} />
             <PendingMetric label="풍속" />
           </Stack>
         </Stack>
@@ -114,3 +109,9 @@ function PendingMetric({ label }: { label: string }) {
 function range(start: number, end: number): number[] {
   return Array.from({ length: end - start }).map((_, index) => index + start)
 }
+
+const styles = StyleSheet.create({
+  forecastCard: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 16, borderWidth: 1, borderColor: palette.divider },
+  metrics: { paddingLeft: 4 },
+  metricDivider: { height: 10, alignSelf: 'center' },
+})

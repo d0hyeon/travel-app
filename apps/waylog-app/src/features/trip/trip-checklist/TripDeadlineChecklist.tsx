@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import { Skeleton, Stack, Typography, type StackProps } from "~/shared/components/design-system";
 import { TripChecklist } from './TripChecklist';
 import { useTripChecklist } from '@waylog/domains/modules/trip-checklist';
@@ -26,7 +27,7 @@ function Resolved({ tripId, hideOnEmpty, ...props }: Props) {
 
 
   return (
-    <Stack gap={1} style={{ width: '100%' }}>
+    <Stack gap={1} style={styles.container}>
       <Typography variant="subtitle2" color="text.secondary">
         해야할 일
       </Typography>
@@ -39,7 +40,7 @@ function Resolved({ tripId, hideOnEmpty, ...props }: Props) {
             tripId={tripId}
           />
         ))
-      ) : <Typography variant="body2" color="text.secondary" style={{ paddingVertical: 24 }}>모든 사항을 점검했어요</Typography>}
+      ) : <Typography variant="body2" color="text.secondary" style={styles.emptyMessage}>모든 사항을 점검했어요</Typography>}
       </Stack>
     </Stack>
   )
@@ -56,3 +57,7 @@ function Pending(props: StackProps) {
     </Stack>
   )
 }
+const styles = StyleSheet.create({
+  container: { width: '100%' },
+  emptyMessage: { paddingVertical: 24 },
+})

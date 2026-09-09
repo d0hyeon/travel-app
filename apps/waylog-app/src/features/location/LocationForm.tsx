@@ -1,7 +1,7 @@
 import type { Location } from '@waylog/domains/modules/location'
 import { LocationGroups, LocationOptions } from '@waylog/domains/modules/location'
 import { createContext, useContext, useState, type ReactNode } from 'react'
-import { ScrollView } from 'react-native'
+import { StyleSheet, ScrollView } from 'react-native'
 import { Box, Chip, Stack, Typography } from '~/shared/components/design-system'
 import { Button } from '~/shared/components/design-system'
 
@@ -57,14 +57,14 @@ export function LocationForm(props: Props | MultipleProps) {
 
   return (
     <LocationFormContext value={{ isValid: value.length >= 1, submit }}>
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 24 }}>
+      <ScrollView contentContainerStyle={styles.content}>
         <Stack gap={2.5}>
           {GroupOptions.map((group) => (
             <Box key={group.label}>
-              <Typography variant="caption" color="text.secondary" style={{ marginBottom: 8 }}>
+              <Typography variant="caption" color="text.secondary" style={styles.groupLabel}>
                 {group.label}
               </Typography>
-              <Stack direction="row" gap={1} style={{ flexWrap: 'wrap' }}>
+              <Stack direction="row" gap={1} style={styles.options}>
                 {group.locations.map((location) => {
                   const isSelected = value.some((name) => name === location)
 
@@ -103,3 +103,9 @@ function toInitialValue(props: Props | MultipleProps): Location[] {
   if (props.multiple) return props.defaultValue ?? []
   return props.defaultValue ? [props.defaultValue] : []
 }
+
+const styles = StyleSheet.create({
+  content: { paddingHorizontal: 24, paddingBottom: 24 },
+  groupLabel: { marginBottom: 8 },
+  options: { flexWrap: 'wrap' },
+})

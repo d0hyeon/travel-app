@@ -401,7 +401,7 @@ export function BottomSheet({
 
   return (
     <View
-      style={[StyleSheet.absoluteFill, { zIndex: zLayer.bottomSheet }]}
+      style={[StyleSheet.absoluteFill, styles.bottomSheetView]}
       pointerEvents="box-none"
       onLayout={(e) => setHostH(Math.round(e.nativeEvent.layout.height))}
     >
@@ -436,7 +436,7 @@ function Header({ children, rightElement, style, ...props }: StackProps & { righ
           direction="row"
           alignItems="center"
           justifyContent="space-between"
-          style={[{ paddingHorizontal: 16, paddingVertical: 8 }, style]}
+          style={[styles.headerStack, style]}
           {...props}
         >
           {/* 문자열을 그대로 받으면 RN 이 렌더하지 못한다. 제목은 감싸준다. */}
@@ -454,9 +454,9 @@ function Body({ children, style, ...props }: BoxProps) {
 
   return (
     <GestureDetector gesture={pan}>
-      <View style={{ flex: 1 }}>
+      <View style={styles.bodyView}>
         <BodyPanContext.Provider value={pan}>
-          <Box style={[{ flex: 1 }, style]} {...props}>{children}</Box>
+          <Box style={[styles.bodyBox, style]} {...props}>{children}</Box>
         </BodyPanContext.Provider>
       </View>
     </GestureDetector>
@@ -515,7 +515,7 @@ function KeyboardAwareBody({ children, style, width, height, flex, minWidth, pos
       <BodyPanContext.Provider value={pan}>
         <Animated.ScrollView
           ref={scrollRef}
-          style={{ flex: 1 }}
+          style={styles.keyboardAwareBodyScrollView}
           scrollEnabled={isKeyboardVisible}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={contentStyle}
@@ -587,7 +587,7 @@ function SheetScrollView({
         <Animated.ScrollView
           ref={scrollRef}
           horizontal={horizontal}
-          style={[{ flex: 1 }, style]}
+          style={[styles.sheetScrollViewScrollView, style]}
           animatedProps={scrollProps}
           {...props}
         >
@@ -619,7 +619,7 @@ function GestureArea({ children, style, ...props }: BoxProps) {
   // 않는 것이 기본 동작이고, style 로 주면 그대로 덮어써 원하는 크기를 준다.
   return (
     <GestureDetector gesture={block}>
-      <View style={[{ flex: 1 }, style]} {...props}>
+      <View style={[styles.gestureAreaView, style]} {...props}>
         {children}
       </View>
     </GestureDetector>
@@ -632,12 +632,7 @@ function BottomActions({ children, style, ...props }: StackProps) {
       direction="row"
       gap={1}
       style={[
-        {
-          paddingHorizontal: 16,
-          paddingVertical: 8,
-          backgroundColor: palette.background,
-          zIndex: zLayer.bottomSheet,
-        },
+        styles.bottomActionsStack,
         style,
       ]}
       {...props}
@@ -673,4 +668,33 @@ const styles = StyleSheet.create({
   // 손가락으로 잡는 자리다. 선만큼만 잡히면 답답해서 넉넉히 준다.
   handleArea: { alignItems: 'center', paddingTop: 12, paddingBottom: 16 },
   handle: { width: 40, height: 4, borderRadius: 2, backgroundColor: '#d0d0d0' },
+
+  bottomSheetView: {
+    zIndex: zLayer.bottomSheet,
+  },
+  headerStack: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  bodyView: {
+    flex: 1,
+  },
+  bodyBox: {
+    flex: 1,
+  },
+  keyboardAwareBodyScrollView: {
+    flex: 1,
+  },
+  sheetScrollViewScrollView: {
+    flex: 1,
+  },
+  gestureAreaView: {
+    flex: 1,
+  },
+  bottomActionsStack: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: palette.background,
+    zIndex: zLayer.bottomSheet,
+  },
 })

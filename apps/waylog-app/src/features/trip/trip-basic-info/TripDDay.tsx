@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import { Box, Skeleton, Typography, type BoxProps } from '~/shared/components/design-system'
 import type { TextStyle } from 'react-native'
 import { useCountAnimation } from '../../../shared/hooks/animation/useCountdownAnimation'
@@ -81,12 +82,7 @@ function DDayBox({ style, ...props }: BoxProps) {
   return (
     <Box
       style={[
-        {
-          backgroundColor: '#eef1f5',
-          borderRadius: 20,
-          paddingHorizontal: 20,
-          paddingVertical: 24,
-        },
+        styles.card,
         style,
       ]}
       {...props}
@@ -110,7 +106,7 @@ function BeforeTripDDay({ days, animationEnabled, ...props }: BeforeTripDDayProp
           variant="h6"
           color="primary.main"
           fontWeight={700}
-          style={{ marginHorizontal: 4 }}
+          style={styles.countLabel}
         >
           {displayDays}일
         </Typography>
@@ -133,7 +129,7 @@ function DuringTripDDay({ day, animationEnabled, ...props }: DuringTripDDayProps
           variant="h6"
           color="success.main"
           fontWeight={700}
-          style={{ marginHorizontal: 4 }}
+          style={styles.countLabel}
         >
           {displayDay}일차
         </Typography>
@@ -196,7 +192,7 @@ function AfterTripDDay({ dateDiff, animationEnabled, ...props }: AfterTripDDayPr
           </Typography>
         )}
         {!isOnlyDays && (
-          <Typography variant="body2" color="text.disabled" style={[{ marginLeft: 4 }, numStyle]}>
+          <Typography variant="body2" color="text.disabled" style={[styles.elapsedLabel, numStyle]}>
             ({String(animatedTotalDays).padStart(totalDaysDigits, '\u2007')}일)
           </Typography>
         )}
@@ -206,3 +202,9 @@ function AfterTripDDay({ dateDiff, animationEnabled, ...props }: AfterTripDDayPr
     </DDayBox>
   )
 }
+
+const styles = StyleSheet.create({
+  card: { backgroundColor: '#eef1f5', borderRadius: 20, paddingHorizontal: 20, paddingVertical: 24 },
+  countLabel: { marginHorizontal: 4 },
+  elapsedLabel: { marginLeft: 4 },
+})

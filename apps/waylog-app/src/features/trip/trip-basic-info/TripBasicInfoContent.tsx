@@ -1,4 +1,4 @@
-import { ScrollView } from 'react-native'
+import { StyleSheet, ScrollView } from 'react-native'
 import { Box, Stack, Tab, Tabs, Typography } from "~/shared/components/design-system"
 import { Suspense } from 'react'
 import { BottomArea } from "../../../shared/components/BottomArea"
@@ -26,17 +26,17 @@ export function TripBasicInfoContent({ tripId }: Props) {
 
 
   return (
-    <Stack style={{ flex: 1, minHeight: 0 }}>
+    <Stack style={styles.container}>
       <Tabs value={currentTab} onChange={(_, value) => setCurrentTab(value)}>
         <Tab value="default" label="기본정보" />
         <Tab value="checklist" label="체크리스트" />
         <Tab value="memo" label="메모" />
       </Tabs>
-      <Box style={{ flex: 1, width: '100%' }}>
+      <Box style={styles.content}>
         {currentTab === 'default' && (
-          <ScrollView contentContainerStyle={{ padding: 16 }}>
-            <Suspense fallback={<TripDDay.Skeleton style={{ marginBottom: 16 }} />}>
-              <TripDDay tripId={tripId} style={{ marginBottom: 16 }} />
+          <ScrollView contentContainerStyle={styles.scrollContent}>
+            <Suspense fallback={<TripDDay.Skeleton style={styles.dDay} />}>
+              <TripDDay tripId={tripId} style={styles.dDay} />
             </Suspense>
 
             <Stack gap={3} alignItems="flex-start">
@@ -52,20 +52,14 @@ export function TripBasicInfoContent({ tripId }: Props) {
                 direction="horizontal"
                 size="s"
                 gap={1}
-                style={{
-                  borderWidth: 1,
-                  borderColor: '#ddd',
-                  padding: 16,
-                  borderRadius: 16,
-                  width: '100%',
-                }}
+                style={styles.baseInfo}
               />
 
               <TripDeadlineChecklist tripId={tripId} gap={1} hideOnEmpty />
 
               <TripPinnedMemos tripId={tripId} hideOnEmpty />
 
-              <Stack gap={1} style={{ width: '100%' }}>
+              <Stack gap={1} style={styles.fullWidth}>
                 <RecommendedPlaceListSection
                   tripId={tripId}
                   header={
@@ -82,7 +76,7 @@ export function TripBasicInfoContent({ tripId }: Props) {
 
               <TripMemberSection tripId={tripId} />
 
-              <TripLeaveButton tripId={tripId} fullWidth variant="outlined" style={{ marginTop: 48 }} />
+              <TripLeaveButton tripId={tripId} fullWidth variant="outlined" style={styles.leaveButton} />
 
             </Stack>
           </ScrollView>
@@ -90,7 +84,7 @@ export function TripBasicInfoContent({ tripId }: Props) {
 
         {currentTab === 'checklist' && (
           <>
-            <ScrollView contentContainerStyle={{ padding: 16 }}>
+            <ScrollView contentContainerStyle={styles.scrollContent}>
               <TripChecklist tripId={tripId} />
             </ScrollView>
             <BottomArea position="static" bottom={8}>
@@ -107,3 +101,13 @@ export function TripBasicInfoContent({ tripId }: Props) {
     </Stack>
   )
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, minHeight: 0 },
+  content: { flex: 1, width: '100%' },
+  scrollContent: { padding: 16 },
+  dDay: { marginBottom: 16 },
+  baseInfo: { borderWidth: 1, borderColor: '#ddd', padding: 16, borderRadius: 16, width: '100%' },
+  fullWidth: { width: '100%' },
+  leaveButton: { marginTop: 48 },
+})
