@@ -4,13 +4,7 @@ import { computeMarkerVisibility } from '../useMapMarkerRegistry.utils'
 const BOUNDS = { north: 38, south: 37, east: 127, west: 126 }
 const PADDING_RATIO = 0.2
 
-function toPixelStub(bounds: typeof BOUNDS) {
-  const scale = 1000 / (bounds.east - bounds.west)
-  return (coord: { lat: number; lng: number }) => ({
-    x: (coord.lng - bounds.west) * scale,
-    y: (bounds.north - coord.lat) * scale,
-  })
-}
+const CAMERA = { zoom: 14, bounds: BOUNDS, screenWidth: 390 }
 
 describe('computeMarkerVisibility', () => {
   it('뷰포트 밖 마커는 컬링되어 visibleMarkerIds에서 제외된다', () => {
@@ -21,10 +15,9 @@ describe('computeMarkerVisibility', () => {
 
     const result = computeMarkerVisibility({
       markers,
-      visibleBounds: BOUNDS,
+      camera: CAMERA,
       clustering: false,
       clusterGridSize: 50,
-      toPixel: toPixelStub,
       paddingRatio: PADDING_RATIO,
     })
 
@@ -32,7 +25,7 @@ describe('computeMarkerVisibility', () => {
     expect(result.clusters).toBeNull()
   })
 
-  it('visibleBounds가 null이면 컬링·클러스터링을 계산하지 않고 전체를 보여준다', () => {
+  it('클러스터링 중이면 카메라를 알기 전까지 아무것도 보여주지 않는다', () => {
     const markers = [
       { id: 'a', lat: 37.5, lng: 126.5 },
       { id: 'b', lat: 37.5001, lng: 126.5001 },
@@ -40,10 +33,27 @@ describe('computeMarkerVisibility', () => {
 
     const result = computeMarkerVisibility({
       markers,
-      visibleBounds: null,
+      camera: null,
       clustering: true,
       clusterGridSize: 50,
-      toPixel: toPixelStub,
+      paddingRatio: PADDING_RATIO,
+    })
+
+    expect(result.visibleMarkerIds).toEqual(new Set())
+    expect(result.clusters).toBeNull()
+  })
+
+  it('클러스터링을 쓰지 않으면 카메라를 몰라도 전체를 보여준다', () => {
+    const markers = [
+      { id: 'a', lat: 37.5, lng: 126.5 },
+      { id: 'b', lat: 37.5001, lng: 126.5001 },
+    ]
+
+    const result = computeMarkerVisibility({
+      markers,
+      camera: null,
+      clustering: false,
+      clusterGridSize: 50,
       paddingRatio: PADDING_RATIO,
     })
 
@@ -59,10 +69,9 @@ describe('computeMarkerVisibility', () => {
 
     const result = computeMarkerVisibility({
       markers,
-      visibleBounds: BOUNDS,
+      camera: CAMERA,
       clustering: false,
       clusterGridSize: 50,
-      toPixel: toPixelStub,
       paddingRatio: PADDING_RATIO,
     })
 
@@ -75,10 +84,9 @@ describe('computeMarkerVisibility', () => {
 
     const result = computeMarkerVisibility({
       markers,
-      visibleBounds: BOUNDS,
+      camera: CAMERA,
       clustering: true,
       clusterGridSize: 50,
-      toPixel: toPixelStub,
       paddingRatio: PADDING_RATIO,
     })
 
@@ -94,10 +102,9 @@ describe('computeMarkerVisibility', () => {
 
     const result = computeMarkerVisibility({
       markers,
-      visibleBounds: BOUNDS,
+      camera: CAMERA,
       clustering: true,
       clusterGridSize: 50,
-      toPixel: toPixelStub,
       paddingRatio: PADDING_RATIO,
     })
 
@@ -115,10 +122,9 @@ describe('computeMarkerVisibility', () => {
 
     const result = computeMarkerVisibility({
       markers,
-      visibleBounds: BOUNDS,
+      camera: CAMERA,
       clustering: true,
       clusterGridSize: 50,
-      toPixel: toPixelStub,
       paddingRatio: PADDING_RATIO,
     })
 
@@ -136,10 +142,9 @@ describe('computeMarkerVisibility', () => {
 
     const result = computeMarkerVisibility({
       markers,
-      visibleBounds: BOUNDS,
+      camera: CAMERA,
       clustering: true,
       clusterGridSize: 50,
-      toPixel: toPixelStub,
       paddingRatio: PADDING_RATIO,
     })
 

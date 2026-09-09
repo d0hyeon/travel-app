@@ -1,9 +1,9 @@
 import {
   clusterMarkers,
+  createZoomToPixel,
   type Cluster,
   type MapBounds,
   type MarkerData,
-  type ToPixel,
 } from '@waylog/domains/modules/map'
 import { isCoordinateInBounds } from './useMapViewportCulling'
 import type { RegisteredMapMarker } from './useMapMarkerRegistry'
@@ -15,24 +15,34 @@ export interface MarkerVisibility {
 
 interface ComputeMarkerVisibilityParams {
   markers: RegisteredMapMarker[]
-  visibleBounds: MapBounds | null
+  camera: MapCamera | null
   clustering: boolean
   clusterGridSize: number
-  toPixel: (bounds: MapBounds) => ToPixel
   paddingRatio: number
+}
+
+export interface MapCamera {
+  zoom: number
+  bounds: MapBounds
+  /** 뷰포트의 가로 논리 픽셀. 군집 반경을 화면 기준으로 환산하는 데 쓴다. */
+  screenWidth: number
 }
 
 export function computeMarkerVisibility({
   markers,
-  visibleBounds,
+  camera,
   clustering,
   clusterGridSize,
-  toPixel,
   paddingRatio,
 }: ComputeMarkerVisibilityParams): MarkerVisibility {
-  const visibleMarkers = filterByViewport(markers, visibleBounds, paddingRatio)
+  // 카메라를 알기 전에 그리면 개별 마커가 먼저 보였다가 클러스터로 바뀌며 깜빡인다.
+  if (clustering && camera == null) {
+    return { visibleMarkerIds: new Set(), clusters: null }
+  }
 
-  if (!clustering || visibleBounds == null || visibleMarkers.length < 2) {
+  const visibleMarkers = filterByViewport(markers, camera?.bounds ?? null, paddingRatio)
+
+  if (!clustering || camera == null || visibleMarkers.length < 2) {
     return { visibleMarkerIds: new Set(visibleMarkers.map((marker) => marker.id)), clusters: null }
   }
 
@@ -41,7 +51,7 @@ export function computeMarkerVisibility({
     position: { lat: marker.lat, lng: marker.lng },
   }))
 
-  const clusters = clusterMarkers(data, toPixel(visibleBounds), clusterGridSize)
+  const clusters = clusterMarkers(data, createZoomToPixel(camera.zoom), toWorldDistance(camera, clusterGridSize))
 
   const singletonMarkerIds = clusters
     .filter((cluster) => cluster.markers.length === 1)
@@ -64,4 +74,14 @@ function filterByViewport(
   return markers.filter((marker) =>
     isCoordinateInBounds({ lat: marker.lat, lng: marker.lng }, visibleBounds, padding),
   )
+}
+
+// createZoomToPixel 은 화면이 아니라 Web Mercator 월드 픽셀을 돌려준다.
+// 화면 기준 반경을 그대로 쓰면 배율만큼 어긋나므로 월드 픽셀로 환산한다.
+function toWorldDistance({ zoom, bounds, screenWidth }: MapCamera, screenDistance: number): number {
+  const worldWidth = 2 ** zoom * 256
+  const visibleWorldWidth = ((bounds.east - bounds.west) / 360) * worldWidth
+  if (visibleWorldWidth <= 0 || screenWidth <= 0) return screenDistance
+
+  return screenDistance * (visibleWorldWidth / screenWidth)
 }
