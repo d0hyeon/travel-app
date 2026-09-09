@@ -4,7 +4,6 @@ import { Pressable, StyleSheet, Text, View } from 'react-native'
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
 import { formatClusterCount, resolveClusterAppearance } from './NativeMapCluster.utils'
 import { useAnimatedCoordinate } from './useAnimatedCoordinate'
-import { useAnimatedCount } from './useAnimatedCount'
 
 interface Props {
   latitude: number
@@ -23,7 +22,13 @@ const PRESSED_SCALE = 0.92
 const LEAVE_DURATION = 300
 
 export function NativeMapCluster({ latitude, longitude, count, leavingTo, emergingFrom, onTap }: Props) {
-  const movingCount = useAnimatedCount(count)
+  const isLeaving = leavingTo != null
+  const movingCoordinate = useAnimatedCoordinate(
+    isLeaving ? { latitude: leavingTo.lat, longitude: leavingTo.lng } : { latitude, longitude },
+    emergingFrom == null
+      ? undefined
+      : { latitude: emergingFrom.lat, longitude: emergingFrom.lng },
+  )
 
   const {
     size,
@@ -38,15 +43,7 @@ export function NativeMapCluster({ latitude, longitude, count, leavingTo, emergi
     shadowOffsetY,
     elevation,
     rings = [],
-  } = resolveClusterAppearance(movingCount)
-
-  const isLeaving = leavingTo != null
-  const movingCoordinate = useAnimatedCoordinate(
-    isLeaving ? { latitude: leavingTo.lat, longitude: leavingTo.lng } : { latitude, longitude },
-    emergingFrom == null
-      ? undefined
-      : { latitude: emergingFrom.lat, longitude: emergingFrom.lng },
-  )
+  } = resolveClusterAppearance(count)
 
   const scale = useSharedValue(1)
   const pressedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.get() }] }))
@@ -79,7 +76,7 @@ export function NativeMapCluster({ latitude, longitude, count, leavingTo, emergi
           },
         ]}
       >
-        <Text style={[styles.count, { color: textColor, fontSize }]}>{formatClusterCount(movingCount)}</Text>
+        <Text style={[styles.count, { color: textColor, fontSize }]}>{formatClusterCount(count)}</Text>
       </View>
     </View>
   )
