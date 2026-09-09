@@ -31,7 +31,7 @@ export function TripLeaveButton({ tripId, children = '여행에서 나가기', .
   }
 
   return (
-    <Button {...props} color="error" onClick={handleLeaveTrip}>
+    <Button {...props} color="error" onPress={handleLeaveTrip}>
       {children}
     </Button>
   )

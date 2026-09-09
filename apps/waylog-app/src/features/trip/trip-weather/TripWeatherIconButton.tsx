@@ -60,7 +60,7 @@ function Resolved({ tripId }: Props) {
 
   return (
     <IconButton
-      onClick={openHourlyForecastSheet}
+      onPress={openHourlyForecastSheet}
       sx={hasSnowForecast ? { backgroundColor: 'rgba(0,0,0,0.4)' } : undefined}
     >
       <WeatherIcon

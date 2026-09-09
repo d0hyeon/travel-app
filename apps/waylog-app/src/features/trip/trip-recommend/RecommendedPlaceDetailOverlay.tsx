@@ -49,7 +49,7 @@ function RecommendedPlaceDetailSheet({ place, tripId, isOpen, onClose }: Props) 
       </BottomSheet.Body>
       <SafeAreaView>
         <BottomSheet.BottomActions>
-          <Button fullWidth variant="outlined" size="large" onClick={onClose}>
+          <Button fullWidth variant="outlined" size="large" onPress={onClose}>
             닫기
           </Button>
           <Button
@@ -57,7 +57,7 @@ function RecommendedPlaceDetailSheet({ place, tripId, isOpen, onClose }: Props) 
             variant="contained"
             size="large"
             disabled={isAdding}
-            onClick={() => create(place)}
+            onPress={() => create(place)}
           >
             장소에 담기
           </Button>

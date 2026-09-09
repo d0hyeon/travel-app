@@ -30,7 +30,7 @@ export function TripChecklistAddButton({ tripId, size = 'large', fullWidth }: Pr
   }
 
   return (
-    <Button variant="contained" size={size} fullWidth={fullWidth} onClick={open}>
+    <Button variant="contained" size={size} fullWidth={fullWidth} onPress={open}>
       할 일 추가
     </Button>
   )
@@ -53,10 +53,10 @@ function TripChecklistFormSheet({ isOpen, onClose, tripId, onSubmit }: TripCheck
         <TripChecklistForm ref={formRef} tripId={tripId} onSubmit={onSubmit} />
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
-        <Button variant="outlined" fullWidth onClick={onClose}>
+        <Button variant="outlined" fullWidth onPress={onClose}>
           취소
         </Button>
-        <Button variant="contained" fullWidth onClick={() => formRef.current?.submit()}>
+        <Button variant="contained" fullWidth onPress={() => formRef.current?.submit()}>
           저장
         </Button>
       </BottomSheet.BottomActions>

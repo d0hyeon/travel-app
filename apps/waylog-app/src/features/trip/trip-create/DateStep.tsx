@@ -32,7 +32,7 @@ export function DateStep({ defaultValue, onNext }: Props) {
           variant="contained"
           size="large"
           disabled={isEmpty}
-          onClick={() => {
+          onPress={() => {
             if (start == null) return
             onNext(formatDate(start, 'yyyy-MM-dd'), formatDate(end ?? start, 'yyyy-MM-dd'))
           }}

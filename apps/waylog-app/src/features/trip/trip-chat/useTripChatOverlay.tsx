@@ -20,7 +20,7 @@ export function useTripChatOverlay() {
             header={
               <TripChatPanel.Header
                 rightElement={
-                  <IconButton onClick={close}>
+                  <IconButton onPress={close}>
                     <MaterialIcons name="close" size={20} />
                   </IconButton>
                 }

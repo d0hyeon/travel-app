@@ -78,20 +78,20 @@ export function ActionSheet({ isOpen, onClose, children }: ActionSheetProps) {
 const ActionSheetCloseContext = createContext<() => void>(() => { })
 
 interface ActionSheetItemProps {
-  onClick?: () => void
+  onPress?: () => void
   icon?: ReactNode
   children?: ReactNode
   color?: 'text' | 'error'
 }
 
-ActionSheet.Item = function ActionSheetItem({ onClick, icon, children, color = 'text' }: ActionSheetItemProps) {
+ActionSheet.Item = function ActionSheetItem({ onPress, icon, children, color = 'text' }: ActionSheetItemProps) {
   const close = useContext(ActionSheetCloseContext);
 
   return (
     <Pressable
       onPress={() => {
         close()
-        onClick?.()
+        onPress?.()
       }}
       style={{ paddingHorizontal: 20, paddingVertical: 14 }}
     >

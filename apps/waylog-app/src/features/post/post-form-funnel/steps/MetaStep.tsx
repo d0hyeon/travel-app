@@ -61,7 +61,7 @@ export function MetaStep({ tripId, photos, onNext }: { tripId: string | null; ph
           fullWidth
           disabled={isPending}
           loading={isPending}
-          onClick={() => {
+          onPress={() => {
             void startTransition(async () => {
               await onNext({ description: description.trim(), places, visibility })
             })

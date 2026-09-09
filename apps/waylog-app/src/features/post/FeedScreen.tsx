@@ -16,7 +16,7 @@ export function FeedScreen() {
       <Suspense fallback={null}>
         <Contents />
       </Suspense>
-      <Fab size="large" onClick={() => router.push('/post/new')} sx={{ position: 'absolute', right: 20, bottom: 20 }}><MaterialIcons name="add" size={30} color="#fff" /></Fab>
+      <Fab size="large" onPress={() => router.push('/post/new')} sx={{ position: 'absolute', right: 20, bottom: 20 }}><MaterialIcons name="add" size={30} color="#fff" /></Fab>
     </Box>
   )
 }

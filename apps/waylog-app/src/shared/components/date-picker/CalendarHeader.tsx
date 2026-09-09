@@ -12,13 +12,13 @@ interface CalendarHeaderProps {
 export function CalendarHeader({ cursor, onPreviousMonth, onNextMonth }: CalendarHeaderProps) {
   return (
     <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ px: 1, py: 1 }}>
-      <IconButton onClick={onPreviousMonth}>
+      <IconButton onPress={onPreviousMonth}>
         <MaterialIcons name="chevron-left" size={24} color={palette.text} />
       </IconButton>
 
       <Typography variant="h6">{format(cursor, 'yyyy년 M월')}</Typography>
 
-      <IconButton onClick={onNextMonth}>
+      <IconButton onPress={onNextMonth}>
         <MaterialIcons name="chevron-right" size={24} color={palette.text} />
       </IconButton>
     </Stack>

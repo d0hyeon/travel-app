@@ -84,7 +84,7 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
               lng={visitedLocation.coordinate.lng}
               variant="circle"
               color={selectedLocation?.location === visitedLocation.location ? 'selected' : 'default'}
-              onClick={() => setSelectedLocation((current) => current?.location === visitedLocation.location ? null : visitedLocation)}
+              onPress={() => setSelectedLocation((current) => current?.location === visitedLocation.location ? null : visitedLocation)}
             />
           ))}
         </Map>

@@ -68,13 +68,13 @@ function PlaceFormSheet({ tripId, placeId, isOpen, onClose }: SheetProps) {
       <BottomSheet.Header direction="row" justifyContent="space-between">
         <PlaceTitleButton
           name={place.name}
-          onClick={() => placeDetail.open(place.placeId)}
+          onPress={() => placeDetail.open(place.placeId)}
         />
         <Button
           variant="outlined"
           color="error"
           size="small"
-          onClick={async () => {
+          onPress={async () => {
             if (await confirm('삭제하시겠습니까?')) {
               await remove(place.id)
               onClose()
@@ -86,9 +86,9 @@ function PlaceFormSheet({ tripId, placeId, isOpen, onClose }: SheetProps) {
       </BottomSheet.Header>
       <BottomSheet.Body sx={{ paddingHorizontal: 16 }}>
         <Stack direction="row" gap={1} sx={{ marginBottom: 16 }}>
-          <Chip label="네이버" variant="outlined" onClick={() => void Linking.openURL(`https://search.naver.com/search.naver?query=${encodeURIComponent(place.name)}`)} />
-          <Chip label="인스타" variant="outlined" onClick={() => void Linking.openURL(`https://www.instagram.com/explore/search/keyword/?q=${encodeURIComponent(place.name.replaceAll(' ', ''))}`)} />
-          <Chip label="구글" variant="outlined" onClick={() => void Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(place.name)}`)} />
+          <Chip label="네이버" variant="outlined" onPress={() => void Linking.openURL(`https://search.naver.com/search.naver?query=${encodeURIComponent(place.name)}`)} />
+          <Chip label="인스타" variant="outlined" onPress={() => void Linking.openURL(`https://www.instagram.com/explore/search/keyword/?q=${encodeURIComponent(place.name.replaceAll(' ', ''))}`)} />
+          <Chip label="구글" variant="outlined" onPress={() => void Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(place.name)}`)} />
         </Stack>
         <PlaceForm
           ref={formRef}
@@ -101,10 +101,10 @@ function PlaceFormSheet({ tripId, placeId, isOpen, onClose }: SheetProps) {
         <PlacePhotoSection tripId={tripId} placeId={place.placeId} />
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
-        <Button variant="outlined" fullWidth onClick={onClose}>
+        <Button variant="outlined" fullWidth onPress={onClose}>
           취소
         </Button>
-        <Button variant="contained" fullWidth onClick={() => formRef.current?.submit()}>
+        <Button variant="contained" fullWidth onPress={() => formRef.current?.submit()}>
           저장
         </Button>
       </BottomSheet.BottomActions>

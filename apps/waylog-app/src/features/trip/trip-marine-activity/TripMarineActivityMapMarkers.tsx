@@ -36,7 +36,7 @@ export function TripMarineActivityMapMarkers({ tripId }: TripMarineActivityMapMa
           lng={markerItem.coordinate.lng}
           label={markerItem.placeName}
           icon={<MarineActivityMarkerIcon markerItem={markerItem} />}
-          onClick={() => {
+          onPress={() => {
             if (!activedTripDate) return
             detailOverlay.open({
               placeCode: markerItem.placeCode,

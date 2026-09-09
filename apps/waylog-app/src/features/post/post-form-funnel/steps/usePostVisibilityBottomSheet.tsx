@@ -68,10 +68,10 @@ function PostVisibilitySheet({
         <PostVisibilityField defaultValue={visibility} onChange={setVisibility} hasTripContext={tripId != null} />
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
-        <Button variant="outlined" fullWidth onClick={onCancel}>
+        <Button variant="outlined" fullWidth onPress={onCancel}>
           취소
         </Button>
-        <Button variant="contained" fullWidth onClick={() => onConfirm(visibility)}>
+        <Button variant="contained" fullWidth onPress={() => onConfirm(visibility)}>
           확인
         </Button>
       </BottomSheet.BottomActions>

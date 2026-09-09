@@ -34,7 +34,7 @@ export function CommonErrorBoundary(props: ComponentProps<typeof ErrorBoundary>)
             </Typography>
           </Stack>
 
-          <Button size="small" variant="contained" color="error" onClick={resetError}>
+          <Button size="small" variant="contained" color="error" onPress={resetError}>
             재시도
           </Button>
         </Stack>

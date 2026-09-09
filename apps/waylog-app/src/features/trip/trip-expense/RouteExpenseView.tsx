@@ -134,7 +134,7 @@ export function RouteExpenseView({ tripId }: Props) {
                       : getRouteColor(dayIndex)
                   }
                   opacity={activeDayIndex === dayIndex ? 1 : 0.5}
-                  onClick={() => addExpense(place)}
+                  onPress={() => addExpense(place)}
                 />
               )),
             ),
@@ -199,7 +199,7 @@ export function RouteExpenseView({ tripId }: Props) {
                             </Box>
                             <Typography sx={{ flex: 1, fontWeight: '700' }}>{place.name}</Typography>
                             <Typography color="primary">{amount > 0 ? formatCurrency(amount) : '-'}</Typography>
-                            <IconButton size="small" onClick={() => addExpense(place)}>
+                            <IconButton size="small" onPress={() => addExpense(place)}>
                               <MaterialIcons name="playlist-add" size={22} color={palette.primary} />
                             </IconButton>
                           </Stack>

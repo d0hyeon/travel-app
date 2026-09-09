@@ -71,7 +71,7 @@ function Resolved() {
       <Button
         variant="contained"
         size="large"
-        onClick={handleJoin}
+        onPress={handleJoin}
         loading={isPending}
         sx={{ width: 200 }}
       >

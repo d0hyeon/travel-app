@@ -28,7 +28,7 @@ function Resolved({ tripId, onAddedPlace, ...props }: Props) {
 
   return (
     <Button
-      onClick={async () => {
+      onPress={async () => {
         const place = await searchPlace();
         if (place == null) return;
         const added = await create(place);

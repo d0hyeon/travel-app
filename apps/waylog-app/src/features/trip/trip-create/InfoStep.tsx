@@ -33,7 +33,7 @@ export function InfoStep({ destination, onNext }: Props) {
           variant="contained"
           size="large"
           disabled={isPending}
-          onClick={() => startTransition(() => onNext(name))}
+          onPress={() => startTransition(() => onNext(name))}
         >
           완료
         </Button>

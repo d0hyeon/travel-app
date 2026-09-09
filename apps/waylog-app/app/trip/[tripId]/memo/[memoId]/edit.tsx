@@ -27,7 +27,7 @@ function Resolved() {
   return (
     <Stack sx={{ flex: 1 }}>
       <Stack direction="row" alignItems="center" sx={{ padding: 8 }}>
-        <IconButton onClick={() => router.back()}>
+        <IconButton onPress={() => router.back()}>
           <MaterialIcons name="arrow-back" size={24} />
         </IconButton>
         <Typography variant="subtitle1" sx={{ paddingHorizontal: 8 }}>메모 수정</Typography>
@@ -44,7 +44,7 @@ function Resolved() {
         />
       </ScrollView>
       <Stack sx={{ padding: 16 }}>
-        <Button fullWidth variant="contained" disabled={isSaving} onClick={() => formRef.current?.submit()}>
+        <Button fullWidth variant="contained" disabled={isSaving} onPress={() => formRef.current?.submit()}>
           저장
         </Button>
       </Stack>

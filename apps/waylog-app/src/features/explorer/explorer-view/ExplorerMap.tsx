@@ -33,7 +33,7 @@ export function ExplorerMap({ places, location }: Props) {
             lng={place.lng}
             label={place.name}
             thumbnailUrl={place.thumbnailUrl}
-            onClick={() => router.push(buildExplorerPlaceDetailPath(place.placeId))}
+            onPress={() => router.push(buildExplorerPlaceDetailPath(place.placeId))}
           />
         ))}
       </Map>

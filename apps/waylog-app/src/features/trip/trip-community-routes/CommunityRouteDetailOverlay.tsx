@@ -102,10 +102,10 @@ function DetailContent({
           {tabRoutes.map((route, index) => {
             const dayNumber = route.scheduledDate
               ? Math.round(
-                  (new Date(route.scheduledDate).getTime() -
-                    new Date(communityTrip.startDate).getTime()) /
-                    MS_PER_DAY,
-                ) + 1
+                (new Date(route.scheduledDate).getTime() -
+                  new Date(communityTrip.startDate).getTime()) /
+                MS_PER_DAY,
+              ) + 1
               : index + 1
 
             return <Tab key={route.id} value={route.id} label={`${dayNumber}일차`} />
@@ -231,7 +231,7 @@ function PlaceRow({ place, index, tripId, alreadyAdded }: PlaceRowProps) {
           </Typography>
         </Stack>
       ) : (
-        <Button size="small" variant="outlined" disabled={isAdding} onClick={handleAdd}>
+        <Button size="small" variant="outlined" disabled={isAdding} onPress={handleAdd}>
           {isAdding ? <CircularProgress size={12} /> : '추가'}
         </Button>
       )}

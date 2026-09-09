@@ -131,7 +131,7 @@ function Resolved({ tripId }: Props) {
             color: palette.text,
           }}
         />
-        <IconButton onClick={submit} disabled={sendMessage.isPending}>
+        <IconButton onPress={submit} disabled={sendMessage.isPending}>
           <MaterialIcons
             name="send"
             size={20}

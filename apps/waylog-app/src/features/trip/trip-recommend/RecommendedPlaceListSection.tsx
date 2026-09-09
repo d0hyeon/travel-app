@@ -37,7 +37,7 @@ function RecommendedPlacesSectionContent({ tripId, header }: Props) {
             <RecommendedPlaceCard
               key={place.id}
               place={place}
-              onClick={() => openBottomSheet({ place, tripId })}
+              onPress={() => openBottomSheet({ place, tripId })}
             />
           ))}
         </Stack>
@@ -48,15 +48,15 @@ function RecommendedPlacesSectionContent({ tripId, header }: Props) {
 
 function RecommendedPlaceCard({
   place,
-  onClick,
+  onPress,
 }: {
   place: RecommendedPlace
-  onClick: () => void
+  onPress: () => void
 }) {
   const accentColor = place.category ? PlaceCategoryColorCode[place.category] : undefined
 
   return (
-    <Pressable onPress={onClick}>
+    <Pressable onPress={onPress}>
       <Box
         sx={{
           width: 110,

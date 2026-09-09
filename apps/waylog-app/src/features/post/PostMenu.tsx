@@ -22,7 +22,7 @@ export function PostMenu({ postId, onDelete }: Props) {
       items={
         <PopMenu.Item
           color="error"
-          onClick={async () => {
+          onPress={async () => {
             if (await confirm('피드를 삭제하시겠어요?')) {
               await remove()
               onDelete?.()

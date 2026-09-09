@@ -44,7 +44,7 @@ export function PlaceSelectSheet({
               <ListItem.Button
                 key={place.id}
                 focused={picked.includes(place.id)}
-                onClick={() => toggle(place.id)}
+                onPress={() => toggle(place.id)}
                 rightAddon={
                   picked.includes(place.id) ? (
                     <MaterialIcons name="check-circle" size={20} color="#4C84FF" />
@@ -59,14 +59,14 @@ export function PlaceSelectSheet({
         )}
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
-        <Button variant="outlined" fullWidth onClick={onClose}>
+        <Button variant="outlined" fullWidth onPress={onClose}>
           취소
         </Button>
         <Button
           variant="contained"
           fullWidth
           disabled={picked.length === 0}
-          onClick={() => {
+          onPress={() => {
             onConfirm(picked)
             onClose()
           }}

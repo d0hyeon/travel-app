@@ -27,7 +27,7 @@ export function ExpenseFormDeletationActions({ tripId, expenseId, onClose, onSub
       onCancel={onClose}
       onSubmit={onSubmit}
       secondary={
-        <Button variant="outlined" color="error" onClick={handleDelete}>
+        <Button variant="outlined" color="error" onPress={handleDelete}>
           삭제
         </Button>
       }

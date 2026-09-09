@@ -48,14 +48,14 @@ export function ExpenseList({ tripId }: Props) {
             rightAddon={
               <PopMenu
                 items={[
-                  <PopMenu.Item key="edit" icon={<MaterialIcons name="edit" size={18} />} onClick={() => handleEditExpense(expense)}>
+                  <PopMenu.Item key="edit" icon={<MaterialIcons name="edit" size={18} />} onPress={() => handleEditExpense(expense)}>
                     수정
                   </PopMenu.Item>,
                   <PopMenu.Item
                     key="delete"
                     color="error"
                     icon={<MaterialIcons name="delete" size={18} color="#d32f2f" />}
-                    onClick={async () => {
+                    onPress={async () => {
                       if (await confirm('삭제하시겠어요?')) {
                         remove(expense.id)
                       }

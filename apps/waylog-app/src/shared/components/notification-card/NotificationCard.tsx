@@ -34,16 +34,16 @@ function NotificationCard({
         // RN 은 boxShadow 대신 elevation·shadow* 를 쓴다.
         ...(isShadow
           ? {
-              shadowColor: '#000',
-              shadowOpacity: 0.3,
-              shadowRadius: 16,
-              shadowOffset: { width: 0, height: 2 },
-              elevation: 4,
-            }
+            shadowColor: '#000',
+            shadowOpacity: 0.3,
+            shadowRadius: 16,
+            shadowOffset: { width: 0, height: 2 },
+            elevation: 4,
+          }
           : {
-              borderWidth: 1.5,
-              borderColor: palette.divider,
-            }),
+            borderWidth: 1.5,
+            borderColor: palette.divider,
+          }),
         ...(sx ?? {}),
       }}
     >
@@ -54,7 +54,7 @@ function NotificationCard({
       {onClose && (
         <IconButton
           size="small"
-          onClick={onClose}
+          onPress={onClose}
           sx={{ position: 'absolute', top: 8, right: 8 }}
         >
           <MaterialIcons name="close" size={18} color={palette.textSecondary} />

@@ -57,8 +57,8 @@ export function ExplorerFilterBar({ children }: PropsWithChildren) {
 
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }} contentContainerStyle={{ gap: 8 }}>
-      <Chip label={location ?? '지역'} size="small" variant="outlined" color={location ? 'primary' : 'default'} onClick={openLocationPicker} />
-      <Chip label={category == null ? '카테고리' : PlaceCategoryTypeLabel[category]} size="small" variant="outlined" color={category ? 'primary' : 'default'} onClick={openCategoryPicker} />
+      <Chip label={location ?? '지역'} size="small" variant="outlined" color={location ? 'primary' : 'default'} onPress={openLocationPicker} />
+      <Chip label={category == null ? '카테고리' : PlaceCategoryTypeLabel[category]} size="small" variant="outlined" color={category ? 'primary' : 'default'} onPress={openCategoryPicker} />
       {children}
     </ScrollView>
   )

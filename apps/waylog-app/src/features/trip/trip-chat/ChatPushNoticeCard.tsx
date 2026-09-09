@@ -32,7 +32,7 @@ export function ChatPushNoticeCard(props: Props) {
             variant="contained"
             disabled={isLoading}
             sx={{ borderRadius: 20 }}
-            onClick={() => {
+            onPress={() => {
               startTransition(async () => {
                 if (!push.hasPermission) {
                   const isGranted = await push.requestPermission()

@@ -37,7 +37,7 @@ export function MapConfigDialog({ isOpen, title = '지도 설정', children, ...
             {children}
 
             <Stack direction="row" justifyContent="flex-end">
-              <Button variant="contained" size="large" onClick={props.onDismiss}>
+              <Button variant="contained" size="large" onPress={props.onDismiss}>
                 확인
               </Button>
             </Stack>

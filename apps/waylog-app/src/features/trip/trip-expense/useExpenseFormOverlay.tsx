@@ -101,10 +101,10 @@ export function ExpenseFormOverlayActions({ onCancel, onSubmit, secondary }: Act
   return (
     <>
       {secondary}
-      <Button variant="outlined" fullWidth onClick={onCancel}>
+      <Button variant="outlined" fullWidth onPress={onCancel}>
         취소
       </Button>
-      <Button variant="contained" fullWidth onClick={onSubmit}>
+      <Button variant="contained" fullWidth onPress={onSubmit}>
         저장
       </Button>
     </>

@@ -32,11 +32,11 @@ function NativeMapMarkerView({
   thumbnailUrl,
   tooltip,
   icon,
-  onClick,
+  onPress,
   onContextMenu,
 }: NativeMarkerProps) {
   const resolved = resolveMarkerColor(color, variant)
-  const handleClick = usePreservedCallback(() => onClick?.({ lat, lng, label, variant }))
+  const handleClick = usePreservedCallback(() => onPress?.({ lat, lng, label, variant }))
   const handleContextMenu = usePreservedCallback(() => onContextMenu?.({ lat, lng, label, variant }))
 
   const registryId = id ?? `${lat},${lng}`

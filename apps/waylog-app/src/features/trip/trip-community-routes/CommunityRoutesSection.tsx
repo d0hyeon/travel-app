@@ -45,7 +45,7 @@ function CommunityRoutesSectionContent({ tripId }: Props) {
             <CommunityTripCard
               key={trip.id}
               trip={trip}
-              onClick={() => open({ communityTrip: trip, tripId })}
+              onPress={() => open({ communityTrip: trip, tripId })}
             />
           ))}
         </Stack>
@@ -54,11 +54,11 @@ function CommunityRoutesSectionContent({ tripId }: Props) {
   )
 }
 
-function CommunityTripCard({ trip, onClick }: { trip: CommunityTrip; onClick: () => void }) {
+function CommunityTripCard({ trip, onPress }: { trip: CommunityTrip; onPress: () => void }) {
   const duration = getNightsAndDays(trip.startDate, trip.endDate)
 
   return (
-    <Pressable onPress={onClick}>
+    <Pressable onPress={onPress}>
       <Box
         sx={{
           width: 140,

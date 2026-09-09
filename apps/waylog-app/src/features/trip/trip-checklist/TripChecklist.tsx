@@ -255,7 +255,7 @@ function TripChecklistMenu({ id, tripId }: CheckMenuProps) {
           <TripChecklistModifyMenuItem tripId={tripId} id={target.id} />
           <PopMenu.Item
             color="error"
-            onClick={async () => {
+            onPress={async () => {
               if (await confirm('삭제하시겠어요?')) {
                 await remove(id);
               }

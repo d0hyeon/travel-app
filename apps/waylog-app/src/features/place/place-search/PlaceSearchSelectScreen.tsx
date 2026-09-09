@@ -89,7 +89,7 @@ export function PlaceSearchSelectScreen({ keyword, center, mapServiceProvider = 
             <Chip
               label="이 장소에서 검색"
               color="primary"
-              onClick={() => {
+              onPress={() => {
                 setSearchCenter(mapBoundsCenter)
                 setSearchedCenter(mapBoundsCenter)
               }}
@@ -114,7 +114,7 @@ export function PlaceSearchSelectScreen({ keyword, center, mapServiceProvider = 
               <Button
                 variant="contained"
                 loading={isPendingSelect}
-                onClick={() => startTransition(() => onSelect(item))}
+                onPress={() => startTransition(() => onSelect(item))}
               >
                 선택
               </Button>

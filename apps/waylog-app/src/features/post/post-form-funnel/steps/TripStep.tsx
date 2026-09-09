@@ -21,7 +21,7 @@ export function TripStep({ defaultValue, onNext }: { defaultValue: string | null
         {orderedTrips.map((trip) => <TripCard key={trip.id} trip={trip} selected={selection === trip.id} onPress={() => setSelection(trip.id)} />)}
       </ScrollView>
       <BottomArea position="static" sx={{ borderTopWidth: 1, borderTopColor: palette.divider }}>
-        <Button variant="contained" size="large" fullWidth disabled={selection == null} onClick={() => selection != null && onNext(selection === 'none' ? null : selection)}>다음</Button>
+        <Button variant="contained" size="large" fullWidth disabled={selection == null} onPress={() => selection != null && onNext(selection === 'none' ? null : selection)}>다음</Button>
       </BottomArea>
     </View>
   )

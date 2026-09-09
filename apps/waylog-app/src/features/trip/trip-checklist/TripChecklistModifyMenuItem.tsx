@@ -23,7 +23,7 @@ export function TripChecklistModifyMenuItem({ tripId, id }: Props) {
   }
 
   return (
-    <PopMenu.Item onClick={openEditor}>
+    <PopMenu.Item onPress={openEditor}>
       수정
     </PopMenu.Item>
   )
@@ -65,8 +65,8 @@ function TripChecklistModifySheet({ isOpen, onClose, tripId, id }: SheetProps) {
         />
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
-        <Button variant="outlined" fullWidth onClick={onClose}>취소</Button>
-        <Button variant="contained" fullWidth onClick={() => formRef.current?.submit()}>저장</Button>
+        <Button variant="outlined" fullWidth onPress={onClose}>취소</Button>
+        <Button variant="contained" fullWidth onPress={() => formRef.current?.submit()}>저장</Button>
       </BottomSheet.BottomActions>
     </BottomSheet>
   )

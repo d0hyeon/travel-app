@@ -119,10 +119,10 @@ function PostPlacesSheet({
         </View>
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
-        <Button variant="outlined" fullWidth onClick={onCancel}>
+        <Button variant="outlined" fullWidth onPress={onCancel}>
           취소
         </Button>
-        <Button variant="contained" fullWidth onClick={() => onConfirm(places)}>
+        <Button variant="contained" fullWidth onPress={() => onConfirm(places)}>
           확인
         </Button>
       </BottomSheet.BottomActions>

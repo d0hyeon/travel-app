@@ -48,17 +48,17 @@ function Resolved({ tripId }: Props) {
             메모가 없어요
           </Typography>
         ) : memos
-            .toSorted((a, b) => (a.isPinned === b.isPinned ? 0 : a.isPinned ? -1 : 1))
-            .map((memo) => (
-              <MemoRow key={memo.id} tripId={tripId} memo={memo} />
-            ))
+          .toSorted((a, b) => (a.isPinned === b.isPinned ? 0 : a.isPinned ? -1 : 1))
+          .map((memo) => (
+            <MemoRow key={memo.id} tripId={tripId} memo={memo} />
+          ))
         }
       </Box>
 
       <Fab
         color="primary"
         size="medium"
-        onClick={handleAdd}
+        onPress={handleAdd}
         sx={{ position: 'absolute', bottom: 16, right: 16 }}
       >
         <MaterialIcons name="add" size={24} color="#fff" />
@@ -83,8 +83,8 @@ function TripMemoFormSheet({ isOpen, onClose, onSubmit }: TripMemoFormSheetProps
         <TripMemoForm ref={formRef} onSubmit={onSubmit} />
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
-        <Button onClick={onClose} variant="outlined" fullWidth>취소</Button>
-        <Button onClick={() => formRef.current?.submit()} variant="contained" fullWidth>저장</Button>
+        <Button onPress={onClose} variant="outlined" fullWidth>취소</Button>
+        <Button onPress={() => formRef.current?.submit()} variant="contained" fullWidth>저장</Button>
       </BottomSheet.BottomActions>
     </BottomSheet>
   );
@@ -113,24 +113,24 @@ function MemoRow({ tripId, memo }: MemoRowProps) {
         alignItems="center"
         sx={{ paddingHorizontal: 16, paddingVertical: 12 }}
       >
-      <Stack gap={0.5} sx={{ flex: 1, minWidth: 0 }}>
-        <Stack direction="row" alignItems="center" gap={0.5}>
-          {memo.isPinned && <MaterialIcons name="push-pin" size={12} color="#4C84FF" />}
-          <Typography variant="body2" numberOfLines={1}>
-            {displayTitle}
-          </Typography>
-        </Stack>
-        <Stack direction="row" gap={1} alignItems="center">
-          <Typography variant="caption" color="text.secondary">
-            {date}
-          </Typography>
-          {previewText && (
-            <Typography variant="caption" color="text.secondary" numberOfLines={1}>
-              {previewText}{memo.content.length > PREVIEW_MAX_LENGTH ? '…' : ''}
+        <Stack gap={0.5} sx={{ flex: 1, minWidth: 0 }}>
+          <Stack direction="row" alignItems="center" gap={0.5}>
+            {memo.isPinned && <MaterialIcons name="push-pin" size={12} color="#4C84FF" />}
+            <Typography variant="body2" numberOfLines={1}>
+              {displayTitle}
             </Typography>
-          )}
+          </Stack>
+          <Stack direction="row" gap={1} alignItems="center">
+            <Typography variant="caption" color="text.secondary">
+              {date}
+            </Typography>
+            {previewText && (
+              <Typography variant="caption" color="text.secondary" numberOfLines={1}>
+                {previewText}{memo.content.length > PREVIEW_MAX_LENGTH ? '…' : ''}
+              </Typography>
+            )}
+          </Stack>
         </Stack>
-      </Stack>
       </Stack>
     </Pressable>
   );

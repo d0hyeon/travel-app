@@ -85,7 +85,7 @@ export function PlaceSearchBottomSheet({
               }}
             />
             <IconButton
-              onClick={() => keyword !== '' && openDetail(keyword)}
+              onPress={() => keyword !== '' && openDetail(keyword)}
               sx={{ marginLeft: 4 }}
             >
               <MaterialIcons name="search" size={20} color={palette.text} />
@@ -121,7 +121,7 @@ export function PlaceSearchBottomSheet({
                         {value}
                       </Typography>
                     </Pressable>
-                    <IconButton size="small" onClick={() => remove(value)}>
+                    <IconButton size="small" onPress={() => remove(value)}>
                       <MaterialIcons name="close" size={16} color={palette.textSecondary} />
                     </IconButton>
                   </View>
@@ -136,7 +136,7 @@ export function PlaceSearchBottomSheet({
               keyExtractor={(place) => place.externalId}
               contentContainerStyle={{ gap: 4 }}
               renderItem={({ item }) => (
-                <ListItem.Button onClick={() => handleSelect(item)}>
+                <ListItem.Button onPress={() => handleSelect(item)}>
                   <ListItem.Title>{item.name}</ListItem.Title>
                   {item.address !== '' && <ListItem.Text>{item.address}</ListItem.Text>}
                 </ListItem.Button>

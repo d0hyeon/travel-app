@@ -53,10 +53,10 @@ export default function ConfirmDialog({
             </Stack>
 
             <Stack direction="row" gap={1} justifyContent="flex-end">
-              <Button size="large" onClick={onCancel}>
+              <Button size="large" onPress={onCancel}>
                 {cancelText}
               </Button>
-              <Button size="large" variant="contained" onClick={onConfirm}>
+              <Button size="large" variant="contained" onPress={onConfirm}>
                 {confirmText}
               </Button>
             </Stack>

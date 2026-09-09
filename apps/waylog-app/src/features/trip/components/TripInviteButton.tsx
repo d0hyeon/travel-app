@@ -16,7 +16,7 @@ export function TripInviteButton({ tripId, children = '초대하기', ...props }
   }
 
   return (
-    <Button {...props} onClick={handleShare}>
+    <Button {...props} onPress={handleShare}>
       {children}
     </Button>
   )

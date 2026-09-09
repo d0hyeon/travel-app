@@ -38,7 +38,7 @@ function RouteChip({
           variant={value === route.id ? 'filled' : 'outlined'}
           color={value === route.id ? 'primary' : 'default'}
           size="small"
-          onClick={() => onChange?.(route.id)}
+          onPress={() => onChange?.(route.id)}
           onDelete={async () => {
             if (await confirm('삭제하시겠어요?')) {
               if (value === route.id) {
@@ -51,7 +51,7 @@ function RouteChip({
       ))}
       <IconButton
         size="small"
-        onClick={onAdd}
+        onPress={onAdd}
       >
         <MaterialIcons name="add" size={18} color="#4C84FF" />
       </IconButton>

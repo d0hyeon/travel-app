@@ -25,7 +25,7 @@ function ChatIconButtonBase({ tripId, unreadCount }: Props & { unreadCount: numb
   const { open } = useTripChatOverlay()
 
   return (
-    <IconButton onClick={() => open(tripId)}>
+    <IconButton onPress={() => open(tripId)}>
       <Badge badgeContent={unreadCount} color="error" max={99}>
         <MaterialIcons name="send" size={20} />
       </Badge>

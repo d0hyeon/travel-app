@@ -70,9 +70,9 @@ export const PlaceForm = forwardRef<PlaceFormRef, Props>(function PlaceForm(
           )}
           items={(
             <>
-              <PopMenu.Item onClick={() => setValue('category', null)}>선택 안함</PopMenu.Item>
+              <PopMenu.Item onPress={() => setValue('category', null)}>선택 안함</PopMenu.Item>
               {PlaceCategoryTypes.map((type) => (
-                <PopMenu.Item key={type} onClick={() => setValue('category', type)}>
+                <PopMenu.Item key={type} onPress={() => setValue('category', type)}>
                   <Stack direction="row" gap={1} alignItems="center">
                     <Box sx={{ width: 12, height: 12, borderRadius: 6, backgroundColor: PlaceCategoryColorCode[type] }} />
                     <Typography>{PlaceCategoryTypeLabel[type]}</Typography>

@@ -94,7 +94,7 @@ function AddTripButton({ placeId, onDone }: { placeId: string; onDone: () => voi
       variant="contained"
       size="large"
       fullWidth
-      onClick={async () => {
+      onPress={async () => {
         const targetTrip = await getTargetTrip()
         if (targetTrip == null) return
         await createTripPlace({ placeId, tripId: targetTrip.id })

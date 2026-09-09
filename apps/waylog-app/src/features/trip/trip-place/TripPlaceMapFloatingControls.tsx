@@ -16,7 +16,7 @@ export function TripPlaceMapFloatingControls() {
 
   return (
     <FloatingControl corner="top-right" zIndex={8}>
-      <IconButton onClick={openSettingDialog}>
+      <IconButton onPress={openSettingDialog}>
         <MaterialIcons name="settings" size={22} color={palette.info} />
       </IconButton>
     </FloatingControl>

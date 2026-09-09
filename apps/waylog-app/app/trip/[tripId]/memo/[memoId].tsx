@@ -34,7 +34,7 @@ function Resolved() {
   return (
     <Stack sx={{ flex: 1 }}>
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ padding: 8 }}>
-        <IconButton onClick={() => router.back()}>
+        <IconButton onPress={() => router.back()}>
           <MaterialIcons name="arrow-back" size={24} />
         </IconButton>
         <Typography variant="subtitle1" numberOfLines={1} sx={{ flex: 1, paddingHorizontal: 8 }}>
@@ -42,16 +42,16 @@ function Resolved() {
         </Typography>
         <PopMenu
           items={[
-            <PopMenu.Item key="pin" onClick={() => togglePin(memo.id)}>
+            <PopMenu.Item key="pin" onPress={() => togglePin(memo.id)}>
               {memo.isPinned ? '고정 해제' : '고정'}
             </PopMenu.Item>,
-            <PopMenu.Item key="edit" onClick={() => router.push(`/trip/${tripId}/memo/${memo.id}/edit`)}>
+            <PopMenu.Item key="edit" onPress={() => router.push(`/trip/${tripId}/memo/${memo.id}/edit`)}>
               수정
             </PopMenu.Item>,
             <PopMenu.Item
               key="delete"
               color="error"
-              onClick={async () => {
+              onPress={async () => {
                 if (!(await confirm('이 메모를 삭제하시겠습니까?'))) return
                 await remove(memo.id)
                 router.back()

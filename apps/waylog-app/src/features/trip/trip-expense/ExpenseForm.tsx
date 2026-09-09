@@ -105,7 +105,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
                 size="small"
                 variant={currency === item.code ? 'filled' : 'outlined'}
                 color={currency === item.code ? 'primary' : 'default'}
-                onClick={() => setValue('currency', item.code)}
+                onPress={() => setValue('currency', item.code)}
               />
             ))}
           </Stack>
@@ -115,7 +115,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
       <Stack gap={0.5}>
         <Stack direction="row" justifyContent="space-between" alignItems="center">
           <Typography variant="subtitle2" sx={{ fontWeight: '800' }}>결제 금액</Typography>
-          <Button size="small" onClick={addPayer} disabled={paymentFields.length >= members.length}>추가</Button>
+          <Button size="small" onPress={addPayer} disabled={paymentFields.length >= members.length}>추가</Button>
         </Stack>
         {paymentFields.map((field, index) => (
           <Stack key={field.id} direction="row" gap={1} alignItems="flex-end">
@@ -165,7 +165,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
                           </Stack>
                         )}
                         items={Object.values(CurrencyCodeMap).map((code) => (
-                          <PopMenu.Item key={code} onClick={() => setValue('currency', code)}>
+                          <PopMenu.Item key={code} onPress={() => setValue('currency', code)}>
                             <Typography sx={{ color: currency === code ? '#4C84FF' : '#666' }}>
                               {CurrencyCodeLabel[code]}
                             </Typography>
@@ -178,7 +178,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
               )}
             />
             {paymentFields.length > 1 && (
-              <IconButton size="small" onClick={() => remove(index)}>
+              <IconButton size="small" onPress={() => remove(index)}>
                 <MaterialIcons name="delete" size={22} color="#aaa" />
               </IconButton>
             )}
@@ -238,7 +238,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
             items={places.map((place) => (
               <PopMenu.Item
                 key={place.placeId}
-                onClick={() => setValue('placeId', place.placeId)}
+                onPress={() => setValue('placeId', place.placeId)}
                 icon={place.placeId === placeId ? <MaterialIcons name="check" size={18} color="#4C84FF" /> : undefined}
               >
                 <Typography sx={{ color: place.placeId === placeId ? '#4C84FF' : palette.text }}>
@@ -256,7 +256,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
           <Button
             size="small"
             variant="text"
-            onClick={() => setValue('splitAmong', splitAmong.length === members.length ? [] : members.map((member) => member.id))}
+            onPress={() => setValue('splitAmong', splitAmong.length === members.length ? [] : members.map((member) => member.id))}
           >
             전체 선택
           </Button>
@@ -272,7 +272,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
                 size="small"
                 variant={included ? 'filled' : 'outlined'}
                 color={included ? 'primary' : 'default'}
-                onClick={() =>
+                onPress={() =>
                   setValue(
                     'splitAmong',
                     included

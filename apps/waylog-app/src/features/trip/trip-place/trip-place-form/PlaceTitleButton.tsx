@@ -6,14 +6,14 @@ interface PlaceTitleButtonProps {
   /** 표시할 장소명 */
   name: string
   /** 타이틀 클릭 시 장소 상세 오버레이를 띄운다 */
-  onClick: () => void
+  onPress: () => void
   variant?: TypographyVariant
 }
 
 /** 장소 수정 오버레이의 타이틀. 우측 화살표를 눌러 장소 상세로 진입한다. */
-export function PlaceTitleButton({ name, onClick, variant = 'h6' }: PlaceTitleButtonProps) {
+export function PlaceTitleButton({ name, onPress, variant = 'h6' }: PlaceTitleButtonProps) {
   return (
-    <Pressable onPress={onClick}>
+    <Pressable onPress={onPress}>
       <Stack direction="row" gap={0.5} alignItems="center">
         <Typography variant={variant} noWrap sx={{ fontWeight: '800' }}>
           {name}

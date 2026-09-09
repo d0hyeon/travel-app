@@ -124,7 +124,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
           <FloatingControl corner="bottom-right" zIndex={8} sx={{ bottom: `${sheetRatio * 100}%` }}>
             <IconButton
               size="small"
-              onClick={() => mapRef.current?.panTo(currentCoordinate.lat, currentCoordinate.lng)}
+              onPress={() => mapRef.current?.panTo(currentCoordinate.lat, currentCoordinate.lng)}
               sx={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
             >
               <MaterialIcons name="my-location" size={20} color={palette.primary} />
@@ -175,7 +175,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                     lng={place.lng}
                     label={isInCurrentRoute ? `${orderInRoute + 1}. ${place.name}` : place.name}
                     color={isInCurrentRoute && place.category ? PlaceCategoryColorCode[place.category] : 'disabled'}
-                    onClick={() => {
+                    onPress={() => {
                       if (isInCurrentRoute) {
                         focusPlace(place.id)
                         mapRef.current?.panTo(place.lat, place.lng)
@@ -183,13 +183,13 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                       overlay.open(({ isOpen, close }) => (
                         <ActionSheet isOpen={isOpen} onClose={close}>
                           <ActionSheet.Item
-                            onClick={() => openPlaceEditor({ tripId, placeId: place.id })}
+                            onPress={() => openPlaceEditor({ tripId, placeId: place.id })}
                           >
                             장소 수정
                           </ActionSheet.Item>
                           {currentRoute != null && (
                             <ActionSheet.Item
-                              onClick={async () => {
+                              onPress={async () => {
                                 const placeIds = currentRoute.placeIds.includes(place.id)
                                   ? currentRoute.placeIds.filter((id) => id !== place.id)
                                   : [...currentRoute.placeIds, place.id]
@@ -290,7 +290,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                           <TripRoutePlaceListItem
                             data={place}
                             focused={focusedId === place.id}
-                            onClick={() => {
+                            onPress={() => {
                               setFocusedId(place.id)
                               mapRef.current?.panTo(place.lat, place.lng)
                             }}
@@ -347,7 +347,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
           variant="contained"
           fullWidth
           disabled={currentRoute == null}
-          onClick={() => {
+          onPress={() => {
             overlay.open(({ isOpen, close }) => (
               <PlaceSelectSheet
                 isOpen={isOpen}

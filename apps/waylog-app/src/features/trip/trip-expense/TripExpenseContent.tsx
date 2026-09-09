@@ -69,7 +69,7 @@ export default function TripExpenseContent({ tripId }: Props) {
           size="large"
           variant="outlined"
           disabled={!hasMember}
-          onClick={handleOpenRouteExpense}
+          onPress={handleOpenRouteExpense}
           startIcon={<MaterialIcons name="route" size={18} color="#4C84FF" />}
           sx={{ flex: 1 }}
         >
@@ -79,7 +79,7 @@ export default function TripExpenseContent({ tripId }: Props) {
           size="large"
           variant="contained"
           disabled={!hasMember}
-          onClick={handleAddExpense}
+          onPress={handleAddExpense}
           startIcon={<MaterialIcons name="add" size={18} color="#fff" />}
           sx={{ flex: 1 }}
         >

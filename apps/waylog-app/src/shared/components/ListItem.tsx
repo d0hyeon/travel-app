@@ -66,13 +66,13 @@ export function ListItem<As extends ElementType = typeof View>({
 
 interface ButtonProps extends Props {
   focused?: boolean
-  onClick?: () => void
+  onPress?: () => void
 }
 
 function ListItemButton({
   focused,
   sx,
-  onClick,
+  onPress,
   leftAddon,
   rightAddon,
   children,
@@ -94,7 +94,7 @@ function ListItemButton({
     >
       {/* 스타일 없는 Pressable 은 컨텐츠 폭으로 수축한다.
           그 안의 제목 행이 함께 눌려 순번 원이 찌그러진다. */}
-      <Pressable onPress={onClick} style={{ width: '100%' }}>
+      <Pressable onPress={onPress} style={{ width: '100%' }}>
         {children}
       </Pressable>
     </ListItem>

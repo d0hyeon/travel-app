@@ -87,7 +87,7 @@ export function DatePickerBottomSheet(props: DatePickerBottomSheetProps) {
 
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
-        <Button fullWidth size="large" onClick={step === 'time' ? () => setStep('date') : onDismiss}>
+        <Button fullWidth size="large" onPress={step === 'time' ? () => setStep('date') : onDismiss}>
           {step === 'time' ? '이전' : '취소'}
         </Button>
         <Button
@@ -95,7 +95,7 @@ export function DatePickerBottomSheet(props: DatePickerBottomSheetProps) {
           size="large"
           variant="contained"
           disabled={!isConfirmable}
-          onClick={handlePressPrimary}
+          onPress={handlePressPrimary}
         >
           확인
         </Button>

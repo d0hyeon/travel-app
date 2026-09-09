@@ -5,7 +5,7 @@ import { Map, type MarkerProps } from '../../../shared/components/Map'
 
 interface Props extends Pick<MarkerProps, 'color' | 'opacity' | 'outlined'> {
   tripId: string
-  onClick?: (place: RecommendedPlace) => void
+  onPress?: (place: RecommendedPlace) => void
 }
 
 export function RecommendedMarkers(props: Props) {
@@ -16,7 +16,7 @@ export function RecommendedMarkers(props: Props) {
   )
 }
 
-function Resolved({ tripId, onClick, ...props }: Props) {
+function Resolved({ tripId, onPress, ...props }: Props) {
   const { data: recommended } = useRecommendedPlaces(tripId)
 
   return (
@@ -35,7 +35,7 @@ function Resolved({ tripId, onClick, ...props }: Props) {
             opacity={0.8}
             outlined={!thumbnailUrl}
             thumbnailUrl={thumbnailUrl}
-            onClick={() => onClick?.(place)}
+            onPress={() => onPress?.(place)}
             {...props}
           />
         )

@@ -36,7 +36,7 @@ export function PopMenu({ children, items, trigger }: MenuProps) {
   return (
     <>
       {trigger != null ? <Pressable onPress={openMenu}>{trigger}</Pressable> : (
-        <IconButton size="small" onClick={openMenu}>
+        <IconButton size="small" onPress={openMenu}>
           {children ?? <Typography sx={{ fontSize: 18, color: palette.textSecondary }}>⋮</Typography>}
         </IconButton>
       )}

@@ -72,7 +72,7 @@ export function LocationForm(props: Props | MultipleProps) {
                     <Chip
                       key={location}
                       label={location}
-                      onClick={() => toggle(location)}
+                      onPress={() => toggle(location)}
                       variant={isSelected ? 'filled' : 'outlined'}
                       color={isSelected ? 'primary' : 'default'}
                     />
@@ -93,7 +93,7 @@ LocationForm.SubmitButton = function SubmitButton({ children }: { children?: Rea
   if (context == null) throw new Error('LocationForm.SubmitButton 은 LocationForm 안에서만 쓸 수 있습니다.')
 
   return (
-    <Button fullWidth variant="contained" size="large" disabled={!context.isValid} onClick={context.submit}>
+    <Button fullWidth variant="contained" size="large" disabled={!context.isValid} onPress={context.submit}>
       {children}
     </Button>
   )

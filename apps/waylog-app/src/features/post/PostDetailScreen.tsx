@@ -112,13 +112,13 @@ function PostPlaces({ places, onPlacePress }: Pick<Post, 'places'> & { onPlacePr
               lat={place.lat}
               lng={place.lng}
               variant="pin"
-              onClick={() => onPlacePress(place.placeId)}
+              onPress={() => onPlacePress(place.placeId)}
             />
           ))}
         </Map>
       </View>
       {places.map((place) => (
-        <ListItem.Button key={place.placeId} onClick={() => onPlacePress(place.placeId)}>
+        <ListItem.Button key={place.placeId} onPress={() => onPlacePress(place.placeId)}>
           <ListItem.Title>{place.name}</ListItem.Title>
           {place.address && <ListItem.Text>{place.address}</ListItem.Text>}
         </ListItem.Button>

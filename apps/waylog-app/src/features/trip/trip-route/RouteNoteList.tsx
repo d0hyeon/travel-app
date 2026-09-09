@@ -38,9 +38,9 @@ export function NoteEditor({ notes, onChange }: Props) {
           onDelete == null
             ? undefined
             : () => {
-                onDelete()
-                close()
-              }
+              onDelete()
+              close()
+            }
         }
       />
     ))
@@ -109,11 +109,11 @@ function NoteSheet({ isOpen, initial, onClose, onConfirm, onDelete }: NoteSheetP
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
         {onDelete != null && (
-          <Button variant="outlined" color="error" fullWidth onClick={onDelete}>
+          <Button variant="outlined" color="error" fullWidth onPress={onDelete}>
             삭제
           </Button>
         )}
-        <Button variant="contained" fullWidth onClick={() => onConfirm(value)}>
+        <Button variant="contained" fullWidth onPress={() => onConfirm(value)}>
           저장
         </Button>
       </BottomSheet.BottomActions>

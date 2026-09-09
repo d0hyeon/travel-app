@@ -85,7 +85,7 @@ export function TripListScreen() {
       </ScrollView>
 
       <Fab
-        onClick={openTripCreation}
+        onPress={openTripCreation}
         sx={{ position: 'absolute', right: 20, bottom: 20 }}
       >
         <Typography sx={{ color: '#fff', fontSize: 28, lineHeight: 30, fontWeight: '400' }}>+</Typography>

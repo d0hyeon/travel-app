@@ -146,7 +146,7 @@ export const TripChecklistForm = forwardRef<TripChecklistFormRef, Props>(
                   size="small"
                   variant={selectedMemberId === member.id ? 'filled' : 'outlined'}
                   color={selectedMemberId === member.id ? 'primary' : 'default'}
-                  onClick={() =>
+                  onPress={() =>
                     setValue('memberId', selectedMemberId === member.id ? undefined : member.id)
                   }
                 />

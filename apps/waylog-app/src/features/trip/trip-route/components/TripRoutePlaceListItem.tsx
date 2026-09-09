@@ -66,10 +66,10 @@ TripRoutePlaceListItem.Actions = function TripRoutePlaceListItemActions({ tripId
     <PopMenu
       items={(
         <>
-          <PopMenu.Item onClick={editPlace} icon={<MaterialIcons name="edit" size={18} />}>
+          <PopMenu.Item onPress={editPlace} icon={<MaterialIcons name="edit" size={18} />}>
             수정
           </PopMenu.Item>
-          <PopMenu.Item onClick={removeFromRoute} icon={<MaterialIcons name="delete" size={18} color="#d32f2f" />} color="error">
+          <PopMenu.Item onPress={removeFromRoute} icon={<MaterialIcons name="delete" size={18} color="#d32f2f" />} color="error">
             삭제
           </PopMenu.Item>
         </>

@@ -128,7 +128,7 @@ export function TripPhotoContent({ tripId }: Props) {
           <Button
             size="small"
             variant="contained"
-            onClick={() => setIsReadonly((curr) => !curr)}
+            onPress={() => setIsReadonly((curr) => !curr)}
             sx={{ borderRadius: 24, backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
           >
             {isReadonly ? '선택' : '완료'}
@@ -171,41 +171,41 @@ export function TripPhotoContent({ tripId }: Props) {
               )}
             </Pressable>
           ) : (
-          <Pressable
-            onPress={() => (isReadonly ? openPhotoDetails(item) : toggleSelect(item))}
-            onLongPress={() => setIsReadonly(false)}
-            style={{ position: 'relative' }}
-          >
-            <LoadableImage source={{ uri: item.url }} style={{ width: size, height: size, borderRadius: 8 }} resizeMode="cover" />
+            <Pressable
+              onPress={() => (isReadonly ? openPhotoDetails(item) : toggleSelect(item))}
+              onLongPress={() => setIsReadonly(false)}
+              style={{ position: 'relative' }}
+            >
+              <LoadableImage source={{ uri: item.url }} style={{ width: size, height: size, borderRadius: 8 }} resizeMode="cover" />
 
-            {!isReadonly && selectedPhotoIds.includes(item.id) && (
-              <Box
-                pointerEvents="none"
-                sx={{
-                  ...StyleSheet.absoluteFillObject,
-                  borderRadius: 8,
-                  backgroundColor: 'rgba(0, 0, 0, 0.4)',
-                }}
-              />
-            )}
-
-            {/* 공개 사진 표시 */}
-            {item.isPublic && (
-              <Box sx={{ position: 'absolute', top: 4, left: 4 }}>
-                <MaterialIcons name="public" size={16} color="#fff" />
-              </Box>
-            )}
-
-            {!isReadonly && (
-              <Box sx={{ position: 'absolute', top: 4, right: 4 }}>
-                <MaterialIcons
-                  name={selectedPhotoIds.includes(item.id) ? 'check-circle' : 'radio-button-unchecked'}
-                  size={20}
-                  color={selectedPhotoIds.includes(item.id) ? '#4C84FF' : '#fff'}
+              {!isReadonly && selectedPhotoIds.includes(item.id) && (
+                <Box
+                  pointerEvents="none"
+                  sx={{
+                    ...StyleSheet.absoluteFillObject,
+                    borderRadius: 8,
+                    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                  }}
                 />
-              </Box>
-            )}
-          </Pressable>
+              )}
+
+              {/* 공개 사진 표시 */}
+              {item.isPublic && (
+                <Box sx={{ position: 'absolute', top: 4, left: 4 }}>
+                  <MaterialIcons name="public" size={16} color="#fff" />
+                </Box>
+              )}
+
+              {!isReadonly && (
+                <Box sx={{ position: 'absolute', top: 4, right: 4 }}>
+                  <MaterialIcons
+                    name={selectedPhotoIds.includes(item.id) ? 'check-circle' : 'radio-button-unchecked'}
+                    size={20}
+                    color={selectedPhotoIds.includes(item.id) ? '#4C84FF' : '#fff'}
+                  />
+                </Box>
+              )}
+            </Pressable>
           )
         )}
       />
@@ -222,7 +222,7 @@ export function TripPhotoContent({ tripId }: Props) {
             textSx={{ fontWeight: '600' }}
             disabled={selectedPhotoIds.length === 0}
             loading={isDeleting}
-            onClick={async () => {
+            onPress={async () => {
               if (!(await confirm('정말 삭제하시겠어요?'))) return
 
               setIsDeleting(true)
@@ -284,13 +284,13 @@ function PhotoViewerSheet({ isOpen, photos, initialIndex, places, onUpdate, onDe
                   </Stack>
                 </Pressable>
                 <Typography sx={{ paddingHorizontal: 20, paddingVertical: 12, color: '#777', fontWeight: '700' }}>공개 설정</Typography>
-                  <Pressable onPress={async () => { await updateCurrentPhoto({ isPublic: true }); closeMenu() }} style={{ paddingLeft: 36, paddingRight: 20, paddingVertical: 16 }}>
+                <Pressable onPress={async () => { await updateCurrentPhoto({ isPublic: true }); closeMenu() }} style={{ paddingLeft: 36, paddingRight: 20, paddingVertical: 16 }}>
                   <Stack direction="row" justifyContent="space-between" alignItems="center">
                     <Typography sx={{ color: currentPhoto.isPublic ? '#4c84ff' : '#222', fontSize: 16 }}>공개</Typography>
                     {currentPhoto.isPublic && <MaterialIcons name="check" size={26} color="#222" />}
                   </Stack>
                 </Pressable>
-                  <Pressable onPress={async () => { await updateCurrentPhoto({ isPublic: false }); closeMenu() }} style={{ paddingLeft: 36, paddingRight: 20, paddingVertical: 16 }}>
+                <Pressable onPress={async () => { await updateCurrentPhoto({ isPublic: false }); closeMenu() }} style={{ paddingLeft: 36, paddingRight: 20, paddingVertical: 16 }}>
                   <Stack direction="row" justifyContent="space-between" alignItems="center">
                     <Typography sx={{ color: !currentPhoto.isPublic ? '#4c84ff' : '#222', fontSize: 16 }}>비공개</Typography>
                     {!currentPhoto.isPublic && <MaterialIcons name="check" size={26} color="#222" />}
@@ -342,12 +342,12 @@ function PhotoViewerSheet({ isOpen, photos, initialIndex, places, onUpdate, onDe
                   const isUnassigned = option.id === 'none'
                   const isSelected = isUnassigned ? currentPhoto.placeId == null : currentPhoto.placeId === option.id
                   return (
-                  <Pressable key={option.id} onPress={async () => { await updateCurrentPhoto({ placeId: isUnassigned ? null : option.id }); closePicker() }} style={{ paddingHorizontal: 20, paddingVertical: 16, backgroundColor: isSelected ? '#eef4ff' : '#fff' }}>
-                    <Stack direction="row" justifyContent="space-between" alignItems="center">
-                      <Typography sx={{ color: isUnassigned ? '#888' : '#222', fontSize: 16 }}>{option.label}</Typography>
-                      {isSelected && <MaterialIcons name="check" size={24} color="#4c84ff" />}
-                    </Stack>
-                  </Pressable>
+                    <Pressable key={option.id} onPress={async () => { await updateCurrentPhoto({ placeId: isUnassigned ? null : option.id }); closePicker() }} style={{ paddingHorizontal: 20, paddingVertical: 16, backgroundColor: isSelected ? '#eef4ff' : '#fff' }}>
+                      <Stack direction="row" justifyContent="space-between" alignItems="center">
+                        <Typography sx={{ color: isUnassigned ? '#888' : '#222', fontSize: 16 }}>{option.label}</Typography>
+                        {isSelected && <MaterialIcons name="check" size={24} color="#4c84ff" />}
+                      </Stack>
+                    </Pressable>
                   )
                 })}
               </BottomSheet.Body>
@@ -363,8 +363,8 @@ function PhotoViewerSheet({ isOpen, photos, initialIndex, places, onUpdate, onDe
         </Pressable>
       </Stack>
       <BottomSheet.BottomActions sx={{ backgroundColor: '#010101' }}>
-        <Button variant="outlined" color="error" fullWidth onClick={() => void onDelete(currentPhoto)}>삭제</Button>
-        <Button variant="contained" fullWidth onClick={onClose}>닫기</Button>
+        <Button variant="outlined" color="error" fullWidth onPress={() => void onDelete(currentPhoto)}>삭제</Button>
+        <Button variant="contained" fullWidth onPress={onClose}>닫기</Button>
       </BottomSheet.BottomActions>
     </BottomSheet>
   )

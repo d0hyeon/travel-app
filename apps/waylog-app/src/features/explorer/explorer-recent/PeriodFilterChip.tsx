@@ -20,7 +20,7 @@ export function PeriodFilterChip({ months, onChange }: Props) {
       size="small"
       variant="outlined"
       color="primary"
-      onClick={() =>
+      onPress={() =>
         overlay.open(({ isOpen, close }) => (
           <BottomSheet isOpen={isOpen} onDismiss={close}>
             <BottomSheet.Header>기간 선택</BottomSheet.Header>

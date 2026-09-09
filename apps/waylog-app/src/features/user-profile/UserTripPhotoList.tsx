@@ -75,7 +75,7 @@ function PhotoPreviewSheet({ isOpen, onClose, photos, initialIndex }: { isOpen: 
         </BottomSheet.GestureArea>
       </BottomSheet.Body>
       <BottomSheet.BottomActions sx={{ backgroundColor: '#010101' }}>
-        <Button size="large" variant="contained" fullWidth onClick={onClose}>닫기</Button>
+        <Button size="large" variant="contained" fullWidth onPress={onClose}>닫기</Button>
       </BottomSheet.BottomActions>
     </BottomSheet>
   )

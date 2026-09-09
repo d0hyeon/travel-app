@@ -86,7 +86,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
                       : plannedPlaceIds.has(place.id) ? 'selected' : 'default'
                     }
                     variant={zoom < MICRO_ZOOM_LEVEL ? 'circle' : 'pin'}
-                    onClick={() => setFocusedId(place.id)}
+                    onPress={() => setFocusedId(place.id)}
                   />
                 ))}
 
@@ -94,7 +94,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
                   <Suspense>
                     <RecommendedMarkers
                       tripId={tripId}
-                      onClick={(place) => openBottomSheet({ place, tripId })}
+                      onPress={(place) => openBottomSheet({ place, tripId })}
                     />
                   </Suspense>
                 )}
@@ -125,7 +125,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
                   <TripPlaceItemButton
                     key={place.id}
                     place={place}
-                    onClick={() => handlePlaceClick(place)}
+                    onPress={() => handlePlaceClick(place)}
                     focused={place.id === focusedId}
                     sx={{ borderColor: palette.primary }}
                   />
@@ -134,7 +134,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
                   <TripPlaceItemButton
                     key={place.id}
                     place={place}
-                    onClick={() => handlePlaceClick(place)}
+                    onPress={() => handlePlaceClick(place)}
                     focused={place.id === focusedId}
                   />
                 ))}

@@ -93,7 +93,7 @@ function MultiSelectSheet({
             <ListItem.Button
               key={option.value}
               focused={picked.includes(option.value)}
-              onClick={() => toggle(option.value)}
+              onPress={() => toggle(option.value)}
               rightAddon={
                 picked.includes(option.value) ? (
                   <MaterialIcons name="check-circle" size={20} color={palette.primary} />
@@ -106,13 +106,13 @@ function MultiSelectSheet({
         </Stack>
       </BottomSheet.Body>
       <BottomSheet.BottomActions sx={{ paddingBottom: insets.bottom + 8 }}>
-        <Button variant="outlined" fullWidth onClick={() => setPicked([])}>
+        <Button variant="outlined" fullWidth onPress={() => setPicked([])}>
           초기화
         </Button>
         <Button
           variant="contained"
           fullWidth
-          onClick={() => {
+          onPress={() => {
             onChange(picked)
             onClose()
           }}
