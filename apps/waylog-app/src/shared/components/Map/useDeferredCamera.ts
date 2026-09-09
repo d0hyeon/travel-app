@@ -51,13 +51,14 @@ export function useDeferredCamera({ screenWidth, isMoving, onApply }: Params) {
 
     const next = toMapCamera(state, screenWidth)
 
-    // 카메라를 옮기는 중이면 이동이 끝날 때 applyFinal 이 반영한다.
-    if (isMoving() || isGestureActive) {
+    // 우리가 건 카메라 애니메이션은 끝나는 시각을 알고 있으므로 applyFinal 이 맡는다.
+    if (isMoving()) {
       setPending(next)
       return
     }
 
-    // 손을 뗀 순간만 간격을 건너뛰고 바로 반영한다.
+    // 제스처가 이어지는 동안에도 이 간격으로 따라간다. Mapbox 는 팬을 놓을 때
+    // 제스처 종료 이벤트를 주지 않아, 손을 뗀 순간만 기다리면 영영 반영되지 않는다.
     if (updateInterval.isRunning() && !hasGestureEnded) {
       setPending(next)
       return
