@@ -25,6 +25,9 @@ const HANDLE_DRAG_ACTIVATION_DELAY_MS = 120
 // 시간 기반으로 바꿔 움직임 없이도 활성화되게 한다.
 const PAN_TAKEOVER_DELAY_MS = HANDLE_DRAG_ACTIVATION_DELAY_MS + 20
 
+// 핸들과 본문 사이 간격(ListItem 의 gap 1 = 8px). 이 여백까지 핸들이 눌리는 영역으로 삼는다.
+const HANDLE_CONTENT_GAP = 8
+
 type Props<T extends { id: string }> = {
   items: T[]
   onSort?: (event: SortEvent<T>) => void
@@ -157,8 +160,17 @@ function Handle({ children, sx, id: _id }: Omit<BoxProps, 'id'> & { id: string |
       onLongPress={drag}
       delayLongPress={HANDLE_DRAG_ACTIVATION_DELAY_MS}
       hitSlop={8}
+      // 행 높이를 세로로 가득 채우고, 본문과의 간격까지 눌리는 영역으로 흡수한다.
+      // 아이콘 크기는 그대로 두고 여백만 먹는다.
+      style={{
+        alignSelf: 'stretch',
+        marginRight: -HANDLE_CONTENT_GAP,
+        paddingRight: HANDLE_CONTENT_GAP,
+      }}
     >
-      <Box sx={{ justifyContent: 'center', alignItems: 'center', ...(sx ?? {}) }}>{children}</Box>
+      <Box sx={{ flex: 1, justifyContent: 'center', alignItems: 'center', ...(sx ?? {}) }}>
+        {children}
+      </Box>
     </Pressable>
   )
 }
