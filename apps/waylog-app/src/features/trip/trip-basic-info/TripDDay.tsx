@@ -107,7 +107,6 @@ function BeforeTripDDay({ days, animationEnabled, ...props }: BeforeTripDDayProp
       <Typography variant="body2" color="text.secondary" fontWeight={500}>
         두근두근 여행이{' '}
         <Typography
-          component="span"
           variant="h6"
           color="primary.main"
           fontWeight={700}
@@ -120,21 +119,17 @@ function BeforeTripDDay({ days, animationEnabled, ...props }: BeforeTripDDayProp
     </DDayBox>
   )
 }
-
 interface DuringTripDDayProps extends BoxProps {
   day: number
   animationEnabled: boolean
 }
-
 function DuringTripDDay({ day, animationEnabled, ...props }: DuringTripDDayProps) {
   const displayDay = useCountAnimation(day, { enabled: animationEnabled })
-
   return (
     <DDayBox {...props}>
       <Typography variant="body2" color="text.secondary" fontWeight={500}>
         여행{' '}
         <Typography
-          component="span"
           variant="h6"
           color="success.main"
           fontWeight={700}
@@ -186,22 +181,22 @@ function AfterTripDDay({ dateDiff, animationEnabled, ...props }: AfterTripDDayPr
     <DDayBox {...props}>
       <Typography variant="body2" color="text.secondary" >
         {years > 0 && (
-          <Typography key="years" component="span" variant="subtitle1" color="primary.main" fontWeight={700} style={numStyle}>
+          <Typography key="years" variant="subtitle1" color="primary.main" fontWeight={700} style={numStyle}>
             {String(animated.years).padStart(yearsDigits, '\u2007')}{/* \u2007 = figure space (숫자 너비 공백) */}년{' '}
           </Typography>
         )}
         {months > 0 && (
-          <Typography key="months" component="span" variant="subtitle1" color="primary.main" fontWeight={700} style={numStyle}>
+          <Typography key="months" variant="subtitle1" color="primary.main" fontWeight={700} style={numStyle}>
             {String(animated.months).padStart(String(months).length, '\u2007')}개월{' '}
           </Typography>
         )}
         {days > 0 && (
-          <Typography key="days" component="span" variant="subtitle1" color="primary.main" fontWeight={700} style={numStyle}>
+          <Typography key="days" variant="subtitle1" color="primary.main" fontWeight={700} style={numStyle}>
             {String(animated.days).padStart(String(days).length, '\u2007')}일
           </Typography>
         )}
         {!isOnlyDays && (
-          <Typography component="span" variant="body2" color="text.disabled" style={[{ marginLeft: 4 }, numStyle]}>
+          <Typography variant="body2" color="text.disabled" style={[{ marginLeft: 4 }, numStyle]}>
             ({String(animatedTotalDays).padStart(totalDaysDigits, '\u2007')}일)
           </Typography>
         )}

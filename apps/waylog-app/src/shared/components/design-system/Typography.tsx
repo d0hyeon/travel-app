@@ -35,8 +35,6 @@ export interface TypographyProps extends RNTextProps {
   variant?: TypographyVariant
   color?: string
   fontWeight?: 'bold' | 'medium' | number | string
-  /** 웹 코드를 그대로 옮기기 위해 받기만 하고 무시한다 */
-  component?: string
   /** MUI 축약 prop */
   mb?: number
   mt?: number
@@ -54,7 +52,6 @@ export function Typography({
   variant = 'body1',
   color,
   fontWeight,
-  component: _component,
   mb,
   mt,
   ml,
