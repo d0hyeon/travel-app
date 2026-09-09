@@ -23,10 +23,8 @@ export function useDeferredCamera({ screenWidth, isMoving, onApply }: Params) {
   const [getPending, setPending] = useVariation<MapCamera | null>(null)
   const [wasGestureActive, setGestureActive] = useVariation(false)
 
-  // 관성으로 미끄러지는 동안 갱신 간격을 둔다.
+  // 반영 직후 잇따라 들어오는 이벤트를 이 간격으로 묶는다.
   const updateInterval = useTimer()
-  // 반영 직후 따라 들어오는 같은 이동의 이벤트를 무시한다.
-  const ignoreWindow = useTimer()
 
   const notifyApply = usePreservedCallback((bounds: MapBounds) => onApply?.(bounds))
 
@@ -51,8 +49,6 @@ export function useDeferredCamera({ screenWidth, isMoving, onApply }: Params) {
     const hasGestureEnded = wasGestureActive() && !isGestureActive
     setGestureActive(isGestureActive)
 
-    if (ignoreWindow.isRunning()) return
-
     const next = toMapCamera(state, screenWidth)
 
     // 카메라를 옮기는 중이면 이동이 끝날 때 applyFinal 이 반영한다.
@@ -61,7 +57,7 @@ export function useDeferredCamera({ screenWidth, isMoving, onApply }: Params) {
       return
     }
 
-    // 손을 뗀 순간만 관성 구간을 건너뛰고 바로 반영한다.
+    // 손을 뗀 순간만 간격을 건너뛰고 바로 반영한다.
     if (updateInterval.isRunning() && !hasGestureEnded) {
       setPending(next)
       return
@@ -71,17 +67,18 @@ export function useDeferredCamera({ screenWidth, isMoving, onApply }: Params) {
     scheduleNextUpdate()
   }
 
-  /** 카메라 이동이 끝났다. 마지막 위치로 반영하고, 뒤따라 오는 이벤트는 무시한다. */
+  /**
+   * 카메라 이동이 끝났다. 마지막 위치로 반영한다. 곧바로 따라 들어오는 같은 이동의
+   * 이벤트는 다음 간격까지 미뤄지고, 그 사이 사용자가 지도를 움직였다면 그 값이 반영된다.
+   */
   const applyFinal = (state: MapState) => {
-    updateInterval.cancel()
     apply(toMapCamera(state, screenWidth))
-    ignoreWindow.start(UPDATE_INTERVAL)
+    scheduleNextUpdate()
   }
 
   /** 새 이동이 시작됐다. 이전 이동을 기다리던 값은 모두 버린다. */
   const discardPending = () => {
     updateInterval.cancel()
-    ignoreWindow.cancel()
     setPending(null)
   }
 
