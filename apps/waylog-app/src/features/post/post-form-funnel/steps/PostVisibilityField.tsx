@@ -1,8 +1,8 @@
 import { PostVisibility, type PostVisibility as PostVisibilityValue } from '@waylog/domains/modules/post'
 import { useState } from 'react'
 import { Pressable, View } from 'react-native'
-import { Typography } from '../../../shared/components/mui'
-import { palette, radius } from '../../../shared/config/tokens'
+import { Typography } from '../../../../shared/components/mui'
+import { palette, radius } from '../../../../shared/config/tokens'
 
 export const VISIBILITY_OPTIONS = [
   { value: PostVisibility.PRIVATE, label: '나만 보기', description: '본인만 볼 수 있어요' },

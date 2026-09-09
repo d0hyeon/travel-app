@@ -3,18 +3,24 @@ import { PostVisibility, type PostVisibility as PostVisibilityValue } from '@way
 import { useLoading } from '@waylog/react'
 import { useState } from 'react'
 import { Pressable, ScrollView, View, useWindowDimensions } from 'react-native'
-import { BottomArea } from '../../../shared/components/BottomArea'
-import { LoadableImage } from '../../../shared/components/LoadableImage'
-import { Button, Typography } from '../../../shared/components/mui'
-import { palette } from '../../../shared/config/tokens'
-import { useKeyboardMetrics } from '../../../shared/hooks/env/useKeyboardMetrics'
+import { BottomArea } from '../../../../shared/components/BottomArea'
+import { LoadableImage } from '../../../../shared/components/LoadableImage'
+import { Button, Typography } from '../../../../shared/components/mui'
+import { palette } from '../../../../shared/config/tokens'
+import { useKeyboardMetrics } from '../../../../shared/hooks/env/useKeyboardMetrics'
 import { PostDescriptionField } from './PostDescriptionField'
 import { VISIBILITY_OPTIONS } from './PostVisibilityField'
 import { usePostPlacesBottomSheet } from './usePostPlacesBottomSheet'
 import { usePostVisibilityBottomSheet } from './usePostVisibilityBottomSheet'
-import type { DraftPostPhoto, PostMetaValue, PostPlaceSelection } from './postForm.types'
+import type { PostFormPhoto, PostPlaceSelection } from '../postFormFunnel.types'
 
-export function MetaStep({ tripId, photos, onNext }: { tripId: string | null; photos: DraftPostPhoto[]; onNext: (value: PostMetaValue) => Promise<void> }) {
+export interface PostMetaValue {
+  description: string
+  places: PostPlaceSelection[]
+  visibility: PostVisibility
+}
+
+export function MetaStep({ tripId, photos, onNext }: { tripId: string | null; photos: PostFormPhoto[]; onNext: (value: PostMetaValue) => Promise<void> }) {
   const { width } = useWindowDimensions()
   const { metrics: keyboard } = useKeyboardMetrics()
   const [description, setDescription] = useState('')

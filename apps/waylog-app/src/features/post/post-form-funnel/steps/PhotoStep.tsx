@@ -2,28 +2,28 @@ import { MaterialIcons } from '@expo/vector-icons'
 import * as ImagePicker from 'expo-image-picker'
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { Pressable, ScrollView, View, useWindowDimensions } from 'react-native'
-import { BottomArea } from '../../../shared/components/BottomArea'
-import { LoadableImage } from '../../../shared/components/LoadableImage'
-import { Button, Skeleton, Typography } from '../../../shared/components/mui'
-import { palette } from '../../../shared/config/tokens'
-import { useTripPhotos } from '../../trip/trip-photo/useTripPhotos'
-import type { DraftPostPhoto } from './postForm.types'
+import { BottomArea } from '../../../../shared/components/BottomArea'
+import { LoadableImage } from '../../../../shared/components/LoadableImage'
+import { Button, Skeleton, Typography } from '../../../../shared/components/mui'
+import { palette } from '../../../../shared/config/tokens'
+import { useTripPhotos } from '../../../trip/trip-photo/useTripPhotos'
+import type { PostFormPhoto } from '../postFormFunnel.types'
 
-export function PhotoStep({ tripId, defaultValue, onNext }: { tripId: string | null; defaultValue: DraftPostPhoto[]; onNext: (photos: DraftPostPhoto[]) => void }) {
-  const [availablePhotos, setAvailablePhotos] = useState<DraftPostPhoto[]>(defaultValue.filter((photo) => photo.source === 'local'))
+export function PhotoStep({ tripId, defaultValue, onNext }: { tripId: string | null; defaultValue: PostFormPhoto[]; onNext: (photos: PostFormPhoto[]) => void }) {
+  const [availablePhotos, setAvailablePhotos] = useState<PostFormPhoto[]>(defaultValue.filter((photo) => photo.savedPhotoId == null))
   const [selectedIds, setSelectedIds] = useState(defaultValue.map((photo) => photo.id))
   const selectedPhotos = availablePhotos.filter((photo) => selectedIds.includes(photo.id))
-  const addSavedPhotos = useCallback((photos: DraftPostPhoto[]) => setAvailablePhotos((current) => mergePhotos(current, photos)), [])
+  const addSavedPhotos = useCallback((photos: PostFormPhoto[]) => setAvailablePhotos((current) => mergePhotos(current, photos)), [])
 
   const addLocalPhotos = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsMultipleSelection: true, exif: true, quality: 1 })
     if (result.canceled) return
-    const additions = result.assets.map((asset) => ({ id: asset.assetId ?? asset.uri, source: 'local' as const, uri: asset.uri, placeId: null }))
+    const additions = result.assets.map((asset) => ({ id: asset.assetId ?? asset.uri, uri: asset.uri, placeId: null }))
     setAvailablePhotos((current) => [...current, ...additions.filter((addition) => !current.some((photo) => photo.id === addition.id))])
     setSelectedIds((current) => [...new Set([...current, ...additions.map((photo) => photo.id)])])
   }
 
-  const toggle = (photo: DraftPostPhoto) => setSelectedIds((current) => current.includes(photo.id) ? current.filter((id) => id !== photo.id) : [...current, photo.id])
+  const toggle = (photo: PostFormPhoto) => setSelectedIds((current) => current.includes(photo.id) ? current.filter((id) => id !== photo.id) : [...current, photo.id])
 
   return (
     <View style={{ flex: 1 }}>
@@ -38,20 +38,20 @@ export function PhotoStep({ tripId, defaultValue, onNext }: { tripId: string | n
   )
 }
 
-function SavedTripPhotos({ tripId, onLoad }: { tripId: string; onLoad: (photos: DraftPostPhoto[]) => void }) {
+function SavedTripPhotos({ tripId, onLoad }: { tripId: string; onLoad: (photos: PostFormPhoto[]) => void }) {
   const { data } = useTripPhotos(tripId)
-  const photos = useMemo(() => data.map((photo) => ({ id: photo.id, savedPhotoId: photo.id, source: 'saved' as const, uri: photo.url, placeId: photo.placeId })), [data])
+  const photos = useMemo(() => data.map((photo) => ({ id: photo.id, savedPhotoId: photo.id, uri: photo.url, placeId: photo.placeId })), [data])
   useEffect(() => onLoad(photos), [onLoad, photos])
   return null
 }
 
-function SelectedPhotoPreview({ photos }: { photos: DraftPostPhoto[] }) {
+function SelectedPhotoPreview({ photos }: { photos: PostFormPhoto[] }) {
   const [firstPhoto] = photos
   if (firstPhoto == null) return <View style={{ aspectRatio: 1, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderStyle: 'dashed', borderColor: palette.divider }}><MaterialIcons name="photo-library" size={44} color={palette.textSecondary} /></View>
   return <LoadableImage source={{ uri: firstPhoto.uri }} style={{ width: '100%', aspectRatio: 1 }} resizeMode="cover" />
 }
 
-function PhotoGrid({ photos, selectedIds, onToggle }: { photos: DraftPostPhoto[]; selectedIds: string[]; onToggle: (photo: DraftPostPhoto) => void }) {
+function PhotoGrid({ photos, selectedIds, onToggle }: { photos: PostFormPhoto[]; selectedIds: string[]; onToggle: (photo: PostFormPhoto) => void }) {
   const { width } = useWindowDimensions()
   const size = (width - 36) / 3
   return <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 2 }}>{photos.map((photo, index) => { const selected = selectedIds.includes(photo.id); return <Pressable key={photo.id} accessibilityRole="button" accessibilityLabel={`사진 ${index + 1}`} accessibilityState={{ selected }} onPress={() => onToggle(photo)}><LoadableImage source={{ uri: photo.uri }} style={{ width: size, height: size }} resizeMode="cover" />{selected && <View style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.35)', alignItems: 'flex-end', justifyContent: 'flex-end', padding: 8 }}><MaterialIcons name="check-circle" size={24} color="#fff" /></View>}</Pressable> })}</View>
@@ -59,7 +59,7 @@ function PhotoGrid({ photos, selectedIds, onToggle }: { photos: DraftPostPhoto[]
 
 function PhotoGridSkeleton() { return <View style={{ flexDirection: 'row', gap: 2 }}>{Array.from({ length: 3 }).map((_, index) => <Skeleton key={index} width="33%" height={112} />)}</View> }
 
-function mergePhotos(current: DraftPostPhoto[], additions: DraftPostPhoto[]) {
+function mergePhotos(current: PostFormPhoto[], additions: PostFormPhoto[]) {
   const newPhotos = additions.filter((addition) => !current.some((photo) => photo.id === addition.id))
   return newPhotos.length === 0 ? current : [...current, ...newPhotos]
 }

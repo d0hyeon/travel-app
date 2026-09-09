@@ -302,7 +302,8 @@ src/
 │   │   ├── PostMenu.tsx
 │   │   ├── PostScreen.tsx
 │   │   ├── place-feed/         # 장소별 피드
-│   │   └── post-form/          # 포스트 작성 마법사
+│   │   ├── PostCreationScreen.tsx  # 라우팅·업로드·생성 담당
+│   │   └── post-form-funnel/  # 포스트 작성 퍼널 (라우터 비의존)
 │   │
 │   ├── route/                  # 경로 도메인
 │   │   ├── route.api.ts
@@ -898,7 +899,7 @@ ref 로 붙잡아야 끌던 도중 스냅이 바뀌어도 제스처가 갈아끼
 | 추천 장소            | `features/trip/trip-recommend/`                                   |
 | 장소 탐색 (Explorer) | `features/explorer/PlaceExplorerPage.tsx`                         |
 | 계절 인기 지역       | `features/tourism-trend/`, `features/explorer/explorer-seasonal-regions/` |
-| 피드/포스트          | `features/post/FeedPage.tsx`, `features/post/post-form/`          |
+| 피드/포스트          | `features/post/FeedPage.tsx`, `features/post/post-form-funnel/`          |
 | 사용자 프로필        | `features/user-profile/UserProfilePage.tsx`                       |
 | 통계                 | `features/statistics/StatisticsPage.tsx`                          |
 | 지도 (공통)          | `shared/components/Map/` (kakao / google 구현 분기)               |
@@ -934,7 +935,7 @@ ref 로 붙잡아야 끌던 도중 스냅이 바뀌어도 제스처가 갈아끼
 
 - 여행 상세의 일차 탭·지도 설정은 바텀시트 내부 목록만 스크롤하고, 설정 스위치는 controlled value로 즉시 반영한다.
 - 사진 탭은 장소 필터, 선택 상태 오버레이, 공개 뱃지, 사진 상세 확대 영역을 앱 레이아웃에 맞춰 보완했다.
-- 피드 작성은 단계별 뒤로가기와 진행률 표시를 제공하고, 포스트 상세는 작성자에게만 메뉴를 노출한다.
+- 피드 작성은 단계별 뒤로가기와 진행률 표시를 제공하고, 포스트 상세는 작성자에게만 메뉴를 노출한다. 앱은 `PostFormFunnel`(`startStep`·`defaultValue`·`onSubmit` 만 받는 라우터 비의존 UI)과 `PostCreationScreen`(라우팅·업로드·생성)으로 나뉜다. 퍼널은 자체 native-stack을 중첩해 스텝을 스택 엔트리로 세우므로 스와이프 백·하드웨어 백이 이전 스텝으로 간다. 부모 스택에서 `post/new`는 엔트리 하나여서 등록 성공 후 `router.replace` 한 번으로 스텝 전체가 함께 걷힌다. 앱 사진은 웹과 달리 `uri` 하나로 통합한다(`source` 구분 없음). 공개 포스트에 쓴 여행 사진의 원본을 공개로 바꾸는 정책은 `createPost` 가 `savedPhotoId` 를 받아 처리하므로 화면은 관여하지 않는다.
 - 공용 버튼·스켈레톤·프로그레스바에 로딩/비활성/값 변경 모션을 추가하고 지도 핀의 시각 크기와 터치 영역을 분리했다.
 - 홈 탭과 여행 상세 탭에 `backBehavior="history"`를 설정했다. 여행 상세 탭 전환은 구현했지만 iOS Simulator의 `back --system`이 React Navigation의 탭 뒤로가기를 발생시키지 않아 홈 탭의 피드 → 탐색 → 뒤로가기 시나리오는 별도 재검증이 필요하다.
 - `Skeleton`의 레이아웃 폭과 셔머 위치를 React state가 아닌 Reanimated shared value로 관리해 마운트 중 state-update 경고를 제거했다. 새 런타임에서 해당 경고는 재현되지 않았다.

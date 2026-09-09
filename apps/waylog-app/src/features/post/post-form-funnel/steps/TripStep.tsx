@@ -2,9 +2,9 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { useTrips, type Trip } from '@waylog/domains/modules/trip'
 import { useState } from 'react'
 import { Pressable, ScrollView, View } from 'react-native'
-import { BottomArea } from '../../../shared/components/BottomArea'
-import { Button, Typography } from '../../../shared/components/mui'
-import { palette, radius } from '../../../shared/config/tokens'
+import { BottomArea } from '../../../../shared/components/BottomArea'
+import { Button, Typography } from '../../../../shared/components/mui'
+import { palette, radius } from '../../../../shared/config/tokens'
 
 type TripSelection = string | 'none' | null
 

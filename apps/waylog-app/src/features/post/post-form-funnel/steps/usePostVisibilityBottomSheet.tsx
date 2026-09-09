@@ -1,8 +1,8 @@
 import type { PostVisibility as PostVisibilityValue } from '@waylog/domains/modules/post'
 import { useCallback, useState } from 'react'
-import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
-import { Button } from '../../../shared/components/mui'
-import { useOverlay } from '../../../shared/hooks/useOverlay'
+import { BottomSheet } from '../../../../shared/components/bottom-sheet/BottomSheet'
+import { Button } from '../../../../shared/components/mui'
+import { useOverlay } from '../../../../shared/hooks/useOverlay'
 import { PostVisibilityField, VISIBILITY_OPTIONS } from './PostVisibilityField'
 
 export { VISIBILITY_OPTIONS }
