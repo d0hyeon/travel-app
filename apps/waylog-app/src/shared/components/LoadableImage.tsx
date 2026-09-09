@@ -7,7 +7,7 @@ import {
   type NativeSyntheticEvent,
   type ImageErrorEventData,
 } from 'react-native'
-import { Skeleton } from './mui/Skeleton'
+import { Skeleton } from '~/shared/components/design-system/Skeleton'
 
 export type LoadableImageProps = ImageProps
 

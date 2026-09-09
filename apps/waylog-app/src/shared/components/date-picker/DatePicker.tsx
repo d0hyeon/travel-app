@@ -12,7 +12,7 @@ import { DEFAULT_MINUTE_STEP } from './datePicker.model'
 
 import { MaterialIcons } from '@expo/vector-icons'
 import { palette } from '../../config/tokens'
-import { Stack, Typography } from '../mui'
+import { Stack, Typography } from '~/shared/components/design-system'
 
 const EMPTY_RANGE: DateSelection = [null, null]
 

@@ -2,7 +2,7 @@ import { isSameDay, isSameMonth } from 'date-fns'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { isWithinRange } from './calendar.utils'
 import type { DateSelection } from './datePicker.model'
-import { Typography } from '../mui'
+import { Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../config/tokens'
 
 interface CalendarDayProps {

@@ -1,7 +1,7 @@
 import { Modal, Pressable } from 'react-native'
 import { palette, radius } from '../../config/tokens'
-import { Box, Stack, Typography } from '../mui'
-import { Button } from '../mui/Button'
+import { Box, Stack, Typography } from '~/shared/components/design-system'
+import { Button } from '~/shared/components/design-system/Button'
 
 export interface ConfirmDialogProps {
   isOpen: boolean

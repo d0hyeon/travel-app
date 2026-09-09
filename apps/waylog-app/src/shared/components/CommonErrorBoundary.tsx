@@ -1,7 +1,7 @@
 import type { ComponentProps } from 'react'
 import { palette, radius } from '../config/tokens'
 import { ErrorBoundary } from '@waylog/react'
-import { Button, Stack, Typography } from './mui'
+import { Button, Stack, Typography } from '~/shared/components/design-system'
 
 const ERROR_MAIN = '#d32f2f'
 const ERROR_SURFACE = '#fdeded'

@@ -3,7 +3,7 @@ import type { BottomTabBarProps } from '@react-navigation/bottom-tabs'
 import { Pressable, useWindowDimensions, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { palette } from '../config/tokens'
-import { Typography } from './mui'
+import { Typography } from '~/shared/components/design-system'
 
 // 웹 BottomNavigation 과 같이 상단을 라운드 처리한다. 활성 여부는 아이콘·텍스트 색으로만 표시한다.
 interface Props extends BottomTabBarProps {

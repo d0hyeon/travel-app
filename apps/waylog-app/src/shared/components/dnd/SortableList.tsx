@@ -18,7 +18,7 @@ import ReorderableList, {
   useReorderableDrag,
   type ReorderableListReorderEvent,
 } from 'react-native-reorderable-list'
-import { Box, type BoxProps } from '../mui'
+import { Box, type BoxProps } from '~/shared/components/design-system'
 import { palette } from '../../config/tokens'
 import { impactAsync, ImpactFeedbackStyle } from 'expo-haptics'
 

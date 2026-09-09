@@ -1,5 +1,5 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Stack, type StackProps } from './mui'
+import { Stack, type StackProps } from '~/shared/components/design-system'
 import { palette, zLayer } from '../config/tokens'
 
 // 웹 BottomArea 와 같은 역할이다. env(safe-area-inset-bottom) 대신

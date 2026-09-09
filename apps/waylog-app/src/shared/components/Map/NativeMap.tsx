@@ -14,7 +14,7 @@ import { MapMarkerRegistryProvider, useRegisteredMapMarkers } from './useMapMark
 import { computeMarkerVisibility } from './useMapMarkerRegistry.utils'
 import { useMapCamera } from './useMapCamera'
 import { useClusterTransition } from './useClusterTransition'
-import { sxToStyle, type Sx } from '../mui'
+import { sxToStyle, type Sx } from '~/shared/components/design-system'
 
 Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN ?? '')
 

@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { format as formatDate } from 'date-fns'
 import { Pressable, StyleSheet, View } from 'react-native'
-import { Typography } from '../mui'
+import { Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../config/tokens'
 import type { DateRange } from './datePicker.model'
 import { useDatePickerBottomSheet } from './useDatePickerBottomSheet'

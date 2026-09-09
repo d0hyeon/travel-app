@@ -6,7 +6,7 @@ import {
   type NativeSyntheticEvent,
 } from 'react-native'
 
-import { Typography } from '../mui'
+import { Typography } from '~/shared/components/design-system'
 import { buildMinuteOptions } from './calendar.utils'
 import type { TimeOfDay } from './datePicker.model'
 import { palette, radius } from '../../config/tokens'

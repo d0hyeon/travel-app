@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { format } from 'date-fns'
-import { Stack, IconButton, Typography } from '../mui'
+import { Stack, IconButton, Typography } from '~/shared/components/design-system'
 import { palette } from '../../config/tokens'
 
 interface CalendarHeaderProps {

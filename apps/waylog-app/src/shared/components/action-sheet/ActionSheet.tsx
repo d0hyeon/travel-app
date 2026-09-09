@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useRef, type ReactNode } from 'react'
 import { Animated, Modal, Pressable, ScrollView } from 'react-native'
 import { palette, radius } from '../../config/tokens'
-import { Box, Stack, Typography } from '../mui'
+import { Box, Stack, Typography } from '~/shared/components/design-system'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 // 네이티브에는 앵커 기준 팝오버가 없어 하단 시트로 띄운다.

@@ -4,7 +4,7 @@ import { AnimatedTabBar } from '../../../src/shared/components/AnimatedTabBar'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { palette } from '../../../src/shared/config/tokens'
 import { ErrorBoundary } from '@waylog/react'
-import { Button, Stack, Typography } from '../../../src/shared/components/mui'
+import { Button, Stack, Typography } from '~/shared/components/design-system'
 import { View } from 'react-native'
 import { TripDetailHeader } from '../../../src/features/trip/components/TripDetailHeader'
 

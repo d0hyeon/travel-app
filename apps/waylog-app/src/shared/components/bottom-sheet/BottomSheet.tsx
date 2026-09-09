@@ -35,7 +35,7 @@ import Animated, {
   type SharedValue,
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Box, Stack, Typography, sxToStyle, type BoxProps, type StackProps, type Sx } from '../mui'
+import { Box, Stack, Typography, sxToStyle, type BoxProps, type StackProps, type Sx } from '~/shared/components/design-system'
 import { palette, zLayer } from '../../config/tokens'
 import {
   clampSheetHeight,

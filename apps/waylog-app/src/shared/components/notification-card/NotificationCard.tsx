@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { type ReactNode } from 'react'
-import { Box, IconButton, Stack, Typography } from '../mui'
-import type { Sx, TypographyProps } from '../mui'
+import { Box, IconButton, Stack, Typography } from '~/shared/components/design-system'
+import type { Sx, TypographyProps } from '~/shared/components/design-system'
 import { palette, radius } from '../../config/tokens'
 
 export interface NotificationCardProps {

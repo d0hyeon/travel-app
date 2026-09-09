@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { Modal, ModalProps, Pressable } from 'react-native'
-import { Box, Button, Stack, Typography } from './mui'
+import { Box, Button, Stack, Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../config/tokens'
 
 interface Props extends Omit<ModalProps, 'visible'> {

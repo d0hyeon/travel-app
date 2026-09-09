@@ -10,7 +10,7 @@ import {
 } from 'react-native'
 import { buildMonthMatrix } from './calendar.utils'
 import type { DateSelection } from './datePicker.model'
-import { Typography } from '../mui'
+import { Typography } from '~/shared/components/design-system'
 import { palette } from '../../config/tokens'
 import { CalendarDay } from './CalendarDay'
 

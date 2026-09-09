@@ -2,8 +2,8 @@ import { useRef, useState, type ReactNode } from 'react'
 import { Pressable } from 'react-native'
 import { palette } from '../config/tokens'
 import { ActionSheet } from './action-sheet/ActionSheet'
-import { Typography } from './mui'
-import { IconButton } from './mui/IconButton'
+import { Typography } from '~/shared/components/design-system'
+import { IconButton } from '~/shared/components/design-system/IconButton'
 
 // 웹 PopMenu 와 같은 사용법을 유지한다.
 // 네이티브에는 앵커 기준 팝오버가 없어 ActionSheet 로 띄운다.

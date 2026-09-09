@@ -9,7 +9,7 @@ import {
   type PropsWithAs,
   type StackProps,
   type TypographyProps,
-} from './mui'
+} from '~/shared/components/design-system'
 
 interface Props extends StackProps {
   leftAddon?: ReactNode
