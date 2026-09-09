@@ -21,8 +21,8 @@ Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN ?? '')
 const VIEWPORT_PADDING_RATIO = 0.2
 
 // 클러스터를 눌렀을 때 묶인 마커들 주위로 남길 여백. 작을수록 바짝 당긴다.
-const CLUSTER_TAP_PADDING = 80
-const CLUSTER_TAP_DURATION = 400
+const CLUSTER_TAP_PADDING = 100
+const CLUSTER_TAP_DURATION = 500
 
 
 export function NativeMap(props: MapProps & { sx?: Sx }) {
@@ -50,7 +50,7 @@ function NativeMapInner({
 
   const { camera, ref: cameraRef, fitTo, panTo, track } = useMapCamera({
     screenWidth,
-    onSettle: onBoundsChange,
+    onApply: onBoundsChange,
   })
 
   useImperativeHandle<MapRef, MapRef>(

@@ -1,37 +1,42 @@
-import { useRef } from 'react'
 import type { MapState } from '@rnmapbox/maps'
 import type { MapBounds } from '@waylog/domains/modules/map'
+import { useVariation } from '@waylog/react'
 import { useCameraControl } from './useCameraControl'
-import { useLazyCamera } from './useLazyCamera'
+import { useDeferredCamera } from './useDeferredCamera'
+
+type DeferredCamera = ReturnType<typeof useDeferredCamera>
 
 interface Params {
   screenWidth: number
-  onSettle?: (bounds: MapBounds) => void
+  onApply?: (bounds: MapBounds) => void
 }
 
 /** 지도 카메라를 조종하고, 클러스터를 다시 묶을 시점의 카메라를 내놓는다. */
-export function useMapCamera({ screenWidth, onSettle }: Params) {
-  const lastStateRef = useRef<MapState | null>(null)
-  const settleRef = useRef<(state: MapState) => void>(() => {})
+export function useMapCamera({ screenWidth, onApply }: Params) {
+  const [getLastState, setLastState] = useVariation<MapState | null>(null)
+  const [getDeferred, setDeferred] = useVariation<DeferredCamera | null>(null)
 
   const control = useCameraControl({
+    onMoveStart: () => getDeferred()?.discardPending(),
     onMoveEnd: () => {
-      if (lastStateRef.current == null) return
-      settleRef.current(lastStateRef.current)
+      const lastState = getLastState()
+      if (lastState == null) return
+
+      getDeferred()?.applyFinal(lastState)
     },
   })
 
-  const lazy = useLazyCamera({ screenWidth, isMoving: control.isMoving, onSettle })
-  settleRef.current = lazy.settle
+  const deferred = useDeferredCamera({ screenWidth, isMoving: control.isMoving, onApply })
+  setDeferred(deferred)
 
   return {
-    camera: lazy.camera,
+    camera: deferred.camera,
     ref: control.ref,
     fitTo: control.fitTo,
     panTo: control.panTo,
     track: (state: MapState) => {
-      lastStateRef.current = state
-      lazy.track(state)
+      setLastState(state)
+      deferred.track(state)
     },
   }
 }

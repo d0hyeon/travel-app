@@ -14,15 +14,18 @@ interface FitOptions {
 }
 
 interface Params {
+  onMoveStart: () => void
   onMoveEnd: () => void
 }
 
-export function useCameraControl({ onMoveEnd }: Params) {
+export function useCameraControl({ onMoveStart, onMoveEnd }: Params) {
   const ref = useRef<Mapbox.Camera>(null)
   const moveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const notifyMoveStart = usePreservedCallback(onMoveStart)
   const notifyMoveEnd = usePreservedCallback(onMoveEnd)
 
   const startMove = (move: () => void, duration: number) => {
+    notifyMoveStart()
     move()
 
     if (moveTimerRef.current != null) clearTimeout(moveTimerRef.current)
