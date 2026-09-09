@@ -116,8 +116,7 @@ function NativeMapInner({
         />
         {rendered as ReactNode}
         {transitioningClusters.map(({ cluster, destination, isLeaving, origin }) =>
-          // 클러스터로 흡수되며 사라지는 단일 마커도 빨려들어가는 모션을 위해 여기서 그린다.
-          cluster.markers.length > 1 || isLeaving ? (
+          cluster.markers.length > 1 ? (
             <NativeMapCluster
               key={cluster.id}
               latitude={cluster.center.lat}
