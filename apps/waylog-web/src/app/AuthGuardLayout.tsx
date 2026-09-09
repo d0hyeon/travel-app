@@ -1,15 +1,11 @@
 import { Outlet } from "react-router";
 import { AuthNavigate } from "~features/auth/AuthNavigate";
-import { useAuth } from "@waylog/domains/clients";
+import { AuthGuard } from "@waylog/domains/clients";
 
 export default function AuthGuardLayout() {
-  const { data: user } = useAuth({ required: false });
-
-  if (user == null) {
-    return <AuthNavigate />
-  }
-
   return (
-    <Outlet />
+    <AuthGuard fallback={<AuthNavigate />}>
+      <Outlet />
+    </AuthGuard>
   )
 }
