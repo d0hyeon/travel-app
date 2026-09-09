@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ReactNode, Ref } from 'react'
 import { Text as RNText, type TextProps as RNTextProps } from 'react-native'
 import { palette } from '../../config/tokens'
 
@@ -32,6 +32,7 @@ const COLOR_MAP: Record<string, string> = {
 }
 
 export interface TypographyProps extends RNTextProps {
+  ref?: Ref<RNText>
   variant?: TypographyVariant
   color?: string
   fontWeight?: 'bold' | 'medium' | number | string

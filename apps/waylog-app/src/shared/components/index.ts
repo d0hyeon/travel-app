@@ -1,8 +1,3 @@
-export { Button } from './Button'
-export type { ButtonSize, ButtonVariant } from './Button'
-export { Stack } from './Stack'
-export { Text } from './Text'
-export type { TextVariant } from './Text'
 export { EditableText } from './EditableText'
 export { TabNavigation } from './tab-navigation/TabNavigation'
 export type { TabNavigationVariant } from './tab-navigation/TabNavigation.types'

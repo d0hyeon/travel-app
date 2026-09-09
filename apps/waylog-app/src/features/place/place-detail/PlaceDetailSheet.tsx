@@ -3,8 +3,7 @@ import { createTripPlace, usePlace } from '@waylog/domains/modules/place'
 import { useRouter } from 'expo-router'
 import { Suspense } from 'react'
 import { ActivityIndicator, Modal, Pressable, ScrollView, View } from 'react-native'
-import { Stack, Text } from '../../../shared/components'
-import { Button } from '~/shared/components/design-system'
+import { Button, Stack, Typography } from '~/shared/components/design-system'
 import { Map } from '../../../shared/components/Map'
 import { palette, radius } from '../../../shared/config/tokens'
 import { useScheduledTrips } from '../../trip/useScheduledTrips'
@@ -71,9 +70,9 @@ function MoreDetailButton({ placeId, onNavigate }: { placeId: string; onNavigate
         router.push(`/explorer/${placeId}`)
       }}
     >
-      <Text variant="body2" color={palette.primary}>
+      <Typography variant="body2" color={palette.primary}>
         더 보기
-      </Text>
+      </Typography>
     </Pressable>
   )
 }
@@ -111,7 +110,7 @@ export function PlaceDetailBody({ placeId }: { placeId: string }) {
   const { data: place } = usePlace(placeId)
 
   return (
-    <Stack gap={10}>
+    <Stack gap={1.25}>
 
       <MapArea>
         <Map defaultCenter={{ lat: place.lat, lng: place.lng }}>
@@ -120,9 +119,9 @@ export function PlaceDetailBody({ placeId }: { placeId: string }) {
       </MapArea>
 
       {place.address != null && place.address !== '' && (
-        <Text variant="body2" color={palette.textSecondary}>
+        <Typography variant="body2" color={palette.textSecondary}>
           {place.address}
-        </Text>
+        </Typography>
       )}
 
       <Suspense>

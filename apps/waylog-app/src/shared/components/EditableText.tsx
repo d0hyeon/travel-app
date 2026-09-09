@@ -1,14 +1,13 @@
 import { useAsyncEffect } from '@waylog/react'
 import { ComponentProps, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { ControllerFieldState, ControllerRenderProps } from 'react-hook-form'
-import { Pressable, useWindowDimensions, View, type TextInputProps } from 'react-native'
+import { Pressable, Text, useWindowDimensions, View, type TextInputProps } from 'react-native'
 import { TextInput } from 'react-native-gesture-handler'
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { useKeyboardMetrics } from '../hooks/env/useKeyboardMetrics'
 import { useMeasureInWindow } from './EditableText.motion'
 import { TextOverlayField } from '~/shared/components/design-system/TextOverlayField'
 import { getTypographyStyle, Typography, type TypographyProps } from '~/shared/components/design-system/Typography'
-import { Text } from './Text'
 import { useSharedElementTransition } from './animation/SharedElementTransition'
 
 type FormValues = { value: string }
@@ -129,7 +128,7 @@ function Field(props: ComponentProps<typeof TextOverlayField>) {
   const { metrics: keyboardPosition, isActive: isActivedKeyboard } = useKeyboardMetrics();
   const { width: screenWidth } = useWindowDimensions();
 
-  const textRef = useRef(null);
+  const textRef = useRef<Text>(null);
   const overlayInputRef = useRef(null);
   const scale = useSharedValue(1);
   const { play, translateX, translateY } = useSharedElementTransition();
@@ -155,9 +154,9 @@ function Field(props: ComponentProps<typeof TextOverlayField>) {
 
   return (
     <>
-      <Text ref={textRef} style={props.style} numberOfLines={1}>
+      <Typography ref={textRef} style={props.style} numberOfLines={1}>
         {props.value}
-      </Text>
+      </Typography>
 
 
       <View
