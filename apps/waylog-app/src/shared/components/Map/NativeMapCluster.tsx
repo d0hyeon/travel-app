@@ -1,20 +1,30 @@
 import Mapbox from '@rnmapbox/maps'
+import { useEffect } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
 import { formatClusterCount, resolveClusterAppearance } from './NativeMapCluster.utils'
+import { useAnimatedCoordinate } from './useAnimatedCoordinate'
+import { useAnimatedCount } from './useAnimatedCount'
 
 interface Props {
   latitude: number
   longitude: number
   count: number
+  /** 다른 클러스터로 흡수되며 사라지는 중이면 그 목적지로 빨려들어간다 */
+  leavingTo?: { lat: number; lng: number }
+  /** 갈라져 나온 클러스터면 부모가 있던 자리에서 출발한다 */
+  emergingFrom?: { lat: number; lng: number }
   /** 누르면 묶인 마커가 모두 보이도록 확대한다 */
   onTap?: () => void
 }
 
 const MIN_TOUCH_TARGET_SIZE = 56
 const PRESSED_SCALE = 0.92
+const LEAVE_DURATION = 300
 
-export function NativeMapCluster({ latitude, longitude, count, onTap }: Props) {
+export function NativeMapCluster({ latitude, longitude, count, leavingTo, emergingFrom, onTap }: Props) {
+  const movingCount = useAnimatedCount(count)
+
   const {
     size,
     fontSize,
@@ -28,10 +38,26 @@ export function NativeMapCluster({ latitude, longitude, count, onTap }: Props) {
     shadowOffsetY,
     elevation,
     rings = [],
-  } = resolveClusterAppearance(count)
+  } = resolveClusterAppearance(movingCount)
+
+  const isLeaving = leavingTo != null
+  const movingCoordinate = useAnimatedCoordinate(
+    isLeaving ? { latitude: leavingTo.lat, longitude: leavingTo.lng } : { latitude, longitude },
+    emergingFrom == null
+      ? undefined
+      : { latitude: emergingFrom.lat, longitude: emergingFrom.lng },
+  )
 
   const scale = useSharedValue(1)
   const pressedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.get() }] }))
+
+  const leaveProgress = useSharedValue(1)
+  const leavingStyle = useAnimatedStyle(() => ({ opacity: leaveProgress.get() }))
+
+  useEffect(() => {
+    if (!isLeaving) return
+    leaveProgress.set(withTiming(0, { duration: LEAVE_DURATION }))
+  }, [isLeaving, leaveProgress])
 
   const circle = (
     <View
@@ -53,7 +79,7 @@ export function NativeMapCluster({ latitude, longitude, count, onTap }: Props) {
           },
         ]}
       >
-        <Text style={[styles.count, { color: textColor, fontSize }]}>{formatClusterCount(count)}</Text>
+        <Text style={[styles.count, { color: textColor, fontSize }]}>{formatClusterCount(movingCount)}</Text>
       </View>
     </View>
   )
@@ -73,7 +99,7 @@ export function NativeMapCluster({ latitude, longitude, count, onTap }: Props) {
   const touchTargetSize = Math.max(outerSize, MIN_TOUCH_TARGET_SIZE)
 
   return (
-    <Mapbox.MarkerView coordinate={[longitude, latitude]} anchor={{ x: 0.5, y: 0.5 }} allowOverlap>
+    <Mapbox.MarkerView coordinate={[movingCoordinate.longitude, movingCoordinate.latitude]} anchor={{ x: 0.5, y: 0.5 }} allowOverlap>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`${count}개의 장소가 모여 있습니다`}
@@ -86,7 +112,7 @@ export function NativeMapCluster({ latitude, longitude, count, onTap }: Props) {
         }}
       >
         <View style={[styles.touchArea, { width: touchTargetSize, height: touchTargetSize }]}>
-          <Animated.View style={pressedStyle}>{ringedCircle}</Animated.View>
+          <Animated.View style={[pressedStyle, leavingStyle]}>{ringedCircle}</Animated.View>
         </View>
       </Pressable>
     </Mapbox.MarkerView>
