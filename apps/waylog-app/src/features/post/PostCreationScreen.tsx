@@ -1,4 +1,3 @@
-import { updatePhoto } from '@waylog/domains/modules/photo'
 import { PostVisibility, useCreatePost } from '@waylog/domains/modules/post'
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
 import { useState } from 'react'
@@ -12,23 +11,30 @@ export function PostCreationScreen() {
   const fixedTripId = Array.isArray(params.tripId) ? params.tripId[0] : params.tripId
   const { mutateAsync: createPost } = useCreatePost()
   const startStep: PostFormStep = fixedTripId == null ? 'trip' : 'photo'
-  const [step, setStep] = useState<PostFormStep>(startStep)
+  const [step, setStep] = useState<PostFormStep>(startStep);
 
-  const create = async ({ tripId, photos, places, visibility, description }: PostFormValues) => {
-    const isPublic = visibility !== PostVisibility.PRIVATE
-    const uploadedPhotos = await Promise.all(
-      photos.map(async (photo) => ({ ...(await uploadPostPhoto(tripId, photo.uri)), placeId: photo.placeId, isPublic })),
+  const uploadPhotos = (values: PostFormValues) => {
+    return Promise.all(
+      values.photos.map(async (photo) => {
+        const result = await uploadPostPhoto(values.tripId, photo.uri);
+
+        return {
+          ...result,
+          placeId: photo.placeId,
+          savedPhotoId: photo.savedPhotoId,
+          isPublic: values.visibility !== PostVisibility.PRIVATE,
+        }
+      })
     )
+  }
+
+  const handleSubmit = async (formValues: PostFormValues) => {
+    const uploadedPhotos = await uploadPhotos(formValues);
     const post = await createPost({
-      tripId,
-      description,
-      visibility,
-      placeIds: places.map((place) => place.placeId),
+      ...formValues,
+      placeIds: formValues.places.map((place) => place.placeId),
       photos: uploadedPhotos,
     })
-    if (visibility === PostVisibility.PUBLIC) {
-      await Promise.all(photos.flatMap((photo) => photo.savedPhotoId == null ? [] : [updatePhoto(photo.savedPhotoId, { isPublic: true })]))
-    }
     router.replace(`/post/${post.id}`)
   }
 
@@ -41,7 +47,7 @@ export function PostCreationScreen() {
         startStep={startStep}
         defaultValue={{ tripId: fixedTripId ?? null }}
         onStepChange={setStep}
-        onSubmit={create}
+        onSubmit={handleSubmit}
       />
     </>
   )

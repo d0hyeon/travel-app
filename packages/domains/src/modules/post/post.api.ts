@@ -1,7 +1,8 @@
 import { getAuth } from '../../gateways/auth'
 import { supabase, type DataRaw } from '../../gateways/client'
 import { assert } from '@waylog/utility'
-import type { Post, PostPhoto, PostPlace, PostVisibility } from './post.types'
+import { PostVisibility } from './post.types'
+import type { Post, PostPhoto, PostPlace } from './post.types'
 
 export const postKey = 'posts'
 export const postLikeKey = 'post-likes'
@@ -120,6 +121,8 @@ export interface PostPhotoInput {
   storagePath: string
   placeId?: string | null
   isPublic: boolean
+  /** 여행 사진첩에서 고른 사진의 원본 id. 공개 포스트면 원본도 공개로 바꾼다. */
+  savedPhotoId?: string
 }
 
 export interface CreatePostInput {
@@ -175,6 +178,16 @@ export async function createPost(input: CreatePostInput): Promise<Post> {
       is_public: photo.isPublic,
     }))
     const { error } = await supabase.from('post_photos').insert(photos)
+    if (error) {
+      await rollback()
+      throw error
+    }
+  }
+
+  // 공개 포스트에 쓴 여행 사진은 장소 상세에도 노출되어야 하므로 원본도 공개로 바꾼다.
+  const savedPhotoIds = input.photos.flatMap((photo) => photo.savedPhotoId ?? [])
+  if (input.visibility === PostVisibility.PUBLIC && savedPhotoIds.length > 0) {
+    const { error } = await supabase.from('photos').update({ is_public: true }).in('id', savedPhotoIds)
     if (error) {
       await rollback()
       throw error

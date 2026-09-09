@@ -2,14 +2,13 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import { Alert, AlertTitle, Box, CircularProgress, Container, IconButton, Stack, Typography } from '@mui/material'
 import { Suspense, useState, type PropsWithChildren } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
-import { createPhotoFileFromUrl, updatePhoto, uploadPostPhoto } from '~features/photo/photo.api'
+import { createPhotoFileFromUrl, uploadPostPhoto } from '~features/photo/photo.api'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState'
 import { lazy } from '~shared/utils/react'
 import { useCreatePost } from '../usePost'
 import type { MetaStepValue } from './MetaStep'
 import { isLocalDraftPostPhoto, type DraftPostPhoto } from './postDraftPhoto'
-import { PostVisibility } from '../post.types'
 import { usePostForm } from './usePostForm'
 
 const TripStep = lazy(async () => {
@@ -66,7 +65,8 @@ export default function PostFormPage() {
             ? photo.file
             : await createPhotoFileFromUrl(photo.url, `${photo.id}.jpg`)
           const { url, storagePath } = await uploadPostPhoto(tripId, file)
-          return { url, storagePath, placeId: photo.placeId, isPublic }
+          const savedPhotoId = photo.source === 'saved' ? photo.id : undefined
+          return { url, storagePath, placeId: photo.placeId, savedPhotoId, isPublic }
         }),
       )
 
@@ -77,12 +77,6 @@ export default function PostFormPage() {
         placeIds: value.places.map((p) => p.placeId),
         photos: uploadedPhotos,
       })
-
-      if (value.visibility === PostVisibility.PUBLIC) {
-        value.photos
-          .filter((photo) => photo.source === 'saved')
-          .forEach((photo) => publishPhoto(photo.id))
-      }
 
       await navigate(`/post/${post.id}`, { replace: true })
     }
@@ -202,8 +196,4 @@ function TopNavigation(props: PropsWithChildren) {
       </Stack>
     </Box>
   )
-}
-
-function publishPhoto(photoId: string) {
-  updatePhoto(photoId, { isPublic: true })
 }
