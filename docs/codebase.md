@@ -36,12 +36,13 @@
 | --------- | ------------------------------------------------ |
 | Native    | Expo SDK 54 + React Native 0.81.5                |
 | Routing   | Expo Router 6 (파일 기반)                        |
-| UI        | `@emotion/native` 자체 구축 + MUI 호환 shim       |
+| UI        | `@emotion/native` 자체 구축 + 자체 디자인 시스템   |
 | Maps      | `react-native-maps` (Google 단일)                |
 | Animation | Reanimated 4 + Gesture Handler 2                 |
 
-앱 UI 는 웹 MUI 와 같은 인터페이스를 갖는 얇은 shim(`shared/components/mui/`)을 두어
-웹 화면을 복사해 오고 컴포넌트만 바꾸는 방식으로 이관한다.
+앱 UI 는 `shared/components/design-system/` 의 자체 디자인 시스템을 쓴다.
+디자인 어휘(`variant`, `color="text.secondary"`, spacing 8배수)는 웹 theme 에서 승계했지만
+인터페이스는 RN 표준(`style`, `onPress`)이다. `~/shared/components/design-system` 별칭으로 임포트한다.
 바텀시트·정렬 목록처럼 손이 많이 가는 것은 직접 구현한다 — 아래 "주요 패턴" 참조.
 
 여행 상세 5개 탭의 웹-앱 대조 기준은
@@ -113,7 +114,7 @@ apps/
 │   │   ├── features/           # 웹 features 구조를 미러링
 │   │   └── shared/
 │   │       ├── components/
-│   │       │   ├── mui/        # MUI 호환 계층 — 웹 코드를 그대로 옮기기 위함
+│   │       │   ├── design-system/ # 자체 디자인 시스템 — 웹 theme 어휘 + RN 표준 인터페이스
 │   │       │   ├── Map/        # @rnmapbox/maps 구현. 클러스터 외형은 NativeMapCluster.utils.ts,
 │   │       │   │                #   카메라는 useMapCamera, 클러스터 전이는 useClusterTransition
 │   │       │   ├── bottom-sheet/ # 자체 구현 (Reanimated) — 웹과 같은 공개 API. Body 레이아웃·ScrollView 제스처
