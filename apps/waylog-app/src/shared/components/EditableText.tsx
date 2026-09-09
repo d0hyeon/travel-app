@@ -53,7 +53,7 @@ export function EditableText<Value extends string | number>({
       autoFocus={field.autoFocus}
       autoComplete={field.autoComplete}
       onSubmitEditing={actions.submit}
-      sx={{
+      style={{
 
         ...getTypographyStyle(typographyProps.variant ?? 'body1')
       }}
@@ -155,7 +155,7 @@ function Field(props: ComponentProps<typeof TextOverlayField>) {
 
   return (
     <>
-      <Text ref={textRef} style={props.sx} numberOfLines={1}>
+      <Text ref={textRef} style={props.style} numberOfLines={1}>
         {props.value}
       </Text>
 
@@ -175,7 +175,7 @@ function Field(props: ComponentProps<typeof TextOverlayField>) {
         <TextOverlayField
           {...props}
           isOpen
-          sx={{
+          style={{
             minHeight: 14,
             maxWidth: (screenWidth - 24 * 2) / OVERLAY_SCALE
           }}

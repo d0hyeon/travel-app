@@ -22,15 +22,15 @@ function Resolved() {
   const formRef = useRef<TripMemoFormRef>(null)
   const memo = memos.find((item) => item.id === memoId)
 
-  if (!memo) return <Typography sx={{ padding: 24, textAlign: 'center' }}>메모를 찾을 수 없어요</Typography>
+  if (!memo) return <Typography style={{ padding: 24, textAlign: 'center' }}>메모를 찾을 수 없어요</Typography>
 
   return (
-    <Stack sx={{ flex: 1 }}>
-      <Stack direction="row" alignItems="center" sx={{ padding: 8 }}>
+    <Stack style={{ flex: 1 }}>
+      <Stack direction="row" alignItems="center" style={{ padding: 8 }}>
         <IconButton onPress={() => router.back()}>
           <MaterialIcons name="arrow-back" size={24} />
         </IconButton>
-        <Typography variant="subtitle1" sx={{ paddingHorizontal: 8 }}>메모 수정</Typography>
+        <Typography variant="subtitle1" style={{ paddingHorizontal: 8 }}>메모 수정</Typography>
       </Stack>
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 24 }}>
         <TripMemoForm
@@ -43,7 +43,7 @@ function Resolved() {
           }}
         />
       </ScrollView>
-      <Stack sx={{ padding: 16 }}>
+      <Stack style={{ padding: 16 }}>
         <Button fullWidth variant="contained" disabled={isSaving} onPress={() => formRef.current?.submit()}>
           저장
         </Button>

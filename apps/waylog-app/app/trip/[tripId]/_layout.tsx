@@ -17,9 +17,9 @@ export default function TripDetailLayout() {
     <View style={{ flex: 1 }}>
       <ErrorBoundary
         fallback={({ resetError }) => (
-          <Stack sx={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <Stack style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
             <Typography color="text.secondary">여행 정보를 불러오지 못했어요</Typography>
-            <Button variant="contained" onPress={resetError} sx={{ marginTop: 12 }}>다시 시도</Button>
+            <Button variant="contained" onPress={resetError} style={{ marginTop: 12 }}>다시 시도</Button>
           </Stack>
         )}
       >

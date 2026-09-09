@@ -17,33 +17,33 @@ export function OngoingTripCard({ trip, onPress }: Props) {
 
   return (
     <Pressable onPress={onPress} accessibilityLabel={`진행 중인 여행: ${trip.name}`}>
-      <Box sx={{ position: 'relative', borderRadius: 20, backgroundColor: '#3A75F0', padding: 20 }}>
+      <Box style={{ position: 'relative', borderRadius: 20, backgroundColor: '#3A75F0', padding: 20 }}>
         <TripUnreadCountBadge
           tripId={trip.id}
           variant="outline"
-          sx={{ position: 'absolute', right: -8, top: -12 }}
+          style={{ position: 'absolute', right: -8, top: -12 }}
         />
-        <Stack direction="row" alignItems="flex-start" justifyContent="space-between" sx={{ gap: 8 }}>
-          <Stack direction="row" alignItems="center" sx={{ gap: 8, flex: 1 }}>
-            <Typography sx={{ color: '#fff', fontSize: 13 }}>{currentDay}일차</Typography>
-            <Typography sx={{ color: '#fff', fontSize: 20, fontWeight: '900', flexShrink: 1 }} numberOfLines={1}>
+        <Stack direction="row" alignItems="flex-start" justifyContent="space-between" style={{ gap: 8 }}>
+          <Stack direction="row" alignItems="center" style={{ gap: 8, flex: 1 }}>
+            <Typography style={{ color: '#fff', fontSize: 13 }}>{currentDay}일차</Typography>
+            <Typography style={{ color: '#fff', fontSize: 20, fontWeight: '900', flexShrink: 1 }} numberOfLines={1}>
               {trip.name}
             </Typography>
           </Stack>
           <MaterialIcons name="chevron-right" size={22} color="rgba(255,255,255,0.7)" />
         </Stack>
-        <Typography sx={{ color: 'rgba(255,255,255,0.8)', fontSize: 12, marginTop: 8 }}>
+        <Typography style={{ color: 'rgba(255,255,255,0.8)', fontSize: 12, marginTop: 8 }}>
           {formatTripDate(trip.startDate)} ~ {formatTripDate(trip.endDate)}
           {nights > 0 && `  ·  ${nights}박 ${days}일`}
         </Typography>
-        <Box sx={{ marginTop: 20 }}>
-          <Box sx={{ height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.25)', overflow: 'hidden' }}>
-            <Box sx={{ height: '100%', width: `${progress}%`, borderRadius: 2, backgroundColor: '#fff' }} />
+        <Box style={{ marginTop: 20 }}>
+          <Box style={{ height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.25)', overflow: 'hidden' }}>
+            <Box style={{ height: '100%', width: `${progress}%`, borderRadius: 2, backgroundColor: '#fff' }} />
           </Box>
-          <Stack direction="row" justifyContent="space-between" sx={{ marginTop: 4 }}>
-            <Typography sx={{ color: 'rgba(255,255,255,0.6)', fontSize: 10 }}>{formatTripDate(trip.startDate)}</Typography>
-            <Typography sx={{ color: 'rgba(255,255,255,0.6)', fontSize: 10 }}>{Math.round(progress)}%</Typography>
-            <Typography sx={{ color: 'rgba(255,255,255,0.6)', fontSize: 10 }}>{formatTripDate(trip.endDate)}</Typography>
+          <Stack direction="row" justifyContent="space-between" style={{ marginTop: 4 }}>
+            <Typography style={{ color: 'rgba(255,255,255,0.6)', fontSize: 10 }}>{formatTripDate(trip.startDate)}</Typography>
+            <Typography style={{ color: 'rgba(255,255,255,0.6)', fontSize: 10 }}>{Math.round(progress)}%</Typography>
+            <Typography style={{ color: 'rgba(255,255,255,0.6)', fontSize: 10 }}>{formatTripDate(trip.endDate)}</Typography>
           </Stack>
         </Box>
       </Box>

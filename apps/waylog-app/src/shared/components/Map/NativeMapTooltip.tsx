@@ -27,7 +27,7 @@ export function NativeMapTooltip({ visible, text, onRequestClose }: Props) {
       }}
     >
       <View>
-        <Typography numberOfLines={4} sx={{ color: '#fff', fontSize: 12, textAlign: 'center' }}>
+        <Typography numberOfLines={4} style={{ color: '#fff', fontSize: 12, textAlign: 'center' }}>
           {text}
         </Typography>
       </View>

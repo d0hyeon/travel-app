@@ -95,7 +95,7 @@ function PostPlacesSheet({
   return (
     <BottomSheet isOpen={isOpen} onDismiss={onCancel} snapPoints={[0.75]} safeArea>
       <BottomSheet.Header>위치</BottomSheet.Header>
-      <BottomSheet.Body sx={{ paddingHorizontal: 16, paddingBottom: 16 }}>
+      <BottomSheet.Body style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
         <View style={{ gap: 12 }}>
           {places.length > 0 && (
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>

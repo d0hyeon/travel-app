@@ -74,7 +74,7 @@ export const PlaceForm = forwardRef<PlaceFormRef, Props>(function PlaceForm(
               {PlaceCategoryTypes.map((type) => (
                 <PopMenu.Item key={type} onPress={() => setValue('category', type)}>
                   <Stack direction="row" gap={1} alignItems="center">
-                    <Box sx={{ width: 12, height: 12, borderRadius: 6, backgroundColor: PlaceCategoryColorCode[type] }} />
+                    <Box style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: PlaceCategoryColorCode[type] }} />
                     <Typography>{PlaceCategoryTypeLabel[type]}</Typography>
                   </Stack>
                 </PopMenu.Item>
@@ -117,7 +117,7 @@ export const PlaceForm = forwardRef<PlaceFormRef, Props>(function PlaceForm(
           }}
         />
         {tags.length > 0 && (
-          <Stack direction="row" gap={0.5} sx={{ flexWrap: 'wrap' }}>
+          <Stack direction="row" gap={0.5} style={{ flexWrap: 'wrap' }}>
             {tags.map((tag) => (
               <Chip
                 key={tag}

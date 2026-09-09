@@ -17,17 +17,19 @@ interface Props extends StackProps {
 }
 
 // 지도 위에 띄우는 컨트롤 컨테이너. 어느 코너에 붙일지 소비자가 결정한다.
-export function FloatingControl({ corner, zIndex, sx, ...props }: Props) {
+export function FloatingControl({ corner, zIndex, style, ...props }: Props) {
   return (
     <Stack
-      sx={{
-        position: 'absolute',
-        gap: 8,
-        padding: 8,
-        zIndex,
-        ...CORNER_STYLE[corner],
-        ...(sx ?? {}),
-      }}
+      style={[
+        {
+          position: 'absolute',
+          gap: 8,
+          padding: 8,
+          zIndex,
+          ...CORNER_STYLE[corner],
+        },
+        style,
+      ]}
       {...props}
     />
   )

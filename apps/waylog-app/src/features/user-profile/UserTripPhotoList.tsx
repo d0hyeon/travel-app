@@ -37,21 +37,21 @@ function PhotoPreviewSheet({ isOpen, onClose, photos, initialIndex }: { isOpen: 
   const currentPhoto = photos[currentIndex]
 
   return (
-    <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.95]} defaultSnapIndex={0} safeArea sx={{ backgroundColor: '#010101' }}>
-      <BottomSheet.Header alignItems="center" justifyContent="center" sx={{ backgroundColor: '#010101' }}>
+    <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.95]} defaultSnapIndex={0} safeArea style={{ backgroundColor: '#010101' }}>
+      <BottomSheet.Header alignItems="center" justifyContent="center" style={{ backgroundColor: '#010101' }}>
         {currentPhoto?.isPublic === true && (
           <PhotoVisibilityBadge style={{ position: 'absolute', left: 16 }} />
         )}
-        <Typography variant="body2" sx={{ color: '#fff', fontWeight: '800' }}>{currentIndex + 1} / {photos.length}</Typography>
+        <Typography variant="body2" style={{ color: '#fff', fontWeight: '800' }}>{currentIndex + 1} / {photos.length}</Typography>
       </BottomSheet.Header>
       <BottomSheet.Body
-        sx={{ backgroundColor: '#010101' }}
+        style={{ backgroundColor: '#010101' }}
         onLayout={(event) => {
           const height = Math.round(event.nativeEvent.layout.height)
           if (height > 0) setImagePagerHeight(height)
         }}
       >
-        <BottomSheet.GestureArea sx={{ height: '100%' }}>
+        <BottomSheet.GestureArea style={{ height: '100%' }}>
           <ScrollView
             horizontal
             pagingEnabled
@@ -74,7 +74,7 @@ function PhotoPreviewSheet({ isOpen, onClose, photos, initialIndex }: { isOpen: 
           </ScrollView>
         </BottomSheet.GestureArea>
       </BottomSheet.Body>
-      <BottomSheet.BottomActions sx={{ backgroundColor: '#010101' }}>
+      <BottomSheet.BottomActions style={{ backgroundColor: '#010101' }}>
         <Button size="large" variant="contained" fullWidth onPress={onClose}>닫기</Button>
       </BottomSheet.BottomActions>
     </BottomSheet>

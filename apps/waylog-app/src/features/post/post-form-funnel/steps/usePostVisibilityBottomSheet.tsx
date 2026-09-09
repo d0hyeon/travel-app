@@ -64,7 +64,7 @@ function PostVisibilitySheet({
   return (
     <BottomSheet isOpen={isOpen} onDismiss={onCancel} snapPoints={[0.48]} safeArea>
       <BottomSheet.Header>공개 범위</BottomSheet.Header>
-      <BottomSheet.Body sx={{ paddingHorizontal: 16 }}>
+      <BottomSheet.Body style={{ paddingHorizontal: 16 }}>
         <PostVisibilityField defaultValue={visibility} onChange={setVisibility} hasTripContext={tripId != null} />
       </BottomSheet.Body>
       <BottomSheet.BottomActions>

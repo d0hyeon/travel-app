@@ -4,10 +4,10 @@ import { useNativePushSubscription } from '../../auth/useNativePushSubscription'
 import { SlideReveal } from '../../../shared/components/animation/SlideReveal'
 import { NotificationCard } from '../../../shared/components/notification-card/NotificationCard'
 import { Button } from '~/shared/components/design-system'
-import type { Sx } from '~/shared/components/design-system'
+import type { StyleProp, ViewStyle } from 'react-native'
 
 interface Props {
-  sx?: Sx
+  style?: StyleProp<ViewStyle>
 }
 
 // 웹 ChatPushNoticeCard 와 같은 동작이다.
@@ -31,7 +31,7 @@ export function ChatPushNoticeCard(props: Props) {
           <Button
             variant="contained"
             disabled={isLoading}
-            sx={{ borderRadius: 20 }}
+            style={{ borderRadius: 20 }}
             onPress={() => {
               startTransition(async () => {
                 if (!push.hasPermission) {

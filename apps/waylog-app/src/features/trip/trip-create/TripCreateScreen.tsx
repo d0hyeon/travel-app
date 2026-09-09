@@ -78,8 +78,8 @@ export function TripCreateScreen() {
   }
 
   return (
-    <Box sx={{ flex: 1, backgroundColor: palette.background, paddingTop: insets.top }}>
-      <Stack direction="row" alignItems="center" sx={{ paddingHorizontal: 12, paddingVertical: 8 }}>
+    <Box style={{ flex: 1, backgroundColor: palette.background, paddingTop: insets.top }}>
+      <Stack direction="row" alignItems="center" style={{ paddingHorizontal: 12, paddingVertical: 8 }}>
         <Pressable
           accessibilityLabel="뒤로가기"
           onPress={() => router.back()}
@@ -87,13 +87,13 @@ export function TripCreateScreen() {
         >
           <MaterialIcons name="arrow-back" size={22} color={palette.text} />
         </Pressable>
-        <Typography variant="body2" sx={{ paddingHorizontal: 8 }}>
+        <Typography variant="body2" style={{ paddingHorizontal: 8 }}>
           여행 계획 세우기
         </Typography>
       </Stack>
       <LinearProgress value={((currentIndex + 1) / STEPS.length) * 100} />
 
-      <Box sx={{ paddingHorizontal: 24, paddingTop: 24, paddingBottom: 32 }}>
+      <Box style={{ paddingHorizontal: 24, paddingTop: 24, paddingBottom: 32 }}>
         <Typography variant="h6">{STEP_LABELS[step]}</Typography>
       </Box>
 

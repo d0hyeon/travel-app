@@ -141,7 +141,7 @@ function Row({ disabled, active, children }: { disabled?: boolean; active?: bool
   return (
     <DragContext.Provider value={disabled === true ? null : startDrag}>
       <Box
-        sx={{
+        style={{
           borderLeftWidth: isActive ? 2 : 0,
           borderRightWidth: isActive ? 2 : 0,
           paddingHorizontal: isActive ? 2 : 0,
@@ -168,10 +168,10 @@ export const SortableItem = {
 
 // 누르는 즉시(onPressIn) 끌면 안 된다. 라이브러리의 pan 은 state 가 IDLE 일 때만
 // 시작 좌표를 잡는데, 그 전에 들어올리면 이 조건이 깨져 해제되지 않는다.
-function Handle({ children, sx, id: _id }: Omit<BoxProps, 'id'> & { id: string | number }) {
+function Handle({ children, style, id: _id }: Omit<BoxProps, 'id'> & { id: string | number }) {
   const drag = useContext(DragContext)
 
-  if (drag == null) return <Box sx={{ alignItems: 'center', ...(sx ?? {}) }}>{children}</Box>
+  if (drag == null) return <Box style={[{ alignItems: 'center' }, style]}>{children}</Box>
 
   return (
     <Pressable
@@ -186,7 +186,7 @@ function Handle({ children, sx, id: _id }: Omit<BoxProps, 'id'> & { id: string |
         paddingRight: HANDLE_CONTENT_GAP,
       }}
     >
-      <Box sx={{ flex: 1, justifyContent: 'center', alignItems: 'center', ...(sx ?? {}) }}>
+      <Box style={[{ flex: 1, justifyContent: 'center', alignItems: 'center' }, style]}>
         {children}
       </Box>
     </Pressable>

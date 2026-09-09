@@ -22,12 +22,12 @@ export function TripRoutePlaceListItem({ title, data: place, children, ...listIt
       {title ?? <ListItem.Title>{place.name}</ListItem.Title>}
       <Box>
         {!!place.address && (
-          <ListItem.Text variant="body2" color="text.secondary" sx={{ fontSize: 12 }}>
+          <ListItem.Text variant="body2" color="text.secondary" style={{ fontSize: 12 }}>
             {place.address}
           </ListItem.Text>
         )}
         {!!place.memo && (
-          <ListItem.Text variant="body2" color="text.secondary" sx={{ fontSize: 12 }}>
+          <ListItem.Text variant="body2" color="text.secondary" style={{ fontSize: 12 }}>
             {place.memo}
           </ListItem.Text>
         )}

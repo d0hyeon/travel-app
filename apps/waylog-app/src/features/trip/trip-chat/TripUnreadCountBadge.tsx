@@ -2,12 +2,12 @@ import { useUnreadChatCount } from '@waylog/domains/modules/trip-chat'
 import { Suspense } from 'react'
 import { Box, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../shared/config/tokens'
-import type { Sx } from '~/shared/components/design-system'
+import type { StyleProp, ViewStyle } from 'react-native'
 
 interface Props {
   tripId: string
   variant?: 'fill' | 'outline'
-  sx?: Sx
+  style?: StyleProp<ViewStyle>
 }
 
 export function TripUnreadCountBadge(props: Props) {
@@ -18,7 +18,7 @@ export function TripUnreadCountBadge(props: Props) {
   )
 }
 
-function Resolved({ tripId, variant = 'fill', sx }: Props) {
+function Resolved({ tripId, variant = 'fill', style }: Props) {
   const count = useUnreadChatCount(tripId)
   if (count === 0) return null
 
@@ -26,22 +26,24 @@ function Resolved({ tripId, variant = 'fill', sx }: Props) {
 
   return (
     <Box
-      sx={{
-        paddingHorizontal: 8,
-        paddingVertical: 2,
-        borderRadius: 12,
-        backgroundColor: isFill ? palette.primary : '#fff',
-        borderWidth: isFill ? 0 : 1,
-        borderColor: isFill ? undefined : palette.primary,
-        alignItems: 'center',
-        justifyContent: 'center',
-        minWidth: 24,
-        minHeight: 24,
-        ...sx,
-      }}
+      style={[
+        {
+          paddingHorizontal: 8,
+          paddingVertical: 2,
+          borderRadius: 12,
+          backgroundColor: isFill ? palette.primary : '#fff',
+          borderWidth: isFill ? 0 : 1,
+          borderColor: isFill ? undefined : palette.primary,
+          alignItems: 'center',
+          justifyContent: 'center',
+          minWidth: 24,
+          minHeight: 24,
+        },
+        style,
+      ]}
     >
       <Typography
-        sx={{
+        style={{
           fontSize: 11,
           fontWeight: '700',
           color: isFill ? '#fff' : palette.primary,

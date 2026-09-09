@@ -4,23 +4,23 @@ import { Suspense } from 'react'
 import { Box, Skeleton, Stack, Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../shared/config/tokens'
 import { WeatherIcon } from './WeatherIcon'
-import type { Sx } from '~/shared/components/design-system'
+import type { StyleProp, ViewStyle } from 'react-native'
 
 interface Props extends UseDailyWeatherForecastParams {
   dayPart?: DayPart
-  sx?: Sx
+  style?: StyleProp<ViewStyle>
 }
 
 export function DailyWeatherInfoBox(props: Props) {
   return (
-    <Suspense fallback={<Pending sx={props.sx} />}>
+    <Suspense fallback={<Pending style={props.style} />}>
       <Resolved {...props} />
     </Suspense>
   )
 }
 DailyWeatherInfoBox.Skeleton = Pending
 
-function Resolved({ coordinate, date, dayPart, sx }: Props) {
+function Resolved({ coordinate, date, dayPart, style }: Props) {
   const { data: weatherForecast } = useDailyWeatherForecast({ coordinate, date })
 
   if (weatherForecast == null) return null
@@ -30,14 +30,14 @@ function Resolved({ coordinate, date, dayPart, sx }: Props) {
     : weatherForecast.forecast.summary
 
   return (
-    <Box sx={sx}>
-      <Stack alignItems="center" gap={1} sx={BOX_STYLE}>
+    <Box style={style}>
+      <Stack alignItems="center" gap={1} style={BOX_STYLE}>
         <Stack direction="row" gap={0.5}>
-          <Typography variant="body2" sx={{ color: palette.primary }}>
+          <Typography variant="body2" style={{ color: palette.primary }}>
             {forecast.minimumTemperature}도
           </Typography>
           <Typography variant="body2">/</Typography>
-          <Typography variant="body2" sx={{ color: '#d32f2f' }}>
+          <Typography variant="body2" style={{ color: '#d32f2f' }}>
             {forecast.maximumTemperature}도
           </Typography>
         </Stack>
@@ -47,10 +47,10 @@ function Resolved({ coordinate, date, dayPart, sx }: Props) {
   )
 }
 
-function Pending({ sx }: { sx?: Sx }) {
+function Pending({ style }: { style?: StyleProp<ViewStyle> }) {
   return (
-    <Box sx={sx}>
-      <Stack alignItems="center" gap={1} sx={BOX_STYLE}>
+    <Box style={style}>
+      <Stack alignItems="center" gap={1} style={BOX_STYLE}>
         <Stack direction="row" gap={0.5}>
           <Skeleton variant="text" width={20} />
           <Typography variant="body2">/</Typography>

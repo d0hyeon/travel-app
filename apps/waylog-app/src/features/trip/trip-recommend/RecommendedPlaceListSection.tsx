@@ -58,7 +58,7 @@ function RecommendedPlaceCard({
   return (
     <Pressable onPress={onPress}>
       <Box
-        sx={{
+        style={{
           width: 110,
           borderRadius: radius.sm,
           overflow: 'hidden',
@@ -66,9 +66,9 @@ function RecommendedPlaceCard({
           borderColor: palette.divider,
         }}
       >
-        <Box sx={{ position: 'relative' }}>
+        <Box style={{ position: 'relative' }}>
           <Box
-            sx={{
+            style={{
               width: '100%',
               height: 72,
               backgroundColor: accentColor ? `${accentColor}22` : 'rgba(0,0,0,0.06)',
@@ -87,7 +87,7 @@ function RecommendedPlaceCard({
             <Chip
               label={`${place.tripCount}회`}
               size="small"
-              sx={{
+              style={{
                 position: 'absolute',
                 top: 4,
                 right: 4,
@@ -96,7 +96,7 @@ function RecommendedPlaceCard({
             />
           )}
         </Box>
-        <Box sx={{ padding: 6 }}>
+        <Box style={{ padding: 6 }}>
           <Typography variant="caption" numberOfLines={1}>
             {place.name}
           </Typography>

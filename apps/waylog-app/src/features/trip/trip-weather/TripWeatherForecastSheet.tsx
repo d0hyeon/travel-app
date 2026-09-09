@@ -88,12 +88,12 @@ function Resolved({ tripId, initialDate }: Pick<Props, 'tripId' | 'initialDate'>
   return (
     <>
       {/* 탭이 헤더 폭을 온전히 쓰도록 좌우 패딩을 없앤다. */}
-      <BottomSheet.Header sx={{ px: 0 }}>
+      <BottomSheet.Header style={{ paddingHorizontal: 0 }}>
         <Tabs
           value={activePage.date}
           onChange={(_, date) => scrollToPage(toPageIndex(tripDates, date, 'am'))}
           scrollable
-          sx={{ width: '100%' }}
+          style={{ width: '100%' }}
         >
           {tripDates.map((date) => (
             <Tab key={date} value={date} label={formatShortDate(date)} />
@@ -101,8 +101,8 @@ function Resolved({ tripId, initialDate }: Pick<Props, 'tripId' | 'initialDate'>
         </Tabs>
       </BottomSheet.Header>
 
-      <BottomSheet.Body sx={{ paddingHorizontal: 0 }}>
-        <Stack gap={1} sx={{ flex: 1, minHeight: 0 }}>
+      <BottomSheet.Body style={{ paddingHorizontal: 0 }}>
+        <Stack gap={1} style={{ flex: 1, minHeight: 0 }}>
           <ToggleButtonGroup
             value={activePage.dayPart}
             exclusive
@@ -110,7 +110,7 @@ function Resolved({ tripId, initialDate }: Pick<Props, 'tripId' | 'initialDate'>
             onChange={(_, dayPart) =>
               dayPart && scrollToPage(toPageIndex(tripDates, activePage.date, dayPart as DayPart))
             }
-            sx={{ alignSelf: 'flex-end', marginTop: 12, marginRight: 12 }}
+            style={{ alignSelf: 'flex-end', marginTop: 12, marginRight: 12 }}
           >
             {DAY_PARTS.map(({ dayPart, label }) => (
               <ToggleButton key={dayPart} value={dayPart}>
@@ -136,7 +136,7 @@ function Resolved({ tripId, initialDate }: Pick<Props, 'tripId' | 'initialDate'>
               <Stack
                 key={`${page.date}:${page.dayPart}`}
                 gap={1}
-                sx={{ width, paddingHorizontal: 12 }}
+                style={{ width, paddingHorizontal: 12 }}
               >
                 {/* 화면에서 먼 페이지는 그리지 않는다. 그 날짜 예보도 요청되지 않는다. */}
                 {isPageWithinRenderWindow(index, activeIndex) && (
@@ -187,7 +187,7 @@ function ForecastPageContent({
         variant="caption"
         color="text.secondary"
         textAlign="right"
-        sx={{ paddingVertical: 4, paddingHorizontal: 16, marginTop: 8 }}
+        style={{ paddingVertical: 4, paddingHorizontal: 16, marginTop: 8 }}
       >
         출처 : {weatherForecast.provider}
       </Typography>
@@ -197,7 +197,7 @@ function ForecastPageContent({
 
 function ForecastUnavailable() {
   return (
-    <Stack alignItems="center" sx={{ paddingVertical: 48 }}>
+    <Stack alignItems="center" style={{ paddingVertical: 48 }}>
       <Typography variant="body2" color="text.secondary">
         이 날짜는 예보를 제공하지 않아요
       </Typography>

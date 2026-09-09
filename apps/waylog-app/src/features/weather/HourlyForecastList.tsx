@@ -74,7 +74,7 @@ function HourlyForecastListSkeleton({
         <Stack
           key={hour}
           gap={0.5}
-          sx={{
+          style={{
             paddingVertical: 8,
             paddingHorizontal: 12,
             borderRadius: 16,
@@ -86,11 +86,11 @@ function HourlyForecastListSkeleton({
             {formatDate(set(now, { hours: hour }), 'b h시', { locale: ko })}
           </Typography>
 
-          <Stack direction="row" alignItems="center" gap={1} sx={{ paddingLeft: 4 }}>
+          <Stack direction="row" alignItems="center" gap={1} style={{ paddingLeft: 4 }}>
             <PendingMetric label="기온" />
-            <Divider orientation="vertical" sx={{ height: 10, alignSelf: 'center' }} />
+            <Divider orientation="vertical" style={{ height: 10, alignSelf: 'center' }} />
             <PendingMetric label="습도" />
-            <Divider orientation="vertical" sx={{ height: 10, alignSelf: 'center' }} />
+            <Divider orientation="vertical" style={{ height: 10, alignSelf: 'center' }} />
             <PendingMetric label="풍속" />
           </Stack>
         </Stack>

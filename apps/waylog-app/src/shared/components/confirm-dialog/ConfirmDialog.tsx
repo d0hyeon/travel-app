@@ -36,7 +36,7 @@ export default function ConfirmDialog({
       >
         <Pressable onPress={(event) => event.stopPropagation()} style={{ width: '100%' }}>
           <Box
-            sx={{
+            style={{
               backgroundColor: palette.background,
               borderRadius: radius.xxl,
               padding: 20,

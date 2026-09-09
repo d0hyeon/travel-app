@@ -17,10 +17,10 @@ export function TripStep({ defaultValue, onNext }: { defaultValue: string | null
     <View style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={{ padding: 16, gap: 10, paddingBottom: 24 }}>
         <TripSelectionCard title="일상 포스트" description="여행 없이 피드에만 올려요" selected={selection === 'none'} onPress={() => setSelection('none')} />
-        {orderedTrips.length > 0 && <Typography variant="caption" color="text.secondary" sx={{ marginTop: 12 }}>여행에 묶기 · {orderedTrips.length}개</Typography>}
+        {orderedTrips.length > 0 && <Typography variant="caption" color="text.secondary" style={{ marginTop: 12 }}>여행에 묶기 · {orderedTrips.length}개</Typography>}
         {orderedTrips.map((trip) => <TripCard key={trip.id} trip={trip} selected={selection === trip.id} onPress={() => setSelection(trip.id)} />)}
       </ScrollView>
-      <BottomArea position="static" sx={{ borderTopWidth: 1, borderTopColor: palette.divider }}>
+      <BottomArea position="static" style={{ borderTopWidth: 1, borderTopColor: palette.divider }}>
         <Button variant="contained" size="large" fullWidth disabled={selection == null} onPress={() => selection != null && onNext(selection === 'none' ? null : selection)}>다음</Button>
       </BottomArea>
     </View>
@@ -34,7 +34,7 @@ function TripCard({ trip, selected, onPress }: { trip: Trip; selected: boolean; 
 function TripSelectionCard({ title, description, symbol, color = '#F5F5F7', selected, onPress }: { title: string; description: string; symbol?: string; color?: string; selected: boolean; onPress: () => void }) {
   return (
     <Pressable onPress={onPress} accessibilityRole="radio" accessibilityState={{ checked: selected }} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, borderWidth: 1.5, borderColor: selected ? palette.primary : palette.divider, borderRadius: radius.lg, backgroundColor: selected ? '#EEF2FF' : palette.background }}>
-      <View style={{ width: 52, height: 52, borderRadius: 10, backgroundColor: color, alignItems: 'center', justifyContent: 'center' }}>{symbol == null ? <MaterialIcons name="auto-awesome" size={22} color={palette.textSecondary} /> : <Typography sx={{ fontSize: 18, fontWeight: '700', color: '#fff' }}>{symbol}</Typography>}</View>
+      <View style={{ width: 52, height: 52, borderRadius: 10, backgroundColor: color, alignItems: 'center', justifyContent: 'center' }}>{symbol == null ? <MaterialIcons name="auto-awesome" size={22} color={palette.textSecondary} /> : <Typography style={{ fontSize: 18, fontWeight: '700', color: '#fff' }}>{symbol}</Typography>}</View>
       <View style={{ flex: 1, gap: 3 }}><Typography variant="body2" fontWeight="bold">{title}</Typography><Typography variant="caption" color="text.secondary">{description}</Typography></View>
       <MaterialIcons name={selected ? 'check-circle' : 'radio-button-unchecked'} size={22} color={selected ? palette.primary : palette.textSecondary} />
     </Pressable>

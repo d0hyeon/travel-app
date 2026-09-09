@@ -25,7 +25,7 @@ export function MapConfigDialog({ isOpen, title = '지도 설정', children, ...
       >
         <Pressable onPress={(event) => event.stopPropagation()} style={{ width: '100%' }}>
           <Box
-            sx={{
+            style={{
               backgroundColor: palette.background,
               borderRadius: radius.xxl,
               padding: 20,
@@ -57,7 +57,7 @@ interface RowProps {
 MapConfigDialog.Row = function Row({ label, description, children }: RowProps) {
   return (
     <Stack direction="row" alignItems="center" justifyContent="space-between">
-      <Box sx={{ flex: 1 }}>
+      <Box style={{ flex: 1 }}>
         <Typography variant="body2">{label}</Typography>
         {description != null && (
           <Typography variant="caption" color="text.secondary">

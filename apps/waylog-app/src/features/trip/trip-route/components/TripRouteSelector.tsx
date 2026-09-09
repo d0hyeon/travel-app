@@ -30,7 +30,7 @@ function RouteChip({
   const confirm = useConfirmDialog()
 
   return (
-    <Stack direction="row" gap={1} alignItems="center" sx={{ marginBottom: 16, flexWrap: 'wrap' }} {...props}>
+    <Stack direction="row" gap={1} alignItems="center" style={{ marginBottom: 16, flexWrap: 'wrap' }} {...props}>
       {routes.map((route, index) => (
         <Chip
           key={route.id}

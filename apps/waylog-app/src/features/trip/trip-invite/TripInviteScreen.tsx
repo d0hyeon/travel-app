@@ -15,7 +15,7 @@ import { palette } from '../../../shared/config/tokens'
 export function TripInviteScreen() {
   return (
     <Box
-      sx={{
+      style={{
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
@@ -26,7 +26,7 @@ export function TripInviteScreen() {
     >
       <ErrorBoundary
         fallback={({ error }) => (
-          <Typography sx={{ color: palette.error }} textAlign="center">
+          <Typography style={{ color: palette.error }} textAlign="center">
             {error.message}
           </Typography>
         )}
@@ -73,7 +73,7 @@ function Resolved() {
         size="large"
         onPress={handleJoin}
         loading={isPending}
-        sx={{ width: 200 }}
+        style={{ width: 200 }}
       >
         참여하기
       </Button>

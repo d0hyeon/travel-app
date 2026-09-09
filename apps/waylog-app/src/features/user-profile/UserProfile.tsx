@@ -1,4 +1,5 @@
 import { assert } from '@waylog/utility'
+import type { TextStyle, ViewStyle } from 'react-native'
 import { Avatar, Stack, Typography, type StackProps } from '~/shared/components/design-system'
 import { useUserProfile } from './useUserProfile'
 
@@ -39,11 +40,11 @@ export function UserProfile({ id, size = UserProfileSize.medium, ...props }: Pro
     <Stack direction="row" alignItems="center" gap={1} {...props}>
       <Avatar
         src={profile.profileUrl ?? undefined}
-        sx={{ width: sizeStyle.avatar, height: sizeStyle.avatar, fontSize: sizeStyle.avatar * 0.5 }}
+        style={{ width: sizeStyle.avatar, height: sizeStyle.avatar, fontSize: sizeStyle.avatar * 0.5 } as ViewStyle & TextStyle}
       >
         {profile.name?.[0] ?? '?'}
       </Avatar>
-      <Typography sx={{ fontSize: sizeStyle.fontSize, lineHeight: 1.2 }} numberOfLines={1}>
+      <Typography style={{ fontSize: sizeStyle.fontSize, lineHeight: 1.2 }} numberOfLines={1}>
         {profile.name}
       </Typography>
     </Stack>

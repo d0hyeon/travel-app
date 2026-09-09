@@ -50,7 +50,7 @@ function TripChecklistModifySheet({ isOpen, onClose, tripId, id }: SheetProps) {
   return (
     <BottomSheet isOpen={isOpen} onDismiss={onClose} safeArea snapPoints={[0.75]} defaultSnapIndex={0}>
       <BottomSheet.Header>할 일 수정</BottomSheet.Header>
-      <BottomSheet.Body sx={{ paddingHorizontal: 16 }}>
+      <BottomSheet.Body style={{ paddingHorizontal: 16 }}>
         <TripChecklistForm
           ref={formRef}
           tripId={tripId}

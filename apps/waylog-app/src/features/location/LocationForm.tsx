@@ -61,10 +61,10 @@ export function LocationForm(props: Props | MultipleProps) {
         <Stack gap={2.5}>
           {GroupOptions.map((group) => (
             <Box key={group.label}>
-              <Typography variant="caption" color="text.secondary" sx={{ marginBottom: 8 }}>
+              <Typography variant="caption" color="text.secondary" style={{ marginBottom: 8 }}>
                 {group.label}
               </Typography>
-              <Stack direction="row" gap={1} sx={{ flexWrap: 'wrap' }}>
+              <Stack direction="row" gap={1} style={{ flexWrap: 'wrap' }}>
                 {group.locations.map((location) => {
                   const isSelected = value.some((name) => name === location)
 

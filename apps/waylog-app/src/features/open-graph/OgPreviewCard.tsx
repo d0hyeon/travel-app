@@ -22,9 +22,9 @@ function Resolved({ url }: Props) {
 
   return (
     <Pressable onPress={() => void Linking.openURL(data.url)}>
-      <Box sx={{ borderWidth: 1, borderColor: palette.divider, borderRadius: radius.md }}>
+      <Box style={{ borderWidth: 1, borderColor: palette.divider, borderRadius: radius.md }}>
         {data.image ? (
-          <Stack direction="row" gap={1.5} sx={{ padding: 12 }}>
+          <Stack direction="row" gap={1.5} style={{ padding: 12 }}>
             <LoadableImage
               source={{ uri: data.image }}
               style={{
@@ -34,7 +34,7 @@ function Resolved({ url }: Props) {
                 backgroundColor: 'rgba(0,0,0,0.08)',
               }}
             />
-            <Stack sx={{ flex: 1, gap: 2 }}>
+            <Stack style={{ flex: 1, gap: 2 }}>
               {data.title && (
                 <Typography variant="body2" numberOfLines={1}>
                   {data.title}
@@ -51,7 +51,7 @@ function Resolved({ url }: Props) {
             </Stack>
           </Stack>
         ) : (
-          <Stack sx={{ padding: 12, gap: 2 }}>
+          <Stack style={{ padding: 12, gap: 2 }}>
             {data.title && (
               <Typography variant="body2" numberOfLines={1}>
                 {data.title}
@@ -69,10 +69,10 @@ function Resolved({ url }: Props) {
 
 function Pending() {
   return (
-    <Box sx={{ borderWidth: 1, borderColor: palette.divider, borderRadius: radius.md }}>
-      <Stack direction="row" gap={1} sx={{ padding: 12 }}>
+    <Box style={{ borderWidth: 1, borderColor: palette.divider, borderRadius: radius.md }}>
+      <Stack direction="row" gap={1} style={{ padding: 12 }}>
         <Skeleton variant="rectangular" width={80} height={60} />
-        <Stack sx={{ flex: 1, gap: 4 }}>
+        <Stack style={{ flex: 1, gap: 4 }}>
           <Skeleton variant="text" width="80%" />
           <Skeleton variant="text" width="60%" />
         </Stack>

@@ -40,13 +40,13 @@ function ResolvedPostDetail({ postId }: Props) {
         direction="row"
         alignItems="center"
         justifyContent="space-between"
-        sx={{ paddingTop: insets.top + 4, paddingHorizontal: 12, paddingBottom: 8, backgroundColor: palette.background }}
+        style={{ paddingTop: insets.top + 4, paddingHorizontal: 12, paddingBottom: 8, backgroundColor: palette.background }}
       >
         <Stack direction="row" alignItems="center">
           <Pressable accessibilityLabel="뒤로가기" onPress={() => router.back()} style={{ padding: 8 }}>
             <MaterialIcons name="arrow-back" size={22} color={palette.text} />
           </Pressable>
-          <Typography variant="subtitle1" sx={{ marginLeft: 4 }}>포스트</Typography>
+          <Typography variant="subtitle1" style={{ marginLeft: 4 }}>포스트</Typography>
         </Stack>
         <PostMenu postId={postId} onDelete={() => router.back()} />
       </Stack>
@@ -58,11 +58,11 @@ function ResolvedPostDetail({ postId }: Props) {
         <PostAuthor authorId={post.authorId} onPress={openAuthorProfile} />
         <PostTitle post={post} />
         <PostPhotoList photos={post.photos} />
-        {post.description && <Typography sx={{ color: palette.text, fontSize: 14, lineHeight: 22 }}>{post.description}</Typography>}
+        {post.description && <Typography style={{ color: palette.text, fontSize: 14, lineHeight: 22 }}>{post.description}</Typography>}
         {post.visibility !== PostVisibility.PUBLIC && (
-          <Stack direction="row" alignItems="center" sx={{ gap: 4 }}>
+          <Stack direction="row" alignItems="center" style={{ gap: 4 }}>
             <MaterialIcons name="lock-outline" size={14} color={palette.textSecondary} />
-            <Typography sx={{ color: palette.textSecondary, fontSize: 11 }}>비공개</Typography>
+            <Typography style={{ color: palette.textSecondary, fontSize: 11 }}>비공개</Typography>
           </Stack>
         )}
         {post.places.length > 0 && <PostPlaces places={post.places} onPlacePress={(placeId) => router.push(`/explorer/${placeId}`)} />}
@@ -88,7 +88,7 @@ function PostPhotoList({ photos }: Pick<Post, 'photos'>) {
   }
 
   return (
-    <Stack sx={{ gap: 8 }}>
+    <Stack style={{ gap: 8 }}>
       {photos.map((photo) => (
         <LoadableImage key={photo.url} source={{ uri: photo.url }} style={{ width: '100%', aspectRatio: 1, borderRadius: 12 }} resizeMode="cover" />
       ))}
@@ -101,7 +101,7 @@ function PostPlaces({ places, onPlacePress }: Pick<Post, 'places'> & { onPlacePr
   if (firstPlace == null) return null
 
   return (
-    <Stack sx={{ gap: 8 }}>
+    <Stack style={{ gap: 8 }}>
       <View style={{ height: 300, borderRadius: 12, overflow: 'hidden' }}>
         <Map defaultCenter={firstPlace}>
           {places.map((place) => (

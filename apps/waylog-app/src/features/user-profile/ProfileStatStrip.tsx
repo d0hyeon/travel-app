@@ -11,7 +11,7 @@ export function ProfileStatStrip({ userId }: { userId: string }) {
   const countryCount = useMemo(() => countUniqueCountries(trips), [trips])
 
   return (
-    <Stack direction="row" gap={2} sx={{ marginHorizontal: 16, padding: 4, borderRadius: radius.lg, backgroundColor: '#f5f5f7' }}>
+    <Stack direction="row" gap={2} style={{ marginHorizontal: 16, padding: 4, borderRadius: radius.lg, backgroundColor: '#f5f5f7' }}>
       <StatCell value={trips.length} label="여행" />
       <StatCell value={countryCount} label="나라" />
       <StatCell value={photos.length.toLocaleString()} label="사진" />
@@ -20,5 +20,5 @@ export function ProfileStatStrip({ userId }: { userId: string }) {
 }
 
 function StatCell({ value, label }: { value: number | string; label: string }) {
-  return <Stack flex={1} alignItems="center" gap={2} sx={{ paddingVertical: 8 }}><Typography sx={{ fontSize: 16, fontWeight: 'bold', color: palette.text }}>{value}</Typography><Typography variant="caption" color="text.secondary">{label}</Typography></Stack>
+  return <Stack flex={1} alignItems="center" gap={2} style={{ paddingVertical: 8 }}><Typography style={{ fontSize: 16, fontWeight: 'bold', color: palette.text }}>{value}</Typography><Typography variant="caption" color="text.secondary">{label}</Typography></Stack>
 }

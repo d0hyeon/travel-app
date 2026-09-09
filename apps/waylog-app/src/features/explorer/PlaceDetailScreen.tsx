@@ -32,7 +32,7 @@ export function PlaceDetailScreen({ placeId }: { placeId: string }) {
         <Pressable accessibilityLabel="장소 상세 닫기" onPress={() => router.back()} hitSlop={8} style={{ padding: 8 }}>
           <MaterialIcons name="arrow-back" size={22} color={palette.text} />
         </Pressable>
-        <Typography variant="subtitle1" numberOfLines={1} sx={{ flex: 1, textAlign: 'center' }}>{place.name}</Typography>
+        <Typography variant="subtitle1" numberOfLines={1} style={{ flex: 1, textAlign: 'center' }}>{place.name}</Typography>
         <View style={{ width: 38 }} />
       </View>
       <Tabs value={currentTab} onChange={(_, next) => selectTab(parsePlaceDetailTab(next))}>
@@ -96,7 +96,7 @@ function PlacePhotoViewer({ photos, initialIndex, isOpen, onClose }: { photos: s
   const [currentIndex, setCurrentIndex] = useState(initialIndex)
 
   return (
-    <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.9]} safeArea sx={{ backgroundColor: '#111' }}>
+    <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.9]} safeArea style={{ backgroundColor: '#111' }}>
       <BottomSheet.Header><Typography color="#fff">사진 {currentIndex + 1} / {photos.length}</Typography></BottomSheet.Header>
       <BottomSheet.Body>
         <BottomSheet.ScrollView

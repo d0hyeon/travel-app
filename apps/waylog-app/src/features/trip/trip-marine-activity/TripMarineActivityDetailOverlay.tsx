@@ -85,7 +85,7 @@ function TripMarineActivityDetailSheet({
       <BottomSheet.Header direction="row" justifyContent="space-between">
         <Typography variant="subtitle1">{placeName}</Typography>
       </BottomSheet.Header>
-      <BottomSheet.Body sx={{ paddingHorizontal: 0 }}>
+      <BottomSheet.Body style={{ paddingHorizontal: 0 }}>
         <Tabs value={selectedDate} onChange={(_, date) => scrollToDate(date)} scrollable>
           {tripDates.map((date) => (
             <Tab key={date} value={date} label={formatShortDate(date)} />
@@ -104,7 +104,7 @@ function TripMarineActivityDetailSheet({
           }}
         >
           {tripDates.map((date, index) => (
-            <Box key={date} sx={{ width }}>
+            <Box key={date} style={{ width }}>
               {/* 화면에서 먼 날짜는 그리지 않아 예보를 요청하지 않는다. */}
               {isPageWithinRenderWindow(index, activeIndex) && (
                 <Suspense>
@@ -136,14 +136,14 @@ function TripMarineActivityDetailContent({
   const selectedIndex = data?.indices?.find?.((index) => index.placeCode === placeCode)
 
   return (
-    <Box sx={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16 }}>
+    <Box style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16 }}>
       {selectedIndex ? (
         <Stack gap={2}>
           <MarineActivityGrade index={selectedIndex} />
           <MarineActivityMetrics index={selectedIndex} />
         </Stack>
       ) : (
-        <Stack alignItems="center" sx={{ paddingVertical: 48 }}>
+        <Stack alignItems="center" style={{ paddingVertical: 48 }}>
           <Typography variant="body2" color="text.secondary">
             선택 날짜에 제공되는 해양 지수가 없어요
           </Typography>
@@ -159,7 +159,7 @@ function MarineActivityGrade({ index }: { index: MarineActivityIndex }) {
       <Typography variant="body2">
         {index.type === MarineActivityType.Beach ? '해수욕 지수' : '스킨스쿠버 지수'}
       </Typography>
-      <Typography variant="h6" sx={{ color: getGradeColor(index.grade) }}>
+      <Typography variant="h6" style={{ color: getGradeColor(index.grade) }}>
         {index.gradeLabel}
       </Typography>
     </Stack>

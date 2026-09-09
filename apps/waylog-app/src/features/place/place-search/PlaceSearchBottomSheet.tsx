@@ -86,17 +86,17 @@ export function PlaceSearchBottomSheet({
             />
             <IconButton
               onPress={() => keyword !== '' && openDetail(keyword)}
-              sx={{ marginLeft: 4 }}
+              style={{ marginLeft: 4 }}
             >
               <MaterialIcons name="search" size={20} color={palette.text} />
             </IconButton>
           </View>
         </BottomSheet.Header>
-        <BottomSheet.Body sx={{ paddingHorizontal: 16 }} onTouchStart={() => Keyboard.dismiss()}>
+        <BottomSheet.Body style={{ paddingHorizontal: 16 }} onTouchStart={() => Keyboard.dismiss()}>
           {isLoading && <ActivityIndicator style={{ paddingVertical: 32 }} color={palette.primary} />}
 
           {!isLoading && results.length === 0 && keyword !== '' && (
-            <Typography color="text.secondary" textAlign="center" sx={{ paddingVertical: 32 }}>
+            <Typography color="text.secondary" textAlign="center" style={{ paddingVertical: 32 }}>
               검색 결과가 없습니다
             </Typography>
           )}

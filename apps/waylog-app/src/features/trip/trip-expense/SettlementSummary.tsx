@@ -44,8 +44,8 @@ export function SettlementSummary({ tripId, formatAmount = formatCurrency }: Pro
             const { paidInKRW, fairShare } = memberPaidMap.get(memberId) ?? { paidInKRW: 0, fairShare: 0 }
 
             return (
-              <Box key={memberId} sx={{ borderWidth: 1, borderColor: "rgba(0,0,0,0.12)", borderRadius: 16 }}>
-                <Box sx={{ padding: 16 }}>
+              <Box key={memberId} style={{ borderWidth: 1, borderColor: "rgba(0,0,0,0.12)", borderRadius: 16 }}>
+                <Box style={{ padding: 16 }}>
                   <Stack direction="row" justifyContent="space-between" alignItems="center">
                     <Stack direction="row" gap={1.5} alignItems="center">
                       <MemberAvatar member={member} size={24} />
@@ -72,7 +72,7 @@ export function SettlementSummary({ tripId, formatAmount = formatCurrency }: Pro
                             {balance > 0 ? '+' : ''}{formatAmount(balance)}
                           </Typography>
                         </Stack>
-                        <Box sx={{ height: 1, backgroundColor: "rgba(0,0,0,0.12)" }} />
+                        <Box style={{ height: 1, backgroundColor: "rgba(0,0,0,0.12)" }} />
                         <Stack direction="row" gap={2} justifyContent="space-between">
                           <Typography variant="caption" color="text.secondary" fontWeight="medium">
                             총 지출금
@@ -91,7 +91,7 @@ export function SettlementSummary({ tripId, formatAmount = formatCurrency }: Pro
         </Stack>
       </Box>
 
-      <Box sx={{ height: 1, backgroundColor: "rgba(0,0,0,0.12)" }} />
+      <Box style={{ height: 1, backgroundColor: "rgba(0,0,0,0.12)" }} />
 
       {/* 정산 방법 */}
       <Box>
@@ -110,8 +110,8 @@ export function SettlementSummary({ tripId, formatAmount = formatCurrency }: Pro
               if (!from || !to) return null
 
               return (
-                <Box key={`${settlement.from}-${settlement.to}-${index}`} sx={{ borderWidth: 1, borderColor: "rgba(0,0,0,0.12)", borderRadius: 16 }}>
-                  <Box sx={{ padding: 16 }}>
+                <Box key={`${settlement.from}-${settlement.to}-${index}`} style={{ borderWidth: 1, borderColor: "rgba(0,0,0,0.12)", borderRadius: 16 }}>
+                  <Box style={{ padding: 16 }}>
                     <Stack direction="row" alignItems="center" justifyContent="space-between">
                       <Stack direction="row" alignItems="center" gap={1}>
                         <Box textAlign="center">

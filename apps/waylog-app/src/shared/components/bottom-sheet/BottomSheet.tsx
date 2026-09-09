@@ -19,6 +19,7 @@ import {
   useWindowDimensions,
   View,
   type ScrollViewProps,
+  type StyleProp,
   type ViewStyle,
 } from 'react-native'
 import { Gesture, GestureDetector, type PanGesture } from 'react-native-gesture-handler'
@@ -35,7 +36,7 @@ import Animated, {
   type SharedValue,
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Box, Stack, Typography, sxToStyle, type BoxProps, type StackProps, type Sx } from '~/shared/components/design-system'
+import { Box, Stack, Typography, type BoxProps, type StackProps } from '~/shared/components/design-system'
 import { palette, zLayer } from '../../config/tokens'
 import {
   clampSheetHeight,
@@ -99,7 +100,7 @@ interface BottomSheetProps {
   backdrop?: boolean
   /** 시트 아래에 형제가 없어 화면 바닥에 닿을 때만 켠다 */
   safeArea?: boolean
-  sx?: Sx
+  style?: StyleProp<ViewStyle>
   ref?: Ref<BottomSheetRef>
 }
 
@@ -126,7 +127,7 @@ export function BottomSheet({
   onSnapChange,
   backdrop = true,
   safeArea = false,
-  sx,
+  style,
   ref,
 }: BottomSheetProps) {
   const { height: screenH } = useWindowDimensions()
@@ -406,7 +407,7 @@ export function BottomSheet({
     >
       {isOpen === true && backdrop && <Pressable style={styles.backdrop} onPress={onDismiss} />}
 
-      <Animated.View style={[styles.sheet, sheetStyle, sxToStyle(sx)]}>
+      <Animated.View style={[styles.sheet, sheetStyle, style]}>
         <SheetDragContext.Provider value={dragContext}>
           <GestureDetector gesture={handlePan}>
             <View style={styles.handleArea} hitSlop={{ top: 8, bottom: 8, left: 24, right: 24 }}>
@@ -424,7 +425,7 @@ export function BottomSheet({
   )
 }
 
-function Header({ children, rightElement, sx, ...props }: StackProps & { rightElement?: ReactNode }) {
+function Header({ children, rightElement, style, ...props }: StackProps & { rightElement?: ReactNode }) {
   const { createDirectPan } = useSheetDrag()
   const pan = useMemo(() => createDirectPan(), [createDirectPan])
 
@@ -435,7 +436,7 @@ function Header({ children, rightElement, sx, ...props }: StackProps & { rightEl
           direction="row"
           alignItems="center"
           justifyContent="space-between"
-          sx={{ px: 2, py: 1, ...(sx ?? {}) }}
+          style={[{ paddingHorizontal: 16, paddingVertical: 8 }, style]}
           {...props}
         >
           {/* 문자열을 그대로 받으면 RN 이 렌더하지 못한다. 제목은 감싸준다. */}
@@ -447,7 +448,7 @@ function Header({ children, rightElement, sx, ...props }: StackProps & { rightEl
   )
 }
 
-function Body({ children, sx, ...props }: BoxProps) {
+function Body({ children, style, ...props }: BoxProps) {
   const { createDirectPan } = useSheetDrag()
   const pan = useMemo(() => createDirectPan(), [createDirectPan])
 
@@ -455,7 +456,7 @@ function Body({ children, sx, ...props }: BoxProps) {
     <GestureDetector gesture={pan}>
       <View style={{ flex: 1 }}>
         <BodyPanContext.Provider value={pan}>
-          <Box sx={{ flex: 1, ...(sx ?? {}) }} {...props}>{children}</Box>
+          <Box style={[{ flex: 1 }, style]} {...props}>{children}</Box>
         </BodyPanContext.Provider>
       </View>
     </GestureDetector>
@@ -476,7 +477,7 @@ function Body({ children, sx, ...props }: BoxProps) {
  * `Simultaneous`)을 쓴다. `GestureDetector` 에 `pan` 만 걸면 네이티브 스크롤
  * responder 를 가진 자식을 gesture-handler 가 우선해 드래그가 씹힌다.
  */
-function KeyboardAwareBody({ children, sx, style, width, height, flex, minWidth, position, textAlign, ...props }: BoxProps) {
+function KeyboardAwareBody({ children, style, width, height, flex, minWidth, position, textAlign, ...props }: BoxProps) {
   const { scrollY, createPan, isKeyboardVisible } = useSheetDrag()
   const scrollRef = useAnimatedRef<Animated.ScrollView>()
 
@@ -502,11 +503,10 @@ function KeyboardAwareBody({ children, sx, style, width, height, flex, minWidth,
   }, [isKeyboardVisible, scrollRef])
 
   // Box 가 하던 축약 prop → 스타일 변환을 그대로 재현한다.
-  // 스크롤 콘텐츠 컨테이너라 sx 는 contentContainerStyle 로 가야
+  // 스크롤 콘텐츠 컨테이너라 style 은 contentContainerStyle 로 가야
   // padding 등이 콘텐츠에 붙는다 (평소엔 스크롤이 꺼져 있어도 동일하게 적용).
   const contentStyle = [
     { width, height, flex, minWidth, position, alignItems: textAlign === 'center' ? 'center' : undefined } as ViewStyle,
-    sxToStyle(sx),
     style,
   ]
 
@@ -602,7 +602,7 @@ function SheetScrollView({
  * 자기 제스처를 갖는 영역. 이 안에서는 시트가 끌리지 않는다.
  * 순서 변경 목록·지도처럼 터치를 독점해야 하는 것을 감싼다.
  */
-function GestureArea({ children, sx, ...props }: BoxProps) {
+function GestureArea({ children, style, ...props }: BoxProps) {
   const bodyPan = useContext(BodyPanContext)
 
   // 이 영역의 제스처가 본문의 시트 제스처를 이긴다. 시트 전체를 끄는 것과 달리
@@ -616,28 +616,30 @@ function GestureArea({ children, sx, ...props }: BoxProps) {
   // ref 가 spread 순서에 얹혀 가므로, 여기서는 View 를 직접 두고 children 을
   // 바로 담는다 — 레이어를 하나만 둬야 그 사이에서 flex 상속이 끊기지 않는다.
   // flex: 1 은 기본값일 뿐이다. 부모 크기를 그대로 채워 레이아웃에 개입하지
-  // 않는 것이 기본 동작이고, sx 로 주면 그대로 덮어써 원하는 크기를 준다.
+  // 않는 것이 기본 동작이고, style 로 주면 그대로 덮어써 원하는 크기를 준다.
   return (
     <GestureDetector gesture={block}>
-      <View style={[{ flex: 1 }, sxToStyle(sx)]} {...props}>
+      <View style={[{ flex: 1 }, style]} {...props}>
         {children}
       </View>
     </GestureDetector>
   )
 }
 
-function BottomActions({ children, sx, ...props }: StackProps) {
+function BottomActions({ children, style, ...props }: StackProps) {
   return (
     <Stack
       direction="row"
       gap={1}
-      sx={{
-        px: 2,
-        py: 1,
-        backgroundColor: palette.background,
-        zIndex: zLayer.bottomSheet,
-        ...(sx ?? {}),
-      }}
+      style={[
+        {
+          paddingHorizontal: 16,
+          paddingVertical: 8,
+          backgroundColor: palette.background,
+          zIndex: zLayer.bottomSheet,
+        },
+        style,
+      ]}
       {...props}
     >
       {children}

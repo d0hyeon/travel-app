@@ -11,7 +11,7 @@ interface CalendarHeaderProps {
 
 export function CalendarHeader({ cursor, onPreviousMonth, onNextMonth }: CalendarHeaderProps) {
   return (
-    <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ px: 1, py: 1 }}>
+    <Stack direction="row" alignItems="center" justifyContent="space-between" style={{ paddingHorizontal: 8, paddingVertical: 8 }}>
       <IconButton onPress={onPreviousMonth}>
         <MaterialIcons name="chevron-left" size={24} color={palette.text} />
       </IconButton>

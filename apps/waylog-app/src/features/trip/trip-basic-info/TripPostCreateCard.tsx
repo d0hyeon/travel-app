@@ -32,12 +32,12 @@ export function TripPostCreateCard({ tripId }: Props) {
         backgroundColor: '#EEF2FF',
       }}
     >
-      <Stack sx={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 10, backgroundColor: '#fff' }}>
+      <Stack style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 10, backgroundColor: '#fff' }}>
         <MaterialIcons name="auto-awesome" size={22} color="#4A7AFF" />
       </Stack>
-      <Stack sx={{ flex: 1, minWidth: 0 }}>
-        <Typography sx={{ fontSize: 14.5, fontWeight: '700', color: '#111' }}>여행을 회고하는 포스트 만들기</Typography>
-        <Typography sx={{ marginTop: 3, fontSize: 12.5, fontWeight: '500', color: '#6b6b73' }}>이 여행의 사진과 장소로 피드에 올려보세요</Typography>
+      <Stack style={{ flex: 1, minWidth: 0 }}>
+        <Typography style={{ fontSize: 14.5, fontWeight: '700', color: '#111' }}>여행을 회고하는 포스트 만들기</Typography>
+        <Typography style={{ marginTop: 3, fontSize: 12.5, fontWeight: '500', color: '#6b6b73' }}>이 여행의 사진과 장소로 피드에 올려보세요</Typography>
       </Stack>
       <MaterialIcons name="chevron-right" size={24} color="#4A7AFF" />
     </Pressable>

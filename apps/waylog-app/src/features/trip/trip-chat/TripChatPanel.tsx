@@ -15,7 +15,7 @@ interface Props {
 
 export function TripChatPanel({ tripId, header }: Props) {
   return (
-    <Stack sx={{ flex: 1 }}>
+    <Stack style={{ flex: 1 }}>
       {header}
       <Suspense fallback={<Pending />}>
         <Resolved tripId={tripId} />
@@ -35,7 +35,7 @@ TripChatPanel.Header = function Header({ rightElement, children }: HeaderProps) 
       direction="row"
       alignItems="center"
       justifyContent="space-between"
-      sx={{
+      style={{
         paddingHorizontal: 16,
         paddingVertical: 8,
         borderBottomWidth: 1,
@@ -79,7 +79,7 @@ function Resolved({ tripId }: Props) {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <Suspense>
-        <ChatPushNoticeCard sx={{ margin: 16 }} />
+        <ChatPushNoticeCard style={{ margin: 16 }} />
       </Suspense>
 
       {/* 메시지가 수백 개가 되면 한 번에 그리는 비용이 커밋을 수백 ms 막는다.
@@ -95,7 +95,7 @@ function Resolved({ tripId }: Props) {
             variant="body2"
             color="text.secondary"
             textAlign="center"
-            sx={{ paddingVertical: 32 }}
+            style={{ paddingVertical: 32 }}
           >
             첫 메시지를 보내보세요!
           </Typography>
@@ -106,7 +106,7 @@ function Resolved({ tripId }: Props) {
         direction="row"
         alignItems="flex-end"
         gap={1}
-        sx={{
+        style={{
           padding: 12,
           paddingBottom: insets.bottom + 12,
           borderTopWidth: 1,
@@ -145,7 +145,7 @@ function Resolved({ tripId }: Props) {
 
 function Pending() {
   return (
-    <Stack sx={{ flex: 1, padding: 16, gap: 12 }}>
+    <Stack style={{ flex: 1, padding: 16, gap: 12 }}>
       {[0, 1, 2].map((index) => (
         <Skeleton key={index} variant="rounded" height={40} width={`${60 + index * 10}%`} />
       ))}

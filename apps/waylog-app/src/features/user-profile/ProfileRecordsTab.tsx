@@ -55,7 +55,7 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
 
   if (visitedLocations.length === 0) {
     return (
-      <Stack alignItems="center" justifyContent="center" sx={{ height: mapHeight }}>
+      <Stack alignItems="center" justifyContent="center" style={{ height: mapHeight }}>
         <Typography variant="body2" color="text.secondary">아직 방문 기록이 없어요</Typography>
       </Stack>
     )
@@ -100,7 +100,7 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
 const TAB_BAR_HEIGHT = 40
 
 function LocationMetaInfo({ value }: { value: VisitedLocation }) {
-  return <Stack direction="row" alignItems="center" sx={{ gap: 8 }}><View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: palette.primary }} /><Typography variant="subtitle1">{value.location}</Typography><Typography variant="caption" color="text.secondary">{value.countryName}</Typography></Stack>
+  return <Stack direction="row" alignItems="center" style={{ gap: 8 }}><View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: palette.primary }} /><Typography variant="subtitle1">{value.location}</Typography><Typography variant="caption" color="text.secondary">{value.countryName}</Typography></Stack>
 }
 
 function formatLastVisit(isoDate: string): string {

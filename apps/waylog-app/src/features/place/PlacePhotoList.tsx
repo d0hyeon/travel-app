@@ -47,7 +47,7 @@ function PhotoViewerSheet({ photos, initialIndex, isOpen, onClose }: PhotoViewer
   const [currentIndex, setCurrentIndex] = useState(initialIndex)
 
   return (
-    <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.9]} safeArea sx={{ backgroundColor: '#111' }}>
+    <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.9]} safeArea style={{ backgroundColor: '#111' }}>
       <BottomSheet.Header>
         <Typography color="#fff">사진 {currentIndex + 1} / {photos.length}</Typography>
       </BottomSheet.Header>

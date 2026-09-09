@@ -23,19 +23,19 @@ export function TripListScreen() {
   const openTripCreation = () => router.push('/trip/new')
 
   return (
-    <Box sx={{ flex: 1, backgroundColor: palette.background }}>
+    <Box style={{ flex: 1, backgroundColor: palette.background }}>
       <ScrollView
         contentContainerStyle={{ paddingTop: insets.top, paddingHorizontal: 18, paddingBottom: insets.bottom + 120 }}
         showsVerticalScrollIndicator={false}
       >
-        <Typography sx={{ fontSize: 26, fontWeight: '900', paddingVertical: 18 }}>
+        <Typography style={{ fontSize: 26, fontWeight: '900', paddingVertical: 18 }}>
           내 여행
         </Typography>
 
         {!hasTrips ? (
           <EmptyTripState onPress={openTripCreation} />
         ) : (
-          <Stack sx={{ gap: 24 }}>
+          <Stack style={{ gap: 24 }}>
             {ongoingTrips.length === 0 && upcomingTrips.length === 0 && (
               <CreateTripCard onPress={openTripCreation} />
             )}
@@ -45,11 +45,11 @@ export function TripListScreen() {
             ))}
 
             {(upcomingTrips.length > 0 || pastTrips.length > 0) && (
-              <Stack sx={{ gap: 24, paddingHorizontal: 8 }}>
+              <Stack style={{ gap: 24, paddingHorizontal: 8 }}>
                 {upcomingTrips.length > 0 && (
-                  <Stack sx={{ gap: 12 }}>
+                  <Stack style={{ gap: 12 }}>
                     <SectionLabel>예정된 여행</SectionLabel>
-                    <Stack sx={{ gap: 12 }}>
+                    <Stack style={{ gap: 12 }}>
                       {upcomingTrips.map((trip) => (
                         <UpcomingTripCard key={trip.id} trip={trip} onPress={() => openTrip(trip.id)} />
                       ))}
@@ -58,17 +58,17 @@ export function TripListScreen() {
                 )}
 
                 {pastYears.length > 0 && (
-                  <Stack sx={{ gap: 12 }}>
+                  <Stack style={{ gap: 12 }}>
                     {(ongoingTrips.length > 0 || upcomingTrips.length > 0) && (
                       <SectionLabel>지난 여행</SectionLabel>
                     )}
-                    <Stack sx={{ gap: 20 }}>
+                    <Stack style={{ gap: 20 }}>
                       {pastYears.map((year) => (
-                        <Stack key={year} sx={{ gap: 8 }}>
-                          <Typography sx={{ fontSize: 13, fontWeight: '900', color: palette.textSecondary }}>
+                        <Stack key={year} style={{ gap: 8 }}>
+                          <Typography style={{ fontSize: 13, fontWeight: '900', color: palette.textSecondary }}>
                             {year}년
                           </Typography>
-                          <Stack sx={{ gap: 8 }}>
+                          <Stack style={{ gap: 8 }}>
                             {pastTripsByYear[year]?.map((trip) => (
                               <PastTripRow key={trip.id} trip={trip} onPress={() => openTrip(trip.id)} />
                             ))}
@@ -86,9 +86,9 @@ export function TripListScreen() {
 
       <Fab
         onPress={openTripCreation}
-        sx={{ position: 'absolute', right: 20, bottom: 20 }}
+        style={{ position: 'absolute', right: 20, bottom: 20 }}
       >
-        <Typography sx={{ color: '#fff', fontSize: 28, lineHeight: 30, fontWeight: '400' }}>+</Typography>
+        <Typography style={{ color: '#fff', fontSize: 28, lineHeight: 30, fontWeight: '400' }}>+</Typography>
       </Fab>
     </Box>
   )
@@ -105,7 +105,7 @@ function groupTripsByYear(trips: Trip[]) {
 
 function SectionLabel({ children }: { children: string }) {
   return (
-    <Typography sx={{ fontSize: 12, fontWeight: '900', color: palette.textSecondary, letterSpacing: 0.5 }}>
+    <Typography style={{ fontSize: 12, fontWeight: '900', color: palette.textSecondary, letterSpacing: 0.5 }}>
       {children}
     </Typography>
   )
@@ -115,7 +115,7 @@ function EmptyTripState({ onPress }: { onPress: () => void }) {
   return (
     <Pressable onPress={onPress} accessibilityLabel="첫 여행 만들기">
       <Box
-        sx={{
+        style={{
           alignItems: 'center',
           borderWidth: 2,
           borderStyle: 'dashed',
@@ -125,10 +125,10 @@ function EmptyTripState({ onPress }: { onPress: () => void }) {
           paddingHorizontal: 24,
         }}
       >
-        <Typography sx={{ color: palette.textSecondary, fontSize: 15, marginBottom: 8 }}>
+        <Typography style={{ color: palette.textSecondary, fontSize: 15, marginBottom: 8 }}>
           아직 여행이 없어요
         </Typography>
-        <Typography sx={{ color: palette.primary, fontSize: 14, fontWeight: '900' }}>
+        <Typography style={{ color: palette.primary, fontSize: 14, fontWeight: '900' }}>
           + 첫 여행 만들기
         </Typography>
       </Box>

@@ -33,9 +33,9 @@ export function PlaceSelectSheet({
   return (
     <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.7]} defaultSnapIndex={0}>
       <BottomSheet.Header>경로에 장소 추가</BottomSheet.Header>
-      <BottomSheet.Body sx={{ paddingHorizontal: 16 }}>
+      <BottomSheet.Body style={{ paddingHorizontal: 16 }}>
         {candidates.length === 0 ? (
-          <Typography variant="body2" color="text.secondary" sx={{ paddingVertical: 24 }}>
+          <Typography variant="body2" color="text.secondary" style={{ paddingVertical: 24 }}>
             추가할 수 있는 장소가 없어요
           </Typography>
         ) : (

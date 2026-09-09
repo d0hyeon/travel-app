@@ -77,7 +77,7 @@ function ExpenseFormSheet({ tripId, defaultValues, mode, renderActions, sheetPro
       <BottomSheet.Header>
         {mode === 'edit' ? '결제 금액 수정' : '결제 금액'}
       </BottomSheet.Header>
-      <BottomSheet.KeyboardAwareBody sx={{ paddingHorizontal: 16 }}>
+      <BottomSheet.KeyboardAwareBody style={{ paddingHorizontal: 16 }}>
         <ExpenseForm ref={formRef} tripId={tripId} defaultValues={defaultValues} onSubmit={onSubmit} />
       </BottomSheet.KeyboardAwareBody>
       <BottomSheet.BottomActions>

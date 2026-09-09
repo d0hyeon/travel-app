@@ -1,4 +1,5 @@
 import { Box, Skeleton, Typography, type BoxProps } from '~/shared/components/design-system'
+import type { TextStyle } from 'react-native'
 import { useCountAnimation } from '../../../shared/hooks/animation/useCountdownAnimation'
 import { useTrip } from '@waylog/domains/modules/trip'
 
@@ -76,16 +77,18 @@ TripDDay.Skeleton = (props: BoxProps) => {
 
 
 
-function DDayBox({ sx, ...props }: BoxProps) {
+function DDayBox({ style, ...props }: BoxProps) {
   return (
     <Box
-      sx={{
-        backgroundColor: '#eef1f5',
-        borderRadius: 20,
-        paddingHorizontal: 20,
-        paddingVertical: 24,
-        ...(sx ?? {}),
-      }}
+      style={[
+        {
+          backgroundColor: '#eef1f5',
+          borderRadius: 20,
+          paddingHorizontal: 20,
+          paddingVertical: 24,
+        },
+        style,
+      ]}
       {...props}
     />
   )
@@ -108,7 +111,7 @@ function BeforeTripDDay({ days, animationEnabled, ...props }: BeforeTripDDayProp
           variant="h6"
           color="primary.main"
           fontWeight={700}
-          sx={{ mx: 0.5 }}
+          style={{ marginHorizontal: 4 }}
         >
           {displayDays}일
         </Typography>
@@ -135,7 +138,7 @@ function DuringTripDDay({ day, animationEnabled, ...props }: DuringTripDDayProps
           variant="h6"
           color="success.main"
           fontWeight={700}
-          sx={{ mx: 0.5 }}
+          style={{ marginHorizontal: 4 }}
         >
           {displayDay}일차
         </Typography>
@@ -176,29 +179,29 @@ function AfterTripDDay({ dateDiff, animationEnabled, ...props }: AfterTripDDayPr
   const totalDaysDigits = String(totalDays).length
 
   // tabular-nums: 모든 숫자가 동일한 너비로 렌더링됨
-  const numStyle = { fontVariantNumeric: 'tabular-nums' }
+  const numStyle: TextStyle = { fontVariant: ['tabular-nums'] }
 
 
   return (
     <DDayBox {...props}>
       <Typography variant="body2" color="text.secondary" >
         {years > 0 && (
-          <Typography key="years" component="span" variant="subtitle1" color="primary.main" fontWeight={700} sx={numStyle}>
+          <Typography key="years" component="span" variant="subtitle1" color="primary.main" fontWeight={700} style={numStyle}>
             {String(animated.years).padStart(yearsDigits, '\u2007')}{/* \u2007 = figure space (숫자 너비 공백) */}년{' '}
           </Typography>
         )}
         {months > 0 && (
-          <Typography key="months" component="span" variant="subtitle1" color="primary.main" fontWeight={700} sx={numStyle}>
+          <Typography key="months" component="span" variant="subtitle1" color="primary.main" fontWeight={700} style={numStyle}>
             {String(animated.months).padStart(String(months).length, '\u2007')}개월{' '}
           </Typography>
         )}
         {days > 0 && (
-          <Typography key="days" component="span" variant="subtitle1" color="primary.main" fontWeight={700} sx={numStyle}>
+          <Typography key="days" component="span" variant="subtitle1" color="primary.main" fontWeight={700} style={numStyle}>
             {String(animated.days).padStart(String(days).length, '\u2007')}일
           </Typography>
         )}
         {!isOnlyDays && (
-          <Typography component="span" variant="body2" color="text.disabled" sx={{ ml: 0.5, ...numStyle }}>
+          <Typography component="span" variant="body2" color="text.disabled" style={[{ marginLeft: 4 }, numStyle]}>
             ({String(animatedTotalDays).padStart(totalDaysDigits, '\u2007')}일)
           </Typography>
         )}

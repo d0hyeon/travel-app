@@ -38,7 +38,7 @@ export function ActionSheet({ isOpen, onClose, children }: ActionSheetProps) {
 
   return (
     <Modal visible={isOpen} transparent animationType="none" onRequestClose={onClose}>
-      <Box sx={{ flex: 1, justifyContent: 'flex-end' }}>
+      <Box style={{ flex: 1, justifyContent: 'flex-end' }}>
         <Animated.View
           style={{
             position: 'absolute',
@@ -54,7 +54,7 @@ export function ActionSheet({ isOpen, onClose, children }: ActionSheetProps) {
         </Animated.View>
         <Animated.View style={{ transform: [{ translateY: sheetTranslateY }] }}>
           <Box
-            sx={{
+            style={{
               backgroundColor: palette.background,
               borderTopLeftRadius: radius.xxl,
               borderTopRightRadius: radius.xxl,
@@ -63,7 +63,7 @@ export function ActionSheet({ isOpen, onClose, children }: ActionSheetProps) {
           >
             <ScrollView style={{ maxHeight: MAX_SHEET_HEIGHT }} bounces={false}>
               <ActionSheetCloseContext.Provider value={onClose}>
-                <Box sx={{ paddingBottom: insets.bottom, }}>
+                <Box style={{ paddingBottom: insets.bottom, }}>
                   {children}
                 </Box>
               </ActionSheetCloseContext.Provider>
@@ -99,7 +99,7 @@ ActionSheet.Item = function ActionSheetItem({ onPress, icon, children, color = '
         {icon}
         <Typography
           variant="body1"
-          sx={{ color: color === 'error' ? '#d32f2f' : palette.text }}
+          style={{ color: color === 'error' ? '#d32f2f' : palette.text }}
         >
           {children}
         </Typography>

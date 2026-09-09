@@ -60,7 +60,7 @@ function CommunityTripCard({ trip, onPress }: { trip: CommunityTrip; onPress: ()
   return (
     <Pressable onPress={onPress}>
       <Box
-        sx={{
+        style={{
           width: 140,
           borderRadius: radius.md,
           borderWidth: 1,
@@ -74,7 +74,7 @@ function CommunityTripCard({ trip, onPress }: { trip: CommunityTrip; onPress: ()
           width={140}
           height={80}
         />
-        <Stack sx={{ padding: 8 }}>
+        <Stack style={{ padding: 8 }}>
           <Stack direction="row" alignItems="center" gap={0.5}>
             <MaterialIcons name="people" size={11} color={palette.textSecondary} />
             <Typography variant="caption" color="text.secondary">

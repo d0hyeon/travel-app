@@ -10,11 +10,11 @@ export function ProfileHeader({ userId }: { userId: string }) {
   }
 
   return (
-    <Stack direction="row" alignItems="center" sx={{ paddingHorizontal: 16, paddingVertical: 16, gap: 16 }}>
-      <Avatar src={profile.profileUrl ?? undefined} sx={{ width: 72, height: 72, backgroundColor: palette.primary }}>
+    <Stack direction="row" alignItems="center" style={{ paddingHorizontal: 16, paddingVertical: 16, gap: 16 }}>
+      <Avatar src={profile.profileUrl ?? undefined} style={{ width: 72, height: 72, backgroundColor: palette.primary }}>
         {profile.name?.[0] ?? '?'}
       </Avatar>
-      <Typography sx={{ fontSize: 20, fontWeight: 'bold', color: palette.text }}>
+      <Typography style={{ fontSize: 20, fontWeight: 'bold', color: palette.text }}>
         {profile.name}
       </Typography>
     </Stack>

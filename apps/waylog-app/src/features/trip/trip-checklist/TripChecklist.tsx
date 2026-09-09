@@ -50,7 +50,7 @@ function Resolved({ tripId }: Props) {
     <Stack gap={1}>
       {checklist.length > 0
         ? checklist.map(x => <TripChecklist.Item id={x.id} key={x.id} tripId={tripId} />)
-        : <Typography variant="body2" color="text.secondary" sx={{ paddingVertical: 24 }}>체크리스트가 없어요</Typography>}
+        : <Typography variant="body2" color="text.secondary" style={{ paddingVertical: 24 }}>체크리스트가 없어요</Typography>}
     </Stack>
   )
 }
@@ -98,13 +98,15 @@ function TripChecklistItem({ tripId, id, ...props }: ItemProps) {
 
   return (
     <ListItem
-      sx={{
-        borderColor: value.isCompleted ? 'rgba(76,132,255,0.4)' : 'rgba(221,221,221,0.4)',
-        borderWidth: value.isCompleted ? 2 : 1,
-        paddingVertical: 16,
-      }}
+      style={[
+        {
+          borderColor: value.isCompleted ? 'rgba(76,132,255,0.4)' : 'rgba(221,221,221,0.4)',
+          borderWidth: value.isCompleted ? 2 : 1,
+          paddingVertical: 16,
+        },
+        animatedStyle,
+      ]}
       as={Animated.View}
-      style={animatedStyle}
       leftAddon={(
         <Checkbox
           checked={value.isCompleted}
@@ -116,7 +118,7 @@ function TripChecklistItem({ tripId, id, ...props }: ItemProps) {
               withTiming(360, { duration: 300 }, () => rotation.set(0)),
             )
           }}
-          sx={{ padding: 0 }}
+          style={{ padding: 0 }}
         />
       )}
       rightAddon={<TripChecklistMenu tripId={tripId} id={value.id} />}
@@ -134,7 +136,7 @@ function TripChecklistItem({ tripId, id, ...props }: ItemProps) {
               defaultComponent={() => <MaterialIcons name="access-time" size={16} color="#787c7e" />}
             />
           )}
-          <ListItem.Title sx={value.isCompleted ? { opacity: 0.5 } : {}}>
+          <ListItem.Title style={value.isCompleted ? { opacity: 0.5 } : {}}>
             {value.title}
           </ListItem.Title>
         </Stack>
@@ -143,23 +145,23 @@ function TripChecklistItem({ tripId, id, ...props }: ItemProps) {
         {(!!startTimeText || !!endTimeText) && (
           <ListItem.Text
             color={!value.isCompleted ? status : undefined}
-            sx={value.isCompleted ? { opacity: 0.5 } : {}}
+            style={value.isCompleted ? { opacity: 0.5 } : {}}
           >
             {startTimeText} ~ {endTimeText}{remainTimeText ? ` (${remainTimeText})` : ''}
           </ListItem.Text>
         )}
         <Stack direction="row" justifyContent="space-between" alignItems="center" gap={0.5}>
           {!!value.content && value.content.trim() !== '' && (
-            <ListItem.Text sx={value.isCompleted ? { opacity: 0.5 } : {}}>
+            <ListItem.Text style={value.isCompleted ? { opacity: 0.5 } : {}}>
               {value.content}
             </ListItem.Text>
           )}
           {담당자 && (
-            <Box sx={{ flex: 0, fontSize: 0 }}>
+            <Box style={{ flex: 0 }}>
               <Chip
                 size="small"
                 label={`${담당자.name}`}
-                sx={{ opacity: value.isCompleted ? 0.5 : 1 }}
+                style={{ opacity: value.isCompleted ? 0.5 : 1 }}
               />
             </Box>
           )}
@@ -192,9 +194,9 @@ function ReadonlyItem({ id, tripId, ...props }: ItemProps) {
       alignItems="flex-start"
       justifyContent="flex-start"
       gap={0.5}
-      sx={{ borderColor: 'rgba(221,221,221,0.4)' }}
+      style={{ borderColor: 'rgba(221,221,221,0.4)' }}
       leftAddon={(
-        <Box sx={{ minWidth: 20 }}>
+        <Box style={{ minWidth: 20 }}>
           <SwitchCase
             value={status}
             cases={{
@@ -227,7 +229,7 @@ function ReadonlyItem({ id, tripId, ...props }: ItemProps) {
             <Chip
               size="small"
               label={member.name}
-              sx={{ height: 20 }}
+              style={{ height: 20 }}
             />
           )}
         </Box>

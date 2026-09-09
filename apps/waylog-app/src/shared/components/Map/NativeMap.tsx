@@ -4,7 +4,7 @@ import {
   type MapRef,
 } from '@waylog/domains/modules/map'
 import { useEffect, useImperativeHandle, useMemo, useRef, useState, type ReactNode } from 'react'
-import { StyleSheet, useWindowDimensions } from 'react-native'
+import { StyleSheet, useWindowDimensions, type StyleProp, type ViewStyle } from 'react-native'
 import Mapbox from '@rnmapbox/maps'
 import { MapContext } from './MapContext'
 import { NativeMapCluster } from './NativeMapCluster'
@@ -14,7 +14,6 @@ import { MapMarkerRegistryProvider, useRegisteredMapMarkers } from './useMapMark
 import { computeMarkerVisibility } from './useMapMarkerRegistry.utils'
 import { useMapCamera } from './useMapCamera'
 import { useClusterTransition } from './useClusterTransition'
-import { sxToStyle, type Sx } from '~/shared/components/design-system'
 
 Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN ?? '')
 
@@ -26,7 +25,7 @@ const CLUSTER_TAP_PADDING = 100
 const CLUSTER_TAP_DURATION = 500
 
 
-export function NativeMap(props: MapProps & { sx?: Sx }) {
+export function NativeMap(props: MapProps & { style?: StyleProp<ViewStyle> }) {
   return (
     <MapMarkerRegistryProvider>
       <NativeMapInner {...props} />
@@ -43,8 +42,8 @@ function NativeMapInner({
   clustering,
   clusterGridSize = 50,
   onBoundsChange,
-  sx,
-}: MapProps & { sx?: Sx }) {
+  style,
+}: MapProps & { style?: StyleProp<ViewStyle> }) {
   const [zoom, setZoom] = useState(() => deltaToZoom(DEFAULT_DELTA))
   const [mapInstance, setMapInstance] = useState<Mapbox.MapView | null>(null)
   const { width: screenWidth } = useWindowDimensions()
@@ -98,7 +97,7 @@ function NativeMapInner({
     <MapContext value={mapContextValue}>
       <Mapbox.MapView
         ref={setMapInstance}
-        style={[StyleSheet.absoluteFill, sxToStyle(sx)]}
+        style={[StyleSheet.absoluteFill, style]}
         styleJSON={JSON.stringify(pastelMapboxStyle)}
         rotateEnabled={false}
         onCameraChanged={(state) => {

@@ -5,7 +5,7 @@ import { palette, radius } from '../../../shared/config/tokens'
 export function ExplorerPlaceCardSectionSkeleton() {
   return (
     <View style={{ gap: 12 }}>
-      <Skeleton width={140} height={28} sx={{ marginHorizontal: 16 }} />
+      <Skeleton width={140} height={28} style={{ marginHorizontal: 16 }} />
       <View style={{ flexDirection: 'row', gap: 12, paddingHorizontal: 16, overflow: 'hidden' }}>
         {Array.from({ length: 3 }).map((_, index) => (
           <View key={index} style={{ width: 160, flexShrink: 0, overflow: 'hidden', borderWidth: 1, borderColor: palette.divider, borderRadius: radius.lg }}>
@@ -24,7 +24,7 @@ export function ExplorerPlaceCardSectionSkeleton() {
 export function ExplorerPlaceListSectionSkeleton() {
   return (
     <View>
-      <Skeleton width={180} height={28} sx={{ marginHorizontal: 16, marginBottom: 12 }} />
+      <Skeleton width={180} height={28} style={{ marginHorizontal: 16, marginBottom: 12 }} />
       {Array.from({ length: 5 }).map((_, index) => (
         <View key={index} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 10 }}>
           <Skeleton variant="rounded" width={64} height={64} />

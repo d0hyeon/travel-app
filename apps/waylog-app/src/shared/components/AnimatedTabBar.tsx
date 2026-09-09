@@ -58,7 +58,7 @@ export function AnimatedTabBar({ state, descriptors, navigation, visibleNames }:
             {options.tabBarIcon?.({ focused: isFocused, color, size: 22 }) ?? (
               <MaterialIcons name="circle" size={22} color={color} />
             )}
-            <Typography sx={{ fontSize: 11, color }}>{options.title ?? route.name}</Typography>
+            <Typography style={{ fontSize: 11, color }}>{options.title ?? route.name}</Typography>
           </Pressable>
         )
       })}

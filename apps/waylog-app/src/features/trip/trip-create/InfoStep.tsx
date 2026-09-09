@@ -13,7 +13,7 @@ export function InfoStep({ destination, onNext }: Props) {
 
   return (
     <>
-      <Box sx={{ paddingHorizontal: 24 }}>
+      <Box style={{ paddingHorizontal: 24 }}>
         <TextField
           label="여행 이름"
           placeholder={`${destination} 여행`}
@@ -22,7 +22,7 @@ export function InfoStep({ destination, onNext }: Props) {
           size="small"
           fullWidth
         />
-        <Typography variant="body2" color="text.secondary" sx={{ marginTop: 24 }}>
+        <Typography variant="body2" color="text.secondary" style={{ marginTop: 24 }}>
           멤버는 여행 생성 후 초대 링크로 추가할 수 있어요
         </Typography>
       </Box>

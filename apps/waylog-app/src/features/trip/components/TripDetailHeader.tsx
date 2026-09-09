@@ -18,12 +18,12 @@ export function TripDetailHeader() {
 
 function TripDetailHeaderSkeleton() {
   return (
-    <Stack direction="row" alignItems="center" sx={{ paddingHorizontal: 12, paddingVertical: 8, backgroundColor: palette.background }}>
-      <Box sx={{ width: 22, height: 22, marginHorizontal: 4 }} />
-      <Stack sx={{ flex: 1, paddingHorizontal: 8, paddingVertical: 4 }}>
-        <Skeleton variant="text" sx={{ width: '50%' }} />
+    <Stack direction="row" alignItems="center" style={{ paddingHorizontal: 12, paddingVertical: 8, backgroundColor: palette.background }}>
+      <Box style={{ width: 22, height: 22, marginHorizontal: 4 }} />
+      <Stack style={{ flex: 1, paddingHorizontal: 8, paddingVertical: 4 }}>
+        <Skeleton variant="text" style={{ width: '50%' }} />
       </Stack>
-      <Box sx={{ width: 22, height: 22, marginHorizontal: 4 }} />
+      <Box style={{ width: 22, height: 22, marginHorizontal: 4 }} />
     </Stack>
   )
 }
@@ -33,15 +33,15 @@ function Resolved() {
   const router = useRouter()
   const { data: trip, update } = useTrip(tripId)
   return (
-    <Stack direction="row" alignItems="center" sx={{ paddingHorizontal: 12, paddingVertical: 8, backgroundColor: palette.background }}>
+    <Stack direction="row" alignItems="center" style={{ paddingHorizontal: 12, paddingVertical: 8, backgroundColor: palette.background }}>
       <Pressable accessibilityLabel="뒤로가기" onPress={() => router.back()} style={{ padding: 4 }}>
         <MaterialIcons name="arrow-back" size={22} color={palette.text} />
       </Pressable>
-      <Stack sx={{ flex: 1, paddingHorizontal: 8, paddingVertical: 4 }}>
+      <Stack style={{ flex: 1, paddingHorizontal: 8, paddingVertical: 4 }}>
         <EditableText
           value={trip.name}
           variant="subtitle2"
-          sx={{ fontWeight: '900' }}
+          style={{ fontWeight: '900' }}
           endIcon={<MaterialIcons name="edit" size={15} color={palette.grey} />}
           onSubmit={async (name) => {
             await update({ name: name.trim() })

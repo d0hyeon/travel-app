@@ -49,7 +49,7 @@ function TripChecklistFormSheet({ isOpen, onClose, tripId, onSubmit }: TripCheck
   return (
     <BottomSheet isOpen={isOpen} onDismiss={onClose} safeArea snapPoints={[0.75]} defaultSnapIndex={0}>
       <BottomSheet.Header>체크리스트</BottomSheet.Header>
-      <BottomSheet.Body sx={{ paddingHorizontal: 16 }}>
+      <BottomSheet.Body style={{ paddingHorizontal: 16 }}>
         <TripChecklistForm ref={formRef} tripId={tripId} onSubmit={onSubmit} />
       </BottomSheet.Body>
       <BottomSheet.BottomActions>

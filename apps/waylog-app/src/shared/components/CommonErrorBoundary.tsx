@@ -17,7 +17,7 @@ export function CommonErrorBoundary(props: ComponentProps<typeof ErrorBoundary>)
           alignItems="center"
           justifyContent="space-between"
           gap={8}
-          sx={{
+          style={{
             margin: 16,
             marginHorizontal: 12,
             padding: 12,
@@ -25,7 +25,7 @@ export function CommonErrorBoundary(props: ComponentProps<typeof ErrorBoundary>)
             backgroundColor: ERROR_SURFACE,
           }}
         >
-          <Stack gap={2} sx={{ flexShrink: 1 }}>
+          <Stack gap={2} style={{ flexShrink: 1 }}>
             <Typography variant="subtitle1" color={ERROR_MAIN}>
               에러가 발생했어요!
             </Typography>

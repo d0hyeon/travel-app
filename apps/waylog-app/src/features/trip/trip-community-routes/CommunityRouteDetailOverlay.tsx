@@ -83,7 +83,7 @@ function DetailContent({
 
   if (routes.length === 0) {
     return (
-      <Box sx={{ padding: 24 }}>
+      <Box style={{ padding: 24 }}>
         <Typography variant="body2" color="text.secondary">
           아직 등록된 경로가 없어요
         </Typography>
@@ -96,7 +96,7 @@ function DetailContent({
     : undefined
 
   return (
-    <Stack sx={{ flex: 1 }}>
+    <Stack style={{ flex: 1 }}>
       {tabRoutes.length > 1 && (
         <Tabs value={selectedRouteId} onChange={(_, value) => setSelectedRouteId(value)}>
           {tabRoutes.map((route, index) => {
@@ -139,7 +139,7 @@ function DetailContent({
 
       <BottomSheet.Body>
         {currentRoute?.places.length === 0 && (
-          <Typography variant="body2" color="text.secondary" sx={{ padding: 16 }}>
+          <Typography variant="body2" color="text.secondary" style={{ padding: 16 }}>
             경로에 장소가 없어요
           </Typography>
         )}
@@ -185,7 +185,7 @@ function PlaceRow({ place, index, tripId, alreadyAdded }: PlaceRowProps) {
       direction="row"
       alignItems="center"
       gap={1.5}
-      sx={{
+      style={{
         paddingVertical: 10,
         paddingHorizontal: 16,
         borderBottomWidth: 1,
@@ -193,7 +193,7 @@ function PlaceRow({ place, index, tripId, alreadyAdded }: PlaceRowProps) {
       }}
     >
       <Box
-        sx={{
+        style={{
           width: 24,
           height: 24,
           borderRadius: 12,
@@ -203,16 +203,16 @@ function PlaceRow({ place, index, tripId, alreadyAdded }: PlaceRowProps) {
           opacity: isAdded ? 0.4 : 1,
         }}
       >
-        <Typography sx={{ fontSize: 11, fontWeight: '900', color: '#fff' }}>
+        <Typography style={{ fontSize: 11, fontWeight: '900', color: '#fff' }}>
           {index + 1}
         </Typography>
       </Box>
 
-      <Stack sx={{ flex: 1 }}>
+      <Stack style={{ flex: 1 }}>
         <Typography
           variant="body2"
           numberOfLines={1}
-          sx={{ color: isAdded ? palette.textSecondary : palette.text }}
+          style={{ color: isAdded ? palette.textSecondary : palette.text }}
         >
           {place.name}
         </Typography>
@@ -226,7 +226,7 @@ function PlaceRow({ place, index, tripId, alreadyAdded }: PlaceRowProps) {
       {isAdded ? (
         <Stack direction="row" alignItems="center" gap={0.5}>
           <MaterialIcons name="check" size={14} color={palette.success} />
-          <Typography variant="caption" sx={{ color: palette.success }}>
+          <Typography variant="caption" style={{ color: palette.success }}>
             추가됨
           </Typography>
         </Stack>
@@ -258,7 +258,7 @@ function RoadPath({ waypoints }: { waypoints: Coordinate[] }) {
 
 function DetailSkeleton() {
   return (
-    <Stack gap={1.5} sx={{ padding: 16 }}>
+    <Stack gap={1.5} style={{ padding: 16 }}>
       <Skeleton variant="rounded" height={180} />
       {[0, 1, 2].map((index) => (
         <Stack key={index} direction="row" alignItems="center" gap={1}>

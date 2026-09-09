@@ -15,7 +15,7 @@ export function PlaceTitleButton({ name, onPress, variant = 'h6' }: PlaceTitleBu
   return (
     <Pressable onPress={onPress}>
       <Stack direction="row" gap={0.5} alignItems="center">
-        <Typography variant={variant} noWrap sx={{ fontWeight: '800' }}>
+        <Typography variant={variant} noWrap style={{ fontWeight: '800' }}>
           {name}
         </Typography>
         <MaterialIcons name="chevron-right" size={28} color="#666" />

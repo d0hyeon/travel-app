@@ -90,7 +90,7 @@ function NativeMapMarkerView({
               <Typography
                 numberOfLines={1}
                 ellipsizeMode="tail"
-                sx={{ color: '#fff', fontSize: 11, fontWeight: '900' }}
+                style={{ color: '#fff', fontSize: 11, fontWeight: '900' }}
               >
                 {label}
               </Typography>

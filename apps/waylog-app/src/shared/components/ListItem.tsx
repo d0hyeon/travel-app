@@ -23,7 +23,7 @@ export function ListItem<As extends ElementType = typeof View>({
   children,
   alignItems = 'center',
   gap,
-  sx,
+  style,
   as,
   ...props
 }: PropsWithAs<Props, As>) {
@@ -36,25 +36,27 @@ export function ListItem<As extends ElementType = typeof View>({
       alignItems={alignItems}
       direction="row"
       justifyContent="space-between"
-      sx={{
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        borderWidth: 1,
-        borderColor: palette.divider,
-        borderRadius: 12,
-        overflow: 'visible',
-        ...(sx ?? {}),
-      }}
+      style={[
+        {
+          paddingHorizontal: 12,
+          paddingVertical: 8,
+          borderWidth: 1,
+          borderColor: palette.divider,
+          borderRadius: 12,
+          overflow: 'visible',
+        },
+        style,
+      ]}
       {...props}
     >
       <Stack
         direction="row"
         gap={gap ?? 1}
         alignItems={alignItems}
-        sx={{ width: '100%', minWidth: 0, flex: 1 }}
+        style={{ width: '100%', minWidth: 0, flex: 1 }}
       >
         {leftAddon}
-        <Stack gap={0.5} sx={{ flex: 1, minWidth: 0 }}>
+        <Stack gap={0.5} style={{ flex: 1, minWidth: 0 }}>
           {children}
         </Stack>
       </Stack>
@@ -71,7 +73,7 @@ interface ButtonProps extends Props {
 
 function ListItemButton({
   focused,
-  sx,
+  style,
   onPress,
   leftAddon,
   rightAddon,
@@ -84,12 +86,14 @@ function ListItemButton({
     <ListItem
       leftAddon={leftAddon}
       rightAddon={rightAddon}
-      sx={{
-        width: '100%',
-        // 웹은 :focus 에 primary 20% 배경을 준다.
-        ...(focused ? { backgroundColor: 'rgba(76,132,255,0.2)' } : {}),
-        ...(sx ?? {}),
-      }}
+      style={[
+        {
+          width: '100%',
+          // 웹은 :focus 에 primary 20% 배경을 준다.
+          ...(focused ? { backgroundColor: 'rgba(76,132,255,0.2)' } : {}),
+        },
+        style,
+      ]}
       {...props}
     >
       {/* 스타일 없는 Pressable 은 컨텐츠 폭으로 수축한다.
@@ -108,9 +112,9 @@ ListItem.Title = ({
   rightAddon,
   ...props
 }: TypographyProps & { leftAddon?: ReactNode; rightAddon?: ReactNode }) => (
-  <Stack gap={1} direction="row" alignItems="center" sx={{ minWidth: 0, flexShrink: 1 }}>
+  <Stack gap={1} direction="row" alignItems="center" style={{ minWidth: 0, flexShrink: 1 }}>
     {leftAddon}
-    <Typography numberOfLines={1} sx={{ fontSize: 13, flexShrink: 1 }} {...props} />
+    <Typography numberOfLines={1} style={{ fontSize: 13, flexShrink: 1 }} {...props} />
     {rightAddon}
   </Stack>
 )
@@ -125,27 +129,29 @@ ListItem.Text = ({
     <Typography
       variant="caption"
       color="text.secondary"
-      sx={{ fontSize: 12 }}
+      style={{ fontSize: 12 }}
       {...props}
     />
     {rightAddon}
   </Stack>
 )
 
-ListItem.Ordering = ({ sx, children, ...props }: BoxProps) => (
+ListItem.Ordering = ({ style, children, ...props }: BoxProps) => (
   <Box
-    sx={{
-      width: 20,
-      height: 20,
-      borderRadius: 10,
-      backgroundColor: palette.primary,
-      alignItems: 'center',
-      justifyContent: 'center',
-      flexShrink: 0,
-      ...(sx ?? {}),
-    }}
+    style={[
+      {
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        backgroundColor: palette.primary,
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+      },
+      style,
+    ]}
     {...props}
   >
-    <Typography sx={{ color: '#fff', fontSize: 11, fontWeight: '900' }}>{children}</Typography>
+    <Typography style={{ color: '#fff', fontSize: 11, fontWeight: '900' }}>{children}</Typography>
   </Box>
 )

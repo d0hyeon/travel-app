@@ -14,7 +14,7 @@ interface TimeStepHeaderProps {
 export function TimeStepHeader({ day, onBack }: TimeStepHeaderProps) {
   return (
     <Pressable onPress={onBack}>
-      <Stack direction="row" alignItems="center" sx={{ px: 1, py: 1, gap: 1 }}>
+      <Stack direction="row" alignItems="center" style={{ paddingHorizontal: 8, paddingVertical: 8, gap: 8 }}>
         <MaterialIcons name="chevron-left" size={24} color={palette.text} />
         <Typography variant="h6">{format(day, 'M월 d일')}</Typography>
       </Stack>

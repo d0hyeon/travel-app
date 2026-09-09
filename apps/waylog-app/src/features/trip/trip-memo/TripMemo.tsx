@@ -41,10 +41,10 @@ function Resolved({ tripId }: Props) {
   };
 
   return (
-    <Stack sx={{ height: '100%', position: 'relative' }}>
-      <Box sx={{ flex: 1 }}>
+    <Stack style={{ height: '100%', position: 'relative' }}>
+      <Box style={{ flex: 1 }}>
         {memos.length === 0 ? (
-          <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', paddingVertical: 48 }}>
+          <Typography variant="body2" color="text.secondary" style={{ textAlign: 'center', paddingVertical: 48 }}>
             메모가 없어요
           </Typography>
         ) : memos
@@ -59,7 +59,7 @@ function Resolved({ tripId }: Props) {
         color="primary"
         size="medium"
         onPress={handleAdd}
-        sx={{ position: 'absolute', bottom: 16, right: 16 }}
+        style={{ position: 'absolute', bottom: 16, right: 16 }}
       >
         <MaterialIcons name="add" size={24} color="#fff" />
       </Fab>
@@ -79,7 +79,7 @@ function TripMemoFormSheet({ isOpen, onClose, onSubmit }: TripMemoFormSheetProps
   return (
     <BottomSheet isOpen={isOpen} onDismiss={onClose} safeArea>
       <BottomSheet.Header>새 메모</BottomSheet.Header>
-      <BottomSheet.Body sx={{ paddingHorizontal: 16 }}>
+      <BottomSheet.Body style={{ paddingHorizontal: 16 }}>
         <TripMemoForm ref={formRef} onSubmit={onSubmit} />
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
@@ -111,9 +111,9 @@ function MemoRow({ tripId, memo }: MemoRowProps) {
       <Stack
         direction="row"
         alignItems="center"
-        sx={{ paddingHorizontal: 16, paddingVertical: 12 }}
+        style={{ paddingHorizontal: 16, paddingVertical: 12 }}
       >
-        <Stack gap={0.5} sx={{ flex: 1, minWidth: 0 }}>
+        <Stack gap={0.5} style={{ flex: 1, minWidth: 0 }}>
           <Stack direction="row" alignItems="center" gap={0.5}>
             {memo.isPinned && <MaterialIcons name="push-pin" size={12} color="#4C84FF" />}
             <Typography variant="body2" numberOfLines={1}>
@@ -140,7 +140,7 @@ function MemoListSkeleton() {
   return (
     <Stack>
       {Array.from({ length: 4 }).map((_, i) => (
-        <Stack key={i} gap={0.5} sx={{ paddingHorizontal: 16, paddingVertical: 12 }}>
+        <Stack key={i} gap={0.5} style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
           <Skeleton variant="text" width="60%" />
           <Skeleton variant="text" width="80%" />
         </Stack>

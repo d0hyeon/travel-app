@@ -1,5 +1,6 @@
 import { useAuth } from '@waylog/domains/clients'
 import type { ChatMessage } from '@waylog/domains/modules/trip-chat'
+import type { TextStyle, ViewStyle } from 'react-native'
 import { Avatar, Box, Stack, Typography } from '~/shared/components/design-system'
 import { extractUrls, renderTextWithLinks } from '../../../shared/utils/urls'
 import { OgPreviewCard } from '../../open-graph/OgPreviewCard'
@@ -25,19 +26,19 @@ export function TripChatMessage({ message }: Props) {
       {!isMe && (
         <Avatar
           src={message.profile?.profileUrl ?? undefined}
-          sx={{ width: 28, height: 28, fontSize: 12 }}
+          style={{ width: 28, height: 28, fontSize: 12 } as ViewStyle & TextStyle}
         >
           {message.profile?.name?.[0] ?? '?'}
         </Avatar>
       )}
-      <Stack sx={{ alignItems: isMe ? 'flex-end' : 'flex-start', maxWidth: '70%' }}>
+      <Stack style={{ alignItems: isMe ? 'flex-end' : 'flex-start', maxWidth: '70%' }}>
         {!isMe && message.profile && (
-          <Typography variant="caption" color="text.secondary" sx={{ marginBottom: 2 }}>
+          <Typography variant="caption" color="text.secondary" style={{ marginBottom: 2 }}>
             {message.profile.name}
           </Typography>
         )}
         <Box
-          sx={{
+          style={{
             paddingHorizontal: 12,
             paddingVertical: 8,
             borderRadius: 16,
@@ -46,16 +47,16 @@ export function TripChatMessage({ message }: Props) {
             backgroundColor: isMe ? palette.primary : 'rgba(0,0,0,0.06)',
           }}
         >
-          <Typography variant="body2" sx={{ color: isMe ? '#fff' : palette.text }}>
+          <Typography variant="body2" style={{ color: isMe ? '#fff' : palette.text }}>
             {renderTextWithLinks(message.content)}
           </Typography>
         </Box>
         {externalLinks.length > 0 && (
-          <Box sx={{ width: '100%', marginTop: 8 }}>
+          <Box style={{ width: '100%', marginTop: 8 }}>
             <OgPreviewCard url={externalLinks[0]} />
           </Box>
         )}
-        <Typography variant="caption" color="text.secondary" sx={{ marginTop: 2 }}>
+        <Typography variant="caption" color="text.secondary" style={{ marginTop: 2 }}>
           {new Date(message.createdAt).toLocaleTimeString('ko-KR', {
             hour: '2-digit',
             minute: '2-digit',

@@ -54,7 +54,7 @@ export function SeasonalRegionsSummarySection() {
 export function SeasonalRegionsSummarySectionSkeleton() {
   return (
     <View style={{ gap: 12 }}>
-      <Skeleton width={200} height={28} sx={{ marginHorizontal: 16 }} />
+      <Skeleton width={200} height={28} style={{ marginHorizontal: 16 }} />
       <View style={{ flexDirection: 'row', gap: 8, paddingHorizontal: 16, overflow: 'hidden' }}>
         {Array.from({ length: 3 }).map((_, index) => (
           <View key={index} style={{ width: 150, flexShrink: 0, padding: 16, gap: 8, borderWidth: 1, borderColor: palette.divider, borderRadius: radius.lg }}>

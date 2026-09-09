@@ -26,7 +26,7 @@ function Resolved({ tripId, hideOnEmpty, ...props }: Props) {
 
 
   return (
-    <Stack gap={1} sx={{ width: '100%' }}>
+    <Stack gap={1} style={{ width: '100%' }}>
       <Typography variant="subtitle2" color="text.secondary">
         해야할 일
       </Typography>
@@ -39,7 +39,7 @@ function Resolved({ tripId, hideOnEmpty, ...props }: Props) {
             tripId={tripId}
           />
         ))
-      ) : <Typography variant="body2" color="text.secondary" sx={{ paddingVertical: 24 }}>모든 사항을 점검했어요</Typography>}
+      ) : <Typography variant="body2" color="text.secondary" style={{ paddingVertical: 24 }}>모든 사항을 점검했어요</Typography>}
       </Stack>
     </Stack>
   )

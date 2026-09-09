@@ -23,11 +23,11 @@ export function TripPinnedMemos(props: Props) {
 
 function Pending({ tripId: _tripId, hideOnEmpty: _hideOnEmpty, ...props }: Props) {
   return (
-    <Stack gap={1} sx={{ width: "100%" }} {...props}>
+    <Stack gap={1} style={{ width: "100%" }} {...props}>
       <Typography variant="subtitle2" color="text.secondary">
         고정된 메모
       </Typography>
-      <ListItem sx={{ width: "100%" }}>
+      <ListItem style={{ width: "100%" }}>
         <Skeleton variant='text' />
       </ListItem>
     </Stack>
@@ -41,12 +41,12 @@ function Resolved({ tripId, hideOnEmpty, ...props }: Props) {
   if (pinnedMemos.length === 0 && hideOnEmpty) return null;
 
   return (
-    <Stack gap={1} sx={{ width: "100%" }} {...props}>
+    <Stack gap={1} style={{ width: "100%" }} {...props}>
       <Typography variant="subtitle2" color="text.secondary">
         고정된 메모
       </Typography>
       {pinnedMemos.length === 0 ? (
-        <Typography variant="body2" color="text.secondary" sx={{ paddingVertical: 24 }}>
+        <Typography variant="body2" color="text.secondary" style={{ paddingVertical: 24 }}>
           고정된 메모가 없어요
         </Typography>
       ) : pinnedMemos.map((memo) => {
@@ -60,7 +60,7 @@ function Resolved({ tripId, hideOnEmpty, ...props }: Props) {
           <Pressable key={memo.id} onPress={() => router.push(`/trip/${tripId}/memo/${memo.id}`)}>
             <ListItem
               leftAddon={<MaterialIcons name="push-pin" size={16} color="#4C84FF" />}
-              sx={{ paddingVertical: 8 }}
+              style={{ paddingVertical: 8 }}
             >
               <Typography variant="caption">
                 {displayTitle}

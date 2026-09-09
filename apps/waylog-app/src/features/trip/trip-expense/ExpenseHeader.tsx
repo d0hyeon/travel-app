@@ -31,13 +31,13 @@ export function ExpenseHeader({ tripId }: Props) {
       gap={1}
       justifyContent="space-between"
       alignItems="flex-end"
-      sx={{ paddingHorizontal: 16, paddingVertical: 12, backgroundColor: palette.primary }}
+      style={{ paddingHorizontal: 16, paddingVertical: 12, backgroundColor: palette.primary }}
     >
-      <Stack alignItems="flex-start" sx={{ flex: 1 }}>
-        <Typography variant="caption" sx={{ color: '#fff' }}>
+      <Stack alignItems="flex-start" style={{ flex: 1 }}>
+        <Typography variant="caption" style={{ color: '#fff' }}>
           총 지출
         </Typography>
-        <Typography variant="h6" sx={{ color: '#fff' }}>
+        <Typography variant="h6" style={{ color: '#fff' }}>
           {formatCurrency(totalInKRW)}
         </Typography>
       </Stack>
@@ -79,7 +79,7 @@ function ExchangeRateField({ code, value, onSubmit }: FieldProps) {
         keyboardType="number-pad"
         value={draft}
         onChangeText={setDraft}
-        sx={{ minWidth: 90, color: '#fff', fontSize: 11, textAlign: 'right' }}
+        style={{ minWidth: 90, color: '#fff', fontSize: 11, textAlign: 'right' }}
         onBlur={() => {
           const rate = Number(draft.replace(/[^0-9.]/g, ''))
           if (rate > 0) onSubmit(rate)
@@ -93,7 +93,7 @@ function ExchangeRateField({ code, value, onSubmit }: FieldProps) {
     <Pressable onPress={() => setIsEditing(true)}>
       <Typography
         variant="caption"
-        sx={{ color: '#fff', fontSize: 11, textDecorationLine: 'underline' }}
+        style={{ color: '#fff', fontSize: 11, textDecorationLine: 'underline' }}
       >
         {code} {value.toLocaleString()}원
       </Typography>

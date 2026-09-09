@@ -53,12 +53,12 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
 
   return (
     <>
-      <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+      <Box style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
         <TripPlaceMapFloatingControls />
         {/* Map (전체) */}
         {/* 웹은 calc(%-10px) 를 쓰지만 RN 은 계산식을 못 읽는다. 비율만 남긴다. */}
         <Box
-          sx={{
+          style={{
             position: 'absolute',
             top: 0,
             left: 0,
@@ -127,7 +127,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
                     place={place}
                     onPress={() => handlePlaceClick(place)}
                     focused={place.id === focusedId}
-                    sx={{ borderColor: palette.primary }}
+                    style={{ borderColor: palette.primary }}
                   />
                 ))}
                 {candidatePlaces.map((place) => (

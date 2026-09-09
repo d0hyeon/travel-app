@@ -30,10 +30,10 @@ export function PlacePhotoSection({ tripId, placeId }: PlacePhotoSectionProps) {
 
   return (
     <Stack gap={1}>
-      <Typography variant="subtitle2" sx={{ fontWeight: '800' }}>사진</Typography>
-      <Stack direction="row" gap={1} sx={{ flexWrap: 'wrap' }}>
+      <Typography variant="subtitle2" style={{ fontWeight: '800' }}>사진</Typography>
+      <Stack direction="row" gap={1} style={{ flexWrap: 'wrap' }}>
         <Pressable onPress={() => void addPhoto()}>
-          <Box sx={{ width: 96, height: 96, flexShrink: 0, borderWidth: 2, borderStyle: 'dashed', borderColor: '#dddddd', borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+          <Box style={{ width: 96, height: 96, flexShrink: 0, borderWidth: 2, borderStyle: 'dashed', borderColor: '#dddddd', borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
             <MaterialIcons name="add-photo-alternate" size={30} color="#777" />
           </Box>
         </Pressable>

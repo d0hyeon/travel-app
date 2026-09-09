@@ -1,11 +1,11 @@
 import { LinearGradient } from 'expo-linear-gradient'
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated'
-import { StyleSheet, type LayoutChangeEvent, type StyleProp, type ViewStyle } from 'react-native'
+import { StyleSheet, type DimensionValue, type LayoutChangeEvent, type StyleProp, type ViewStyle } from 'react-native'
 import { Box } from './Box'
 
 export interface SkeletonProps {
-  width?: number | string
-  height?: number | string
+  width?: DimensionValue
+  height?: DimensionValue
   variant?: 'text' | 'rectangular' | 'rounded' | 'circular'
   style?: StyleProp<ViewStyle>
 }

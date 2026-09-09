@@ -54,7 +54,7 @@ export function MetaStep({ tripId, photos, onNext }: { tripId: string | null; ph
           <OverlayField label="공개 범위" value={VISIBILITY_OPTIONS.find((option) => option.value === visibility)?.label ?? ''} onPress={() => void editVisibility()} />
         </View>
       </ScrollView>
-      <BottomArea position="static" sx={{ borderTopWidth: 1, borderTopColor: palette.divider, marginBottom: keyboard?.height ?? 0 }}>
+      <BottomArea position="static" style={{ borderTopWidth: 1, borderTopColor: palette.divider, marginBottom: keyboard?.height ?? 0 }}>
         <Button
           variant="contained"
           size="large"

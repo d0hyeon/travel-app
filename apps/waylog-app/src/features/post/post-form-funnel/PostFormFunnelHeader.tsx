@@ -21,8 +21,8 @@ export function PostFormFunnelHeader({ navigation, route, options, startStep }: 
           <MaterialIcons name="chevron-left" size={28} color={palette.text} />
         </Pressable>
         <View style={{ flex: 1 }}>
-          <Typography sx={{ fontSize: 11.5, color: palette.textSecondary }}>새 포스트 · {stepIndex + 1}/{steps.length}</Typography>
-          <Typography sx={{ fontSize: 17, fontWeight: '700' }}>{options.title}</Typography>
+          <Typography style={{ fontSize: 11.5, color: palette.textSecondary }}>새 포스트 · {stepIndex + 1}/{steps.length}</Typography>
+          <Typography style={{ fontSize: 17, fontWeight: '700' }}>{options.title}</Typography>
         </View>
         <View style={{ flexDirection: 'row', gap: 4 }}>
           {steps.map((step, index) => (

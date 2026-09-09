@@ -33,7 +33,7 @@ export function PhotoStep({ tripId, defaultValue, onNext }: { tripId: string | n
         {tripId != null && <Suspense fallback={<PhotoGridSkeleton />}><SavedTripPhotos tripId={tripId} onLoad={addSavedPhotos} /></Suspense>}
         <PhotoGrid photos={availablePhotos} selectedIds={selectedIds} onToggle={toggle} />
       </ScrollView>
-      <BottomArea position="static" sx={{ borderTopWidth: 1, borderTopColor: palette.divider }}><Button variant="contained" size="large" fullWidth disabled={selectedPhotos.length === 0} onPress={() => onNext(selectedPhotos)}>다음 ({selectedPhotos.length}장)</Button></BottomArea>
+      <BottomArea position="static" style={{ borderTopWidth: 1, borderTopColor: palette.divider }}><Button variant="contained" size="large" fullWidth disabled={selectedPhotos.length === 0} onPress={() => onNext(selectedPhotos)}>다음 ({selectedPhotos.length}장)</Button></BottomArea>
     </View>
   )
 }

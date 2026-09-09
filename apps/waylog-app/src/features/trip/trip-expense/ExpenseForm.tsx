@@ -97,7 +97,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
           <Typography variant="caption" color="text.secondary">
             통화
           </Typography>
-          <Stack direction="row" gap={0.5} sx={{ flexWrap: 'wrap' }}>
+          <Stack direction="row" gap={0.5} style={{ flexWrap: 'wrap' }}>
             {currencies.map((item) => (
               <Chip
                 key={item.code}
@@ -114,7 +114,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
 
       <Stack gap={0.5}>
         <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Typography variant="subtitle2" sx={{ fontWeight: '800' }}>결제 금액</Typography>
+          <Typography variant="subtitle2" style={{ fontWeight: '800' }}>결제 금액</Typography>
           <Button size="small" onPress={addPayer} disabled={paymentFields.length >= members.length}>추가</Button>
         </Stack>
         {paymentFields.map((field, index) => (
@@ -123,10 +123,10 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
               control={control}
               name={`payments.${index}.memberId`}
               render={({ field: { value, onChange } }) => (
-                <Stack gap={0.5} sx={{ flex: 3 }}>
+                <Stack gap={0.5} style={{ flex: 3 }}>
                   <Pressable onPress={() => overlay.open(({ isOpen, close }) => (
                     <BottomSheet isOpen={isOpen} onDismiss={close} snapPoints={[0.4]} defaultSnapIndex={0} safeArea>
-                      <BottomSheet.Body sx={{ paddingHorizontal: 0, paddingVertical: 8 }}>
+                      <BottomSheet.Body style={{ paddingHorizontal: 0, paddingVertical: 8 }}>
                         {members.map((member) => (
                           <Pressable key={member.id} onPress={() => { onChange(member.id); close() }} style={{ paddingHorizontal: 20, paddingVertical: 16 }}>
                             <Typography>{member.name}</Typography>
@@ -145,10 +145,10 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
               control={control}
               name={`payments.${index}.amount`}
               render={({ field: { value, onChange } }) => (
-                <Stack sx={{ flex: 7, position: 'relative' }}>
+                <Stack style={{ flex: 7, position: 'relative' }}>
                   <TextField
                     placeholder="0"
-                    sx={{ textAlign: 'right', paddingRight: 72 }}
+                    style={{ textAlign: 'right', paddingRight: 72 }}
                     variant="standard"
                     keyboardType="number-pad"
                     value={value > 0 ? value.toLocaleString() : ''}
@@ -156,7 +156,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
                   />
                   {/* 통화는 지출 전체에 하나뿐이라 첫 행에서만 바꾼다. */}
                   {index === 0 && (
-                    <Stack sx={{ position: 'absolute', right: 0, bottom: 7 }}>
+                    <Stack style={{ position: 'absolute', right: 0, bottom: 7 }}>
                       <PopMenu
                         trigger={(
                           <Stack direction="row" alignItems="center" gap={0.5}>
@@ -166,7 +166,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
                         )}
                         items={Object.values(CurrencyCodeMap).map((code) => (
                           <PopMenu.Item key={code} onPress={() => setValue('currency', code)}>
-                            <Typography sx={{ color: currency === code ? '#4C84FF' : '#666' }}>
+                            <Typography style={{ color: currency === code ? '#4C84FF' : '#666' }}>
                               {CurrencyCodeLabel[code]}
                             </Typography>
                           </PopMenu.Item>
@@ -187,7 +187,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
       </Stack>
 
       <Stack gap={0.5}>
-        <Typography variant="subtitle2" sx={{ fontWeight: '800' }}>내용</Typography>
+        <Typography variant="subtitle2" style={{ fontWeight: '800' }}>내용</Typography>
         <Controller
           control={control}
           name="description"
@@ -205,7 +205,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
       </Stack>
 
       <Stack gap={0.5}>
-        <Typography variant="subtitle2" sx={{ fontWeight: '800' }}>날짜</Typography>
+        <Typography variant="subtitle2" style={{ fontWeight: '800' }}>날짜</Typography>
         <Controller
           control={control}
           name="date"
@@ -241,7 +241,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
                 onPress={() => setValue('placeId', place.placeId)}
                 icon={place.placeId === placeId ? <MaterialIcons name="check" size={18} color="#4C84FF" /> : undefined}
               >
-                <Typography sx={{ color: place.placeId === placeId ? '#4C84FF' : palette.text }}>
+                <Typography style={{ color: place.placeId === placeId ? '#4C84FF' : palette.text }}>
                   {place.name}
                 </Typography>
               </PopMenu.Item>
@@ -252,7 +252,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
 
       <Stack gap={1}>
         <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Typography variant="subtitle2" sx={{ fontWeight: '800' }}>누구와 나눌까요?</Typography>
+          <Typography variant="subtitle2" style={{ fontWeight: '800' }}>누구와 나눌까요?</Typography>
           <Button
             size="small"
             variant="text"
@@ -261,7 +261,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
             전체 선택
           </Button>
         </Stack>
-        <Stack direction="row" gap={0.5} sx={{ flexWrap: 'wrap' }}>
+        <Stack direction="row" gap={0.5} style={{ flexWrap: 'wrap' }}>
           {members.map((member) => {
             const included = splitAmong.includes(member.id)
 

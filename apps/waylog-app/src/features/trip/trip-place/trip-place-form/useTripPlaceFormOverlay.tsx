@@ -84,8 +84,8 @@ function PlaceFormSheet({ tripId, placeId, isOpen, onClose }: SheetProps) {
           삭제
         </Button>
       </BottomSheet.Header>
-      <BottomSheet.Body sx={{ paddingHorizontal: 16 }}>
-        <Stack direction="row" gap={1} sx={{ marginBottom: 16 }}>
+      <BottomSheet.Body style={{ paddingHorizontal: 16 }}>
+        <Stack direction="row" gap={1} style={{ marginBottom: 16 }}>
           <Chip label="네이버" variant="outlined" onPress={() => void Linking.openURL(`https://search.naver.com/search.naver?query=${encodeURIComponent(place.name)}`)} />
           <Chip label="인스타" variant="outlined" onPress={() => void Linking.openURL(`https://www.instagram.com/explore/search/keyword/?q=${encodeURIComponent(place.name.replaceAll(' ', ''))}`)} />
           <Chip label="구글" variant="outlined" onPress={() => void Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(place.name)}`)} />

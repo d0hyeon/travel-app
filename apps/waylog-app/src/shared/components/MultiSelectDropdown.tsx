@@ -55,7 +55,7 @@ export function MultiSelectDropdown({
         backgroundColor: 'rgba(255,255,255,0.92)',
       }}
     >
-      <Typography variant="body2" numberOfLines={1} sx={{ fontSize: 13, maxWidth: 180 }}>
+      <Typography variant="body2" numberOfLines={1} style={{ fontSize: 13, maxWidth: 180 }}>
         {getDisplayLabel(value, options, placeholder)}
       </Typography>
       <MaterialIcons name="keyboard-arrow-down" size={18} color={palette.textSecondary} />
@@ -87,7 +87,7 @@ function MultiSelectSheet({
   return (
     <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.7]} defaultSnapIndex={0}>
       <BottomSheet.Header>{placeholder}</BottomSheet.Header>
-      <BottomSheet.Body sx={{ paddingHorizontal: 16 }}>
+      <BottomSheet.Body style={{ paddingHorizontal: 16 }}>
         <Stack gap={0.5}>
           {options.map((option) => (
             <ListItem.Button
@@ -105,7 +105,7 @@ function MultiSelectSheet({
           ))}
         </Stack>
       </BottomSheet.Body>
-      <BottomSheet.BottomActions sx={{ paddingBottom: insets.bottom + 8 }}>
+      <BottomSheet.BottomActions style={{ paddingBottom: insets.bottom + 8 }}>
         <Button variant="outlined" fullWidth onPress={() => setPicked([])}>
           초기화
         </Button>

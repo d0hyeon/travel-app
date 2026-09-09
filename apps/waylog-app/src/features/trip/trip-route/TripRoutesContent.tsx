@@ -115,24 +115,24 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
 
   return (
     <>
-      <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+      <Box style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
         <FloatingControl corner="top-left" zIndex={8}>
           <TripWeatherIconButton tripId={tripId} />
         </FloatingControl>
         <TripRouteMapFloatingControls />
         {currentCoordinate != null && (
-          <FloatingControl corner="bottom-right" zIndex={8} sx={{ bottom: `${sheetRatio * 100}%` }}>
+          <FloatingControl corner="bottom-right" zIndex={8} style={{ bottom: `${sheetRatio * 100}%` }}>
             <IconButton
               size="small"
               onPress={() => mapRef.current?.panTo(currentCoordinate.lat, currentCoordinate.lng)}
-              sx={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
+              style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
             >
               <MaterialIcons name="my-location" size={20} color={palette.primary} />
             </IconButton>
           </FloatingControl>
         )}
         {/* 웹은 calc(%-10px) 를 쓰지만 RN 은 계산식을 못 읽는다. 비율만 남긴다. */}
-        <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `${sheetRatio * 100}%` }}>
+        <Box style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `${sheetRatio * 100}%` }}>
           <Map
             ref={mapRef}
             defaultCenter={currentCoordinate ?? { lat: trip.lat, lng: trip.lng }}
@@ -238,15 +238,15 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                 ))}
               </Tabs>
             )}
-            <BottomSheet.GestureArea sx={{ flex: 1, minHeight: 1 }}>
-              <Box sx={{ flex: 1, minHeight: 1 }}>
+            <BottomSheet.GestureArea style={{ flex: 1, minHeight: 1 }}>
+              <Box style={{ flex: 1, minHeight: 1 }}>
                 <SortableList
                   key={currentRoute?.id ?? 'empty'}
                   items={currentPlaces}
                   paddingHorizontal={16}
                   ref={listRef}
                   header={(
-                    <Box sx={{ marginTop: 8 }}>
+                    <Box style={{ marginTop: 8 }}>
                       <TripRouteSelector.Chip
                         tripId={tripId}
                         date={selectedDate}
@@ -262,7 +262,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                         }
                       />
                       {(currentRoute == null || currentRoute.places.length === 0) && (
-                        <Typography variant="caption" color="text.secondary" sx={{ paddingVertical: 24 }}>
+                        <Typography variant="caption" color="text.secondary" style={{ paddingVertical: 24 }}>
                           지도에서 장소를 눌러 경로에 추가하세요
                         </Typography>
                       )}
@@ -300,9 +300,9 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                               </SortableItem.Handle>
                             )}
                             title={
-                              <Stack direction="row" alignItems="center" gap={0.5} sx={{ flex: 1, minWidth: 0 }}>
+                              <Stack direction="row" alignItems="center" gap={0.5} style={{ flex: 1, minWidth: 0 }}>
                                 <Dot>
-                                  <Typography sx={{ color: '#fff', fontSize: 11, fontWeight: '900' }}>
+                                  <Typography style={{ color: '#fff', fontSize: 11, fontWeight: '900' }}>
                                     {idx + 1}
                                   </Typography>
                                 </Dot>

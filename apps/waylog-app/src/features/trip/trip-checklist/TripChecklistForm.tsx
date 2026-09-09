@@ -77,7 +77,7 @@ export const TripChecklistForm = forwardRef<TripChecklistFormRef, Props>(
 
         <Stack gap={0.5}>
           <Stack direction="row" alignItems="center" gap={1}>
-            <Stack sx={{ flex: 1 }}>
+            <Stack style={{ flex: 1 }}>
               <Controller
                 control={control}
                 name="startedAt"
@@ -95,7 +95,7 @@ export const TripChecklistForm = forwardRef<TripChecklistFormRef, Props>(
             <Typography variant="caption" color="text.secondary">
               ~
             </Typography>
-            <Stack sx={{ flex: 1 }}>
+            <Stack style={{ flex: 1 }}>
               <Controller
                 control={control}
                 name="endedAt"
@@ -138,7 +138,7 @@ export const TripChecklistForm = forwardRef<TripChecklistFormRef, Props>(
             <Typography variant="caption" color="text.secondary">
               담당자
             </Typography>
-            <Stack direction="row" gap={0.5} sx={{ flexWrap: 'wrap' }}>
+            <Stack direction="row" gap={0.5} style={{ flexWrap: 'wrap' }}>
               {members.map((member) => (
                 <Chip
                   key={member.id}

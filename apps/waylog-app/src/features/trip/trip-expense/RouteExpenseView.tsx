@@ -101,9 +101,9 @@ export function RouteExpenseView({ tripId }: Props) {
   }
 
   return (
-    <Stack sx={{ flex: 1 }} gap={4}>
-      <Box sx={{ height: 360 }}>
-        <Map ref={mapRef} sx={{ height: 360 }} defaultCenter={{ lat: trip.lat, lng: trip.lng }} autoFocus="path">
+    <Stack style={{ flex: 1 }} gap={4}>
+      <Box style={{ height: 360 }}>
+        <Map ref={mapRef} style={{ height: 360 }} defaultCenter={{ lat: trip.lat, lng: trip.lng }} autoFocus="path">
           {[
             // AIRMap 은 지도용이 아닌 자식을 만나면 내부 배열이 깨진다.
             // 경로와 마커를 하나의 평탄한 배열로 넘긴다.
@@ -155,10 +155,10 @@ export function RouteExpenseView({ tripId }: Props) {
               key={date}
               gap={1}
               onLayout={captureDayOffset(dayIndex)}
-              sx={{ opacity: activeDayIndex === dayIndex ? 1 : 0.5 }}
+              style={{ opacity: activeDayIndex === dayIndex ? 1 : 0.5 }}
             >
               <Stack direction="row" justifyContent="space-between" alignItems="center">
-                <Typography variant="subtitle2" color="primary" sx={{ fontWeight: '800' }}>
+                <Typography variant="subtitle2" color="primary" style={{ fontWeight: '800' }}>
                   {dayIndex + 1}일차 · {formatShortDate(date)}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
@@ -181,10 +181,10 @@ export function RouteExpenseView({ tripId }: Props) {
                         key={`${place.routeId}:${place.id}`}
                         onPress={() => mapRef.current?.panTo(place.lat, place.lng)}
                       >
-                        <Box sx={{ borderWidth: 1, borderColor: '#dddddd', borderRadius: 16, padding: 16 }}>
+                        <Box style={{ borderWidth: 1, borderColor: '#dddddd', borderRadius: 16, padding: 16 }}>
                           <Stack direction="row" alignItems="center" gap={1}>
                             <Box
-                              sx={{
+                              style={{
                                 width: 24,
                                 height: 24,
                                 borderRadius: 12,
@@ -193,25 +193,25 @@ export function RouteExpenseView({ tripId }: Props) {
                                 justifyContent: 'center',
                               }}
                             >
-                              <Typography sx={{ color: '#fff', fontWeight: '800' }}>
+                              <Typography style={{ color: '#fff', fontWeight: '800' }}>
                                 {place.orderInRoute + 1}
                               </Typography>
                             </Box>
-                            <Typography sx={{ flex: 1, fontWeight: '700' }}>{place.name}</Typography>
+                            <Typography style={{ flex: 1, fontWeight: '700' }}>{place.name}</Typography>
                             <Typography color="primary">{amount > 0 ? formatCurrency(amount) : '-'}</Typography>
                             <IconButton size="small" onPress={() => addExpense(place)}>
                               <MaterialIcons name="playlist-add" size={22} color={palette.primary} />
                             </IconButton>
                           </Stack>
                           {placeExpenses.length > 0 && (
-                            <Stack gap={0.5} sx={{ marginLeft: 24, marginRight: 12, paddingTop: 12 }}>
+                            <Stack gap={0.5} style={{ marginLeft: 24, marginRight: 12, paddingTop: 12 }}>
                               {placeExpenses.map((expense) => (
                                 <Pressable key={expense.id} onPress={() => editExpense(place, expense.id)}>
                                   <Stack
                                     direction="row"
                                     alignItems="center"
                                     gap={1}
-                                    sx={{
+                                    style={{
                                       minHeight: 48,
                                       backgroundColor: '#f5f5f5',
                                       borderWidth: 1,
@@ -221,16 +221,16 @@ export function RouteExpenseView({ tripId }: Props) {
                                       paddingVertical: 6,
                                     }}
                                   >
-                                    <Typography variant="body2" sx={{ flex: 1 }}>
+                                    <Typography variant="body2" style={{ flex: 1 }}>
                                       {expense.description}
                                     </Typography>
-                                    <Typography variant="caption" color="text.secondary" sx={{ flexShrink: 0 }}>
+                                    <Typography variant="caption" color="text.secondary" style={{ flexShrink: 0 }}>
                                       {expense.payments
                                         .map((payment) => members.find((member) => member.id === payment.memberId)?.name)
                                         .filter(Boolean)
                                         .join(' ')}
                                     </Typography>
-                                    <Typography variant="body2" sx={{ flexShrink: 0 }}>
+                                    <Typography variant="body2" style={{ flexShrink: 0 }}>
                                       +{formatByCurrencyCode(expense.totalAmount, expense.currency)}
                                     </Typography>
                                   </Stack>

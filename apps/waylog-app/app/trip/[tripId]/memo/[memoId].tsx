@@ -26,18 +26,18 @@ function Resolved() {
   const memo = memos.find((item) => item.id === memoId)
 
   if (!memo) {
-    return <Typography sx={{ padding: 24, textAlign: 'center' }}>메모를 찾을 수 없어요</Typography>
+    return <Typography style={{ padding: 24, textAlign: 'center' }}>메모를 찾을 수 없어요</Typography>
   }
 
   const urls = extractUrls(memo.content)
 
   return (
-    <Stack sx={{ flex: 1 }}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ padding: 8 }}>
+    <Stack style={{ flex: 1 }}>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" style={{ padding: 8 }}>
         <IconButton onPress={() => router.back()}>
           <MaterialIcons name="arrow-back" size={24} />
         </IconButton>
-        <Typography variant="subtitle1" numberOfLines={1} sx={{ flex: 1, paddingHorizontal: 8 }}>
+        <Typography variant="subtitle1" numberOfLines={1} style={{ flex: 1, paddingHorizontal: 8 }}>
           {memo.title || '메모'}
         </Typography>
         <PopMenu
@@ -66,7 +66,7 @@ function Resolved() {
         <Typography variant="caption" color="text.secondary">
           {formatDate(memo.createdAt, 'yyyy년 M월 d일 a h:mm')}
         </Typography>
-        <Typography variant={memo.title ? 'body2' : 'body1'} sx={{ whiteSpace: 'pre-wrap' }}>
+        <Typography variant={memo.title ? 'body2' : 'body1'}>
           {renderTextWithLinks(memo.content)}
         </Typography>
         {urls.length > 0 && <OgPreviewCard url={urls[0]} />}
