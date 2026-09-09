@@ -114,7 +114,7 @@ apps/
 │   │   └── shared/
 │   │       ├── components/
 │   │       │   ├── mui/        # MUI 호환 계층 — 웹 코드를 그대로 옮기기 위함
-│   │       │   ├── Map/        # react-native-maps 구현
+│   │       │   ├── Map/        # @rnmapbox/maps 구현
 │   │       │   ├── bottom-sheet/ # 자체 구현 (Reanimated) — 웹과 같은 공개 API. Body 레이아웃·ScrollView 제스처
 │   │       │   ├── action-sheet/ # 하단 액션 시트 (Modal + 슬라이드업). PopMenu 가 트리거를 얹어 쓴다
 │   │       │   ├── date-picker/ # 날짜·기간·시각 선택 (바텀시트 + 스와이프 달력)
