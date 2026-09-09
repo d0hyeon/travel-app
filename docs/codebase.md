@@ -114,7 +114,8 @@ apps/
 │   │   └── shared/
 │   │       ├── components/
 │   │       │   ├── mui/        # MUI 호환 계층 — 웹 코드를 그대로 옮기기 위함
-│   │       │   ├── Map/        # @rnmapbox/maps 구현. 클러스터 외형은 NativeMapCluster.utils.ts
+│   │       │   ├── Map/        # @rnmapbox/maps 구현. 클러스터 외형은 NativeMapCluster.utils.ts,
+│   │       │   │                #   카메라는 useMapCamera, 클러스터 전이는 useClusterTransition
 │   │       │   ├── bottom-sheet/ # 자체 구현 (Reanimated) — 웹과 같은 공개 API. Body 레이아웃·ScrollView 제스처
 │   │       │   ├── action-sheet/ # 하단 액션 시트 (Modal + 슬라이드업). PopMenu 가 트리거를 얹어 쓴다
 │   │       │   ├── date-picker/ # 날짜·기간·시각 선택 (바텀시트 + 스와이프 달력)
@@ -929,6 +930,25 @@ ref 로 붙잡아야 끌던 도중 스냅이 바뀌어도 제스처가 갈아끼
 원은 아래로 떨어지는 그림자와 사방으로 번지는 발광을 겹쳐 지도 배경과 분리한다.
 발광은 한 단계 옅은 단계의 배경색을 쓰되, 소형은 아래 단계가 없어 한 단계 진한 색을 쓴다.
 클러스터링 계산 자체는 웹과 공유하는 `@waylog/domains`의 `cluster.core.ts`가 담당한다.
+좌표→픽셀 투영도 같은 파일의 `createZoomToPixel`(Web Mercator)을 웹·앱이 함께 쓴다.
+zoom 이 같으면 지도를 이동해도 픽셀 거리가 보존되어 그룹핑이 흔들리지 않는다.
+클러스터 식별자는 소속 마커 전체가 아니라 대표 마커 하나로 정한다. 마커가 드나들어도
+같은 클러스터로 남아 이동 모션을 이어갈 수 있다.
+
+`clusterGridSize`는 화면 픽셀을 뜻한다. 투영이 돌려주는 값은 월드 픽셀이므로
+`useMapMarkerRegistry.utils.ts`가 뷰포트 폭으로 환산한다. 이 환산이 없으면 줌인할수록
+화면 기준 반경이 좁아져 클러스터가 계속 갈라진다.
+
+앱 지도의 카메라는 `useMapCamera`가 다룬다. `useLazyCamera`는 제스처가 이어지는 동안
+반영을 미루고 손을 뗀 순간 확정하며(네이티브 `onMapIdle`은 타일 로딩까지 기다려 늦다),
+`useCameraControl`은 이동 명령과 애니메이션 시간을 맡는다. `NativeMap`은 둘을 조립만 한다.
+클러스터링 중에는 카메라를 알기 전까지 마커를 그리지 않는다 — 개별 마커가 먼저 보였다가
+클러스터로 바뀌면 깜빡인다.
+
+클러스터 전이는 `useClusterTransition`이 추적한다. 마커 id 교집합으로 흡수처와 출처를 찾아
+이동·병합·분산을 잇고, 사라진 클러스터는 빨려들어가는 동안 렌더 목록에 남긴다. 출발점은
+렌더 시점에 계산해야 한다 — effect 로 미루면 이미 목적지에 마운트된 뒤라 움직일 구간이 없다.
+단일 마커로 갈라지는 경우는 모션 없이 전환한다.
 
 ## 2026-08 앱 포팅 현황
 
