@@ -1,6 +1,7 @@
 import Mapbox from '@rnmapbox/maps'
-import Svg, { Circle, Text as SvgText } from 'react-native-svg'
-import { Pressable } from 'react-native'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
+import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
+import { formatClusterCount, resolveClusterAppearance } from './NativeMapCluster.utils'
 
 interface Props {
   latitude: number
@@ -10,35 +11,115 @@ interface Props {
   onTap?: () => void
 }
 
-function getStyle(count: number) {
-  if (count >= 100) return { size: 64, color: '#e53935', ring: 'rgba(229,57,53,0.3)' }
-  if (count >= 10) return { size: 56, color: '#fb8c00', ring: 'rgba(251,140,0,0.3)' }
-  return { size: 48, color: '#4C84FF', ring: 'rgba(76,132,255,0.3)' }
-}
+const MIN_TOUCH_TARGET_SIZE = 56
+const PRESSED_SCALE = 0.92
 
 export function NativeMapCluster({ latitude, longitude, count, onTap }: Props) {
-  const { size, color, ring } = getStyle(count)
-  const half = size / 2
+  const {
+    size,
+    fontSize,
+    background,
+    textColor,
+    glowColor,
+    glowRadius,
+    glowOpacity,
+    shadowOpacity,
+    shadowRadius,
+    shadowOffsetY,
+    elevation,
+    rings = [],
+  } = resolveClusterAppearance(count)
+
+  const scale = useSharedValue(1)
+  const pressedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.get() }] }))
+
+  const circle = (
+    <View
+      style={[
+        styles.glow,
+        toCircle(size),
+        { shadowColor: glowColor, shadowOpacity: glowOpacity, shadowRadius: glowRadius, elevation },
+      ]}
+    >
+      <View
+        style={[
+          styles.circle,
+          toCircle(size),
+          {
+            backgroundColor: background,
+            shadowOpacity,
+            shadowRadius,
+            shadowOffset: { width: 0, height: shadowOffsetY },
+          },
+        ]}
+      >
+        <Text style={[styles.count, { color: textColor, fontSize }]}>{formatClusterCount(count)}</Text>
+      </View>
+    </View>
+  )
+
+  const ringedCircle = rings.reduce(
+    (wrapped, ring, depth) => {
+      const wrappedSize = size + sumRingWidths(rings.slice(0, depth + 1)) * 2
+
+      return (
+        <View style={[styles.stack, toCircle(wrappedSize), { backgroundColor: ring.color }]}>{wrapped}</View>
+      )
+    },
+    circle,
+  )
+
+  const outerSize = size + sumRingWidths(rings) * 2
+  const touchTargetSize = Math.max(outerSize, MIN_TOUCH_TARGET_SIZE)
 
   return (
     <Mapbox.MarkerView coordinate={[longitude, latitude]} anchor={{ x: 0.5, y: 0.5 }} allowOverlap>
-      <Pressable onPress={onTap}>
-        <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-          <Circle cx={half} cy={half} r={half} fill={ring} />
-          <Circle cx={half} cy={half} r={half - 6} fill={color} stroke="#fff" strokeWidth={2} />
-          <SvgText
-            x={half}
-            y={half}
-            fill="#fff"
-            fontSize={count >= 100 ? 16 : 18}
-            fontWeight="bold"
-            textAnchor="middle"
-            alignmentBaseline="central"
-          >
-            {String(count)}
-          </SvgText>
-        </Svg>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`${count}개의 장소가 모여 있습니다`}
+        onPress={onTap}
+        onPressIn={() => {
+          scale.set(withTiming(PRESSED_SCALE, { duration: 90 }))
+        }}
+        onPressOut={() => {
+          scale.set(withSpring(1, { damping: 15, stiffness: 220 }))
+        }}
+      >
+        <View style={[styles.touchArea, { width: touchTargetSize, height: touchTargetSize }]}>
+          <Animated.View style={pressedStyle}>{ringedCircle}</Animated.View>
+        </View>
       </Pressable>
     </Mapbox.MarkerView>
   )
 }
+
+function toCircle(size: number) {
+  return { width: size, height: size, borderRadius: size / 2 }
+}
+
+function sumRingWidths(rings: { width: number }[]) {
+  return rings.reduce((total, ring) => total + ring.width, 0)
+}
+
+const styles = StyleSheet.create({
+  touchArea: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stack: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  glow: {
+    shadowOffset: { width: 0, height: 0 },
+  },
+  circle: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#0B1B3A',
+  },
+  count: {
+    fontWeight: '700',
+    includeFontPadding: false,
+  },
+})
