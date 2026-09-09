@@ -14,6 +14,21 @@ export interface Pixel {
 
 export type ToPixel = (coord: Coordinate) => Pixel;
 
+const TILE_SIZE = 256;
+
+export function createZoomToPixel(zoom: number): ToPixel {
+  const worldSize = 2 ** zoom * TILE_SIZE;
+
+  return ({ lat, lng }) => {
+    const sinLat = Math.sin((lat * Math.PI) / 180);
+
+    return {
+      x: ((lng + 180) / 360) * worldSize,
+      y: (0.5 - Math.log((1 + sinLat) / (1 - sinLat)) / (4 * Math.PI)) * worldSize,
+    };
+  };
+}
+
 /**
  * 마커를 픽셀 거리 기반으로 그룹핑한다. 좌표→픽셀 변환은 provider가 주입한다.
  * center는 plain Coordinate로 반환하며, 지도 SDK 좌표 객체로의 변환은 소비처의 책임이다.

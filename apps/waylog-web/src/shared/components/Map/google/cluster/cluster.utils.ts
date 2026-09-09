@@ -1,5 +1,5 @@
-import { clusterMarkers, type Cluster, type Pixel } from '../../cluster.core';
-import type { Coordinate, MarkerData } from '../../types';
+import { clusterMarkers, createZoomToPixel, type Cluster } from '../../cluster.core';
+import type { MarkerData } from '../../types';
 import { createPositionedOverlay, renderMarker } from '../marker.renderers';
 
 export type { Cluster };
@@ -36,14 +36,6 @@ function renderClusterGroupEntry(cluster: Cluster, map: google.maps.Map, onClust
   return () => cleanups.forEach(cleanup => cleanup())
 }
 
-function latLngToPixel({ lat, lng }: Coordinate, zoom: number): Pixel {
-  const scale = Math.pow(2, zoom);
-  const x = (lng + 180) / 360 * scale * 256;
-  const sinLat = Math.sin(lat * Math.PI / 180);
-  const y = (0.5 - Math.log((1 + sinLat) / (1 - sinLat)) / (4 * Math.PI)) * scale * 256;
-  return { x, y };
-}
-
 export function createClusters(markers: MarkerData[], zoom: number, gridSize: number): Cluster[] {
-  return clusterMarkers(markers, coord => latLngToPixel(coord, zoom), gridSize);
+  return clusterMarkers(markers, createZoomToPixel(zoom), gridSize);
 }
