@@ -18,7 +18,8 @@ import { sxToStyle, type Sx } from '../mui'
 
 Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN ?? '')
 
-const VIEWPORT_PADDING_RATIO = 0.2
+// 화면 밖까지 미리 묶어둔다. 이동 직후 클러스터가 뒤늦게 나타나는 것을 줄인다.
+const VIEWPORT_PADDING_RATIO = 0.4
 
 // 클러스터를 눌렀을 때 묶인 마커들 주위로 남길 여백. 작을수록 바짝 당긴다.
 const CLUSTER_TAP_PADDING = 100
