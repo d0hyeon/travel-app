@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { BottomArea } from '../../../shared/components/BottomArea'
 import { DatePicker } from '../../../shared/components/date-picker'
 import type { DateSelection } from '../../../shared/components/date-picker'
-import { Button } from '../../../shared/components/mui'
+import { Button } from '~/shared/components/design-system'
 
 interface Props {
   defaultValue: [string, string] | null

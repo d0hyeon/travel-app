@@ -1,7 +1,7 @@
 import { forwardRef, useImperativeHandle } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Stack } from '../../../shared/components/mui'
-import { TextField } from '../../../shared/components/mui/TextField'
+import { Stack } from '~/shared/components/design-system'
+import { TextField } from '~/shared/components/design-system/TextField'
 
 export interface MemoFormValues {
   title: string

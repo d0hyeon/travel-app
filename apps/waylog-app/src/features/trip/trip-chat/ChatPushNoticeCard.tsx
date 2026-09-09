@@ -3,8 +3,8 @@ import { useState } from 'react'
 import { useNativePushSubscription } from '../../auth/useNativePushSubscription'
 import { SlideReveal } from '../../../shared/components/animation/SlideReveal'
 import { NotificationCard } from '../../../shared/components/notification-card/NotificationCard'
-import { Button } from '../../../shared/components/mui'
-import type { Sx } from '../../../shared/components/mui'
+import { Button } from '~/shared/components/design-system'
+import type { Sx } from '~/shared/components/design-system'
 
 interface Props {
   sx?: Sx

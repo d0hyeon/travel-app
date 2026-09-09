@@ -1,6 +1,6 @@
 import { Pressable, View, useWindowDimensions } from 'react-native'
 import { useRouter } from 'expo-router'
-import { Typography } from '../../shared/components/mui'
+import { Typography } from '~/shared/components/design-system'
 import { LoadableImage } from '../../shared/components/LoadableImage'
 import { useUserPostPhotos } from './useUserPostPhotos'
 

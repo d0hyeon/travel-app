@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { MaterialIcons } from '@expo/vector-icons'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { ListItem } from '../../../shared/components/ListItem'
-import { Button, Stack, Typography } from '../../../shared/components/mui'
+import { Button, Stack, Typography } from '~/shared/components/design-system'
 
 interface PlaceSelectSheetProps {
   isOpen: boolean

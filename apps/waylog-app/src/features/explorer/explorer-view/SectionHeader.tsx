@@ -1,5 +1,5 @@
 import { Pressable, View } from 'react-native'
-import { Typography } from '../../../shared/components/mui'
+import { Typography } from '~/shared/components/design-system'
 
 interface Props {
   title: string

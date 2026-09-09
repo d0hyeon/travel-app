@@ -1,6 +1,6 @@
 import { useState, useTransition } from 'react'
 import { BottomArea } from '../../../shared/components/BottomArea'
-import { Box, Button, TextField, Typography } from '../../../shared/components/mui'
+import { Box, Button, TextField, Typography } from '~/shared/components/design-system'
 
 interface Props {
   destination: string

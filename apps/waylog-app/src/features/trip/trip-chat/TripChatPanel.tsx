@@ -3,7 +3,7 @@ import { useTripChatMessages, markAsRead, useChatActivation } from '@waylog/doma
 import { Suspense, useMemo, useState, type ReactNode } from 'react'
 import { FlatList, KeyboardAvoidingView, Platform, TextInput } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { IconButton, Skeleton, Stack, Typography } from '../../../shared/components/mui'
+import { IconButton, Skeleton, Stack, Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../../shared/config/tokens'
 import { ChatPushNoticeCard } from './ChatPushNoticeCard'
 import { TripChatMessage } from './TripChatMessage'

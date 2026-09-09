@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { useTrip } from '@waylog/domains/modules/trip'
 import { useRouter } from 'expo-router'
 import { Pressable } from 'react-native'
-import { Stack, Typography } from '../../../shared/components/mui'
+import { Stack, Typography } from '~/shared/components/design-system'
 
 interface Props {
   tripId: string

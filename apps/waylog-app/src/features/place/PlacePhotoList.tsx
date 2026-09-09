@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Pressable, ScrollView, useWindowDimensions } from 'react-native'
 import { BottomSheet } from '../../shared/components/bottom-sheet/BottomSheet'
 import { LoadableImage } from '../../shared/components/LoadableImage'
-import { Typography } from '../../shared/components/mui'
+import { Typography } from '~/shared/components/design-system'
 import { useOverlay } from '../../shared/hooks/useOverlay'
 import { usePlacePhotos } from './usePlacePhotos'
 

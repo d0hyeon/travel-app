@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import type { RouteLeg } from '@waylog/domains/modules/route'
 import { formatDistance, formatDuration } from '@waylog/utility'
 import { palette } from '../../../shared/config/tokens'
-import { Typography, type StackProps } from '../../../shared/components/mui'
+import { Typography, type StackProps } from '~/shared/components/design-system'
 import { TransportIcon } from './TransportIcon'
 
 // 경로 순서를 나타내는 번호 원. 연결선이 이 폭의 중심에 정렬되도록 크기를 공유한다.

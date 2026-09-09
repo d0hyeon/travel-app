@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { useCallback } from 'react'
 import { FullScreenPopup } from '../../../shared/components/FullScreenPopup'
-import { IconButton } from '../../../shared/components/mui'
+import { IconButton } from '~/shared/components/design-system'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { TripChatPanel } from './TripChatPanel'
 

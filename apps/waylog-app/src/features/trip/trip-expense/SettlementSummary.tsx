@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { Box, Stack, Typography } from "../../../shared/components/mui"
+import { Box, Stack, Typography } from "~/shared/components/design-system"
 import { convertToKRW } from '@waylog/domains/modules/expense'
 import { formatCurrency } from '@waylog/domains/modules/expense'
 import { MemberAvatar } from '../trip-member/MemberAvatar'

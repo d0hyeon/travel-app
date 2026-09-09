@@ -1,7 +1,7 @@
 import { PostVisibility, type PostVisibility as PostVisibilityValue } from '@waylog/domains/modules/post'
 import { useState } from 'react'
 import { Pressable, View } from 'react-native'
-import { Typography } from '../../../../shared/components/mui'
+import { Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../../../shared/config/tokens'
 
 export const VISIBILITY_OPTIONS = [

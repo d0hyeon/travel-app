@@ -1,5 +1,5 @@
 import { assert } from '@waylog/utility'
-import { Avatar, Stack, Typography, type StackProps } from '../../shared/components/mui'
+import { Avatar, Stack, Typography, type StackProps } from '~/shared/components/design-system'
 import { useUserProfile } from './useUserProfile'
 
 export const UserProfileSize = {

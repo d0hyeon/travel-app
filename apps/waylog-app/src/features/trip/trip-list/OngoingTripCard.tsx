@@ -2,7 +2,7 @@ import { formatTripDate, getTripDuration, getTripProgress, type Trip } from '@wa
 import { MaterialIcons } from '@expo/vector-icons'
 import { differenceInDays, set, startOfToday } from 'date-fns'
 import { Pressable } from 'react-native'
-import { Box, Stack, Typography } from '../../../shared/components/mui'
+import { Box, Stack, Typography } from '~/shared/components/design-system'
 import { TripUnreadCountBadge } from '../trip-chat/TripUnreadCountBadge'
 
 interface Props {

@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Suspense } from 'react'
 import { ScrollView } from 'react-native'
-import { Box, Fab, Stack, Typography } from '../../shared/components/mui'
+import { Box, Fab, Stack, Typography } from '~/shared/components/design-system'
 import { palette } from '../../shared/config/tokens'
 import { PostCard } from './PostCard'
 

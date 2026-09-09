@@ -1,4 +1,4 @@
-import { Button, type ButtonProps } from "../../../shared/components/mui/Button";
+import { Button, type ButtonProps } from "~/shared/components/design-system/Button";
 import { usePlaceSearchBottomSheet } from "../../place/place-search/usePlaceSearchBottomSheet";
 import { useTrip } from "@waylog/domains/modules/trip";
 import { useTripPlaces } from '@waylog/domains/modules/trip';

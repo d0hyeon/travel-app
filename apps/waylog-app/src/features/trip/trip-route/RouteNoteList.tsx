@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Pressable } from 'react-native'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
-import { Button, Stack, TextField, Typography } from '../../../shared/components/mui'
+import { Button, Stack, TextField, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../shared/config/tokens'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 

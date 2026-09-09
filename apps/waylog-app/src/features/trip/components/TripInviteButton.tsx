@@ -1,7 +1,7 @@
 import { useTrip } from '@waylog/domains/modules/trip'
 import { Share } from 'react-native'
-import { Button } from '../../../shared/components/mui'
-import type { ButtonProps } from '../../../shared/components/mui/Button'
+import { Button } from '~/shared/components/design-system'
+import type { ButtonProps } from '~/shared/components/design-system/Button'
 
 interface Props extends ButtonProps {
   tripId: string

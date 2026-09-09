@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { Box, Stack } from "../../../shared/components/mui";
-import { Chip } from "../../../shared/components/mui/Chip";
+import { Box, Stack } from "~/shared/components/design-system";
+import { Chip } from "~/shared/components/design-system/Chip";
 import { type ComponentProps } from "react";
 import { PlaceCategoryColorCode, type TripPlace } from '@waylog/domains/modules/place';
 import { ListItem } from "../../../shared/components/ListItem";

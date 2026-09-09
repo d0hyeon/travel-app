@@ -1,10 +1,10 @@
 import { useDailyWeatherForecast, type UseDailyWeatherForecastParams } from '@waylog/domains/modules/weather'
 import type { DayPart } from '@waylog/domains/modules/weather'
 import { Suspense } from 'react'
-import { Box, Skeleton, Stack, Typography } from '../../shared/components/mui'
+import { Box, Skeleton, Stack, Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../shared/config/tokens'
 import { WeatherIcon } from './WeatherIcon'
-import type { Sx } from '../../shared/components/mui'
+import type { Sx } from '~/shared/components/design-system'
 
 interface Props extends UseDailyWeatherForecastParams {
   dayPart?: DayPart

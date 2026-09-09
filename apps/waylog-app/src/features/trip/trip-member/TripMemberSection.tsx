@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router'
 import { Suspense } from 'react'
 import { Pressable } from 'react-native'
 import { ListItem } from '../../../shared/components/ListItem'
-import { Skeleton, Stack, Typography } from '../../../shared/components/mui'
+import { Skeleton, Stack, Typography } from '~/shared/components/design-system'
 import { TripInviteButton } from '../components/TripInviteButton'
 import { MemberAvatar } from './MemberAvatar'
 

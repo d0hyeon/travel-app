@@ -1,7 +1,7 @@
 import * as ImagePicker from 'expo-image-picker'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Pressable } from 'react-native'
-import { Box, Stack, Typography } from '../../../shared/components/mui'
+import { Box, Stack, Typography } from '~/shared/components/design-system'
 import { LoadableImage } from '../../../shared/components/LoadableImage'
 import { usePlacePhotos } from './useTripPlacePhotos'
 

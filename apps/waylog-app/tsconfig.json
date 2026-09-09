@@ -1,6 +1,10 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "strict": true
+    "strict": true,
+    "paths": {
+      "~/shared/components/design-system": ["./src/shared/components/design-system/index.ts"],
+      "~/shared/components/design-system/*": ["./src/shared/components/design-system/*"]
+    }
   }
 }

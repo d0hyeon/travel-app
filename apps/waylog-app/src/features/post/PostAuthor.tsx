@@ -1,4 +1,4 @@
-import { Box, Stack, Typography } from '../../shared/components/mui'
+import { Box, Stack, Typography } from '~/shared/components/design-system'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Pressable, type GestureResponderEvent } from 'react-native'
 import { palette } from '../../shared/config/tokens'

@@ -2,7 +2,7 @@ import { getTripYear, groupTripsByStatus, useTrips } from '@waylog/domains/modul
 import { useRouter } from 'expo-router'
 import { Pressable, ScrollView } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Box, Fab, Stack, Typography } from '../../../shared/components/mui'
+import { Box, Fab, Stack, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../shared/config/tokens'
 import { CreateTripCard } from './CreateTripCard'
 import { OngoingTripCard } from './OngoingTripCard'

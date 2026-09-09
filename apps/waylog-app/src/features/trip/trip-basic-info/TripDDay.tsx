@@ -1,4 +1,4 @@
-import { Box, Skeleton, Typography, type BoxProps } from '../../../shared/components/mui'
+import { Box, Skeleton, Typography, type BoxProps } from '~/shared/components/design-system'
 import { useCountAnimation } from '../../../shared/hooks/animation/useCountdownAnimation'
 import { useTrip } from '@waylog/domains/modules/trip'
 

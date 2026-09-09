@@ -1,7 +1,7 @@
 import { useOpenGraph } from '@waylog/domains/modules/open-graph'
 import { Suspense } from 'react'
 import { Linking, Pressable } from 'react-native'
-import { Box, Skeleton, Stack, Typography } from '../../shared/components/mui'
+import { Box, Skeleton, Stack, Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../shared/config/tokens'
 import { LoadableImage } from '../../shared/components/LoadableImage'
 

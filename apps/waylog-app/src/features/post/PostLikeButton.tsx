@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { usePostLikes } from '@waylog/domains/modules/post'
 import { Pressable } from 'react-native'
-import { Stack, Typography } from '../../shared/components/mui'
+import { Stack, Typography } from '~/shared/components/design-system'
 import { palette } from '../../shared/config/tokens'
 
 export function PostLikeButton({ postId }: { postId: string }) {

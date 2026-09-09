@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { Pressable } from 'react-native'
-import { Box, Stack, Typography } from '../../../shared/components/mui'
+import { Box, Stack, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../shared/config/tokens'
 
 export function CreateTripCard({ onPress }: { onPress: () => void }) {

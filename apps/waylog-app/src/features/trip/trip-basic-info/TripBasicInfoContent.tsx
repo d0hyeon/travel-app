@@ -1,5 +1,5 @@
 import { ScrollView } from 'react-native'
-import { Box, Stack, Tab, Tabs, Typography } from "../../../shared/components/mui"
+import { Box, Stack, Tab, Tabs, Typography } from "~/shared/components/design-system"
 import { Suspense } from 'react'
 import { BottomArea } from "../../../shared/components/BottomArea"
 import { ErrorBoundary } from '@waylog/react'

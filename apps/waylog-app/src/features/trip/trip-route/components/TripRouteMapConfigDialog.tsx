@@ -1,5 +1,5 @@
 import type { ModalProps } from 'react-native'
-import { Switch } from '../../../../shared/components/mui'
+import { Switch } from '~/shared/components/design-system'
 import { MapConfigDialog } from '../../../../shared/components/MapConfigDialog'
 import { useTripViewConfig } from '../useTripViewConfig'
 

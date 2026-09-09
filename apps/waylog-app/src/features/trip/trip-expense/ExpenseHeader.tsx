@@ -9,7 +9,7 @@ import {
 import { useTrip } from '@waylog/domains/modules/trip'
 import { useState } from 'react'
 import { Pressable } from 'react-native'
-import { Stack, TextField, Typography } from '../../../shared/components/mui'
+import { Stack, TextField, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../shared/config/tokens'
 import { useExpenseSummary } from './useExpenseSummary'
 

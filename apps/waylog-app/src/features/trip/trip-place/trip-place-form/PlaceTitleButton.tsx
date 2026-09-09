@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { Pressable } from 'react-native'
-import { Stack, Typography, type TypographyVariant } from '../../../../shared/components/mui'
+import { Stack, Typography, type TypographyVariant } from '~/shared/components/design-system'
 
 interface PlaceTitleButtonProps {
   /** 표시할 장소명 */

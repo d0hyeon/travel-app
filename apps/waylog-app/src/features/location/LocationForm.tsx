@@ -2,8 +2,8 @@ import type { Location } from '@waylog/domains/modules/location'
 import { LocationGroups, LocationOptions } from '@waylog/domains/modules/location'
 import { createContext, useContext, useState, type ReactNode } from 'react'
 import { ScrollView } from 'react-native'
-import { Box, Chip, Stack, Typography } from '../../shared/components/mui'
-import { Button } from '../../shared/components/mui'
+import { Box, Chip, Stack, Typography } from '~/shared/components/design-system'
+import { Button } from '~/shared/components/design-system'
 
 // 웹 LocationForm 과 같은 공개 인터페이스를 유지한다.
 // 웹은 react-hook-form 으로 유효성을 다루지만 값이 배열 하나뿐이라

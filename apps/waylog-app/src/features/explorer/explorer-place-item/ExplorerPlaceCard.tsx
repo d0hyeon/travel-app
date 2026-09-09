@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { PlaceCategoryColorCode, PlaceCategoryTypeLabel, type PlaceCategoryType } from '@waylog/domains/modules/place'
 import { Pressable, View } from 'react-native'
 import { palette, radius } from '../../../shared/config/tokens'
-import { Typography } from '../../../shared/components/mui'
+import { Typography } from '~/shared/components/design-system'
 import { LoadableImage } from '../../../shared/components/LoadableImage'
 
 interface PlaceCardData {

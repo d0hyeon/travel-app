@@ -1,6 +1,6 @@
 import { formatTripDate, getDaysUntil, getTripDuration, type Trip } from '@waylog/domains/modules/trip'
 import { Pressable } from 'react-native'
-import { Box, Chip, Stack, Typography } from '../../../shared/components/mui'
+import { Box, Chip, Stack, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../shared/config/tokens'
 import { TripUnreadCountBadge } from '../trip-chat/TripUnreadCountBadge'
 

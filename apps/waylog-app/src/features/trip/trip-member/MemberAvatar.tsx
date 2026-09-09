@@ -1,7 +1,7 @@
 import type { TripMember } from '@waylog/domains/modules/trip-member'
 import { palette } from '../../../shared/config/tokens'
-import { Box, Typography } from '../../../shared/components/mui'
-import type { Sx } from '../../../shared/components/mui'
+import { Box, Typography } from '~/shared/components/design-system'
+import type { Sx } from '~/shared/components/design-system'
 import { LoadableImage } from '../../../shared/components/LoadableImage'
 
 interface Props {

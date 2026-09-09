@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { Box, Button, Fab, Skeleton, Stack, Typography } from '../../../shared/components/mui';
+import { Box, Button, Fab, Skeleton, Stack, Typography } from '~/shared/components/design-system';
 import { Suspense, useRef } from 'react';
 import { useRouter } from 'expo-router';
 import { Pressable } from 'react-native';

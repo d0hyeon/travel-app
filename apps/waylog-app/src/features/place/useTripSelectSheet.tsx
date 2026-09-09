@@ -2,7 +2,7 @@ import { formatTripDate, getTripDuration, type Trip } from '@waylog/domains/modu
 import { useCallback } from 'react'
 import { Pressable } from 'react-native'
 import { BottomSheet } from '../../shared/components/bottom-sheet/BottomSheet'
-import { Chip, Stack, Typography } from '../../shared/components/mui'
+import { Chip, Stack, Typography } from '~/shared/components/design-system'
 import { useOverlay } from '../../shared/hooks/useOverlay'
 
 /** @package { place-detail/PlaceDetailSheet.tsx } */

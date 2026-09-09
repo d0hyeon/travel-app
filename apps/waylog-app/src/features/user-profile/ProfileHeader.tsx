@@ -1,4 +1,4 @@
-import { Avatar, Stack, Typography } from '../../shared/components/mui'
+import { Avatar, Stack, Typography } from '~/shared/components/design-system'
 import { palette } from '../../shared/config/tokens'
 import { useUserProfile } from './useUserProfile'
 

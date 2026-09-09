@@ -21,7 +21,7 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Typography,
-} from '../../../shared/components/mui'
+} from '~/shared/components/design-system'
 import { DailyWeatherInfoBox } from '../../weather/DailyWeatherInfoBox'
 import { isPageWithinRenderWindow } from '../../../shared/components/pagerWindow'
 import { toForecastPages, toPageIndex } from './weatherForecastPager'

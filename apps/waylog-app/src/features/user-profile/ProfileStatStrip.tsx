@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Stack, Typography } from '../../shared/components/mui'
+import { Stack, Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../shared/config/tokens'
 import { countUniqueCountries } from './user-profile.utils'
 import { useUserPhotos } from './useUserPhotos'

@@ -9,7 +9,7 @@ import {
   CircularProgress,
   Stack,
   Typography,
-} from '../../../shared/components/mui'
+} from '~/shared/components/design-system'
 import { palette } from '../../../shared/config/tokens'
 
 export function TripInviteScreen() {

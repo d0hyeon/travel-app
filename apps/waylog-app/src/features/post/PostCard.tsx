@@ -9,7 +9,7 @@ import {
   type NativeSyntheticEvent,
 } from 'react-native'
 import React from 'react'
-import { Box, Stack, Typography } from '../../shared/components/mui'
+import { Box, Stack, Typography } from '~/shared/components/design-system'
 import { palette } from '../../shared/config/tokens'
 import { PostAuthor } from './PostAuthor'
 import { PostLikeButton } from './PostLikeButton'

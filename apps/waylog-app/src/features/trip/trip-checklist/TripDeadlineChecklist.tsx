@@ -1,4 +1,4 @@
-import { Skeleton, Stack, Typography, type StackProps } from "../../../shared/components/mui";
+import { Skeleton, Stack, Typography, type StackProps } from "~/shared/components/design-system";
 import { TripChecklist } from './TripChecklist';
 import { useTripChecklist } from '@waylog/domains/modules/trip-checklist';
 import { ListItem } from "../../../shared/components/ListItem";

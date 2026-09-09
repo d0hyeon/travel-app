@@ -1,7 +1,7 @@
 import { useTripChecklist } from '@waylog/domains/modules/trip-checklist'
 import { useRef } from 'react'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
-import { Button } from '../../../shared/components/mui'
+import { Button } from '~/shared/components/design-system'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { TripChecklistForm, type TripChecklistFormRef, type TripChecklistFormValue } from './TripChecklistForm'
 

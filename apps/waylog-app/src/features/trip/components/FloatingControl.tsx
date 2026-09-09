@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Stack, type StackProps } from '../../../shared/components/mui'
+import { Stack, type StackProps } from '~/shared/components/design-system'
 
 type FloatingCorner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
 

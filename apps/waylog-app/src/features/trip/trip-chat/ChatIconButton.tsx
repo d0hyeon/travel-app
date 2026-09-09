@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { useUnreadChatCount } from '@waylog/domains/modules/trip-chat'
 import { Suspense } from 'react'
-import { Badge, IconButton } from '../../../shared/components/mui'
+import { Badge, IconButton } from '~/shared/components/design-system'
 import { useTripChatOverlay } from './useTripChatOverlay'
 
 interface Props {

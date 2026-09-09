@@ -4,7 +4,7 @@ import { useDayTripRoutes, useTrip, useTripPlaces } from '@waylog/domains/module
 import { PlaceCategoryColorCode } from '@waylog/domains/modules/place'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Fragment, Suspense, useMemo, useRef, useState } from 'react'
-import { Box, Button, Chip, IconButton, Stack, Tab, Tabs, Typography } from '../../../shared/components/mui'
+import { Box, Button, Chip, IconButton, Stack, Tab, Tabs, Typography } from '~/shared/components/design-system'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { ListItem } from '../../../shared/components/ListItem'
 import { SortableItem, SortableList, type SortableListRef } from '../../../shared/components/dnd/SortableList'

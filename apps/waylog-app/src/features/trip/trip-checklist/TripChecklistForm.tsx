@@ -4,7 +4,7 @@ import { endOfDay, format as formatDate } from 'date-fns'
 import { forwardRef, useImperativeHandle } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { DateField } from '../../../shared/components/date-picker'
-import { Chip, Stack, TextField, Typography } from '../../../shared/components/mui'
+import { Chip, Stack, TextField, Typography } from '~/shared/components/design-system'
 
 // 웹과 저장 형식을 맞춘다.
 const DATE_TIME_PATTERN = 'yyyy-MM-dd HH:mm'

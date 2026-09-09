@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { ToggleButton, ToggleButtonGroup } from '../../../shared/components/mui'
+import { ToggleButton, ToggleButtonGroup } from '~/shared/components/design-system'
 import type { ExplorerViewMode } from './useExplorerViewMode'
 
 interface Props {

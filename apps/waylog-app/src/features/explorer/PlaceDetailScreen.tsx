@@ -5,7 +5,7 @@ import { ActivityIndicator, Pressable, ScrollView, View, useWindowDimensions } f
 import { Suspense, useState } from 'react'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Map } from '../../shared/components/Map'
-import { Tab, Tabs, Typography } from '../../shared/components/mui'
+import { Tab, Tabs, Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../shared/config/tokens'
 import { BottomSheet } from '../../shared/components/bottom-sheet/BottomSheet'
 import { useOverlay } from '../../shared/hooks/useOverlay'

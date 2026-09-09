@@ -4,7 +4,7 @@ import type { Coordinate, MapBounds, MapProvider, MapRef } from '@waylog/domains
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { ActivityIndicator, FlatList, View } from 'react-native'
 import { Map } from '../../../shared/components/Map'
-import { Button, Chip } from '../../../shared/components/mui'
+import { Button, Chip } from '~/shared/components/design-system'
 import { ListItem } from '../../../shared/components/ListItem'
 import { palette } from '../../../shared/config/tokens'
 

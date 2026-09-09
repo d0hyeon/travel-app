@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router'
 import { getCoordinateByLocation, type Location } from '@waylog/domains/modules/location'
 import { View } from 'react-native'
 import { Map } from '../../../shared/components/Map'
-import { Typography } from '../../../shared/components/mui'
+import { Typography } from '~/shared/components/design-system'
 import { buildExplorerPlaceDetailPath } from '../explorer.utils'
 
 interface ExplorerMapPlace {

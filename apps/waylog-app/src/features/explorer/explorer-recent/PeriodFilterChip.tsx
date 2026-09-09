@@ -1,6 +1,6 @@
 import { Pressable, View } from 'react-native'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
-import { Chip, Typography } from '../../../shared/components/mui'
+import { Chip, Typography } from '~/shared/components/design-system'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import type { RecentHotPeriodMonths } from './recentHotPeriod.constants'
 import { RECENT_HOT_PERIOD_OPTIONS } from './recentHotPeriod.constants'

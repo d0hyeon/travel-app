@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { Skeleton, Stack, Typography, type StackProps } from "../../../shared/components/mui";
+import { Skeleton, Stack, Typography, type StackProps } from "~/shared/components/design-system";
 import { Suspense } from "react";
 import { Pressable } from 'react-native';
 import { useRouter } from 'expo-router';

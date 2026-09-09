@@ -1,4 +1,4 @@
-import { Skeleton, Stack, Typography, type StackProps } from "../../../shared/components/mui";
+import { Skeleton, Stack, Typography, type StackProps } from "~/shared/components/design-system";
 import { Suspense } from "react";
 import { formatShortDate } from "@waylog/utility";
 import { useTrip } from "@waylog/domains/modules/trip";

@@ -1,8 +1,8 @@
 import { useUnreadChatCount } from '@waylog/domains/modules/trip-chat'
 import { Suspense } from 'react'
-import { Box, Typography } from '../../../shared/components/mui'
+import { Box, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../shared/config/tokens'
-import type { Sx } from '../../../shared/components/mui'
+import type { Sx } from '~/shared/components/design-system'
 
 interface Props {
   tripId: string

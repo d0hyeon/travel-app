@@ -3,7 +3,7 @@ import { useTrips, type Trip } from '@waylog/domains/modules/trip'
 import { useState } from 'react'
 import { Pressable, ScrollView, View } from 'react-native'
 import { BottomArea } from '../../../../shared/components/BottomArea'
-import { Button, Typography } from '../../../../shared/components/mui'
+import { Button, Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../../../shared/config/tokens'
 
 type TripSelection = string | 'none' | null

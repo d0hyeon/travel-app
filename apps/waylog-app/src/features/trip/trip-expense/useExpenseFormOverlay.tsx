@@ -1,6 +1,6 @@
 import { useCallback, useRef, type ComponentProps, type ReactNode } from 'react'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
-import { Button } from '../../../shared/components/mui'
+import { Button } from '~/shared/components/design-system'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { ExpenseForm, type ExpenseFormRef, type ExpenseFormValues } from './ExpenseForm'
 

@@ -21,7 +21,7 @@ import {
   Tab,
   Tabs,
   Typography,
-} from '../../../shared/components/mui'
+} from '~/shared/components/design-system'
 import { palette, radius } from '../../../shared/config/tokens'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 

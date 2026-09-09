@@ -1,4 +1,4 @@
-import { TextField } from '../../../../shared/components/mui'
+import { TextField } from '~/shared/components/design-system'
 
 interface Props {
   value: string

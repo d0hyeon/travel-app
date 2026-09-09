@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { Box, Skeleton, Stack, Typography, type StackProps } from "../../../shared/components/mui";
-import { Checkbox } from "../../../shared/components/mui/Checkbox";
-import { Chip } from "../../../shared/components/mui/Chip";
+import { Box, Skeleton, Stack, Typography, type StackProps } from "~/shared/components/design-system";
+import { Checkbox } from "~/shared/components/design-system/Checkbox";
+import { Chip } from "~/shared/components/design-system/Chip";
 import { PopMenu } from "../../../shared/components/PopMenu";
 import { differenceInDays, formatDate, isAfter, isBefore } from "date-fns";
 import { Suspense, useMemo, type ComponentProps, type MouseEvent } from "react";

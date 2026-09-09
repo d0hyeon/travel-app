@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { Box } from '../../../../shared/components/mui';
+import { Box } from '~/shared/components/design-system';
 import type { ReactNode } from 'react';
 import type { TripPlace } from '@waylog/domains/modules/place';
 import { ListItem } from '../../../../shared/components/ListItem';

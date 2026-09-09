@@ -1,8 +1,8 @@
 import { useAuth } from '@waylog/domains/clients'
 import { useTrip } from '@waylog/domains/modules/trip'
 import { useRouter } from 'expo-router'
-import { Button } from '../../../shared/components/mui'
-import type { ButtonProps } from '../../../shared/components/mui/Button'
+import { Button } from '~/shared/components/design-system'
+import type { ButtonProps } from '~/shared/components/design-system/Button'
 import { useConfirmDialog } from '../../../shared/components/confirm-dialog/useConfirmDialog'
 
 interface Props extends ButtonProps {
