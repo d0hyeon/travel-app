@@ -7,7 +7,7 @@ import { Fragment, Suspense, useMemo, useRef, useState } from 'react'
 import { Box, Button, Chip, IconButton, Stack, Tab, Tabs, Typography } from '../../../shared/components/mui'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { ListItem } from '../../../shared/components/ListItem'
-import { SortableItem, SortableList } from '../../../shared/components/dnd/SortableList'
+import { SortableItem, SortableList, type SortableListRef } from '../../../shared/components/dnd/SortableList'
 import { Map, type MapRef } from '../../../shared/components/Map'
 import { BottomArea } from '../../../shared/components/BottomArea'
 import { useCurrentCoordinate } from '../../../shared/hooks/env/useCurrentCoordinate'
@@ -99,11 +99,18 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
 
       if (selectedDate === today) {
         const nearestPlace = findNearestPlace(coordinate, currentRoute?.places ?? [])
-        if (nearestPlace != null) setFocusedId(nearestPlace.id)
+        if (nearestPlace != null) focusPlace(nearestPlace.id)
       }
     },
   })
   const [focusedId, setFocusedId] = useState<string | null>(null)
+  const listRef = useRef<SortableListRef>(null)
+
+  // 포커스와 목록 스크롤을 함께 옮긴다. 지도에서 장소를 고를 때 쓴다.
+  const focusPlace = (placeId: string) => {
+    setFocusedId(placeId)
+    listRef.current?.scrollToItem(placeId)
+  }
   const [sheetRatio, setSheetRatio] = useState(DEFAULT_BOTTOM_SHEET_RATIO)
 
   return (
@@ -170,7 +177,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                     color={isInCurrentRoute && place.category ? PlaceCategoryColorCode[place.category] : 'disabled'}
                     onClick={() => {
                       if (isInCurrentRoute) {
-                        setFocusedId(place.id)
+                        focusPlace(place.id)
                         mapRef.current?.panTo(place.lat, place.lng)
                       }
                       overlay.open(({ isOpen, close }) => (
@@ -237,7 +244,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                   key={currentRoute?.id ?? 'empty'}
                   items={currentPlaces}
                   paddingHorizontal={16}
-                  scrollToId={focusedId}
+                  ref={listRef}
                   header={(
                     <Box sx={{ marginTop: 8 }}>
                       <TripRouteSelector.Chip

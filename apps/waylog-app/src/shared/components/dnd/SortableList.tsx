@@ -1,4 +1,14 @@
-import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+  type Ref,
+} from 'react'
 import { Pressable, type FlatList } from 'react-native'
 import { Gesture } from 'react-native-gesture-handler'
 import { runOnJS } from 'react-native-reanimated'
@@ -36,9 +46,12 @@ type Props<T extends { id: string }> = {
   header?: ReactNode
   /** 목록 좌우 여백. 행과 헤더에 함께 적용된다. */
   paddingHorizontal?: number
-  /** 이 id 의 항목이 보이도록 스크롤한다. 지도에서 장소를 고를 때 쓴다. */
-  scrollToId?: string | null
   children?: ReactNode
+}
+
+export type SortableListRef = {
+  /** 이 id 의 항목이 보이도록 스크롤한다. 지도에서 장소를 고를 때 쓴다. */
+  scrollToItem: (id: string) => void
 }
 
 // 핸들이 자기 행을 끌 수 있게 드래그 시작 함수를 내려준다.
@@ -51,8 +64,8 @@ export function SortableList<T extends { id: string }>({
   disabled,
   header,
   paddingHorizontal = 0,
-  scrollToId,
-}: Props<T>) {
+  ref,
+}: Props<T> & { ref?: Ref<SortableListRef> }) {
   const [items, setItems] = useState(_items);
   const [activeIndex, setActiveIndex] = useState(-1);
 
@@ -60,14 +73,19 @@ export function SortableList<T extends { id: string }>({
 
   const listRef = useRef<FlatList<T>>(null)
 
-  useEffect(() => {
-    if (scrollToId == null) return
+  // 스크롤은 호출부가 원하는 시점에 한 번만 일어나야 한다.
+  // 이펙트로 두면 목록이 바뀔 때마다(예: 드래그 정렬) 다시 스크롤된다.
+  const itemsRef = useRef(items)
+  itemsRef.current = items
 
-    const index = items.findIndex((item) => item.id === scrollToId)
-    if (index < 0) return
+  useImperativeHandle(ref, () => ({
+    scrollToItem: (id: string) => {
+      const index = itemsRef.current.findIndex((item) => item.id === id)
+      if (index < 0) return
 
-    listRef.current?.scrollToIndex({ index, viewPosition: 0.5, animated: true })
-  }, [scrollToId, items])
+      listRef.current?.scrollToIndex({ index, viewPosition: 0.5, animated: true })
+    },
+  }), [])
   const handleDragStart = ({ index }: { index: number }) => {
     'worklet'
     runOnJS(setActiveIndex)(index)
