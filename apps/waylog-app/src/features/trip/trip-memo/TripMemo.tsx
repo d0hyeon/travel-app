@@ -10,6 +10,7 @@ import { TripMemoForm, type TripMemoFormRef } from './TripMemoForm';
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet';
 import { formatDate } from 'date-fns';
 import { getMemoDisplayTitle } from './memoTitle';
+import { FLOATING_TAB_BAR_RESERVE } from '../../../shared/components'
 
 interface Props {
   tripId: string;
@@ -153,7 +154,7 @@ const styles = StyleSheet.create({
   container: { height: '100%', position: 'relative' },
   content: { flex: 1 },
   emptyMessage: { textAlign: 'center', paddingVertical: 48 },
-  addButton: { position: 'absolute', bottom: 16, right: 16 },
+  addButton: { position: 'absolute', bottom: 16 + FLOATING_TAB_BAR_RESERVE, right: 16 },
   formBody: { paddingHorizontal: 16 },
   memoRow: { paddingHorizontal: 16, paddingVertical: 12 },
   memoText: { flex: 1, minWidth: 0 },
