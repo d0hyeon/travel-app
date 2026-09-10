@@ -16,6 +16,7 @@ import { useRecommendedPlaceDetailOverlay } from '../trip-recommend/RecommendedP
 import { TripPlaceItemButton } from './TripPlaceItemButton';
 import { TripPlaceMapFloatingControls } from './TripPlaceMapFloatingControls';
 import { useTripPlaces } from '@waylog/domains/modules/trip';
+import { FLOATING_TAB_BAR_RESERVE } from '../../../shared/components'
 
 // 웹은 zoom 이 커질수록 축소되는 스케일(레벨)을 쓰지만, 앱(deltaToZoom)은 반대로
 // zoom 이 커질수록 확대된다. 웹의 MICRO_ZOOM_LEVEL(8, "이 이상 축소되면")과 같은
@@ -161,7 +162,7 @@ const styles = StyleSheet.create({
   mapArea: { position: 'absolute', top: 0, left: 0, right: 0 },
   fabArea: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: zLayer.mapFab },
   addPlaceButton: { position: 'absolute', bottom: 16, right: 16, width: 52, height: 52, borderRadius: 26 },
-  listContent: { paddingHorizontal: 12, paddingBottom: 40 },
+  listContent: { paddingHorizontal: 12, paddingBottom: 40 + FLOATING_TAB_BAR_RESERVE },
   listHeading: { marginBottom: 12 },
   selectedPlace: { borderColor: palette.primary },
 })

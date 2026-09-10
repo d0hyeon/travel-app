@@ -31,6 +31,7 @@ import { useTripViewConfigValue } from './useTripViewConfig'
 import { getRouteColor } from '../trip-expense/routeExpenseView.utils'
 import { TripRouteConfigToolbar } from './TripRouteConfigToolbar'
 import { getItemOffsetY, ITEM_HEIGHT } from '~/shared/components/design-system/menu-fab/menuFabMotion'
+import { FLOATING_TAB_BAR_RESERVE } from '../../../shared/components'
 
 const BOTTOM_SHEET_RATIOS = [0.25, 0.5, 0.8, 1] as const
 const DEFAULT_BOTTOM_SHEET_RATIO = 0.5 satisfies (typeof BOTTOM_SHEET_RATIOS)[number]
@@ -287,6 +288,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                   key={currentRoute?.id ?? 'empty'}
                   items={currentPlaces}
                   paddingHorizontal={16}
+                  paddingBottom={40 + FLOATING_TAB_BAR_RESERVE}
                   ref={listRef}
                   onSort={(changed) => {
                     if (currentRoute == null) return
