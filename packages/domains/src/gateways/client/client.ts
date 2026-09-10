@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { setGovernmentApiServiceKey } from './governmentApi'
+import { setBoundaryBaseUrl } from '../../modules/map'
 import type { Database } from './_database.types'
 import type { AuthService } from '../auth/auth.types'
 import { configureAuthService } from '../auth/auth.service'
@@ -11,15 +12,21 @@ export type ApiConfig = {
   auth: AuthService
   storage: PlatformStorage
   governmentKey?: string
+  boundaryBaseUrl?: string
 }
 
 let supabaseInstance: SupabaseClient<Database> | null = null
 
-export function initializeClient({ client, auth, storage, governmentKey }: ApiConfig) {
+export function initializeClient({ client, auth, storage, governmentKey, boundaryBaseUrl }: ApiConfig) {
   supabaseInstance = client
 
   if (governmentKey != null) {
     setGovernmentApiServiceKey(governmentKey)
+  }
+
+  // 앱은 정적 파일을 자기가 서빙하지 않아 웹 주소를 받아야 지역 경계를 그린다.
+  if (boundaryBaseUrl != null) {
+    setBoundaryBaseUrl(boundaryBaseUrl)
   }
 
   configureAuthService(auth)

@@ -11,6 +11,7 @@ import {
   fetchCountryCityBoundaries,
   fetchCountryRegionBoundaries,
   fetchWorldBoundaries,
+  getCachedCountryBoundaries,
 } from './boundary/boundary.data'
 import {
   getCountryCoordinateGroups,
@@ -46,21 +47,40 @@ export async function getLocationCoordinates({
   const country = getCountryByLocation(location)
   if (!country) return null
 
-  const coordinate = getCoordinateByLocation(location)
-  const region = getRegionByLocation(location)
-  const resolvedLevel = level === 'auto'
-    ? country === Country.한국 && region !== location
-      ? 'city'
-      : 'region'
-    : level
-
+  const resolvedLevel = resolveCoordinateLevel(location, country, level)
   const boundary = resolvedLevel === 'city'
     ? await fetchCountryCityBoundaries(country)
     : await fetchCountryRegionBoundaries(country)
 
-  return getLocationCoordinatesFromBoundary(boundary, {
-    location,
-    lat: coordinate.lat,
-    lng: coordinate.lng,
-  })
+  return getLocationCoordinatesFromBoundary(boundary, toBoundaryDefinition(location))
+}
+
+/**
+ * 이미 받아둔 경계에서만 좌표를 찾는다. 없으면 받아오지 않고 null 이다.
+ * 경계가 있으면 그리고 없으면 마는 화면이 쓴다.
+ */
+export function getCachedLocationCoordinates(location: Location): Coordinate[][] | null {
+  const country = getCountryByLocation(location)
+  if (!country) return null
+
+  const boundary = getCachedCountryBoundaries(country)
+  if (!boundary) return null
+
+  return getLocationCoordinatesFromBoundary(boundary, toBoundaryDefinition(location))
+}
+
+function toBoundaryDefinition(location: Location) {
+  const coordinate = getCoordinateByLocation(location)
+  return { location, lat: coordinate.lat, lng: coordinate.lng }
+}
+
+function resolveCoordinateLevel(
+  location: Location,
+  country: Country,
+  level: LocationCoordinateLevel,
+) {
+  if (level !== 'auto') return level
+
+  const isKoreanCity = country === Country.한국 && getRegionByLocation(location) !== location
+  return isKoreanCity ? 'city' : 'region'
 }

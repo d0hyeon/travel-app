@@ -200,6 +200,9 @@ eslint.config.js                # 레포 전역 lint 설정 + 의존성
 
 - 환경변수를 직접 읽지 않는다. 각 앱이 Supabase client·인증 adapter를 생성해 `initializeClient()`로 주입한다
 - 플랫폼 raw storage도 각 앱이 생성해 `initializeClient({ storage })`로 주입한다. 공용 패키지는 동기 캐시 어댑터만 소유한다
+- 지역 경계 geojson(`/visit-layer/*`)은 웹 `public/`이 서빙한다. 웹은 상대 경로로
+  받고, 앱은 붙을 origin이 없어 `initializeClient({ boundaryBaseUrl })`로 웹 주소를
+  주입받는다(`EXPO_PUBLIC_WEB_BASE_URL`). 주입하지 않으면 상대 경로 그대로다
 - 컴포넌트(`.tsx`)를 두지 않는다
 - MUI·react-router·브라우저 전역 API(`window`, `document`, `HTMLElement`,
   `requestAnimationFrame`, `localStorage`, IndexedDB 등)에 의존하지 않는다
