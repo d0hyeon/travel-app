@@ -3,6 +3,7 @@ import type { ComponentProps } from 'react'
 import { palette, radius } from '../config/tokens'
 import { ErrorBoundary } from '@waylog/react'
 import { Button, Stack, Typography } from '~/shared/components/design-system'
+import { CommonErrorAlert } from './CommonErrorAlert'
 
 const ERROR_MAIN = '#d32f2f'
 const ERROR_SURFACE = '#fdeded'
@@ -13,26 +14,10 @@ export function CommonErrorBoundary(props: ComponentProps<typeof ErrorBoundary>)
   return (
     <ErrorBoundary
       fallback={({ error, resetError }) => (
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          gap={8}
-          style={styles.container}
-        >
-          <Stack gap={2} style={styles.message}>
-            <Typography variant="subtitle1" color={ERROR_MAIN}>
-              에러가 발생했어요!
-            </Typography>
-            <Typography variant="caption" color={palette.textSecondary}>
-              {error.message}
-            </Typography>
-          </Stack>
-
-          <Button size="small" variant="contained" color="error" onPress={resetError}>
-            재시도
-          </Button>
-        </Stack>
+        <CommonErrorAlert
+          message={error.message}
+          action={<CommonErrorAlert.RetryButton onPress={resetError} />}
+        />
       )}
       {...props}
     />
