@@ -328,6 +328,80 @@ $$;
 ALTER FUNCTION "public"."get_routes_with_places_by_trip_id"("p_trip_id" "uuid") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."get_recommended_place_candidates"(
+  "p_trip_id" "uuid",
+  "p_destinations" "text"[]
+)
+RETURNS TABLE(
+  "trip_place_id" "uuid",
+  "place_id" "uuid",
+  "trip_id" "uuid",
+  "trip_start_date" "text",
+  "category" "text",
+  "provider" "text",
+  "external_id" "text",
+  "name" "text",
+  "address" "text",
+  "lat" double precision,
+  "lng" double precision,
+  "photo_urls" "text"[],
+  "is_confirmed" boolean,
+  "is_hidden" boolean
+)
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+    AS $$
+  WITH other_trips AS (
+    SELECT t.id, t.start_date
+    FROM trips t
+    WHERE t.destination = ANY(p_destinations)
+      AND t.id <> p_trip_id
+  ),
+  route_flags AS (
+    SELECT
+      tp_id AS trip_place_id,
+      bool_or(r.place_ids @> ARRAY[tp_id]) AS is_confirmed,
+      bool_or(r.hidden_places @> ARRAY[tp_id]) AS is_hidden
+    FROM routes r
+    JOIN other_trips ot ON ot.id = r.trip_id
+    JOIN LATERAL unnest(
+      COALESCE(r.place_ids, '{}'::uuid[]) || COALESCE(r.hidden_places, '{}'::uuid[])
+    ) AS tp_id ON TRUE
+    GROUP BY tp_id
+  )
+  SELECT
+    tp.id AS trip_place_id,
+    tp.place_id AS place_id,
+    tp.trip_id,
+    ot.start_date AS trip_start_date,
+    tp.category,
+    pl.provider,
+    pl.external_id,
+    pl.name,
+    COALESCE(pl.address, '') AS address,
+    pl.lat,
+    pl.lng,
+    COALESCE(
+      ARRAY(
+        SELECT ph.url FROM photos ph
+        WHERE ph.place_id = pl.id AND ph.is_public = true
+      ),
+      '{}'::text[]
+    ) AS photo_urls,
+    COALESCE(rf.is_confirmed, false) AS is_confirmed,
+    COALESCE(rf.is_hidden, false) AS is_hidden
+  FROM trip_places tp
+  JOIN other_trips ot ON ot.id = tp.trip_id
+  JOIN places pl ON pl.id = tp.place_id
+  LEFT JOIN route_flags rf ON rf.trip_place_id = tp.id;
+$$;
+
+ALTER FUNCTION "public"."get_recommended_place_candidates"("p_trip_id" "uuid", "p_destinations" "text"[]) OWNER TO "postgres";
+
+GRANT ALL ON FUNCTION "public"."get_recommended_place_candidates"("p_trip_id" "uuid", "p_destinations" "text"[]) TO "anon";
+GRANT ALL ON FUNCTION "public"."get_recommended_place_candidates"("p_trip_id" "uuid", "p_destinations" "text"[]) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."get_recommended_place_candidates"("p_trip_id" "uuid", "p_destinations" "text"[]) TO "service_role";
+
+
 CREATE OR REPLACE FUNCTION "public"."get_trip_by_share_link"("link" "uuid") RETURNS SETOF "public"."trips"
     LANGUAGE "sql" SECURITY DEFINER
     AS $$

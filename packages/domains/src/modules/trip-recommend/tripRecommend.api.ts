@@ -112,82 +112,72 @@ function deduplicateAndMerge(places: ScoredPlace[]): ScoredPlace[] {
   })
 }
 
+/**
+ * RPC 가 내주는 후보 한 줄. trip_place_id 와 place_id 를 모두 받는다 —
+ * 한쪽만 place_id 로 부르면 어느 테이블의 키인지 이름으로 구분되지 않는다.
+ */
+interface CandidateRow {
+  trip_place_id: string
+  place_id: string
+  trip_id: string
+  trip_start_date: string
+  category: string | null
+  provider: string
+  external_id: string
+  name: string
+  address: string
+  lat: number
+  lng: number
+  photo_urls: string[] | null
+  is_confirmed: boolean
+  is_hidden: boolean
+}
+
+/**
+ * 후보 수집은 RPC 가 맡는다. trips 와 trip_places 의 RLS 는 내가 속한 여행만
+ * 통과시켜, 남의 여행에서 후보를 모으는 이 기능은 클라이언트 조회로 늘 빈
+ * 결과를 받았다. 점수와 중복 병합은 순수 로직이라 이쪽에 남긴다.
+ */
 export async function getRecommendedPlaces(
   currentTripId: string,
   destinations: string[],
 ): Promise<RecommendedPlace[]> {
   if (destinations.length === 0) return []
 
-  const [tripsResult, currentPlaces] = await Promise.all([
-    supabase
-      .from('trips')
-      .select('id, start_date')
-      .in('destination', destinations)
-      .neq('id', currentTripId),
+  const [candidatesResult, currentPlaces] = await Promise.all([
+    supabase.rpc('get_recommended_place_candidates', {
+      p_trip_id: currentTripId,
+      p_destinations: destinations,
+    }),
     getTripPlacesByTripId(currentTripId),
   ])
 
-  if (tripsResult.error) throw tripsResult.error
+  if (candidatesResult.error) throw candidatesResult.error
 
-  const otherTrips = tripsResult.data ?? []
-  if (otherTrips.length === 0) return []
+  const candidates = (candidatesResult.data ?? []) as unknown as CandidateRow[]
+  if (candidates.length === 0) return []
 
-  const tripIds = otherTrips.map(t => t.id)
-  const tripDateMap = new Map(otherTrips.map(t => [t.id, t.start_date]))
-
-  const [tripPlacesResult, routesResult] = await Promise.all([
-    supabase
-      .from('trip_places')
-      .select('id, trip_id, category, places!inner(id, provider, external_id, name, address, lat, lng, photos(url, is_public))')
-      .in('trip_id', tripIds),
-    supabase.from('routes').select('trip_id, place_ids, hidden_places').in('trip_id', tripIds),
-  ])
-
-  if (tripPlacesResult.error) throw tripPlacesResult.error
-  if (routesResult.error) throw routesResult.error
-
-  const routes = routesResult.data ?? []
-  const confirmedPlaceIds = new Set(routes.flatMap(r => r.place_ids ?? []))
-  const hiddenPlaceIds = new Set(routes.flatMap(r => r.hidden_places ?? []))
   const currentPlaceNames = new Set(currentPlaces.map(p => normalizeName(p.name)))
 
-  type TripPlaceRow = {
-    id: string
-    trip_id: string
-    category: string | null
-    places: {
-      id: string
-      provider: string
-      external_id: string
-      name: string
-      address: string | null
-      lat: number
-      lng: number
-      photos: { url: string; is_public: boolean }[] | null
-    }
-  }
-
-  const scoredPlaces: ScoredPlace[] = ((tripPlacesResult.data ?? []) as unknown as TripPlaceRow[])
-    .filter(row => !hiddenPlaceIds.has(row.id))
-    .filter(row => !currentPlaceNames.has(normalizeName(row.places.name)))
+  const scoredPlaces: ScoredPlace[] = candidates
+    .filter(row => !row.is_hidden)
+    .filter(row => !currentPlaceNames.has(normalizeName(row.name)))
     .map(row => {
-      const photos = (row.places.photos ?? [])
-        .filter(photo => photo.is_public)
-        .map(photo => photo.url)
+      const photos = row.photo_urls ?? []
       return {
-        id: row.places.id,
+        id: row.place_id,
         tripId: row.trip_id,
-        provider: row.places.provider,
-        externalId: row.places.external_id,
-        name: row.places.name,
-        address: row.places.address ?? '',
-        lat: row.places.lat,
-        lng: row.places.lng,
+        provider: row.provider,
+        externalId: row.external_id,
+        name: row.name,
+        address: row.address,
+        lat: row.lat,
+        lng: row.lng,
         category: (row.category as PlaceCategoryType) ?? undefined,
         photos,
-        confirmedCount: confirmedPlaceIds.has(row.id) ? 1 : 0,
+        confirmedCount: row.is_confirmed ? 1 : 0,
         photoCount: photos.length,
-        latestTripDate: tripDateMap.get(row.trip_id) ?? '',
+        latestTripDate: row.trip_start_date,
         tripCount: 1,
       }
     })
