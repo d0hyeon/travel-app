@@ -1,5 +1,8 @@
 import type { Coordinate, MapBounds, MarkerColor, MarkerProps } from './types';
 
+/** 보여줄 곳이 정해지지 않았을 때 지도가 처음 잡는 자리. 서울시청이다. */
+export const DEFAULT_MAP_CENTER: Coordinate = { lat: 37.5665, lng: 126.978 };
+
 const SEMANTIC_COLORS: Record<string, string> = {
   default: '#ef5350',
   selected: '#1976d2',

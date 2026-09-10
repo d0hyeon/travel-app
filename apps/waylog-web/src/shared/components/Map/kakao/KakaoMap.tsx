@@ -7,15 +7,15 @@ import { KakaoMapClusterOverlays } from './cluster/KakaoMapClusterOverlays';
 import { useBoundsChangeListener, useViewportFit } from './KakaoMap.hooks';
 import { loadKakaoMap } from './loader';
 import { useMapZoomLevel } from './useMapZoomLevel';
+import { DEFAULT_MAP_CENTER } from '@waylog/domains/modules/map'
 
 
-const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 }
 
 type Props = MapProps & Omit<BoxProps, 'ref' | 'autoFocus' | 'children'>
 
 export default function KakaoMap({
   center,
-  defaultCenter = DEFAULT_CENTER,
+  defaultCenter = DEFAULT_MAP_CENTER,
   ref,
   autoFocus = 'marker',
   clustering = false,

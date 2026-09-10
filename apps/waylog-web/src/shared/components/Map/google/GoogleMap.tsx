@@ -1,6 +1,6 @@
 import { Box, type BoxProps } from '@mui/material';
 import { Suspense, use, useEffect, useImperativeHandle, useMemo, useState } from 'react';
-import { pastelMapStyle } from '@waylog/domains/modules/map';
+import { DEFAULT_MAP_CENTER, pastelMapStyle } from '@waylog/domains/modules/map';
 import { GoogleMapContext } from '../MapContext';
 import type { MapProps } from '../types';
 import { ClusterProvider } from '../useClusterRegistry';
@@ -9,7 +9,6 @@ import { useBoundsChangeListener, useViewportFit } from './GoogleMap.hooks';
 import { loadGoogleMaps } from './loader';
 import { useMapZoomLevel } from './useMapZoomLevel';
 
-const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 };
 const ZOOM_MAX_LEVEL = 22;
 
 
@@ -21,7 +20,7 @@ export function preload() {
 
 export default function GoogleMap({
   center,
-  defaultCenter = DEFAULT_CENTER,
+  defaultCenter = DEFAULT_MAP_CENTER,
   ref,
   autoFocus = 'marker',
   clustering = false,
