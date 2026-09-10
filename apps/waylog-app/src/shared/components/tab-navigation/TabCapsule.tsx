@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native'
 import Animated, { interpolate, useAnimatedStyle } from 'react-native-reanimated'
-import { GlassSurface } from './GlassSurfaces'
+import { GlassSurface } from '../design-system/GlassSurface'
 import { useTabNavigationContext } from './TabNavigationContext'
 import { TAB_BAR_HEIGHT } from './useTabBarAppearance'
 
