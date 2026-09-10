@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react'
-import { usePreservedCallback } from '@waylog/react'
+import { useCleanup, usePreservedCallback } from '@waylog/react'
 
 interface Options {
   once?: boolean
@@ -27,6 +27,13 @@ export function useBatchedCallback<T = never>(onFlush: (items: T[]) => void, { o
       preservedCallback(items)
     })
   }, [once])
+
+  // 예약된 프레임은 언마운트 뒤에도 발화한다. 남겨두면 사라진 컴포넌트를 갱신한다.
+  useCleanup(() => {
+    if (scheduledIdRef.current == null) return
+    cancelAnimationFrame(scheduledIdRef.current)
+    scheduledIdRef.current = null
+  })
 
   return collect
 }
