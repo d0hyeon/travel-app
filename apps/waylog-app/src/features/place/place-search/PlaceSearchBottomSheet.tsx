@@ -61,7 +61,7 @@ export function PlaceSearchBottomSheet({
 
   return (
     <>
-      <BottomSheet isOpen={isOpen} onDismiss={handleClose} snapPoints={[0.95]} safeArea>
+      <BottomSheet isOpen={isOpen} onDismiss={handleClose} snapPoints={[0.6, 0.95]} safeArea>
         <BottomSheet.Header>
           <View style={styles.searchBar}>
             <TextInput

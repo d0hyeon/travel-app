@@ -39,11 +39,11 @@ export function PlaceSelectSheet({
   const addablePlaces = places.filter((place) => !selectedPlaceIds.includes(place.id))
   const matchedPlaces = isSearching
     ? addablePlaces.filter(
-        (place) =>
-          place.name.toLowerCase().includes(normalizedKeyword) ||
-          place.address.toLowerCase().includes(normalizedKeyword) ||
-          place.tags.some((tag) => tag.toLowerCase().includes(normalizedKeyword)),
-      )
+      (place) =>
+        place.name.toLowerCase().includes(normalizedKeyword) ||
+        place.address.toLowerCase().includes(normalizedKeyword) ||
+        place.tags.some((tag) => tag.toLowerCase().includes(normalizedKeyword)),
+    )
     : addablePlaces
 
   const togglePick = (placeId: string) =>
@@ -64,7 +64,7 @@ export function PlaceSelectSheet({
 
   return (
     <>
-      <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.9]} defaultSnapIndex={0} safeArea>
+      <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.6, 0.9]} defaultSnapIndex={0} safeArea>
         <BottomSheet.Header>장소 선택</BottomSheet.Header>
         <BottomSheet.Body style={styles.sheetBody}>
           <View style={styles.searchBar}>

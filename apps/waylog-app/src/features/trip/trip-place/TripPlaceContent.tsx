@@ -28,8 +28,8 @@ interface PlaceContentProps {
   tripId: string
 }
 
-const BOTTOM_SHEET_RATIOS = [0.25, 0.5, 0.8, 1] as const;
-const DEFAULT_BOTTOM_SHEET_RATIO = 0.5 satisfies typeof BOTTOM_SHEET_RATIOS[number];
+const BOTTOM_SHEET_RATIOS = [0.25, 0.5, 0.65, 0.8, 1] as const;
+const DEFAULT_BOTTOM_SHEET_RATIO = 0.65 satisfies typeof BOTTOM_SHEET_RATIOS[number];
 
 export default function TripPlaceContent({ tripId }: PlaceContentProps) {
   const { data: trip } = useTrip(tripId)
