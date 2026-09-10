@@ -14,7 +14,7 @@ function mockFetch(body: unknown = emptyCollection) {
   const fetchMock = vi.fn(async () => ({
     ok: true,
     status: 200,
-    json: async () => body,
+    text: async () => JSON.stringify(body),
   }) as unknown as Response)
 
   vi.stubGlobal('fetch', fetchMock)
@@ -56,6 +56,31 @@ describe('setBoundaryBaseUrl', () => {
   })
 })
 
+describe('JSON 이 아닌 응답', () => {
+  it('HTML 을 받으면 주소를 확인하라고 알린다', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      text: async () => '<!doctype html><html></html>',
+    }) as unknown as Response))
+
+    const { fetchWorldBoundaries } = await importBoundaryData()
+
+    await expect(fetchWorldBoundaries()).rejects.toThrow('경계 파일 주소')
+  })
+
+  it('404 는 상태 코드로 알린다', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: false,
+      status: 404,
+    }) as unknown as Response))
+
+    const { fetchCountryRegionBoundaries } = await importBoundaryData()
+
+    await expect(fetchCountryRegionBoundaries(Country.일본)).rejects.toThrow('HTTP 404')
+  })
+})
+
 describe('getCachedCountryBoundaries', () => {
   it('아직 받지 않은 나라는 null 을 준다', async () => {
     const fetchMock = mockFetch()
@@ -86,7 +111,7 @@ describe('getCachedCountryBoundaries', () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({
       ok: true,
       status: 200,
-      json: async () => emptyCollection,
+      text: async () => JSON.stringify(emptyCollection),
     }) as unknown as Response))
 
     await fetchCountryRegionBoundaries(Country.일본)
@@ -94,14 +119,14 @@ describe('getCachedCountryBoundaries', () => {
   })
 
   it('요청이 끝나기 전에는 null 을 준다', async () => {
-    let resolveJson: (value: GeoJsonFeatureCollection) => void = () => {}
-    const pending = new Promise<GeoJsonFeatureCollection>((resolve) => {
-      resolveJson = resolve
+    let resolveBody: (value: string) => void = () => {}
+    const pending = new Promise<string>((resolve) => {
+      resolveBody = resolve
     })
     vi.stubGlobal('fetch', vi.fn(async () => ({
       ok: true,
       status: 200,
-      json: () => pending,
+      text: () => pending,
     }) as unknown as Response))
 
     const { fetchCountryRegionBoundaries, getCachedCountryBoundaries } = await importBoundaryData()
@@ -109,7 +134,7 @@ describe('getCachedCountryBoundaries', () => {
     const request = fetchCountryRegionBoundaries(Country.일본)
     expect(getCachedCountryBoundaries(Country.일본)).toBeNull()
 
-    resolveJson(emptyCollection)
+    resolveBody(JSON.stringify(emptyCollection))
     await request
 
     expect(getCachedCountryBoundaries(Country.일본)).toEqual(emptyCollection)

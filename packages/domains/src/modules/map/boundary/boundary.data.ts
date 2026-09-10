@@ -23,7 +23,14 @@ async function fetchJson<T>(url: string): Promise<T> {
     throw new Error(`HTTP ${response.status} for ${url}`)
   }
 
-  return response.json() as Promise<T>
+  // 주소를 못 받은 앱은 상대 경로가 개발 서버로 가서 200 + HTML 을 받는다.
+  // 그대로 파싱하면 원인을 알 수 없는 JSON 오류가 된다.
+  const body = await response.text()
+  if (body.startsWith('<')) {
+    throw new Error(`JSON 이 아닌 응답입니다. 경계 파일 주소를 확인하세요: ${url}`)
+  }
+
+  return JSON.parse(body) as T
 }
 
 function loadBoundaries(cacheKey: string, path: string) {
