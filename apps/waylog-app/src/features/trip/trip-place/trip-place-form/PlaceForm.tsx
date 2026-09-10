@@ -5,7 +5,7 @@ import {
   PlaceCategoryTypes,
   type PlaceCategoryType,
 } from '@waylog/domains/modules/place'
-import { forwardRef, useImperativeHandle, useState } from 'react'
+import { forwardRef, useCallback, useImperativeHandle, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Box, Chip, Stack, TextField, Typography } from '~/shared/components/design-system'
 import { PopMenu } from '../../../../shared/components/PopMenu'
@@ -25,12 +25,13 @@ export interface PlaceFormRef {
 
 interface Props {
   defaultValues?: Partial<PlaceFormValues>
-  onSubmit: (data: PlaceFormValues) => void
+  onSubmit?: (data: PlaceFormValues) => void;
+  readonly?: boolean;
 }
 
 // 웹 PlaceForm 과 같은 값 모양을 유지한다.
 export const PlaceForm = forwardRef<PlaceFormRef, Props>(function PlaceForm(
-  { defaultValues, onSubmit },
+  { defaultValues, readonly = false, onSubmit },
   ref,
 ) {
   const { control, handleSubmit, watch, setValue } = useForm<PlaceFormValues>({
@@ -46,12 +47,18 @@ export const PlaceForm = forwardRef<PlaceFormRef, Props>(function PlaceForm(
 
   const [tagInput, setTagInput] = useState('')
   const category = watch('category')
-  const tags = watch('tags')
+  const tags = watch('tags');
 
-  useImperativeHandle(ref, () => ({ submit: () => void handleSubmit(onSubmit)() }), [
-    handleSubmit,
-    onSubmit,
-  ])
+  const submit = useCallback(
+    () => handleSubmit((data) => onSubmit?.(data)),
+    [handleSubmit]
+  )
+
+  useImperativeHandle(
+    ref,
+    () => ({ submit }),
+    [submit]
+  )
 
   return (
     <Stack gap={2}>
@@ -96,6 +103,7 @@ export const PlaceForm = forwardRef<PlaceFormRef, Props>(function PlaceForm(
             minRows={3}
             value={field.value}
             onChangeText={field.onChange}
+            readOnly={readonly}
           />
         )}
       />
@@ -110,6 +118,7 @@ export const PlaceForm = forwardRef<PlaceFormRef, Props>(function PlaceForm(
           variant="standard"
           value={tagInput}
           onChangeText={setTagInput}
+          readOnly={readonly}
           onSubmitEditing={() => {
             const next = tagInput.trim()
             if (next === '' || tags.includes(next)) return

@@ -1,16 +1,18 @@
-import { useCallback, useRef } from 'react'
-import { StyleSheet, Linking } from 'react-native'
-import { assert } from '@waylog/utility'
 import { useTripPlaces } from '@waylog/domains/modules/trip'
-import { useConfirmDialog } from '../../../../shared/components/confirm-dialog/useConfirmDialog'
-import { BottomSheet } from '../../../../shared/components/bottom-sheet/BottomSheet'
+import { AsyncBoundary } from '@waylog/react'
+import { assert } from '@waylog/utility'
+import { useCallback, useRef } from 'react'
+import { Linking, StyleSheet } from 'react-native'
 import { Button, Chip, Stack } from '~/shared/components/design-system'
+import { BottomSheet } from '../../../../shared/components/bottom-sheet/BottomSheet'
+import { CommonErrorAlert } from '../../../../shared/components/CommonErrorAlert'
+import { useConfirmDialog } from '../../../../shared/components/confirm-dialog/useConfirmDialog'
+import { KeyboardDismissArea } from '../../../../shared/components/KeyboardDismissArea'
 import { useOverlay } from '../../../../shared/hooks/useOverlay'
 import { usePlaceDetailOverlay } from '../../../place/place-detail/usePlaceDetailOverlay'
+import { PlacePhotoSection } from '../PlacePhotoSection'
 import { PlaceForm, type PlaceFormRef } from './PlaceForm'
 import { PlaceTitleButton } from './PlaceTitleButton'
-import { PlacePhotoSection } from '../PlacePhotoSection'
-import { KeyboardDismissArea } from '../../../../shared/components/KeyboardDismissArea'
 
 interface OpenParams {
   tripId: string
@@ -26,16 +28,37 @@ export function useTripPlaceFormOverlay() {
   const openBottomSheet = useCallback(
     ({ tripId, placeId }: OpenParams) => {
       return new Promise<void>((resolve) => {
-        overlay.open(({ isOpen, close }) => (
-          <PlaceFormSheet
-            tripId={tripId}
-            placeId={placeId}
-            isOpen={isOpen}
-            onClose={() => {
-              resolve()
-              close()
-            }}
-          />
+        overlay.open(({ isOpen, close, onClose }) => (
+          <KeyboardDismissArea>
+            <BottomSheet
+              isOpen={isOpen}
+              safeArea
+              onDismiss={close}
+              onClose={onClose}
+              snapPoints={[0.7]}
+              defaultSnapIndex={0}
+            >
+              <AsyncBoundary
+                pendingFallback={<PlaceFormSheetContent.Skeleton isOpen={isOpen} onClose={close} />}
+                rejectedFallback={({ error, resetError }) => (
+                  <CommonErrorAlert
+                    message={error.message}
+                    action={<CommonErrorAlert.RetryButton onPress={resetError} />}
+                  />)
+                }
+              >
+                <PlaceFormSheetContent
+                  tripId={tripId}
+                  placeId={placeId}
+                  isOpen={isOpen}
+                  onClose={() => {
+                    resolve()
+                    close()
+                  }}
+                />
+              </AsyncBoundary>
+            </BottomSheet>
+          </KeyboardDismissArea>
         ))
       })
     },
@@ -50,7 +73,7 @@ interface SheetProps extends OpenParams {
   onClose: () => void
 }
 
-function PlaceFormSheet({ tripId, placeId, isOpen, onClose }: SheetProps) {
+function PlaceFormSheetContent({ tripId, placeId, isOpen, onClose }: SheetProps) {
   const { data: places, update, remove } = useTripPlaces(tripId)
   const place = places.find((x) => x.id === placeId)
   assert(place != null, '해당 장소가 존재하지 않습니다.')
@@ -59,59 +82,88 @@ function PlaceFormSheet({ tripId, placeId, isOpen, onClose }: SheetProps) {
   const formRef = useRef<PlaceFormRef>(null)
 
   return (
-    <KeyboardDismissArea>
-      <BottomSheet
-        isOpen={isOpen}
-        safeArea
-        onDismiss={onClose}
-        snapPoints={[0.7]}
-        defaultSnapIndex={0}
-      >
-        <BottomSheet.Header direction="row" justifyContent="space-between">
-          <PlaceTitleButton
-            name={place.name}
-            onPress={() => placeDetail.open(place.placeId)}
-          />
-          <Button
-            variant="outlined"
-            color="error"
-            size="small"
-            onPress={async () => {
-              if (await confirm('삭제하시겠습니까?')) {
-                await remove(place.id)
-                onClose()
-              }
-            }}
-          >
-            삭제
-          </Button>
-        </BottomSheet.Header>
-        <BottomSheet.Body style={styles.sheetBody}>
-          <Stack direction="row" gap={1} style={styles.header}>
-            <Chip label="네이버" variant="outlined" onPress={() => void Linking.openURL(`https://search.naver.com/search.naver?query=${encodeURIComponent(place.name)}`)} />
-            <Chip label="인스타" variant="outlined" onPress={() => void Linking.openURL(`https://www.instagram.com/explore/search/keyword/?q=${encodeURIComponent(place.name.replaceAll(' ', ''))}`)} />
-            <Chip label="구글" variant="outlined" onPress={() => void Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(place.name)}`)} />
-          </Stack>
-          <PlaceForm
-            ref={formRef}
-            defaultValues={place}
-            onSubmit={(data) => {
-              void update({ ...data, id: place.id })
+    <>
+      <BottomSheet.Header direction="row" justifyContent="space-between">
+        <PlaceTitleButton
+          name={place.name}
+          onPress={() => placeDetail.open(place.placeId)}
+        />
+        <Button
+          variant="outlined"
+          color="error"
+          size="small"
+          onPress={async () => {
+            if (await confirm('삭제하시겠습니까?')) {
+              await remove(place.id)
               onClose()
-            }}
-          />
-          <PlacePhotoSection mt={3} tripId={tripId} placeId={place.placeId} />
-        </BottomSheet.Body>
-        <BottomSheet.BottomActions>
-          <Button variant="outlined" fullWidth onPress={onClose}>
-            취소
-          </Button>
-          <Button variant="contained" fullWidth onPress={() => formRef.current?.submit()}>
-            저장
-          </Button>
-        </BottomSheet.BottomActions>
-      </BottomSheet>
-    </KeyboardDismissArea>
+            }
+          }}
+        >
+          삭제
+        </Button>
+      </BottomSheet.Header>
+      <BottomSheet.Body style={styles.sheetBody}>
+        <Stack direction="row" gap={1} style={styles.header}>
+          <Chip label="네이버" variant="outlined" onPress={() => void Linking.openURL(`https://search.naver.com/search.naver?query=${encodeURIComponent(place.name)}`)} />
+          <Chip label="인스타" variant="outlined" onPress={() => void Linking.openURL(`https://www.instagram.com/explore/search/keyword/?q=${encodeURIComponent(place.name.replaceAll(' ', ''))}`)} />
+          <Chip label="구글" variant="outlined" onPress={() => void Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(place.name)}`)} />
+        </Stack>
+        <PlaceForm
+          ref={formRef}
+          defaultValues={place}
+          onSubmit={(data) => {
+            void update({ ...data, id: place.id })
+            onClose()
+          }}
+        />
+        <PlacePhotoSection mt={3} tripId={tripId} placeId={place.placeId} />
+      </BottomSheet.Body>
+      <BottomSheet.BottomActions>
+        <Button variant="outlined" fullWidth onPress={onClose}>
+          취소
+        </Button>
+        <Button variant="contained" fullWidth onPress={() => formRef.current?.submit()}>
+          저장
+        </Button>
+      </BottomSheet.BottomActions>
+    </>
+  )
+}
+
+PlaceFormSheetContent.Skeleton = (props: Omit<SheetProps, 'tripId' | 'placeId'>) => {
+
+  return (
+    <>
+      <BottomSheet.Header direction="row" justifyContent="space-between">
+        <PlaceTitleButton.Skeleton />
+        <Button
+          variant="outlined"
+          color="error"
+          size="small"
+          loading
+        >
+          삭제
+        </Button>
+      </BottomSheet.Header>
+      <BottomSheet.Body style={styles.sheetBody}>
+        <Stack direction="row" gap={1} style={styles.header}>
+          <Chip label="네이버" variant="outlined" />
+          <Chip label="인스타" variant="outlined" />
+          <Chip label="구글" variant="outlined" />
+        </Stack>
+        <PlaceForm readonly />
+
+        <PlacePhotoSection.Skeleton mt={3} />
+      </BottomSheet.Body>
+      <BottomSheet.BottomActions>
+        <Button variant="outlined" fullWidth onPress={props.onClose}>
+          취소
+        </Button>
+        <Button variant="contained" fullWidth loading>
+          저장
+        </Button>
+      </BottomSheet.BottomActions>
+    </>
   )
 }
 

@@ -1,6 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { StyleSheet, Pressable } from 'react-native'
-import { Stack, Typography, type TypographyVariant } from '~/shared/components/design-system'
+import { Skeleton, Stack, Typography, type TypographyVariant } from '~/shared/components/design-system'
+import { VARIANT_STYLE } from '~/shared/components/design-system/Typography'
 
 interface PlaceTitleButtonProps {
   /** 표시할 장소명 */
@@ -21,6 +22,14 @@ export function PlaceTitleButton({ name, onPress, variant = 'h6' }: PlaceTitleBu
         <MaterialIcons name="chevron-right" size={28} color="#666" />
       </Stack>
     </Pressable>
+  )
+}
+PlaceTitleButton.Skeleton = ({ variant = 'h6' }: Pick<PlaceTitleButtonProps, 'variant'>) => {
+  return (
+    <Stack direction="row" gap={0.5} alignItems="center">
+      <Skeleton width={100} height={VARIANT_STYLE[variant].lineHeight} />
+      <MaterialIcons name="chevron-right" size={28} color="#666" />
+    </Stack>
   )
 }
 

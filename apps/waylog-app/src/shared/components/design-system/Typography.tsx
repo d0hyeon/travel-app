@@ -4,7 +4,7 @@ import { palette } from '../../config/tokens'
 
 // 웹 theme.ts 의 값을 그대로 옮긴다. 앱은 모바일이므로
 // breakpoints.down('md') 쪽 수치를 쓴다.
-const VARIANT_STYLE = StyleSheet.create({
+export const VARIANT_STYLE = StyleSheet.create({
   h4: { fontSize: 24, lineHeight: 34, fontWeight: '900' },
   h5: { fontSize: 20, lineHeight: 28, fontWeight: '900' },
   h6: { fontSize: 16, lineHeight: 22, fontWeight: '900' },
@@ -65,39 +65,26 @@ export function Typography({
   style,
   ...rest
 }: TypographyProps) {
-  // 대부분의 호출은 variant 와 color 만 준다. 나머지가 없으면 객체를 만들지 않아
-  // 배열 원소가 그대로 재사용된다.
-  const layoutStyle = useMemo(() => {
-    const hasLayout = [mb, mt, ml, mr, py, px, flexShrink, textAlign].some(
-      (value) => value != null,
-    )
-    if (!hasLayout) return undefined
-
-    return {
-      marginBottom: mb != null ? mb * 8 : undefined,
-      marginTop: mt != null ? mt * 8 : undefined,
-      marginLeft: ml != null ? ml * 8 : undefined,
-      marginRight: mr != null ? mr * 8 : undefined,
-      flexShrink,
-      textAlign,
-      paddingVertical: py != null ? py * 8 : undefined,
-      paddingHorizontal: px != null ? px * 8 : undefined,
-    }
-  }, [mb, mt, ml, mr, py, px, flexShrink, textAlign])
-
-  const appearanceStyle = useMemo(
-    () => ({
-      color: color != null ? (COLOR_MAP[color] ?? color) : palette.text,
-      ...(fontWeight != null && {
-        fontWeight: (fontWeight === 'medium' ? '700' : String(fontWeight)) as never,
-      }),
-    }),
-    [color, fontWeight],
-  )
-
   return (
     <RNText
-      style={[VARIANT_STYLE[variant], appearanceStyle, layoutStyle, style]}
+      style={[
+        VARIANT_STYLE[variant],
+        { color: color != null ? (COLOR_MAP[color] ?? color) : palette.text },
+        fontWeight != null && {
+          fontWeight: (fontWeight === 'medium' ? '700' : String(fontWeight)) as never,
+        },
+        {
+          marginBottom: mb != null ? mb * 8 : undefined,
+          marginTop: mt != null ? mt * 8 : undefined,
+          marginLeft: ml != null ? ml * 8 : undefined,
+          marginRight: mr != null ? mr * 8 : undefined,
+          flexShrink,
+          textAlign,
+          paddingVertical: py != null ? py * 8 : undefined,
+          paddingHorizontal: px != null ? px * 8 : undefined,
+        },
+        style,
+      ]}
       numberOfLines={noWrap === true ? 1 : rest.numberOfLines}
       {...rest}
     />
