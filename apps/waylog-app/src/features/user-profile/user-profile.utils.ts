@@ -49,6 +49,25 @@ export function deriveVisitedLocations(trips: Trip[]): VisitedLocation[] {
   return [...aggregatedLocations.values()].toSorted((first, second) => second.visitCount - first.visitCount)
 }
 
+/** 나라별 방문 여행 수. 한 여행이 여러 나라를 거치면 각 나라에 1씩 센다. */
+export function deriveVisitedCountries(trips: Trip[]): Map<Country, number> {
+  const visitCountByCountry = new Map<Country, number>()
+
+  trips.forEach((trip) => {
+    const countriesInTrip = new Set<Country>()
+    trip.destinations.forEach((destination) => {
+      const country = getCountryByLocation(destination)
+      if (country != null) countriesInTrip.add(country)
+    })
+
+    countriesInTrip.forEach((country) => {
+      visitCountByCountry.set(country, (visitCountByCountry.get(country) ?? 0) + 1)
+    })
+  })
+
+  return visitCountByCountry
+}
+
 export function countUniqueCountries(trips: Trip[]): number {
   const countries = new Set<Country>()
   trips.forEach((trip) => {

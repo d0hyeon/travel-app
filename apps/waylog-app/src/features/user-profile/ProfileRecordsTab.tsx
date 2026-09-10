@@ -6,7 +6,7 @@ import { BottomSheet } from '../../shared/components/bottom-sheet/BottomSheet'
 import { Stack, Typography } from '~/shared/components/design-system'
 import { palette } from '../../shared/config/tokens'
 import { useUserTrips } from './useUserTrips'
-import { deriveVisitedLocations, type VisitedLocation } from './user-profile.utils'
+import { deriveVisitedCountries, deriveVisitedLocations, type VisitedLocation } from './user-profile.utils'
 import { UserTripPhotoList } from './UserTripPhotoList'
 import { useOverlay } from '../../shared/hooks/useOverlay'
 import { useStorageStore } from '../../shared/hooks/useStorageStore'
@@ -23,6 +23,7 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
   // 웹의 calc(100svh - 40px) 과 같다. 탭바를 뺀 만큼을 지도에 준다.
   const mapHeight = Math.max(viewportHeight - TAB_BAR_HEIGHT, 0)
   const visitedLocations = useMemo(() => deriveVisitedLocations(trips), [trips])
+  const visitCountByCountry = useMemo(() => deriveVisitedCountries(trips), [trips])
   const [selectedLocation, setSelectedLocation] = useState<VisitedLocation | null>(null)
   const [isLocationVisible, setIsLocationVisible] = useStorageStore('user-record-visible-location', true)
   const locationOverlay = useOverlay()
@@ -76,6 +77,21 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
           <MaterialIcons name={isLocationVisible ? 'visibility' : 'visibility-off'} size={18} color={palette.textSecondary} />
         </Pressable>
         <Map autoFocus="marker" clustering>
+          <Map.PolygonLayer>
+            {[...visitCountByCountry].map(([country, visitCount]) => (
+              <Map.Region key={country} country={country} color={COUNTRY_COLOR} opacity={getPolygonOpacity(visitCount)} />
+            ))}
+            {visitedLocations.map((visitedLocation) => (
+              <Map.Region
+                key={visitedLocation.location}
+                location={visitedLocation.location}
+                {...getRegionPolygonStyle(
+                  visitedLocation.visitCount,
+                  visitedLocation.location === selectedLocation?.location,
+                )}
+              />
+            ))}
+          </Map.PolygonLayer>
           {isLocationVisible && visitedLocations.map((visitedLocation) => (
             <Map.Marker
               key={visitedLocation.location}
@@ -98,6 +114,28 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
 
 // 웹의 calc(100svh - 40px) 과 같다. 탭바를 뺀 만큼을 지도에 준다.
 const TAB_BAR_HEIGHT = 40
+
+const COUNTRY_COLOR = '#2a9d6f'
+const FREQUENT_VISIT_COLOR = '#b95454'
+const SELECTED_COLOR = '#4C84FF'
+const FREQUENT_VISIT_THRESHOLD = 3
+
+function getPolygonOpacity(visitCount: number) {
+  return Math.max(Math.min(visitCount * 0.14, 0.4), 0.18)
+}
+
+function getRegionPolygonStyle(visitCount: number, isSelected: boolean) {
+  const isFrequentlyVisited = visitCount >= FREQUENT_VISIT_THRESHOLD
+  const baseColor = isFrequentlyVisited ? FREQUENT_VISIT_COLOR : COUNTRY_COLOR
+  const baseOpacity = isFrequentlyVisited
+    ? Math.min(getPolygonOpacity(visitCount - 2), 0.3)
+    : getPolygonOpacity(visitCount)
+
+  return {
+    color: isSelected ? SELECTED_COLOR : baseColor,
+    opacity: isSelected ? Math.min(baseOpacity + 0.2, 0.55) : baseOpacity,
+  }
+}
 
 function LocationMetaInfo({ value }: { value: VisitedLocation }) {
   return <Stack direction="row" alignItems="center" style={styles.locationTitle}><View style={styles.locationDot} /><Typography variant="subtitle1">{value.location}</Typography><Typography variant="caption" color="text.secondary">{value.countryName}</Typography></Stack>
