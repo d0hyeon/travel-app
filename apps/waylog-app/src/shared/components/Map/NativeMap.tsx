@@ -45,7 +45,6 @@ function NativeMapInner({
   style,
 }: MapProps & { style?: StyleProp<ViewStyle> }) {
   const [zoom, setZoom] = useState(() => deltaToZoom(DEFAULT_DELTA))
-  const [mapInstance, setMapInstance] = useState<Mapbox.MapView | null>(null)
   const { width: screenWidth } = useWindowDimensions()
 
   const { camera, ref: cameraRef, fitTo, panTo, track } = useMapCamera({
@@ -89,14 +88,13 @@ function NativeMapInner({
   const transitioningClusters = useClusterTransition(clusters)
 
   const mapContextValue = useMemo(
-    () => ({ extendBound, config: { autoFocus }, map: mapInstance, visibleMarkerIds }),
-    [extendBound, autoFocus, mapInstance, visibleMarkerIds],
+    () => ({ extendBound, config: { autoFocus }, visibleMarkerIds }),
+    [extendBound, autoFocus, visibleMarkerIds],
   )
 
   return (
     <MapContext value={mapContextValue}>
       <Mapbox.MapView
-        ref={setMapInstance}
         style={[StyleSheet.absoluteFill, style]}
         styleJSON={JSON.stringify(pastelMapboxStyle)}
         rotateEnabled={false}

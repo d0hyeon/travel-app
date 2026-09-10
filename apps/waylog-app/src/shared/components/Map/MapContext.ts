@@ -1,11 +1,9 @@
 import { createContext, useContext } from 'react'
 import type { AutoFocus, Coordinate } from '@waylog/domains/modules/map'
-import type Mapbox from '@rnmapbox/maps'
 
 export interface MapContextValue {
   extendBound: (value: Coordinate) => void
   config: { autoFocus: AutoFocus }
-  map: Mapbox.MapView | null
   visibleMarkerIds: Set<string> | null
 }
 
