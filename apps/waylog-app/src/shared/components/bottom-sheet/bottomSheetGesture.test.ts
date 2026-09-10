@@ -48,6 +48,21 @@ describe('getSheetBodyHeight', () => {
   it('does not create a negative body viewport while a sheet is closed', () => {
     expect(getSheetBodyHeight({ visibleHeight: 0, handleHeight: 32 })).toBe(0)
   })
+
+  // 시트 전체는 최대 높이로 레이아웃되므로, 본문 뷰포트가 그보다 커지면
+  // 그 안의 하단 CTA 가 시트 밖으로 밀려난다. 끌어올린 높이를 먼저 최대치로
+  // 묶어야 둘이 같은 기준 위에 선다.
+  it('keeps the body viewport inside a sheet dragged past its largest snap point', () => {
+    const maximumHeight = 600
+    const draggedBeyondMaximum = 800
+
+    const bodyHeight = getSheetBodyHeight({
+      visibleHeight: clampSheetHeight(draggedBeyondMaximum, maximumHeight),
+      handleHeight: 32,
+    })
+
+    expect(bodyHeight + 32).toBeLessThanOrEqual(maximumHeight)
+  })
 })
 
 describe('hasGestureDirection', () => {

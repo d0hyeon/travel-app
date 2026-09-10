@@ -1,9 +1,9 @@
 import { Suspense } from 'react'
-import { useTripId } from '../../../src/features/trip/useTripId'
+import { useTripId } from '../../../../src/features/trip/useTripId'
 import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native'
-import { TripChecklist } from '../../../src/features/trip/trip-checklist/TripChecklist'
-import { palette } from '../../../src/shared/config/tokens'
-import { FLOATING_TAB_BAR_RESERVE } from '../../../src/shared/components'
+import { TripChecklist } from '../../../../src/features/trip/trip-checklist/TripChecklist'
+import { palette } from '../../../../src/shared/config/tokens'
+import { FLOATING_TAB_BAR_RESERVE } from '../../../../src/shared/components'
 
 export default function TripDetailChecklistRoute() {
   const tripId = useTripId()

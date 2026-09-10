@@ -95,8 +95,8 @@ function PostPlacesSheet({
   return (
     <BottomSheet isOpen={isOpen} onDismiss={onCancel} snapPoints={[0.75]} safeArea>
       <BottomSheet.Header>위치</BottomSheet.Header>
-      <BottomSheet.Body style={styles.body}>
-        <View style={styles.content}>
+      <BottomSheet.Body>
+        <BottomSheet.ScrollView contentContainerStyle={styles.content}>
           {places.length > 0 && (
             <View style={styles.selectedPlaces}>
               {places.map((place) => (
@@ -116,7 +116,7 @@ function PostPlacesSheet({
               <TripPlaceSelection tripId={tripId} selected={places} onToggle={togglePlace} />
             </Suspense>
           )}
-        </View>
+        </BottomSheet.ScrollView>
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
         <Button variant="outlined" fullWidth onPress={onCancel}>
@@ -182,8 +182,7 @@ function PlaceListSkeleton() {
 }
 
 const styles = StyleSheet.create({
-  body: { paddingHorizontal: 16, paddingBottom: 16 },
-  content: { gap: 12 },
+  content: { paddingHorizontal: 16, paddingBottom: 16, gap: 12 },
   selectedPlaces: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   addPlace: { paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   results: { gap: 6 },

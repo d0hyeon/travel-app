@@ -24,7 +24,7 @@ export function ChatPushNoticeCard(props: Props) {
 
   return (
     <SlideReveal open={isOpen} delay={1000} duration={400}>
-      <NotificationCard onClose={() => setIsOpen(false)} {...props}>
+      <NotificationCard onClose={() => setIsOpen(false)} style={[styles.card, props.style]}>
         <NotificationCard.Title textAlign="center">
           실시간으로 알림을 받아보세요
         </NotificationCard.Title>
@@ -57,5 +57,11 @@ export function ChatPushNoticeCard(props: Props) {
 }
 
 const styles = StyleSheet.create({
+  card: {
+    backgroundColor: 'transparent',
+    shadowOpacity: 0,
+    elevation: 0,
+    boxShadow: '0px 2px 12px rgba(0, 0, 0, 0.16)',
+  },
   chatPushNoticeCardButton: { borderRadius: 20 },
 })

@@ -3,6 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router'
 import { formatDate } from 'date-fns'
 import { Suspense } from 'react'
 import { ScrollView, ActivityIndicator, StyleSheet } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { IconButton, Stack, Typography } from '~/shared/components/design-system'
 import { PopMenu } from '../../../../src/shared/components/PopMenu'
 import { useConfirmDialog } from '../../../../src/shared/components/confirm-dialog/useConfirmDialog'
@@ -32,7 +33,7 @@ function Resolved() {
   const urls = extractUrls(memo.content)
 
   return (
-    <Stack style={styles.fill}>
+    <SafeAreaView style={styles.fill}>
       <Stack direction="row" alignItems="center" justifyContent="space-between" style={styles.header}>
         <IconButton onPress={() => router.back()}>
           <MaterialIcons name="arrow-back" size={24} />
@@ -54,7 +55,7 @@ function Resolved() {
               onPress={async () => {
                 if (!(await confirm('이 메모를 삭제하시겠습니까?'))) return
                 await remove(memo.id)
-                router.back()
+                router.back();
               }}
             >
               삭제
@@ -62,7 +63,7 @@ function Resolved() {
           ]}
         />
       </Stack>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
         <Typography variant="caption" color="text.secondary">
           {formatDate(memo.createdAt, 'yyyy년 M월 d일 a h:mm')}
         </Typography>
@@ -71,12 +72,13 @@ function Resolved() {
         </Typography>
         {urls.length > 0 && <OgPreviewCard url={urls[0]} />}
       </ScrollView>
-    </Stack>
+    </SafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
+  scroll: { flex: 1 },
   emptyMessage: { padding: 24, textAlign: 'center' },
   title: { flex: 1, paddingHorizontal: 8 },
   header: { padding: 8 },

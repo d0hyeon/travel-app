@@ -1,11 +1,11 @@
+import { MaterialIcons } from '@expo/vector-icons'
 import { StyleSheet, ScrollView } from 'react-native'
-import { Box, Stack, Tab, Tabs, Typography } from "~/shared/components/design-system"
+import { Box, Fab, Stack, Tab, Tabs, Typography } from "~/shared/components/design-system"
 import { Suspense } from 'react'
-import { BottomArea } from "../../../shared/components/BottomArea"
 import { ErrorBoundary } from '@waylog/react'
 import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
 import { TripChecklist } from '../trip-checklist/TripChecklist'
-import { TripChecklistAddButton } from '../trip-checklist/TripChecklistAddButton'
+import { useTripChecklistFormOverlay } from '../trip-checklist/useTripChecklistFormOverlay'
 import { TripDeadlineChecklist } from '../trip-checklist/TripDeadlineChecklist'
 import { TripMemberSection } from '../trip-member/TripMemberSection'
 import { TripPinnedMemos } from '../trip-memo/TripPinnedMemos'
@@ -24,6 +24,7 @@ interface Props {
 
 export function TripBasicInfoContent({ tripId }: Props) {
   const [currentTab, setCurrentTab] = useQueryParamState('info-tab', { defaultValue: 'default' })
+  const checklistForm = useTripChecklistFormOverlay(tripId)
 
 
   return (
@@ -88,9 +89,14 @@ export function TripBasicInfoContent({ tripId }: Props) {
             <ScrollView contentContainerStyle={styles.scrollContent}>
               <TripChecklist tripId={tripId} />
             </ScrollView>
-            <BottomArea position="static" bottom={8}>
-              <TripChecklistAddButton tripId={tripId} size="large" fullWidth />
-            </BottomArea>
+            <Fab
+              color="primary"
+              size="medium"
+              onPress={() => void checklistForm.open()}
+              style={styles.addButton}
+            >
+              <MaterialIcons name="add" size={24} color="#fff" />
+            </Fab>
           </>
         )}
 
@@ -110,5 +116,6 @@ const styles = StyleSheet.create({
   dDay: { marginBottom: 16 },
   baseInfo: { borderWidth: 1, borderColor: '#ddd', padding: 16, borderRadius: 16, width: '100%' },
   fullWidth: { width: '100%' },
+  addButton: { position: 'absolute', bottom: 16 + FLOATING_TAB_BAR_RESERVE, right: 16 },
   leaveButton: { marginTop: 48 },
 })

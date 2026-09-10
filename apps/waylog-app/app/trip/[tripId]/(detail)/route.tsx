@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import { ActivityIndicator, View, StyleSheet } from 'react-native'
-import { useTripId } from '../../../src/features/trip/useTripId'
-import TripRoutesContent from '../../../src/features/trip/trip-route/TripRoutesContent'
+import { useTripId } from '../../../../src/features/trip/useTripId'
+import TripRoutesContent from '../../../../src/features/trip/trip-route/TripRoutesContent'
 
 export default function TripDetailRouteRoute() {
   const tripId = useTripId()

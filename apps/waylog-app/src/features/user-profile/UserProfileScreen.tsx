@@ -13,7 +13,12 @@ import { ProfileStatStrip } from './ProfileStatStrip'
 
 type ProfileTab = 'feed' | 'records'
 
-export function UserProfileScreen({ userId }: { userId: string }) {
+interface Props {
+  userId: string
+  bottomContentInset?: number
+}
+
+export function UserProfileScreen({ userId, bottomContentInset = 0 }: Props) {
   const { data: auth } = useAuth()
   const [currentTab, selectTab] = useQueryParamState<ProfileTab>('tab', { defaultValue: 'feed', parse: parseProfileTab })
   const [isSigningOut, setIsSigningOut] = useState(false)
@@ -53,13 +58,14 @@ export function UserProfileScreen({ userId }: { userId: string }) {
 
   return (
     <SafeAreaView
+      edges={SCREEN_SAFE_AREA_EDGES}
       style={styles.screen}
       onLayout={(event) => setViewportHeight(event.nativeEvent.layout.height)}
     >
       <ScrollView
         ref={profileScrollRef}
         style={styles.scroll}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={{ paddingBottom: bottomContentInset + CONTENT_BOTTOM_SPACING }}
         showsVerticalScrollIndicator={false}
         scrollEnabled={!isMapInteracting}
         // 웹의 position: sticky 와 같다. 탭바가 위에 붙어 남는다.
@@ -100,10 +106,13 @@ function parseProfileTab(value: string): ProfileTab {
   return value === 'records' ? 'records' : 'feed'
 }
 
+const SCREEN_SAFE_AREA_EDGES = ['top', 'left', 'right'] as const
+
+const CONTENT_BOTTOM_SPACING = 24
+
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: palette.background },
   scroll: { flex: 1 },
-  content: { paddingBottom: 24 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   signOutButton: { padding: 16 },
   tabs: { backgroundColor: palette.background },

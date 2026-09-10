@@ -28,7 +28,7 @@ export function ExplorerCatalogScreen({ bottomContentInset = 0 }: Props) {
   const { isScrollDown, onScroll } = useScrollStatus()
 
   return (
-    <SafeAreaView style={styles.screen}>
+    <SafeAreaView edges={SCREEN_SAFE_AREA_EDGES} style={styles.screen}>
       <ExplorerScreenHeader
         title="탐색"
         isScrollDown={isScrollDown}
@@ -72,6 +72,8 @@ function ExplorerCatalogMap({ location, category }: { location?: Location; categ
   const attentionPlaces = useAttentionPlaces({ location, category })
   return <ExplorerMap places={attentionPlaces} location={location} />
 }
+
+const SCREEN_SAFE_AREA_EDGES = ['top', 'left', 'right'] as const
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: palette.background },

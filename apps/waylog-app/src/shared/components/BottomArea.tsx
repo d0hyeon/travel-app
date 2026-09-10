@@ -19,9 +19,11 @@ export function BottomArea({
       direction="row"
       gap={1}
       style={[
-        [styles.stack, { paddingBottom: position === 'static' ? (bottom ?? 8) : (bottom ?? 8) + insets.bottom, ...(position === 'fixed'
+        [styles.stack, {
+          paddingBottom: position === 'static' ? (bottom ?? 8) : (bottom ?? 8) + insets.bottom, ...(position === 'fixed'
             ? ({ position: 'absolute', bottom: 0, left: 0, right: 0 } as const)
-            : {}) }],
+            : {})
+        }],
         style,
       ]}
       {...props}
@@ -33,7 +35,7 @@ const styles = StyleSheet.create({
   stack: {
     padding: 8,
     width: '100%',
-    backgroundColor: palette.background,
+
     zIndex: zLayer.bottomArea,
   },
 })

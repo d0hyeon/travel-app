@@ -11,6 +11,7 @@ import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet
 import { formatDate } from 'date-fns';
 import { getMemoDisplayTitle } from './memoTitle';
 import { FLOATING_TAB_BAR_RESERVE } from '../../../shared/components'
+import { KeyboardDismissArea } from '../../../shared/components/KeyboardDismissArea';
 
 interface Props {
   tripId: string;
@@ -78,16 +79,18 @@ function TripMemoFormSheet({ isOpen, onClose, onSubmit }: TripMemoFormSheetProps
   const formRef = useRef<TripMemoFormRef>(null);
 
   return (
-    <BottomSheet isOpen={isOpen} onDismiss={onClose} safeArea>
-      <BottomSheet.Header>새 메모</BottomSheet.Header>
-      <BottomSheet.Body style={styles.formBody}>
-        <TripMemoForm ref={formRef} onSubmit={onSubmit} />
-      </BottomSheet.Body>
-      <BottomSheet.BottomActions>
-        <Button onPress={onClose} variant="outlined" fullWidth>취소</Button>
-        <Button onPress={() => formRef.current?.submit()} variant="contained" fullWidth>저장</Button>
-      </BottomSheet.BottomActions>
-    </BottomSheet>
+    <KeyboardDismissArea>
+      <BottomSheet isOpen={isOpen} onDismiss={onClose} safeArea>
+        <BottomSheet.Header>새 메모</BottomSheet.Header>
+        <BottomSheet.Body style={styles.formBody}>
+          <TripMemoForm ref={formRef} onSubmit={onSubmit} />
+        </BottomSheet.Body>
+        <BottomSheet.BottomActions>
+          <Button onPress={onClose} variant="outlined" fullWidth>취소</Button>
+          <Button onPress={() => formRef.current?.submit()} variant="contained" fullWidth>저장</Button>
+        </BottomSheet.BottomActions>
+      </BottomSheet>
+    </KeyboardDismissArea>
   );
 }
 

@@ -6,6 +6,7 @@ import Animated, {
   withDelay,
   withTiming,
 } from 'react-native-reanimated'
+import { palette } from '../../config/tokens'
 
 interface Props {
   children: ReactNode
@@ -61,5 +62,6 @@ const styles = StyleSheet.create({
   },
   content: {
     overflow: 'hidden',
+
   },
 })

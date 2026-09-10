@@ -16,7 +16,7 @@ export function FeedScreen() {
       <Suspense fallback={null}>
         <Contents />
       </Suspense>
-      <Fab size="large" onPress={() => router.push('/post/new')} style={styles.createButton}><MaterialIcons name="add" size={30} color="#fff" /></Fab>
+      <Fab size="medium" onPress={() => router.push('/post/new')} style={styles.createButton}><MaterialIcons name="add" size={24} color="#fff" /></Fab>
     </Box>
   )
 }

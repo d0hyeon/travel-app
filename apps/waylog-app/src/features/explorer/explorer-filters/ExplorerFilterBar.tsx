@@ -1,13 +1,13 @@
 import { PlaceCategoryTypeLabel } from '@waylog/domains/modules/place'
 import type { PropsWithChildren } from 'react'
-import { StyleSheet, Pressable, ScrollView } from 'react-native'
+import { StyleSheet, Pressable, ScrollView, type StyleProp, type ViewStyle } from 'react-native'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { Chip, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../shared/config/tokens'
 import { EXPLORER_CATEGORY_TYPES } from '../explorer.api'
 import { useExplorerFilterParams } from './useExplorerFilterParams'
-import { Locations } from '@waylog/domains/modules/location'
+import { LocationForm } from '../../location/LocationForm'
 
 export function ExplorerFilterBar({ children }: PropsWithChildren) {
   const { location, category, setLocation, setCategory } = useExplorerFilterParams()
@@ -15,20 +15,23 @@ export function ExplorerFilterBar({ children }: PropsWithChildren) {
 
   const openLocationPicker = () => {
     overlay.open(({ isOpen, close }) => (
-      <BottomSheet isOpen={isOpen} onDismiss={close} snapPoints={[0.75]}>
+      <BottomSheet isOpen={isOpen} onDismiss={close} snapPoints={[0.75]} safeArea>
         <BottomSheet.Header>지역 선택</BottomSheet.Header>
         <BottomSheet.Body>
-          <BottomSheet.ScrollView contentContainerStyle={styles.options}>
-            <OptionRow label="전체 지역" selected={location == null} onPress={() => { setLocation(undefined); close() }} />
-            {Locations.map((candidate) => (
-              <OptionRow
-                key={candidate}
-                label={candidate}
-                selected={candidate === location}
-                onPress={() => { setLocation(candidate); close() }}
-              />
-            ))}
-          </BottomSheet.ScrollView>
+          <OptionRow
+            label="전체 지역"
+            selected={location == null}
+            onPress={() => { setLocation(undefined); close() }}
+            style={styles.resetOption}
+          />
+          <LocationForm
+            defaultValue={location}
+            onSubmit={(selected) => { setLocation(selected); close() }}
+          >
+            <BottomSheet.BottomActions>
+              <LocationForm.SubmitButton>적용</LocationForm.SubmitButton>
+            </BottomSheet.BottomActions>
+          </LocationForm>
         </BottomSheet.Body>
       </BottomSheet>
     ))
@@ -64,9 +67,9 @@ export function ExplorerFilterBar({ children }: PropsWithChildren) {
   )
 }
 
-function OptionRow({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+function OptionRow({ label, selected, onPress, style }: { label: string; selected: boolean; onPress: () => void; style?: StyleProp<ViewStyle> }) {
   return (
-    <Pressable onPress={onPress} style={[styles.option, { backgroundColor: selected ? `${palette.primary}12` : 'transparent' }]}>
+    <Pressable onPress={onPress} style={[styles.option, { backgroundColor: selected ? `${palette.primary}12` : 'transparent' }, style]}>
       <Typography variant="body2" fontWeight={selected ? 'bold' : 'medium'} color={selected ? 'primary' : 'text.primary'}>
         {label}
       </Typography>
@@ -80,4 +83,5 @@ const styles = StyleSheet.create({
   filters: { flexGrow: 0 },
   filtersContent: { gap: 8 },
   option: { minHeight: 44, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderRadius: 8 },
+  resetOption: { marginHorizontal: 24, marginBottom: 8 },
 })

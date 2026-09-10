@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { format as formatDate } from 'date-fns'
-import { Pressable, StyleSheet, View } from 'react-native'
+import { Keyboard, Pressable, StyleSheet, View } from 'react-native'
 import { Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../config/tokens'
 import type { DateRange } from './datePicker.model'
@@ -38,6 +38,9 @@ export function DateField(props: DateFieldProps) {
 
   // 타입마다 고르는 모양이 달라 시트를 여는 길도 갈라진다.
   const handlePress = async () => {
+    // 폼 입력 중에 눌리는 자리다. 키보드가 떠 있으면 시트를 가려 날짜를 고를 수 없다.
+    Keyboard.dismiss()
+
     if (props.type === 'range') {
       const range = await datePickerBottomSheet.openRange({
         defaultValue: props.value ?? [null, null],

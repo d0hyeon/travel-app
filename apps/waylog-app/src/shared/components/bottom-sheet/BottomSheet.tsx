@@ -240,7 +240,8 @@ export function BottomSheet({
   // 손이 닿은 순간 스크롤이 최상단이었는지. 활성화 전에 재둬야 한다.
   const wasAtTop = useSharedValue(true)
 
-  // 핸들 바 전용. 스크롤과 경합할 일이 없어 양보 판정 없이 바로 끈다.
+  // 핸들 바·헤더용. 스크롤과 경합할 일이 없어 양보 판정 없이 바로 끈다.
+  // 최대 높이를 넘겨 끌면 본문 뷰포트만 부모보다 커져 하단 CTA 가 시트 밖으로 밀린다.
   const createDirectPan = useCallback(
     () =>
       Gesture.Pan()
@@ -248,12 +249,12 @@ export function BottomSheet({
           startH.set(sheetH.get())
         })
         .onUpdate((event) => {
-          sheetH.set(startH.get() - event.translationY)
+          sheetH.set(clampSheetHeight(startH.get() - event.translationY, maxH.get()))
         })
         .onEnd(() => {
           runOnJS(settleAtRest)(sheetH.get())
         }),
-    [startH, sheetH, settleAtRest],
+    [startH, sheetH, maxH, settleAtRest],
   )
   const handlePan = useMemo(() => createDirectPan(), [createDirectPan])
 

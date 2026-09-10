@@ -1,11 +1,11 @@
 import * as ImagePicker from 'expo-image-picker'
 import { MaterialIcons } from '@expo/vector-icons'
 import { StyleSheet, Pressable } from 'react-native'
-import { Box, Stack, Typography } from '~/shared/components/design-system'
+import { Box, Stack, StackProps, Typography } from '~/shared/components/design-system'
 import { LoadableImage } from '../../../shared/components/LoadableImage'
 import { usePlacePhotos } from './useTripPlacePhotos'
 
-interface PlacePhotoSectionProps {
+interface PlacePhotoSectionProps extends StackProps {
   tripId: string
   placeId: string
 }
@@ -14,7 +14,7 @@ interface PlacePhotoSectionProps {
  * 웹 PlacePhotoSection 과 같은 역할. 장소 사진 업로드·삭제를 담당한다.
  * 앱은 사진 상세 뷰어가 없어 삭제는 롱프레스로 받는다.
  */
-export function PlacePhotoSection({ tripId, placeId }: PlacePhotoSectionProps) {
+export function PlacePhotoSection({ tripId, placeId, ...props }: PlacePhotoSectionProps) {
   const { data: photos, upload, remove } = usePlacePhotos(tripId, placeId)
 
   const addPhoto = async () => {
@@ -28,8 +28,9 @@ export function PlacePhotoSection({ tripId, placeId }: PlacePhotoSectionProps) {
     if (!result.canceled) await upload(result.assets)
   }
 
+
   return (
-    <Stack gap={1}>
+    <Stack gap={1} {...props}>
       <Typography variant="subtitle2" style={styles.title}>사진</Typography>
       <Stack direction="row" gap={1} style={styles.photoList}>
         <Pressable onPress={() => void addPhoto()}>
