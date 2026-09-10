@@ -1,6 +1,7 @@
 import { PostVisibility, type Post } from '@waylog/domains/modules/post'
 import { MaterialIcons } from '@expo/vector-icons'
-import { StyleSheet,
+import {
+  StyleSheet,
   Pressable,
   ScrollView,
   useWindowDimensions,
@@ -9,7 +10,7 @@ import { StyleSheet,
   type NativeSyntheticEvent,
 } from 'react-native'
 import React from 'react'
-import { Box, Stack, Typography } from '~/shared/components/design-system'
+import { Box, Skeleton, Stack, Typography } from '~/shared/components/design-system'
 import { palette } from '../../shared/config/tokens'
 import { PostAuthor } from './PostAuthor'
 import { PostLikeButton } from './PostLikeButton'
@@ -57,6 +58,28 @@ export function PostCard({ post, onPress }: Props) {
         </Stack>
       </Box>
     </Pressable>
+  )
+}
+PostCard.Skeleton = PostCardSkeleton;
+function PostCardSkeleton() {
+  const [cardWidth, setCardWidth] = React.useState(0)
+  // 카드 폭을 재기 전에는 정사각형 높이를 알 수 없어 레이아웃이 순간 시프트한다.
+  // 화면 폭 근사치를 최소 높이로 먼저 잡아 자리를 비워 둔다.
+
+  const handleCardLayout = (event: LayoutChangeEvent) => {
+    const nextWidth = event?.nativeEvent?.layout?.width
+    if (typeof nextWidth !== 'number' || nextWidth <= 0) return
+    setCardWidth((currentWidth) => currentWidth === nextWidth ? currentWidth : nextWidth)
+  }
+
+  return (
+    <Box onLayout={handleCardLayout} style={styles.card}>
+      <Skeleton width={cardWidth} height={cardWidth} />
+      <Stack style={styles.content}>
+        <Skeleton height={30} width={100} />
+        <Skeleton height={20} width={50} />
+      </Stack>
+    </Box>
   )
 }
 

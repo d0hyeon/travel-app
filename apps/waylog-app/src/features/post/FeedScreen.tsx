@@ -10,44 +10,54 @@ import { PostCard } from './PostCard'
 
 export function FeedScreen() {
   const router = useRouter()
+  const insets = useSafeAreaInsets()
 
   return (
     <Box style={styles.screen}>
-      <Suspense fallback={null}>
-        <Contents />
-      </Suspense>
-      <Fab size="medium" onPress={() => router.push('/post/new')} style={styles.createButton}><MaterialIcons name="add" size={24} color="#fff" /></Fab>
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingTop: insets.top, paddingBottom: insets.bottom + 96 }]}
+        showsVerticalScrollIndicator={false}
+      >
+        <Typography style={styles.title}>
+          피드
+        </Typography>
+        <Suspense
+          fallback={
+            <Stack style={styles.posts}>
+              <PostCard.Skeleton />
+              <PostCard.Skeleton />
+              <PostCard.Skeleton />
+            </Stack>
+          }
+        >
+          <Contents />
+        </Suspense>
+      </ScrollView>
+      <Fab size="large" onPress={() => router.push('/post/new')} style={styles.createButton}><MaterialIcons name="add" size={30} color="#fff" /></Fab>
     </Box>
   )
 }
 
 function Contents() {
   const { data: posts } = useFeed()
-  const insets = useSafeAreaInsets()
   const router = useRouter()
 
   const openPost = (postId: string) => {
     router.push(`/post/${postId}`)
   }
 
+  if (posts.length === 0) {
+    return (
+      <Box style={styles.emptyState}>
+        <Typography style={styles.emptyMessage}>아직 포스트가 없어요</Typography>
+      </Box>
+    )
+  }
+
   return (
-    <ScrollView
-      contentContainerStyle={[styles.content, { paddingTop: insets.top, paddingBottom: insets.bottom + 96 }]}
-      showsVerticalScrollIndicator={false}
-    >
-      <Typography style={styles.title}>
-        피드
-      </Typography>
-      {posts.length === 0 ? (
-        <Box style={styles.emptyState}>
-          <Typography style={styles.emptyMessage}>아직 포스트가 없어요</Typography>
-        </Box>
-      ) : (
-        <Stack style={styles.posts}>
-          {posts.map((post) => <PostCard key={post.id} post={post} onPress={() => openPost(post.id)} />)}
-        </Stack>
-      )}
-    </ScrollView>
+    <Stack style={styles.posts}>
+      {posts.map((post) => <PostCard key={post.id} post={post} onPress={() => openPost(post.id)} />)}
+    </Stack>
   )
 }
 
