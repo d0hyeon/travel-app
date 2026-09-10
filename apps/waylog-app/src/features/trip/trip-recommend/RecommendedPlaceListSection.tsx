@@ -4,7 +4,7 @@ import { useRecommendedPlaces } from '@waylog/domains/modules/trip-recommend'
 import type { RecommendedPlace } from '@waylog/domains/modules/trip-recommend'
 import { Suspense, type ReactNode } from 'react'
 import { StyleSheet, Pressable, ScrollView } from 'react-native'
-import { Box, Chip, Skeleton, Stack, Typography } from '~/shared/components/design-system'
+import { Box, Skeleton, Stack, Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../../shared/config/tokens'
 import { useRecommendedPlaceDetailOverlay } from './RecommendedPlaceDetailOverlay'
 import { LoadableImage } from '../../../shared/components/LoadableImage'
@@ -70,13 +70,6 @@ function RecommendedPlaceCard({
               <MaterialIcons name="room" size={28} color={accentColor ?? palette.textSecondary} />
             )}
           </Box>
-          {place.tripCount > 1 && (
-            <Chip
-              label={`${place.tripCount}회`}
-              size="small"
-              style={styles.categoryBadge}
-            />
-          )}
         </Box>
         <Box style={styles.details}>
           <Typography variant="caption" numberOfLines={1}>
@@ -106,6 +99,5 @@ const styles = StyleSheet.create({
   imageArea: { position: 'relative' },
   imagePlaceholder: { width: '100%', height: 72, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   image: { width: '100%', height: '100%' },
-  categoryBadge: { position: 'absolute', top: 4, right: 4, backgroundColor: 'rgba(0,0,0,0.55)' },
   details: { padding: 6 },
 })
