@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import type { StyleProp, ViewStyle } from 'react-native'
 import type { DerivedValue, SharedValue } from 'react-native-reanimated'
 import type { TabSlot } from './tabNavigationGesture'
 
@@ -47,6 +48,8 @@ export interface TabNavigationProps {
    * 화면 전환처럼 무거운 일은 여기서 하지 않는다 — 훑고 지나간 탭까지 전부 실행된다.
    */
   onTab?: (key: string) => void
+  /** 탭바가 놓일 자리. 배치는 외형(variant)이 아니라 놓는 쪽이 정한다 */
+  style?: StyleProp<ViewStyle>
   children: ReactNode
 }
 

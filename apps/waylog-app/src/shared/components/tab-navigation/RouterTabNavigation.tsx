@@ -1,5 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs'
+import type { StyleProp, ViewStyle } from 'react-native'
 import { TabNavigation } from './TabNavigation'
 import type { TabNavigationVariant } from './TabNavigation.types'
 
@@ -12,6 +13,8 @@ export const TRANSPARENT_SCENE_STYLE = { backgroundColor: 'transparent' } as con
 
 interface RouterTabNavigationProps extends BottomTabBarProps {
   variant: TabNavigationVariant
+  /** 탭바가 놓일 자리. 떠 있는 배치는 소비자가 정한다 */
+  style?: StyleProp<ViewStyle>
   /** 하단바에 보일 라우트 이름. 순서도 이 배열을 따른다 */
   visibleNames: string[]
   /** 드래그가 새 탭 위를 지날 때마다 불린다. 화면 전환은 손을 뗄 때 일어난다 */
@@ -25,6 +28,7 @@ export function RouterTabNavigation({
   variant,
   visibleNames,
   onTab,
+  style,
 }: RouterTabNavigationProps) {
   const visibleTabs = visibleNames.flatMap((name) => {
     const route = state.routes.find((candidate) => candidate.name === name)
@@ -51,6 +55,7 @@ export function RouterTabNavigation({
   return (
     <TabNavigation
       variant={variant}
+      style={style}
       value={focusedRoute?.name ?? ''}
       onChange={handleChange}
       onTab={onTab}

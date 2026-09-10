@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { useEffect, useState } from 'react'
 import { BlurView } from 'expo-blur'
 import { LinearGradient } from 'expo-linear-gradient'
@@ -11,7 +11,7 @@ import { TabCapsule, TabCapsuleBurst } from './TabCapsule'
 import { TabCapsuleDragArea } from './TabCapsuleDragArea'
 import { useItemLayouts } from './useItemLayouts'
 import { useTabCapsuleState } from './useTabCapsuleState'
-import { TAB_BAR_HEIGHT, useTabBarAppearance } from './useTabBarAppearance'
+import { FLOATING_MARGIN, TAB_BAR_HEIGHT, useTabBarAppearance } from './useTabBarAppearance'
 import type { TabNavigationItemLayout, TabNavigationProps } from './TabNavigation.types'
 
 export function TabNavigation({
@@ -20,6 +20,7 @@ export function TabNavigation({
   defaultValue,
   onChange,
   onTab,
+  style,
   children,
 }: TabNavigationProps) {
   const { isApple, variantProgress, shadowStyle, containerStyle, defaultGradientStyle } =
@@ -57,23 +58,56 @@ export function TabNavigation({
     <TabNavigationContext.Provider
       value={{ activeKey, variant, onSelect: handleSelect, reportItemLayout, capsule, orderedSlots }}
     >
-      <Animated.View style={[isApple && styles.floating, shadowStyle]}>
-        <TabCapsuleDragArea onFinish={commitSelection} onMove={onTab}>
-          <Animated.View style={[styles.container, containerStyle]}>
-            <Animated.View style={[styles.gradient, defaultGradientStyle]}>
-              <LinearGradient
-                colors={[palette.background, '#f4f5f7']}
-                style={styles.gradientFill}
-              />
+      <View style={style} pointerEvents="box-none">
+        {isApple && <FloatingGapVeil />}
+        <Animated.View style={shadowStyle}>
+          <TabCapsuleDragArea onFinish={commitSelection} onMove={onTab}>
+            <Animated.View style={[styles.container, containerStyle]}>
+              <Animated.View style={[styles.gradient, defaultGradientStyle]}>
+                <LinearGradient
+                  colors={[palette.background, '#f4f5f7']}
+                  style={styles.gradientFill}
+                />
+              </Animated.View>
+              {isApple && (
+                <BlurView
+                  intensity={40}
+                  tint="light"
+                  // Android 는 기본이 'none' 이라 블러 없이 반투명 판만 남는다.
+                  experimentalBlurMethod="dimezisBlurView"
+                  style={styles.blur}
+                />
+              )}
+              <TabCapsule />
+              {children}
+              <TabCapsuleBurst />
             </Animated.View>
-            {isApple && <BlurView intensity={80} tint="light" style={styles.blur} />}
-            <TabCapsule />
-            {children}
-            <TabCapsuleBurst />
-          </Animated.View>
-        </TabCapsuleDragArea>
-      </Animated.View>
+          </TabCapsuleDragArea>
+        </Animated.View>
+      </View>
     </TabNavigationContext.Provider>
+  )
+}
+
+/**
+ * 떠 있는 pill 아래 여백. pill 이 화면 바닥에서 떨어져 있어 그 틈으로
+ * 콘텐츠가 그대로 비친다. pill 과 같은 블러를 깔되 아래로 갈수록 옅어져
+ * 화면 바닥과 이어지게 한다.
+ */
+function FloatingGapVeil() {
+  return (
+    <View style={styles.gapVeil} pointerEvents="none">
+      <BlurView
+        intensity={32}
+        tint="light"
+        experimentalBlurMethod="dimezisBlurView"
+        style={StyleSheet.absoluteFill}
+      />
+      <LinearGradient
+        colors={['rgba(251,251,253,0.4)', 'rgba(251,251,253,0)']}
+        style={StyleSheet.absoluteFill}
+      />
+    </View>
   )
 }
 
@@ -81,13 +115,12 @@ TabNavigation.Item = TabNavigationItem
 TabNavigation.HEIGHT = TAB_BAR_HEIGHT
 
 const styles = StyleSheet.create({
-  // 떠 있는 pill 은 scene 위에 얹힌다. 레이아웃 높이를 잡지 않아야
-  // 그 아래로 지도·리스트가 바닥까지 이어진다.
-  floating: {
+  gapVeil: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
+    height: FLOATING_MARGIN.bottom,
   },
   container: {
     flexDirection: 'row',

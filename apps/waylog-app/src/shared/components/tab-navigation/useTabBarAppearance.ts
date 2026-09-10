@@ -27,7 +27,7 @@ export const TAB_BAR_SIDE_INSET = 16
 
 // 시안의 떠 있는 pill. 화면 가장자리에서 띄우고 사방을 라운드 처리한다.
 // 하단은 홈 인디케이터와 겹쳐 보이지 않도록 좌우보다 넉넉히 띄운다.
-const FLOATING_MARGIN = {
+export const FLOATING_MARGIN = {
   side: TAB_BAR_SIDE_INSET,
   bottom: 24,
 } as const
@@ -82,7 +82,9 @@ export function useTabBarAppearance(variant: TabNavigationVariant) {
     borderTopRightRadius: interpolate(variantProgress.get(), [0, 1], [28, TAB_BAR_HEIGHT.apple / 2]),
     borderBottomLeftRadius: interpolate(variantProgress.get(), [0, 1], [0, TAB_BAR_HEIGHT.apple / 2]),
     borderBottomRightRadius: interpolate(variantProgress.get(), [0, 1], [0, TAB_BAR_HEIGHT.apple / 2]),
-    backgroundColor: isApple ? 'rgba(251,251,253,0.72)' : palette.background,
+    // apple 은 BlurView 가 뒤 콘텐츠를 흐린다. 여기에 불투명 배경을 겹치면
+    // 블러가 그 아래 묻혀 유리가 아니라 반투명 판이 된다. 대비를 살릴 만큼만 얹는다.
+    backgroundColor: isApple ? 'rgba(251,251,253,0.55)' : palette.background,
   }))
 
   const defaultGradientStyle = useAnimatedStyle(() => ({

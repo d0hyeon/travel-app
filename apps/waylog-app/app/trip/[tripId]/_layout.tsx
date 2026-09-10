@@ -35,6 +35,7 @@ export default function TripDetailLayout() {
                 {...props}
                 variant="apple"
                 visibleNames={['index', 'place', 'route', 'expense', 'photo']}
+                style={styles.floatingTabBar}
               />
             )}
             screenOptions={{
@@ -66,4 +67,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: palette.background },
   retryButton: { marginTop: 12 },
   header: { backgroundColor: palette.background },
+  // 탭바가 scene 위에 얹혀야 콘텐츠가 바닥까지 이어진다. 가려지는 높이는
+  // 각 화면이 FLOATING_TAB_BAR_RESERVE 로 비운다.
+  floatingTabBar: { position: 'absolute', left: 0, right: 0, bottom: 0 },
 })
