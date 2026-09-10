@@ -1,11 +1,14 @@
-import { Children, isValidElement, type ReactNode, useCallback, useRef, useState } from 'react'
+import { Children, isValidElement, type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
+import { ImpactFeedbackStyle, impactAsync } from 'expo-haptics'
 import Animated, { type SharedValue, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { palette, zLayer } from '../../../config/tokens'
 import { MenuFabContext } from './MenuFabContext'
 import { MenuFabItem } from './MenuFabItem'
-import { CLOSE_DURATION_MS, FAB_SIZE, HINT_LAYERS, LONG_PRESS_DELAY_MS, OPEN_DURATION_MS, getHintLayerOffset } from './menuFabMotion'
+import { CLOSE_DURATION_MS, FAB_SIZE, HINT_LAYERS, HINT_PRESS_DURATION_MS, LONG_PRESS_DELAY_MS, OPEN_DURATION_MS, getHintLayerOffset } from './menuFabMotion'
+
+const HINT_HAPTIC_DELAY_MS = 100
 
 export interface MenuFabProps {
   onPress?: () => void
@@ -19,9 +22,20 @@ function MenuFabRoot({ onPress, children, disabled = false, style }: MenuFabProp
   const menuProgress = useSharedValue(0)
   const pressProgress = useSharedValue(0)
   const didLongPress = useRef(false)
+  const hapticTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const items = Children.toArray(children)
   const itemCount = items.length
   const isMenuInteractive = isOpen && !disabled
+
+  const cancelHintHaptic = useCallback(() => {
+    clearTimeout(hapticTimer.current)
+    hapticTimer.current = undefined
+  }, [])
+
+  useEffect(() => {
+    if (disabled) cancelHintHaptic()
+    return cancelHintHaptic
+  }, [disabled, cancelHintHaptic])
 
   const closeMenu = useCallback(() => {
     menuProgress.set(withTiming(0, { duration: CLOSE_DURATION_MS }))
@@ -105,10 +119,17 @@ function MenuFabRoot({ onPress, children, disabled = false, style }: MenuFabProp
             }}
             onAccessibilityEscape={closeMenu}
             onPressIn={() => {
+              if (disabled) return
+              cancelHintHaptic()
+              hapticTimer.current = setTimeout(() => {
+                hapticTimer.current = undefined
+                impactAsync(ImpactFeedbackStyle.Light).catch(() => {})
+              }, HINT_HAPTIC_DELAY_MS)
               didLongPress.current = false
-              pressProgress.set(withTiming(1, { duration: LONG_PRESS_DELAY_MS }))
+              pressProgress.set(withTiming(1, { duration: HINT_PRESS_DURATION_MS }))
             }}
             onPressOut={() => {
+              cancelHintHaptic()
               pressProgress.set(withTiming(0, { duration: 150 }))
             }}
             onLongPress={() => {

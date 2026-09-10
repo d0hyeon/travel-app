@@ -34,8 +34,8 @@ export interface HintLayerSpec {
 }
 
 export const HINT_LAYERS: readonly [HintLayerSpec, HintLayerSpec] = [
-  { size: 44, opacity: 0.2, restingOffset: 6, pressedOffset: 10 },
-  { size: 36, opacity: 0.1, restingOffset: 11, pressedOffset: 18 },
+  { size: 52, opacity: 0.36, restingOffset: 5, pressedOffset: 14 },
+  { size: 44, opacity: 0.22, restingOffset: 9, pressedOffset: 24 },
 ]
 
 export function getHintLayerOffset(layer: HintLayerSpec, pressProgress: number): number {
@@ -44,6 +44,7 @@ export function getHintLayerOffset(layer: HintLayerSpec, pressProgress: number):
   return layer.restingOffset + (layer.pressedOffset - layer.restingOffset) * pressProgress
 }
 
-export const LONG_PRESS_DELAY_MS = 400
+export const LONG_PRESS_DELAY_MS = 250
+export const HINT_PRESS_DURATION_MS = 180
 export const OPEN_DURATION_MS = 220
 export const CLOSE_DURATION_MS = 160
