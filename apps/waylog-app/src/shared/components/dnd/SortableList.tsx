@@ -46,6 +46,7 @@ type Props<T extends { id: string }> = {
   header?: ReactNode
   /** 목록 좌우 여백. 행과 헤더에 함께 적용된다. */
   paddingHorizontal?: number
+  paddingBottom?: number
   children?: ReactNode
 }
 
@@ -64,6 +65,7 @@ export function SortableList<T extends { id: string }>({
   disabled,
   header,
   paddingHorizontal = 0,
+  paddingBottom = 40,
   ref,
 }: Props<T> & { ref?: Ref<SortableListRef> }) {
   const [items, setItems] = useState(_items);
@@ -111,7 +113,7 @@ export function SortableList<T extends { id: string }>({
       data={items}
       keyExtractor={(item) => item.id}
       style={styles.list}
-      contentContainerStyle={[styles.listContent, { paddingHorizontal }]}
+      contentContainerStyle={[{ paddingHorizontal, paddingBottom }]}
       ListHeaderComponent={header == null ? undefined : () => <>{header}</>}
       shouldUpdateActiveItem
       panGesture={dragPanGesture}
@@ -203,9 +205,5 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-
-  listContent: {
-    paddingBottom: 40,
   },
 })
