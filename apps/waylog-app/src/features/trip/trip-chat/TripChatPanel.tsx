@@ -1,10 +1,11 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { useTripChatMessages, markAsRead, useChatActivation } from '@waylog/domains/modules/trip-chat'
 import { Suspense, useMemo, useState, type ReactNode } from 'react'
-import { StyleSheet, FlatList, KeyboardAvoidingView, Platform, TextInput } from 'react-native'
+import { StyleSheet, FlatList, TextInput, useWindowDimensions } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { IconButton, Skeleton, Stack, Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../../shared/config/tokens'
+import { useKeyboardMetrics } from '../../../shared/hooks/env/useKeyboardMetrics'
 import { ChatPushNoticeCard } from './ChatPushNoticeCard'
 import { TripChatMessage } from './TripChatMessage'
 
@@ -52,6 +53,12 @@ function Resolved({ tripId }: Props) {
   })
   const [content, setContent] = useState('')
   const insets = useSafeAreaInsets()
+  const { metrics: keyboard } = useKeyboardMetrics()
+  const { height: screenHeight } = useWindowDimensions()
+
+  // screenY 는 키보드 상단의 화면 절대 좌표다. 이 패널은 paddingTop 을 준
+  // 오버레이 안에서 열려 자기 프레임을 재는 방식은 좌표계가 어긋난다.
+  const keyboardHeight = keyboard == null ? 0 : screenHeight - keyboard.screenY
 
   // 최신 메시지가 아래에 오도록 뒤집어 그린다. inverted 는 스크롤 위치를
   // 아래에서 시작시키므로 목록을 끝으로 밀어 주는 별도 처리가 필요 없다.
@@ -69,10 +76,7 @@ function Resolved({ tripId }: Props) {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <Stack style={[styles.container, { paddingBottom: keyboardHeight }]}>
       <Suspense>
         <ChatPushNoticeCard style={styles.pushNotice} />
       </Suspense>
@@ -101,7 +105,7 @@ function Resolved({ tripId }: Props) {
         direction="row"
         alignItems="flex-end"
         gap={1}
-        style={[styles.composer, { paddingBottom: insets.bottom + 12 }]}
+        style={[styles.composer, { paddingBottom: keyboard == null ? insets.bottom + 12 : 12 }]}
       >
         <TextInput
           multiline
@@ -119,7 +123,7 @@ function Resolved({ tripId }: Props) {
           />
         </IconButton>
       </Stack>
-    </KeyboardAvoidingView>
+    </Stack>
   )
 }
 
