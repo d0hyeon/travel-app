@@ -33,6 +33,13 @@ const FLOATING_MARGIN = {
 } as const
 
 /**
+ * apple variant 탭바가 화면 바닥에서 차지하는 총 높이.
+ * 탭바는 scene 위에 떠 있어 레이아웃 높이를 잡지 않는다. 그 아래로
+ * 이어지는 콘텐츠는 이 값만큼 끝에 여백을 둬야 마지막 항목이 가려지지 않는다.
+ */
+export const FLOATING_TAB_BAR_RESERVE = TAB_BAR_HEIGHT.apple + FLOATING_MARGIN.bottom
+
+/**
  * variant 에 따라 탭바 외형을 만든다. variant 하나에서 파생될 뿐 다른 상태에
  * 영향을 주지 않으므로, 캡슐·제스처와 달리 따로 떼어 둘 수 있다.
  *

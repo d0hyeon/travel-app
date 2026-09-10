@@ -57,7 +57,7 @@ export function TabNavigation({
     <TabNavigationContext.Provider
       value={{ activeKey, variant, onSelect: handleSelect, reportItemLayout, capsule, orderedSlots }}
     >
-      <Animated.View style={shadowStyle}>
+      <Animated.View style={[isApple && styles.floating, shadowStyle]}>
         <TabCapsuleDragArea onFinish={commitSelection} onMove={onTab}>
           <Animated.View style={[styles.container, containerStyle]}>
             <Animated.View style={[styles.gradient, defaultGradientStyle]}>
@@ -81,6 +81,14 @@ TabNavigation.Item = TabNavigationItem
 TabNavigation.HEIGHT = TAB_BAR_HEIGHT
 
 const styles = StyleSheet.create({
+  // 떠 있는 pill 은 scene 위에 얹힌다. 레이아웃 높이를 잡지 않아야
+  // 그 아래로 지도·리스트가 바닥까지 이어진다.
+  floating: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
   container: {
     flexDirection: 'row',
     overflow: 'hidden',
