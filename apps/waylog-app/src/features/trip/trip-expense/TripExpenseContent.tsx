@@ -12,6 +12,7 @@ import { SettlementSummary } from './SettlementSummary'
 import { useExpenseFormBottomSheet } from './useExpenseFormOverlay'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
+import { FLOATING_TAB_BAR_RESERVE } from '../../../shared/components'
 
 interface Props {
   tripId: string
@@ -93,7 +94,7 @@ export default function TripExpenseContent({ tripId }: Props) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: palette.background },
   emptyMessage: { padding: 24, textAlign: 'center' },
-  scrollContent: { padding: 16 },
+  scrollContent: { padding: 16, paddingBottom: 16 + FLOATING_TAB_BAR_RESERVE },
   actions: { padding: 8 },
   actionButton: { flex: 1 },
 })

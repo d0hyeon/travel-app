@@ -16,6 +16,7 @@ import { useTripPhotos } from './useTripPhotos'
 import { usePhotoViewerState } from './usePhotoViewerState'
 import { ZoomArea } from '../../../shared/components/photo/ZoomArea'
 import { LoadableImage } from '../../../shared/components/LoadableImage'
+import { FLOATING_TAB_BAR_RESERVE } from '../../../shared/components'
 
 const COLUMNS = 3
 const GAP = 2
@@ -141,7 +142,7 @@ export function TripPhotoContent({ tripId }: Props) {
         keyExtractor={(item) => item.id}
         numColumns={COLUMNS}
         columnWrapperStyle={styles.photoRow}
-        contentContainerStyle={styles.photoList}
+        contentContainerStyle={[styles.photoList, isReadonly && styles.photoListReserve]}
         renderItem={({ item }) => (
           'kind' in item ? (
             <Pressable
@@ -199,7 +200,7 @@ export function TripPhotoContent({ tripId }: Props) {
       {/* 웹과 같이 선택 모드에서는 하단 고정 삭제 버튼만 둔다.
           공개 전환은 사진을 열었을 때 뷰어 안에서 한다. */}
       {!isReadonly && (
-        <BottomArea position="static">
+        <BottomArea position="static" bottom={8 + FLOATING_TAB_BAR_RESERVE}>
           <Button
             size="large"
             color="error"
@@ -362,6 +363,8 @@ const styles = StyleSheet.create({
   selectionButton: { borderRadius: 24, backgroundColor: 'rgba(0, 0, 0, 0.3)' },
   photoRow: { gap: GAP },
   photoList: { gap: GAP, paddingHorizontal: LIST_PADDING, paddingBottom: 16 },
+  // 선택 모드에서는 아래 CTA 가 탭바 여백을 진다. 읽기 전용일 때만 리스트가 진다.
+  photoListReserve: { paddingBottom: 16 + FLOATING_TAB_BAR_RESERVE },
   uploadButton: { alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderStyle: 'dashed', borderColor: '#d5d5d5', borderRadius: 8 },
   photoItem: { position: 'relative' },
   photo: { borderRadius: 8 },
