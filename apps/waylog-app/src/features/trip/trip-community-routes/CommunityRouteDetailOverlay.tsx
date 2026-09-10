@@ -24,6 +24,7 @@ import {
 } from '~/shared/components/design-system'
 import { palette, radius } from '../../../shared/config/tokens'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
+import { useLoading } from '@waylog/react'
 
 interface Props {
   communityTrip: CommunityTrip
@@ -72,7 +73,9 @@ function DetailContent({
   const { data: routes } = useCommunityRouteDetail(communityTrip.id)
   const { data: myPlaces } = useTripPlaces(tripId)
 
-  const myPlaceIds = useMemo(() => myPlaces.map((place) => place.id), [myPlaces])
+  // 커뮤니티 장소와 맞춰 보려면 양쪽이 마스터 places.id 여야 한다.
+  // TripPlace.id 는 내 trip_places 행 id 라 종류가 다르다.
+  const myPlaceIds = useMemo(() => myPlaces.map((place) => place.placeId), [myPlaces])
 
   const datedRoutes = routes.filter((route) => route.scheduledDate)
   const undatedRoutes = routes.filter((route) => !route.scheduledDate)
@@ -118,11 +121,11 @@ function DetailContent({
           <Map defaultCenter={mapCenter} autoFocus="path">
             {currentRoute.places.map((place, index) => (
               <Map.Marker
-                key={place.id}
+                key={place.placeId}
                 lat={place.lat}
                 lng={place.lng}
                 label={`${index + 1}. ${place.name}`}
-                color={myPlaceIds.includes(place.id) ? 'selected' : 'disabled'}
+                color={myPlaceIds.includes(place.placeId) ? 'selected' : 'disabled'}
               />
             ))}
             <Suspense>
@@ -145,11 +148,10 @@ function DetailContent({
         )}
         {currentRoute?.places.map((place, index) => (
           <PlaceRow
-            key={place.id}
+            key={`community-route-place-${place.placeId}`}
             place={place}
             index={index}
             tripId={tripId}
-            alreadyAdded={myPlaceIds.includes(place.id)}
           />
         ))}
       </BottomSheet.Body>
@@ -161,23 +163,24 @@ interface PlaceRowProps {
   place: CommunityPlace
   index: number
   tripId: string
-  alreadyAdded: boolean
 }
 
-function PlaceRow({ place, index, tripId, alreadyAdded }: PlaceRowProps) {
-  const { refetch } = useTripPlaces(tripId)
-  const [isAdding, setIsAdding] = useState(false)
-  const [isAdded, setIsAdded] = useState(alreadyAdded)
+function PlaceRow({ place, index, tripId }: PlaceRowProps) {
+  const { data: alreadyPlaces, refetch } = useTripPlaces(tripId)
 
-  const handleAdd = async () => {
-    setIsAdding(true)
-    try {
-      await createTripPlace({ tripId, placeId: place.id, status: 'wished' })
-      setIsAdded(true)
-      refetch()
-    } finally {
-      setIsAdding(false)
-    }
+  const [isAdding, startTransition] = useLoading()
+  const isAdded = alreadyPlaces.some(already => already.placeId === place.placeId);
+
+  const handleAdd = () => {
+    startTransition(async () => {
+      await createTripPlace({
+        ...place,
+        placeId: place.placeId,
+        tripId,
+        status: 'wished'
+      })
+      await refetch();
+    })
   }
 
   return (

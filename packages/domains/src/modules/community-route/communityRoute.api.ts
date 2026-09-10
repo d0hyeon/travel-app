@@ -22,6 +22,7 @@ interface CommunityRoutePlaceRow {
   route_id: string
   route_name: string
   scheduled_date: string | null
+  /** 마스터 places.id. 순서 계산에 쓰는 trip_places.id 는 내보내지 않는다 */
   place_id: string
   place_name: string
   place_address: string
@@ -80,7 +81,7 @@ export async function getRoutesWithPlacesByTripId(
     }
     if (row.place_id) {
       const place: CommunityPlace = {
-        id: row.place_id,
+        placeId: row.place_id,
         name: row.place_name,
         address: row.place_address ?? '',
         lat: row.place_lat,

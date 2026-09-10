@@ -311,7 +311,7 @@ CREATE OR REPLACE FUNCTION "public"."get_routes_with_places_by_trip_id"("p_trip_
     r.id AS route_id,
     r.name AS route_name,
     r.scheduled_date,
-    tp.id AS place_id,
+    tp.place_id AS place_id,
     pl.name AS place_name,
     pl.address AS place_address,
     pl.lat AS place_lat,

@@ -52,7 +52,9 @@ function DetailContent({ communityTrip, tripId }: { communityTrip: CommunityTrip
   const { data: myPlaces } = useTripPlaces(tripId);
   const { data: { isOverseas } } = useTrip(tripId)
 
-  const myPlaceIds = useMemo(() => new Set(myPlaces.map((p) => p.id)), [myPlaces])
+  // 커뮤니티 장소와 맞춰 보려면 양쪽이 마스터 places.id 여야 한다.
+  // TripPlace.id 는 내 trip_places 행 id 라 종류가 다르다.
+  const myPlaceIds = useMemo(() => new Set(myPlaces.map((p) => p.placeId)), [myPlaces])
 
   const datedRoutes = routes.filter((r) => r.scheduledDate)
   const undatedRoutes = routes.filter((r) => !r.scheduledDate)
@@ -114,11 +116,11 @@ function DetailContent({ communityTrip, tripId }: { communityTrip: CommunityTrip
           >
             {currentRoute.places.map((place, idx) => (
               <Map.Marker
-                key={place.id}
+                key={place.placeId}
                 lat={place.lat}
                 lng={place.lng}
                 label={`${idx + 1}. ${place.name}`}
-                color={myPlaceIds.has(place.id) ? "selected" : "disabled"}
+                color={myPlaceIds.has(place.placeId) ? "selected" : "disabled"}
               />
             ))}
             <Suspense>
@@ -136,11 +138,11 @@ function DetailContent({ communityTrip, tripId }: { communityTrip: CommunityTrip
         )}
         {currentRoute?.places.map((place, idx) => (
           <PlaceRow
-            key={place.id}
+            key={place.placeId}
             place={place}
             index={idx}
             tripId={tripId}
-            alreadyAdded={myPlaceIds.has(place.id)}
+            alreadyAdded={myPlaceIds.has(place.placeId)}
           />
         ))}
       </BottomSheet.Scrollable>
@@ -163,7 +165,7 @@ function PlaceRow({ place, index, tripId, alreadyAdded }: PlaceRowProps) {
   const handleAdd = async () => {
     setAdding(true)
     try {
-      await createTripPlace({ tripId, placeId: place.id, status: 'wished' })
+      await createTripPlace({ tripId, placeId: place.placeId, status: 'wished' })
       setAdded(true)
       refetch()
     } finally {
