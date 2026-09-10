@@ -23,7 +23,9 @@ export function useTripRoutes(id: string) {
   const queryClient = useQueryClient();
   const { data: trip, ...tripQueries } = useTrip(id);
 
-  const { data: routes, ...routeQueries } = useSuspenseQuery(useTripRoutes.query(id));
+  const { data: routes, ...routeQueries } = useSuspenseQuery(
+    useTripRoutes.query(id),
+  );
 
   const dates = useMemo(() => {
     const diffDays = differenceInDays(trip.endDate, trip.startDate);
@@ -32,7 +34,7 @@ export function useTripRoutes(id: string) {
     );
   }, [trip.startDate, trip.endDate]);
 
-  const { mutateAsync: create } = useMutation({
+  const creation = useMutation({
     mutationFn: (
       params: OmitPartial<
         Parameters<typeof createRoute>[0],
@@ -51,7 +53,7 @@ export function useTripRoutes(id: string) {
     },
   });
 
-  const { mutateAsync: toggleVisible } = useMutation({
+  const updateVisibleMutation = useMutation({
     mutationFn: (params: { routeId: string; placeId: string }) => {
       const route = routes.find((x) => x.id === params.routeId);
       assert(!!route, "존재하지 않는 경로입니다.");
@@ -67,7 +69,7 @@ export function useTripRoutes(id: string) {
     },
   });
 
-  const { mutateAsync: update } = useMutation({
+  const updation = useMutation({
     mutationFn: ({
       routeId,
       ...payload
@@ -79,7 +81,7 @@ export function useTripRoutes(id: string) {
     },
   });
 
-  const { mutateAsync: remove } = useMutation({
+  const deletion = useMutation({
     mutationFn: deleteRoute,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: useTripRoutes.key(id) });
@@ -88,10 +90,13 @@ export function useTripRoutes(id: string) {
 
   return {
     data: { trip, routes, tripDates: dates },
-    create,
-    update,
-    remove,
-    toggleVisible,
+    create: Object.assign(creation.mutateAsync, creation),
+    update: Object.assign(updation.mutateAsync, updation),
+    remove: Object.assign(deletion.mutateAsync, deletion),
+    toggleVisible: Object.assign(
+      updateVisibleMutation.mutateAsync,
+      updateVisibleMutation,
+    ),
     ...mergeQueriesStatus(tripQueries, routeQueries),
   };
 }
