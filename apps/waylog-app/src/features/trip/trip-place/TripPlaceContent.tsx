@@ -3,6 +3,7 @@ import { Box, Stack, Typography } from "~/shared/components/design-system";
 import { palette } from "../../../shared/config/tokens";
 import { Suspense, useMemo, useRef, useState } from "react";
 import { BottomArea } from '../../../shared/components/BottomArea';
+import { TAB_BAR_SIDE_INSET } from '../../../shared/components';
 import { arraySplit } from '@waylog/utility';
 import { BottomSheet } from "../../../shared/components/bottom-sheet/BottomSheet";
 import { Map, type MapRef } from "../../../shared/components/Map";
@@ -139,9 +140,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
         </BottomSheet>
 
       </Box>
-      <BottomArea
-        position="static"
-      >
+      <BottomArea position="static" style={styles.bottomCta}>
         <TripPlaceAdditionButton
           tripId={tripId}
           onAddedPlace={(place) => {
@@ -159,6 +158,8 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, position: 'relative', overflow: 'hidden' },
+  // 떠 있는 탭바와 좌우 끝선을 맞춘다.
+  bottomCta: { paddingHorizontal: TAB_BAR_SIDE_INSET },
   mapArea: { position: 'absolute', top: 0, left: 0, right: 0 },
   listContent: { paddingHorizontal: 12, paddingBottom: 40 },
   listHeading: { marginBottom: 12 },

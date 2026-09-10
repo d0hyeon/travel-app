@@ -11,6 +11,7 @@ import { ListItem } from '../../../shared/components/ListItem'
 import { SortableItem, SortableList, type SortableListRef } from '../../../shared/components/dnd/SortableList'
 import { Map, type MapRef } from '../../../shared/components/Map'
 import { BottomArea } from '../../../shared/components/BottomArea'
+import { TAB_BAR_SIDE_INSET } from '../../../shared/components'
 import { useCurrentCoordinate } from '../../../shared/hooks/env/useCurrentCoordinate'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
@@ -342,7 +343,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
           </BottomSheet.Body>
         </BottomSheet>
       </Box>
-      <BottomArea position="static">
+      <BottomArea position="static" style={styles.bottomCta}>
         <Button
           size="large"
           variant="contained"
@@ -373,6 +374,8 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, position: 'relative', overflow: 'hidden' },
+  // 떠 있는 탭바와 좌우 끝선을 맞춘다.
+  bottomCta: { paddingHorizontal: TAB_BAR_SIDE_INSET },
   mapControl: { backgroundColor: 'rgba(255, 255, 255, 0.8)' },
   mapArea: { position: 'absolute', top: 0, left: 0, right: 0 },
   sheetContent: { flex: 1, minHeight: 1 },
