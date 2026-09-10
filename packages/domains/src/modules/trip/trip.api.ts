@@ -1,33 +1,44 @@
-import { supabase } from '../../gateways/client'
-import { getAuth } from '../../gateways/auth'
-import type { Trip } from '../trip'
-import { formatShortDate } from '../../utils';
-import { deletePhotosByTripId } from '../photo';
-import { getCurrencyByDestination, type ExchangeRateEntry } from '../expense/currency';
-import type { DataRaw, CreateDataType, UpdateDataType } from '../../gateways/client';
+import { getAuth } from "../../gateways/auth";
+import type {
+  CreateDataType,
+  DataRaw,
+  UpdateDataType,
+} from "../../gateways/client";
+import { supabase } from "../../gateways/client";
+import {
+  getCurrencyByDestination,
+  type ExchangeRateEntry,
+} from "../expense/currency";
+import { deletePhotosByTripId } from "../photo";
+import type { Trip } from "../trip";
 
 function getDatesBetween(startDate: string, endDate: string): string[] {
-  const dates: string[] = []
-  const current = new Date(startDate)
-  const end = new Date(endDate)
+  const dates: string[] = [];
+  const current = new Date(startDate);
+  const end = new Date(endDate);
 
   while (current <= end) {
-    dates.push(current.toISOString().split('T')[0])
-    current.setDate(current.getDate() + 1)
+    dates.push(current.toISOString().split("T")[0]);
+    current.setDate(current.getDate() + 1);
   }
 
-  return dates
+  return dates;
 }
 
-export const tripKey = 'trips'
+export const tripKey = "trips";
 
-export function toTrip(row: DataRaw<'trips'>): Trip {
-  const destinations: string[] = (row.destinations as string[] | null) ?? [row.destination]
+export function toTrip(row: DataRaw<"trips">): Trip {
+  const destinations: string[] = (row.destinations as string[] | null) ?? [
+    row.destination,
+  ];
 
-  let exchangeRates: ExchangeRateEntry[] | null = (row.exchange_rates as ExchangeRateEntry[] | null) ?? null;
+  let exchangeRates: ExchangeRateEntry[] | null =
+    (row.exchange_rates as ExchangeRateEntry[] | null) ?? null;
   if (!exchangeRates && row.exchange_rate != null) {
     const primaryCurrency = getCurrencyByDestination(destinations[0])[0];
-    exchangeRates = [{ currencyCode: primaryCurrency.code, rate: row.exchange_rate }];
+    exchangeRates = [
+      { currencyCode: primaryCurrency.code, rate: row.exchange_rate },
+    ];
   }
 
   return {
@@ -43,128 +54,134 @@ export function toTrip(row: DataRaw<'trips'>): Trip {
     createdAt: row.created_at,
     exchangeRate: row.exchange_rate,
     exchangeRates,
-  }
+  };
 }
 
 export async function getAllTrips(): Promise<Trip[]> {
   const { data, error } = await supabase
-    .from('trips')
-    .select('*')
-    .order('start_date', { ascending: false })
-    .order('end_date', { ascending: false })
+    .from("trips")
+    .select("*")
+    .order("start_date", { ascending: false })
+    .order("end_date", { ascending: false });
 
-  if (error) throw error
-  return (data ?? []).map(toTrip)
+  if (error) throw error;
+  return (data ?? []).map(toTrip);
 }
 
 export async function getTripById(id: string): Promise<Trip> {
   const { data, error } = await supabase
-    .from('trips')
-    .select('*')
-    .eq('id', id)
-    .single()
+    .from("trips")
+    .select("*")
+    .eq("id", id)
+    .single();
 
   if (error) {
-    throw new Error('찾을 수 없는 여행 정보입니다.')
+    throw new Error("찾을 수 없는 여행 정보입니다.");
   }
   return toTrip(data);
 }
 
-export async function getTripByShareLink(shareLink: string): Promise<Trip | undefined> {
-  const { data, error } = await supabase
-    .rpc('get_trip_by_share_link', { link: shareLink })
+export async function getTripByShareLink(
+  shareLink: string,
+): Promise<Trip | undefined> {
+  const { data, error } = await supabase.rpc("get_trip_by_share_link", {
+    link: shareLink,
+  });
 
-  if (error) throw error
-  return data?.[0] ? toTrip(data[0]) : undefined
+  if (error) throw error;
+  return data?.[0] ? toTrip(data[0]) : undefined;
 }
 
 export async function createTrip(
-  data: Omit<Trip, 'id' | 'shareLink' | 'createdAt' | 'userId'>,
+  data: Omit<Trip, "id" | "shareLink" | "createdAt" | "userId">,
 ): Promise<Trip> {
-  const user = getAuth()
-  if (!user) throw new Error('로그인이 필요합니다')
+  const user = getAuth();
+  if (!user) throw new Error("로그인이 필요합니다");
 
-  const userId = user.id
+  const userId = user.id;
   const { data: created, error } = await supabase
-    .from('trips')
+    .from("trips")
     .insert({
       name: data.name,
       destination: data.destinations[0],
-      destinations: data.destinations as unknown as import('../../gateways/client').Json,
+      destinations:
+        data.destinations as unknown as import("../../gateways/client").Json,
       lat: data.lat,
       lng: data.lng,
       start_date: data.startDate,
       end_date: data.endDate,
       share_link: crypto.randomUUID(),
       user_id: userId,
-    } satisfies CreateDataType<'trips'>)
+    } satisfies CreateDataType<"trips">)
     .select()
-    .single()
+    .single();
 
-  if (error) throw error
+  if (error) throw error;
 
-  const trip = toTrip(created!)
+  const trip = toTrip(created!);
 
   // 일자별 기본 경로 생성
-  const dates = getDatesBetween(data.startDate, data.endDate)
+  const dates = getDatesBetween(data.startDate, data.endDate);
   const routes = dates.map((date, idx) => ({
     trip_id: trip.id,
-    name: `${formatShortDate(date)} 경로 1`,
+    name: "경로 1",
     place_ids: [],
     place_memos: {},
     is_main: idx === 0,
     scheduled_date: date,
-  }))
+  }));
 
   if (routes.length > 0) {
-    await supabase.from('routes').insert(routes as CreateDataType<'routes'>[])
+    await supabase.from("routes").insert(routes as CreateDataType<"routes">[]);
   }
 
   // 생성자를 첫 번째 멤버로 추가
   await supabase
-    .from('trip_members')
-    .insert({ trip_id: trip.id, user_id: userId })
+    .from("trip_members")
+    .insert({ trip_id: trip.id, user_id: userId });
 
-  return trip
+  return trip;
 }
 
-export async function updateTrip(id: string, data: Partial<Omit<Trip, 'id' | 'createdAt'>>): Promise<Trip | undefined> {
-  const updateData: Record<string, unknown> = {}
-  if (data.name !== undefined) updateData.name = data.name
+export async function updateTrip(
+  id: string,
+  data: Partial<Omit<Trip, "id" | "createdAt">>,
+): Promise<Trip | undefined> {
+  const updateData: Record<string, unknown> = {};
+  if (data.name !== undefined) updateData.name = data.name;
   if (data.destinations !== undefined) {
-    updateData.destination = data.destinations[0]
-    updateData.destinations = data.destinations
+    updateData.destination = data.destinations[0];
+    updateData.destinations = data.destinations;
   }
-  if (data.lat !== undefined) updateData.lat = data.lat
-  if (data.lng !== undefined) updateData.lng = data.lng
-  if (data.startDate !== undefined) updateData.start_date = data.startDate
-  if (data.endDate !== undefined) updateData.end_date = data.endDate
-  if (data.shareLink !== undefined) updateData.share_link = data.shareLink
-  if (data.exchangeRate !== undefined) updateData.exchange_rate = data.exchangeRate
-  if (data.exchangeRates !== undefined) updateData.exchange_rates = data.exchangeRates
+  if (data.lat !== undefined) updateData.lat = data.lat;
+  if (data.lng !== undefined) updateData.lng = data.lng;
+  if (data.startDate !== undefined) updateData.start_date = data.startDate;
+  if (data.endDate !== undefined) updateData.end_date = data.endDate;
+  if (data.shareLink !== undefined) updateData.share_link = data.shareLink;
+  if (data.exchangeRate !== undefined)
+    updateData.exchange_rate = data.exchangeRate;
+  if (data.exchangeRates !== undefined)
+    updateData.exchange_rates = data.exchangeRates;
 
   const { data: updated, error } = await supabase
-    .from('trips')
-    .update(updateData as UpdateDataType<'trips'>)
-    .eq('id', id)
+    .from("trips")
+    .update(updateData as UpdateDataType<"trips">)
+    .eq("id", id)
     .select()
-    .single()
+    .single();
 
   if (error) {
-    if (error.code === 'PGRST116') return undefined
-    throw error
+    if (error.code === "PGRST116") return undefined;
+    throw error;
   }
-  return updated ? toTrip(updated) : undefined
+  return updated ? toTrip(updated) : undefined;
 }
 
 export async function deleteTrip(id: string): Promise<boolean> {
   await deletePhotosByTripId(id);
 
-  const { error } = await supabase
-    .from('trips')
-    .delete()
-    .eq('id', id)
+  const { error } = await supabase.from("trips").delete().eq("id", id);
 
-  if (error) throw error
-  return true
+  if (error) throw error;
+  return true;
 }
