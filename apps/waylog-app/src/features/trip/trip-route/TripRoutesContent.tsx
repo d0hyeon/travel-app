@@ -282,7 +282,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
               </Tabs>
             )}
             <BottomSheet.GestureArea style={styles.sheetContent}>
-              <Box style={styles.sheetContent}>
+              <Box style={[styles.sheetContent, styles.placeList]}>
                 <SortableList
                   key={currentRoute?.id ?? 'empty'}
                   items={currentPlaces}
@@ -390,4 +390,5 @@ const styles = StyleSheet.create({
   emptyMessage: { paddingVertical: 24 },
   placeTitle: { flex: 1, minWidth: 0 },
   placeOrderLabel: { color: '#fff', fontSize: 11, fontWeight: '900' },
+  placeList: { marginTop: 12 }
 })
