@@ -8,7 +8,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import { Suspense } from 'react'
-import { ActivityIndicator, View } from 'react-native'
+import { ActivityIndicator, View, StyleSheet } from 'react-native'
 import { setupApi } from '../src/api-config'
 import { queryClient } from '../src/shared/query-client'
 import { OverlayProvider } from '../src/shared/hooks/useOverlay.context'
@@ -19,7 +19,7 @@ setupApi()
 
 function Loading() {
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+    <View style={styles.loading}>
       <ActivityIndicator />
     </View>
   )
@@ -27,7 +27,7 @@ function Loading() {
 
 export default function RootLayout() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={styles.fill}>
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
           <AuthStateSync />
@@ -55,3 +55,8 @@ function ChatNotificationGateway() {
   useChatNotificationResponse()
   return null
 }
+
+const styles = StyleSheet.create({
+  loading: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  fill: { flex: 1 },
+})

@@ -1,5 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { Tabs } from 'expo-router'
+import { StyleSheet } from 'react-native'
 import { palette } from '../../src/shared/config/tokens'
 
 export default function HomeTabsLayout() {
@@ -10,8 +11,8 @@ export default function HomeTabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: palette.primary,
         tabBarInactiveTintColor: palette.textSecondary,
-        tabBarStyle: { height: 84, paddingTop: 8, paddingBottom: 24 },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: '700' },
+        tabBarStyle: styles.tabBar,
+        tabBarLabelStyle: styles.tabLabel,
       }}
     >
       <Tabs.Screen name="index" options={{ title: '내 여행', tabBarIcon: ({ color, size }) => <MaterialIcons name="luggage" color={color} size={size} /> }} />
@@ -21,3 +22,8 @@ export default function HomeTabsLayout() {
     </Tabs>
   )
 }
+
+const styles = StyleSheet.create({
+  tabBar: { height: 84, paddingTop: 8, paddingBottom: 24 },
+  tabLabel: { fontSize: 11, fontWeight: '700' },
+})

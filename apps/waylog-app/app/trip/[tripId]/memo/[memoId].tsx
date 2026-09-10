@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { formatDate } from 'date-fns'
 import { Suspense } from 'react'
-import { ScrollView, ActivityIndicator } from 'react-native'
+import { ScrollView, ActivityIndicator, StyleSheet } from 'react-native'
 import { IconButton, Stack, Typography } from '~/shared/components/design-system'
 import { PopMenu } from '../../../../src/shared/components/PopMenu'
 import { useConfirmDialog } from '../../../../src/shared/components/confirm-dialog/useConfirmDialog'
@@ -12,7 +12,7 @@ import { useTripMemo } from '@waylog/domains/modules/trip-memo'
 
 export default function TripMemoDetailRoute() {
   return (
-    <Suspense fallback={<ActivityIndicator style={{ flex: 1 }} />}>
+    <Suspense fallback={<ActivityIndicator style={styles.fill} />}>
       <Resolved />
     </Suspense>
   )
@@ -26,18 +26,18 @@ function Resolved() {
   const memo = memos.find((item) => item.id === memoId)
 
   if (!memo) {
-    return <Typography style={{ padding: 24, textAlign: 'center' }}>메모를 찾을 수 없어요</Typography>
+    return <Typography style={styles.emptyMessage}>메모를 찾을 수 없어요</Typography>
   }
 
   const urls = extractUrls(memo.content)
 
   return (
-    <Stack style={{ flex: 1 }}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" style={{ padding: 8 }}>
+    <Stack style={styles.fill}>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" style={styles.header}>
         <IconButton onPress={() => router.back()}>
           <MaterialIcons name="arrow-back" size={24} />
         </IconButton>
-        <Typography variant="subtitle1" numberOfLines={1} style={{ flex: 1, paddingHorizontal: 8 }}>
+        <Typography variant="subtitle1" numberOfLines={1} style={styles.title}>
           {memo.title || '메모'}
         </Typography>
         <PopMenu
@@ -62,7 +62,7 @@ function Resolved() {
           ]}
         />
       </Stack>
-      <ScrollView contentContainerStyle={{ padding: 20, gap: 8 }}>
+      <ScrollView contentContainerStyle={styles.content}>
         <Typography variant="caption" color="text.secondary">
           {formatDate(memo.createdAt, 'yyyy년 M월 d일 a h:mm')}
         </Typography>
@@ -74,3 +74,11 @@ function Resolved() {
     </Stack>
   )
 }
+
+const styles = StyleSheet.create({
+  fill: { flex: 1 },
+  emptyMessage: { padding: 24, textAlign: 'center' },
+  title: { flex: 1, paddingHorizontal: 8 },
+  header: { padding: 8 },
+  content: { padding: 20, gap: 8 },
+})

@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { palette } from '../../../src/shared/config/tokens'
 import { ErrorBoundary } from '@waylog/react'
 import { Button, Stack, Typography } from '~/shared/components/design-system'
-import { View } from 'react-native'
+import { View, StyleSheet } from 'react-native'
 import { TripDetailHeader } from '../../../src/features/trip/components/TripDetailHeader'
 
 // 웹 TripDetailPage.mobile 의 BottomNavigation 구성을 그대로 승계한다.
@@ -14,19 +14,19 @@ export default function TripDetailLayout() {
   const insets = useSafeAreaInsets()
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.fill}>
       <ErrorBoundary
         fallback={({ resetError }) => (
-          <Stack style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <Stack style={styles.error}>
             <Typography color="text.secondary">여행 정보를 불러오지 못했어요</Typography>
-            <Button variant="contained" onPress={resetError} style={{ marginTop: 12 }}>다시 시도</Button>
+            <Button variant="contained" onPress={resetError} style={styles.retryButton}>다시 시도</Button>
           </Stack>
         )}
       >
-        <View style={{ paddingTop: insets.top, backgroundColor: palette.background }}>
+        <View style={[styles.header, { paddingTop: insets.top }]}>
           <TripDetailHeader />
         </View>
-        <View style={{ flex: 1 }}>
+        <View style={styles.fill}>
           <Tabs
             // 탭은 replace 로 동작한다. 뒤로가기는 직전 탭이 아니라 여행 화면을 벗어난다.
             backBehavior="none"
@@ -56,3 +56,10 @@ export default function TripDetailLayout() {
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  error: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
+  fill: { flex: 1 },
+  retryButton: { marginTop: 12 },
+  header: { backgroundColor: palette.background },
+})
