@@ -63,6 +63,7 @@ function CommunityTripCard({ trip, onPress }: { trip: CommunityTrip; onPress: ()
         style={[styles.card, { borderRadius: radius.md }]}
       >
         <CommunityRouteThumbnail
+          destinations={trip.destinations}
           previewRoutes={trip.previewRoutes}
           width={140}
           height={80}
