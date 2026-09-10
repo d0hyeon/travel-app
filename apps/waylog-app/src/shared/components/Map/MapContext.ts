@@ -5,6 +5,7 @@ export interface MapContextValue {
   extendBound: (value: Coordinate) => void
   config: { autoFocus: AutoFocus }
   visibleMarkerIds: Set<string> | null
+  zoom: number
 }
 
 export const MapContext = createContext<MapContextValue | null>(null)

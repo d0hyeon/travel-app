@@ -5,9 +5,15 @@ import type {
   PolygonLayerProps,
   PolygonStyleProps,
 } from '@waylog/domains/modules/map'
-import { getCountryPolygonCoordinateGroups, getLocationCoordinates } from '@waylog/domains/modules/map'
+import {
+  getCountryPolygonCoordinateGroups,
+  getLocationCoordinates,
+  getRegionPolygonPaint,
+  type RegionPolygonPaint,
+} from '@waylog/domains/modules/map'
 import type { Coordinate } from '@waylog/utility'
 import Mapbox from '@rnmapbox/maps'
+import { useMapContext } from './MapContext'
 
 const PolygonLayerStyleContext = createContext<PolygonStyleProps | null>(null)
 
@@ -19,11 +25,12 @@ export function PolygonLayer({ children, color, opacity, strokeColor }: PolygonL
   )
 }
 
-export function Polygon(props: MapPolygonProps) {
+export function Polygon(props: MapPolygonProps & { id?: string; paint?: RegionPolygonPaint }) {
   const defaults = use(PolygonLayerStyleContext)
   const color = props.color ?? defaults?.color ?? '#4C84FF'
-  const opacity = props.opacity ?? defaults?.opacity ?? 0.3
   const strokeColor = props.strokeColor ?? defaults?.strokeColor ?? color
+  const paint = props.paint
+  const fillOpacity = paint?.fillOpacity ?? props.opacity ?? defaults?.opacity ?? 0.3
 
   const rings = props.coordinates.filter((ring) => ring.length >= 3)
   if (rings.length === 0) return null
@@ -38,15 +45,29 @@ export function Polygon(props: MapPolygonProps) {
   }
 
   // Mapbox 는 소스와 레이어 id 가 겹치면 하나만 남기고 버린다.
-  // 지역마다 달라지는 첫 좌표로 id 를 만든다.
-  const [firstPoint] = rings[0] ?? []
-  const sourceId = `polygon-${firstPoint?.lng ?? 0}-${firstPoint?.lat ?? 0}`
+  // 좌표는 재료로 못 쓴다 — 인터라켄이 베른 주 경계로 해석되듯,
+  // 서로 다른 지역이 같은 경계를 가리키면 같은 좌표가 나온다.
+  const sourceId = props.id ?? `polygon-${JSON.stringify(rings[0]?.[0] ?? {})}`
 
   return (
     <Mapbox.ShapeSource id={sourceId} shape={geojson}>
       <Mapbox.FillLayer
         id={`${sourceId}-fill`}
-        style={{ fillColor: color, fillOpacity: opacity, fillOutlineColor: strokeColor }}
+        style={{
+          fillColor: color,
+          // 옅어져도 레이어를 없애지 않는다. 붙였다 떼면 네이티브 등록이 어긋난다.
+          fillOpacity: paint?.isVisible === false ? 0 : fillOpacity,
+          fillSortKey: paint?.sortKey,
+        }}
+      />
+      <Mapbox.LineLayer
+        id={`${sourceId}-line`}
+        style={{
+          lineColor: strokeColor,
+          lineOpacity: paint?.isVisible === false ? 0 : (paint?.lineOpacity ?? 0),
+          lineWidth: paint?.lineWidth ?? 1,
+          lineSortKey: paint?.sortKey,
+        }}
       />
     </Mapbox.ShapeSource>
   )
@@ -57,6 +78,8 @@ export function Region(props: MapRegionProps) {
   // 무엇을 그릴지는 이 둘만 정한다. 색·투명도가 바뀌었다고 다시 받지 않는다.
   const country = props.country
   const location = props.location
+  const level = props.level
+  const { zoom } = useMapContext()
 
   useEffect(() => {
     let mounted = true
@@ -71,7 +94,7 @@ export function Region(props: MapRegionProps) {
 
       if (location == null) return
 
-      const coordinates = await getLocationCoordinates({ location })
+      const coordinates = await getLocationCoordinates({ location, level })
       if (mounted) setCoordinateGroups(coordinates ? [coordinates] : [])
     }
 
@@ -83,19 +106,28 @@ export function Region(props: MapRegionProps) {
     return () => {
       mounted = false
     }
-  }, [country, location])
+  }, [country, location, level])
 
   if (!coordinateGroups?.length) return null
+
+  // 웹과 같이 줌에 따라 나라와 지역의 진하기를 교차시키고, 지역을 위에 올린다.
+  const regionId = `region-${country ?? String(location)}`
+  const paint = getRegionPolygonPaint({
+    kind: country != null ? 'country' : 'region',
+    zoom,
+    opacity: props.opacity ?? 1,
+  })
 
   return (
     <>
       {coordinateGroups.map((coordinates, index) => (
         <Polygon
-          key={`${props.country ?? String(props.location)}-${index}`}
+          key={`${regionId}-${index}`}
+          id={`${regionId}-${index}`}
           coordinates={coordinates}
           color={props.color}
-          opacity={props.opacity}
           strokeColor={props.strokeColor}
+          paint={paint}
         />
       ))}
     </>

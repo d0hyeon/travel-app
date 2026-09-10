@@ -1,4 +1,5 @@
 import {
+  DEFAULT_MAP_CENTER,
   pastelMapboxStyle,
   type MapProps,
   type MapRef,
@@ -62,7 +63,7 @@ function NativeMapInner({
     [panTo],
   )
 
-  const initial = center ?? defaultCenter
+  const initial = center ?? defaultCenter ?? DEFAULT_MAP_CENTER
   const rendered = typeof children === 'function' ? children({ zoom }) : children
 
   const { markers } = useRegisteredMapMarkers()
@@ -88,8 +89,8 @@ function NativeMapInner({
   const transitioningClusters = useClusterTransition(clusters)
 
   const mapContextValue = useMemo(
-    () => ({ extendBound, config: { autoFocus }, visibleMarkerIds }),
-    [extendBound, autoFocus, visibleMarkerIds],
+    () => ({ extendBound, config: { autoFocus }, visibleMarkerIds, zoom }),
+    [extendBound, autoFocus, visibleMarkerIds, zoom],
   )
 
   return (

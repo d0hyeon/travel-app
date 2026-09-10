@@ -1,6 +1,7 @@
 import type { ReactNode, Ref } from "react";
 import type { Coordinate } from "@waylog/utility";
 import type { Country, Location } from "../location";
+import type { LocationCoordinateLevel } from './polygon-layer.utils';
 
 export type { Coordinate };
 
@@ -120,8 +121,13 @@ export type MapPolygonProps = PolygonStyleProps & {
 };
 
 export type MapRegionProps =
-  | (PolygonStyleProps & { country: Country; location?: never })
-  | (PolygonStyleProps & { location: Location; country?: never });
+  | (PolygonStyleProps & { country: Country; location?: never; level?: never })
+  | (PolygonStyleProps & {
+      location: Location;
+      country?: never;
+      /** 경계를 어느 행정 단위로 그릴지. 기본은 지역명에서 추론한다. */
+      level?: LocationCoordinateLevel;
+    });
 
 export interface PolygonLayerProps extends PolygonStyleProps {
   children?: ReactNode;
