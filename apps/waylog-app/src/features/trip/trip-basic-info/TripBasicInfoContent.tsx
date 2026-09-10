@@ -85,10 +85,10 @@ export function TripBasicInfoContent({ tripId }: Props) {
 
         {currentTab === 'checklist' && (
           <>
-            <ScrollView contentContainerStyle={styles.checklistContent}>
+            <ScrollView contentContainerStyle={styles.scrollContent}>
               <TripChecklist tripId={tripId} />
             </ScrollView>
-            <BottomArea position="static" bottom={8 + FLOATING_TAB_BAR_RESERVE}>
+            <BottomArea position="static" bottom={8}>
               <TripChecklistAddButton tripId={tripId} size="large" fullWidth />
             </BottomArea>
           </>
@@ -107,8 +107,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, minHeight: 0 },
   content: { flex: 1, width: '100%' },
   scrollContent: { padding: 16, paddingBottom: 16 + FLOATING_TAB_BAR_RESERVE },
-  // 아래 CTA 가 탭바 여백을 지므로 스크롤은 기본 패딩만 둔다.
-  checklistContent: { padding: 16 },
   dDay: { marginBottom: 16 },
   baseInfo: { borderWidth: 1, borderColor: '#ddd', padding: 16, borderRadius: 16, width: '100%' },
   fullWidth: { width: '100%' },
