@@ -36,7 +36,7 @@
 | --------- | ------------------------------------------------ |
 | Native    | Expo SDK 54 + React Native 0.81.5                |
 | Routing   | Expo Router 6 (파일 기반)                        |
-| UI        | `@emotion/native` 자체 구축 + 자체 디자인 시스템   |
+| UI        | `StyleSheet` + 자체 디자인 시스템                 |
 | Maps      | `react-native-maps` (Google 단일)                |
 | Animation | Reanimated 4 + Gesture Handler 2                 |
 
@@ -44,6 +44,10 @@
 디자인 어휘(`variant`, `color="text.secondary"`, spacing 8배수)는 웹 theme 에서 승계했지만
 인터페이스는 RN 표준(`style`, `onPress`)이다. `~/shared/components/design-system` 별칭으로 임포트한다.
 바텀시트·정렬 목록처럼 손이 많이 가는 것은 직접 구현한다 — 아래 "주요 패턴" 참조.
+
+스타일은 `StyleSheet.create` 로 파일 하단에 모은다. 인라인 객체는 렌더마다
+새로 만들어져 `memo` 를 무력화하므로, 런타임 값(`insets`, 측정된 크기)이나
+상태에 의존하는 부분만 배열로 합성한다.
 
 여행 상세 5개 탭의 웹-앱 대조 기준은
 [`docs/app-trip-feature-definition.md`](./app-trip-feature-definition.md)와
@@ -953,8 +957,14 @@ zoom 이 같으면 지도를 이동해도 픽셀 거리가 보존되어 그룹�
 렌더 시점에 계산해야 한다 — effect 로 미루면 이미 목적지에 마운트된 뒤라 움직일 구간이 없다.
 단일 마커로 갈라지는 경우는 모션 없이 전환한다.
 
+개발 빌드에서는 `mapMotionDiagnostics.ts`가 각 클러스터 전이의 참여 클러스터 수, 좌표 갱신 수,
+클러스터 렌더 수, rAF 실행 횟수와 25ms를 넘긴 프레임 수·최장 프레임, 겹친 카메라 이벤트 수를 Metro 콘솔의
+`[Map motion]` 로그로 기록한다. 각 로그는 MapView 인스턴스별 `mapId`·포커스 상태를 포함한다. `[Map lifecycle]`은 포커스 전환을 기록한다. 카메라 이벤트 묶음도 `[Map camera]` 로그로 별도 기록해 전이와 겹친 횟수와
+rAF 지연을 분리해 볼 수 있다. 성능 문제를 조사하기 위한 계측이므로 릴리스 빌드에서는 동작하지 않는다.
+
 ## 2026-08 앱 포팅 현황
 
+- 탐색 탭과 여행 상세의 장소·계획 탭은 비활성 상태에서 `freezeOnBlur`로 React 렌더와 지도 갱신을 멈춘다. 비포커스 상태에서는 Mapbox `MapView`도 렌더 트리에서 제거해 네이티브 카메라 이벤트와 렌더 작업을 남기지 않는다. 지도는 탭 복귀 뒤 400ms 동안 클러스터 전이를 기준값으로만 동기화한다. 제스처·관성 중에는 최신 native 이벤트를 ref에 저장하고 100ms마다 한 번만 샘플링하며, 120ms 안정화 시점에 한 번만 다시 묶는다. 화면 가장자리 밖으로 나간 단독 마커는 300ms 뒤 제거해 빠른 카메라 이동 중 `MarkerView` 재생성을 줄인다.
 - 홈 하단 탭: `apps/waylog-app/app/(tabs)/_layout.tsx`에 내 여행·피드·탐색·프로필 4개 탭을 구성했다. 통계 탭은 제외했다.
 - 여행 목록: 웹의 진행 중·예정·지난 여행 분류와 진행률/D-day UI를 RN으로 포팅했다.
 - 피드: `/feed` 라우트와 포스트 목록/좋아요/대표 이미지 표시를 추가했고, 포스트 카드를 `/post/[postId]` 상세 화면으로 연결했다. 카드 폭을 실제 레이아웃 측정값으로 계산해 웹과 같은 이미지 비율을 유지한다. 새 포스트 FAB는 `/post/new`로 이동하며, 웹과 같은 여행 선택 → 사진 선택 → 상세 설정 3단계 흐름을 제공한다. 사진은 네이티브 보관함 또는 여행 저장 사진에서 고르고 앱 스토리지 업로드 후 공용 `@waylog/domains`의 `useCreatePost`로 등록한다.
@@ -963,6 +973,10 @@ zoom 이 같으면 지도를 이동해도 픽셀 거리가 보존되어 그룹�
 - 원격 이미지: `apps/waylog-app/src/shared/components/LoadableImage.tsx`가 이미지 로딩 중 동일한 박스 크기의 스켈레톤을 표시한다. 프로필·피드·포스트 상세·탐색·장소·여행 사진 UI에서 공통으로 사용한다.
 - 통계는 요청 범위에서 제외했으며 구현하지 않았다.
 - 장소 검색: `features/place/place-search/`를 웹 구조(`PlaceSearchBottomSheet` → 키워드 확정 시 `PlaceSearchSelectScreen` 상세 화면 전환, `useLastSearchKeywords` 최근 검색어)와 동일하게 맞췄다. 상세 화면은 웹의 지도+리스트 `SplitView`(좌우 리사이즈) 대신 지도(상단 고정 비율)+리스트(하단 `FlatList`) 세로 배치로 대체했고, 페이지네이션은 `IntersectionArea` 대신 `FlatList`의 `onEndReached`를 쓴다. 최근 검색어 저장은 웹 `useStorageState`(localStorage 동기) 대신 앱 `useStorageStore`(AsyncStorage 비동기) 위에 만료 필터링을 직접 구현했다. 데스크탑 전용 `PlaceSearchDialog`/`usePlaceSearchDialog`는 이식 대상에서 제외했다.
+- 계획 탭 장소 추가(`trip-route/PlaceSelectSheet.tsx`): 웹과 같이 이름·주소·태그 검색 필터, 검색 아이콘 버튼, 카테고리 색상 점, 태그 칩, 좌측 `Checkbox` 선택을 갖는다. 검색어를 확정하면 `PlaceSearchSelectScreen` 으로 신규 장소를 검색하고, 선택 시 `useTripPlaces.create` 로 여행 장소를 만든 뒤 그 id 를 곧바로 선택 상태에 넣는다. 웹이 `Slide` 전면 오버레이로 띄우는 검색 화면은 앱에서 `PlaceSearchBottomSheet` 와 같은 형제 시트(`backdrop={false}`)로 옮겼고, 상세 헤더의 입력에서 재검색하면 웹처럼 부모 목록의 검색어도 함께 바뀐다. 앱에서만 필요한 처리 세 가지:
+  - `ListItem.Button` 은 `leftAddon` 을 내부 `Pressable` 바깥에 두므로 체크박스에도 같은 토글을 직접 잇는다 — 웹처럼 행 클릭이 버블링되지 않는다.
+  - `Chip` 은 `onPress` 없이도 `Pressable` 을 그려 태그 영역이 행 선택의 사각지대가 된다. 태그 `Stack` 에 `pointerEvents="none"` 을 준다.
+  - 신규 장소 생성 뒤 검색어를 비운다. 그대로 두면 방금 만든 장소가 필터에 걸려 목록에서 사라지고 "추가 (n)" 만 남는다.
 
 ### 2026-08-29 앱 QA 보완
 
