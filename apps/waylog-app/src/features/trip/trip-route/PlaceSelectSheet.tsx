@@ -64,7 +64,7 @@ export function PlaceSelectSheet({
 
   return (
     <>
-      <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.9]} defaultSnapIndex={0}>
+      <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.9]} defaultSnapIndex={0} safeArea>
         <BottomSheet.Header>장소 선택</BottomSheet.Header>
         <BottomSheet.Body style={styles.sheetBody}>
           <View style={styles.searchBar}>
