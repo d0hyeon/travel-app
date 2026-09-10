@@ -374,7 +374,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
               icon={<MaterialIcons name="route" size={18} color={palette.primary} />}
               onPress={() => setIsRouteToolbarOpen(true)}
             >
-              경로 관리
+              경로 추가
             </MenuFab.Item>
           </MenuFab>
         )}
