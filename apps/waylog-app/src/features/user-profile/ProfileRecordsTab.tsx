@@ -30,11 +30,22 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
   const locationOverlay = useOverlay()
 
   useEffect(() => {
-    if (selectedLocation == null) return
+    if (selectedLocation == null) return;
 
     const closeOverlay = locationOverlay.open(({ isOpen, onClose }) => (
-      <BottomSheet isOpen={isOpen} snapPoints={[0.6, 0.8]} defaultSnapIndex={0} safeArea onDismiss={onClose}>
-        <BottomSheet.Header><LocationMetaInfo value={selectedLocation} /></BottomSheet.Header>
+      <BottomSheet
+        isOpen={isOpen}
+        snapPoints={[0.6, 0.8]}
+        defaultSnapIndex={0}
+        safeArea
+        onDismiss={() => {
+          setSelectedLocation(null);
+          onClose();
+        }}
+      >
+        <BottomSheet.Header>
+          <LocationMetaInfo value={selectedLocation} />
+        </BottomSheet.Header>
         <BottomSheet.Body>
           <BottomSheet.ScrollView contentContainerStyle={styles.locationDetails}>
             {selectedLocation.trips.map((trip) => (
