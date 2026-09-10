@@ -24,7 +24,8 @@ export function setupApi() {
     // 국내 날씨(기상청)가 쓴다. 없으면 인증 실패가 에러로 올라온다.
     governmentKey: extra?.governmentApiServiceKey,
     // 지역 경계 geojson 은 웹이 서빙한다. 앱에는 정적 파일이 없다.
-    boundaryBaseUrl: extra?.webBaseUrl,
+    // extra 가 아닌 이유: extra 는 네이티브 빌드에 구워져 재빌드해야 바뀐다.
+    boundaryBaseUrl: process.env.EXPO_PUBLIC_WEB_BASE_URL,
   })
 
 }

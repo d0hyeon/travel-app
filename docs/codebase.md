@@ -202,7 +202,10 @@ eslint.config.js                # 레포 전역 lint 설정 + 의존성
 - 플랫폼 raw storage도 각 앱이 생성해 `initializeClient({ storage })`로 주입한다. 공용 패키지는 동기 캐시 어댑터만 소유한다
 - 지역 경계 geojson(`/visit-layer/*`)은 웹 `public/`이 서빙한다. 웹은 상대 경로로
   받고, 앱은 붙을 origin이 없어 `initializeClient({ boundaryBaseUrl })`로 웹 주소를
-  주입받는다(`EXPO_PUBLIC_WEB_BASE_URL`). 주입하지 않으면 상대 경로 그대로다
+  주입받는다. 주입하지 않으면 상대 경로 그대로다.
+  값은 `app.config.ts`의 `extra`가 아니라 `process.env.EXPO_PUBLIC_WEB_BASE_URL`을
+  직접 읽는다 — `extra`는 네이티브 빌드에 구워져 `.env`를 고쳐도 재빌드 전엔 반영되지
+  않는다(Mapbox 토큰이 같은 이유로 직접 읽는다)
 - 컴포넌트(`.tsx`)를 두지 않는다
 - MUI·react-router·브라우저 전역 API(`window`, `document`, `HTMLElement`,
   `requestAnimationFrame`, `localStorage`, IndexedDB 등)에 의존하지 않는다
