@@ -43,6 +43,8 @@ export function PlaceSearchSelectScreen({ keyword, center, mapServiceProvider = 
     location: searchCenter,
   })
   const mapRef = useRef<MapRef>(null)
+  const listRef = useRef<FlatList<PlaceResult>>(null)
+  const [activeExternalId, setActiveExternalId] = useState<string | null>(null)
 
   useEffect(() => {
     const [result] = results
@@ -51,6 +53,19 @@ export function PlaceSearchSelectScreen({ keyword, center, mapServiceProvider = 
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [keyword])
+
+  // 축척은 그대로 두고 중심만 옮긴다. 보던 범위가 매번 바뀌면 맥락을 잃는다.
+  const focusFromList = (place: PlaceResult) => {
+    setActiveExternalId(place.externalId)
+    mapRef.current?.panTo(place.lat, place.lng)
+  }
+
+  // 마커에서 온 경우에만 목록을 옮긴다. 행을 눌렀을 때도 스크롤하면
+  // 이미 보고 있던 항목이 가운데로 튄다.
+  const focusFromMarker = (place: PlaceResult, index: number) => {
+    focusFromList(place)
+    listRef.current?.scrollToIndex({ index, animated: true, viewPosition: 0.5 })
+  }
 
   const [mapBoundsCenter, setMapBoundsCenter] = useState<Coordinate | null>(null)
   // 직전 렌더의 지도 중심이 아니라 실제로 검색에 쓴 중심과 비교해야 한다.
@@ -81,6 +96,7 @@ export function PlaceSearchSelectScreen({ keyword, center, mapServiceProvider = 
               lng={place.lng}
               label={place.name}
               color={MARKER_COLORS[index % MARKER_COLORS.length]}
+              onPress={() => focusFromMarker(place, index)}
             />
           ))}
         </Map>
@@ -99,6 +115,7 @@ export function PlaceSearchSelectScreen({ keyword, center, mapServiceProvider = 
       </View>
 
       <FlatList
+        ref={listRef}
         style={styles.results}
         data={results}
         keyExtractor={(place) => place.externalId}
@@ -107,8 +124,18 @@ export function PlaceSearchSelectScreen({ keyword, center, mapServiceProvider = 
           if (hasNextPage && !isFetchingNextPage) fetchNextPage()
         }}
         onEndReachedThreshold={0.5}
+        // 행 높이가 주소 유무로 달라 오프셋을 미리 알 수 없다.
+        // 대략 위치로 옮긴 뒤 다음 프레임에 다시 맞춘다.
+        onScrollToIndexFailed={({ index, averageItemLength }) => {
+          listRef.current?.scrollToOffset({ offset: index * averageItemLength, animated: true })
+          requestAnimationFrame(() => {
+            listRef.current?.scrollToIndex({ index, animated: true, viewPosition: 0.5 })
+          })
+        }}
         renderItem={({ item, index }) => (
-          <ListItem
+          <ListItem.Button
+            focused={item.externalId === activeExternalId}
+            onPress={() => focusFromList(item)}
             leftAddon={<MarkerDot color={MARKER_COLORS[index % MARKER_COLORS.length]!} />}
             rightAddon={
               <Button
@@ -120,11 +147,9 @@ export function PlaceSearchSelectScreen({ keyword, center, mapServiceProvider = 
               </Button>
             }
           >
-            <ListItem.Title onPress={() => mapRef.current?.panTo(item.lat, item.lng, 2)}>
-              {item.name}
-            </ListItem.Title>
+            <ListItem.Title>{item.name}</ListItem.Title>
             {item.address !== '' && <ListItem.Text>{item.address}</ListItem.Text>}
-          </ListItem>
+          </ListItem.Button>
         )}
         ListFooterComponent={
           isFetchingNextPage ? <ActivityIndicator style={styles.loadingMore} color={palette.primary} /> : null
