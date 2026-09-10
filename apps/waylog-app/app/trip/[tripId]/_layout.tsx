@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { Tabs } from 'expo-router'
-import { AnimatedTabBar } from '../../../src/shared/components/AnimatedTabBar'
+import { RouterTabNavigation, TRANSPARENT_SCENE_STYLE } from '../../../src/shared/components'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { palette } from '../../../src/shared/config/tokens'
 import { ErrorBoundary } from '@waylog/react'
@@ -14,7 +14,7 @@ export default function TripDetailLayout() {
   const insets = useSafeAreaInsets()
 
   return (
-    <View style={styles.fill}>
+    <View style={styles.screen}>
       <ErrorBoundary
         fallback={({ resetError }) => (
           <Stack style={styles.error}>
@@ -31,13 +31,15 @@ export default function TripDetailLayout() {
             // 탭은 replace 로 동작한다. 뒤로가기는 직전 탭이 아니라 여행 화면을 벗어난다.
             backBehavior="none"
             tabBar={(props) => (
-              <AnimatedTabBar
+              <RouterTabNavigation
                 {...props}
+                variant="apple"
                 visibleNames={['index', 'place', 'route', 'expense', 'photo']}
               />
             )}
             screenOptions={{
               headerShown: false,
+              sceneStyle: TRANSPARENT_SCENE_STYLE,
               tabBarActiveTintColor: palette.primary,
               tabBarInactiveTintColor: palette.grey,
             }}
@@ -60,6 +62,8 @@ export default function TripDetailLayout() {
 const styles = StyleSheet.create({
   error: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
   fill: { flex: 1 },
+  // scene 을 투명하게 비웠으므로 화면 배경은 셸이 채운다.
+  screen: { flex: 1, backgroundColor: palette.background },
   retryButton: { marginTop: 12 },
   header: { backgroundColor: palette.background },
 })

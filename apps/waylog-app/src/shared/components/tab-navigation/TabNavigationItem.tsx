@@ -16,7 +16,7 @@ const FOCUS_ANIMATION_CONFIG = {
 }
 
 export function TabNavigationItem({ value, label, icon }: TabNavigationItemProps) {
-  const { activeKey, variant, onSelect } = useTabNavigationContext()
+  const { activeKey, variant, onSelect, reportItemLayout } = useTabNavigationContext()
   const focused = activeKey === value
 
   const focusProgress = useDerivedValue(() => withTiming(focused ? 1 : 0, FOCUS_ANIMATION_CONFIG))
@@ -32,6 +32,9 @@ export function TabNavigationItem({ value, label, icon }: TabNavigationItemProps
   return (
     <Pressable
       onPress={() => onSelect(value)}
+      onLayout={({ nativeEvent }) =>
+        reportItemLayout(value, { x: nativeEvent.layout.x, width: nativeEvent.layout.width })
+      }
       style={[styles.pressable, { paddingVertical: variant === 'apple' ? 0 : 8 }]}
     >
       <Animated.View style={iconStyle}>
@@ -48,6 +51,7 @@ const styles = StyleSheet.create({
   pressable: {
     flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 2,
   },
 })
