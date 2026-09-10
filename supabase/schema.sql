@@ -339,7 +339,7 @@ ALTER FUNCTION "public"."get_trip_by_share_link"("link" "uuid") OWNER TO "postgr
 
 
 CREATE OR REPLACE FUNCTION "public"."get_trips_by_destination"("p_destinations" "text"[], "p_exclude_trip_id" "uuid") RETURNS TABLE("id" "uuid", "destinations" "text"[], "start_date" "text", "end_date" "text", "route_count" bigint, "member_count" bigint, "preview_coordinates" json)
-    LANGUAGE "sql" STABLE
+    LANGUAGE "sql" STABLE SECURITY DEFINER
     AS $$
   SELECT
     t.id,
