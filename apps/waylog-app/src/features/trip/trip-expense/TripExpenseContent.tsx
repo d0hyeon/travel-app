@@ -3,7 +3,7 @@ import { useTripMembers } from '@waylog/domains/modules/trip-member'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Suspense, useState } from 'react'
 import { StyleSheet, ScrollView } from 'react-native'
-import { Box, Button, Stack, Tab, Tabs, Typography } from '~/shared/components/design-system'
+import { Box, MenuFab, Tab, Tabs, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../shared/config/tokens'
 import { ExpenseHeader } from './ExpenseHeader'
 import { ExpenseList } from './ExpenseList'
@@ -65,28 +65,20 @@ export default function TripExpenseContent({ tripId }: Props) {
         </ScrollView>
       )}
 
-      <Stack direction="row" gap={1} style={styles.actions}>
-        <Button
-          size="large"
-          variant="outlined"
-          disabled={!hasMember}
-          onPress={handleOpenRouteExpense}
-          startIcon={<MaterialIcons name="route" size={18} color="#4C84FF" />}
-          style={styles.actionButton}
-        >
-          경로 기반
-        </Button>
-        <Button
-          size="large"
-          variant="contained"
-          disabled={!hasMember}
+      <MenuFab onPress={handleAddExpense} disabled={!hasMember} style={styles.menuFab}>
+        <MenuFab.Item
+          icon={<MaterialIcons name="add" size={18} color={palette.primary} />}
           onPress={handleAddExpense}
-          startIcon={<MaterialIcons name="add" size={18} color="#fff" />}
-          style={styles.actionButton}
         >
           지출 추가
-        </Button>
-      </Stack>
+        </MenuFab.Item>
+        <MenuFab.Item
+          icon={<MaterialIcons name="route" size={18} color={palette.primary} />}
+          onPress={handleOpenRouteExpense}
+        >
+          경로 기반
+        </MenuFab.Item>
+      </MenuFab>
     </Box>
   )
 }
@@ -95,6 +87,5 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: palette.background },
   emptyMessage: { padding: 24, textAlign: 'center' },
   scrollContent: { padding: 16, paddingBottom: 16 + FLOATING_TAB_BAR_RESERVE },
-  actions: { padding: 8 },
-  actionButton: { flex: 1 },
+  menuFab: { bottom: FLOATING_TAB_BAR_RESERVE },
 })
