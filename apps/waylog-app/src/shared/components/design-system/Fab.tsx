@@ -5,17 +5,20 @@ import { palette } from '../../config/tokens'
 export interface FabProps {
   children?: ReactNode
   onPress?: () => void
+  accessibilityLabel?: string
   color?: 'primary' | 'default'
   size?: 'small' | 'medium' | 'large'
   style?: StyleProp<ViewStyle>
 }
 
-export function Fab({ children, onPress, color = 'primary', size = 'medium', style }: FabProps) {
+export function Fab({ children, onPress, accessibilityLabel = '추가', color = 'primary', size = 'medium', style }: FabProps) {
   const box = size === 'small' ? 40 : size === 'large' ? 64 : 56
 
   return (
     <Pressable
       onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
       style={[
         [styles.pressable, [styles.pressable2, { width: box, height: box, borderRadius: box / 2, backgroundColor: color === 'primary' ? palette.primary : '#fff' }]],
         style,
