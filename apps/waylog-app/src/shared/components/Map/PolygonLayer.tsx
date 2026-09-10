@@ -48,27 +48,36 @@ export function Polygon(props: MapPolygonProps) {
 
 export function Region(props: MapRegionProps) {
   const [coordinateGroups, setCoordinateGroups] = useState<Coordinate[][][] | null>(null)
+  // 무엇을 그릴지는 이 둘만 정한다. 색·투명도가 바뀌었다고 다시 받지 않는다.
+  const country = props.country
+  const location = props.location
 
   useEffect(() => {
     let mounted = true
     setCoordinateGroups(null)
 
     async function load() {
-      if (props.country != null) {
-        const coordinates = await getCountryPolygonCoordinateGroups(props.country)
+      if (country != null) {
+        const coordinates = await getCountryPolygonCoordinateGroups(country)
         if (mounted) setCoordinateGroups(coordinates)
         return
       }
 
-      const coordinates = await getLocationCoordinates({ location: props.location })
+      if (location == null) return
+
+      const coordinates = await getLocationCoordinates({ location })
       if (mounted) setCoordinateGroups(coordinates ? [coordinates] : [])
     }
 
-    load()
+    // 경계 파일이 없는 나라가 있다. 그리지 않을 뿐 오류가 아니다.
+    load().catch(() => {
+      if (mounted) setCoordinateGroups([])
+    })
+
     return () => {
       mounted = false
     }
-  }, [props])
+  }, [country, location])
 
   if (!coordinateGroups?.length) return null
 
