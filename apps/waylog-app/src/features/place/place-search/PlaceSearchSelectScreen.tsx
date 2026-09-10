@@ -1,12 +1,13 @@
 import { calcDistance } from '@waylog/utility'
 import { usePlaceSearch, type PlaceResult } from '@waylog/domains/modules/place'
 import type { Coordinate, MapBounds, MapProvider, MapRef } from '@waylog/domains/modules/map'
-import { useEffect, useRef, useState, useTransition } from 'react'
+import { DependencyList, EffectCallback, useEffect, useRef, useState, useTransition } from 'react'
 import { StyleSheet, ActivityIndicator, FlatList, View } from 'react-native'
 import { Map } from '../../../shared/components/Map'
 import { Button, Chip } from '~/shared/components/design-system'
 import { ListItem } from '../../../shared/components/ListItem'
 import { palette } from '../../../shared/config/tokens'
+import { useVariation } from '@waylog/react'
 
 const MARKER_COLORS = ['#66BB6A', '#EB5757', '#5DADE2', '#7986CB']
 
@@ -46,7 +47,7 @@ export function PlaceSearchSelectScreen({ keyword, center, mapServiceProvider = 
   const listRef = useRef<FlatList<PlaceResult>>(null)
   const [activeExternalId, setActiveExternalId] = useState<string | null>(null)
 
-  useEffect(() => {
+  useDidUpdate(() => {
     const [result] = results
     if (result) {
       mapRef.current?.panTo(result.lat, result.lng, 2)
@@ -176,3 +177,18 @@ const styles = StyleSheet.create({
   loadingMore: { paddingVertical: 8 },
   categoryDot: { width: 12, height: 12, borderRadius: 6 },
 })
+
+function useDidUpdate(callback: EffectCallback, deps?: DependencyList) {
+  const [getIsUpdated, setIsUpdated] = useVariation(false);
+
+  useEffect(() => {
+    if (!getIsUpdated()) {
+      setIsUpdated(true);
+      return;
+    }
+
+    callback();
+
+    return () => setIsUpdated(false);
+  }, deps)
+}
