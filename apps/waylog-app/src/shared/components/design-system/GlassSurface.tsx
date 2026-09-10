@@ -37,18 +37,26 @@ export const GlassSurface = forwardRef<View, GlassSurfaceProps>(function GlassSu
     )
   }
 
-  // 블러만으로는 존재가 드러나지 않아 옅은 음영을 함께 깐다.
-  // Liquid Glass 는 스스로 명암을 만들므로 이 색이 오히려 효과를 가린다.
+  // 블러만으로는 존재가 드러나지 않아 옅은 색을 함께 깐다. 소비자가 준
+  // tintColor 를 그대로 쓴다 — Liquid Glass 쪽과 같은 색이어야 기기에 따라
+  // 밝기가 뒤집히지 않는다. 색을 주지 않았다면 옅은 음영으로 대신한다.
+  // Liquid Glass 는 스스로 명암을 만들므로 이 색을 따로 깔지 않는다.
   return (
-    <View ref={ref} style={[styles.fallbackTint, style]} {...props}>
-      <BlurView intensity={fallbackBlurIntensity} tint="light" style={StyleSheet.absoluteFill} />
+    <View
+      ref={ref}
+      style={[style, { backgroundColor: tintColor ?? FALLBACK_SHADE }]}
+      {...props}
+    >
+      <BlurView
+        intensity={fallbackBlurIntensity}
+        tint="light"
+        // Android 는 기본이 'none' 이라 블러 없이 반투명 판만 남는다.
+        experimentalBlurMethod="dimezisBlurView"
+        style={StyleSheet.absoluteFill}
+      />
       {children}
     </View>
   )
 })
 
-const styles = StyleSheet.create({
-  fallbackTint: {
-    backgroundColor: 'rgba(0,0,0,0.08)',
-  },
-})
+const FALLBACK_SHADE = 'rgba(0,0,0,0.08)'
