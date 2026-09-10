@@ -7,11 +7,11 @@ import {
 import { createTripPlace } from '@waylog/domains/modules/place'
 import { useTripPlaces } from '@waylog/domains/modules/trip'
 import type { Coordinate } from '@waylog/utility'
-import { Suspense, useCallback, useMemo, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { Suspense, useCallback, useMemo, useRef, useState } from 'react'
+import { Pressable, StyleSheet, View } from 'react-native'
 import { useRoadRoute } from '../../route/road-route/useRoadRoute'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
-import { Map } from '../../../shared/components/Map'
+import { Map, MapRef } from '../../../shared/components/Map'
 import {
   Box,
   Button,
@@ -25,6 +25,7 @@ import {
 import { palette, radius } from '../../../shared/config/tokens'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { useLoading } from '@waylog/react'
+import { ScrollView } from 'react-native-gesture-handler'
 
 interface Props {
   communityTrip: CommunityTrip
@@ -84,6 +85,8 @@ function DetailContent({
   const [selectedRouteId, setSelectedRouteId] = useState<string>(tabRoutes[0]?.id ?? '')
   const currentRoute = tabRoutes.find((route) => route.id === selectedRouteId) ?? tabRoutes[0]
 
+  const mapRef = useRef<MapRef>(null);
+
   if (routes.length === 0) {
     return (
       <Box style={styles.errorState}>
@@ -97,6 +100,7 @@ function DetailContent({
   const mapCenter = currentRoute?.places[0]
     ? { lat: currentRoute.places[0].lat, lng: currentRoute.places[0].lng }
     : undefined
+
 
   return (
     <Stack style={styles.content}>
@@ -118,7 +122,7 @@ function DetailContent({
 
       {mapCenter && currentRoute && currentRoute.places.length >= 2 && (
         <View style={styles.map}>
-          <Map defaultCenter={mapCenter} autoFocus="path">
+          <Map ref={mapRef} defaultCenter={mapCenter} autoFocus="path">
             {currentRoute.places.map((place, index) => (
               <Map.Marker
                 key={place.placeId}
@@ -146,14 +150,21 @@ function DetailContent({
             경로에 장소가 없어요
           </Typography>
         )}
-        {currentRoute?.places.map((place, index) => (
-          <PlaceRow
-            key={`community-route-place-${place.placeId}`}
-            place={place}
-            index={index}
-            tripId={tripId}
-          />
-        ))}
+        <ScrollView>
+          {currentRoute?.places.map((place, index) => (
+            <Pressable
+              key={`community-route-place-${place.placeId}`}
+              onPress={() => mapRef.current?.panTo(place.lat, place.lng, 5)}
+            >
+              <PlaceRow
+
+                place={place}
+                index={index}
+                tripId={tripId}
+              />
+            </Pressable>
+          ))}
+        </ScrollView>
       </BottomSheet.Body>
     </Stack>
   )
