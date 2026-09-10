@@ -1,12 +1,14 @@
-import { useAddTripPlace } from '@waylog/domains/modules/trip'
+import { useAddTripPlace, useTripPlaces } from '@waylog/domains/modules/trip'
 import type { RecommendedPlace } from '@waylog/domains/modules/trip-recommend'
-import { Suspense, useCallback } from 'react'
+import { Suspense, useCallback, useTransition } from 'react'
 import { StyleSheet, ActivityIndicator } from 'react-native'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { Button, Stack, Typography } from '~/shared/components/design-system'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { PlaceDetailBody } from '../../place/place-detail/PlaceDetailSheet'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useQueryClient } from '@tanstack/react-query'
+import { useLoading } from '@waylog/react'
 
 interface Props {
   place: RecommendedPlace
@@ -33,9 +35,11 @@ export function useRecommendedPlaceDetailOverlay() {
 }
 
 function RecommendedPlaceDetailSheet({ place, tripId, isOpen, onClose }: Props) {
-  const { mutateAsync: create, isPending: isAdding } = useAddTripPlace(tripId, {
-    onSuccess: () => onClose(),
-  })
+  const queryClient = useQueryClient();
+  const { mutateAsync: create } = useAddTripPlace(tripId)
+  const [isPending, startTransition] = useLoading();
+
+
 
   return (
     <BottomSheet isOpen={isOpen} onDismiss={onClose}>
@@ -56,8 +60,16 @@ function RecommendedPlaceDetailSheet({ place, tripId, isOpen, onClose }: Props) 
             fullWidth
             variant="contained"
             size="large"
-            disabled={isAdding}
-            onPress={() => create(place)}
+            loading={isPending}
+            onPress={() => {
+              startTransition(async () => {
+                await create(place);
+                await queryClient.refetchQueries({
+                  queryKey: useTripPlaces.key(tripId)
+                })
+                onClose();
+              })
+            }}
           >
             장소에 담기
           </Button>
