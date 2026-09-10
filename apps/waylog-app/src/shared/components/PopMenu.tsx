@@ -1,9 +1,8 @@
+import { Entypo } from '@expo/vector-icons'
 import { useRef, useState, type ReactNode } from 'react'
-import { StyleSheet, Pressable } from 'react-native'
+import { Pressable, StyleSheet } from 'react-native'
 import { palette } from '../config/tokens'
 import { ActionSheet } from './action-sheet/ActionSheet'
-import { Typography } from '~/shared/components/design-system'
-import { IconButton } from '~/shared/components/design-system/IconButton'
 
 // 웹 PopMenu 와 같은 사용법을 유지한다.
 // 네이티브에는 앵커 기준 팝오버가 없어 ActionSheet 로 띄운다.
@@ -36,9 +35,9 @@ export function PopMenu({ children, items, trigger }: MenuProps) {
   return (
     <>
       {trigger != null ? <Pressable onPress={openMenu}>{trigger}</Pressable> : (
-        <IconButton size="small" onPress={openMenu}>
-          {children ?? <Typography style={styles.typography}>⋮</Typography>}
-        </IconButton>
+        <Pressable onPress={openMenu} style={styles.iconButton}>
+          {children ?? <Entypo name="dots-three-vertical" size={14} color={palette.textSecondary} />}
+        </Pressable>
       )}
 
       <ActionSheet isOpen={isOpen} onClose={closeMenu}>
@@ -51,8 +50,10 @@ export function PopMenu({ children, items, trigger }: MenuProps) {
 PopMenu.Item = ActionSheet.Item
 
 const styles = StyleSheet.create({
-  typography: {
-    fontSize: 18,
-    color: palette.textSecondary,
+  iconButton: {
+    width: 'auto',
+    height: 'auto',
+    padding: 12,
+    margin: -12,
   },
 })

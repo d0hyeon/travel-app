@@ -1,15 +1,15 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { useLocalSearchParams, useRouter } from 'expo-router'
+import { useTripMemo } from '@waylog/domains/modules/trip-memo'
 import { formatDate } from 'date-fns'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { Suspense } from 'react'
-import { ScrollView, ActivityIndicator, StyleSheet } from 'react-native'
+import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { IconButton, Stack, Typography } from '~/shared/components/design-system'
+import { OgPreviewCard } from '../../../../src/features/open-graph/OgPreviewCard'
 import { PopMenu } from '../../../../src/shared/components/PopMenu'
 import { useConfirmDialog } from '../../../../src/shared/components/confirm-dialog/useConfirmDialog'
 import { extractUrls, renderTextWithLinks } from '../../../../src/shared/utils/urls'
-import { OgPreviewCard } from '../../../../src/features/open-graph/OgPreviewCard'
-import { useTripMemo } from '@waylog/domains/modules/trip-memo'
 
 export default function TripMemoDetailRoute() {
   return (
@@ -38,9 +38,12 @@ function Resolved() {
         <IconButton onPress={() => router.back()}>
           <MaterialIcons name="arrow-back" size={24} />
         </IconButton>
+
+        {memo.isPinned && <MaterialIcons name="push-pin" size={18} color="#4C84FF" />}
         <Typography variant="subtitle1" numberOfLines={1} style={styles.title}>
           {memo.title || '메모'}
         </Typography>
+
         <PopMenu
           items={[
             <PopMenu.Item key="pin" onPress={() => togglePin(memo.id)}>
