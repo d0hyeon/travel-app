@@ -89,11 +89,13 @@ function DetailContent({
 
   if (routes.length === 0) {
     return (
-      <Box style={styles.errorState}>
-        <Typography variant="body2" color="text.secondary">
-          아직 등록된 경로가 없어요
-        </Typography>
-      </Box>
+      <BottomSheet.Body>
+        <Box style={styles.errorState}>
+          <Typography variant="body2" color="text.secondary">
+            아직 등록된 경로가 없어요
+          </Typography>
+        </Box>
+      </BottomSheet.Body>
     )
   }
 
