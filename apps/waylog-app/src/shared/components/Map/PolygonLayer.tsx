@@ -25,21 +25,27 @@ export function Polygon(props: MapPolygonProps) {
   const opacity = props.opacity ?? defaults?.opacity ?? 0.3
   const strokeColor = props.strokeColor ?? defaults?.strokeColor ?? color
 
+  const rings = props.coordinates.filter((ring) => ring.length >= 3)
+  if (rings.length === 0) return null
+
   const geojson: GeoJSON.Feature<GeoJSON.Polygon> = {
     type: 'Feature',
     properties: {},
     geometry: {
       type: 'Polygon',
-      coordinates: props.coordinates
-        .filter((ring) => ring.length >= 3)
-        .map((ring) => closePolygon(ring).map((c) => [c.lng, c.lat])),
+      coordinates: rings.map((ring) => closePolygon(ring).map((c) => [c.lng, c.lat])),
     },
   }
 
+  // Mapbox 는 소스와 레이어 id 가 겹치면 하나만 남기고 버린다.
+  // 지역마다 달라지는 첫 좌표로 id 를 만든다.
+  const [firstPoint] = rings[0] ?? []
+  const sourceId = `polygon-${firstPoint?.lng ?? 0}-${firstPoint?.lat ?? 0}`
+
   return (
-    <Mapbox.ShapeSource id={`polygon-${JSON.stringify(props.coordinates[0]?.[0])}`} shape={geojson}>
+    <Mapbox.ShapeSource id={sourceId} shape={geojson}>
       <Mapbox.FillLayer
-        id="polygon-fill"
+        id={`${sourceId}-fill`}
         style={{ fillColor: color, fillOpacity: opacity, fillOutlineColor: strokeColor }}
       />
     </Mapbox.ShapeSource>
