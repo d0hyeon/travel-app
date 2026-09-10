@@ -6,6 +6,7 @@ import { BottomSheet } from '../../shared/components/bottom-sheet/BottomSheet'
 import { Stack, Typography } from '~/shared/components/design-system'
 import { palette } from '../../shared/config/tokens'
 import { useUserTrips } from './useUserTrips'
+import { Country } from '@waylog/domains/modules/location'
 import { deriveVisitedCountries, deriveVisitedLocations, type VisitedLocation } from './user-profile.utils'
 import { UserTripPhotoList } from './UserTripPhotoList'
 import { useOverlay } from '../../shared/hooks/useOverlay'
@@ -85,6 +86,7 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
               <Map.Region
                 key={visitedLocation.location}
                 location={visitedLocation.location}
+                level={visitedLocation.countryCode === Country.한국 ? 'city' : 'region'}
                 {...getRegionPolygonStyle(
                   visitedLocation.visitCount,
                   visitedLocation.location === selectedLocation?.location,
@@ -92,6 +94,7 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
               />
             ))}
           </Map.PolygonLayer>
+
           {isLocationVisible && visitedLocations.map((visitedLocation) => (
             <Map.Marker
               key={visitedLocation.location}
@@ -105,9 +108,7 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
           ))}
         </Map>
       </View>
-      <View style={styles.locationList}>
-        {visitedLocations.map((visitedLocation) => <Pressable key={visitedLocation.location} onPress={() => setSelectedLocation(visitedLocation)} style={styles.locationRow}><Stack direction="row" alignItems="center" justifyContent="space-between"><Typography variant="body2" fontWeight="bold">{visitedLocation.location}</Typography><Typography variant="caption" color="text.secondary">{visitedLocation.visitCount}회 방문 · {formatLastVisit(visitedLocation.lastVisitedAt)}</Typography></Stack></Pressable>)}
-      </View>
+
     </View>
   )
 }
