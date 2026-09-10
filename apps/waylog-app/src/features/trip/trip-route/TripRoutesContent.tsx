@@ -5,19 +5,16 @@ import { useDayTripRoutes, useTrip, useTripPlaces } from '@waylog/domains/module
 import { PlaceCategoryColorCode } from '@waylog/domains/modules/place'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Fragment, Suspense, useMemo, useRef, useState } from 'react'
-import { Box, Button, Chip, IconButton, Stack, Tab, Tabs, Typography } from '~/shared/components/design-system'
+import { Box, IconButton, MenuFab, Stack, Tab, Tabs, Typography } from '~/shared/components/design-system'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { ListItem } from '../../../shared/components/ListItem'
 import { SortableItem, SortableList, type SortableListRef } from '../../../shared/components/dnd/SortableList'
 import { Map, type MapRef } from '../../../shared/components/Map'
-import { BottomArea } from '../../../shared/components/BottomArea'
-import { TAB_BAR_SIDE_INSET } from '../../../shared/components'
 import { useCurrentCoordinate } from '../../../shared/hooks/env/useCurrentCoordinate'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
 import { palette } from '../../../shared/config/tokens'
 import { useRouteLegsPathList } from '../hooks/useRouteLegsPathList'
-import { TripRouteSelector } from './components/TripRouteSelector'
 import { TripRouteMapFloatingControls } from './components/TripRouteMapFloatingControls'
 import { PlaceSelectSheet } from './PlaceSelectSheet'
 import { NoteEditor } from './RouteNoteList'
@@ -32,9 +29,12 @@ import { TripWeatherIconButton } from '../trip-weather/TripWeatherIconButton'
 import { ActionSheet } from '../../../shared/components/action-sheet/ActionSheet'
 import { useTripViewConfigValue } from './useTripViewConfig'
 import { getRouteColor } from '../trip-expense/routeExpenseView.utils'
+import { TripRouteConfigToolbar } from './TripRouteConfigToolbar'
+import { getItemOffsetY, ITEM_HEIGHT } from '~/shared/components/design-system/menu-fab/menuFabMotion'
 
 const BOTTOM_SHEET_RATIOS = [0.25, 0.5, 0.8, 1] as const
 const DEFAULT_BOTTOM_SHEET_RATIO = 0.5 satisfies (typeof BOTTOM_SHEET_RATIOS)[number]
+const MIN_MAP_MENU_HEIGHT = getItemOffsetY(1) + ITEM_HEIGHT + 32
 
 interface RouteContentProps {
   tripId: string
@@ -49,8 +49,6 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
 
   const {
     data: { routes, tripDates },
-    create: createRoute,
-    remove: removeRoute,
     update,
     toggleVisible,
     updateNotes,
@@ -114,16 +112,59 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
     listRef.current?.scrollToItem(placeId)
   }
   const [sheetRatio, setSheetRatio] = useState(DEFAULT_BOTTOM_SHEET_RATIO)
+  const [containerHeight, setContainerHeight] = useState(0)
+  const [isRouteToolbarOpen, setIsRouteToolbarOpen] = useState(false)
+  const canShowRouteMenu = containerHeight * (1 - sheetRatio) >= MIN_MAP_MENU_HEIGHT
+
+
+  const addPlaces = () => {
+    if (currentRoute == null) {
+      setIsRouteToolbarOpen(true)
+      return
+    }
+
+    overlay.open(({ isOpen, close }) => (
+      <PlaceSelectSheet
+        isOpen={isOpen}
+        onClose={close}
+        tripId={tripId}
+        selectedPlaceIds={currentRoute.placeIds}
+        onConfirm={(placeIds) => {
+          if (placeIds.length === 0) return
+          const merged = Array.from(new Set([...currentRoute.placeIds, ...placeIds]))
+          update({ routeId: currentRoute.id, placeIds: merged })
+        }}
+      />
+    ))
+  }
 
   return (
     <>
-      <Box style={styles.container}>
+      <Box style={styles.container} onLayout={({ nativeEvent }) => setContainerHeight(nativeEvent.layout.height)}>
+        {isRouteToolbarOpen && (
+          <TripRouteConfigToolbar
+            tripId={tripId}
+            date={selectedDate}
+            value={currentRoute.id}
+            onSelect={setSelectedRouteId}
+            onAdd={(route) => setSelectedRouteId(route.id)}
+            onDelete={(id) => {
+              if (currentRoute.id === id) {
+                const index = routes.findIndex(x => x.id === id);
+                setSelectedRouteId(routes[index - 1].id);
+              }
+            }}
+            rightAddon={
+              <TripRouteConfigToolbar.CloseButton onPress={() => setIsRouteToolbarOpen(false)} />
+            }
+          />
+        )}
         <FloatingControl corner="top-left" zIndex={8}>
           <TripWeatherIconButton tripId={tripId} />
         </FloatingControl>
         <TripRouteMapFloatingControls />
         {currentCoordinate != null && (
-          <FloatingControl corner="bottom-right" zIndex={8} style={{ bottom: `${sheetRatio * 100}%` }}>
+          <FloatingControl corner="bottom-left" zIndex={8} style={{ bottom: `${sheetRatio * 100}%` }}>
             <IconButton
               size="small"
               onPress={() => mapRef.current?.panTo(currentCoordinate.lat, currentCoordinate.lng)}
@@ -247,29 +288,6 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                   items={currentPlaces}
                   paddingHorizontal={16}
                   ref={listRef}
-                  header={(
-                    <Box style={styles.routeHeader}>
-                      <TripRouteSelector.Chip
-                        tripId={tripId}
-                        date={selectedDate}
-                        value={currentRoute?.id}
-                        onChange={(id) => setSelectedRouteId(id ?? '')}
-                        onDelete={(id) => removeRoute(id)}
-                        onAdd={() =>
-                          createRoute({
-                            tripId,
-                            name: `${formatShortDate(selectedDate)} 경로 ${routes.length + 1}`,
-                            scheduledDate: selectedDate,
-                          })
-                        }
-                      />
-                      {(currentRoute == null || currentRoute.places.length === 0) && (
-                        <Typography variant="caption" color="text.secondary" style={styles.emptyMessage}>
-                          지도에서 장소를 눌러 경로에 추가하세요
-                        </Typography>
-                      )}
-                    </Box>
-                  )}
                   onSort={(changed) => {
                     if (currentRoute == null) return
                     update({
@@ -342,40 +360,29 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
             </BottomSheet.GestureArea>
           </BottomSheet.Body>
         </BottomSheet>
+        {canShowRouteMenu && (
+          <MenuFab onPress={addPlaces} style={{ bottom: `${sheetRatio * 100}%` }}>
+            <MenuFab.Item
+              icon={<MaterialIcons name="add-location-alt" size={18} color={palette.primary} />}
+              onPress={addPlaces}
+            >
+              장소 추가
+            </MenuFab.Item>
+            <MenuFab.Item
+              icon={<MaterialIcons name="route" size={18} color={palette.primary} />}
+              onPress={() => setIsRouteToolbarOpen(true)}
+            >
+              경로 관리
+            </MenuFab.Item>
+          </MenuFab>
+        )}
       </Box>
-      <BottomArea position="static" style={styles.bottomCta}>
-        <Button
-          size="large"
-          variant="contained"
-          fullWidth
-          disabled={currentRoute == null}
-          onPress={() => {
-            overlay.open(({ isOpen, close }) => (
-              <PlaceSelectSheet
-                isOpen={isOpen}
-                onClose={close}
-                tripId={tripId}
-                selectedPlaceIds={currentRoute?.placeIds ?? []}
-                onConfirm={(placeIds) => {
-                  if (currentRoute == null || placeIds.length === 0) return
-                  const merged = Array.from(new Set([...currentRoute.placeIds, ...placeIds]))
-                  update({ routeId: currentRoute.id, placeIds: merged })
-                }}
-              />
-            ))
-          }}
-        >
-          장소 추가
-        </Button>
-      </BottomArea>
     </>
   )
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, position: 'relative', overflow: 'hidden' },
-  // 떠 있는 탭바와 좌우 끝선을 맞춘다.
-  bottomCta: { paddingHorizontal: TAB_BAR_SIDE_INSET },
   mapControl: { backgroundColor: 'rgba(255, 255, 255, 0.8)' },
   mapArea: { position: 'absolute', top: 0, left: 0, right: 0 },
   sheetContent: { flex: 1, minHeight: 1 },
