@@ -123,6 +123,8 @@ apps/
 │   │       │   │                #   카메라는 useMapCamera, 클러스터 전이는 useClusterTransition
 │   │       │   ├── bottom-sheet/ # 자체 구현 (Reanimated) — 웹과 같은 공개 API. Body 레이아웃·ScrollView 제스처
 │   │       │   ├── action-sheet/ # 하단 액션 시트 (Modal + 슬라이드업). PopMenu 가 트리거를 얹어 쓴다
+│   │       │   ├── tab-navigation/ # 하단 탭바. variant default(라운드+그림자)·apple(블러) 전환.
+│   │       │   │                #   RouterTabNavigation 이 Expo Router tabBar 어댑터
 │   │       │   ├── date-picker/ # 날짜·기간·시각 선택 (바텀시트 + 스와이프 달력)
 │   │       │   └── dnd/        # 제스처 기반 정렬 목록 (드래그 핸들)
 │   │       ├── config/tokens.ts # 웹 theme.ts 에서 승계한 값
@@ -877,7 +879,7 @@ ref 로 붙잡아야 끌던 도중 스냅이 바뀌어도 제스처가 갈아끼
 
 여행 상세 웹·앱 시나리오 및 스크린샷 대조 기록은 `docs/app-trip-screenshot-comparison.md`에서 관리한다.
 
-최근 앱 검증 반영: `AnimatedTabBar`는 탭 전환 시 현재 라우트 파라미터를 전달하며, 공용 `Tabs`는 화면 전환 중 레이아웃 상태 갱신을 하지 않는다. 정산 경로 기반 화면은 Google 지도와 일차별 장소·지출 추가 액션을 포함한다.
+최근 앱 검증 반영: `RouterTabNavigation`은 탭 전환 시 현재 라우트 파라미터를 전달하며, 공용 `Tabs`는 화면 전환 중 레이아웃 상태 갱신을 하지 않는다. 정산 경로 기반 화면은 Google 지도와 일차별 장소·지출 추가 액션을 포함한다.
 
 | 기능                 | 핵심 파일                                                         |
 | -------------------- | ----------------------------------------------------------------- |
