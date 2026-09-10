@@ -119,6 +119,7 @@ apps/
 │   │   └── shared/
 │   │       ├── components/
 │   │       │   ├── design-system/ # 자체 디자인 시스템 — 웹 theme 어휘 + RN 표준 인터페이스
+│   │       │   │   ├── GlassSurface.tsx # 유리 재질. iOS 26 Liquid Glass, 그 아래는 블러로 대체
 │   │       │   │   └── menu-fab/ # 탭 기본 동작·롱프레스 보조 메뉴, 순수 모션 계산 분리
 │   │       │   ├── Map/        # @rnmapbox/maps 구현. 클러스터 외형은 NativeMapCluster.utils.ts,
 │   │       │   │                #   카메라는 useMapCamera, 클러스터 전이는 useClusterTransition
