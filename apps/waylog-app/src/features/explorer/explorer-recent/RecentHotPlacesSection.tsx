@@ -1,11 +1,12 @@
 import type { Location } from '@waylog/domains/modules/location'
 import type { PlaceCategoryType } from '@waylog/domains/modules/place'
+import { withQueryParams } from '@waylog/utility'
 import { useRouter } from 'expo-router'
-import { StyleSheet, ScrollView, View } from 'react-native'
+import { ScrollView, StyleSheet, View } from 'react-native'
 import { ExplorerPlaceCard } from '../explorer-place-item/ExplorerPlaceCard'
-import { buildExplorerPlaceDetailPath } from '../explorer.utils'
 import { ExplorerEmptyState } from '../explorer-view/ExplorerEmptyState'
 import { SectionHeader } from '../explorer-view/SectionHeader'
+import { buildExplorerPlaceDetailPath } from '../explorer.utils'
 import { useRecentHotPlaces } from './useRecentHotPlaces'
 
 interface Props {
@@ -16,11 +17,18 @@ interface Props {
 export function RecentHotPlacesSection({ location, category }: Props) {
   const { data: hotPlaces } = useRecentHotPlaces(3, { location, category })
   const router = useRouter()
-  const places = hotPlaces.slice(0, 10)
+  const places = hotPlaces.slice(0, 10);
 
   return (
     <View>
-      <SectionHeader title="최근 핫한 곳이에요" onMore={() => router.push('/explorer/recent-hot')} />
+      <SectionHeader
+        title="최근 핫한 곳이에요"
+        onMore={() => {
+          router.push(
+            withQueryParams('/explorer/recent-hot', { category: category ?? '', location: location ?? '' })
+          )
+        }}
+      />
       {places.length === 0 ? (
         <ExplorerEmptyState />
       ) : (
