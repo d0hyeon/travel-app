@@ -34,7 +34,12 @@ export const PlaceForm = forwardRef<PlaceFormRef, Props>(function PlaceForm(
   { defaultValues, readonly = false, onSubmit },
   ref,
 ) {
-  const { control, handleSubmit, watch, setValue } = useForm<PlaceFormValues>({
+  const {
+    control,
+    handleSubmit,
+    watch,
+    setValue,
+  } = useForm<PlaceFormValues>({
     defaultValues: {
       name: '',
       address: '',
@@ -50,7 +55,7 @@ export const PlaceForm = forwardRef<PlaceFormRef, Props>(function PlaceForm(
   const tags = watch('tags');
 
   const submit = useCallback(
-    () => handleSubmit((data) => onSubmit?.(data)),
+    handleSubmit((data) => onSubmit?.(data)),
     [handleSubmit]
   )
 
