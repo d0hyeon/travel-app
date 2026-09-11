@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { usePreservedCallback } from '@waylog/react'
 import type Mapbox from '@rnmapbox/maps'
 import type { Coordinate } from '@waylog/domains/modules/map'
-import { deltaToZoom, levelToDelta } from './NativeMap.utils'
+import { deltaToZoom, levelToDelta, toFitBounds } from './NativeMap.utils'
 
 const FIT_PADDING = 60
 const FIT_DURATION = 0
@@ -37,17 +37,15 @@ export function useCameraControl({ onMoveStart, onMoveEnd }: Params) {
 
   const fitTo = usePreservedCallback(
     (coordinates: Coordinate[], { padding = FIT_PADDING, duration = FIT_DURATION }: FitOptions = {}) => {
-      if (coordinates.length === 0) return
-
-      const lats = coordinates.map((coordinate) => coordinate.lat)
-      const lngs = coordinates.map((coordinate) => coordinate.lng)
+      const bounds = toFitBounds(coordinates)
+      if (bounds == null) return
 
       startMove(
         () =>
           ref.current?.setCamera({
             bounds: {
-              ne: [Math.max(...lngs), Math.max(...lats)],
-              sw: [Math.min(...lngs), Math.min(...lats)],
+              ne: bounds.ne,
+              sw: bounds.sw,
               paddingTop: padding,
               paddingBottom: padding,
               paddingLeft: padding,
