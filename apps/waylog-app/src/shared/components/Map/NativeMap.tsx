@@ -48,7 +48,7 @@ function NativeMapInner({
   const [zoom, setZoom] = useState(() => deltaToZoom(DEFAULT_DELTA))
   const { width: screenWidth } = useWindowDimensions()
 
-  const { camera, ref: cameraRef, fitTo, panTo, track } = useMapCamera({
+  const { camera, ref: cameraRef, fitTo, fitToViewport, panTo, track } = useMapCamera({
     screenWidth,
     onApply: onBoundsChange,
   })
@@ -71,7 +71,7 @@ function NativeMapInner({
   const boundsRef = useRef<{ lat: number; lng: number }[]>([])
   const extendBound = useBatchedCallback<{ lat: number; lng: number }>((coords) => {
     boundsRef.current.push(...coords)
-    fitTo(boundsRef.current)
+    fitToViewport(boundsRef.current)
   }, { once: true })
 
   const { visibleMarkerIds, clusters } = useMemo(
