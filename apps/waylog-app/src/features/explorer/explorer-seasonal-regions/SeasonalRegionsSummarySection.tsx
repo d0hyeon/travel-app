@@ -12,8 +12,6 @@ export function SeasonalRegionsSummarySection() {
   const { data: trends, season, referenceYear } = useRegionTourismTrends()
   const topTrends = trends.slice(0, SECTION_LIMIT)
   const { setLocation } = useExplorerFilterParams()
-  const router = useRouter()
-
   return (
     <View style={styles.section}>
       <View style={styles.header}>
@@ -36,10 +34,7 @@ export function SeasonalRegionsSummarySection() {
           {topTrends.map((trend, index) => (
             <Pressable
               key={trend.location}
-              onPress={() => {
-                setLocation(trend.location)
-                router.push('/explorer')
-              }}
+              onPress={() => setLocation(trend.location)}
               style={styles.regionCard}
             >
               <RegionTrendCard trend={trend} rank={index + 1} />
