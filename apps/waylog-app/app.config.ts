@@ -4,19 +4,19 @@ import type { ExpoConfig } from "expo/config";
 // 공유 패키지는 환경변수를 직접 읽지 않는다.
 // 여기서 읽어 extra 로 넘기고 앱 진입점에서 initApi() 로 주입한다.
 const config: ExpoConfig = {
-  name: "waylog-app",
+  name: "WayLog:me",
   slug: "waylog-app",
   version: "1.0.0",
   orientation: "portrait",
-  icon: "./assets/icon.png",
+  icon: "./assets/logo.png",
   userInterfaceStyle: "light",
   ios: {
     supportsTablet: true,
     bundleIdentifier: "me.waylog.app",
     config: { googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY },
-    // iOS 는 AASA 를 조회할 때 리다이렉트를 따라가지 않는다.
-    // apex 로 공유된 링크도 열리도록 www 와 함께 등록한다.
-    associatedDomains: ["applinks:waylog.me", "applinks:www.waylog.me"],
+    /** 플랜 등록 후 주석 해제 */
+    // associatedDomains: ["applinks:waylog.me", "applinks:www.waylog.me"],
+    icon: "./assets/logo.png",
   },
   android: {
     package: "me.waylog.app",
@@ -25,13 +25,13 @@ const config: ExpoConfig = {
     },
     adaptiveIcon: {
       backgroundColor: "#E6F4FE",
-      foregroundImage: "./assets/android-icon-foreground.png",
-      backgroundImage: "./assets/android-icon-background.png",
-      monochromeImage: "./assets/android-icon-monochrome.png",
+      foregroundImage: "./assets/logo.png",
+      backgroundImage: "./assets/logo.png",
+      monochromeImage: "./assets/logo.png",
     },
     predictiveBackGestureEnabled: false,
   },
-  web: { favicon: "./assets/favicon.png" },
+  web: { favicon: "./assets/logo.png" },
   scheme: "waylog",
   plugins: [
     "expo-router",
