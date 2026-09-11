@@ -18,6 +18,14 @@ export function Avatar({ src, children, style }: AvatarProps) {
   const flatStyle = (StyleSheet.flatten(style) ?? {}) as ViewStyle & TextStyle
   const size = typeof flatStyle.width === 'number' ? flatStyle.width : DEFAULT_SIZE
 
+  const initial = (
+    <Typography
+      style={[styles.typography, { fontSize: typeof flatStyle.fontSize === 'number' ? flatStyle.fontSize : size / 2 }]}
+    >
+      {children}
+    </Typography>
+  )
+
   return (
     <Box
       style={[
@@ -25,14 +33,15 @@ export function Avatar({ src, children, style }: AvatarProps) {
         style,
       ]}
     >
-      {src != null ? (
-        <LoadableImage source={{ uri: src }} style={{ width: size, height: size }} resizeMode="cover" />
+      {src ? (
+        <LoadableImage
+          source={{ uri: src }}
+          style={{ width: size, height: size }}
+          resizeMode="cover"
+          fallback={initial}
+        />
       ) : (
-        <Typography
-          style={[styles.typography, { fontSize: typeof flatStyle.fontSize === 'number' ? flatStyle.fontSize : size / 2 }]}
-        >
-          {children}
-        </Typography>
+        initial
       )}
     </Box>
   )
