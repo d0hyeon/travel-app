@@ -22,7 +22,7 @@ Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN ?? '')
 const VIEWPORT_PADDING_RATIO = 0.4
 
 // 클러스터를 눌렀을 때 묶인 마커들 주위로 남길 여백. 작을수록 바짝 당긴다.
-const CLUSTER_TAP_PADDING = 100
+const CLUSTER_TAP_PADDING = 50
 const CLUSTER_TAP_DURATION = 500
 
 
