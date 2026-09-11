@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native'
+import { AuthError } from '@waylog/domains/clients'
 import { useInvitedTrip } from '@waylog/domains/modules/trip'
 import { assert } from '@waylog/utility'
 import { useLocalSearchParams, useRouter } from 'expo-router'
@@ -19,6 +20,7 @@ export function TripInviteScreen() {
       style={styles.screen}
     >
       <ErrorBoundary
+        ignoreError={AuthError.isAuthError}
         fallback={({ error }) => (
           <Typography style={styles.errorMessage} textAlign="center">
             {error.message}
