@@ -14,6 +14,7 @@ export interface ExploredPlace {
   lat: number
   lng: number
   visitorCount: number
+  lastSavedAt?: string
   photoCount: number
   postCount: number
   score: number
@@ -34,6 +35,7 @@ interface ExploredPlaceRow {
   lat: number
   lng: number
   visitor_count: number
+  last_saved_at: string | null
   photo_count: number
   post_count: number
   score: number
@@ -60,6 +62,7 @@ async function callExploredPlaces(sinceDate?: string): Promise<ExploredPlacesRes
     lat: row.lat,
     lng: row.lng,
     visitorCount: row.visitor_count,
+    lastSavedAt: row.last_saved_at ?? undefined,
     photoCount: row.photo_count,
     postCount: row.post_count,
     score: row.score,

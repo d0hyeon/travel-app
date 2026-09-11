@@ -15,6 +15,7 @@ export interface ExploredPlace {
   lat: number
   lng: number
   visitorCount: number
+  lastSavedAt?: string
   photoCount: number
   postCount: number
   score: number
@@ -50,6 +51,7 @@ export async function getExploredPlaces(sinceDate?: string): Promise<ExploredPla
     lat: row.lat,
     lng: row.lng,
     visitorCount: row.visitor_count,
+    lastSavedAt: row.last_saved_at ?? undefined,
     photoCount: row.photo_count,
     postCount: row.post_count,
     score: row.score,

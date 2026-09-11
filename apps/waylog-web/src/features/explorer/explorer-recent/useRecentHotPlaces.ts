@@ -1,5 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { explorerKey, getRecentHotPlaces } from '../explorer.api'
+import { byHotRank } from './recentHotPlaces.utils'
 import { useMemo } from 'react'
 import type { PlaceCategoryType } from '@waylog/domains/modules/place'
 import { arrayIncludes } from '@waylog/utility';
@@ -19,9 +20,7 @@ export function useRecentHotPlaces({ inquiryMonths, ...params }: RecentHotPlaceO
       if (places.length === 0) return []
       const maxScore = Math.max(...places.map((p) => p.score))
       const threshold = maxScore / 2
-      return places
-        .filter((p) => p.score >= threshold)
-        .toSorted((a, b) => b.score - a.score)
+      return places.filter((p) => p.score >= threshold).toSorted(byHotRank)
     },
   })
 
