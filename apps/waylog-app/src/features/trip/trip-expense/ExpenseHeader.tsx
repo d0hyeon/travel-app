@@ -12,6 +12,7 @@ import { StyleSheet, Pressable } from 'react-native'
 import { Stack, TextField, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../shared/config/tokens'
 import { useExpenseSummary } from './useExpenseSummary'
+import { TripExchangeRateSettingButton } from './TripExchangeRateSettingButton'
 
 interface Props {
   tripId: string
@@ -42,21 +43,20 @@ export function ExpenseHeader({ tripId }: Props) {
         </Typography>
       </Stack>
 
-      {trip.isOverseas && usedCurrencies.length > 0 && (
-        <Stack direction="row" gap={1} alignItems="flex-end">
-          {usedCurrencies.map((code) => (
-            <ExchangeRateField
-              key={code}
-              code={code as CurrencyCode}
-              value={getExchangeRate(code, exchangeRates) ?? getDefaultExchangeRate(code)}
-              onSubmit={(rate) => {
-                const newRates = setExchangeRate(exchangeRates, code as CurrencyCode, rate)
-                void updateTrip({ exchangeRates: newRates })
-              }}
-            />
-          ))}
-        </Stack>
-      )}
+      <Stack direction="row" gap={1} alignItems="flex-end">
+        {trip.isOverseas && usedCurrencies.map((code) => (
+          <ExchangeRateField
+            key={code}
+            code={code as CurrencyCode}
+            value={getExchangeRate(code, exchangeRates) ?? getDefaultExchangeRate(code)}
+            onSubmit={(rate) => {
+              const newRates = setExchangeRate(exchangeRates, code as CurrencyCode, rate)
+              void updateTrip({ exchangeRates: newRates })
+            }}
+          />
+        ))}
+        <TripExchangeRateSettingButton tripId={tripId} />
+      </Stack>
     </Stack>
   )
 }
