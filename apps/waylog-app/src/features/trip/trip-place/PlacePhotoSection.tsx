@@ -3,6 +3,9 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { StyleSheet, Pressable } from 'react-native'
 import { Box, Skeleton, Stack, StackProps, Typography } from '~/shared/components/design-system'
 import { LoadableImage } from '../../../shared/components/LoadableImage'
+import { PhotoBottomSheet } from '../../../shared/components/photo/PhotoBottomSheet'
+import { useConfirmDialog } from '../../../shared/components/confirm-dialog/useConfirmDialog'
+import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { usePlacePhotos } from './useTripPlacePhotos'
 
 interface PlacePhotoSectionProps extends StackProps {
@@ -12,10 +15,29 @@ interface PlacePhotoSectionProps extends StackProps {
 
 /**
  * 웹 PlacePhotoSection 과 같은 역할. 장소 사진 업로드·삭제를 담당한다.
- * 앱은 사진 상세 뷰어가 없어 삭제는 롱프레스로 받는다.
+ * 이미 한 장소 안이라 장소 재지정은 열어 두지 않는다. 웹과 같다.
  */
 export function PlacePhotoSection({ tripId, placeId, ...props }: PlacePhotoSectionProps) {
-  const { data: photos, upload, remove } = usePlacePhotos(tripId, placeId)
+  const { data: photos, upload, remove, update } = usePlacePhotos(tripId, placeId)
+  const confirm = useConfirmDialog()
+  const overlay = useOverlay()
+
+  const openPhotoViewer = (initialIndex: number) => {
+    overlay.open(({ isOpen, close }) => (
+      <PhotoBottomSheet
+        isOpen={isOpen}
+        photos={photos}
+        initialIndex={initialIndex}
+        onUpdate={update}
+        onDelete={async (photo) => {
+          if (!(await confirm('사진을 삭제할까요?'))) return
+          await remove(photo)
+          close()
+        }}
+        onClose={close}
+      />
+    ))
+  }
 
   const addPhoto = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync()
@@ -38,8 +60,8 @@ export function PlacePhotoSection({ tripId, placeId, ...props }: PlacePhotoSecti
             <MaterialIcons name="add-photo-alternate" size={30} color="#777" />
           </Box>
         </Pressable>
-        {photos.map((photo) => (
-          <Pressable key={photo.id} onLongPress={() => void remove(photo)}>
+        {photos.map((photo, index) => (
+          <Pressable key={photo.id} onPress={() => openPhotoViewer(index)}>
             <LoadableImage source={{ uri: photo.url }} style={styles.photo} resizeMode="cover" />
           </Pressable>
         ))}

@@ -1,5 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { usePlace } from '@waylog/domains/modules/place'
+import { usePlacePhotos } from '../place/usePlacePhotos'
+import { PlacePhotoStrip } from '../place/PlacePhotoStrip'
 import { useRouter } from 'expo-router'
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native'
 import { Suspense, useState } from 'react'
@@ -12,7 +14,6 @@ import { useOverlay } from '../../shared/hooks/useOverlay'
 import { PostCard } from '../post/PostCard'
 import { useQueryParamState } from '../../shared/hooks/useQueryParamState'
 import { useExplorerPlaceFeed } from './useExplorerPlaceFeed'
-import { useExplorerPlacePhotos } from './useExplorerPlacePhotos'
 import { LoadableImage } from '../../shared/components/LoadableImage'
 
 type PlaceDetailTab = 'info' | 'feed'
@@ -56,8 +57,10 @@ function TabContentLoading() {
 }
 
 function PlaceInfoContent({ placeId }: { placeId: string }) {
+  const { width } = useWindowDimensions()
   const { data: place } = usePlace(placeId)
-  const { data: photos } = useExplorerPlacePhotos(placeId)
+  const { data: photos } = usePlacePhotos(placeId)
+  const photoWidth = Math.min(120, Math.max(96, width * 0.28))
 
   return (
     <ScrollView style={styles.flex1} contentContainerStyle={styles.infoContent} showsVerticalScrollIndicator={false}>
@@ -70,45 +73,8 @@ function PlaceInfoContent({ placeId }: { placeId: string }) {
         <Typography variant="subtitle1">{place.name}</Typography>
         {place.address !== '' && <Typography variant="body2" color="text.secondary">{place.address}</Typography>}
       </View>
-      {photos.length > 0 && <PlacePhotoStrip photos={photos.map((photo) => photo.url)} />}
+      {photos.length > 0 && <PlacePhotoStrip photos={photos} thumbnailWidth={photoWidth} />}
     </ScrollView>
-  )
-}
-
-function PlacePhotoStrip({ photos }: { photos: string[] }) {
-  const { width } = useWindowDimensions()
-  const photoWidth = Math.min(120, Math.max(96, width * 0.28))
-  const overlay = useOverlay()
-
-  return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.photoStrip}>
-      {photos.map((photoUrl, index) => (
-        <Pressable key={photoUrl} onPress={() => overlay.open(({ isOpen, onClose }) => <PlacePhotoViewer photos={photos} initialIndex={index} isOpen={isOpen} onClose={onClose} />)}>
-          <LoadableImage source={{ uri: photoUrl }} style={[styles.thumbnail, { width: photoWidth }]} resizeMode="cover" />
-        </Pressable>
-      ))}
-    </ScrollView>
-  )
-}
-
-function PlacePhotoViewer({ photos, initialIndex, isOpen, onClose }: { photos: string[]; initialIndex: number; isOpen: boolean; onClose: () => void }) {
-  const { width } = useWindowDimensions()
-  const [currentIndex, setCurrentIndex] = useState(initialIndex)
-
-  return (
-    <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.9]} safeArea style={styles.viewer}>
-      <BottomSheet.Header><Typography color="#fff">사진 {currentIndex + 1} / {photos.length}</Typography></BottomSheet.Header>
-      <BottomSheet.Body>
-        <BottomSheet.ScrollView
-          horizontal
-          pagingEnabled
-          contentOffset={{ x: initialIndex * width, y: 0 }}
-          onMomentumScrollEnd={(event) => setCurrentIndex(Math.round(event.nativeEvent.contentOffset.x / width))}
-        >
-          {photos.map((photoUrl) => <LoadableImage key={photoUrl} source={{ uri: photoUrl }} style={[styles.viewerPhoto, { width }]} resizeMode="contain" />)}
-        </BottomSheet.ScrollView>
-      </BottomSheet.Body>
-    </BottomSheet>
   )
 }
 
@@ -142,10 +108,6 @@ const styles = StyleSheet.create({
   infoContent: { padding: 16, gap: 16, paddingBottom: 32 },
   mapContainer: { height: 220, borderRadius: radius.lg, overflow: 'hidden' },
   infoText: { gap: 8 },
-  photoStrip: { gap: 8 },
-  thumbnail: { height: 92, borderRadius: radius.md },
-  viewer: { backgroundColor: '#111' },
-  viewerPhoto: { height: 420 },
   emptyFeed: { alignItems: 'center', paddingVertical: 80 },
   feed: { flex: 1 },
   feedContent: { gap: 16, padding: 16, paddingBottom: 32 },
