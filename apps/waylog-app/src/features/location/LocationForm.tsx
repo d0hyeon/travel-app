@@ -8,18 +8,21 @@ import { Button } from '~/shared/components/design-system'
 // 웹 LocationForm 과 같은 공개 인터페이스를 유지한다.
 // 웹은 react-hook-form 으로 유효성을 다루지만 값이 배열 하나뿐이라
 // 앱은 상태 하나로 같은 동작을 낸다.
-type Props = {
+type CommonProps = {
+  children?: ReactNode
+  contentBottomInset?: number
+}
+
+type Props = CommonProps & {
   multiple?: false
   defaultValue?: Location
   onSubmit?: (value: Location) => void
-  children?: ReactNode
 }
 
-type MultipleProps = {
+type MultipleProps = CommonProps & {
   multiple: true
   defaultValue?: Location[]
   onSubmit?: (value: Location[]) => void
-  children?: ReactNode
 }
 
 const GroupOptions = LocationGroups.map((group) => ({
@@ -35,8 +38,11 @@ interface LocationFormContextValue {
 
 const LocationFormContext = createContext<LocationFormContextValue | null>(null)
 
+const CONTENT_PADDING_BOTTOM = 24
+
 export function LocationForm(props: Props | MultipleProps) {
   const [value, setValue] = useState<Location[]>(() => toInitialValue(props))
+  const scrollEndSpace = CONTENT_PADDING_BOTTOM + (props.contentBottomInset ?? 0)
 
   const toggle = (current: Location) => {
     if (props.multiple) {
@@ -57,7 +63,9 @@ export function LocationForm(props: Props | MultipleProps) {
 
   return (
     <LocationFormContext value={{ isValid: value.length >= 1, submit }}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingBottom: scrollEndSpace }]}
+      >
         <Stack gap={2.5}>
           {GroupOptions.map((group) => (
             <Box key={group.label}>
@@ -105,7 +113,7 @@ function toInitialValue(props: Props | MultipleProps): Location[] {
 }
 
 const styles = StyleSheet.create({
-  content: { paddingHorizontal: 24, paddingBottom: 24 },
+  content: { paddingHorizontal: 24 },
   groupLabel: { marginBottom: 8 },
   options: { flexWrap: 'wrap' },
 })
