@@ -1,11 +1,11 @@
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
 import { AuthGuard, useAuth } from '@waylog/domains/clients'
-import { Redirect } from 'expo-router'
 import { UserProfileScreen } from '../../src/features/user-profile/UserProfileScreen'
+import { LoginRedirect } from '../../src/features/auth/auth-redirect'
 
 export default function ProfileTabRoute() {
   return (
-    <AuthGuard fallback={<Redirect href="/login" />}>
+    <AuthGuard fallback={<LoginRedirect />}>
       <MyProfileScreen />
     </AuthGuard>
   )

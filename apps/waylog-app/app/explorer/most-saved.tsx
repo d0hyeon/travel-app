@@ -1,10 +1,10 @@
 import { AuthGuard } from '@waylog/domains/clients'
-import { Redirect } from 'expo-router'
 import { MostSavedScreen } from '../../src/features/explorer/explorer-saved/MostSavedScreen'
+import { LoginRedirect } from '../../src/features/auth/auth-redirect'
 
 export default function MostSavedRoute() {
   return (
-    <AuthGuard fallback={<Redirect href="/login" />}>
+    <AuthGuard fallback={<LoginRedirect />}>
       <MostSavedScreen />
     </AuthGuard>
   )

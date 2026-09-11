@@ -1,10 +1,10 @@
 import { AuthGuard } from '@waylog/domains/clients'
-import { Redirect } from 'expo-router'
 import { TripListScreen } from '../../src/features/trip/trip-list/TripListScreen'
+import { LoginRedirect } from '../../src/features/auth/auth-redirect'
 
 export default function TripListTabRoute() {
   return (
-    <AuthGuard fallback={<Redirect href="/login" />}>
+    <AuthGuard fallback={<LoginRedirect />}>
       <TripListScreen />
     </AuthGuard>
   )

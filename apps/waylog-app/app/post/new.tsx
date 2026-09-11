@@ -1,10 +1,10 @@
 import { AuthGuard } from '@waylog/domains/clients'
-import { Redirect } from 'expo-router'
 import { PostCreationScreen } from '../../src/features/post/PostCreationScreen'
+import { LoginRedirect } from '../../src/features/auth/auth-redirect'
 
 export default function NewPostRoute() {
   return (
-    <AuthGuard fallback={<Redirect href="/login" />}>
+    <AuthGuard fallback={<LoginRedirect />}>
       <PostCreationScreen />
     </AuthGuard>
   )
