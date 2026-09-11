@@ -43,6 +43,7 @@ export function useMapCamera({ screenWidth, onApply }: Params) {
     camera: deferred.camera,
     ref: control.ref,
     fitTo: control.fitTo,
+    fitToViewport: control.fitToViewport,
     panTo: control.panTo,
     track: (state: MapState) => {
       setLastState(state)

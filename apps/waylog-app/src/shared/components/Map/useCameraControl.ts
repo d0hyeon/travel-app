@@ -2,7 +2,13 @@ import { useEffect, useRef } from 'react'
 import { usePreservedCallback } from '@waylog/react'
 import type Mapbox from '@rnmapbox/maps'
 import type { Coordinate } from '@waylog/domains/modules/map'
-import { deltaToZoom, levelToDelta, toFitBounds } from './NativeMap.utils'
+import {
+  deltaToZoom,
+  levelToDelta,
+  toFitBounds,
+  toViewportBounds,
+  type FitBounds,
+} from './NativeMap.utils'
 
 const FIT_PADDING = 60
 const FIT_DURATION = 0
@@ -35,27 +41,41 @@ export function useCameraControl({ onMoveStart, onMoveEnd }: Params) {
     }, duration)
   }
 
-  const fitTo = usePreservedCallback(
-    (coordinates: Coordinate[], { padding = FIT_PADDING, duration = FIT_DURATION }: FitOptions = {}) => {
-      const bounds = toFitBounds(coordinates)
-      if (bounds == null) return
+  const moveToBounds = (
+    bounds: FitBounds | null,
+    { padding = FIT_PADDING, duration = FIT_DURATION }: FitOptions,
+  ) => {
+    if (bounds == null) return
 
-      startMove(
-        () =>
-          ref.current?.setCamera({
-            bounds: {
-              ne: bounds.ne,
-              sw: bounds.sw,
-              paddingTop: padding,
-              paddingBottom: padding,
-              paddingLeft: padding,
-              paddingRight: padding,
-            },
-            animationMode: duration === 0 ? 'none' : 'easeTo',
-            animationDuration: duration,
-          }),
-        duration,
-      )
+    startMove(
+      () =>
+        ref.current?.setCamera({
+          bounds: {
+            ne: bounds.ne,
+            sw: bounds.sw,
+            paddingTop: padding,
+            paddingBottom: padding,
+            paddingLeft: padding,
+            paddingRight: padding,
+          },
+          animationMode: duration === 0 ? 'none' : 'easeTo',
+          animationDuration: duration,
+        }),
+      duration,
+    )
+  }
+
+  /** 좌표들이 꽉 차게 당긴다. 배율은 지도가 범위에 맞춰 정한다. */
+  const fitTo = usePreservedCallback(
+    (coordinates: Coordinate[], options: FitOptions = {}) => {
+      moveToBounds(toFitBounds(coordinates), options)
+    },
+  )
+
+  // 자동으로 맞출 때는 마커가 하나여도 주변 지형이 보여야 해, 최소 범위를 지킨다.
+  const fitToViewport = usePreservedCallback(
+    (coordinates: Coordinate[], options: FitOptions = {}) => {
+      moveToBounds(toViewportBounds(coordinates), options)
     },
   )
 
@@ -79,5 +99,5 @@ export function useCameraControl({ onMoveStart, onMoveEnd }: Params) {
     if (moveTimerRef.current != null) clearTimeout(moveTimerRef.current)
   }, [])
 
-  return { ref, fitTo, panTo, isMoving }
+  return { ref, fitTo, fitToViewport, panTo, isMoving }
 }
