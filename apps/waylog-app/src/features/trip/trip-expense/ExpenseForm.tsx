@@ -3,8 +3,8 @@ import { CurrencyCode as CurrencyCodeMap, CurrencyCodeLabel, getCurrenciesByDest
 import { useTrip, useTripPlaces } from '@waylog/domains/modules/trip'
 import { useTripMembers } from '@waylog/domains/modules/trip-member'
 import { formatDisplayDate } from '@waylog/utility'
-import { forwardRef, useImperativeHandle } from 'react'
-import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form'
+import { forwardRef, useCallback, useImperativeHandle } from 'react'
+import { Controller, createFormControl, useFieldArray, useForm, useWatch } from 'react-hook-form'
 import { Button, Chip, IconButton, Stack, TextField, Typography } from '~/shared/components/design-system'
 import { Pressable, StyleSheet } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
@@ -13,6 +13,7 @@ import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { PopMenu } from '../../../shared/components/PopMenu'
 import { DateField } from '../../../shared/components/date-picker'
 import { palette } from '../../../shared/config/tokens'
+import { formatDate } from 'date-fns'
 
 export interface PaymentField {
   memberId: string
@@ -38,6 +39,14 @@ interface Props {
   onSubmit: (data: ExpenseFormValues) => void
 }
 
+export const expenseFormControl = createFormControl<ExpenseFormValues>({
+  mode: 'onChange',
+  defaultValues: {
+    description: '일반',
+    currency: 'KRW'
+  },
+})
+
 // 웹 ExpenseForm 과 같은 값 모양을 유지한다.
 export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseForm(
   { tripId, defaultValues, onSubmit },
@@ -52,20 +61,30 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
   const myMemberId = members.find((member) => member.userId === auth?.id)?.id
 
   const { control, handleSubmit, setValue } = useForm<ExpenseFormValues>({
+    formControl: expenseFormControl,
     defaultValues: {
-      description: '',
-      date: '',
+      date: formatDate(Date.now(), 'yyyy-MM-dd'),
       currency: currencies[0]?.code ?? 'KRW',
       payments: myMemberId != null ? [{ memberId: myMemberId, amount: 0 }] : [],
-      ...defaultValues,
       splitAmong: defaultValues?.splitAmong ?? members.map((member) => member.id),
     },
   })
-  const { fields: paymentFields, append, remove } = useFieldArray({ control, name: 'payments' })
+  const { fields: paymentFields, append, remove } = useFieldArray({
+    control,
+    name: 'payments',
+    rules: {
+      maxLength: 0,
+      validate: (fields) => {
+        const totalPrice = fields.reduce((acc, field) => acc + field.amount, 0);
+        if (totalPrice === 0) {
+          return '금액이 입력되지 않았어요.';
+        }
+      }
+    }
+  })
 
   const overlay = useOverlay()
   const currency = useWatch({ control, name: 'currency' })
-  const splitAmong = useWatch({ control, name: 'splitAmong' })
   const placeId = useWatch({ control, name: 'placeId' })
   const payments = useWatch({ control, name: 'payments' })
 
@@ -75,19 +94,19 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
     append({ memberId: nextMember.id, amount: 0 })
   }
 
+  const submit = useCallback(() => {
+    handleSubmit((formValues) => {
+      return onSubmit({
+        ...formValues,
+        description: formValues.description || '일반 지출',
+      })
+    })()
+  }, [onSubmit])
+
   useImperativeHandle(
     ref,
-    () => ({
-      submit: () =>
-        void handleSubmit((values) => {
-          if (values.splitAmong.length === 0) return
-          onSubmit({
-            ...values,
-            payments: values.payments.filter((payment) => payment.memberId !== '' && payment.amount > 0),
-          })
-        })(),
-    }),
-    [handleSubmit, onSubmit],
+    () => ({ submit }),
+    [submit],
   )
 
   return (
@@ -191,7 +210,6 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
         <Controller
           control={control}
           name="description"
-          rules={{ required: true }}
           render={({ field }) => (
             <TextField
               placeholder="점심 식사"
@@ -209,6 +227,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
         <Controller
           control={control}
           name="date"
+          rules={{ required: true }}
           render={({ field }) => (
             <DateField
               placeholder="날짜 선택"
@@ -251,39 +270,58 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
       )}
 
       <Stack gap={1}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Typography variant="subtitle2" style={styles.sectionTitle}>누구와 나눌까요?</Typography>
-          <Button
-            size="small"
-            variant="text"
-            onPress={() => setValue('splitAmong', splitAmong.length === members.length ? [] : members.map((member) => member.id))}
-          >
-            전체 선택
-          </Button>
-        </Stack>
-        <Stack direction="row" gap={0.5} style={styles.wrapRow}>
-          {members.map((member) => {
-            const included = splitAmong.includes(member.id)
+        <Controller
+          control={control}
+          name="splitAmong"
+          rules={{
+            validate: (x) => {
+              if (x.length === 0) {
+                return '한명 이상 선택해 주세요';
+              }
+            }
+          }}
+          render={({ field: { value, onChange: setValue } }) => (
+            <Stack gap={1}>
+              <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Typography variant="subtitle2" style={styles.sectionTitle}>누구와 나눌까요?</Typography>
+                <Button
+                  size="small"
+                  variant="text"
+                  onPress={() => {
+                    setValue(value.length === members.length
+                      ? []
+                      : members.map((member) => member.id)
+                    )
+                  }}
+                >
+                  전체 선택
+                </Button>
+              </Stack>
+              <Stack direction="row" gap={0.5} style={styles.wrapRow}>
+                {members.map((member) => {
+                  const included = value.includes(member.id)
 
-            return (
-              <Chip
-                key={member.id}
-                label={member.name}
-                size="small"
-                variant={included ? 'filled' : 'outlined'}
-                color={included ? 'primary' : 'default'}
-                onPress={() =>
-                  setValue(
-                    'splitAmong',
-                    included
-                      ? splitAmong.filter((id) => id !== member.id)
-                      : [...splitAmong, member.id],
+                  return (
+                    <Chip
+                      key={member.id}
+                      label={member.name}
+                      size="small"
+                      variant={included ? 'filled' : 'outlined'}
+                      color={included ? 'primary' : 'default'}
+                      onPress={() =>
+                        setValue(included
+                          ? value.filter((id) => id !== member.id)
+                          : [...value, member.id],
+                        )
+                      }
+                    />
                   )
-                }
-              />
-            )
-          })}
-        </Stack>
+                })}
+              </Stack>
+            </Stack>
+          )}
+        />
+
       </Stack>
     </Stack>
   )
