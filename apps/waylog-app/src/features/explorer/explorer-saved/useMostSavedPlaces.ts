@@ -3,6 +3,7 @@ import type { Location } from '@waylog/domains/modules/location'
 import type { PlaceCategoryType } from '@waylog/domains/modules/place'
 import { useMemo } from 'react'
 import { explorerKey, getMostSavedPlaces } from '../explorer.api'
+import { bySaveRank } from './mostSavedPlaces.utils'
 
 interface PlaceFilters {
   location?: Location
@@ -23,7 +24,7 @@ export function useMostSavedPlaces(filters: PlaceFilters = {}) {
       .filter((place) => place.saveCount >= minimumSaveCount)
       .filter((place) => !filters.location || place.destinations.includes(filters.location))
       .filter((place) => !filters.category || place.categories.includes(filters.category))
-      .toSorted((first, second) => second.saveCount - first.saveCount)
+      .toSorted(bySaveRank)
   }, [filters.category, filters.location, query.data])
 
   return { ...query, data: places }

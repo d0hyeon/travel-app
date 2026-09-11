@@ -4,6 +4,7 @@ import type { Location } from '@waylog/domains/modules/location'
 import type { PlaceCategoryType } from '@waylog/domains/modules/place'
 import { arrayIncludes } from '@waylog/utility'
 import { explorerKey, getMostSavedPlaces } from '../explorer.api'
+import { bySaveRank } from './mostSavedPlaces.utils'
 
 interface MostSavedPlacesOption {
   location?: Location | null
@@ -18,9 +19,7 @@ export function useMostSavedPlaces({ location, category }: MostSavedPlacesOption
       if (places.length === 0) return []
       const maxSaveCount = Math.max(...places.map((p) => p.saveCount))
       const threshold = maxSaveCount / 2
-      return places
-        .filter((p) => p.saveCount >= threshold)
-        .toSorted((a, b) => b.saveCount - a.saveCount)
+      return places.filter((p) => p.saveCount >= threshold).toSorted(bySaveRank)
     },
   })
 

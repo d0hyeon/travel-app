@@ -90,6 +90,7 @@ export interface MostSavedPlace {
   lat: number
   lng: number
   saveCount: number
+  lastSavedAt?: string
   destinations: string[]
   categories: PlaceCategoryTypeValue[]
   thumbnailUrl?: string
@@ -107,6 +108,7 @@ interface MostSavedPlaceRow {
   lat: number
   lng: number
   save_count: number
+  last_saved_at: string | null
   destinations: string[]
   categories: PlaceCategoryTypeValue[]
   thumbnail_url: string | null
@@ -128,6 +130,7 @@ export async function getMostSavedPlaces(): Promise<MostSavedPlacesResult> {
     lat: row.lat,
     lng: row.lng,
     saveCount: row.save_count,
+    lastSavedAt: row.last_saved_at ?? undefined,
     destinations: row.destinations ?? [],
     categories: row.categories ?? [],
     thumbnailUrl: row.thumbnail_url ?? undefined,
