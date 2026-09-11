@@ -97,20 +97,13 @@ interface RowProps {
 
 function ExchangeRateRow({ code, rate, onSubmit }: RowProps) {
   const defaultRate = getDefaultExchangeRate(code)
-  const [isEditing, setIsEditing] = useState(false)
-  const [draft, setDraft] = useState(String(rate ?? defaultRate))
-
-  const submit = () => {
-    const nextRate = Number(draft.replace(/[^0-9.]/g, ''))
-    if (nextRate > 0) onSubmit(nextRate)
-    setIsEditing(false)
-  }
+  const defaultValue = rate ?? defaultRate;
 
   return (
     <Stack direction="row" justifyContent="space-between" alignItems="center" style={styles.row}>
       <Typography variant="body2" color="text.secondary">{getCurrencyName(code)}</Typography>
       <EditableText
-        defaultValue={rate?.toString()}
+        defaultValue={defaultValue.toString()}
         onSubmit={(value) => onSubmit(Number(value.replace(/[^0-9.]/g, '')))}
         slotProps={{
           field: { keyboardType: 'number-pad' },
