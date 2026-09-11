@@ -202,6 +202,20 @@ eslint.config.js                # 레포 전역 lint 설정 + 의존성
 
 - 환경변수를 직접 읽지 않는다. 각 앱이 Supabase client·인증 adapter를 생성해 `initializeClient()`로 주입한다
 - 플랫폼 raw storage도 각 앱이 생성해 `initializeClient({ storage })`로 주입한다. 공용 패키지는 동기 캐시 어댑터만 소유한다
+- OAuth(카카오) 로그인은 `signInWithKakao({ redirectTo })` 하나로 공유하고, 실제 인증 창을
+  띄우는 방식은 각 앱의 `supabase-auth.ts` adapter가 소유한다. 웹은 `signInWithOAuth`가
+  브라우저를 그대로 리다이렉트시키지만, 네이티브에는 리다이렉트할 브라우저 문맥이 없어
+  `skipBrowserRedirect`로 URL만 받아 `expo-web-browser`로 띄우고
+  `waylog://auth/callback` 딥링크로 돌아온 `code`를 `exchangeCodeForSession`으로 교환한다.
+  앱 client만 `flowType: 'pkce'`인 이유다 — 기본값 `implicit`은 토큰을 URL 조각(`#`)에
+  실어 보내 딥링크로 받기 어렵다. 콜백 주소는 Supabase Auth의 Redirect URLs에 등록해야 한다.
+  로그인 화면은 웹 `IntroFullScreenBanner`와 같은 구성(로고 타일·태그라인이 가운데,
+  버튼은 하단)이다. 카카오 버튼만 웹의 `color="info"`(`#333`) 대신 카카오 브랜드 색
+  (`#FEE500` + 라벨 `#3C1E1E`)을 쓴다. 노란 배경에서는 `Button` 의 로딩 스피너가
+  흰색 고정이라 보이지 않으므로, `loading` 대신 `startIcon` 을 스피너로 바꿔 대기를 표현한다.
+  로고는 웹 `public/pwa-512x512.png`와 같은 이미지를 `apps/waylog-app/assets/logo.png`로 둔다. 이미지 모듈 선언은
+  `apps/waylog-app/types/assets.d.ts`에 있다 — `expo-env.d.ts`는 Expo가 재생성하는
+  gitignore 대상이라 거기에 두면 사라진다
 - 지역 경계 geojson(`/visit-layer/*`)은 웹 `public/`이 서빙한다. 웹은 상대 경로로
   받고, 앱은 붙을 origin이 없어 `initializeClient({ boundaryBaseUrl })`로 웹 주소를
   주입받는다. 주입하지 않으면 상대 경로 그대로다.

@@ -1,6 +1,7 @@
 import type { SupabaseClient, User } from '@supabase/supabase-js'
 import type { Database } from '@waylog/domains/clients'
 import type { AuthService, AuthUser } from '@waylog/domains/clients'
+import * as WebBrowser from 'expo-web-browser'
 
 function toAuthUser(user: User): AuthUser {
   return {
@@ -8,6 +9,11 @@ function toAuthUser(user: User): AuthUser {
     name: user.user_metadata?.name,
     avatar: user.user_metadata?.picture,
   }
+}
+
+function readAuthCode(callbackUrl: string) {
+  const { searchParams } = new URL(callbackUrl)
+  return searchParams.get('code')
 }
 
 export function createAuthService(client: SupabaseClient<Database>): AuthService {
@@ -22,8 +28,22 @@ export function createAuthService(client: SupabaseClient<Database>): AuthService
       if (error) throw error
     },
     async signInWithProvider({ provider, redirectTo }) {
-      const { error } = await client.auth.signInWithOAuth({ provider: `custom:${provider}` as never, options: { redirectTo } })
+      const { data, error } = await client.auth.signInWithOAuth({
+        provider: `custom:${provider}` as never,
+        // 네이티브에는 리다이렉트할 브라우저 문맥이 없다. 인증 URL만 받아 직접 띄운다.
+        options: { redirectTo, skipBrowserRedirect: true },
+      })
       if (error) throw error
+
+      const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo)
+      if (result.type !== 'success') return false
+
+      const authCode = readAuthCode(result.url)
+      if (authCode == null) throw new Error('카카오 로그인 응답에 인증 코드가 없습니다')
+
+      const { error: exchangeError } = await client.auth.exchangeCodeForSession(authCode)
+      if (exchangeError) throw exchangeError
+      return true
     },
     async signOut() {
       const { error } = await client.auth.signOut()

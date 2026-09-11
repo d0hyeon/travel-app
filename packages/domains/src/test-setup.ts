@@ -6,7 +6,7 @@ const client = createClient('https://placeholder.supabase.co', 'placeholder')
 const authService: AuthService = {
   readSession: async () => null,
   signIn: async () => {},
-  signInWithProvider: async () => {},
+  signInWithProvider: async () => true,
   signOut: async () => {},
   onAuthStateChange: () => () => {},
 }

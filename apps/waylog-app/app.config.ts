@@ -32,6 +32,7 @@ const config: ExpoConfig = {
   scheme: "waylog",
   plugins: [
     "expo-router",
+    "expo-web-browser",
     [
       "@rnmapbox/maps",
       {

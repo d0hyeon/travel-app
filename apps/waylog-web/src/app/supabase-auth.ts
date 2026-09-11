@@ -24,6 +24,8 @@ export function createAuthService(client: SupabaseClient<Database>): AuthService
     async signInWithProvider({ provider, redirectTo }) {
       const { error } = await client.auth.signInWithOAuth({ provider: `custom:${provider}` as never, options: { redirectTo } })
       if (error) throw error
+      // 브라우저가 그대로 인증 페이지로 떠나므로 취소를 돌려받을 지점이 없다.
+      return true
     },
     async signOut() {
       const { error } = await client.auth.signOut()

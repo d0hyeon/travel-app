@@ -14,6 +14,8 @@ export function setupApi() {
       autoRefreshToken: true,
       persistSession: true,
       detectSessionInUrl: false,
+      // 콜백이 딥링크로 돌아오므로 URL 조각에 토큰을 싣는 implicit 대신 코드 교환을 쓴다.
+      flowType: 'pkce',
     },
   })
 
