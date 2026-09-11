@@ -216,6 +216,24 @@ eslint.config.js                # 레포 전역 lint 설정 + 의존성
   로고는 웹 `public/pwa-512x512.png`와 같은 이미지를 `apps/waylog-app/assets/logo.png`로 둔다. 이미지 모듈 선언은
   `apps/waylog-app/types/assets.d.ts`에 있다 — `expo-env.d.ts`는 Expo가 재생성하는
   gitignore 대상이라 거기에 두면 사라진다
+- 인증이 필요한 화면에서 튕겨나갈 때는 돌아올 자리를 `returnTo` 검색 파라미터로
+  싣는다(`src/features/auth/auth-redirect.tsx`). 가드 fallback은 `<LoginRedirect />`,
+  세션 만료 감지는 `useLoginRedirect()`, 복귀는 `login.tsx`의 `useReturnTo()`가 읽는다.
+  로그인 성공 후 별도 이동 코드는 없다 — 세션이 갱신되면 `login.tsx`의 `useAuth`가
+  재평가되어 `<Redirect href={returnTo} />`가 스스로 동작한다.
+  OAuth의 `redirectTo`(`waylog://auth/callback`)와는 다른 개념이다. 웹은 둘이 같은 URL
+  이지만 앱은 콜백이 딥링크 스킴이어야 해 분리된다. 외부에서 심어진 절대 URL로 튕기지
+  않도록 `returnTo`는 앱 내부 경로만 받는다
+- 초대 링크(`/trip/invite/:shareLink`)는 앱 설치 시 앱이, 아니면 웹이 연다
+  (iOS Universal Links). 성립하려면 세 곳이 맞물린다 — 앱의 `associatedDomains`,
+  웹이 서빙하는 `public/.well-known/apple-app-site-association`, 그리고 그 파일을
+  SPA fallback rewrite에서 제외하는 `vercel.ts` 설정이다. AASA는 확장자가 없어
+  rewrite에 걸리면 index.html이 반환되고, iOS는 JSON 파싱에 실패해 조용히 웹으로 빠진다.
+  같은 이유로 `Content-Type: application/json`을 헤더로 명시한다.
+  iOS는 AASA 조회 시 리다이렉트를 따라가지 않으므로 apex(`waylog.me`)와 `www` 양쪽에
+  서빙돼야 한다. AASA의 팀 ID는 Apple Developer Program 가입 후 채워야 하며
+  (현재 `APPLE_TEAM_ID` 플레이스홀더), Personal Team으로는 Associated Domains
+  entitlement 자체를 쓸 수 없다. Android App Links는 아직 적용하지 않았다
 - 지역 경계 geojson(`/visit-layer/*`)은 웹 `public/`이 서빙한다. 웹은 상대 경로로
   받고, 앱은 붙을 origin이 없어 `initializeClient({ boundaryBaseUrl })`로 웹 주소를
   주입받는다. 주입하지 않으면 상대 경로 그대로다.
