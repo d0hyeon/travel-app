@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { DEFAULT_DELTA, MIN_FIT_SPAN, deltaToZoom, levelToDelta, toFitBounds } from '../NativeMap.utils'
+import {
+  DEFAULT_DELTA,
+  MIN_FIT_SPAN,
+  deltaToZoom,
+  levelToDelta,
+  toFitBounds,
+  toViewportBounds,
+} from '../NativeMap.utils'
 
 describe('levelToDelta', () => {
   it('레벨 3에서 기본 delta를 반환한다', () => {
@@ -26,7 +33,7 @@ describe('toFitBounds', () => {
     expect(toFitBounds([])).toBeNull()
   })
 
-  it('떨어진 좌표들은 실제 범위를 그대로 감싼다', () => {
+  it('좌표들의 실제 범위를 그대로 감싼다', () => {
     const bounds = toFitBounds([
       { lat: 37.0, lng: 127.0 },
       { lat: 38.0, lng: 128.0 },
@@ -35,28 +42,49 @@ describe('toFitBounds', () => {
     expect(bounds).toEqual({ ne: [128.0, 38.0], sw: [127.0, 37.0] })
   })
 
-  it('좌표가 하나면 최소 범위만큼 넓혀 최대 배율로 당겨지지 않게 한다', () => {
-    const bounds = toFitBounds([{ lat: 37.5, lng: 127.0 }])
-
-    expect(bounds).not.toBeNull()
-    const [neLng, neLat] = bounds!.ne
-    const [swLng, swLat] = bounds!.sw
-    expect(neLat - swLat).toBeCloseTo(MIN_FIT_SPAN)
-    expect(neLng - swLng).toBeCloseTo(MIN_FIT_SPAN)
-  })
-
-  it('좌표가 최소 범위보다 밀집해 있으면 최소 범위까지 넓힌다', () => {
+  it('밀집한 좌표를 최소 범위로 넓히지 않는다', () => {
     const bounds = toFitBounds([
       { lat: 37.5, lng: 127.0 },
       { lat: 37.5001, lng: 127.0001 },
     ])
 
     expect(bounds).not.toBeNull()
+    expect(bounds!.ne[1] - bounds!.sw[1]).toBeCloseTo(0.0001)
+    expect(bounds!.ne[0] - bounds!.sw[0]).toBeCloseTo(0.0001)
+  })
+
+  it('좌표가 하나면 넓이가 없는 범위를 반환한다', () => {
+    expect(toFitBounds([{ lat: 37.5, lng: 127.0 }])).toEqual({
+      ne: [127.0, 37.5],
+      sw: [127.0, 37.5],
+    })
+  })
+})
+
+describe('toViewportBounds', () => {
+  it('좌표가 없으면 null 을 반환한다', () => {
+    expect(toViewportBounds([])).toBeNull()
+  })
+
+  it('떨어진 좌표들은 실제 범위를 그대로 감싼다', () => {
+    expect(
+      toViewportBounds([
+        { lat: 37.0, lng: 127.0 },
+        { lat: 38.0, lng: 128.0 },
+      ]),
+    ).toEqual({ ne: [128.0, 38.0], sw: [127.0, 37.0] })
+  })
+
+  it('좌표가 하나면 최소 범위만큼 넓혀 최대 배율로 당겨지지 않게 한다', () => {
+    const bounds = toViewportBounds([{ lat: 37.5, lng: 127.0 }])
+
+    expect(bounds).not.toBeNull()
     expect(bounds!.ne[1] - bounds!.sw[1]).toBeCloseTo(MIN_FIT_SPAN)
+    expect(bounds!.ne[0] - bounds!.sw[0]).toBeCloseTo(MIN_FIT_SPAN)
   })
 
   it('넓히는 범위는 원래 중심을 유지한다', () => {
-    const bounds = toFitBounds([{ lat: 37.5, lng: 127.0 }])
+    const bounds = toViewportBounds([{ lat: 37.5, lng: 127.0 }])
 
     expect(bounds).not.toBeNull()
     expect((bounds!.ne[1] + bounds!.sw[1]) / 2).toBeCloseTo(37.5)
@@ -64,8 +92,7 @@ describe('toFitBounds', () => {
   })
 
   it('위도와 경도를 각각 판단한다', () => {
-    // 경도로는 충분히 넓지만 위도로는 0인 회랑 모양.
-    const bounds = toFitBounds([
+    const bounds = toViewportBounds([
       { lat: 37.5, lng: 127.0 },
       { lat: 37.5, lng: 128.0 },
     ])

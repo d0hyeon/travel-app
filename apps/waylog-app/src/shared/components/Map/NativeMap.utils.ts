@@ -19,20 +19,31 @@ const MIN_VIEWPORT_BOUNDS_KM = 10;
 const KM_PER_DEGREE = 111;
 export const MIN_FIT_SPAN = MIN_VIEWPORT_BOUNDS_KM / KM_PER_DEGREE;
 
-interface FitBounds {
+export interface FitBounds {
   ne: [number, number];
   sw: [number, number];
 }
 
-/** 좌표들을 감싸는 범위. 너무 좁으면 중심을 유지한 채 최소 범위까지 넓힌다. */
+/** 좌표들을 감싸는 범위. */
 export function toFitBounds(coordinates: Coordinate[]): FitBounds | null {
   if (coordinates.length === 0) return null;
 
   const lats = coordinates.map((coordinate) => coordinate.lat);
   const lngs = coordinates.map((coordinate) => coordinate.lng);
 
-  const [minLat, maxLat] = widenToMinSpan(Math.min(...lats), Math.max(...lats));
-  const [minLng, maxLng] = widenToMinSpan(Math.min(...lngs), Math.max(...lngs));
+  return {
+    ne: [Math.max(...lngs), Math.max(...lats)],
+    sw: [Math.min(...lngs), Math.min(...lats)],
+  };
+}
+
+/** 좌표들을 감싸되, 너무 좁으면 중심을 유지한 채 최소 범위까지 넓힌 범위. */
+export function toViewportBounds(coordinates: Coordinate[]): FitBounds | null {
+  const bounds = toFitBounds(coordinates);
+  if (bounds == null) return bounds;
+
+  const [minLat, maxLat] = widenToMinSpan(bounds.sw[1], bounds.ne[1]);
+  const [minLng, maxLng] = widenToMinSpan(bounds.sw[0], bounds.ne[0]);
 
   return { ne: [maxLng, maxLat], sw: [minLng, minLat] };
 }
