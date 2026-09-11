@@ -128,6 +128,8 @@ apps/
 │   │       │   ├── tab-navigation/ # 하단 탭바. variant default(라운드+그림자)·apple(블러) 전환.
 │   │       │   │                #   RouterTabNavigation 이 Expo Router tabBar 어댑터
 │   │       │   ├── date-picker/ # 날짜·기간·시각 선택 (바텀시트 + 스와이프 달력)
+│   │       │   ├── photo/      # PhotoBottomSheet(여행·장소 공용 상세 뷰어), usePhotoViewerState,
+│   │       │   │                #   ZoomArea, PhotoVisibilityBadge
 │   │       │   └── dnd/        # 제스처 기반 정렬 목록 (드래그 핸들)
 │   │       ├── config/tokens.ts # 웹 theme.ts 에서 승계한 값
 │   │       └── hooks/          # useOverlay·useQueryParamState (웹과 동일 시그니처)
@@ -937,7 +939,7 @@ ref 로 붙잡아야 끌던 도중 스냅이 바뀌어도 제스처가 갈아끼
 | 통계                 | `features/statistics/StatisticsPage.tsx`                          |
 | 지도 (공통)          | `shared/components/Map/` (kakao / google 구현 분기)               |
 | 사진 업로드          | `shared/components/photo/PhotoUploader.tsx`                       |
-| 사진 상세 뷰어       | `shared/components/photo/PhotoBottomSheet.tsx`(모바일), `PhotoDialog.tsx`(데스크탑) |
+| 사진 상세 뷰어       | 웹 `shared/components/photo/PhotoBottomSheet.tsx`(모바일)·`PhotoDialog.tsx`(데스크탑), 앱 `shared/components/photo/PhotoBottomSheet.tsx`. 웹·앱 모두 여행 탭과 장소 탭이 같은 뷰어를 공유하며, `onDelete`·`onUpdate`·`places` 를 넘긴 만큼만 편집 UI 가 켜진다(장소 탭은 셋 다 생략해 읽기 전용) |
 | 사진 공개 뱃지/장소 변경 | `shared/components/photo/PhotoVisibilityBadge.tsx`, `PhotoPlaceSelect.tsx` |
 | 여행 사진 탭         | `features/trip/trip-photo/TripPhotoContent.*.tsx`                 |
 | 사진 EXIF 장소 매칭  | 웹 `features/photo/photo.utils.ts` + `shared/utils/exif.ts`(exifr), 앱 `features/photo/exif.utils.ts`(picker 의 `exif: true`). 매칭은 `findNearestPlace(.., { withinMeters: 500 })` 공유 |
