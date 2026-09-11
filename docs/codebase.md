@@ -939,7 +939,9 @@ ref 로 붙잡아야 끌던 도중 스냅이 바뀌어도 제스처가 갈아끼
 | 통계                 | `features/statistics/StatisticsPage.tsx`                          |
 | 지도 (공통)          | `shared/components/Map/` (kakao / google 구현 분기)               |
 | 사진 업로드          | `shared/components/photo/PhotoUploader.tsx`                       |
-| 사진 상세 뷰어       | 웹 `shared/components/photo/PhotoBottomSheet.tsx`(모바일)·`PhotoDialog.tsx`(데스크탑), 앱 `shared/components/photo/PhotoBottomSheet.tsx`. 웹·앱 모두 여행 탭과 장소 탭이 같은 뷰어를 공유하며, `onDelete`·`onUpdate`·`places` 를 넘긴 만큼만 편집 UI 가 켜진다(장소 탭은 셋 다 생략해 읽기 전용) |
+| 사진 상세 뷰어       | 웹 `shared/components/photo/PhotoBottomSheet.tsx`(모바일)·`PhotoDialog.tsx`(데스크탑), 앱 `shared/components/photo/PhotoBottomSheet.tsx`. 웹·앱 모두 여행 탭과 장소 탭이 같은 뷰어를 공유하며, `onDelete`·`onUpdate`·`places` 를 넘긴 만큼만 편집 UI 가 켜진다 |
+| 장소 사진 스트립     | 앱 `features/place/PlacePhotoStrip.tsx` — 썸네일 가로 목록과 뷰어 연결을 모은다. 탐색 장소 상세(`explorer/PlaceDetailScreen`)와 장소 상세 시트(`place/PlacePhotoList`)가 읽기 전용으로 쓰고, 여행 장소 탭(`trip/trip-place/PlacePhotoSection`)은 자체 목록에서 편집 가능하게 뷰어를 연다 |
+| 환율 설정            | 웹 데스크탑 `features/trip/trip-expense/TripExchangeRateSettingButton.tsx`, 앱 동명 파일. 앱은 지출 등록 전에도 정할 수 있도록 `getUsedCurrencies`(지출 기준) 대신 `getCurrenciesByDestinations`(목적지 기준)로 통화를 뽑는다. `trip.isOverseas` 는 저장값이 아니라 목적지가 `LocationCountry` 의 키일 때만 참이다 |
 | 사진 공개 뱃지/장소 변경 | `shared/components/photo/PhotoVisibilityBadge.tsx`, `PhotoPlaceSelect.tsx` |
 | 여행 사진 탭         | `features/trip/trip-photo/TripPhotoContent.*.tsx`                 |
 | 사진 EXIF 장소 매칭  | 웹 `features/photo/photo.utils.ts` + `shared/utils/exif.ts`(exifr), 앱 `features/photo/exif.utils.ts`(picker 의 `exif: true`). 매칭은 `findNearestPlace(.., { withinMeters: 500 })` 공유 |
@@ -1000,6 +1002,8 @@ rAF 지연을 분리해 볼 수 있다. 성능 문제를 조사하기 위한 계
 - 탐색: `/explorer`, `top-visited`, `recent-hot`, `most-saved` 라우트와 목록·지도·필터 UI를 추가했다. 장소 선택은 오버레이 대신 `/explorer/[placeId]` 페이지로 이동하며, 상세 페이지는 기본정보·피드 탭으로 구성된다. 필터는 공용 RN `Extrude`가 최초 source/target 좌표를 기준으로 이동·타깃 페이드·레이아웃 높이 축소/복원을 함께 처리한다. 카탈로그는 Y축으로 타이틀에 이동하고, 뒤로가기 타이틀이 있는 큐레이션 상세는 X·Y축으로 대각선 이동한다. 핫플레이스 상세의 기간 필터도 웹처럼 지역·카테고리 필터와 같은 행에서 함께 이동한다. 탭 라우트는 실제 하단 탭바 높이를 카탈로그 스크롤 인셋에 전달해 마지막 콘텐츠가 탭바에 가려지지 않게 한다. 카탈로그 데이터 쿼리는 웹처럼 계절·최근·저장·방문 섹션별 Suspense와 전용 스켈레톤으로 격리하며, 장소 카테고리는 도메인 enum 원값이 아니라 `PlaceCategoryTypeLabel`의 사용자용 라벨로 표시한다.
 - 프로필: `/u/[userId]` 라우트와 피드 사진 그리드·기록 탭·로그아웃을 추가했다. 피드 사진 조회는 피드와 동일한 공용 포스트 모델을 사용하며 사진을 누르면 포스트 상세로 이동한다. 기록 탭을 선택하면 지도 상단이 화면 상단에 맞도록 자동 스크롤한다.
 - 원격 이미지: `apps/waylog-app/src/shared/components/LoadableImage.tsx`가 이미지 로딩 중 동일한 박스 크기의 스켈레톤을 표시한다. 프로필·피드·포스트 상세·탐색·장소·여행 사진 UI에서 공통으로 사용한다.
+  `source.uri` 가 `http://` 면 `https://` 로 올려 보낸다 — iOS ATS 와 Android cleartext 정책이 평문 HTTP 를 차단하는데, 카카오 로그인이 넘기는 `avatar_url` 이 전부 `http://` 라 앱에서만 아바타가 깨졌다(웹 브라우저는 같은 URL 을 그대로 연다). 스킴 접두사만 잘라내므로 쿼리에 `http%3A%2F%2F` 가 든 `img1.kakaocdn.net` 썸네일 URL 도 안전하다.
+  로딩 실패는 스켈레톤이 아니라 `fallback` 으로 그린다. 예전에는 에러도 스켈레톤이라 실패가 영원한 로딩으로 보여 원인을 가렸다. `Avatar` 는 `fallback` 에 이름 첫 글자를 넘긴다.
 - 통계는 요청 범위에서 제외했으며 구현하지 않았다.
 - 장소 검색: `features/place/place-search/`를 웹 구조(`PlaceSearchBottomSheet` → 키워드 확정 시 `PlaceSearchSelectScreen` 상세 화면 전환, `useLastSearchKeywords` 최근 검색어)와 동일하게 맞췄다. 상세 화면은 웹의 지도+리스트 `SplitView`(좌우 리사이즈) 대신 지도(상단 고정 비율)+리스트(하단 `FlatList`) 세로 배치로 대체했고, 페이지네이션은 `IntersectionArea` 대신 `FlatList`의 `onEndReached`를 쓴다. 최근 검색어 저장은 웹 `useStorageState`(localStorage 동기) 대신 앱 `useStorageStore`(AsyncStorage 비동기) 위에 만료 필터링을 직접 구현했다. 데스크탑 전용 `PlaceSearchDialog`/`usePlaceSearchDialog`는 이식 대상에서 제외했다.
 - 계획 탭 장소 추가(`trip-route/PlaceSelectSheet.tsx`): 웹과 같이 이름·주소·태그 검색 필터, 검색 아이콘 버튼, 카테고리 색상 점, 태그 칩, 좌측 `Checkbox` 선택을 갖는다. 검색어를 확정하면 `PlaceSearchSelectScreen` 으로 신규 장소를 검색하고, 선택 시 `useTripPlaces.create` 로 여행 장소를 만든 뒤 그 id 를 곧바로 선택 상태에 넣는다. 웹이 `Slide` 전면 오버레이로 띄우는 검색 화면은 앱에서 `PlaceSearchBottomSheet` 와 같은 형제 시트(`backdrop={false}`)로 옮겼고, 상세 헤더의 입력에서 재검색하면 웹처럼 부모 목록의 검색어도 함께 바뀐다. 앱에서만 필요한 처리 세 가지:
