@@ -36,6 +36,15 @@ export const config: VercelConfig = {
       ],
     },
     {
+      source: "/.well-known/apple-app-site-association",
+      headers: [
+        {
+          key: "Content-Type",
+          value: "application/json",
+        },
+      ],
+    },
+    {
       source: "/assets/(.*)",
       headers: [
         {
@@ -55,7 +64,7 @@ export const config: VercelConfig = {
       destination: `https://feubgswdgmxrbpbfbqje.supabase.co/functions/v1/health`,
     },
     {
-      source: "/((?!assets/|.*\\..*).*)",
+      source: "/((?!assets/|\\.well-known/|.*\\..*).*)",
       destination: "/",
     },
   ],

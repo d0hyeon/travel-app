@@ -1,0 +1,15 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["APPLE_TEAM_ID.me.waylog.app"],
+        "components": [
+          {
+            "/": "/trip/invite/*",
+            "comment": "여행 초대 링크"
+          }
+        ]
+      }
+    ]
+  }
+}
