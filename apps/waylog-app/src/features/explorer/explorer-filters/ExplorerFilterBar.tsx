@@ -3,7 +3,7 @@ import type { PropsWithChildren } from 'react'
 import { StyleSheet, Pressable, ScrollView, type StyleProp, type ViewStyle } from 'react-native'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
-import { Chip, Typography } from '~/shared/components/design-system'
+import { Button, Chip, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../shared/config/tokens'
 import { EXPLORER_CATEGORY_TYPES } from '../explorer.api'
 import { useExplorerFilterParams } from './useExplorerFilterParams'
@@ -18,17 +18,24 @@ export function ExplorerFilterBar({ children }: PropsWithChildren) {
       <BottomSheet isOpen={isOpen} onDismiss={close} snapPoints={[0.75]} safeArea>
         <BottomSheet.Header>지역 선택</BottomSheet.Header>
         <BottomSheet.Body>
-          <OptionRow
-            label="전체 지역"
-            selected={location == null}
-            onPress={() => { setLocation(undefined); close() }}
-            style={styles.resetOption}
-          />
+
           <LocationForm
-            defaultValue={location}
+            defaultValue={location ?? undefined}
             onSubmit={(selected) => { setLocation(selected); close() }}
           >
             <BottomSheet.BottomActions>
+              <Button
+                variant='outlined'
+                color="error"
+                size="large"
+                onPress={() => {
+                  setLocation(undefined)
+                  close();
+                }}
+                fullWidth
+              >
+                초기화
+              </Button>
               <LocationForm.SubmitButton>적용</LocationForm.SubmitButton>
             </BottomSheet.BottomActions>
           </LocationForm>
