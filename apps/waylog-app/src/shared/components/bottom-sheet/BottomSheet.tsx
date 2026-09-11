@@ -71,6 +71,10 @@ interface SheetDragContextValue {
 
 const SheetDragContext = createContext<SheetDragContextValue | null>(null)
 
+// 바닥에 닿는 요소만 하단 안전영역을 여백으로 가진다. 시트가 값을 알고,
+// 그 자리에 놓이는 BottomActions 가 받아 쓴다.
+const SheetBottomInsetContext = createContext(0)
+
 function useSheetDrag(): SheetDragContextValue {
   const context = useContext(SheetDragContext)
   if (context == null) {
@@ -144,9 +148,14 @@ export function BottomSheet({
   // 시트가 아니라 스크롤 몫이다.
   const maxH = useSharedValue(0)
 
+  // 자동 높이는 계약이 없으므로 하단 안전영역까지 더해 잡는다. snap 을 명시하면
+  // 그 비율이 계약이라 건드리지 않고, 안전영역은 그 안에서 본문이 자리를 내준다.
   const heights = useMemo(
-    () => (snapPoints ?? [0.5]).map((ratio) => Math.round(baseH * ratio)),
-    [snapPoints, baseH],
+    () =>
+      snapPoints == null
+        ? [Math.round(baseH * 0.5) + safeBottom]
+        : snapPoints.map((ratio) => Math.round(baseH * ratio)),
+    [snapPoints, baseH, safeBottom],
   )
 
 
@@ -393,10 +402,8 @@ export function BottomSheet({
       height: getSheetBodyHeight({ visibleHeight, handleHeight: HANDLE_AREA_HEIGHT }),
       flexGrow: 0,
       flexShrink: 0,
-      // 하단 안전영역은 시트가 화면 바닥에 닿을 때만 필요하다.
-      // 아래에 형제가 자리를 차지하면 그쪽이 이미 처리하므로 여기서 더하면
-      // 시트와 그 형제 사이가 벌어진다.
-      paddingBottom: lift > 0 ? 0 : safeBottom,
+      // 하단 안전영역은 바닥에 닿는 요소(BottomActions)가 자기 여백으로 가진다.
+      // 여기서 깎으면 본문 뷰포트만 줄어 마지막 내용이 가려진다.
     }
   })
 
@@ -409,18 +416,20 @@ export function BottomSheet({
       {isOpen === true && backdrop && <Pressable style={styles.backdrop} onPress={onDismiss} />}
 
       <Animated.View style={[styles.sheet, sheetStyle, style]}>
-        <SheetDragContext.Provider value={dragContext}>
-          <GestureDetector gesture={handlePan}>
-            <View style={styles.handleArea} hitSlop={{ top: 8, bottom: 8, left: 24, right: 24 }}>
-              <View style={styles.handle} />
-            </View>
-          </GestureDetector>
+        <SheetBottomInsetContext.Provider value={safeBottom}>
+          <SheetDragContext.Provider value={dragContext}>
+            <GestureDetector gesture={handlePan}>
+              <View style={styles.handleArea} hitSlop={{ top: 8, bottom: 8, left: 24, right: 24 }}>
+                <View style={styles.handle} />
+              </View>
+            </GestureDetector>
 
-          {/* 남은 자리를 본문이 모두 갖는다. 스크롤은 이 안에서 일어난다. */}
-          <Animated.View style={bodyStyle}>
-            {children}
-          </Animated.View>
-        </SheetDragContext.Provider>
+            {/* 남은 자리를 본문이 모두 갖는다. 스크롤은 이 안에서 일어난다. */}
+            <Animated.View style={bodyStyle}>
+              {children}
+            </Animated.View>
+          </SheetDragContext.Provider>
+        </SheetBottomInsetContext.Provider>
       </Animated.View>
     </View>
   )
@@ -628,12 +637,15 @@ function GestureArea({ children, style, ...props }: BoxProps) {
 }
 
 function BottomActions({ children, style, ...props }: StackProps) {
+  const bottomInset = useContext(SheetBottomInsetContext)
+
   return (
     <Stack
       direction="row"
       gap={1}
       style={[
         styles.bottomActionsStack,
+        { paddingBottom: styles.bottomActionsStack.paddingVertical + bottomInset },
         style,
       ]}
       {...props}

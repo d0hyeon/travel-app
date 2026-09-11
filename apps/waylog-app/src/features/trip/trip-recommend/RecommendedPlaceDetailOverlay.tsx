@@ -42,7 +42,7 @@ function RecommendedPlaceDetailSheet({ place, tripId, isOpen, onClose }: Props) 
 
 
   return (
-    <BottomSheet isOpen={isOpen} onDismiss={onClose}>
+    <BottomSheet isOpen={isOpen} safeArea onDismiss={onClose}>
       <BottomSheet.Header>
         <Typography variant="h6">{place.name}</Typography>
       </BottomSheet.Header>
@@ -51,30 +51,28 @@ function RecommendedPlaceDetailSheet({ place, tripId, isOpen, onClose }: Props) 
           <PlaceDetailBody placeId={place.id} />
         </Suspense>
       </BottomSheet.Body>
-      <SafeAreaView>
-        <BottomSheet.BottomActions>
-          <Button fullWidth variant="outlined" size="large" onPress={onClose}>
-            닫기
-          </Button>
-          <Button
-            fullWidth
-            variant="contained"
-            size="large"
-            loading={isPending}
-            onPress={() => {
-              startTransition(async () => {
-                await create(place);
-                await queryClient.refetchQueries({
-                  queryKey: useTripPlaces.key(tripId)
-                })
-                onClose();
+      <BottomSheet.BottomActions>
+        <Button fullWidth variant="outlined" size="large" onPress={onClose}>
+          닫기
+        </Button>
+        <Button
+          fullWidth
+          variant="contained"
+          size="large"
+          loading={isPending}
+          onPress={() => {
+            startTransition(async () => {
+              await create(place);
+              await queryClient.invalidateQueries({
+                queryKey: useTripPlaces.key(tripId)
               })
-            }}
-          >
-            장소에 담기
-          </Button>
-        </BottomSheet.BottomActions>
-      </SafeAreaView>
+              onClose();
+            })
+          }}
+        >
+          장소에 담기
+        </Button>
+      </BottomSheet.BottomActions>
     </BottomSheet>
   )
 }
