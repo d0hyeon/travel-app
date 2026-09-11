@@ -9,6 +9,7 @@ import { useMeasureInWindow } from './EditableText.motion'
 import { TextOverlayField } from '~/shared/components/design-system/TextOverlayField'
 import { getTypographyStyle, Typography, type TypographyProps } from '~/shared/components/design-system/Typography'
 import { useSharedElementTransition } from './animation/SharedElementTransition'
+import { ViewProps } from 'react-native-svg/lib/typescript/fabric/utils'
 
 type FormValues = { value: string }
 
@@ -24,6 +25,11 @@ export type EditableTextFieldProps = {
 } & ControllerRenderProps<FormValues, 'value'> &
   Pick<TextInputProps, 'autoFocus' | 'autoComplete'>
 
+interface SlotProps {
+  field?: Partial<ComponentProps<typeof Field>>;
+  textLayout?: ViewProps;
+}
+
 export type EditableTextProps<Value extends string | number> = {
   value?: Value
   defaultValue?: Value
@@ -34,12 +40,14 @@ export type EditableTextProps<Value extends string | number> = {
     props: EditableTextFieldProps,
     actions: EditableTextActionProps<Value>,
   ) => ReactNode
-  endIcon?: ReactNode
+  endIcon?: ReactNode;
+  slotProps?: SlotProps;
 } & Omit<TypographyProps, 'onSubmit'>
 
 export function EditableText<Value extends string | number>({
   value: controlledValue,
   defaultValue,
+  slotProps,
   format = (value) => value,
   valueAs = (value) => String(value),
   onSubmit,
@@ -53,9 +61,12 @@ export function EditableText<Value extends string | number>({
       autoComplete={field.autoComplete}
       onSubmitEditing={actions.submit}
       style={{
-
         ...getTypographyStyle(typographyProps.variant ?? 'body1')
       }}
+      format={format}
+      endIcon={endIcon}
+      typographyProps={typographyProps}
+      {...slotProps?.field}
     />
   ),
   endIcon,
@@ -87,7 +98,7 @@ export function EditableText<Value extends string | number>({
   if (!isEditing) {
     return (
       <Pressable accessibilityRole="button" onPress={actions.edit}>
-        <View style={styles.displayRow}>
+        <View {...slotProps?.textLayout} style={[styles.displayRow, slotProps?.textLayout?.style]}>
           <Typography numberOfLines={1} {...typographyProps}>
             {format(value)}
           </Typography>
@@ -117,14 +128,15 @@ const TRANSITION_CONFIG = {
 };
 const OVERLAY_SCALE = 2;
 
-type Rect = {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-};
 
-function Field(props: ComponentProps<typeof TextOverlayField>) {
+
+interface FieldProps extends ComponentProps<typeof TextOverlayField> {
+  typographyProps?: TypographyProps;
+  format?: (value: any) => ReactNode;
+  endIcon?: ReactNode;
+}
+
+function Field(props: FieldProps) {
   const { metrics: keyboardPosition, isActive: isActivedKeyboard } = useKeyboardMetrics();
   const { width: screenWidth } = useWindowDimensions();
 
@@ -154,9 +166,12 @@ function Field(props: ComponentProps<typeof TextOverlayField>) {
 
   return (
     <>
-      <Typography ref={textRef} style={props.style} numberOfLines={1}>
-        {props.value}
-      </Typography>
+      <View style={styles.displayRow}>
+        <Typography ref={textRef} style={props.style} numberOfLines={1} {...props.typographyProps}>
+          {(props.format && props.value != null) ? props.format(props.value) : props.value}
+        </Typography>
+        {props.endIcon}
+      </View>
 
 
       <View
@@ -170,12 +185,12 @@ function Field(props: ComponentProps<typeof TextOverlayField>) {
           slotProps={{
             body: {
               as: Animated.View,
+              ref: overlayInputRef,
               style: [
                 { alignSelf: 'center' },
                 transformStyle, opacityStyle
               ],
             },
-            input: { ref: overlayInputRef },
           }}
         />
       </View>
