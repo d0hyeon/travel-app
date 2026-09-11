@@ -22,9 +22,16 @@ export function useScrollStatus() {
     /**
      * 양 끝을 넘어선 바운스 구간은 방향을 판단하지 않는다.
      * 손을 뗀 뒤 되돌아오는 움직임이라 사용자의 의도가 아니다.
+     *
+     * 기준점은 경계값으로 따라가게 둔다.
+     * 진입 직전 값에 멈춰 있으면 되돌아온 순간의 차이가
+     * 방향 전환으로 읽혀 실제로 끌지 않았는데도 상태가 뒤집힌다.
      */
     const isBouncing = offset < 0 || offset > maxOffset
-    if (isBouncing) return
+    if (isBouncing) {
+      previousOffset.current = Math.min(Math.max(offset, 0), maxOffset)
+      return
+    }
 
     if (offset <= 0) setIsScrollDown(false)
     else if (offset > previousOffset.current + DIRECTION_THRESHOLD) setIsScrollDown(true)
