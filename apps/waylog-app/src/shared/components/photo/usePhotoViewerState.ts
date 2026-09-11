@@ -9,7 +9,7 @@ interface PhotoPatch {
 interface Params {
   photos: Photo[]
   initialIndex: number
-  onUpdate: (params: { photoId: string } & PhotoPatch) => Promise<unknown>
+  onUpdate?: (params: { photoId: string } & PhotoPatch) => Promise<unknown>
 }
 
 /**
@@ -25,7 +25,7 @@ export function usePhotoViewerState({ photos, initialIndex, onUpdate }: Params) 
   const currentPhoto = viewerPhotos[currentIndex]
 
   const updateCurrentPhoto = async (patch: PhotoPatch) => {
-    await onUpdate({ photoId: currentPhoto.id, ...patch })
+    await onUpdate?.({ photoId: currentPhoto.id, ...patch })
     setViewerPhotos((items) =>
       items.map((item) => (item.id === currentPhoto.id ? { ...item, ...patch } : item)),
     )
