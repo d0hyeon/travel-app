@@ -274,8 +274,8 @@ src/
 │   │   ├── explorer-filters/   # 필터 (카테고리·위치)
 │   │   ├── explorer-place-item/ # PlaceCard, PlaceListItem
 │   │   ├── explorer-ranking/   # 최다 방문 순위
-│   │   ├── explorer-recent/    # 급상승 장소
-│   │   ├── explorer-saved/     # 저장 순위
+│   │   ├── explorer-recent/    # 급상승 장소 (byHotRank: 점수 → 최근 담긴 시각)
+│   │   ├── explorer-saved/     # 저장 순위 (bySaveRank: 저장 수 → 최근 저장 시각)
 │   │   ├── explorer-seasonal-regions/ # 계절 인기 지역 큐레이션
 │   │   └── explorer-view/      # 뷰 모드 토글
 │   │
@@ -898,6 +898,10 @@ ref 로 붙잡아야 끌던 도중 스냅이 바뀌어도 제스처가 갈아끼
 
 네이티브 `TripChatPanel.tsx`는 새로 추가된 메시지가 아래 40px에서 출발하는 Reanimated 슬라이드업·페이드인 효과를 적용하고, 목록의 레이아웃 전환으로 기존 메시지도 240ms 동안 부드럽게 위로 이동한다. 초기 목록·가상화 재마운트·전송 성공 시 ID 교체에는 진입 효과를 반복하지 않으며, 시스템 동작 줄이기 설정을 따른다. `ChatPushNoticeCard`는 배경을 투명하게 두고 카드 외곽에 반투명 검정 boxShadow를 적용한다. 기존 shadowOpacity·elevation은 꺼서 그림자가 중첩되지 않게 한다. 전송 버튼은 기본 고정 너비를 `width: 'auto'`로 덮어써 아이콘과 좌우 패딩에 맞추고, 남는 가로 공간은 입력창이 채운다.
 
+핫플레이스 목록(`explorer-recent`)은 웹·앱 모두 `byHotRank`로 정렬한다. 1차 기준은 `score`(방문·사진·포스트 정규화 합산)이고, 동률이면 `lastSavedAt`(RPC `get_explored_places`의 `last_saved_at` = `max(trip_places.created_at)`) 내림차순으로 최근 담긴 장소를 앞에 둔다. 사진·포스트가 없는 장소는 전부 같은 점수를 받아 동률이 대부분을 차지하며(실측 48건 중 39건), 이전에는 그 구간 순서가 RPC 반환 순서에 따라 임의로 정해져 오래전 여행지가 최근 여행지보다 앞에 왔다.
+
+많이 저장된 장소 목록(`explorer-saved`)은 웹·앱 모두 `bySaveRank`로 정렬한다. 1차 기준은 저장 수이고, 저장 수가 같으면 `lastSavedAt`(RPC `get_most_saved_places`의 `last_saved_at` = `max(trip_places.created_at)`) 내림차순으로 최근 저장된 장소를 앞에 둔다. `saveCount`가 정수라 동률이 많고, 이전에는 그 구간 순서가 RPC 반환 순서에 따라 매번 달라졌다. `lastSavedAt`은 마이그레이션 적용 전 응답에 없을 수 있어 선택 필드이며, 없으면 저장 수 순서를 유지한다.
+
 최근 앱 검증 반영: `RouterTabNavigation`은 탭 전환 시 현재 라우트 파라미터를 전달하며, 공용 `Tabs`는 화면 전환 중 레이아웃 상태 갱신을 하지 않는다. 정산 경로 기반 화면은 Google 지도와 일차별 장소·지출 추가 액션을 포함한다.
 
 | 기능                 | 핵심 파일                                                         |
@@ -925,6 +929,8 @@ ref 로 붙잡아야 끌던 도중 스냅이 바뀌어도 제스처가 갈아끼
 | 장소 상세            | `features/place/place-detail/PlaceDetailPage.tsx` (오버레이: `usePlaceDetailOverlay`) |
 | 추천 장소            | `features/trip/trip-recommend/`                                   |
 | 장소 탐색 (Explorer) | `features/explorer/PlaceExplorerPage.tsx`                         |
+| 저장 순위 정렬       | `features/explorer/explorer-saved/mostSavedPlaces.utils.ts` (`bySaveRank`) |
+| 핫플레이스 정렬      | `features/explorer/explorer-recent/recentHotPlaces.utils.ts` (`byHotRank`) |
 | 계절 인기 지역       | `features/tourism-trend/`, `features/explorer/explorer-seasonal-regions/` |
 | 피드/포스트          | `features/post/FeedPage.tsx`, `features/post/post-form-funnel/`          |
 | 사용자 프로필        | `features/user-profile/UserProfilePage.tsx`                       |
