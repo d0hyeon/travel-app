@@ -14,6 +14,9 @@ const config: ExpoConfig = {
     supportsTablet: true,
     bundleIdentifier: "me.waylog.app",
     config: { googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY },
+    // iOS 는 AASA 를 조회할 때 리다이렉트를 따라가지 않는다.
+    // apex 로 공유된 링크도 열리도록 www 와 함께 등록한다.
+    associatedDomains: ["applinks:waylog.me", "applinks:www.waylog.me"],
   },
   android: {
     package: "me.waylog.app",
