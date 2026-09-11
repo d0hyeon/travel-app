@@ -10,15 +10,21 @@ interface Props {
   places: ExplorerPlace[]
   countLabel: (place: ExplorerPlace) => string
   onScroll: ReturnType<typeof useScrollStatus>['onScroll']
+  contentTopInset: number
 }
 
 /** 순위 화면(top-visited/recent-hot/most-saved) 공통 2열 그리드 목록. */
-export function ExplorerRankingGrid({ places, countLabel, onScroll }: Props) {
+export function ExplorerRankingGrid({ places, countLabel, onScroll, contentTopInset }: Props) {
   const { width } = useWindowDimensions()
   const router = useRouter()
 
   return (
-    <ScrollView style={styles.scroll} onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={styles.scroll}
+      onScroll={onScroll}
+      scrollEventThrottle={16}
+      contentContainerStyle={[styles.content, { paddingTop: contentTopInset + 16 }]}
+    >
       <View style={styles.grid}>
         {places.map((place) => (
           <ExplorerPlaceCard
@@ -36,6 +42,6 @@ export function ExplorerRankingGrid({ places, countLabel, onScroll }: Props) {
 
 const styles = StyleSheet.create({
   scroll: { flex: 1 },
-  content: { paddingTop: 16, paddingBottom: 40 },
+  content: { paddingBottom: 40 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, paddingHorizontal: 16 },
 })

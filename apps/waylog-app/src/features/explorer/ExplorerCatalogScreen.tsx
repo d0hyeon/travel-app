@@ -42,7 +42,12 @@ export function ExplorerCatalogScreen({ bottomContentInset = 0 }: Props) {
           <ExplorerCatalogMap location={location} category={category} />
         </Suspense>
       ) : (
-        <ScrollView style={styles.scroll} onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={[styles.content, { paddingBottom: bottomContentInset + 24 }]}>
+        <ScrollView
+          style={styles.scroll}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
+          contentContainerStyle={[styles.content, { paddingTop: ExplorerScreenHeader.HEIGHT + 16, paddingBottom: bottomContentInset + 24 }]}
+        >
           <ErrorBoundary
             fallback={() => null}
             onError={(error) => {
@@ -78,5 +83,5 @@ const SCREEN_SAFE_AREA_EDGES = ['top', 'left', 'right'] as const
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: palette.background },
   scroll: { flex: 1 },
-  content: { paddingTop: 16, gap: 24 },
+  content: { gap: 24 },
 })

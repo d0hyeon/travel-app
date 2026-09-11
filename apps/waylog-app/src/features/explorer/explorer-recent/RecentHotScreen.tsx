@@ -20,7 +20,7 @@ export function RecentHotScreen() {
   const { isScrollDown, onScroll } = useScrollStatus()
 
   return (
-    <SafeAreaView style={styles.screen}>
+    <SafeAreaView edges={SCREEN_SAFE_AREA_EDGES} style={styles.screen}>
       <ExplorerScreenHeader
         title="핫플레이스"
         showBack
@@ -30,7 +30,7 @@ export function RecentHotScreen() {
         filterExtras={<PeriodFilterChip months={months} onChange={setMonths} />}
       />
       <Suspense fallback={viewMode === 'map' ? <ExplorerMapSkeleton /> : <ExplorerGridSkeleton />}>
-        <RecentHotContent location={location} category={category} months={months} viewMode={viewMode} onScroll={onScroll} />
+        <RecentHotContent location={location} category={category} months={months} viewMode={viewMode} onScroll={onScroll} contentTopInset={ExplorerScreenHeader.HEIGHT} />
       </Suspense>
     </SafeAreaView>
   )
@@ -42,12 +42,14 @@ function RecentHotContent({
   months,
   viewMode,
   onScroll,
+  contentTopInset,
 }: {
   location: ReturnType<typeof useExplorerFilterParams>['location']
   category: ReturnType<typeof useExplorerFilterParams>['category']
   months: RecentHotPeriodMonths
   viewMode: ReturnType<typeof useExplorerViewMode>[0]
   onScroll: ReturnType<typeof useScrollStatus>['onScroll']
+  contentTopInset: number
 }) {
   const { data: places } = useRecentHotPlaces(months, { location, category })
 
@@ -55,8 +57,11 @@ function RecentHotContent({
     return <ExplorerMap places={places} location={location} />
   }
 
-  return <ExplorerRankingGrid places={places} countLabel={(place) => ('visitorCount' in place ? `${place.visitorCount.toLocaleString()}번 방문` : '')} onScroll={onScroll} />
+  return <ExplorerRankingGrid places={places} countLabel={(place) => ('visitorCount' in place ? `${place.visitorCount.toLocaleString()}번 방문` : '')} onScroll={onScroll} contentTopInset={contentTopInset} />
 }
+
+/** top은 오버레이 헤더가 직접 처리한다. */
+const SCREEN_SAFE_AREA_EDGES = ['left', 'right'] as const
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: palette.background },
