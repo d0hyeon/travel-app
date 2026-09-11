@@ -1,5 +1,5 @@
 import { supabase } from '../../gateways/client';
-import { getAuth } from '../../gateways/auth';
+import { AuthError, getAuth } from '../../gateways/auth';
 import type { TripMember } from '../trip-member';
 
 export const tripMemberKey = 'trip_members';
@@ -36,7 +36,7 @@ export async function getTripMembersByTripId(tripId: string): Promise<TripMember
 
 export async function joinTrip(tripId: string): Promise<void> {
   const user = getAuth()
-  if (!user) throw new Error('로그인이 필요합니다')
+  if (!user) throw new AuthError()
 
   const { error } = await supabase
     .from('trip_members')
@@ -48,7 +48,7 @@ export async function joinTrip(tripId: string): Promise<void> {
 
 export async function leaveTrip(tripId: string): Promise<void> {
   const user = getAuth()
-  if (!user) throw new Error('로그인이 필요합니다')
+  if (!user) throw new AuthError()
 
   const { error } = await supabase
     .from('trip_members')
