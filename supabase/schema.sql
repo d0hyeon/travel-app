@@ -88,7 +88,7 @@ $$;
 ALTER FUNCTION "public"."can_view_post"("post_visibility" "public"."post_visibility", "post_author" "uuid", "post_trip" "uuid") OWNER TO "postgres";
 
 
-CREATE OR REPLACE FUNCTION "public"."get_explored_places"("since_date" "date" DEFAULT NULL::"date") RETURNS TABLE("place_id" "uuid", "name" "text", "address" "text", "lat" double precision, "lng" double precision, "visitor_count" bigint, "destinations" "jsonb", "categories" "jsonb", "thumbnail_url" "text", "total_trips" bigint, "photo_count" bigint, "post_count" bigint, "score" double precision)
+CREATE OR REPLACE FUNCTION "public"."get_explored_places"("since_date" "date" DEFAULT NULL::"date") RETURNS TABLE("place_id" "uuid", "name" "text", "address" "text", "lat" double precision, "lng" double precision, "visitor_count" bigint, "last_saved_at" timestamp with time zone, "destinations" "jsonb", "categories" "jsonb", "thumbnail_url" "text", "total_trips" bigint, "photo_count" bigint, "post_count" bigint, "score" double precision)
     LANGUAGE "sql" STABLE SECURITY DEFINER
     AS $$
   WITH filtered_trips AS (
@@ -100,7 +100,8 @@ CREATE OR REPLACE FUNCTION "public"."get_explored_places"("since_date" "date" DE
     SELECT
       r.trip_id,
       tp.place_id,
-      tp.category
+      tp.category,
+      tp.created_at
     FROM routes r
     JOIN filtered_trips t ON r.trip_id = t.id
     JOIN LATERAL unnest(r.place_ids) AS tp_id ON TRUE
@@ -114,6 +115,11 @@ CREATE OR REPLACE FUNCTION "public"."get_explored_places"("since_date" "date" DE
   visit_counts AS (
     SELECT place_id, count(DISTINCT trip_id) AS visitor_count
     FROM trip_place_set
+    GROUP BY place_id
+  ),
+  last_saves AS (
+    SELECT place_id, max(created_at) AS last_saved_at
+    FROM route_places
     GROUP BY place_id
   ),
   place_destinations AS (
@@ -177,6 +183,7 @@ CREATE OR REPLACE FUNCTION "public"."get_explored_places"("since_date" "date" DE
     p.lat,
     p.lng,
     vc.visitor_count,
+    ls.last_saved_at,
     COALESCE(pd.destinations, '[]'::jsonb) AS destinations,
     COALESCE(pc2.categories, '[]'::jsonb) AS categories,
     t2.url AS thumbnail_url,
@@ -190,6 +197,7 @@ CREATE OR REPLACE FUNCTION "public"."get_explored_places"("since_date" "date" DE
     ) AS score
   FROM visit_counts vc
   JOIN places p ON p.id = vc.place_id
+  LEFT JOIN last_saves ls ON ls.place_id = vc.place_id
   LEFT JOIN place_destinations pd ON pd.place_id = vc.place_id
   LEFT JOIN place_categories pc2 ON pc2.place_id = vc.place_id
   LEFT JOIN thumbnails t2 ON t2.place_id = vc.place_id
@@ -202,11 +210,11 @@ $$;
 ALTER FUNCTION "public"."get_explored_places"("since_date" "date") OWNER TO "postgres";
 
 
-CREATE OR REPLACE FUNCTION "public"."get_most_saved_places"() RETURNS TABLE("place_id" "uuid", "name" "text", "address" "text", "lat" double precision, "lng" double precision, "save_count" bigint, "destinations" "jsonb", "categories" "jsonb", "thumbnail_url" "text", "total_trips" bigint)
+CREATE OR REPLACE FUNCTION "public"."get_most_saved_places"() RETURNS TABLE("place_id" "uuid", "name" "text", "address" "text", "lat" double precision, "lng" double precision, "save_count" bigint, "last_saved_at" timestamp with time zone, "destinations" "jsonb", "categories" "jsonb", "thumbnail_url" "text", "total_trips" bigint)
     LANGUAGE "sql" STABLE SECURITY DEFINER
     AS $$
   WITH save_counts AS (
-    SELECT tp.place_id, count(DISTINCT tp.trip_id) AS save_count
+    SELECT tp.place_id, count(DISTINCT tp.trip_id) AS save_count, max(tp.created_at) AS last_saved_at
     FROM trip_places tp
     WHERE tp.category IS DISTINCT FROM 'transit'
     GROUP BY tp.place_id
@@ -247,6 +255,7 @@ CREATE OR REPLACE FUNCTION "public"."get_most_saved_places"() RETURNS TABLE("pla
     p.lat,
     p.lng,
     sc.save_count,
+    sc.last_saved_at,
     COALESCE(pd.destinations, '[]'::jsonb) AS destinations,
     COALESCE(pc.categories, '[]'::jsonb) AS categories,
     t2.url AS thumbnail_url,

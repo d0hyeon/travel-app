@@ -701,6 +701,7 @@ export type Database = {
         Returns: {
           address: string
           categories: Json
+          last_saved_at: string | null
           destinations: Json
           lat: number
           lng: number
@@ -720,6 +721,7 @@ export type Database = {
           address: string
           categories: Json
           destinations: Json
+          last_saved_at: string | null
           lat: number
           lng: number
           name: string
