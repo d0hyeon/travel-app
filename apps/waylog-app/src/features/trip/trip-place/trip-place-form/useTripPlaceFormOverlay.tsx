@@ -119,10 +119,10 @@ function PlaceFormSheetContent({ tripId, placeId, isOpen, onClose }: SheetProps)
         <PlacePhotoSection mt={3} tripId={tripId} placeId={place.placeId} />
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
-        <Button variant="outlined" fullWidth onPress={onClose}>
+        <Button variant="outlined" size="large" fullWidth onPress={onClose}>
           취소
         </Button>
-        <Button variant="contained" fullWidth onPress={() => formRef.current?.submit()}>
+        <Button variant="contained" size="large" fullWidth onPress={() => formRef.current?.submit()}>
           저장
         </Button>
       </BottomSheet.BottomActions>

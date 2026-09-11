@@ -3,7 +3,8 @@ import { useCallback, useRef, type ComponentProps, type ReactNode } from 'react'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { Button } from '~/shared/components/design-system'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
-import { ExpenseForm, type ExpenseFormRef, type ExpenseFormValues } from './ExpenseForm'
+import { ExpenseForm, expenseFormControl, type ExpenseFormRef, type ExpenseFormValues } from './ExpenseForm'
+import { useFormState } from 'react-hook-form'
 
 export interface RenderProps {
   close: () => void
@@ -99,13 +100,15 @@ interface ActionsProps {
 // 웹 ExpenseFormOverlayActions 와 같은 역할 — 취소·저장 기본 액션에
 // secondary 슬롯으로 삭제 같은 부가 액션을 앞에 끼운다.
 export function ExpenseFormOverlayActions({ onCancel, onSubmit, secondary }: ActionsProps) {
+  const { isValid } = useFormState({ control: expenseFormControl.control });
+
   return (
     <>
       {secondary}
-      <Button variant="outlined" fullWidth onPress={onCancel}>
+      <Button variant="outlined" size="large" fullWidth onPress={onCancel}>
         취소
       </Button>
-      <Button variant="contained" fullWidth onPress={onSubmit}>
+      <Button variant="contained" size="large" disabled={!isValid} fullWidth onPress={onSubmit}>
         저장
       </Button>
     </>
