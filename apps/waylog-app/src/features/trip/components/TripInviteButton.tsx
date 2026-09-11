@@ -12,7 +12,9 @@ export function TripInviteButton({ tripId, children = '초대하기', ...props }
   const { data: trip } = useTrip(tripId)
 
   const handleShare = async () => {
-    await Share.share({ message: `https://waylog.app/trip/invite/${trip.shareLink}` })
+    const inviteUrl = `${process.env.EXPO_PUBLIC_WEB_BASE_URL}/trip/invite/${trip.shareLink}`
+
+    await Share.share({ message: inviteUrl })
   }
 
   return (
