@@ -66,6 +66,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
       date: formatDate(Date.now(), 'yyyy-MM-dd'),
       currency: currencies[0]?.code ?? 'KRW',
       payments: myMemberId != null ? [{ memberId: myMemberId, amount: 0 }] : [],
+      ...defaultValues,
       splitAmong: defaultValues?.splitAmong ?? members.map((member) => member.id),
     },
   })
@@ -249,7 +250,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
                 pointerEvents="none"
                 placeholder="장소 선택"
                 variant="standard"
-                value={places.find((place) => place.placeId === placeId)?.name ?? ''}
+                value={places.find((place) => place.id === placeId)?.name ?? ''}
                 fullWidth
                 editable={false}
               />
