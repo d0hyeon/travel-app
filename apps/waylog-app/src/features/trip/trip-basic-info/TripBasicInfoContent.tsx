@@ -41,7 +41,7 @@ export function TripBasicInfoContent({ tripId }: Props) {
               <TripDDay tripId={tripId} style={styles.dDay} />
             </Suspense>
 
-            <Stack gap={3} alignItems="flex-start">
+            <Stack gap={3} >
               <ErrorBoundary>
                 <Suspense fallback={null}>
                   <TripPostCreateCard tripId={tripId} />
@@ -117,5 +117,5 @@ const styles = StyleSheet.create({
   baseInfo: { borderWidth: 1, borderColor: '#ddd', padding: 16, borderRadius: 16, width: '100%' },
   fullWidth: { width: '100%' },
   addButton: { position: 'absolute', bottom: 16 + FLOATING_TAB_BAR_RESERVE, right: 16 },
-  leaveButton: { marginTop: 48 },
+  leaveButton: { marginTop: 48, },
 })
