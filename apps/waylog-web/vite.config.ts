@@ -97,7 +97,7 @@ const config = {
         ]
       },
       workbox: {
-        importScripts: ['/push.sw.js'],
+        importScripts: ['/service-worker.js'],
         navigateFallback: '/index.html',
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
         globPatterns: ['**/*.{js,css,ico,png,svg,woff2}'],
