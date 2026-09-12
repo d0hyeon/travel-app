@@ -2,7 +2,7 @@
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.sw.tsbuildinfo",
     "target": "esnext",
-    "lib": ["ES2022", "DOM", "WebWorker"],
+    "lib": ["ES2023", "DOM", "WebWorker"],
     "module": "ESNext",
     "skipLibCheck": true,
     "moduleResolution": "bundler",
@@ -17,5 +17,5 @@
       "~*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.sw.ts", "src/**/*.types.ts"]
+  "include": ["src/service-worker.ts"]
 }

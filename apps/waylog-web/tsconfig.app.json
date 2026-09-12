@@ -28,5 +28,5 @@
     }
   },
   "include": ["src", "e2e", "./node_modules/@types/web/index.d.ts"],
-  "exclude": ["src/app/**/*.sw.ts"]
+  "exclude": ["src/service-worker.ts", "src/**/*.sw.ts"]
 }
