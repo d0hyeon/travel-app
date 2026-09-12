@@ -1,5 +1,5 @@
 import { useChatActivation as useSharedChatActivation } from '@waylog/domains/modules/trip-chat';
-import { ChattingNotificationType, type ChattingNotificationMessage } from './chatting-notification.types';
+import { ChattingNotificationType, type ChattingNotificationMessage } from './service-workers/chatting-notification.types';
 
 export { getActivedChatTripId } from '@waylog/domains/modules/trip-chat';
 
