@@ -34,3 +34,5 @@ supabase/.temp/
 e2e/.auth/
 test-results/
 playwright-report/
+
+apps/waylog-web/public/service-worker.js
