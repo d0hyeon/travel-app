@@ -9,7 +9,7 @@ import {
 } from "../place";
 import type { PlaceCategoryType, PlaceStatus, TripPlace } from "../place";
 import { tripKey } from "./trip.api";
-import { TRIP_PLAN_REFETCH } from "./tripPlanRefetch";
+import { TRIP_PLAN_REFETCH } from "../tripPlanRefetch";
 
 export function useTripPlaces(tripId: string) {
   const { data, refetch, ...queries } = useSuspenseQuery(useTripPlaces.query(tripId))
