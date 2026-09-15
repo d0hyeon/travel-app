@@ -1,4 +1,5 @@
-import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useSuspenseQuery } from '@tanstack/react-query'
+import { TRIP_PLAN_REFETCH } from '../tripPlanRefetch'
 import {
   createTripTransport,
   createTripTransportTicket,
@@ -13,10 +14,7 @@ import {
 } from './tripTransport.api'
 
 export function useTripTransport(tripId: string) {
-  const { data, refetch, ...queries } = useSuspenseQuery({
-    queryKey: useTripTransport.key(tripId),
-    queryFn: () => getTripTransports(tripId)
-  })
+  const { data, refetch, ...queries } = useSuspenseQuery(useTripTransport.query(tripId))
 
   const { mutateAsync: add } = useMutation({
     mutationFn: (params: Omit<CreateTripTransport, 'tripId'>) => {
@@ -51,3 +49,13 @@ export function useTripTransport(tripId: string) {
 useTripTransport.key = (tripId: string) => {
   return [path, tripId]
 }
+
+useTripTransport.query = (tripId: string) => ({
+  queryKey: useTripTransport.key(tripId),
+  queryFn: () => getTripTransports(tripId),
+  // 무효화 뒤 재조회하는 동안 이전 목록을 그대로 보여준다.
+  // 이게 없으면 useSuspenseQuery 가 다시 suspend 해서 화면이 폴백으로 바뀌고,
+  // 그 사이 컴포넌트가 다시 마운트되며 진행 중이던 제스처가 끊긴다.
+  placeholderData: keepPreviousData,
+  ...TRIP_PLAN_REFETCH
+})
