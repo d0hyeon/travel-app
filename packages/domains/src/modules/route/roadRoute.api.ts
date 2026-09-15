@@ -4,10 +4,16 @@ import type { RoadRoute } from './route.types'
 import type { Coordinate } from '../../utils'
 import { splitIntoSegments } from './roadRoute.utils'
 
-function mergeRoadRoutes(routes: RoadRoute[]): RoadRoute {
+// maxSize 로 나눈 조각은 끝점을 공유하므로 이어붙일 때 첫 점을 버린다.
+// 교통 구간 경계로 나뉜 조각은 공유하지 않는다 -- 버리면 도착지가 사라진다.
+function mergeRoadRoutes(routes: RoadRoute[], detachedIndices: Set<number> = new Set()): RoadRoute {
   if (routes.length === 0) return { coordinates: [], legs: [] }
-  return routes.reduce((merged, route) => ({
-    coordinates: [...merged.coordinates, ...route.coordinates.slice(1)],
+
+  return routes.reduce((merged, route, index) => ({
+    coordinates: [
+      ...merged.coordinates,
+      ...(detachedIndices.has(index) ? route.coordinates : route.coordinates.slice(1)),
+    ],
     legs: [...merged.legs, ...route.legs],
   }))
 }
@@ -38,11 +44,30 @@ async function fetchSegment(waypoints: Coordinate[], region: 'korea' | 'global')
   }
 }
 
-export async function getRoadDirections(waypoints: Coordinate[], region: 'korea' | 'global'): Promise<RoadRoute> {
+// breakIndices 는 교통 구간의 경계다. 그 사이는 도로로 잇지 않는다 --
+// 인천에서 오사카를 육로로 뚫으면 실패하고, 실패한 자리에 바다를 가로지르는
+// 직선이 그려진다.
+export async function getRoadDirections(
+  waypoints: Coordinate[],
+  region: 'korea' | 'global',
+  breakIndices?: number[],
+): Promise<RoadRoute> {
   if (waypoints.length < 2) return fallbackRoadRoute(waypoints)
-  if (waypoints.length <= 7) return fetchSegment(waypoints, region)
 
-  const segments = splitIntoSegments(waypoints, 7)
+  const hasBreak = breakIndices != null && breakIndices.length > 0
+  if (!hasBreak && waypoints.length <= 7) return fetchSegment(waypoints, region)
+
+  const segments = splitIntoSegments(waypoints, 7, breakIndices)
   const results = await Promise.all(segments.map((s) => fetchSegment(s, region)))
-  return mergeRoadRoutes(results)
+
+  // 앞 조각의 끝과 맞닿지 않은 조각은 첫 점을 버리면 안 된다.
+  const detachedIndices = new Set(
+    segments.flatMap((segment, index) => {
+      if (index === 0) return []
+      const previous = segments[index - 1]
+      return segment[0] === previous[previous.length - 1] ? [] : [index]
+    }),
+  )
+
+  return mergeRoadRoutes(results, detachedIndices)
 }

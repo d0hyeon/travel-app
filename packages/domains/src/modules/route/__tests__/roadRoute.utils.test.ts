@@ -1,29 +1,41 @@
 import { describe, expect, it } from 'vitest'
 import { splitIntoSegments } from '../roadRoute.utils'
 
-function points(count: number) {
-  return Array.from({ length: count }, (_, i) => ({ lat: i, lng: i }))
-}
+const wp = (lat: number) => ({ lat, lng: 127.0 })
+const points = (count: number) => Array.from({ length: count }, (_, i) => wp(37.5 + i * 0.01))
 
 describe('splitIntoSegments', () => {
-  it('경유지를 최대 크기 단위로 나눈다', () => {
-    const segments = splitIntoSegments(points(10), 4)
+  it('경계가 없으면 기존 maxSize 분할과 같다', () => {
+    const waypoints = points(9)
 
-    // 구간이 끝점을 공유하므로 겹치며 나뉜다: [0..3][3..6][6..9]
-    expect(segments.map((s) => s.length)).toEqual([4, 4, 4])
+    expect(splitIntoSegments(waypoints, 7)).toEqual(splitIntoSegments(waypoints, 7, []))
   })
 
-  it('나뉜 구간이 끝점을 공유하도록 이어붙인다', () => {
-    const segments = splitIntoSegments(points(7), 4)
+  it('경계에서 조각을 나누고 끝점을 공유하지 않는다', () => {
+    const [숙소, 인천공항, 오사카공항, 오사카성] = points(4)
 
-    expect(segments[0]!.at(-1)).toEqual(segments[1]![0])
+    const segments = splitIntoSegments([숙소, 인천공항, 오사카공항, 오사카성], 7, [1])
+
+    expect(segments).toEqual([
+      [숙소, 인천공항],
+      [오사카공항, 오사카성]
+    ])
   })
 
-  it('경유지가 최대 크기 이하면 구간이 하나다', () => {
-    expect(splitIntoSegments(points(4), 7)).toHaveLength(1)
+  it('경계로 나뉜 조각이 maxSize를 넘으면 다시 분할한다', () => {
+    const waypoints = points(12)
+
+    const segments = splitIntoSegments(waypoints, 4, [5])
+
+    expect(segments.every((x) => x.length <= 4)).toBe(true)
+    expect(segments.flat().length).toBeGreaterThan(waypoints.length - 1)
   })
 
-  it('경유지가 둘이면 구간이 하나다', () => {
-    expect(splitIntoSegments(points(2), 7)).toEqual([points(2)])
+  it('연속된 경계는 가운데 조각을 만들지 않는다', () => {
+    const [a, b, c, d] = points(4)
+
+    const segments = splitIntoSegments([a, b, c, d], 7, [1, 2])
+
+    expect(segments).toEqual([[a, b]])
   })
 })
