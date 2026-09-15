@@ -610,6 +610,111 @@ export type Database = {
           },
         ]
       }
+      trip_transport_tickets: {
+        Row: {
+          created_at: string
+          id: string
+          images: string[]
+          member_id: string | null
+          transport_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          images?: string[]
+          member_id?: string | null
+          transport_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          images?: string[]
+          member_id?: string | null
+          transport_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_transport_tickets_transport_id_fkey"
+            columns: ["transport_id"]
+            isOneToOne: false
+            referencedRelation: "trip_transports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trip_transports: {
+        Row: {
+          airline: string | null
+          arrival_at: string | null
+          arrival_timezone: string | null
+          arrival_trip_place_id: string
+          created_at: string
+          departure_at: string
+          departure_timezone: string | null
+          departure_trip_place_id: string
+          flight_number: string | null
+          id: string
+          provider: string | null
+          service_number: string | null
+          trip_id: string
+          type: string
+        }
+        Insert: {
+          airline?: string | null
+          arrival_at?: string | null
+          arrival_timezone?: string | null
+          arrival_trip_place_id: string
+          created_at?: string
+          departure_at: string
+          departure_timezone?: string | null
+          departure_trip_place_id: string
+          flight_number?: string | null
+          id?: string
+          provider?: string | null
+          service_number?: string | null
+          trip_id: string
+          type: string
+        }
+        Update: {
+          airline?: string | null
+          arrival_at?: string | null
+          arrival_timezone?: string | null
+          arrival_trip_place_id?: string
+          created_at?: string
+          departure_at?: string
+          departure_timezone?: string | null
+          departure_trip_place_id?: string
+          flight_number?: string | null
+          id?: string
+          provider?: string | null
+          service_number?: string | null
+          trip_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_transports_arrival_trip_place_id_fkey"
+            columns: ["arrival_trip_place_id"]
+            isOneToOne: false
+            referencedRelation: "trip_places"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trip_transports_departure_trip_place_id_fkey"
+            columns: ["departure_trip_place_id"]
+            isOneToOne: false
+            referencedRelation: "trip_places"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trip_transports_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trips: {
         Row: {
           created_at: string
@@ -701,8 +806,8 @@ export type Database = {
         Returns: {
           address: string
           categories: Json
-          last_saved_at: string | null
           destinations: Json
+          last_saved_at: string
           lat: number
           lng: number
           name: string
@@ -721,7 +826,7 @@ export type Database = {
           address: string
           categories: Json
           destinations: Json
-          last_saved_at: string | null
+          last_saved_at: string
           lat: number
           lng: number
           name: string
