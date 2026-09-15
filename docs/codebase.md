@@ -162,7 +162,9 @@ packages/
 │           ├── community-route/ # 커뮤니티 경로
 │           ├── open-graph/      # 링크 미리보기
 │           ├── place/           # 장소 조회·검색·추가
+│           ├── post/            # 커뮤니티 포스트
 │           ├── route/           # 경로
+│           ├── storage/         # 스토리지
 │           ├── tourism-trend/   # 관광 트렌드
 │           ├── transport/       # 이동수단 vocabulary
 │           ├── trip/            # 여행
@@ -174,7 +176,7 @@ packages/
 │           ├── trip-transport/  # 여행 교통편·티켓
 │           ├── weather/         # 날씨 예보
 │           ├── user-profile/    # 유저 프로필
-│           └── utils/           # domains 전용 query 결과 병합 호환 진입점
+│           └── tripPlanRefetch.ts  # 계획 탭 공동 편집 갱신 정책 (모듈 공용)
 └── react/                      # @waylog/react — 플랫폼 비의존 훅
 supabase/                       # DB 마이그레이션·엣지 함수
 tools/                          # eslint 커스텀 룰
@@ -709,7 +711,7 @@ src/
 ### 공용 좌표 모델
 
 - `Coordinate`는 지도 컴포넌트 타입이 아니라 공용 값 모델
-- 원천 타입: `packages/domains/src/modules/utils/coordinate.ts`
+- 원천 타입: `packages/utility/src/coordinate.types.ts` (`@waylog/utility`)
 - `shared/components/Map/types.ts`는 이를 re-export만 함
 
 ### 이동수단 어휘 (`TransportType`)
@@ -747,6 +749,33 @@ src/
   저장 경로는 `trip-transport-tickets/{transportId}/{uuid}`다.
 - 시각은 UTC로 저장하고 표기만 각 지점 타임존으로 포맷한다.
   타임존 컬럼은 있지만 **1차에서는 채우지 않으며**, 없으면 기기 로컬로 폴백한다.
+
+### 경로 뷰 모델 (`RouteItem`)
+
+- `packages/domains/src/modules/trip/routeItem.types.ts`, `routeItem.utils.ts`
+- `useDayTripRoutes`가 `places`와 나란히 `items: RouteItem[]`를 내려준다.
+  기존 `places`는 그대로 두었다 — UI 전환은 별개 작업이다.
+- 교통편의 출발·도착이 경로에서 **인접하고 방향도 같을 때만** 한 항목으로
+  접는다. 접힌 블록은 드래그가 한 세트로 움직이고 내부에 드롭 지점이 없어,
+  "교통 구간 사이에 장소를 끼울 수 없다"는 제약이 검사 없이 성립한다.
+- 인접하지 않으면 접지 않고 그 교통편을 리스트에서 제외한다.
+  사용자가 편집한 경로를 시스템이 자동으로 고치지 않는다.
+- `toPlaceIds`는 그 역이며 `toRouteItems` → `toPlaceIds`가 원래 순서를 복원한다.
+- 한 경로에 같은 장소가 두 번 들어가지 않는다는 것이 전제다
+  (`allPlaces.find`가 같은 객체를 두 번 돌려주고 `key`가 중복된다).
+
+### 지도 경로 분할 (`splitIntoSegments`)
+
+- `packages/domains/src/modules/route/roadRoute.utils.ts`
+- `breakIndices`는 "이 인덱스와 다음 인덱스 사이를 잇지 않는다"는 경계다.
+  교통 구간이 그 경계이며, 없으면 인천→오사카를 육로로 뚫으려다 실패하고
+  `fallbackRoadRoute`가 바다를 가로지르는 직선을 그린다.
+- 경계로 먼저 자른 뒤 각 조각에 기존 `maxSize` 분할을 적용한다.
+  점이 하나뿐인 조각은 버린다(경계가 연달아 오면 가운데가 그렇게 된다).
+- `mergeRoadRoutes`도 경계를 안다. `maxSize` 조각은 끝점을 공유해 첫 점을
+  버리지만 경계 조각은 공유하지 않아, 버리면 도착지가 사라진다.
+- 웹·앱 `useRoadRoute`가 `breakIndices`를 받으며 캐시 키에 함께 넣는다.
+  같은 좌표라도 경계가 다르면 다른 경로다.
 
 ### 현재 위치 조회 (`useCurrentCoordinate`)
 
