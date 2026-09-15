@@ -1,10 +1,11 @@
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
 import type { SvgIconProps } from '@mui/material';
-import { TransportType, type TransportType as Transport } from '@waylog/domains/modules/route';
+import type { RouteTransportType } from '@waylog/domains/modules/route';
+import { TransportType } from '@waylog/domains/modules/transport';
 
 interface TransportIconProps extends SvgIconProps {
-  transport: Transport;
+  transport: RouteTransportType;
 }
 
 // 이동수단에 맞는 아이콘을 렌더한다 (도보/차량)

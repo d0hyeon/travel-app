@@ -1,5 +1,5 @@
 import { supabase } from '../../gateways/client'
-import { TransportType } from './route.types'
+import { TransportType } from '../transport'
 import type { RoadRoute } from './route.types'
 import type { Coordinate } from '../../utils'
 import { splitIntoSegments } from './roadRoute.utils'

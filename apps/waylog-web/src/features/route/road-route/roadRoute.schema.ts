@@ -1,5 +1,5 @@
 import { defineStore, field } from "schema-idb";
-import type { TransportType } from "@waylog/domains/modules/route";
+import type { RouteTransportType } from "@waylog/domains/modules/route";
 
 export const roadRouteSchema = defineStore('roadRoutes', {
   key: field.string().primaryKey().index(),
@@ -10,7 +10,7 @@ export const roadRouteSchema = defineStore('roadRoutes', {
   legs: field.object(t => ({
     duration: t.number(),
     distance: t.number(),
-    transport: t.custom<TransportType>(),
+    transport: t.custom<RouteTransportType>(),
     coordinates: field.object(t => ({
       lat: t.number(),
       lng: t.number(),

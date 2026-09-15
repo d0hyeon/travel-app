@@ -1,12 +1,6 @@
-import { reverseKeyValue } from "../../utils";
-import type { ValueOf } from "../../utils";
+import type { TransportType } from '../transport'
 
-export const TransportType = {
-  도보: 'walk',
-  차량: 'car'
-} as const;
-export type TransportType = ValueOf<typeof TransportType>;
-export const TransportTypeLabel = reverseKeyValue(TransportType);
+export type RouteTransportType = Extract<TransportType, 'walk' | 'car'>
 
 // 인접 경유지 사이의 이동 정보 (waypoints.length - 1 개)
 export interface RouteLeg {
@@ -14,7 +8,7 @@ export interface RouteLeg {
   duration: number // 초
   /** 이동 거리 (단위 : 미터) */
   distance: number // 미터
-  transport: TransportType // 이 구간의 이동수단
+  transport: RouteTransportType // 이 구간의 이동수단
   coordinates: { lat: number; lng: number }[] // 이 구간의 도로 폴리라인 좌표열
 }
 
