@@ -164,6 +164,7 @@ packages/
 │           ├── place/           # 장소 조회·검색·추가
 │           ├── route/           # 경로
 │           ├── tourism-trend/   # 관광 트렌드
+│           ├── transport/       # 이동수단 vocabulary
 │           ├── trip/            # 여행
 │           ├── trip-chat/       # 여행 채팅
 │           ├── trip-recommend/  # 추천 장소
@@ -709,6 +710,18 @@ src/
 - `Coordinate`는 지도 컴포넌트 타입이 아니라 공용 값 모델
 - 원천 타입: `packages/domains/src/modules/utils/coordinate.ts`
 - `shared/components/Map/types.ts`는 이를 re-export만 함
+
+### 이동수단 어휘 (`TransportType`)
+
+- 원천 타입: `packages/domains/src/modules/transport/transport.types.ts`
+- `walk` · `car` · `flight` · `train` · `bus` 다섯 값을 한곳에 두고,
+  소비자가 `Extract`로 필요한 만큼 좁혀 쓴다.
+- 경로는 `RouteTransportType`(`walk` | `car`)만 받는다
+  (`modules/route/route.types.ts`). 도로 경로에 항공이 들어올 수 없다는 것을
+  타입으로 강제한다.
+- 교통편은 `flight` | `train` | `bus`를 쓴다.
+- `TransportTypeLabel`은 다섯 개 전체의 한글 라벨을 갖는다.
+  경로 UI는 좁힌 값만 넘기므로 표시되는 라벨은 달라지지 않는다.
 
 ### 현재 위치 조회 (`useCurrentCoordinate`)
 
