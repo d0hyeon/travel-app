@@ -171,6 +171,7 @@ packages/
 │           ├── trip-checklist/  # 여행 준비물
 │           ├── trip-member/     # 여행 멤버
 │           ├── trip-memo/       # 여행 메모
+│           ├── trip-transport/  # 여행 교통편·티켓
 │           ├── weather/         # 날씨 예보
 │           ├── user-profile/    # 유저 프로필
 │           └── utils/           # domains 전용 query 결과 병합 호환 진입점
@@ -722,6 +723,30 @@ src/
 - 교통편은 `flight` | `train` | `bus`를 쓴다.
 - `TransportTypeLabel`은 다섯 개 전체의 한글 라벨을 갖는다.
   경로 UI는 좁힌 값만 넘기므로 표시되는 라벨은 달라지지 않는다.
+
+### 여행 교통편 (`trip-transport`)
+
+- 모듈: `packages/domains/src/modules/trip-transport/`
+- `TripTransport`은 `TripTransportBase & TripTransportCarrier`다.
+  `TripTransportCarrier`가 종류별 필드를 가르는 판별 유니온이라
+  `type`으로 좁혀야 `airline` 또는 `provider`에 닿는다.
+  DB는 종류별 컬럼이 모두 nullable이므로 이 유니온은 코드가 잘못 쓰는 것을
+  막는 장치이지 데이터 무결성 보장이 아니다.
+- 출발·도착은 `places`가 아니라 **`trip_places`를 참조**한다.
+  `routes.place_ids`가 `trip_places.id`만 받으므로, 경로와 같은 것을
+  가리켜야 인접 판정을 id 비교만으로 할 수 있다.
+- 교통편이 참조하는 공항 `trip_place`는 **삭제가 거부된다**
+  (FK가 `no action`, `23503`). 의도한 잠금이다.
+  교통편을 지워도 공항은 따라 지우지 않는다 — 참조가 사라지면
+  평범한 여행 장소로 돌아간다.
+- 티켓은 `trip_transport_tickets` 별도 테이블이다. 일행이 동시에 올릴 때
+  jsonb 배열이면 한쪽이 덮어써진다. RLS는 교통편을 거쳐 여행에 닿는다.
+- 티켓 이미지는 `photos` 테이블을 쓰지 않는다
+  (`is_public`·place 연결·커뮤니티 노출을 물고 있다).
+  웹·앱의 `uploadTransportTicketImage`가 기존 스토리지 경로만 타고,
+  저장 경로는 `trip-transport-tickets/{transportId}/{uuid}`다.
+- 시각은 UTC로 저장하고 표기만 각 지점 타임존으로 포맷한다.
+  타임존 컬럼은 있지만 **1차에서는 채우지 않으며**, 없으면 기기 로컬로 폴백한다.
 
 ### 현재 위치 조회 (`useCurrentCoordinate`)
 
