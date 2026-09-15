@@ -113,6 +113,15 @@ export async function uploadPostPhoto(tripId: string | null, file: File): Promis
   return { url, storagePath }
 }
 
+// 티켓은 photos 테이블을 거치지 않는다. is_public·place 연결·커뮤니티 노출을 물고 있어
+// 티켓이 실수로 공개될 경로가 생긴다. 경로에 UUID 를 넣어 추측할 수 없게 한다.
+export async function uploadTransportTicketImage(transportId: string, file: File): Promise<string> {
+  const resized = await resizeImage(file, 'Low')
+  const storagePath = `trip-transport-tickets/${transportId}/${crypto.randomUUID()}.webp`
+
+  return uploadToStorage(storagePath, resized)
+}
+
 export async function createPhotoFileFromUrl(url: string, fileName = `${Date.now()}.jpg`): Promise<File> {
   const { data, contentType } = await fileClient.get('/functions/v1/file', {
     params: { url },

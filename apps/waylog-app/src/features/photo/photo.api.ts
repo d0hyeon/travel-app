@@ -61,6 +61,15 @@ async function uploadToStorage(storagePath: string, uri: string): Promise<string
   return publicUrl
 }
 
+// 티켓은 photos 테이블을 거치지 않는다. is_public·place 연결·커뮤니티 노출을 물고 있어
+// 티켓이 실수로 공개될 경로가 생긴다. 경로에 UUID 를 넣어 추측할 수 없게 한다.
+export async function uploadTransportTicketImage(transportId: string, uri: string): Promise<string> {
+  const resized = await resize(uri, 1600)
+  const storagePath = `trip-transport-tickets/${transportId}/${crypto.randomUUID()}.jpg`
+
+  return uploadToStorage(storagePath, resized)
+}
+
 export async function uploadPhoto({
   tripId,
   placeId,
