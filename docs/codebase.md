@@ -36,7 +36,7 @@
 | --------- | ------------------------------------------------ |
 | Native    | Expo SDK 54 + React Native 0.81.5                |
 | Routing   | Expo Router 6 (파일 기반)                        |
-| UI        | `StyleSheet` + 자체 디자인 시스템                 |
+| UI        | `StyleSheet` + 자체 디자인 시스템 + Tamagui 2 (점진 도입) |
 | Maps      | `react-native-maps` (Google 단일)                |
 | Animation | Reanimated 4 + Gesture Handler 2                 |
 
@@ -45,9 +45,16 @@
 인터페이스는 RN 표준(`style`, `onPress`)이다. `~/shared/components/design-system` 별칭으로 임포트한다.
 바텀시트·정렬 목록처럼 손이 많이 가는 것은 직접 구현한다 — 아래 "주요 패턴" 참조.
 
-스타일은 `StyleSheet.create` 로 파일 하단에 모은다. 인라인 객체는 렌더마다
+기존 화면은 `StyleSheet.create` 로 파일 하단에 모은다. 인라인 객체는 렌더마다
 새로 만들어져 `memo` 를 무력화하므로, 런타임 값(`insets`, 측정된 크기)이나
 상태에 의존하는 부분만 배열로 합성한다.
+
+Tamagui는 `app/_layout.tsx`의 `TamaguiProvider`에서 라이트 테마로 시작한다.
+새로 포팅하는 공용 UI는 `$background`·`$color`처럼 의미 토큰을 사용하며,
+`<Theme name="dark">`로 특정 트리만 다크 테마로 덮을 수 있다. 첫 적용처는
+TicketViewer 내부의 `ConfirmDialog`와 `ActionSheet`다. 공용 `Button`도 Tamagui
+토큰을 내부에서 해석하므로 호출부는 `variant`와 `color`만 선언한다. 기존
+`StyleSheet` 컴포넌트는 그대로 유지하고 필요할 때만 Tamagui로 옮긴다.
 
 여행 상세 5개 탭의 웹-앱 대조 기준은
 [`docs/app-trip-feature-definition.md`](./app-trip-feature-definition.md)와

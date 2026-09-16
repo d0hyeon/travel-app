@@ -9,6 +9,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import { Suspense, type PropsWithChildren } from 'react'
 import { ActivityIndicator, View, StyleSheet } from 'react-native'
+import { TamaguiProvider } from 'tamagui'
+import { tamaguiConfig } from '../tamagui.config'
 import { setupApi } from '../src/api-config'
 import { queryClient } from '../src/shared/query-client'
 import { KeyboardDismissArea } from '../src/shared/components/KeyboardDismissArea'
@@ -29,26 +31,28 @@ function Loading() {
 
 export default function RootLayout() {
   return (
-    <GestureHandlerRootView style={styles.fill}>
-      <SafeAreaProvider>
-        <QueryClientProvider client={queryClient}>
-          <AuthStateSync />
-          <OverlayProvider>
-            <Suspense fallback={<Loading />}>
-              <ChatNotificationGateway />
-              <AuthGateway>
-                <Stack screenOptions={{ headerShown: false }}>
-                  {/* 인증 판정 후 곧바로 리다이렉트되는 진입점이다. 전환 애니메이션이 보이면
-                        로그인된 사용자도 매번 화면이 한 번 전환되는 것처럼 보인다. */}
-                  <Stack.Screen name="index" options={{ animation: 'none' }} />
-                </Stack>
-              </AuthGateway>
-            </Suspense>
-          </OverlayProvider>
-          <StatusBar style="auto" />
-        </QueryClientProvider>
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
+    <TamaguiProvider config={tamaguiConfig} defaultTheme="light">
+      <GestureHandlerRootView style={styles.fill}>
+        <SafeAreaProvider>
+          <QueryClientProvider client={queryClient}>
+            <AuthStateSync />
+            <OverlayProvider>
+              <Suspense fallback={<Loading />}>
+                <ChatNotificationGateway />
+                <AuthGateway>
+                  <Stack screenOptions={{ headerShown: false }}>
+                    {/* 인증 판정 후 곧바로 리다이렉트되는 진입점이다. 전환 애니메이션이 보이면
+                          로그인된 사용자도 매번 화면이 한 번 전환되는 것처럼 보인다. */}
+                    <Stack.Screen name="index" options={{ animation: 'none' }} />
+                  </Stack>
+                </AuthGateway>
+              </Suspense>
+            </OverlayProvider>
+            <StatusBar style="auto" />
+          </QueryClientProvider>
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
+    </TamaguiProvider>
   )
 }
 
