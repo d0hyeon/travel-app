@@ -767,9 +767,25 @@ src/
   탑승 시 밝기 조절 없이 바코드가 읽히는 것이 목적이다.
 - 티켓의 `memberId`는 `trip_members` 행 id다. 프로필 id로 바로 비교하면
   늘 어긋나므로 `userId`로 내 멤버를 찾아 그 `id`를 쓴다.
-- **보딩패스 카드**(`UpcomingTransportSection`)는 정보 탭 기본 화면에
-  가로 스크롤로 둔다. 티켓 이미지는 카드에 넣지 않는다 — 카드가 티켓
-  자체로 보이면 실제 티켓을 여는 동작과 구분되지 않는다.
+- **보딩패스 카드**(`UpcomingTransportSection`)는 정보 탭 기본 화면에 둔다.
+  티켓 이미지는 카드에 넣지 않는다 — 카드가 티켓 자체로 보이면 실제
+  티켓을 여는 동작과 구분되지 않는다.
+  여러 장일 때만 가로 스크롤이고, 한 장이면 스크롤 컨테이너를 두지 않는다.
+  가로 스크롤 안에서는 너비 `100%`가 화면이 아니라 콘텐츠 기준이라 닿지 않는다.
+- **상세 화면**은 라우트다. 웹은 `/trip/:tripId/transport/:transportId`,
+  앱은 `app/trip/[tripId]/transport/[transportId].tsx`.
+  구획(요약·실시간·운항정보·티켓·길찾기)마다 `AsyncBoundary`를 따로 둬
+  한 구획이 실패해도 나머지는 보이게 한다.
+- 상세의 **삭제**는 앱바 우측 `PopMenu` → `useConfirmDialog` 다.
+  지운 뒤 상세에 남아 있으면 `useTripTransportDetail`의 `assert`가 곧바로
+  터지므로 `router.back()`으로 목록에 되돌린다.
+  이 메뉴는 `useTripTransport`(suspense)를 쓰므로 경계로 감싼다 —
+  앱바 안에서 서스펜드되면 뒤로가기 버튼까지 사라진다.
+- 티켓이 하나도 없으면 티켓 구획의 **컨텐츠 자리**에 점선 추가 버튼을 둔다.
+  타이틀 옆 텍스트 버튼은 올릴 것이 없다는 사실을 드러내지 못한다.
+  점선 표기는 생성 퍼널 `TicketStep`의 업로드 자리와 같은 값을 쓴다.
+- `useTripTransportDetail`이 내 티켓과 일행 티켓을 갈라 내려준다.
+  화면마다 같은 기준으로 갈라야 하므로 도메인에 둔다.
 - 설계 근거: [핸드오프](./design_handoff_transport/README.md)
 
 ### 경로 뷰 모델 (`RouteItem`)
