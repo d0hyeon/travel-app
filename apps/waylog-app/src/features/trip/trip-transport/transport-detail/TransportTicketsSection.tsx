@@ -41,7 +41,7 @@ function Resolved({ tripId, transportId }: Props) {
   const { upload } = useTransportTicketUpload(tripId)
 
   const openTicket = (ticket: TripTransportTicket) => {
-    ticketViewer.open([ticket.image])
+    ticketViewer.open({ tripId, ticketId: ticket.id })
   }
 
   // 업로드가 끝날 때까지 오버레이가 열려 있어, 진행과 실패는 그쪽에서 보인다.

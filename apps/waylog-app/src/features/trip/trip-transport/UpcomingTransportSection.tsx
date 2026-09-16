@@ -80,7 +80,7 @@ function BoardingPassCard({ tripId, transport, style, ...props }: BoardingPassCa
           <Button
             variant="outlined"
             fullWidth
-            onPress={() => ticketViewer.open([firstTicket.image])}
+            onPress={() => ticketViewer.open({ tripId, ticketId: firstTicket.id })}
           >
             탑승권 열기
           </Button>
