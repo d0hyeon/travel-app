@@ -8,6 +8,8 @@ import { Pressable, StyleSheet, View } from 'react-native'
 import { Button, Skeleton, Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../../../shared/config/tokens'
 import { useTicketViewerOverlay } from '../useTicketViewerOverlay'
+import { useTransportTicketFormOverlay } from '../transport-ticket/useTransportTicketFormOverlay'
+import { useTransportTicketUpload } from '../transport-ticket/useTransportTicketUpload'
 import { TransportDetailSectionError } from './TransportDetailSectionError'
 
 interface Props {
@@ -30,23 +32,41 @@ export function TransportTicketsSection({ tripId, transportId }: Props) {
 }
 
 function Resolved({ tripId, transportId }: Props) {
-  const { primaryTicket, companionTickets } = useTripTransportDetail({
+  const { transport, primaryTicket, companionTickets } = useTripTransportDetail({
     tripId,
     transportId,
   })
   const ticketViewer = useTicketViewerOverlay()
+  const ticketForm = useTransportTicketFormOverlay()
+  const { upload } = useTransportTicketUpload(tripId)
 
   const openTicket = (ticket: TripTransportTicket) => {
     ticketViewer.open([ticket.image])
+  }
+
+  // 업로드가 끝날 때까지 오버레이가 열려 있어, 진행과 실패는 그쪽에서 보인다.
+  const addTickets = () => {
+    return ticketForm.open({
+      tripId,
+      type: transport.type,
+      onSubmit: (tickets) => upload({ transportId, tickets }),
+    })
   }
 
   const hasNoTicket = primaryTicket == null && companionTickets.length === 0
 
   return (
     <View style={styles.section}>
-      <Typography style={styles.title}>티켓</Typography>
+      <View style={styles.header}>
+        <Typography style={styles.title}>티켓</Typography>
+        {!hasNoTicket && (
+          <Button variant="text" onPress={addTickets}>
+            추가
+          </Button>
+        )}
+      </View>
       {hasNoTicket && (
-        <Pressable style={styles.addTicket}>
+        <Pressable style={styles.addTicket} onPress={addTickets}>
           <MaterialIcons name="add" size={20} color={palette.textSecondary} />
           <Typography style={styles.addTicketLabel}>탑승권 추가</Typography>
         </Pressable>
@@ -90,6 +110,7 @@ function TransportTicketsSkeleton() {
 
 const styles = StyleSheet.create({
   section: { gap: 8, marginTop: 6 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   title: { fontSize: 16, fontWeight: '700' },
   addTicket: {
     flexDirection: 'row',

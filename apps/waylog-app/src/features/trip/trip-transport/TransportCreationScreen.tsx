@@ -1,11 +1,11 @@
 import { useTripTransport } from '@waylog/domains/modules/trip-transport'
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
 import { useState } from 'react'
-import { uploadTransportTicketImage } from '../../photo/photo.api'
 import {
   TransportFormFunnel,
   type TransportSubmitValues,
 } from './transport-form-funnel/TransportFormFunnel'
+import { useTransportTicketUpload } from './transport-ticket/useTransportTicketUpload'
 
 const START_STEP = 'type'
 
@@ -14,7 +14,8 @@ export function TransportCreationScreen() {
   const params = useLocalSearchParams<{ tripId?: string | string[] }>()
   const tripId = Array.isArray(params.tripId) ? params.tripId[0] : (params.tripId ?? '')
 
-  const { add, addTicket } = useTripTransport(tripId)
+  const { add } = useTripTransport(tripId)
+  const { upload } = useTransportTicketUpload(tripId)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<unknown>(null)
   const [step, setStep] = useState(START_STEP)
@@ -37,13 +38,7 @@ export function TransportCreationScreen() {
         ...carrier,
       })
 
-      // 티켓 한 장이 행 하나다. 이미지마다 소유자가 다를 수 있다.
-      await Promise.all(
-        values.tickets.map(async ({ uri, memberId }) => {
-          const url = await uploadTransportTicketImage(created.id, uri)
-          await addTicket({ transportId: created.id, memberId, image: url })
-        }),
-      )
+      await upload({ transportId: created.id, tickets: values.tickets })
 
       // 뒤로가기로 퍼널에 되돌아오지 않도록 이 스크린을 목록으로 교체한다.
       router.replace(`/trip/${tripId}`)
