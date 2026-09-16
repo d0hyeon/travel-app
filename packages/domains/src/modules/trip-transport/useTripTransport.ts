@@ -10,7 +10,7 @@ import {
   updateTripTransport,
   type CreateTripTransport,
   type CreateTripTransportTicket,
-  type UpdateTripTransport
+  type UpdateTripTransport,
 } from './tripTransport.api'
 
 export function useTripTransport(tripId: string) {
@@ -20,27 +20,27 @@ export function useTripTransport(tripId: string) {
     mutationFn: (params: Omit<CreateTripTransport, 'tripId'>) => {
       return createTripTransport({ tripId, ...params })
     },
-    onSuccess: () => refetch()
+    onSuccess: () => refetch(),
   })
 
   const { mutateAsync: update } = useMutation({
     mutationFn: (params: UpdateTripTransport) => updateTripTransport(params),
-    onSuccess: () => refetch()
+    onSuccess: () => refetch(),
   })
 
   const { mutateAsync: remove } = useMutation({
     mutationFn: (id: string) => removeTripTransport(id),
-    onSuccess: () => refetch()
+    onSuccess: () => refetch(),
   })
 
   const { mutateAsync: addTicket } = useMutation({
     mutationFn: (params: CreateTripTransportTicket) => createTripTransportTicket(params),
-    onSuccess: () => refetch()
+    onSuccess: () => refetch(),
   })
 
   const { mutateAsync: removeTicket } = useMutation({
     mutationFn: (id: string) => removeTripTransportTicket(id),
-    onSuccess: () => refetch()
+    onSuccess: () => refetch(),
   })
 
   return { data, refetch, add, update, remove, addTicket, removeTicket, ...queries }
@@ -57,5 +57,5 @@ useTripTransport.query = (tripId: string) => ({
   // 이게 없으면 useSuspenseQuery 가 다시 suspend 해서 화면이 폴백으로 바뀌고,
   // 그 사이 컴포넌트가 다시 마운트되며 진행 중이던 제스처가 끊긴다.
   placeholderData: keepPreviousData,
-  ...TRIP_PLAN_REFETCH
+  ...TRIP_PLAN_REFETCH,
 })

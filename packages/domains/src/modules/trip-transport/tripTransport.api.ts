@@ -1,7 +1,11 @@
 import { supabase } from '../../gateways/client'
 import type { UpdateDataType } from '../../gateways/client'
 import { TransportType } from '../transport'
-import type { TripTransport, TripTransportCarrier, TripTransportTicket } from './tripTransport.types'
+import type {
+  TripTransport,
+  TripTransportCarrier,
+  TripTransportTicket,
+} from './tripTransport.types'
 
 type RawTicket = {
   id: string
@@ -43,7 +47,7 @@ function toTicket(row: RawTicket): TripTransportTicket {
     transportId: row.transport_id,
     memberId: row.member_id ?? undefined,
     images: row.images,
-    createdAt: row.created_at
+    createdAt: row.created_at,
   }
 }
 
@@ -59,7 +63,7 @@ function toData(row: RawData): TripTransport {
     departureTimezone: row.departure_timezone ?? undefined,
     arrivalTimezone: row.arrival_timezone ?? undefined,
     tickets: (row.trip_transport_tickets ?? []).map(toTicket),
-    createdAt: row.created_at
+    createdAt: row.created_at,
   }
 
   if (row.type === TransportType.항공) {
@@ -67,7 +71,7 @@ function toData(row: RawData): TripTransport {
       ...base,
       type: TransportType.항공,
       airline: row.airline ?? undefined,
-      flightNumber: row.flight_number ?? undefined
+      flightNumber: row.flight_number ?? undefined,
     }
   }
 
@@ -75,7 +79,7 @@ function toData(row: RawData): TripTransport {
     ...base,
     type: row.type === TransportType.기차 ? TransportType.기차 : TransportType.버스,
     provider: row.provider ?? undefined,
-    serviceNumber: row.service_number ?? undefined
+    serviceNumber: row.service_number ?? undefined,
   }
 }
 
@@ -110,7 +114,7 @@ function toCarrierColumns(data: TripTransportCarrier) {
       airline: data.airline ?? null,
       flight_number: data.flightNumber ?? null,
       provider: null,
-      service_number: null
+      service_number: null,
     }
   }
 
@@ -118,7 +122,7 @@ function toCarrierColumns(data: TripTransportCarrier) {
     airline: null,
     flight_number: null,
     provider: data.provider ?? null,
-    service_number: data.serviceNumber ?? null
+    service_number: data.serviceNumber ?? null,
   }
 }
 
@@ -134,7 +138,7 @@ export async function createTripTransport(data: CreateTripTransport) {
       arrival_at: data.arrivalAt ?? null,
       departure_timezone: data.departureTimezone ?? null,
       arrival_timezone: data.arrivalTimezone ?? null,
-      ...toCarrierColumns(data)
+      ...toCarrierColumns(data),
     })
     .select(TRIP_TRANSPORT_SELECT)
     .single()
@@ -191,7 +195,7 @@ export async function createTripTransportTicket(data: CreateTripTransportTicket)
     .insert({
       transport_id: data.transportId,
       member_id: data.memberId ?? null,
-      images: data.images
+      images: data.images,
     })
     .select()
     .single()
