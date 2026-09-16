@@ -1,8 +1,18 @@
 import { describe, expect, it } from 'vitest'
-import { groupByDepartureDate, splitByDeparture, findMyTicket } from '../tripTransport.utils'
+import {
+  findMyTicket,
+  getCarrierInfo,
+  isOvernightArrival,
+  groupByDepartureDate,
+  splitByDeparture,
+} from '../tripTransport.utils'
 import type { TripTransport, TripTransportTicket } from '../tripTransport.types'
 
-function createTransport(id: string, departureAt: string, tickets: TripTransportTicket[] = []): TripTransport {
+function createTransport(
+  id: string,
+  departureAt: string,
+  tickets: TripTransportTicket[] = [],
+): TripTransport {
   return {
     id,
     tripId: 'trip-1',
@@ -11,7 +21,7 @@ function createTransport(id: string, departureAt: string, tickets: TripTransport
     arrivalName: '간사이국제공항',
     departureAt,
     tickets,
-    createdAt: '2026-09-15T00:00:00Z'
+    createdAt: '2026-09-15T00:00:00Z',
   }
 }
 
@@ -68,7 +78,7 @@ describe('groupByDepartureDate', () => {
 
     expect(groups).toEqual([
       { date: '2026-03-01', transports: [오전편, 오후편] },
-      { date: '2026-03-02', transports: [다음날] }
+      { date: '2026-03-02', transports: [다음날] },
     ])
   })
 
@@ -111,5 +121,71 @@ describe('findMyTicket', () => {
     const 남의티켓 = createTicket('tk1', 'other')
 
     expect(findMyTicket([남의티켓], 'me')).toBeUndefined()
+  })
+})
+
+describe('getCarrierInfo', () => {
+  it('항공은 항공사와 편명을 읽는다', () => {
+    const 항공편 = {
+      ...createTransport('t1', '2026-03-01T09:10:00Z'),
+      airline: '대한항공',
+      flightNumber: 'KE721',
+    }
+
+    expect(getCarrierInfo(항공편)).toEqual({ name: '대한항공', number: 'KE721' })
+  })
+
+  it('기차·버스는 사업자와 편성번호를 읽는다', () => {
+    const 기차편: TripTransport = {
+      ...createTransport('t1', '2026-03-01T09:10:00Z'),
+      type: 'train',
+      provider: '코레일',
+      serviceNumber: 'KTX 101',
+    }
+
+    expect(getCarrierInfo(기차편)).toEqual({ name: '코레일', number: 'KTX 101' })
+  })
+
+  it('비어 있는 필드는 그대로 비워 낸다', () => {
+    const 편명만 = { ...createTransport('t1', '2026-03-01T09:10:00Z'), flightNumber: 'KE721' }
+
+    expect(getCarrierInfo(편명만)).toEqual({ name: undefined, number: 'KE721' })
+  })
+})
+
+describe('isOvernightArrival', () => {
+  it('같은 날 도착이면 아니다', () => {
+    const 당일도착 = {
+      ...createTransport('t1', '2026-03-01T01:10:00Z'),
+      arrivalAt: '2026-03-01T03:45:00Z',
+    }
+
+    expect(isOvernightArrival(당일도착)).toBe(false)
+  })
+
+  it('날이 넘어가면 맞다', () => {
+    const 익일도착: TripTransport = {
+      ...createTransport('t1', '2026-03-01T22:10:00Z'),
+      arrivalAt: '2026-03-02T03:45:00Z',
+      departureTimezone: 'UTC',
+      arrivalTimezone: 'UTC',
+    }
+
+    expect(isOvernightArrival(익일도착)).toBe(true)
+  })
+
+  it('도착 시각이 없으면 아니다', () => {
+    expect(isOvernightArrival(createTransport('t1', '2026-03-01T09:10:00Z'))).toBe(false)
+  })
+
+  it('UTC로는 같은 날이어도 각 지점 타임존에서 갈리면 맞다', () => {
+    const 시차도착: TripTransport = {
+      ...createTransport('t1', '2026-03-01T14:10:00Z'),
+      arrivalAt: '2026-03-01T16:45:00Z',
+      departureTimezone: 'America/Los_Angeles',
+      arrivalTimezone: 'Asia/Seoul',
+    }
+
+    expect(isOvernightArrival(시차도착)).toBe(true)
   })
 })
