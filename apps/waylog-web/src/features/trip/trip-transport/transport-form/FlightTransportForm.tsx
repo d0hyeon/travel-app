@@ -3,7 +3,8 @@ import { Button, Divider, InputAdornment, Stack, TextField } from '@mui/material
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { TransportScheduleFields } from './TransportScheduleFields'
-import { useFlightSearchOverlay } from './useFlightSearchOverlay'
+import { useAirlineSelectOverlay } from './useAirlineSelectOverlay'
+import { useAirportSelectOverlay } from './useAirportSelectOverlay'
 import type { TransportFormValues } from './transportForm.types'
 
 interface Props {
@@ -13,7 +14,8 @@ interface Props {
 
 export function FlightTransportForm({ defaultValues, onNext }: Props) {
   const isMobile = useIsMobile()
-  const flightSearch = useFlightSearchOverlay()
+  const airportSelect = useAirportSelectOverlay()
+  const airlineSelect = useAirlineSelectOverlay()
   const {
     control,
     handleSubmit,
@@ -26,71 +28,77 @@ export function FlightTransportForm({ defaultValues, onNext }: Props) {
     mode: 'onChange',
   })
 
-  // 조회 결과를 폼이 직접 받는다. 밖에서 defaultValues 로 밀어넣으면
-  // 이미 마운트된 입력의 표시값이 갱신되지 않는다.
   // shouldValidate 가 없으면 다 채워도 isValid 가 그대로라 버튼이 잠긴다.
-  const searchFlight = async () => {
-    const flight = await flightSearch.open()
-    if (flight == null) return
+  const selectDeparture = async () => {
+    const airport = await airportSelect.open('출발 공항 선택')
+    if (airport == null) return
 
-    setValue('departureName', flight.origin.name, { shouldValidate: true })
-    setValue('arrivalName', flight.destination.name, { shouldValidate: true })
-    setValue('departureAt', flight.scheduled_out, { shouldValidate: true })
-    setValue('arrivalAt', flight.scheduled_in, { shouldValidate: true })
-    // 항공편 조회는 IANA 타임존을 준다. 좌표에서 알아낼 필요가 없다.
-    setValue('departureTimezone', flight.origin.timezone, { shouldValidate: true })
-    setValue('arrivalTimezone', flight.destination.timezone, { shouldValidate: true })
-    setValue('airline', flight.operatorName, { shouldValidate: true })
-    setValue('flightNumber', flight.ident_iata, { shouldValidate: true })
+    setValue('departureName', airport.nameKo, { shouldValidate: true })
+    setValue('departureAirportCode', airport.code, { shouldValidate: true })
+    setValue('departureTimezone', airport.timezone, { shouldValidate: true })
   }
 
-  // 조회로 채웠으면 무엇을 골랐는지 검색 필드에 남긴다.
+  const selectArrival = async () => {
+    const airport = await airportSelect.open('도착 공항 선택')
+    if (airport == null) return
+
+    setValue('arrivalName', airport.nameKo, { shouldValidate: true })
+    setValue('arrivalAirportCode', airport.code, { shouldValidate: true })
+    setValue('arrivalTimezone', airport.timezone, { shouldValidate: true })
+  }
+
+  const selectAirline = async () => {
+    const airline = await airlineSelect.open()
+    if (airline == null) return
+
+    setValue('airline', airline.nameKo, { shouldValidate: true })
+    setValue('airlineCode', airline.code, { shouldValidate: true })
+  }
+
   const airline = useWatch({ control, name: 'airline' })
-  const flightNumber = useWatch({ control, name: 'flightNumber' })
-  const selectedFlightLabel = [airline, flightNumber].filter(Boolean).join(' ')
 
   return (
     <Stack component="form" onSubmit={handleSubmit(onNext)} p={2} gap={2}>
-      <TextField
-        label="항공사 또는 편명 검색"
-        placeholder="예: KE721, 대한항공"
-        helperText="조회 없이도 아래에서 직접 입력해 등록할 수 있어요"
-        value={selectedFlightLabel}
-        onClick={searchFlight}
-        slotProps={{
-          input: {
-            readOnly: true,
-            endAdornment: (
-              <InputAdornment position="end">
-                <SearchIcon fontSize="small" color="disabled" />
-              </InputAdornment>
-            ),
-          },
-        }}
-        sx={{ '.MuiInputBase-root': { cursor: 'pointer' }, input: { cursor: 'pointer' } }}
-      />
-
-      <Divider />
-
       <TransportScheduleFields
         control={control}
         departurePlaceholder="출발 공항"
         arrivalPlaceholder="도착 공항"
+        onDepartureClick={selectDeparture}
+        onArrivalClick={selectArrival}
       />
 
+      <Divider />
+
       <Stack direction={isMobile ? 'column' : 'row'} gap={2}>
-        <Controller
-          control={control}
-          name="airline"
-          render={({ field }) => (
-            <TextField label="항공사" fullWidth {...field} value={field.value ?? ''} />
-          )}
+        <TextField
+          label="항공사"
+          placeholder="목록에서 선택"
+          value={airline ?? ''}
+          onClick={selectAirline}
+          fullWidth
+          slotProps={{
+            input: {
+              readOnly: true,
+              endAdornment: (
+                <InputAdornment position="end">
+                  <SearchIcon fontSize="small" color="disabled" />
+                </InputAdornment>
+              ),
+            },
+          }}
+          sx={{ '.MuiInputBase-root': { cursor: 'pointer' }, input: { cursor: 'pointer' } }}
         />
         <Controller
           control={control}
           name="flightNumber"
           render={({ field }) => (
-            <TextField label="편명" fullWidth {...field} value={field.value ?? ''} />
+            <TextField
+              label="편번호"
+              placeholder="예: 721"
+              fullWidth
+              {...field}
+              value={field.value ?? ''}
+            />
           )}
         />
       </Stack>

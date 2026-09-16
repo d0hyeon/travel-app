@@ -7,12 +7,15 @@ export type TransportFormStep = (typeof TRANSPORT_FORM_STEPS)[number]
 export interface TransportFormValues {
   departureName: string
   arrivalName: string
+  /** 항공만 갖는다. 목록에서 고른 경우에만 채워진다. */
+  departureAirportCode?: string
+  arrivalAirportCode?: string
   departureAt: string
   arrivalAt?: string
-  /** 항공편 조회로 채운 경우에만 있다. 수동 입력은 비운다. */
   departureTimezone?: string
   arrivalTimezone?: string
   airline?: string
+  airlineCode?: string
   flightNumber?: string
   provider?: string
   serviceNumber?: string

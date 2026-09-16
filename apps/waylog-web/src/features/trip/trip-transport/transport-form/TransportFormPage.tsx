@@ -57,12 +57,19 @@ export default function TransportFormPage() {
       try {
         const carrier =
           type === 'flight'
-            ? { type, airline: detail.airline, flightNumber: detail.flightNumber }
+            ? {
+                type,
+                airline: detail.airline,
+                airlineCode: detail.airlineCode,
+                flightNumber: detail.flightNumber,
+              }
             : { type, provider: detail.provider, serviceNumber: detail.serviceNumber }
 
         const created = await add({
           departureName: detail.departureName!,
           arrivalName: detail.arrivalName!,
+          departureAirportCode: detail.departureAirportCode,
+          arrivalAirportCode: detail.arrivalAirportCode,
           departureAt: detail.departureAt!,
           arrivalAt: detail.arrivalAt,
           departureTimezone: detail.departureTimezone,

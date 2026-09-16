@@ -9,6 +9,8 @@ interface Props {
   control: Control<TransportFormValues>
   departurePlaceholder: string
   arrivalPlaceholder: string
+  onDepartureClick?: () => void
+  onArrivalClick?: () => void
 }
 
 // 출발·도착과 일시는 종류와 무관하게 같다. 두 폼이 공유한다.
@@ -18,6 +20,8 @@ export function TransportScheduleFields({
   control,
   departurePlaceholder,
   arrivalPlaceholder,
+  onDepartureClick,
+  onArrivalClick,
 }: Props) {
   const isMobile = useIsMobile()
   const pickerSx = isMobile
@@ -38,6 +42,13 @@ export function TransportScheduleFields({
               fullWidth
               {...field}
               value={field.value ?? ''}
+              onClick={onDepartureClick}
+              slotProps={onDepartureClick ? { input: { readOnly: true } } : undefined}
+              sx={
+                onDepartureClick
+                  ? { '.MuiInputBase-root': { cursor: 'pointer' }, input: { cursor: 'pointer' } }
+                  : undefined
+              }
             />
           )}
         />
@@ -53,6 +64,13 @@ export function TransportScheduleFields({
               fullWidth
               {...field}
               value={field.value ?? ''}
+              onClick={onArrivalClick}
+              slotProps={onArrivalClick ? { input: { readOnly: true } } : undefined}
+              sx={
+                onArrivalClick
+                  ? { '.MuiInputBase-root': { cursor: 'pointer' }, input: { cursor: 'pointer' } }
+                  : undefined
+              }
             />
           )}
         />
