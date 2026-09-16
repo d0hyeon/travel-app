@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
-import { StyleSheet, ActivityIndicator, Pressable, type StyleProp, type TextStyle, type ViewStyle } from 'react-native'
-import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated'
-import { palette, radius } from '../../config/tokens'
-import { Typography } from './Typography'
+import { StyleSheet, ActivityIndicator, type StyleProp, type TextStyle, type ViewStyle } from 'react-native'
+import { Button as TamaguiButton, Text, useTheme } from 'tamagui'
+import { radius } from '../../config/tokens'
+import { resolveButtonColors, type ButtonColor, type ButtonVariant } from './Button.theme'
 
 // 웹 theme.ts 의 MuiButton size variant 를 모바일 수치로 옮긴다.
 const SIZE = {
@@ -11,13 +11,11 @@ const SIZE = {
   large: { height: 40, borderRadius: radius.lg, fontSize: 14, paddingHorizontal: 16 },
 } as const
 
-const LOADER_GAP = 6
-
 export interface ButtonProps {
   children?: ReactNode
-  variant?: 'contained' | 'outlined' | 'text'
+  variant?: ButtonVariant
   size?: 'small' | 'medium' | 'large'
-  color?: 'primary' | 'error' | 'inherit'
+  color?: ButtonColor
   disabled?: boolean
   loading?: boolean
   fullWidth?: boolean
@@ -42,62 +40,60 @@ export function Button({
   textStyle,
 }: ButtonProps) {
   const dims = SIZE[size]
-  const main = color === 'error' ? palette.error : palette.primary
+  const theme = useTheme()
   const isInactive = disabled === true || loading === true
-  const textColor = variant === 'contained' ? '#fff' : main
-
-  const animatedContainerStyle = useAnimatedStyle(() => ({
-    opacity: withTiming(isInactive ? 0.4 : 1, { duration: 200 }),
-  }))
-
-  const loaderSize = dims.fontSize
-  const animatedLoaderStyle = useAnimatedStyle(() => ({
-    opacity: withTiming(loading === true ? 1 : 0, { duration: 200 }),
-    width: withTiming(loading === true ? loaderSize + LOADER_GAP : 0, { duration: 200 }),
-  }))
+  const colors = resolveButtonColors(variant, color, {
+    primary: theme.primary.val,
+    danger: theme.danger.val,
+    onPrimary: theme.onPrimary.val,
+    onSurface: theme.onSurface.val,
+  })
 
   return (
-    <AnimatedPressable
+    <TamaguiButton
+      unstyled
+      disabled={isInactive}
       onPress={isInactive ? undefined : onPress}
       style={[
-        [
-          styles.animatedPressable,
-          { height: dims.height, borderRadius: dims.borderRadius, paddingHorizontal: dims.paddingHorizontal, backgroundColor: variant === 'contained' ? main : 'transparent', borderWidth: variant === 'outlined' ? 1 : 0, borderColor: main, ...(fullWidth ? { flex: 1, width: '100%', alignSelf: 'center' } : { alignSelf: 'flex-start' }) }],
-        animatedContainerStyle,
+        styles.button,
+        {
+          height: dims.height,
+          borderRadius: dims.borderRadius,
+          paddingHorizontal: dims.paddingHorizontal,
+          ...colors,
+          opacity: isInactive ? 0.4 : 1,
+          ...(fullWidth ? { flex: 1, width: '100%', alignSelf: 'center' } : { alignSelf: 'flex-start' }),
+        },
         style,
       ]}
+      pressStyle={isInactive ? undefined : styles.pressed}
     >
       {startIcon}
-      <Animated.View style={[styles.view, animatedLoaderStyle]}>
-        <ActivityIndicator size="small" color={textColor} />
-      </Animated.View>
-      <Typography
+      {loading === true && <ActivityIndicator size="small" color={colors.textColor} />}
+      <Text
         style={[
-          [styles.typography, { fontSize: dims.fontSize, color: textColor }],
+          styles.label,
+          { fontSize: dims.fontSize, color: colors.textColor },
           textStyle,
         ]}
       >
         {children}
-      </Typography>
-    </AnimatedPressable>
+      </Text>
+    </TamaguiButton>
   )
 }
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
-
 const styles = StyleSheet.create({
-  view: {
-    overflow: 'hidden',
-    alignItems: 'center',
-  },
-  typography: {
+  label: {
     fontWeight: '900',
   },
-
-  animatedPressable: {
+  button: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
+  },
+  pressed: {
+    opacity: 0.72,
   },
 })

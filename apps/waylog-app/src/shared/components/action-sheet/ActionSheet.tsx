@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useRef, type ReactNode } from 'react'
 import { StyleSheet, Animated, Modal, Pressable, ScrollView } from 'react-native'
-import { palette, radius } from '../../config/tokens'
-import { Box, Stack, Typography } from '~/shared/components/design-system'
+import { Text, useTheme, View } from 'tamagui'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 // 네이티브에는 앵커 기준 팝오버가 없어 하단 시트로 띄운다.
@@ -17,12 +16,12 @@ const SHEET_OFFSET = 80
 const MAX_SHEET_HEIGHT = 560
 
 export function ActionSheet({ isOpen, onClose, children }: ActionSheetProps) {
+  const theme = useTheme()
   const backdropOpacity = useRef(new Animated.Value(0)).current
   const sheetTranslateY = useRef(new Animated.Value(SHEET_OFFSET)).current
 
   useEffect(() => {
     if (!isOpen) return
-    console.log(1)
 
     Animated.parallel([
       Animated.timing(backdropOpacity, { toValue: 1, duration: BACKDROP_DURATION, useNativeDriver: true }),
@@ -34,30 +33,30 @@ export function ActionSheet({ isOpen, onClose, children }: ActionSheetProps) {
       sheetTranslateY.setValue(SHEET_OFFSET)
     }
   }, [backdropOpacity, isOpen, sheetTranslateY])
-  const insets = useSafeAreaInsets();
+  const insets = useSafeAreaInsets()
 
   return (
     <Modal visible={isOpen} transparent animationType="none" onRequestClose={onClose}>
-      <Box style={styles.container}>
+      <View style={styles.container}>
         <Animated.View
           style={[styles.backdrop, { opacity: backdropOpacity }]}
         >
           <Pressable onPress={onClose} style={styles.backdropTarget} />
         </Animated.View>
         <Animated.View style={{ transform: [{ translateY: sheetTranslateY }] }}>
-          <Box
-            style={styles.sheet}
+          <View
+            style={[styles.sheet, { backgroundColor: theme.surface.val }]}
           >
             <ScrollView style={styles.scrollArea} bounces={false}>
               <ActionSheetCloseContext.Provider value={onClose}>
-                <Box style={{ paddingBottom: insets.bottom, }}>
+                <View style={{ paddingBottom: insets.bottom }}>
                   {children}
-                </Box>
+                </View>
               </ActionSheetCloseContext.Provider>
             </ScrollView>
-          </Box>
+          </View>
         </Animated.View>
-      </Box>
+      </View>
     </Modal>
   )
 }
@@ -72,25 +71,26 @@ interface ActionSheetItemProps {
 }
 
 ActionSheet.Item = function ActionSheetItem({ onPress, icon, children, color = 'text' }: ActionSheetItemProps) {
-  const close = useContext(ActionSheetCloseContext);
+  const close = useContext(ActionSheetCloseContext)
+  const theme = useTheme()
+  const textColor = color === 'error' ? theme.danger.val : theme.onSurface.val
 
   return (
     <Pressable
       onPress={() => {
         close()
-        onPress?.()
+        requestAnimationFrame(() => onPress?.())
       }}
       style={styles.item}
     >
-      <Stack direction="row" gap={1} alignItems="center">
+      <View style={styles.itemContent}>
         {icon}
-        <Typography
-          variant="body1"
-          style={{ color: color === 'error' ? '#d32f2f' : palette.text }}
+        <Text
+          style={[styles.itemText, { color: textColor }]}
         >
           {children}
-        </Typography>
-      </Stack>
+        </Text>
+      </View>
     </Pressable>
   )
 }
@@ -112,9 +112,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sheet: {
-    backgroundColor: palette.background,
-    borderTopLeftRadius: radius.xxl,
-    borderTopRightRadius: radius.xxl,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     paddingVertical: 8,
   },
   scrollArea: {
@@ -124,4 +123,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 14,
   },
+  itemContent: { flexDirection: 'row', gap: 8, alignItems: 'center' },
+  itemText: { fontSize: 14, fontWeight: '700' },
 })

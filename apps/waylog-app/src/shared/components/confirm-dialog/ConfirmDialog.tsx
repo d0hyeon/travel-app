@@ -1,7 +1,6 @@
 import { StyleSheet, Modal, Pressable } from 'react-native'
-import { palette, radius } from '../../config/tokens'
-import { Box, Stack, Typography } from '~/shared/components/design-system'
-import { Button } from '~/shared/components/design-system/Button'
+import { Text, useTheme, View } from 'tamagui'
+import { Button } from '../design-system/Button'
 
 export interface ConfirmDialogProps {
   isOpen: boolean
@@ -22,6 +21,8 @@ export default function ConfirmDialog({
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+  const theme = useTheme()
+
   return (
     <Modal visible={isOpen} transparent animationType="fade" onRequestClose={onCancel}>
       <Pressable
@@ -29,27 +30,25 @@ export default function ConfirmDialog({
         style={styles.backdrop}
       >
         <Pressable onPress={(event) => event.stopPropagation()} style={styles.dialogTarget}>
-          <Box
-            style={styles.dialog}
+          <View
+            style={[styles.dialog, { backgroundColor: theme.surface.val }]}
           >
-            <Stack gap={1}>
-              <Typography variant="h6">{title}</Typography>
+            <View style={styles.content}>
+              <Text style={[styles.title, { color: theme.onSurface.val }]}>
+                {title}
+              </Text>
               {description != null && (
-                <Typography variant="body2" color="text.secondary">
+                <Text style={[styles.description, { color: theme.onSurfaceMuted.val }]}>
                   {description}
-                </Typography>
+                </Text>
               )}
-            </Stack>
+            </View>
 
-            <Stack direction="row" gap={1} justifyContent="flex-end">
-              <Button size="large" onPress={onCancel}>
-                {cancelText}
-              </Button>
-              <Button size="large" variant="contained" onPress={onConfirm}>
-                {confirmText}
-              </Button>
-            </Stack>
-          </Box>
+            <View style={styles.actions}>
+              <Button color="inherit" onPress={onCancel}>{cancelText}</Button>
+              <Button variant="contained" onPress={onConfirm}>{confirmText}</Button>
+            </View>
+          </View>
         </Pressable>
       </Pressable>
     </Modal>
@@ -68,9 +67,12 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   dialog: {
-    backgroundColor: palette.background,
-    borderRadius: radius.xxl,
+    borderRadius: 20,
     padding: 20,
     gap: 16,
   },
+  content: { gap: 4 },
+  actions: { flexDirection: 'row', gap: 8, justifyContent: 'flex-end' },
+  title: { fontSize: 16, fontWeight: '700' },
+  description: { fontSize: 13 },
 })
