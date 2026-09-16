@@ -2,11 +2,12 @@ import type { TransportType } from '../transport'
 
 export type TripTransportType = Extract<TransportType, 'flight' | 'train' | 'bus'>
 
+// 한 행이 탑승자 한 명의 탑승권 한 장이다. 여러 장이면 행을 나눈다.
 export interface TripTransportTicket {
   id: string
   transportId: string
   memberId?: string
-  images: string[]
+  image: string
   createdAt: string
 }
 

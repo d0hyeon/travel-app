@@ -74,7 +74,7 @@ export default function TransportFormPage() {
         await Promise.all(
           tickets.map(async ({ file, memberId }) => {
             const url = await uploadTransportTicketImage(created.id, file)
-            await addTicket({ transportId: created.id, memberId, images: [url] })
+            await addTicket({ transportId: created.id, memberId, image: url })
           }),
         )
 

@@ -32,8 +32,7 @@ function Resolved({ tripId, transportId }: Props) {
   const ticketViewer = useTicketViewerOverlay()
 
   const openTicket = (ticket: TripTransportTicket) => {
-    if (ticket.images.length === 0) return
-    ticketViewer.open(ticket.images)
+    ticketViewer.open(ticket.image)
   }
 
   return (

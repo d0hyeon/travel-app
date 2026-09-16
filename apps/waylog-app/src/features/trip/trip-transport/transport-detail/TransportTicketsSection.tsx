@@ -30,10 +30,14 @@ export function TransportTicketsSection({ tripId, transportId }: Props) {
 }
 
 function Resolved({ tripId, transportId }: Props) {
-  const { primaryTicket, companionTickets } = useTripTransportDetail({ tripId, transportId })
+  const { primaryTicket, companionTickets } = useTripTransportDetail({
+    tripId,
+    transportId,
+  })
   const ticketViewer = useTicketViewerOverlay()
+
   const openTicket = (ticket: TripTransportTicket) => {
-    if (ticket.images.length > 0) ticketViewer.open(ticket.images)
+    ticketViewer.open([ticket.image])
   }
 
   const hasNoTicket = primaryTicket == null && companionTickets.length === 0

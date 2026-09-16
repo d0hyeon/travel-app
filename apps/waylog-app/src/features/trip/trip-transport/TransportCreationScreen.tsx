@@ -41,7 +41,7 @@ export function TransportCreationScreen() {
       await Promise.all(
         values.tickets.map(async ({ uri, memberId }) => {
           const url = await uploadTransportTicketImage(created.id, uri)
-          await addTicket({ transportId: created.id, memberId, images: [url] })
+          await addTicket({ transportId: created.id, memberId, image: url })
         }),
       )
 

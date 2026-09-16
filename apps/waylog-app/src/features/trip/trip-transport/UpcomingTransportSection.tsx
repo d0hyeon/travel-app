@@ -67,7 +67,7 @@ function BoardingPassCard({ tripId, transport, style, ...props }: BoardingPassCa
 
   // 티켓 이미지는 카드에 넣지 않는다. 카드가 티켓 자체로 보이면
   // 실제 티켓을 여는 동작과 구분되지 않는다.
-  const firstTicketImages = transport.tickets.find((ticket) => ticket.images.length > 0)?.images
+  const [firstTicket] = transport.tickets
 
   return (
     <View style={[styles.cardWrapper, style]} {...props}>
@@ -75,9 +75,13 @@ function BoardingPassCard({ tripId, transport, style, ...props }: BoardingPassCa
         transport={transport}
         onPress={() => router.push(`/trip/${tripId}/transport/${transport.id}`)}
       />
-      {firstTicketImages != null && (
+      {firstTicket != null && (
         <View style={styles.ticketAction}>
-          <Button variant="outlined" fullWidth onPress={() => ticketViewer.open(firstTicketImages)}>
+          <Button
+            variant="outlined"
+            fullWidth
+            onPress={() => ticketViewer.open([firstTicket.image])}
+          >
             탑승권 열기
           </Button>
         </View>

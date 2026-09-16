@@ -614,21 +614,21 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          images: string[]
+          image: string | null
           member_id: string | null
           transport_id: string
         }
         Insert: {
           created_at?: string
           id?: string
-          images?: string[]
+          image?: string | null
           member_id?: string | null
           transport_id: string
         }
         Update: {
           created_at?: string
           id?: string
-          images?: string[]
+          image?: string | null
           member_id?: string | null
           transport_id?: string
         }

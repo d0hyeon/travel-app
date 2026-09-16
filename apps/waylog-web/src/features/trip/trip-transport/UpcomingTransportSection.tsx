@@ -53,7 +53,7 @@ function BoardingPassCard({ tripId, transport }: { tripId: string; transport: Tr
 
   // 티켓 이미지는 카드에 넣지 않는다. 카드가 티켓 자체로 보이면
   // 실제 티켓을 여는 동작과 구분되지 않는다.
-  const firstTicketImages = transport.tickets.find((ticket) => ticket.images.length > 0)?.images
+  const [firstTicket] = transport.tickets
 
   return (
     <Stack sx={{ width: '82%', flexShrink: 0, scrollSnapAlign: 'start' }} gap={1}>
@@ -62,12 +62,12 @@ function BoardingPassCard({ tripId, transport }: { tripId: string; transport: Tr
         onClick={() => navigate(`/trip/${tripId}/transport/${transport.id}`)}
       />
 
-      {firstTicketImages != null && (
+      {firstTicket != null && (
         <Button
           variant="outlined"
           size="small"
           sx={{ height: 36 }}
-          onClick={() => ticketViewer.open(firstTicketImages)}
+          onClick={() => ticketViewer.open(firstTicket.image)}
         >
           탑승권 보기
         </Button>

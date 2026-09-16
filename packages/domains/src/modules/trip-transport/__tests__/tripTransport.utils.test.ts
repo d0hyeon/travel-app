@@ -26,7 +26,7 @@ function createTransport(
 }
 
 function createTicket(id: string, memberId?: string): TripTransportTicket {
-  return { id, transportId: 't1', memberId, images: [], createdAt: '2026-09-15T00:00:00Z' }
+  return { id, transportId: 't1', memberId, image: `${id}.png`, createdAt: '2026-09-15T00:00:00Z' }
 }
 
 describe('splitByDeparture', () => {

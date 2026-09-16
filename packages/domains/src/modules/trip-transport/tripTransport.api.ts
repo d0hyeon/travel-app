@@ -1,3 +1,4 @@
+import { assert } from '@waylog/utility'
 import { supabase } from '../../gateways/client'
 import type { UpdateDataType } from '../../gateways/client'
 import { TransportType } from '../transport'
@@ -11,7 +12,7 @@ type RawTicket = {
   id: string
   transport_id: string
   member_id: string | null
-  images: string[]
+  image: string | null
   created_at: string
 }
 
@@ -38,17 +39,22 @@ const TRIP_TRANSPORT_SELECT = `
   departure_name, arrival_name,
   departure_at, arrival_at, departure_timezone, arrival_timezone,
   airline, flight_number, provider, service_number, created_at,
-  trip_transport_tickets(id, transport_id, member_id, images, created_at)
+  trip_transport_tickets(id, transport_id, member_id, image, created_at)
 ` as const
 
-function toTicket(row: RawTicket): TripTransportTicket {
-  return {
-    id: row.id,
-    transportId: row.transport_id,
-    memberId: row.member_id ?? undefined,
-    images: row.images,
-    createdAt: row.created_at,
-  }
+// 이미지 없는 행은 열어볼 것이 없어 티켓으로 쓸 수 없다. 조회에서 걸러낸다.
+function toTicket(row: RawTicket): TripTransportTicket[] {
+  if (row.image == null) return []
+
+  return [
+    {
+      id: row.id,
+      transportId: row.transport_id,
+      memberId: row.member_id ?? undefined,
+      image: row.image,
+      createdAt: row.created_at,
+    },
+  ]
 }
 
 // DB 는 종류별 컬럼이 모두 nullable 이라 type 을 좁혀야 어느 필드가 유효한지 정해진다.
@@ -62,7 +68,7 @@ function toData(row: RawData): TripTransport {
     arrivalAt: row.arrival_at ?? undefined,
     departureTimezone: row.departure_timezone ?? undefined,
     arrivalTimezone: row.arrival_timezone ?? undefined,
-    tickets: (row.trip_transport_tickets ?? []).map(toTicket),
+    tickets: (row.trip_transport_tickets ?? []).flatMap(toTicket),
     createdAt: row.created_at,
   }
 
@@ -186,7 +192,7 @@ export async function removeTripTransport(id: string) {
 export type CreateTripTransportTicket = {
   transportId: string
   memberId?: string
-  images: string[]
+  image: string
 }
 
 export async function createTripTransportTicket(data: CreateTripTransportTicket) {
@@ -195,13 +201,16 @@ export async function createTripTransportTicket(data: CreateTripTransportTicket)
     .insert({
       transport_id: data.transportId,
       member_id: data.memberId ?? null,
-      images: data.images,
+      image: data.image,
     })
     .select()
     .single()
 
   if (error) throw error
-  return toTicket(created!)
+
+  const [ticket] = toTicket(created!)
+  assert(ticket != null, '티켓을 생성하지 못했습니다.')
+  return ticket
 }
 
 export async function removeTripTransportTicket(id: string) {
