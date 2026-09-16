@@ -10,6 +10,7 @@ import { TripDDay } from './TripDDay'
 import { TripPostCreateCard } from './TripPostCreateCard'
 import { RecommendedPlaceListSection_Desktop } from '../trip-recommend/RecommendedPlaceListSection'
 import { CommunityRoutesSectionDesktop } from '../trip-community-routes/CommunityRoutesSection'
+import { TripTransportSection } from '../trip-transport/TripTransportSection'
 
 interface Props {
   tripId: string
@@ -50,6 +51,14 @@ export function TripBasicInfoContent({ tripId }: Props) {
               <Suspense fallback={<TripMemo.Skeleton />}>
                 <TripMemo tripId={tripId} />
               </Suspense>
+            </CardContent>
+          </Card>
+
+          {/* 교통편 */}
+          <Card variant="outlined">
+            <CardHeader title="교통편" />
+            <CardContent>
+              <TripTransportSection tripId={tripId} />
             </CardContent>
           </Card>
 

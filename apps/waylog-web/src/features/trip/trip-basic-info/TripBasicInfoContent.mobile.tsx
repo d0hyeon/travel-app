@@ -16,6 +16,8 @@ import { TripPostCreateCard } from './TripPostCreateCard'
 import { RecommendedPlaceListSection } from '../trip-recommend/RecommendedPlaceListSection'
 import { CommunityRoutesSection } from '../trip-community-routes/CommunityRoutesSection'
 import { TripLeaveButton } from "../components/TripLeaveButton"
+import { TripTransportSection } from '../trip-transport/TripTransportSection'
+import { UpcomingTransportSection } from '../trip-transport/UpcomingTransportSection'
 
 interface Props {
   tripId: string
@@ -31,6 +33,7 @@ export function TripBasicInfoContent({ tripId }: Props) {
         <Tab value="default" label="기본정보" />
         <Tab value="checklist" label="체크리스트" />
         <Tab value="memo" label="메모" />
+        <Tab value="transport" label="교통편" />
       </Tabs>
       <Box
         position="relative"
@@ -72,6 +75,18 @@ export function TripBasicInfoContent({ tripId }: Props) {
                     throwOnEmpty
                   />
                 </Stack>
+              </ErrorBoundary>
+
+              {/* 다가오는 교통편 */}
+              <ErrorBoundary>
+                <Suspense fallback={null}>
+                  <UpcomingTransportSection
+                    tripId={tripId}
+                    width="calc(100% + 32px)"
+                    marginX={-2}
+                    paddingX={2}
+                  />
+                </Suspense>
               </ErrorBoundary>
 
               {/* 고정된 메모 */}
@@ -122,6 +137,10 @@ export function TripBasicInfoContent({ tripId }: Props) {
 
         {currentTab === 'memo' && (
           <TripMemo tripId={tripId} />
+        )}
+
+        {currentTab === 'transport' && (
+          <TripTransportSection tripId={tripId} paddingBottom={`${BottomNavigation.HEIGHT}px`} />
         )}
 
       </Box>

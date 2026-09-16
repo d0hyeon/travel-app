@@ -1,4 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons'
+import { useRouter } from 'expo-router'
 import { StyleSheet, ScrollView } from 'react-native'
 import { Box, Fab, Stack, Tab, Tabs, Typography } from "~/shared/components/design-system"
 import { Suspense } from 'react'
@@ -7,6 +8,8 @@ import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
 import { TripChecklist } from '../trip-checklist/TripChecklist'
 import { useTripChecklistFormOverlay } from '../trip-checklist/useTripChecklistFormOverlay'
 import { TripDeadlineChecklist } from '../trip-checklist/TripDeadlineChecklist'
+import { TripTransportList } from '../trip-transport/TripTransportList'
+import { UpcomingTransportSection } from '../trip-transport/UpcomingTransportSection'
 import { TripMemberSection } from '../trip-member/TripMemberSection'
 import { TripPinnedMemos } from '../trip-memo/TripPinnedMemos'
 import { RecommendedPlaceListSection } from '../trip-recommend/RecommendedPlaceListSection'
@@ -25,6 +28,7 @@ interface Props {
 export function TripBasicInfoContent({ tripId }: Props) {
   const [currentTab, setCurrentTab] = useQueryParamState('info-tab', { defaultValue: 'default' })
   const checklistForm = useTripChecklistFormOverlay(tripId)
+  const router = useRouter()
 
 
   return (
@@ -33,6 +37,7 @@ export function TripBasicInfoContent({ tripId }: Props) {
         <Tab value="default" label="기본정보" />
         <Tab value="checklist" label="체크리스트" />
         <Tab value="memo" label="메모" />
+        <Tab value="transport" label="교통편" />
       </Tabs>
       <Box style={styles.content}>
         {currentTab === 'default' && (
@@ -58,6 +63,12 @@ export function TripBasicInfoContent({ tripId }: Props) {
               />
 
               <TripDeadlineChecklist tripId={tripId} gap={1} hideOnEmpty />
+
+              <ErrorBoundary>
+                <Suspense fallback={null}>
+                  <UpcomingTransportSection tripId={tripId} />
+                </Suspense>
+              </ErrorBoundary>
 
               <TripPinnedMemos tripId={tripId} hideOnEmpty />
 
@@ -102,6 +113,25 @@ export function TripBasicInfoContent({ tripId }: Props) {
 
         {currentTab === 'memo' && (
           <TripMemo tripId={tripId} />
+        )}
+
+        {currentTab === 'transport' && (
+          <>
+            <ScrollView contentContainerStyle={styles.scrollContent}>
+              <TripTransportList
+                tripId={tripId}
+                onTransportPress={(transportId) => router.push(`/trip/${tripId}/transport/${transportId}`)}
+              />
+            </ScrollView>
+            <Fab
+              color="primary"
+              size="medium"
+              onPress={() => router.push(`/trip/${tripId}/transport/new`)}
+              style={styles.addButton}
+            >
+              <MaterialIcons name="add" size={24} color="#fff" />
+            </Fab>
+          </>
         )}
 
       </Box>
