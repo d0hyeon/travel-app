@@ -773,11 +773,28 @@ src/
   앱은 `createNativeStackNavigator` 자체 스택으로 push 한다.
 - 폼 값은 평평하게 들고 제출 시 판별 유니온으로 접는다.
   유니온으로 들면 입력 중 종류를 바꿀 때마다 값이 통째로 날아간다.
-- **출발·도착은 여행 장소 중에서 고른다**. 교통편이 `trip_places`를
-  참조하므로 여행에 없는 장소는 애초에 지정할 수 없다.
-  웹은 `Autocomplete`, 앱은 바텀시트다.
+- **공항·항공사는 목록에서 고른다**. 프리텍스트를 허용하지 않는다 —
+  코드 없는 행이 섞이면 운항정보 API 와 매칭할 수 없고, 사용자는 알림이
+  오지 않는 이유를 알 수 없다. 목록에 없으면 데이터를 추가한다.
+- 공항 선택이 `departure_timezone` 을 함께 채운다. 정적 데이터가 IANA
+  타임존을 갖는다.
+- 편명은 `airlineCode` + `flightNumber` 로 나눠 든다. 한 필드에 담으면
+  `KE721`·`ke 721`·`대한항공 721` 이 모두 들어와 매칭이 흔들린다.
+- 기차·버스는 출발·도착을 자유 입력으로 남긴다. `TransportScheduleFields`
+  가 클릭 콜백을 받은 필드만 읽기 전용으로 바꾼다.
 - **티켓 뷰어**는 타이틀 없이 어두운 배경에 이미지만 둔다.
   탑승 시 밝기 조절 없이 바코드가 읽히는 것이 목적이다.
+  상단은 좌측 닫기 · 우측 `PopMenu`(삭제)다.
+- 앱 뷰어는 `open({ tripId, ticketId })` **식별자만** 받고 조회·삭제를 스스로 한다.
+  이미지 URL을 받으면 지운 뒤 화면을 갱신할 근거가 호출부에 흩어진다.
+  직접 조회하므로 `AsyncBoundary` 가 뷰어 `Modal` **안**에 있다 — 바깥에 두면
+  서스펜드하는 동안 Modal 이 열리지 않아 아무것도 보이지 않는다.
+- **확인 다이얼로그를 뷰어 안에서 직접 렌더한다**(`ConfirmDialog`).
+  `useConfirmDialog` 는 루트 `OverlayProvider` 에 마운트되는데, 뷰어가
+  `transparent={false}` 인 불투명 전체화면 `Modal` 이라 그 아래에 깔린다.
+  그래서 삭제를 눌러도 확인창이 안 뜨고 뷰어를 닫은 뒤에야 나타났다.
+- 생성 퍼널의 드래프트는 저장 전이라 `ticketId` 가 없다.
+  `useTicketDraftPreviewOverlay` 로 확인만 하고, 제거는 목록의 ✕ 가 맡는다.
 - 티켓의 `memberId`는 `trip_members` 행 id다. 프로필 id로 바로 비교하면
   늘 어긋나므로 `userId`로 내 멤버를 찾아 그 `id`를 쓴다.
 - **보딩패스 카드**(`UpcomingTransportSection`)는 정보 탭 기본 화면에 둔다.
@@ -1111,6 +1128,8 @@ ref 로 붙잡아야 끌던 도중 스냅이 바뀌어도 제스처가 갈아끼
 | 여행 사진 탭         | `features/trip/trip-photo/TripPhotoContent.*.tsx`                 |
 | 사진 EXIF 장소 매칭  | 웹 `features/photo/photo.utils.ts` + `shared/utils/exif.ts`(exifr), 앱 `features/photo/exif.utils.ts`(picker 의 `exif: true`). 매칭은 `findNearestPlace(.., { withinMeters: 500 })` 공유 |
 | 체크리스트           | `features/trip/trip-checklist/`                                   |
+| 공항 정적 데이터 | `packages/domains/src/modules/airport/` |
+| 항공사 정적 데이터 | `packages/domains/src/modules/airline/` |
 | 오버레이/모달        | `shared/hooks/useOverlay.tsx`                                     |
 | 웹 푸시              | `features/auth/useWebPushSubscription.ts`                         |
 

@@ -1,2 +1,1 @@
 export * from './transport.types'
-export * from './flightSearch.api'
