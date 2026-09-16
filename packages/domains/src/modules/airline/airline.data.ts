@@ -1,0 +1,36 @@
+import type { Airline } from './airline.types'
+
+export const AIRLINES = [
+  { code: 'KE', nameKo: '대한항공', nameEn: 'Korean Air' },
+  { code: 'OZ', nameKo: '아시아나항공', nameEn: 'Asiana Airlines' },
+  { code: '7C', nameKo: '제주항공', nameEn: 'Jeju Air' },
+  { code: 'LJ', nameKo: '진에어', nameEn: 'Jin Air' },
+  { code: 'TW', nameKo: '티웨이항공', nameEn: "T'way Air" },
+  { code: 'BX', nameKo: '에어부산', nameEn: 'Air Busan' },
+  { code: 'RS', nameKo: '에어서울', nameEn: 'Air Seoul' },
+  { code: 'ZE', nameKo: '이스타항공', nameEn: 'Eastar Jet' },
+  { code: 'RF', nameKo: '에어로케이', nameEn: 'Aero K' },
+  { code: 'YP', nameKo: '에어프레미아', nameEn: 'Air Premia' },
+  { code: 'NH', nameKo: '전일본공수', nameEn: 'All Nippon Airways' },
+  { code: 'JL', nameKo: '일본항공', nameEn: 'Japan Airlines' },
+  { code: 'CI', nameKo: '중화항공', nameEn: 'China Airlines' },
+  { code: 'BR', nameKo: '에바항공', nameEn: 'EVA Air' },
+  { code: 'CX', nameKo: '캐세이퍼시픽', nameEn: 'Cathay Pacific' },
+  { code: 'SQ', nameKo: '싱가포르항공', nameEn: 'Singapore Airlines' },
+  { code: 'TG', nameKo: '타이항공', nameEn: 'Thai Airways' },
+  { code: 'VJ', nameKo: '비엣젯항공', nameEn: 'VietJet Air' },
+  { code: 'VN', nameKo: '베트남항공', nameEn: 'Vietnam Airlines' },
+  { code: 'MU', nameKo: '중국동방항공', nameEn: 'China Eastern Airlines' },
+  { code: 'CZ', nameKo: '중국남방항공', nameEn: 'China Southern Airlines' },
+  { code: 'CA', nameKo: '중국국제항공', nameEn: 'Air China' },
+  { code: 'UA', nameKo: '유나이티드항공', nameEn: 'United Airlines' },
+  { code: 'DL', nameKo: '델타항공', nameEn: 'Delta Air Lines' },
+  { code: 'AA', nameKo: '아메리칸항공', nameEn: 'American Airlines' },
+  { code: 'AF', nameKo: '에어프랑스', nameEn: 'Air France' },
+  { code: 'LH', nameKo: '루프트한자', nameEn: 'Lufthansa' },
+  { code: 'BA', nameKo: '영국항공', nameEn: 'British Airways' },
+  { code: 'QF', nameKo: '콴타스항공', nameEn: 'Qantas' },
+  { code: 'EK', nameKo: '에미레이트항공', nameEn: 'Emirates' },
+] as const satisfies readonly Airline[]
+
+export type AirlineCode = (typeof AIRLINES)[number]['code']
