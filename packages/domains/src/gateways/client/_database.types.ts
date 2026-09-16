@@ -646,12 +646,12 @@ export type Database = {
         Row: {
           airline: string | null
           arrival_at: string | null
+          arrival_name: string
           arrival_timezone: string | null
-          arrival_trip_place_id: string
           created_at: string
           departure_at: string
+          departure_name: string
           departure_timezone: string | null
-          departure_trip_place_id: string
           flight_number: string | null
           id: string
           provider: string | null
@@ -662,12 +662,12 @@ export type Database = {
         Insert: {
           airline?: string | null
           arrival_at?: string | null
+          arrival_name: string
           arrival_timezone?: string | null
-          arrival_trip_place_id: string
           created_at?: string
           departure_at: string
+          departure_name: string
           departure_timezone?: string | null
-          departure_trip_place_id: string
           flight_number?: string | null
           id?: string
           provider?: string | null
@@ -678,12 +678,12 @@ export type Database = {
         Update: {
           airline?: string | null
           arrival_at?: string | null
+          arrival_name?: string
           arrival_timezone?: string | null
-          arrival_trip_place_id?: string
           created_at?: string
           departure_at?: string
+          departure_name?: string
           departure_timezone?: string | null
-          departure_trip_place_id?: string
           flight_number?: string | null
           id?: string
           provider?: string | null
@@ -692,20 +692,6 @@ export type Database = {
           type?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "trip_transports_arrival_trip_place_id_fkey"
-            columns: ["arrival_trip_place_id"]
-            isOneToOne: false
-            referencedRelation: "trip_places"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "trip_transports_departure_trip_place_id_fkey"
-            columns: ["departure_trip_place_id"]
-            isOneToOne: false
-            referencedRelation: "trip_places"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "trip_transports_trip_id_fkey"
             columns: ["trip_id"]
