@@ -60,7 +60,9 @@ export function Button({
     <AnimatedPressable
       onPress={isInactive ? undefined : onPress}
       style={[
-        [styles.animatedPressable, { height: dims.height, borderRadius: dims.borderRadius, paddingHorizontal: dims.paddingHorizontal, backgroundColor: variant === 'contained' ? main : 'transparent', borderWidth: variant === 'outlined' ? 1 : 0, borderColor: main, ...(fullWidth ? { flex: 1, alignSelf: 'center' } : { alignSelf: 'flex-start' }) }],
+        [
+          styles.animatedPressable,
+          { height: dims.height, borderRadius: dims.borderRadius, paddingHorizontal: dims.paddingHorizontal, backgroundColor: variant === 'contained' ? main : 'transparent', borderWidth: variant === 'outlined' ? 1 : 0, borderColor: main, ...(fullWidth ? { flex: 1, width: '100%', alignSelf: 'center' } : { alignSelf: 'flex-start' }) }],
         animatedContainerStyle,
         style,
       ]}
