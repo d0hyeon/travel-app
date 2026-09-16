@@ -1,7 +1,5 @@
 import { useCallback, useMemo } from "react";
 import { arrayIncludes, assert } from "../../utils";
-import { useTripTransport } from "../trip-transport";
-import { toRouteItems } from "./routeItem.utils";
 import { useTripPlaces } from "./useTripPlaces";
 import { useTripRoutes } from "./useTripRoutes";
 
@@ -18,7 +16,6 @@ type UpdateMemoParams = {
 
 export function useDayTripRoutes({ tripId, date }: Params) {
   const { data: allPlaces } = useTripPlaces(tripId);
-  const { data: transports } = useTripTransport(tripId);
   const {
     data: { routes: allRoutes, tripDates },
     update,
@@ -31,15 +28,15 @@ export function useDayTripRoutes({ tripId, date }: Params) {
   }, [date, allRoutes]);
 
   const routesWithPlace = useMemo(() => {
-    return routes.map(({ placeIds, placeMemos, ...route }) => {
-      const places = placeIds
+    return routes.map(({ placeIds, placeMemos, ...route }) => ({
+      ...route,
+      placeIds,
+      places: placeIds
         .map((id) => allPlaces.find((x) => x.id === id))
         .filter((x) => !!x)
-        .map((x) => ({ ...x, routeNotes: placeMemos?.[x.id] ?? [] }));
-
-      return { ...route, placeIds, places, items: toRouteItems(places, transports) };
-    });
-  }, [routes, allPlaces, transports]);
+        .map((x) => ({ ...x, routeNotes: placeMemos?.[x.id] ?? [] })),
+    }));
+  }, [routes, allPlaces]);
 
   const updateNotes = useCallback(
     ({ memos, placeId, routeId }: UpdateMemoParams) => {

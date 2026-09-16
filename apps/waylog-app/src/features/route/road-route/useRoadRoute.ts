@@ -9,8 +9,6 @@ import { isOverseasByCoordinate } from '@waylog/utility'
 // 웹은 IndexedDB, 앱은 AsyncStorage 다.
 interface UseRoadRouteOptions {
   waypoints: Coordinate[]
-  /** 교통 구간의 경계. 이 인덱스와 다음 인덱스 사이는 도로로 잇지 않는다. */
-  breakIndices?: number[]
   suspense?: boolean
 }
 
@@ -29,15 +27,13 @@ export async function writeRoadRouteCache(key: string, roadRoute: RoadRoute): Pr
   await AsyncStorage.setItem(CACHE_PREFIX + key, JSON.stringify(roadRoute))
 }
 
-export function useRoadRoute({ waypoints, breakIndices, suspense = true }: UseRoadRouteOptions) {
+export function useRoadRoute({ waypoints, suspense = true }: UseRoadRouteOptions) {
   const serialized = waypoints.map((p) => `${p.lat},${p.lng}`).join('|')
-  // 같은 좌표라도 경계가 다르면 다른 경로다.
-  const cacheKey = breakIndices?.length ? `${serialized}#${breakIndices.join(',')}` : serialized
 
   const query = useQuery({
-    queryKey: roadRouteQueryKey(cacheKey),
+    queryKey: roadRouteQueryKey(serialized),
     queryFn: async (): Promise<RoadRoute> => {
-      const cached = await readRoadRouteCache(cacheKey)
+      const cached = await readRoadRouteCache(serialized)
       if (cached != null) {
         return { coordinates: cached.coordinates, legs: cached.legs ?? [] }
       }
@@ -45,9 +41,9 @@ export function useRoadRoute({ waypoints, breakIndices, suspense = true }: UseRo
       const region = waypoints.some((x) => isOverseasByCoordinate(x.lat, x.lng))
         ? 'global'
         : 'korea'
-      const roadRoute = await getRoadDirections(waypoints, region, breakIndices)
+      const roadRoute = await getRoadDirections(waypoints, region)
 
-      await writeRoadRouteCache(cacheKey, roadRoute)
+      await writeRoadRouteCache(serialized, roadRoute)
 
       return roadRoute
     },

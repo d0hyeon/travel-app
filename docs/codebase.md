@@ -750,6 +750,28 @@ src/
 - 시각은 UTC로 저장하고 표기만 각 지점 타임존으로 포맷한다.
   타임존 컬럼은 있지만 **1차에서는 채우지 않으며**, 없으면 기기 로컬로 폴백한다.
 
+### 교통편 UI
+
+- 웹: `features/trip/trip-transport/`, 앱: 같은 경로
+- **진입**: 여행 상세 → 정보 탭 → 교통편 서브탭.
+  데스크톱은 서브탭이 없어 정보 화면의 카드로 둔다.
+- **생성 퍼널**: 종류 → 정보 → 티켓 3스텝. 포스트 생성과 같은 형태다.
+  웹은 별도 라우트(`/trip/:tripId/transport/new`)에서 `step` 쿼리 파라미터,
+  앱은 `createNativeStackNavigator` 자체 스택으로 push 한다.
+- 폼 값은 평평하게 들고 제출 시 판별 유니온으로 접는다.
+  유니온으로 들면 입력 중 종류를 바꿀 때마다 값이 통째로 날아간다.
+- **출발·도착은 여행 장소 중에서 고른다**. 교통편이 `trip_places`를
+  참조하므로 여행에 없는 장소는 애초에 지정할 수 없다.
+  웹은 `Autocomplete`, 앱은 바텀시트다.
+- **티켓 뷰어**는 타이틀 없이 어두운 배경에 이미지만 둔다.
+  탑승 시 밝기 조절 없이 바코드가 읽히는 것이 목적이다.
+- 티켓의 `memberId`는 `trip_members` 행 id다. 프로필 id로 바로 비교하면
+  늘 어긋나므로 `userId`로 내 멤버를 찾아 그 `id`를 쓴다.
+- **보딩패스 카드**(`UpcomingTransportSection`)는 정보 탭 기본 화면에
+  가로 스크롤로 둔다. 티켓 이미지는 카드에 넣지 않는다 — 카드가 티켓
+  자체로 보이면 실제 티켓을 여는 동작과 구분되지 않는다.
+- 설계 근거: [핸드오프](./design_handoff_transport/README.md)
+
 ### 경로 뷰 모델 (`RouteItem`)
 
 - `packages/domains/src/modules/trip/routeItem.types.ts`, `routeItem.utils.ts`

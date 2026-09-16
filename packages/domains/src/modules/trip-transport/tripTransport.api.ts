@@ -15,8 +15,8 @@ type RawData = {
   id: string
   trip_id: string
   type: string
-  departure_trip_place_id: string
-  arrival_trip_place_id: string
+  departure_name: string
+  arrival_name: string
   departure_at: string
   arrival_at: string | null
   departure_timezone: string | null
@@ -31,7 +31,7 @@ type RawData = {
 
 const TRIP_TRANSPORT_SELECT = `
   id, trip_id, type,
-  departure_trip_place_id, arrival_trip_place_id,
+  departure_name, arrival_name,
   departure_at, arrival_at, departure_timezone, arrival_timezone,
   airline, flight_number, provider, service_number, created_at,
   trip_transport_tickets(id, transport_id, member_id, images, created_at)
@@ -52,8 +52,8 @@ function toData(row: RawData): TripTransport {
   const base = {
     id: row.id,
     tripId: row.trip_id,
-    departureTripPlaceId: row.departure_trip_place_id,
-    arrivalTripPlaceId: row.arrival_trip_place_id,
+    departureName: row.departure_name,
+    arrivalName: row.arrival_name,
     departureAt: row.departure_at,
     arrivalAt: row.arrival_at ?? undefined,
     departureTimezone: row.departure_timezone ?? undefined,
@@ -93,8 +93,8 @@ export async function getTripTransports(tripId: string): Promise<TripTransport[]
 }
 
 type MutableSchedule = {
-  departureTripPlaceId: string
-  arrivalTripPlaceId: string
+  departureName: string
+  arrivalName: string
   departureAt: string
   arrivalAt?: string
   departureTimezone?: string
@@ -128,8 +128,8 @@ export async function createTripTransport(data: CreateTripTransport) {
     .insert({
       trip_id: data.tripId,
       type: data.type,
-      departure_trip_place_id: data.departureTripPlaceId,
-      arrival_trip_place_id: data.arrivalTripPlaceId,
+      departure_name: data.departureName,
+      arrival_name: data.arrivalName,
       departure_at: data.departureAt,
       arrival_at: data.arrivalAt ?? null,
       departure_timezone: data.departureTimezone ?? null,
@@ -155,8 +155,8 @@ export async function updateTripTransport({ id, carrier, ...data }: UpdateTripTr
     ? { type: carrier.type, ...toCarrierColumns(carrier) }
     : {}
 
-  if (data.departureTripPlaceId !== undefined) payload.departure_trip_place_id = data.departureTripPlaceId
-  if (data.arrivalTripPlaceId !== undefined) payload.arrival_trip_place_id = data.arrivalTripPlaceId
+  if (data.departureName !== undefined) payload.departure_name = data.departureName
+  if (data.arrivalName !== undefined) payload.arrival_name = data.arrivalName
   if (data.departureAt !== undefined) payload.departure_at = data.departureAt
   if (data.arrivalAt !== undefined) payload.arrival_at = data.arrivalAt
   if (data.departureTimezone !== undefined) payload.departure_timezone = data.departureTimezone

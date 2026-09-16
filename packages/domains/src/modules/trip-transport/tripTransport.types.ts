@@ -14,8 +14,8 @@ type TripTransportBase = {
   id: string
   tripId: string
 
-  departureTripPlaceId: string
-  arrivalTripPlaceId: string
+  departureName: string
+  arrivalName: string
   departureAt: string
   arrivalAt?: string
   departureTimezone?: string

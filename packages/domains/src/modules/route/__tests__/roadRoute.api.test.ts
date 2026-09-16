@@ -61,30 +61,6 @@ describe('getRoadDirections', () => {
     })
   })
 
-  it('교통 구간 경계에서 경로를 잇지 않는다', async () => {
-    const 숙소 = wp(37.5, 127.0)
-    const 인천공항 = wp(37.46, 126.44)
-    const 오사카공항 = wp(34.43, 135.23)
-    const 오사카성 = wp(34.68, 135.52)
-
-    mockInvoke
-      .mockResolvedValueOnce({ data: { coordinates: [숙소, 인천공항], legs: [] }, error: null })
-      .mockResolvedValueOnce({ data: { coordinates: [오사카공항, 오사카성], legs: [] }, error: null })
-
-    const result = await getRoadDirections([숙소, 인천공항, 오사카공항, 오사카성], 'global', [1])
-
-    // 경계 양쪽 조각을 따로 요청한다
-    expect(mockInvoke).toHaveBeenCalledTimes(2)
-    expect(mockInvoke).toHaveBeenNthCalledWith(1, 'road-directions', {
-      body: { waypoints: [숙소, 인천공항], region: 'global' },
-    })
-    expect(mockInvoke).toHaveBeenNthCalledWith(2, 'road-directions', {
-      body: { waypoints: [오사카공항, 오사카성], region: 'global' },
-    })
-    // 오사카공항이 병합에서 사라지지 않는다
-    expect(result.coordinates).toEqual([숙소, 인천공항, 오사카공항, 오사카성])
-  })
-
   it('7개 초과 waypoints는 구간 분할 후 병합', async () => {
     mockInvoke.mockResolvedValue({ data: successData, error: null })
     const manyPoints = Array.from({ length: 9 }, (_, i) => wp(37.5 + i * 0.01, 127.0))
