@@ -77,13 +77,14 @@ export function TicketStep({ tripId, type, isSubmitting, onSkip, onSubmit }: Pro
                   {/* 이미지를 그대로 늘어놓지 않는다. 티켓은 열어서 보는 것이고
                       목록에서는 누구 것인지만 알면 된다. */}
                   <View style={[styles.item, !isLast && styles.itemSpaced]}>
-                    <Pressable
-                      style={styles.card}
-                      onPress={() => ticketViewer.open([ticket.uri])}
-                    >
+                    <Pressable style={styles.card} onPress={() => ticketViewer.open([ticket.uri])}>
                       <View style={styles.badge}>
                         {type == null ? (
-                          <MaterialIcons name="confirmation-number" size={20} color={palette.primary} />
+                          <MaterialIcons
+                            name="confirmation-number"
+                            size={20}
+                            color={palette.primary}
+                          />
                         ) : (
                           <TransportTypeIcon type={type} size={20} color={palette.primary} />
                         )}
@@ -119,7 +120,9 @@ export function TicketStep({ tripId, type, isSubmitting, onSkip, onSubmit }: Pro
                                 {members.map((member) => (
                                   <PopMenu.Item
                                     key={member.id}
-                                    icon={<SelectedMark isSelected={ticket.memberId === member.id} />}
+                                    icon={
+                                      <SelectedMark isSelected={ticket.memberId === member.id} />
+                                    }
                                     onPress={() => updateMember(index, member.id)}
                                   >
                                     {member.name}
@@ -133,7 +136,6 @@ export function TicketStep({ tripId, type, isSubmitting, onSkip, onSubmit }: Pro
 
                       <MaterialIcons name="chevron-right" size={18} color={palette.textSecondary} />
                     </Pressable>
-
 
                     <Pressable
                       onPress={() => removeTicket(index)}
@@ -170,7 +172,9 @@ export function TicketStep({ tripId, type, isSubmitting, onSkip, onSubmit }: Pro
 
 // 고른 항목을 아이콘으로 표시한다. 자리를 늘 차지해야 목록이 흔들리지 않는다.
 function SelectedMark({ isSelected }: { isSelected: boolean }) {
-  return <MaterialIcons name="check" size={18} color={isSelected ? palette.primary : 'transparent'} />
+  return (
+    <MaterialIcons name="check" size={18} color={isSelected ? palette.primary : 'transparent'} />
+  )
 }
 
 const styles = StyleSheet.create({
@@ -193,7 +197,7 @@ const styles = StyleSheet.create({
   tree: { marginLeft: 4 },
   // 간격을 gap 이나 패딩으로 두면 그 구간이 콘텐츠 바깥이라 stretch 가
   // 닿지 않고 줄기가 끊긴다. 간격은 카드가 마진으로 만든다.
-  row: { flexDirection: 'row', alignItems: 'stretch', gap: 8, },
+  row: { flexDirection: 'row', alignItems: 'stretch', gap: 8 },
   guide: { width: 16, position: 'relative' },
   guideTop: { height: 29, width: 1, backgroundColor: palette.divider },
   guideLine: { flex: 1, width: 1, backgroundColor: palette.divider },
@@ -206,7 +210,10 @@ const styles = StyleSheet.create({
     backgroundColor: palette.divider,
   },
   item: {
-    display: 'flex', flexDirection: 'row', alignItems: 'center', flex: 1,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
   // 간격은 카드가 아니라 행 전체가 갖는다. 카드에 마진을 주면
   // 그만큼 늘어난 높이의 중앙을 잡아 삭제 버튼이 내려간다.
@@ -236,7 +243,14 @@ const styles = StyleSheet.create({
   ownerRow: { flexDirection: 'row' },
   ownerTrigger: { flexDirection: 'row', alignItems: 'center', gap: 2 },
   ownerLabel: { fontSize: 14, fontWeight: '700' },
-  removeButton: { flexShrink: 0, width: 40, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  removeButton: {
+    flexShrink: 0,
+    width: 40,
+    height: 32,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   footer: {
     padding: 16,
     borderTopWidth: 1,

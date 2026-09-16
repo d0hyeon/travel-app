@@ -56,12 +56,16 @@ export function FlightTransportForm({ defaultValues, onNext }: Props) {
         <View style={styles.field}>
           <Typography style={styles.label}>항공사 또는 편명 검색</Typography>
           <Pressable onPress={searchFlight} style={styles.searchControl}>
-            <Typography style={selectedFlightLabel === '' ? styles.placeholder : styles.searchValue}>
+            <Typography
+              style={selectedFlightLabel === '' ? styles.placeholder : styles.searchValue}
+            >
               {selectedFlightLabel === '' ? '예: KE721, 대한항공' : selectedFlightLabel}
             </Typography>
             <MaterialIcons name="search" size={18} color={palette.textSecondary} />
           </Pressable>
-          <Typography style={styles.hint}>조회 없이도 아래에서 직접 입력해 등록할 수 있어요</Typography>
+          <Typography style={styles.hint}>
+            조회 없이도 아래에서 직접 입력해 등록할 수 있어요
+          </Typography>
         </View>
 
         <Divider />

@@ -41,14 +41,26 @@ export function TransportForm({ defaultValues, onNext }: Props) {
           control={control}
           name="provider"
           render={({ field }) => (
-            <TextField label="사업자" placeholder="예: JR도카이" fullWidth {...field} value={field.value ?? ''} />
+            <TextField
+              label="사업자"
+              placeholder="예: JR도카이"
+              fullWidth
+              {...field}
+              value={field.value ?? ''}
+            />
           )}
         />
         <Controller
           control={control}
           name="serviceNumber"
           render={({ field }) => (
-            <TextField label="편명·호수" placeholder="예: 노조미 25호" fullWidth {...field} value={field.value ?? ''} />
+            <TextField
+              label="편명·호수"
+              placeholder="예: 노조미 25호"
+              fullWidth
+              {...field}
+              value={field.value ?? ''}
+            />
           )}
         />
       </Stack>

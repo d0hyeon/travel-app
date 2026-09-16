@@ -14,9 +14,7 @@ interface Props {
 // 사업자 정보가 선택 입력으로 갈린다. 분기는 여기서만 한다.
 export function TransportStep({ type, defaultValues, onNext }: Props) {
   if (type === TransportType.항공) {
-    return (
-      <FlightTransportForm defaultValues={defaultValues} onNext={onNext} />
-    )
+    return <FlightTransportForm defaultValues={defaultValues} onNext={onNext} />
   }
 
   return <TransportForm defaultValues={defaultValues} onNext={onNext} />

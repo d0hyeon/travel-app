@@ -4,7 +4,16 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import CloseIcon from '@mui/icons-material/Close'
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { Box, Button, IconButton, ListItemIcon, Menu, MenuItem, Stack, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  IconButton,
+  ListItemIcon,
+  Menu,
+  MenuItem,
+  Stack,
+  Typography,
+} from '@mui/material'
 import type { TripMember } from '@waylog/domains/modules/trip-member'
 import { useTripMembers } from '@waylog/domains/modules/trip-member'
 import type { TripTransportType } from '@waylog/domains/modules/trip-transport'
@@ -96,14 +105,28 @@ export function TransportTicketStep({ tripId, type, isSubmitting, onSkip, onSubm
             const isLast = index === tickets.length - 1
 
             return (
-              <Stack key={`${ticket.file.name}-${index}`} direction="row" alignItems="stretch" gap={1}>
+              <Stack
+                key={`${ticket.file.name}-${index}`}
+                direction="row"
+                alignItems="stretch"
+                gap={1}
+              >
                 {/* 업로드 영역에 딸린 목록임을 선으로 드러낸다.
                     선을 absolute 로 그리면 행 높이가 자식에 의해 정해지는 동안
                     bottom 이 기준점을 못 잡는다. 레이아웃 요소로 둔다. */}
                 <Box position="relative" width={16} flexShrink={0}>
                   <Box sx={{ height: 34, width: '1px', bgcolor: 'divider' }} />
                   {!isLast && <Box sx={{ flex: 1, width: '1px', bgcolor: 'divider' }} />}
-                  <Box sx={{ position: 'absolute', left: 0, top: 34, width: 16, height: '1px', bgcolor: 'divider' }} />
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      left: 0,
+                      top: 34,
+                      width: 16,
+                      height: '1px',
+                      bgcolor: 'divider',
+                    }}
+                  />
                 </Box>
 
                 <Stack
@@ -260,7 +283,10 @@ function TicketOwnerMenu({ members, memberId, ownerName, onChange }: OwnerMenuPr
 function SelectedMark({ isSelected }: { isSelected: boolean }) {
   return (
     <ListItemIcon sx={{ minWidth: 28 }}>
-      <CheckIcon sx={{ fontSize: 18, visibility: isSelected ? 'visible' : 'hidden' }} color="primary" />
+      <CheckIcon
+        sx={{ fontSize: 18, visibility: isSelected ? 'visible' : 'hidden' }}
+        color="primary"
+      />
     </ListItemIcon>
   )
 }

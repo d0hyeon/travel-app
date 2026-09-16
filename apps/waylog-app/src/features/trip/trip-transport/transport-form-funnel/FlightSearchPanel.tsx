@@ -58,7 +58,8 @@ export function FlightSearchPanel({ onSelect, onClose }: Props) {
                 <Typography style={styles.flightRoute}>
                   {flight.origin.code_iata} {formatDate(new Date(flight.scheduled_out), 'HH:mm')}
                   {' → '}
-                  {flight.destination.code_iata} {formatDate(new Date(flight.scheduled_in), 'HH:mm')}
+                  {flight.destination.code_iata}{' '}
+                  {formatDate(new Date(flight.scheduled_in), 'HH:mm')}
                 </Typography>
               </View>
               <Typography style={styles.selectLabel}>선택</Typography>
@@ -83,8 +84,18 @@ const styles = StyleSheet.create({
   body: { padding: 16, gap: 16 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   title: { fontSize: 17, fontWeight: '700' },
-  results: { borderWidth: 1, borderColor: palette.divider, borderRadius: radius.lg, overflow: 'hidden' },
-  resultRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 14 },
+  results: {
+    borderWidth: 1,
+    borderColor: palette.divider,
+    borderRadius: radius.lg,
+    overflow: 'hidden',
+  },
+  resultRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 14,
+  },
   resultRowDivided: { borderTopWidth: 1, borderTopColor: palette.divider },
   resultInfo: { gap: 2 },
   flightName: { fontSize: 13.5, fontWeight: '700' },

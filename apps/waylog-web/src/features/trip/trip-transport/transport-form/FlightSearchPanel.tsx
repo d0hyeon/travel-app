@@ -1,6 +1,14 @@
 import CloseIcon from '@mui/icons-material/Close'
 import SearchIcon from '@mui/icons-material/Search'
-import { Box, CircularProgress, IconButton, InputAdornment, Stack, TextField, Typography } from '@mui/material'
+import {
+  Box,
+  CircularProgress,
+  IconButton,
+  InputAdornment,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
 import { formatDate } from 'date-fns'
 import { useState } from 'react'
@@ -44,7 +52,11 @@ export function FlightSearchPanel({ onSelect, onClose }: Props) {
           input: {
             endAdornment: (
               <InputAdornment position="end">
-                {isFetching ? <CircularProgress size={16} /> : <SearchIcon fontSize="small" color="disabled" />}
+                {isFetching ? (
+                  <CircularProgress size={16} />
+                ) : (
+                  <SearchIcon fontSize="small" color="disabled" />
+                )}
               </InputAdornment>
             ),
           },
@@ -72,7 +84,8 @@ export function FlightSearchPanel({ onSelect, onClose }: Props) {
                 <Typography variant="caption" color="text.secondary">
                   {flight.origin.code_iata} {formatDate(new Date(flight.scheduled_out), 'HH:mm')}
                   {' → '}
-                  {flight.destination.code_iata} {formatDate(new Date(flight.scheduled_in), 'HH:mm')}
+                  {flight.destination.code_iata}{' '}
+                  {formatDate(new Date(flight.scheduled_in), 'HH:mm')}
                 </Typography>
               </Box>
               <Typography variant="caption" color="primary" fontWeight={700}>

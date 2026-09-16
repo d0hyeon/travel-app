@@ -29,7 +29,13 @@ interface Props {
   onSubmit: (value: TransportSubmitValues) => void
 }
 
-export function TransportFormFunnel({ tripId, isSubmitting, error, onStepChange, onSubmit }: Props) {
+export function TransportFormFunnel({
+  tripId,
+  isSubmitting,
+  error,
+  onStepChange,
+  onSubmit,
+}: Props) {
   const insets = useSafeAreaInsets()
   // 포커스된 스텝이 자기 navigation 을 올린다. 헤더가 셸에 있어 직접 참조할 수 없다.
   const goBackRef = useRef<() => void>(() => {})

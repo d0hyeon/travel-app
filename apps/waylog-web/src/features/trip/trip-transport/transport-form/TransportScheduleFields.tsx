@@ -14,7 +14,11 @@ interface Props {
 // 출발·도착과 일시는 종류와 무관하게 같다. 두 폼이 공유한다.
 // 네 값 모두 필수다 -- 하나라도 비면 목록의 "A → B, 09:10 → 10:45" 가
 // 성립하지 않는다. 그런 교통편은 이 기능으로 관리할 수 없다.
-export function TransportScheduleFields({ control, departurePlaceholder, arrivalPlaceholder }: Props) {
+export function TransportScheduleFields({
+  control,
+  departurePlaceholder,
+  arrivalPlaceholder,
+}: Props) {
   const isMobile = useIsMobile()
   const pickerSx = isMobile
     ? { '.MuiPickersSectionList-root': { paddingY: 1.5 }, '.MuiFormLabel-root': { lineHeight: 1 } }

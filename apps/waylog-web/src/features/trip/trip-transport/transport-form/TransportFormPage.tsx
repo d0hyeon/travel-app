@@ -1,5 +1,14 @@
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
-import { Alert, AlertTitle, Box, CircularProgress, Container, IconButton, Stack, Typography } from '@mui/material'
+import {
+  Alert,
+  AlertTitle,
+  Box,
+  CircularProgress,
+  Container,
+  IconButton,
+  Stack,
+  Typography,
+} from '@mui/material'
 import { useLoading } from '@waylog/react'
 import { useTripTransport, type TripTransportType } from '@waylog/domains/modules/trip-transport'
 import { Suspense, useState, type PropsWithChildren } from 'react'
@@ -10,7 +19,12 @@ import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState'
 import { TransportStep } from './TransportStep'
 import { TransportTicketStep } from './TransportTicketStep'
 import { TransportTypeStep } from './TransportTypeStep'
-import { TRANSPORT_FORM_STEPS, type TransportFormStep, type TransportFormValues, type TransportTicketDraft } from './transportForm.types'
+import {
+  TRANSPORT_FORM_STEPS,
+  type TransportFormStep,
+  type TransportFormValues,
+  type TransportTicketDraft,
+} from './transportForm.types'
 
 const STEP_TITLE: Record<TransportFormStep, string> = {
   type: '종류 선택',
@@ -74,7 +88,11 @@ export default function TransportFormPage() {
 
   return (
     <Box height="100dvh" display="flex" flexDirection="column" overflow="auto">
-      <Container maxWidth="sm" disableGutters sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+      <Container
+        maxWidth="sm"
+        disableGutters
+        sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}
+      >
         <TopNavigation>
           <IconButton sx={{ width: 36, height: 36 }} aria-label="뒤로" onClick={goBack}>
             <ChevronLeftIcon />
@@ -111,7 +129,13 @@ export default function TransportFormPage() {
           </Alert>
         )}
 
-        <Suspense fallback={<Box display="flex" justifyContent="center" pt={4}><CircularProgress /></Box>}>
+        <Suspense
+          fallback={
+            <Box display="flex" justifyContent="center" pt={4}>
+              <CircularProgress />
+            </Box>
+          }
+        >
           <SwitchCase
             value={step}
             cases={{
@@ -124,16 +148,17 @@ export default function TransportFormPage() {
                   }}
                 />
               ),
-              detail: () => type != null && (
-                <TransportStep
-                  type={type}
-                  defaultValues={detail}
-                  onNext={(value) => {
-                    setDetail(value)
-                    setStep('ticket')
-                  }}
-                />
-              ),
+              detail: () =>
+                type != null && (
+                  <TransportStep
+                    type={type}
+                    defaultValues={detail}
+                    onNext={(value) => {
+                      setDetail(value)
+                      setStep('ticket')
+                    }}
+                  />
+                ),
               ticket: () => (
                 <TransportTicketStep
                   tripId={tripId}
@@ -157,7 +182,14 @@ function TopNavigation(props: PropsWithChildren) {
       position="sticky"
       top={0}
       zIndex={20}
-      sx={{ height: 64, px: 2, py: '14px', bgcolor: 'background.paper', borderBottom: '1px solid', borderColor: 'divider' }}
+      sx={{
+        height: 64,
+        px: 2,
+        py: '14px',
+        bgcolor: 'background.paper',
+        borderBottom: '1px solid',
+        borderColor: 'divider',
+      }}
     >
       <Stack direction="row" alignItems="center" gap={1} height="100%">
         {props.children}

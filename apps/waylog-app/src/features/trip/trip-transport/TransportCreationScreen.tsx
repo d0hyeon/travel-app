@@ -2,7 +2,10 @@ import { useTripTransport } from '@waylog/domains/modules/trip-transport'
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
 import { useState } from 'react'
 import { uploadTransportTicketImage } from '../../photo/photo.api'
-import { TransportFormFunnel, type TransportSubmitValues } from './transport-form-funnel/TransportFormFunnel'
+import {
+  TransportFormFunnel,
+  type TransportSubmitValues,
+} from './transport-form-funnel/TransportFormFunnel'
 
 const START_STEP = 'type'
 
