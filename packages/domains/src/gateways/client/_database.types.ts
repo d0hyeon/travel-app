@@ -645,10 +645,13 @@ export type Database = {
       trip_transports: {
         Row: {
           airline: string | null
+          airline_code: string | null
+          arrival_airport_code: string | null
           arrival_at: string | null
           arrival_name: string
           arrival_timezone: string | null
           created_at: string
+          departure_airport_code: string | null
           departure_at: string
           departure_name: string
           departure_timezone: string | null
@@ -661,10 +664,13 @@ export type Database = {
         }
         Insert: {
           airline?: string | null
+          airline_code?: string | null
+          arrival_airport_code?: string | null
           arrival_at?: string | null
           arrival_name: string
           arrival_timezone?: string | null
           created_at?: string
+          departure_airport_code?: string | null
           departure_at: string
           departure_name: string
           departure_timezone?: string | null
@@ -677,10 +683,13 @@ export type Database = {
         }
         Update: {
           airline?: string | null
+          airline_code?: string | null
+          arrival_airport_code?: string | null
           arrival_at?: string | null
           arrival_name?: string
           arrival_timezone?: string | null
           created_at?: string
+          departure_airport_code?: string | null
           departure_at?: string
           departure_name?: string
           departure_timezone?: string | null

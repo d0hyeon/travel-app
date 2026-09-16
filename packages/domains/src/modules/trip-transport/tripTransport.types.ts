@@ -17,6 +17,8 @@ type TripTransportBase = {
 
   departureName: string
   arrivalName: string
+  departureAirportCode?: string
+  arrivalAirportCode?: string
   departureAt: string
   arrivalAt?: string
   departureTimezone?: string
@@ -33,6 +35,7 @@ export type TripTransportCarrier =
   | {
       type: Extract<TripTransportType, 'flight'>
       airline?: string
+      airlineCode?: string
       flightNumber?: string
     }
   | {
