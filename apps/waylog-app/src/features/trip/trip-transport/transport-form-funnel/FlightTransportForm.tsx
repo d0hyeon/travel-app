@@ -4,7 +4,8 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import { Button, Divider, TextField, Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../../../shared/config/tokens'
 import { TransportScheduleFields } from './TransportScheduleFields'
-import { useFlightSearchOverlay } from './useFlightSearchOverlay'
+import { useAirlineSelectOverlay } from './useAirlineSelectOverlay'
+import { useAirportSelectOverlay } from './useAirportSelectOverlay'
 import type { TransportFormValues } from './transportFormFunnel.types'
 
 interface Props {
@@ -13,7 +14,8 @@ interface Props {
 }
 
 export function FlightTransportForm({ defaultValues, onNext }: Props) {
-  const flightSearch = useFlightSearchOverlay()
+  const airportSelect = useAirportSelectOverlay()
+  const airlineSelect = useAirlineSelectOverlay()
   const {
     control,
     handleSubmit,
@@ -26,68 +28,68 @@ export function FlightTransportForm({ defaultValues, onNext }: Props) {
     mode: 'onChange',
   })
 
-  // 조회 결과를 폼이 직접 받는다. 밖에서 defaultValues 로 밀어넣으면
-  // 이미 마운트된 입력의 표시값이 갱신되지 않는다.
   // shouldValidate 가 없으면 다 채워도 isValid 가 그대로라 버튼이 잠긴다.
-  const searchFlight = async () => {
-    const flight = await flightSearch.open()
-    if (flight == null) return
+  const selectDeparture = async () => {
+    const airport = await airportSelect.open('출발 공항 선택')
+    if (airport == null) return
 
-    setValue('departureName', flight.origin.name, { shouldValidate: true })
-    setValue('arrivalName', flight.destination.name, { shouldValidate: true })
-    setValue('departureAt', flight.scheduled_out, { shouldValidate: true })
-    setValue('arrivalAt', flight.scheduled_in, { shouldValidate: true })
-    // 항공편 조회는 IANA 타임존을 준다. 좌표에서 알아낼 필요가 없다.
-    setValue('departureTimezone', flight.origin.timezone, { shouldValidate: true })
-    setValue('arrivalTimezone', flight.destination.timezone, { shouldValidate: true })
-    setValue('airline', flight.operatorName, { shouldValidate: true })
-    setValue('flightNumber', flight.ident_iata, { shouldValidate: true })
+    setValue('departureName', airport.nameKo, { shouldValidate: true })
+    setValue('departureAirportCode', airport.code, { shouldValidate: true })
+    setValue('departureTimezone', airport.timezone, { shouldValidate: true })
   }
 
-  // 조회로 채웠으면 무엇을 골랐는지 검색 필드에 남긴다.
-  // 조회로 채웠으면 무엇을 골랐는지 검색 필드에 남긴다.
+  const selectArrival = async () => {
+    const airport = await airportSelect.open('도착 공항 선택')
+    if (airport == null) return
+
+    setValue('arrivalName', airport.nameKo, { shouldValidate: true })
+    setValue('arrivalAirportCode', airport.code, { shouldValidate: true })
+    setValue('arrivalTimezone', airport.timezone, { shouldValidate: true })
+  }
+
+  const selectAirline = async () => {
+    const airline = await airlineSelect.open()
+    if (airline == null) return
+
+    setValue('airline', airline.nameKo, { shouldValidate: true })
+    setValue('airlineCode', airline.code, { shouldValidate: true })
+  }
+
   const airline = useWatch({ control, name: 'airline' })
-  const flightNumber = useWatch({ control, name: 'flightNumber' })
-  const selectedFlightLabel = [airline, flightNumber].filter(Boolean).join(' ')
 
   return (
     <View style={styles.screen}>
       <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
-        <View style={styles.field}>
-          <Typography style={styles.label}>항공사 또는 편명 검색</Typography>
-          <Pressable onPress={searchFlight} style={styles.searchControl}>
-            <Typography
-              style={selectedFlightLabel === '' ? styles.placeholder : styles.searchValue}
-            >
-              {selectedFlightLabel === '' ? '예: KE721, 대한항공' : selectedFlightLabel}
-            </Typography>
-            <MaterialIcons name="search" size={18} color={palette.textSecondary} />
-          </Pressable>
-          <Typography style={styles.hint}>
-            조회 없이도 아래에서 직접 입력해 등록할 수 있어요
-          </Typography>
-        </View>
-
-        <Divider />
-
         <TransportScheduleFields
           control={control}
           departurePlaceholder="출발 공항"
           arrivalPlaceholder="도착 공항"
+          onDepartureClick={selectDeparture}
+          onArrivalClick={selectArrival}
         />
 
-        <Controller
-          control={control}
-          name="airline"
-          render={({ field }) => (
-            <TextField label="항공사" value={field.value} onChangeText={field.onChange} />
-          )}
-        />
+        <Divider />
+
+        <View style={styles.field}>
+          <Typography style={styles.label}>항공사</Typography>
+          <Pressable onPress={selectAirline} style={styles.selectControl}>
+            <Typography style={airline == null ? styles.placeholder : styles.selectValue}>
+              {airline ?? '목록에서 선택'}
+            </Typography>
+            <MaterialIcons name="search" size={18} color={palette.textSecondary} />
+          </Pressable>
+        </View>
+
         <Controller
           control={control}
           name="flightNumber"
           render={({ field }) => (
-            <TextField label="편명" value={field.value} onChangeText={field.onChange} />
+            <TextField
+              label="편번호"
+              placeholder="예: 721"
+              value={field.value}
+              onChangeText={field.onChange}
+            />
           )}
         />
       </ScrollView>
@@ -112,7 +114,7 @@ const styles = StyleSheet.create({
   body: { padding: 16, gap: 16 },
   field: { gap: 6 },
   label: { fontSize: 12.5, color: palette.textSecondary, fontWeight: '600' },
-  searchControl: {
+  selectControl: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -123,7 +125,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
   },
   placeholder: { fontSize: 15, color: palette.textSecondary },
-  searchValue: { fontSize: 15 },
-  hint: { fontSize: 11.5, color: palette.textSecondary },
+  selectValue: { fontSize: 15 },
   footer: { padding: 16, borderTopWidth: 1, borderTopColor: palette.divider, flexDirection: 'row' },
 })

@@ -25,12 +25,19 @@ export function TransportCreationScreen() {
     try {
       const carrier =
         values.type === 'flight'
-          ? { type: values.type, airline: values.airline, flightNumber: values.flightNumber }
+          ? {
+              type: values.type,
+              airline: values.airline,
+              airlineCode: values.airlineCode,
+              flightNumber: values.flightNumber,
+            }
           : { type: values.type, provider: values.provider, serviceNumber: values.serviceNumber }
 
       const created = await add({
         departureName: values.departureName,
         arrivalName: values.arrivalName,
+        departureAirportCode: values.departureAirportCode,
+        arrivalAirportCode: values.arrivalAirportCode,
         departureAt: values.departureAt,
         arrivalAt: values.arrivalAt,
         departureTimezone: values.departureTimezone,
