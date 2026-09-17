@@ -782,6 +782,16 @@ src/
   `KE721`·`ke 721`·`대한항공 721` 이 모두 들어와 매칭이 흔들린다.
 - 기차·버스는 출발·도착을 자유 입력으로 남긴다. `TransportScheduleFields`
   가 클릭 콜백을 받은 필드만 읽기 전용으로 바꾼다.
+- **실시간 운항 상태는 provider 로 가른다**(`flight-status`). 날씨의 축 분리를
+  승계해 공항 코드로 provider 를 고르고, provider 가 `getIsAvailability` 로
+  자기 기간 제약(인천 D+0~D+6)을 답한다. 김포·김해는 provider 를 더한다.
+- 인천공항 API 는 편명을 **제로패딩**(`KE011`)하고 일부에 **접미 문자**(`KE647Y`)를
+  붙이며, 코드셰어로 같은 편이 여러 행에 걸친다(Slave 가 절반이다).
+  문자열 비교로는 매칭되지 않아 편번호를 수로 비교한다.
+- 응답의 92% 는 `remark` 가 비어 온다 — 미래편은 상태가 없다.
+  시각은 `YYYYMMDDHHMM` 이고 타임존이 없어 KST 로 읽는다.
+- 코드 없이 등록된 교통편과 인천을 지나지 않는 노선은 섹션을 숨긴다.
+  빈 카드를 남기면 데이터를 기다리는 것처럼 보인다.
 - **티켓 뷰어**는 타이틀 없이 어두운 배경에 이미지만 둔다.
   탑승 시 밝기 조절 없이 바코드가 읽히는 것이 목적이다.
   상단은 좌측 닫기 · 우측 `PopMenu`(삭제)다.
@@ -1130,6 +1140,7 @@ ref 로 붙잡아야 끌던 도중 스냅이 바뀌어도 제스처가 갈아끼
 | 체크리스트           | `features/trip/trip-checklist/`                                   |
 | 공항 정적 데이터 | `packages/domains/src/modules/airport/` |
 | 항공사 정적 데이터 | `packages/domains/src/modules/airline/` |
+| 항공편 운항 상태 | `packages/domains/src/modules/flight-status/` |
 | 오버레이/모달        | `shared/hooks/useOverlay.tsx`                                     |
 | 웹 푸시              | `features/auth/useWebPushSubscription.ts`                         |
 
