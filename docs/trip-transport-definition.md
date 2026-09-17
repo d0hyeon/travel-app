@@ -253,9 +253,25 @@ trip_transports  ──▶  trip_transport_tickets
 | --- | --- | --- |
 | 1 | 스케줄 등록·표시, 티켓 저장·열람, 출발지 길찾기 | 없음 |
 | 2 | 시간 기반 Push | 스케줄러, 발송 이력 |
-| 3 | 항공편 조회 (입력 보조) | FlightAware AeroAPI |
-| 4 | Realtime Enrichment, 상태 변경 Push | Provider별 API/Webhook |
+| 3 | 공항·항공사 선택, 타임존 확정 | 없음 (정적 데이터) |
+| 4 | Realtime Enrichment, 상태 변경 Push | 공항별 공공 API |
 | 5 | OCR 입력 보조 | OCR |
+
+5단계는 **부분 구현됐다.** 티켓 업로드 시 터미널·게이트·좌석을 추출해
+티켓 행에 저장하고(`ticket-info` Edge Function), 세 값은 `EditableText`로
+직접 고칠 수 있다. 폼 prefill(이미지를 고른 직후 입력란을 미리 채우는 것)은
+아직이다 — `getTicketInfo`를 읽기 전용으로 분리해 자리는 열어 뒀다.
+
+추출한 터미널·게이트는 탑승권에 인쇄된 **예정** 값이며, 4단계의 실시간
+값과 섞지 않는다(원칙 6). 두 값을 한 카드에서 비교해 보여주는 것은
+범위 밖이다.
+
+3단계는 원래 "항공편 조회(입력 보조), FlightAware AeroAPI"였다. **폐기했다.**
+AeroAPI Personal 라이선스가 사업 목적 사용을 금지해 실제 진입 비용이
+Standard 월 $100이고, 조회가 주는 가치(이미 아는 편명의 오타 방지)가
+그에 미치지 못한다. 조회가 공짜로 주던 타임존과 편명 형식은 정적 데이터와
+항공사 선택으로 회수한다. 근거는
+[항공편 알림 설계](./superpowers/specs/2026-09-17-flight-alert-design.md)에 있다.
 
 ## 후속 단계 설계 방향
 
@@ -318,13 +334,18 @@ type TransportProviderCapabilities = {
 
 | 대상 | Provider |
 | --- | --- |
-| 국내 항공 | 국내 공항·공공 API |
-| 해외 항공 | FlightAware AeroAPI |
+| 인천 출발·도착 | 인천국제공항공사 공공 API |
+| 그 외 국내 공항 | 한국공항공사 공공 API |
 | 국내 기차·버스 | 국내 교통 공공 API, 사업자 API |
 | 해외 기차·버스 | Transitland (GTFS / GTFS-Realtime) |
 
-AeroAPI는 조회당 과금이며 무료 티어가 좁다. 입력 보조로 쓰더라도 캐싱과
-레이트리밋 정책이 함께 필요하다.
+항공은 공공 API만 쓴다. 해외 출발편도 인천 도착편으로 잡히므로 왕복 여행의
+양쪽이 모두 덮인다. 유료 상용 API(FlightAware AeroAPI, aviationstack)는
+기각했다 — 근거는
+[항공편 알림 설계](./superpowers/specs/2026-09-17-flight-alert-design.md)에 있다.
+
+공공 API는 웹훅이 없어 폴링만 가능하다. 변경 감지는 직전 상태와의 비교로
+직접 해야 한다.
 
 ### 상태 변경 Push
 
