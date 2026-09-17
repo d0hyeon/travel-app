@@ -241,9 +241,14 @@ export type UpdateTripTransportTicket = { id: string } & TicketInfo
 
 // 넘어온 키만 쓴다. 세 컬럼을 늘 쓰면 게이트만 고쳐도 좌석이 지워진다.
 export async function updateTripTransportTicket({ id, ...info }: UpdateTripTransportTicket) {
+  const payload: UpdateDataType<'trip_transport_tickets'> = {}
+  if ('seat' in info) payload.seat = info.seat ?? null
+  if ('terminal' in info) payload.terminal = info.terminal ?? null
+  if ('gate' in info) payload.gate = info.gate ?? null
+
   const { data: updated, error } = await supabase
     .from('trip_transport_tickets')
-    .update(Object.fromEntries(Object.entries(info).map(([column, value]) => [column, value ?? null])))
+    .update(payload)
     .eq('id', id)
     .select()
     .single()

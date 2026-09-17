@@ -613,23 +613,32 @@ export type Database = {
       trip_transport_tickets: {
         Row: {
           created_at: string
+          gate: string | null
           id: string
           image: string | null
           member_id: string | null
+          seat: string | null
+          terminal: string | null
           transport_id: string
         }
         Insert: {
           created_at?: string
+          gate?: string | null
           id?: string
           image?: string | null
           member_id?: string | null
+          seat?: string | null
+          terminal?: string | null
           transport_id: string
         }
         Update: {
           created_at?: string
+          gate?: string | null
           id?: string
           image?: string | null
           member_id?: string | null
+          seat?: string | null
+          terminal?: string | null
           transport_id?: string
         }
         Relationships: [
