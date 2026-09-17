@@ -1,15 +1,19 @@
 import { AsyncBoundary } from '@waylog/react'
-import { useTripTransportDetail } from '@waylog/domains/modules/trip-transport'
+import { useTripTransport, useTripTransportDetail } from '@waylog/domains/modules/trip-transport'
 import { StyleSheet, View } from 'react-native'
+import { EditableText } from '../../../../shared/components/EditableText'
 import { Skeleton, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../../shared/config/tokens'
 import { TransportDetailSectionError } from './TransportDetailSectionError'
 
-const INFORMATION_CARDS = [
-  ['터미널', '2'],
-  ['게이트', '23'],
-  ['좌석(나)', '32A'],
+const OPERATIONAL_FIELDS = [
+  { name: 'terminal', label: '터미널' },
+  { name: 'gate', label: '게이트' },
+  { name: 'seat', label: '좌석(나)' },
 ] as const
+
+const EMPTY_PLACEHOLDER = '—'
+
 interface Props {
   tripId: string
   transportId: string
@@ -30,13 +34,26 @@ export function TransportOperationalInfoSection({ tripId, transportId }: Props) 
 }
 
 function Resolved({ tripId, transportId }: Props) {
-  const { transport } = useTripTransportDetail({ tripId, transportId })
+  const { transport, primaryTicket } = useTripTransportDetail({ tripId, transportId })
+  const { updateTicket } = useTripTransport(tripId)
+
+  // 값이 없는 이유가 "탑승권이 없다"면 유도는 티켓 섹션이 한다.
+  // 두 섹션이 맞붙어 있어 여기서도 하면 같은 버튼이 둘 뜬다.
+  if (primaryTicket == null) return null
+
   return (
     <View style={styles.grid} accessibilityLabel={`${transport.type} 운행 정보`}>
-      {INFORMATION_CARDS.map(([label, value]) => (
-        <View key={label} style={styles.card}>
+      {OPERATIONAL_FIELDS.map(({ name, label }) => (
+        <View key={name} style={styles.card}>
           <Typography style={styles.label}>{label}</Typography>
-          <Typography style={styles.value}>{value}</Typography>
+          <EditableText
+            value={primaryTicket[name] ?? ''}
+            format={(value) => (value === '' ? EMPTY_PLACEHOLDER : value)}
+            onSubmit={async (value) => {
+              await updateTicket({ id: primaryTicket.id, [name]: value.trim() || undefined })
+            }}
+            style={styles.value}
+          />
         </View>
       ))}
     </View>
@@ -46,8 +63,8 @@ function Resolved({ tripId, transportId }: Props) {
 function TransportOperationalInfoSkeleton() {
   return (
     <View style={styles.grid}>
-      {INFORMATION_CARDS.map(([label]) => (
-        <View key={label} style={styles.card}>
+      {OPERATIONAL_FIELDS.map(({ name }) => (
+        <View key={name} style={styles.card}>
           <Skeleton width={36} height={14} />
           <Skeleton width={28} height={20} />
         </View>
