@@ -10,7 +10,7 @@ import {
   Typography,
 } from '@mui/material'
 import { useLoading } from '@waylog/react'
-import { useTripTransport, type TripTransportType } from '@waylog/domains/modules/trip-transport'
+import { getTicketInfo, useTripTransport, type TripTransportType } from '@waylog/domains/modules/trip-transport'
 import { Suspense, useState, type PropsWithChildren } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { uploadTransportTicketImage } from '~features/photo/photo.api'
@@ -35,7 +35,7 @@ const STEP_TITLE: Record<TransportFormStep, string> = {
 export default function TransportFormPage() {
   const { tripId = '' } = useParams()
   const navigate = useNavigate()
-  const { add, addTicket } = useTripTransport(tripId)
+  const { add, addTicket, updateTicket } = useTripTransport(tripId)
   const [isSubmitting, startSubmit] = useLoading()
   const [error, setError] = useState<unknown>(null)
 
@@ -81,7 +81,11 @@ export default function TransportFormPage() {
         await Promise.all(
           tickets.map(async ({ file, memberId }) => {
             const url = await uploadTransportTicketImage(created.id, file)
-            await addTicket({ transportId: created.id, memberId, image: url })
+            const ticket = await addTicket({ transportId: created.id, memberId, image: url })
+
+            // 추출 실패가 업로드 성공을 무르지 않는다.
+            const info = await getTicketInfo(url).catch(() => null)
+            if (info != null) await updateTicket({ id: ticket.id, ...info })
           }),
         )
 
