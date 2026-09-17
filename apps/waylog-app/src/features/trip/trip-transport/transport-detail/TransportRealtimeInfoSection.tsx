@@ -8,6 +8,8 @@ import { AsyncBoundary } from '@waylog/react'
 import { StyleSheet, View } from 'react-native'
 import { Skeleton, Typography } from '~/shared/components/design-system'
 import { TransportDetailSectionError } from './TransportDetailSectionError'
+import { assert } from '@waylog/utility'
+import { TransportType } from '@waylog/domains/modules/transport'
 
 interface Props {
   tripId: string
@@ -26,9 +28,6 @@ export function TransportRealtimeInfoSection({ tripId, transportId }: Props) {
     <AsyncBoundary
       resetKeys={[tripId, transportId]}
       pendingFallback={<TransportRealtimeInfoSkeleton />}
-      rejectedFallback={({ error, resetError }) => (
-        <TransportDetailSectionError message={error.message} onRetry={resetError} />
-      )}
     >
       <Resolved tripId={tripId} transportId={transportId} />
     </AsyncBoundary>
@@ -37,13 +36,16 @@ export function TransportRealtimeInfoSection({ tripId, transportId }: Props) {
 
 function Resolved({ tripId, transportId }: Props) {
   const { transport } = useTripTransportDetail({ tripId, transportId })
+  assert(transport.type === TransportType.항공, '항공 서비스만 지원됩니다.');
+
   const { status, provider, isSupported } = useFlightStatus({
-    airlineCode: transport.type === 'flight' ? transport.airlineCode : undefined,
-    flightNumber: transport.type === 'flight' ? transport.flightNumber : undefined,
+    airlineCode: transport.airlineCode,
+    flightNumber: transport.flightNumber,
     departureAirportCode: transport.departureAirportCode,
     arrivalAirportCode: transport.arrivalAirportCode,
     departureAt: transport.departureAt,
   })
+
 
   // 코드 없이 등록된 교통편과 인천을 지나지 않는 노선은 조회할 곳이 없다.
   // 빈 카드를 남기면 데이터를 기다리는 것처럼 보인다.

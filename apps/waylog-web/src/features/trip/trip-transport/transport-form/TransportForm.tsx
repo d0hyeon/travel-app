@@ -1,7 +1,8 @@
 import { Button, Divider, Stack, TextField, Typography } from '@mui/material'
 import { Controller, useForm } from 'react-hook-form'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
-import { TransportScheduleFields } from './TransportScheduleFields'
+import { GroundRouteFields } from './GroundRouteFields'
+import { TransportTimeFields } from './TransportTimeFields'
 import type { TransportFormValues } from './transportForm.types'
 
 interface Props {
@@ -24,11 +25,8 @@ export function TransportForm({ defaultValues, onNext }: Props) {
 
   return (
     <Stack component="form" onSubmit={handleSubmit(onNext)} p={2} gap={2}>
-      <TransportScheduleFields
-        control={control}
-        departurePlaceholder="출발지"
-        arrivalPlaceholder="도착지"
-      />
+      <GroundRouteFields control={control} />
+      <TransportTimeFields control={control} />
 
       <Divider />
 

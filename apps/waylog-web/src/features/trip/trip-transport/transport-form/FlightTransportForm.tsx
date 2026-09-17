@@ -1,10 +1,9 @@
-import SearchIcon from '@mui/icons-material/Search'
-import { Button, Divider, InputAdornment, Stack, TextField } from '@mui/material'
-import { Controller, useForm, useWatch } from 'react-hook-form'
+import { Button, Divider, Stack, TextField } from '@mui/material'
+import { Controller, useForm } from 'react-hook-form'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
-import { TransportScheduleFields } from './TransportScheduleFields'
-import { useAirlineSelectOverlay } from './useAirlineSelectOverlay'
-import { useAirportSelectOverlay } from './useAirportSelectOverlay'
+import { AirlineField } from './AirlineField'
+import { FlightRouteFields } from './FlightRouteFields'
+import { TransportTimeFields } from './TransportTimeFields'
 import type { TransportFormValues } from './transportForm.types'
 
 interface Props {
@@ -14,8 +13,6 @@ interface Props {
 
 export function FlightTransportForm({ defaultValues, onNext }: Props) {
   const isMobile = useIsMobile()
-  const airportSelect = useAirportSelectOverlay()
-  const airlineSelect = useAirlineSelectOverlay()
   const {
     control,
     handleSubmit,
@@ -28,66 +25,15 @@ export function FlightTransportForm({ defaultValues, onNext }: Props) {
     mode: 'onChange',
   })
 
-  // shouldValidate 가 없으면 다 채워도 isValid 가 그대로라 버튼이 잠긴다.
-  const selectDeparture = async () => {
-    const airport = await airportSelect.open('출발 공항 선택')
-    if (airport == null) return
-
-    setValue('departureName', airport.nameKo, { shouldValidate: true })
-    setValue('departureAirportCode', airport.code, { shouldValidate: true })
-    setValue('departureTimezone', airport.timezone, { shouldValidate: true })
-  }
-
-  const selectArrival = async () => {
-    const airport = await airportSelect.open('도착 공항 선택')
-    if (airport == null) return
-
-    setValue('arrivalName', airport.nameKo, { shouldValidate: true })
-    setValue('arrivalAirportCode', airport.code, { shouldValidate: true })
-    setValue('arrivalTimezone', airport.timezone, { shouldValidate: true })
-  }
-
-  const selectAirline = async () => {
-    const airline = await airlineSelect.open()
-    if (airline == null) return
-
-    setValue('airline', airline.nameKo, { shouldValidate: true })
-    setValue('airlineCode', airline.code, { shouldValidate: true })
-  }
-
-  const airline = useWatch({ control, name: 'airline' })
-
   return (
     <Stack component="form" onSubmit={handleSubmit(onNext)} p={2} gap={2}>
-      <TransportScheduleFields
-        control={control}
-        departurePlaceholder="출발 공항"
-        arrivalPlaceholder="도착 공항"
-        onDepartureClick={selectDeparture}
-        onArrivalClick={selectArrival}
-      />
+      <FlightRouteFields control={control} setValue={setValue} />
+      <TransportTimeFields control={control} />
 
       <Divider />
 
       <Stack direction={isMobile ? 'column' : 'row'} gap={2}>
-        <TextField
-          label="항공사"
-          placeholder="목록에서 선택"
-          value={airline ?? ''}
-          onClick={selectAirline}
-          fullWidth
-          slotProps={{
-            input: {
-              readOnly: true,
-              endAdornment: (
-                <InputAdornment position="end">
-                  <SearchIcon fontSize="small" color="disabled" />
-                </InputAdornment>
-              ),
-            },
-          }}
-          sx={{ '.MuiInputBase-root': { cursor: 'pointer' }, input: { cursor: 'pointer' } }}
-        />
+        <AirlineField control={control} setValue={setValue} />
         <Controller
           control={control}
           name="flightNumber"

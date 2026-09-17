@@ -2,7 +2,8 @@ import { Controller, useForm } from 'react-hook-form'
 import { ScrollView, StyleSheet, View } from 'react-native'
 import { Button, Divider, TextField, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../../shared/config/tokens'
-import { TransportScheduleFields } from './TransportScheduleFields'
+import { GroundRouteFields } from './GroundRouteFields'
+import { TransportTimeFields } from './TransportTimeFields'
 import type { TransportFormValues } from './transportFormFunnel.types'
 
 interface Props {
@@ -25,11 +26,8 @@ export function TransportForm({ defaultValues, onNext }: Props) {
   return (
     <View style={styles.screen}>
       <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
-        <TransportScheduleFields
-          control={control}
-          departurePlaceholder="출발지"
-          arrivalPlaceholder="도착지"
-        />
+        <GroundRouteFields control={control} />
+        <TransportTimeFields control={control} />
 
         <Divider />
 
