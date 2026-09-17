@@ -1,13 +1,16 @@
 import { Skeleton, Stack, Typography } from '@mui/material'
-import { useTripTransportDetail } from '@waylog/domains/modules/trip-transport'
+import { useTripTransport, useTripTransportDetail } from '@waylog/domains/modules/trip-transport'
 import { AsyncBoundary } from '@waylog/react'
+import { EditableText } from '../../../../shared/components/EditableText'
 import { TransportDetailSectionError } from './TransportDetailSectionError'
 
-const INFORMATION_CARDS = [
-  ['터미널', '2'],
-  ['게이트', '23'],
-  ['좌석(나)', '32A'],
+const OPERATIONAL_FIELDS = [
+  { name: 'terminal', label: '터미널' },
+  { name: 'gate', label: '게이트' },
+  { name: 'seat', label: '좌석(나)' },
 ] as const
+
+const EMPTY_PLACEHOLDER = '—'
 
 interface Props {
   tripId: string
@@ -29,13 +32,18 @@ export function TransportOperationalInfoSection({ tripId, transportId }: Props) 
 }
 
 function Resolved({ tripId, transportId }: Props) {
-  const { transport } = useTripTransportDetail({ tripId, transportId })
+  const { transport, primaryTicket } = useTripTransportDetail({ tripId, transportId })
+  const { updateTicket } = useTripTransport(tripId)
+
+  // 값이 없는 이유가 "탑승권이 없다"면 유도는 티켓 섹션이 한다.
+  // 두 섹션이 맞붙어 있어 여기서도 하면 같은 버튼이 둘 뜬다.
+  if (primaryTicket == null) return null
 
   return (
     <Stack direction="row" gap={1.25} my={1} aria-label={`${transport.type} 운행 정보`}>
-      {INFORMATION_CARDS.map(([label, value]) => (
+      {OPERATIONAL_FIELDS.map(({ name, label }) => (
         <Stack
-          key={label}
+          key={name}
           flex={1}
           alignItems="center"
           gap={0.75}
@@ -46,9 +54,15 @@ function Resolved({ tripId, transportId }: Props) {
           <Typography fontSize={12} color="text.secondary">
             {label}
           </Typography>
-          <Typography fontSize={16} fontWeight={700}>
-            {value}
-          </Typography>
+          <EditableText
+            value={primaryTicket[name] ?? ''}
+            format={(value) => (value === '' ? EMPTY_PLACEHOLDER : value)}
+            onSubmit={(value) => {
+              void updateTicket({ id: primaryTicket.id, [name]: value.trim() || undefined })
+            }}
+            fontSize={16}
+            fontWeight={700}
+          />
         </Stack>
       ))}
     </Stack>
@@ -58,9 +72,9 @@ function Resolved({ tripId, transportId }: Props) {
 function TransportOperationalInfoSkeleton() {
   return (
     <Stack direction="row" gap={1.25} my={1}>
-      {INFORMATION_CARDS.map(([label]) => (
+      {OPERATIONAL_FIELDS.map(({ name }) => (
         <Stack
-          key={label}
+          key={name}
           flex={1}
           alignItems="center"
           gap={0.75}
