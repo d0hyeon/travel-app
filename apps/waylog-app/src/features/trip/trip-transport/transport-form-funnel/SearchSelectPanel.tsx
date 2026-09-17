@@ -28,48 +28,56 @@ export function SearchSelectPanel<T>({
   const [keyword, setKeyword] = useState('')
   const results = useMemo(() => search(keyword), [keyword, search])
 
+  // 목록만 스크롤한다. 제목과 입력이 같이 밀려 올라가면 무엇을 고르는
+  // 중이었는지 잃고, 좁히려 해도 입력까지 되돌아가야 한다.
   return (
-    <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
-      <View style={styles.header}>
-        <Typography style={styles.title}>{title}</Typography>
-        <IconButton onPress={onClose}>
-          <MaterialIcons name="close" size={20} color={palette.text} />
-        </IconButton>
+    <View style={styles.screen}>
+      <View style={styles.head}>
+        <View style={styles.header}>
+          <Typography style={styles.title}>{title}</Typography>
+          <IconButton onPress={onClose}>
+            <MaterialIcons name="close" size={20} color={palette.text} />
+          </IconButton>
+        </View>
+
+        <TextField
+          placeholder={placeholder}
+          value={keyword}
+          onChangeText={setKeyword}
+          autoFocus
+        />
       </View>
 
-      <TextField
-        placeholder={placeholder}
-        value={keyword}
-        onChangeText={setKeyword}
-        autoFocus
-      />
+      <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
+        {results.length > 0 && (
+          <View style={styles.results}>
+            {results.map((item, index) => (
+              <Pressable
+                key={getKey(item)}
+                style={[styles.resultRow, index > 0 && styles.resultRowDivided]}
+                onPress={() => onSelect(item)}
+              >
+                {renderItem(item)}
+              </Pressable>
+            ))}
+          </View>
+        )}
 
-      {results.length > 0 && (
-        <View style={styles.results}>
-          {results.map((item, index) => (
-            <Pressable
-              key={getKey(item)}
-              style={[styles.resultRow, index > 0 && styles.resultRowDivided]}
-              onPress={() => onSelect(item)}
-            >
-              {renderItem(item)}
-            </Pressable>
-          ))}
-        </View>
-      )}
-
-      {results.length === 0 && (
-        <View style={styles.empty}>
-          <MaterialIcons name="search-off" size={28} color={palette.textSecondary} />
-          <Typography style={styles.emptyText}>검색 결과가 없어요.</Typography>
-        </View>
-      )}
-    </ScrollView>
+        {results.length === 0 && (
+          <View style={styles.empty}>
+            <MaterialIcons name="search-off" size={28} color={palette.textSecondary} />
+            <Typography style={styles.emptyText}>검색 결과가 없어요.</Typography>
+          </View>
+        )}
+      </ScrollView>
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
-  body: { padding: 16, gap: 16 },
+  screen: { flex: 1 },
+  head: { padding: 16, gap: 16 },
+  body: { paddingHorizontal: 16, paddingBottom: 16, gap: 16 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   title: { fontSize: 17, fontWeight: '700' },
   results: {
