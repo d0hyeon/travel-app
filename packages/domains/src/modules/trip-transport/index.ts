@@ -1,3 +1,4 @@
+export * from './ticketInfo.api'
 export * from './ticketInfo.utils'
 export * from './tripTransport.api'
 export * from './tripTransport.types'
