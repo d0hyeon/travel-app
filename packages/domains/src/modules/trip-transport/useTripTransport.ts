@@ -8,9 +8,11 @@ import {
   removeTripTransport,
   removeTripTransportTicket,
   updateTripTransport,
+  updateTripTransportTicket,
   type CreateTripTransport,
   type CreateTripTransportTicket,
   type UpdateTripTransport,
+  type UpdateTripTransportTicket,
 } from './tripTransport.api'
 
 export function useTripTransport(tripId: string) {
@@ -38,12 +40,17 @@ export function useTripTransport(tripId: string) {
     onSuccess: () => refetch(),
   })
 
+  const { mutateAsync: updateTicket } = useMutation({
+    mutationFn: (params: UpdateTripTransportTicket) => updateTripTransportTicket(params),
+    onSuccess: () => refetch(),
+  })
+
   const { mutateAsync: removeTicket } = useMutation({
     mutationFn: (id: string) => removeTripTransportTicket(id),
     onSuccess: () => refetch(),
   })
 
-  return { data, refetch, add, update, remove, addTicket, removeTicket, ...queries }
+  return { data, refetch, add, update, remove, addTicket, updateTicket, removeTicket, ...queries }
 }
 
 useTripTransport.key = (tripId: string) => {

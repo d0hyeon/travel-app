@@ -8,6 +8,9 @@ export interface TripTransportTicket {
   transportId: string
   memberId?: string
   image: string
+  seat?: string
+  terminal?: string
+  gate?: string
   createdAt: string
 }
 

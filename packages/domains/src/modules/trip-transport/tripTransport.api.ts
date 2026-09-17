@@ -2,6 +2,7 @@ import { assert } from '@waylog/utility'
 import { supabase } from '../../gateways/client'
 import type { UpdateDataType } from '../../gateways/client'
 import { TransportType } from '../transport'
+import type { TicketInfo } from './ticketInfo.utils'
 import type {
   TripTransport,
   TripTransportCarrier,
@@ -13,6 +14,9 @@ type RawTicket = {
   transport_id: string
   member_id: string | null
   image: string | null
+  seat: string | null
+  terminal: string | null
+  gate: string | null
   created_at: string
 }
 
@@ -43,7 +47,7 @@ const TRIP_TRANSPORT_SELECT = `
   departure_airport_code, arrival_airport_code,
   departure_at, arrival_at, departure_timezone, arrival_timezone,
   airline, airline_code, flight_number, provider, service_number, created_at,
-  trip_transport_tickets(id, transport_id, member_id, image, created_at)
+  trip_transport_tickets(id, transport_id, member_id, image, seat, terminal, gate, created_at)
 ` as const
 
 // 이미지 없는 행은 열어볼 것이 없어 티켓으로 쓸 수 없다. 조회에서 걸러낸다.
@@ -56,6 +60,9 @@ function toTicket(row: RawTicket): TripTransportTicket[] {
       transportId: row.transport_id,
       memberId: row.member_id ?? undefined,
       image: row.image,
+      seat: row.seat ?? undefined,
+      terminal: row.terminal ?? undefined,
+      gate: row.gate ?? undefined,
       createdAt: row.created_at,
     },
   ]
@@ -227,6 +234,24 @@ export async function createTripTransportTicket(data: CreateTripTransportTicket)
 
   const [ticket] = toTicket(created!)
   assert(ticket != null, '티켓을 생성하지 못했습니다.')
+  return ticket
+}
+
+export type UpdateTripTransportTicket = { id: string } & TicketInfo
+
+// 넘어온 키만 쓴다. 세 컬럼을 늘 쓰면 게이트만 고쳐도 좌석이 지워진다.
+export async function updateTripTransportTicket({ id, ...info }: UpdateTripTransportTicket) {
+  const { data: updated, error } = await supabase
+    .from('trip_transport_tickets')
+    .update(Object.fromEntries(Object.entries(info).map(([column, value]) => [column, value ?? null])))
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) throw error
+
+  const [ticket] = toTicket(updated!)
+  assert(ticket != null, '티켓을 수정하지 못했습니다.')
   return ticket
 }
 
