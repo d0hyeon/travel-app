@@ -1,7 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { extractTicketInfo } from './extract.ts'
 
-const GOOGLE_VISION_API_KEY = Deno.env.get('GOOGLE_VISION_API_KEY')
+const GOOGLE_API_KEY = Deno.env.get('GOOGLE_PLACES_API_KEY')
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,7 +18,7 @@ function json(body: unknown, status = 200) {
 
 async function detectText(image: string): Promise<string> {
   const res = await fetch(
-    `https://vision.googleapis.com/v1/images:annotate?key=${GOOGLE_VISION_API_KEY}`,
+    `https://vision.googleapis.com/v1/images:annotate?key=${GOOGLE_API_KEY}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

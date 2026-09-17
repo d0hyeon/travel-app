@@ -24,7 +24,7 @@
 - 추출 실패는 `undefined`로 둔다. 확신 없는 값을 넣지 않는다.
 - 커밋 단위: 목적이 다르면 나눈다. 테스트는 그 동작을 구현한 커밋에 포함한다.
 - 커밋 메시지는 한글 한 문장, 스코프 활용. 예: `feat(trip-transport): ...`
-- Edge Function 환경변수는 `GOOGLE_VISION_API_KEY`를 쓴다.
+- Edge Function 환경변수는 `GOOGLE_PLACES_API_KEY`를 쓴다.
   기존 `GOOGLE_PLACES_API_KEY`·`GOOGLE_DIRECTIONS_API_KEY`와 같은 관례다.
 
 ## 의사결정 기록
@@ -459,7 +459,7 @@ git commit -m "feat(trip-transport): 티켓의 운항 정보를 읽고 수정한
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { extractTicketInfo } from './extract.ts'
 
-const GOOGLE_VISION_API_KEY = Deno.env.get('GOOGLE_VISION_API_KEY')
+const GOOGLE_API_KEY = Deno.env.get('GOOGLE_PLACES_API_KEY')
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -476,7 +476,7 @@ function json(body: unknown, status = 200) {
 
 async function detectText(image: string): Promise<string> {
   const res = await fetch(
-    `https://vision.googleapis.com/v1/images:annotate?key=${GOOGLE_VISION_API_KEY}`,
+    `https://vision.googleapis.com/v1/images:annotate?key=${GOOGLE_API_KEY}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -520,11 +520,9 @@ serve(async (req) => {
 
 Run: `npx supabase functions deploy ticket-info`
 
-`GOOGLE_VISION_API_KEY`를 설정한다. Google Cloud Console에서 기존
-`GOOGLE_PLACES_API_KEY`와 같은 프로젝트에 Vision API 를 활성화하고 키를 발급한다.
+키는 이미 등록된 `GOOGLE_PLACES_API_KEY` 를 그대로 쓴다. 새로 발급하지 않는다.
+GCP Console 에서 그 키의 프로젝트에 Cloud Vision API 를 활성화하면 된다.
 월 1000건 무료다.
-
-Run: `npx supabase secrets set GOOGLE_VISION_API_KEY=<키>`
 
 실제 탑승권 이미지 URL로 호출해 텍스트가 오는지 확인한다.
 값이 안 뽑히면 응답의 `fullTextAnnotation.text`를 로그로 찍어
