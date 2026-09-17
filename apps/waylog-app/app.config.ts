@@ -51,6 +51,9 @@ const config: ExpoConfig = {
     supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
     supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
     governmentApiServiceKey: process.env.EXPO_PUBLIC_DATA_GO_SERVICE_KEY,
+    // Expo 가 앱을 식별하는 값이다. 없으면 getExpoPushTokenAsync 가
+    // 토큰을 만들지 못해 푸시 구독이 통째로 꺼진다(`eas init` 로 얻는다).
+    eas: { projectId: process.env.EXPO_PUBLIC_EAS_PROJECT_ID },
   },
 };
 
