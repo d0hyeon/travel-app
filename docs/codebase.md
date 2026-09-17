@@ -760,6 +760,26 @@ src/
   (`is_public`·place 연결·커뮤니티 노출을 물고 있다).
   웹·앱의 `uploadTransportTicketImage`가 기존 스토리지 경로만 타고,
   저장 경로는 `trip-transport-tickets/{transportId}/{uuid}`다.
+- **터미널·게이트·좌석은 티켓 행의 컬럼**(`terminal`·`gate`·`seat`)이다.
+  탑승권에 인쇄된 값이라 근거인 이미지와 같은 행에 둔다. 교통편에 두면
+  일행이 한 값을 공유해 서로 덮어쓴다.
+  **`flight-status`가 주는 터미널·게이트와 다른 것이다** — 탑승권은 발권
+  시점의 예정, API 는 지금 이 순간이다. 두 값을 섞지 않으며 API 응답으로
+  이 컬럼을 덮지 않는다.
+- 세 값은 `getTicketInfo`(`ticket-info` Edge Function)가 OCR 로 뽑는다.
+  **업로드 시 1회**만 부르고 저장은 `updateTripTransportTicket`이 맡는다 —
+  추출이 티켓 행을 갱신하면 행이 생기기 전에는 쓸 수 없어, 폼 prefill 자리를
+  남기려 읽기와 쓰기를 갈랐다.
+  조회 시 추출은 실패를 기록할 곳이 없어 못 읽는 티켓에 대해 무한 반복한다.
+- 추출 규칙은 `ticketInfo.utils.ts`의 순수 함수이고 테스트가 여기 붙는다.
+  `functions/ticket-info/extract.ts`는 그 **사본**이다 (Deno 가 워크스페이스
+  패키지를 import 하지 못한다). `flight-status-watch/incheonFlights.ts`와 같은 구조다.
+- **같은 라벨이 여러 번 나오면 값을 비운다.** 틀린 게이트를 보여주는 것이
+  빈 카드보다 나쁘다. 추출 실패는 업로드·등록에 영향을 주지 않는다.
+- `updateTripTransportTicket`은 **넘어온 키만 쓴다**. 세 컬럼을 늘 쓰면
+  게이트만 고쳐도 좌석이 지워진다.
+- `_database.types.ts`는 손으로 관리된다. 마이그레이션을 더하면 Row/Insert/
+  Update 세 곳에 컬럼을 같이 넣어야 앱 타입 검사가 통과한다.
 - 시각은 UTC로 저장하고 표기만 각 지점 타임존으로 포맷한다.
   타임존 컬럼은 있지만 **1차에서는 채우지 않으며**, 없으면 기기 로컬로 폴백한다.
 
@@ -790,8 +810,16 @@ src/
   문자열 비교로는 매칭되지 않아 편번호를 수로 비교한다.
 - 응답의 92% 는 `remark` 가 비어 온다 — 미래편은 상태가 없다.
   시각은 `YYYYMMDDHHMM` 이고 타임존이 없어 KST 로 읽는다.
-- 코드 없이 등록된 교통편과 인천을 지나지 않는 노선은 섹션을 숨긴다.
+- 코드 없이 등록된 교통편과 인천을 지나지 않는 노선은
+  `TransportRealtimeInfoSection`을 숨긴다.
   빈 카드를 남기면 데이터를 기다리는 것처럼 보인다.
+- `TransportOperationalInfoSection`은 **다른 규칙으로 숨는다** — 값이 탑승권에서
+  오므로 공항·노선과 무관하고, 내 티켓이 없을 때만 숨는다. 탑승권 추가 유도는
+  하지 않는다. 바로 아래 `TransportTicketsSection`이 이미 하고 있어 같은 버튼이
+  둘 뜬다. 티켓은 있고 추출만 실패한 경우는 빈 카드를 보여준다 — 눌러서
+  직접 채울 수 있어야 한다.
+- 세 값은 `EditableText`로 직접 고친다. 추출은 입력 보조이며, OCR 이 틀린
+  값을 넣었을 때 고칠 길이 없으면 유일 입력이 되어 원칙과 어긋난다.
 - **지연·결항 알림은 서버가 폴링한다**. `pg_cron`(5분) → `pg_net` →
   `flight-status-watch` Edge Function. 기기 백그라운드는 iOS 에서 앱을
   종료하면 멈추고, 교통편은 출발 직전에만 중요해져 OS 가 가장 홀대하는
