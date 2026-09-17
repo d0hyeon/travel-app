@@ -57,6 +57,8 @@ function toDurationText(minutes: number) {
   return rest === 0 ? `${hours}시간` : `${hours}시간 ${rest}분`
 }
 
+export function toFlightStatusView(status: FlightStatus): FlightStatusView
+export function toFlightStatusView(status: FlightStatus | null): FlightStatusView | null
 export function toFlightStatusView(status: FlightStatus | null): FlightStatusView | null {
   if (status == null) return null
 
