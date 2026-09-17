@@ -1,10 +1,10 @@
-import { Dialog, DialogContent, Stack, Typography } from '@mui/material'
-import { searchAirlines, type Airline } from '@waylog/domains/modules/airline'
+import { Dialog, DialogContent } from '@mui/material'
+import type { Airline } from '@waylog/domains/modules/airline'
 import { useCallback } from 'react'
 import { FullScreenPopup } from '~shared/components/FullScreenPopup'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useOverlay } from '~shared/hooks/useOverlay'
-import { SearchSelectPanel } from './SearchSelectPanel'
+import { AirlineSearchPanel } from './AirlineSearchPanel'
 
 export function useAirlineSelectOverlay() {
   const overlay = useOverlay()
@@ -38,26 +38,7 @@ interface OverlayProps {
 
 function AirlineSelectOverlay({ isOpen, onClose, onSelect }: OverlayProps) {
   const isMobile = useIsMobile()
-  const panel = (
-    <SearchSelectPanel
-      title="항공사 선택"
-      placeholder="예: 대한항공, KE"
-      search={searchAirlines}
-      getKey={(airline) => airline.code}
-      renderItem={(airline) => (
-        <Stack>
-          <Typography variant="body2" fontWeight={700}>
-            {airline.nameKo}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            {airline.code}
-          </Typography>
-        </Stack>
-      )}
-      onSelect={onSelect}
-      onClose={onClose}
-    />
-  )
+  const panel = <AirlineSearchPanel onSelect={onSelect} onClose={onClose} />
 
   if (isMobile) {
     return (

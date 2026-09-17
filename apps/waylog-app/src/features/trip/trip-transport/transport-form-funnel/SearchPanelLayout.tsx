@@ -1,33 +1,32 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { useMemo, useState, type ReactNode } from 'react'
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native'
+import type { ReactNode } from 'react'
+import { ScrollView, StyleSheet, View } from 'react-native'
 import { IconButton, TextField, Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../../../shared/config/tokens'
 
-interface Props<T> {
+interface Props {
   title: string
   placeholder: string
-  search: (keyword: string) => T[]
-  getKey: (item: T) => string
-  renderItem: (item: T) => ReactNode
-  onSelect: (item: T) => void
+  keyword: string
+  onKeywordChange: (next: string) => void
+  isEmpty: boolean
+  children: ReactNode
   onClose: () => void
 }
 
 // 인라인 결과가 아니라 전체 화면이다. 입력과 동시에 목록이 펼쳐지면
 // 아래 필드들이 밀려 내려간다.
-export function SearchSelectPanel<T>({
+//
+// 무엇을 찾는지는 모른다 -- 껍데기만 든다. 대상을 아는 것은 각 패널이다.
+export function SearchPanelLayout({
   title,
   placeholder,
-  search,
-  getKey,
-  renderItem,
-  onSelect,
+  keyword,
+  onKeywordChange,
+  isEmpty,
+  children,
   onClose,
-}: Props<T>) {
-  const [keyword, setKeyword] = useState('')
-  const results = useMemo(() => search(keyword), [keyword, search])
-
+}: Props) {
   // 목록만 스크롤한다. 제목과 입력이 같이 밀려 올라가면 무엇을 고르는
   // 중이었는지 잃고, 좁히려 해도 입력까지 되돌아가야 한다.
   return (
@@ -43,27 +42,15 @@ export function SearchSelectPanel<T>({
         <TextField
           placeholder={placeholder}
           value={keyword}
-          onChangeText={setKeyword}
+          onChangeText={onKeywordChange}
           autoFocus
         />
       </View>
 
       <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
-        {results.length > 0 && (
-          <View style={styles.results}>
-            {results.map((item, index) => (
-              <Pressable
-                key={getKey(item)}
-                style={[styles.resultRow, index > 0 && styles.resultRowDivided]}
-                onPress={() => onSelect(item)}
-              >
-                {renderItem(item)}
-              </Pressable>
-            ))}
-          </View>
-        )}
+        {!isEmpty && <View style={styles.results}>{children}</View>}
 
-        {results.length === 0 && (
+        {isEmpty && (
           <View style={styles.empty}>
             <MaterialIcons name="search-off" size={28} color={palette.textSecondary} />
             <Typography style={styles.emptyText}>검색 결과가 없어요.</Typography>
@@ -86,8 +73,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     overflow: 'hidden',
   },
-  resultRow: { padding: 14 },
-  resultRowDivided: { borderTopWidth: 1, borderTopColor: palette.divider },
   empty: { alignItems: 'center', gap: 8, paddingVertical: 32 },
   emptyText: { fontSize: 12.5, color: palette.textSecondary },
 })
