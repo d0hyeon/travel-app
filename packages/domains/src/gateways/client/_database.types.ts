@@ -610,6 +610,44 @@ export type Database = {
           },
         ]
       }
+      trip_transport_flight_status: {
+        Row: {
+          checked_at: string
+          estimated_at: string | null
+          kind: string
+          last_notified_estimated_at: string | null
+          last_notified_kind: string | null
+          scheduled_at: string | null
+          transport_id: string
+        }
+        Insert: {
+          checked_at?: string
+          estimated_at?: string | null
+          kind: string
+          last_notified_estimated_at?: string | null
+          last_notified_kind?: string | null
+          scheduled_at?: string | null
+          transport_id: string
+        }
+        Update: {
+          checked_at?: string
+          estimated_at?: string | null
+          kind?: string
+          last_notified_estimated_at?: string | null
+          last_notified_kind?: string | null
+          scheduled_at?: string | null
+          transport_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_transport_flight_status_transport_id_fkey"
+            columns: ["transport_id"]
+            isOneToOne: true
+            referencedRelation: "trip_transports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trip_transport_tickets: {
         Row: {
           created_at: string
