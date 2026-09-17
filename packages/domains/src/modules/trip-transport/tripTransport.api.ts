@@ -2,7 +2,6 @@ import { assert } from '@waylog/utility'
 import { supabase } from '../../gateways/client'
 import type { UpdateDataType } from '../../gateways/client'
 import { TransportType } from '../transport'
-import type { TicketInfo } from './ticketInfo.utils'
 import type {
   TripTransport,
   TripTransportCarrier,
@@ -237,7 +236,11 @@ export async function createTripTransportTicket(data: CreateTripTransportTicket)
   return ticket
 }
 
-export type UpdateTripTransportTicket = { id: string } & TicketInfo
+// 추출 대상(TicketInfo)보다 넓다. OCR 은 좌석만 읽지만 터미널·게이트는
+// 사용자가 직접 넣는다 -- 탑승권마다 표기가 달라 추출을 신뢰할 수 없다.
+export type UpdateTripTransportTicket = { id: string } & Partial<
+  Pick<TripTransportTicket, 'seat' | 'terminal' | 'gate'>
+>
 
 // 넘어온 키만 쓴다. 세 컬럼을 늘 쓰면 게이트만 고쳐도 좌석이 지워진다.
 export async function updateTripTransportTicket({ id, ...info }: UpdateTripTransportTicket) {

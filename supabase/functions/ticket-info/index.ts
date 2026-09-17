@@ -1,7 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { extractTicketInfo } from './extract.ts'
 
-const GOOGLE_API_KEY = Deno.env.get('GOOGLE_PLACES_API_KEY')
+const GOOGLE_VISION_API_KEY = Deno.env.get('GOOGLE_VISION_API_KEY')
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,7 +18,7 @@ function json(body: unknown, status = 200) {
 
 async function detectText(image: string): Promise<string> {
   const res = await fetch(
-    `https://vision.googleapis.com/v1/images:annotate?key=${GOOGLE_API_KEY}`,
+    `https://vision.googleapis.com/v1/images:annotate?key=${GOOGLE_VISION_API_KEY}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -33,7 +33,9 @@ async function detectText(image: string): Promise<string> {
     },
   )
 
-  if (!res.ok) throw new Error(`Vision ${res.status}`)
+  // 403 은 API 미활성화·키 제한·결제 미설정이 모두 같은 코드로 와서
+  // 상태 코드만으로는 어느 것인지 알 수 없다. Google 이 준 사유를 남긴다.
+  if (!res.ok) throw new Error(`Vision ${res.status}: ${await res.text()}`)
 
   const data = await res.json()
   const [result] = data.responses ?? []

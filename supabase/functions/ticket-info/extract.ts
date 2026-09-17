@@ -3,31 +3,26 @@
 
 export interface TicketInfo {
   seat?: string
-  terminal?: string
-  gate?: string
 }
 
-const TICKET_INFO_PATTERN = {
-  seat: /(?:SEAT|좌석)\s*[:\s]\s*([0-9]{1,3}[A-K])\b/gi,
-  terminal: /(?:TERMINAL|터미널)\s*[:\s]?\s*T?([0-9])\b|제\s*([0-9])\s*여객터미널/gi,
-  gate: /(?:GATE|탑승구|게이트)\s*[:\s]?\s*([0-9]{1,3}[A-Z]?)\b/gi,
-} as const
+// 라벨에 의존하지 않는다. 실제 탑승권 7종의 OCR 결과를 보면 라벨과 값이
+// 붙어 있지 않다 -- ANA 는 "FLIGHT GATE BOARDING SEAT" 뒤에 값이 몰려 나오고,
+// 베트남항공은 라벨이 "CỦA IGATE" 로 깨진다.
+// 좌석은 형식 자체가 고유해서(1~3자리 + A~K) 라벨 없이 식별된다.
+const SEAT_PATTERN = /\b(\d{1,3}[A-K])\b/g
 
-// 틀린 게이트를 보여주는 것은 빈 카드보다 나쁘다.
-// 라벨이 여러 번 나오면 어느 것이 내 것인지 정할 수 없어 비운다.
-function findUniqueMatch(text: string, pattern: RegExp): string | undefined {
-  const matches = [...text.matchAll(pattern)]
-  const isAmbiguous = matches.length !== 1
-  if (isAmbiguous) return undefined
+// 반쪽이 둘인 탑승권은 같은 좌석이 두 번 인쇄된다. 값이 같으면 그대로 쓰고,
+// 서로 다르면 어느 것이 내 것인지 정할 수 없어 비운다 --
+// 틀린 좌석을 보여주는 것은 빈 카드보다 나쁘다.
+function findConsistentMatch(text: string, pattern: RegExp): string | undefined {
+  const matched = [...text.matchAll(pattern)].map(([, captured]) => captured)
+  const distinct = [...new Set(matched)]
 
-  const [captured] = matches[0].slice(1).filter((group) => group != null)
-  return captured
+  return distinct.length === 1 ? distinct[0] : undefined
 }
 
 export function extractTicketInfo(text: string): TicketInfo {
   return {
-    seat: findUniqueMatch(text, TICKET_INFO_PATTERN.seat),
-    terminal: findUniqueMatch(text, TICKET_INFO_PATTERN.terminal),
-    gate: findUniqueMatch(text, TICKET_INFO_PATTERN.gate),
+    seat: findConsistentMatch(text, SEAT_PATTERN),
   }
 }
