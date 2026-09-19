@@ -1,6 +1,6 @@
 export * from './flightStatus.types'
 export * from './incheonFlightStatus.api'
 export * from './incheonFlightStatus.utils'
-export * from './useFlightStatus'
+export * from './useFlightStatuses'
 export * from './flightStatusView.utils'
 export * from './flightStatusNotify.utils'

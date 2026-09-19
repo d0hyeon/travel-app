@@ -3,10 +3,12 @@ import type { AirportCode } from '../airport'
 import {
   FlightStatusKind,
   type FlightStatus,
+  type FlightSchedules,
   type FlightStatusProvider,
   type GetFlightStatusParams,
 } from './flightStatus.types'
 import {
+  getIsSameKstDate,
   isSameFlight,
   toFlightStatusKind,
   toIsoFromApiDateTime,
@@ -81,30 +83,35 @@ function getIsAvailability(departureAt: string) {
   return departure >= today && departure < limit
 }
 
+// 출발·도착 목록을 함께 받는다. 어느 방향을 쓸지는 편마다 다르고,
+// 목록 자체는 편과 무관해 한 번 받아 모두가 나눠 쓴다.
+export async function getIncheonFlightSchedules(): Promise<FlightSchedules> {
+  const [departures, arrivals] = await Promise.all([
+    getFlights('departure'),
+    getFlights('arrival'),
+  ])
+
+  return { departures, arrivals }
+}
+
 // 편명 하나가 코드셰어로 여러 행에 걸친다(Slave 가 전체의 절반이다).
 // 어느 행이든 운항 정보는 같으므로 먼저 맞는 것을 쓴다.
-export async function getIncheonFlightStatus({
-  airlineCode,
-  flightNumber,
-  departureAirportCode,
-  departureAt,
-}: GetFlightStatusParams): Promise<FlightStatus | null> {
+export function findIncheonFlightStatus(
+  schedules: FlightSchedules,
+  { airlineCode, flightNumber, departureAirportCode, departureAt }: GetFlightStatusParams,
+): FlightStatus | null {
   if (airlineCode === '' || flightNumber === '') return null
 
-  const direction = departureAirportCode === INCHEON_AIRPORT_CODE ? 'departure' : 'arrival'
-  const items = await getFlights(direction)
-
-  const departureDate = toIsoFromApiDateTime(
-    departureAt.replace(/\D/g, '').slice(0, 12),
-  )
-  const scheduledDay = (departureDate ?? departureAt).slice(0, 10)
+  const items = (
+    departureAirportCode === INCHEON_AIRPORT_CODE ? schedules.departures : schedules.arrivals
+  ) as readonly IncheonFlightItem[]
 
   const matched = items.filter((item) => isSameFlight(item.flightId, { airlineCode, flightNumber }))
   if (matched.length === 0) return null
 
   // 같은 편명이 여러 날에 걸쳐 온다. 등록한 날짜의 편을 고른다.
-  const sameDay = matched.find(
-    (item) => toIsoFromApiDateTime(item.scheduleDateTime)?.startsWith(scheduledDay) === true,
+  const sameDay = matched.find((item) =>
+    getIsSameKstDate(departureAt, toIsoFromApiDateTime(item.scheduleDateTime) ?? ''),
   )
 
   return toFlightStatus(sameDay ?? matched[0])
@@ -114,7 +121,8 @@ export const incheonFlightStatusProvider: FlightStatusProvider = {
   provider: '인천국제공항공사',
   supportedAirportCodes: [INCHEON_AIRPORT_CODE] as readonly AirportCode[],
   getIsAvailability,
-  getFlightStatus: getIncheonFlightStatus,
+  getFlightSchedules: getIncheonFlightSchedules,
+  findFlightStatus: findIncheonFlightStatus,
 }
 
 export { FlightStatusKind }
