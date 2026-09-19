@@ -30,9 +30,6 @@ type DatePickerBottomSheetProps = DatePickerBottomSheetValueProps &
     onClose?: () => void
   }
 
-// 시각 휠은 달력보다 자리를 덜 먹는다.
-const SNAP_POINTS = { date: [0.62], time: [0.45] } as const
-
 export function DatePickerBottomSheet(props: DatePickerBottomSheetProps) {
   const { isOpen, minDate, maxDate, onDismiss, onClose } = props
 
@@ -67,7 +64,6 @@ export function DatePickerBottomSheet(props: DatePickerBottomSheetProps) {
       isOpen={isOpen}
       onDismiss={onDismiss}
       onClose={onClose}
-      snapPoints={step === 'time' ? SNAP_POINTS.time : SNAP_POINTS.date}
       safeArea
     >
       <BottomSheet.Body>

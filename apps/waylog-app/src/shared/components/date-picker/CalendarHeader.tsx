@@ -4,6 +4,12 @@ import { format } from 'date-fns'
 import { Stack, IconButton, Typography } from '~/shared/components/design-system'
 import { palette } from '../../config/tokens'
 
+// 두 단계의 헤더는 같은 높이여야 단계를 옮길 때 시트가 밀리지 않는다.
+// medium IconButton(36) 이 줄 높이를 정하고 위아래 여백이 더해진다.
+const HEADER_VERTICAL_PADDING = 8
+const HEADER_ROW_HEIGHT = 36
+export const CALENDAR_HEADER_HEIGHT = HEADER_ROW_HEIGHT + HEADER_VERTICAL_PADDING * 2
+
 interface CalendarHeaderProps {
   cursor: Date
   onPreviousMonth: () => void
@@ -29,6 +35,7 @@ export function CalendarHeader({ cursor, onPreviousMonth, onNextMonth }: Calenda
 const styles = StyleSheet.create({
   stack: {
     paddingHorizontal: 8,
-    paddingVertical: 8,
+    paddingVertical: HEADER_VERTICAL_PADDING,
+    height: CALENDAR_HEADER_HEIGHT,
   },
 })

@@ -1,9 +1,9 @@
 import { setHours, setMinutes, startOfDay } from 'date-fns'
 import { useRef, useState } from 'react'
-import { Pressable, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 
-import { Calendar, type CalendarRef } from './Calendar'
-import { CalendarHeader } from './CalendarHeader'
+import { Calendar, CALENDAR_GRID_HEIGHT, type CalendarRef } from './Calendar'
+import { CalendarHeader, CALENDAR_HEADER_HEIGHT } from './CalendarHeader'
 import { TimeStepHeader } from './TimeStepHeader'
 import { TimeWheel } from './TimeWheel'
 import { clampToDateBounds, toggleRangeSelection } from './calendar.utils'
@@ -128,17 +128,23 @@ export function DatePicker(props: DatePickerProps) {
 
     return (
       <View>
-        {/* 단계를 밖이 쥐면 돌아가는 길도 밖에 있다. 여기서 또 내면 뒤로가기가 둘이 된다. */}
-        {!isStepControlled && (
+        {/* 단계를 밖이 쥐면 돌아가는 길도 밖에 있다. 여기서 또 내면 뒤로가기가 둘이 된다.
+            다만 자리는 비워둔다 — 헤더가 빠진 만큼 시트가 낮아지면 단계를 옮길 때 밀린다. */}
+        {isStepControlled ? (
+          <View style={styles.headerPlaceholder} />
+        ) : (
           <TimeStepHeader day={pickedTime} onBack={() => goToStep('date')} />
         )}
 
-        <TimeWheel
-          hours={pickedTime.getHours()}
-          minutes={pickedTime.getMinutes()}
-          minuteStep={minuteStep}
-          onChange={handleChangeTime}
-        />
+        {/* 달력 격자와 같은 높이를 차지해 단계를 옮겨도 시트가 그대로다. */}
+        <View style={styles.timeArea}>
+          <TimeWheel
+            hours={pickedTime.getHours()}
+            minutes={pickedTime.getMinutes()}
+            minuteStep={minuteStep}
+            onChange={handleChangeTime}
+          />
+        </View>
       </View>
     )
   }
@@ -162,3 +168,9 @@ export function DatePicker(props: DatePickerProps) {
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  // 휠은 제 높이만 쓰고 남는 자리는 위아래로 나눠 가진다.
+  timeArea: { height: CALENDAR_GRID_HEIGHT, justifyContent: 'center' },
+  headerPlaceholder: { height: CALENDAR_HEADER_HEIGHT },
+})

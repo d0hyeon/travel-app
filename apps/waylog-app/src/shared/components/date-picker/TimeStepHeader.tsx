@@ -3,6 +3,7 @@ import { format } from 'date-fns'
 import { Stack, IconButton, Typography } from '~/shared/components/design-system'
 import { palette } from '../../config/tokens'
 import { StyleSheet, Pressable } from 'react-native'
+import { CALENDAR_HEADER_HEIGHT } from './CalendarHeader'
 
 interface TimeStepHeaderProps {
   /** 시각을 얹는 날. 어느 날을 고치는 중인지 보여준다. */
@@ -25,7 +26,7 @@ export function TimeStepHeader({ day, onBack }: TimeStepHeaderProps) {
 const styles = StyleSheet.create({
   stack: {
     paddingHorizontal: 8,
-    paddingVertical: 8,
     gap: 8,
+    height: CALENDAR_HEADER_HEIGHT,
   },
 })
