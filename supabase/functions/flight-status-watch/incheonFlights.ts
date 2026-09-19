@@ -104,3 +104,27 @@ export async function getIncheonFlights(serviceKey: string) {
 
   return { departures, arrivals }
 }
+
+const KST_DATE_FORMAT = new Intl.DateTimeFormat('en-CA', {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  timeZone: 'Asia/Seoul',
+})
+
+function toKstDate(value: string) {
+  const time = new Date(value)
+  if (Number.isNaN(time.getTime())) return null
+
+  return KST_DATE_FORMAT.format(time)
+}
+
+// 원본: packages/domains/src/modules/flight-status/incheonFlightStatus.utils.ts
+// DB 는 timestamptz 를 UTC 로 주고 API 는 KST 를 준다. 문자열 앞자리로
+// 비교하면 KST 오전 출발편이 전날로 읽힌다.
+export function getIsSameKstDate(left: string, right: string) {
+  const leftDate = toKstDate(left)
+  if (leftDate == null) return false
+
+  return leftDate === toKstDate(right)
+}

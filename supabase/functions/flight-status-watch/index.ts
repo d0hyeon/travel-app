@@ -3,6 +3,7 @@ import webpush from 'npm:web-push'
 import { isExpoPushToken, sendExpoPush } from '../chat-web-push/expoPush.ts'
 import {
   getIncheonFlights,
+  getIsSameKstDate,
   isSameFlight,
   toFlightStatusKind,
   toIsoFromApiDateTime,
@@ -67,11 +68,14 @@ function findFlight(
 
   if (matched.length === 0) return null
 
-  // 같은 편명이 D+0~D+6 에 걸쳐 온다. 등록한 날짜의 편을 고른다.
-  const day = transport.departure_at.slice(0, 10)
-  const sameDay = matched.find(
-    (item) => toIsoFromApiDateTime(item.scheduleDateTime)?.startsWith(day) === true,
-  )
+  // 같은 편명이 D+0~D+6 에 걸쳐 온다. 등록한 날짜의 편을 고르되, 없으면
+  // 아무거나 집는다 -- 발송 경로를 확인하는 동안만 이렇게 둔다.
+  const sameDay = matched.find((item) => {
+    const scheduledAt = toIsoFromApiDateTime(item.scheduleDateTime)
+    if (scheduledAt == null) return false
+
+    return getIsSameKstDate(transport.departure_at, scheduledAt)
+  })
 
   return sameDay ?? matched[0]
 }

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  getIsSameKstDate,
   isSameFlight,
   toFlightStatusKind,
   toIsoFromApiDateTime,
@@ -89,5 +90,41 @@ describe('toIsoFromApiDateTime', () => {
     expect(toIsoFromApiDateTime('1355')).toBeUndefined()
     expect(toIsoFromApiDateTime('')).toBeUndefined()
     expect(toIsoFromApiDateTime(undefined)).toBeUndefined()
+  })
+})
+
+describe('getIsSameKstDate', () => {
+  it('같은 KST 날짜면 참이다', () => {
+    expect(
+      getIsSameKstDate('2026-09-20T08:00:00+09:00', '2026-09-20T21:30:00+09:00'),
+    ).toBe(true)
+  })
+
+  it('UTC 로 적힌 시각을 KST 로 옮겨 비교한다', () => {
+    expect(
+      getIsSameKstDate('2026-09-19T23:00:00+00:00', '2026-09-20T08:00:00+09:00'),
+    ).toBe(true)
+  })
+
+  it('KST 자정 직후와 직전은 다른 날이다', () => {
+    expect(
+      getIsSameKstDate('2026-09-20T00:05:00+09:00', '2026-09-19T23:55:00+09:00'),
+    ).toBe(false)
+  })
+
+  it('오프셋 표기가 서로 달라도 같은 순간이면 같은 날이다', () => {
+    expect(
+      getIsSameKstDate('2026-09-20T00:30:00+09:00', '2026-09-19T15:30:00Z'),
+    ).toBe(true)
+  })
+
+  it('날짜가 다르면 거짓이다', () => {
+    expect(
+      getIsSameKstDate('2026-09-20T08:00:00+09:00', '2026-09-21T08:00:00+09:00'),
+    ).toBe(false)
+  })
+
+  it('시각을 읽을 수 없으면 거짓이다', () => {
+    expect(getIsSameKstDate('언제인지 모름', '2026-09-20T08:00:00+09:00')).toBe(false)
   })
 })

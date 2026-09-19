@@ -45,3 +45,31 @@ export function toIsoFromApiDateTime(value: string | undefined): string | undefi
   const [, year, month, day, hour, minute] = matched
   return `${year}-${month}-${day}T${hour}:${minute}:00+09:00`
 }
+
+const KST_DATE_FORMAT = new Intl.DateTimeFormat('en-CA', {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  timeZone: 'Asia/Seoul',
+})
+
+function toKstDate(value: string) {
+  const time = new Date(value)
+  if (Number.isNaN(time.getTime())) return undefined
+
+  return KST_DATE_FORMAT.format(time)
+}
+
+/**
+ * 두 시각이 KST 기준 같은 날인지 답한다.
+ *
+ * 문자열 앞 10글자를 비교하면 오프셋이 다른 값끼리 어긋난다. DB 는
+ * timestamptz 를 UTC 로 주고 인천공항 API 는 KST 를 주므로, 같은 날
+ * 아침 출발편이 전날로 읽힌다.
+ */
+export function getIsSameKstDate(left: string, right: string) {
+  const leftDate = toKstDate(left)
+  if (leftDate == null) return false
+
+  return leftDate === toKstDate(right)
+}
