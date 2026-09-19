@@ -5,6 +5,7 @@ import { EditableText } from '../../../../shared/components/EditableText'
 import { Skeleton, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../../shared/config/tokens'
 import { TransportDetailSectionError } from './TransportDetailSectionError'
+import { MaterialIcons } from '@expo/vector-icons'
 
 const OPERATIONAL_FIELDS = [
   { name: 'terminal', label: '터미널' },
@@ -49,6 +50,7 @@ function Resolved({ tripId, transportId }: Props) {
           <EditableText
             value={primaryTicket[name] ?? ''}
             format={(value) => (value === '' ? EMPTY_PLACEHOLDER : value)}
+            endIcon={primaryTicket[name] == null ? undefined : <MaterialIcons name="edit" size={12} color={palette.grey} style={{ marginRight: -12 }} />}
             onSubmit={async (value) => {
               await updateTicket({ id: primaryTicket.id, [name]: value.trim() || undefined })
             }}
