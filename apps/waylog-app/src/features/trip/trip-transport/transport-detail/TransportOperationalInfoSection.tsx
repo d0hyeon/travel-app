@@ -1,4 +1,6 @@
 import { AsyncBoundary } from '@waylog/react'
+import { useFlightStatus } from '@waylog/domains/modules/flight-status'
+import { TransportType } from '@waylog/domains/modules/transport'
 import { useTripTransport, useTripTransportDetail } from '@waylog/domains/modules/trip-transport'
 import { StyleSheet, View } from 'react-native'
 import { EditableText } from '../../../../shared/components/EditableText'
@@ -38,26 +40,49 @@ function Resolved({ tripId, transportId }: Props) {
   const { transport, primaryTicket } = useTripTransportDetail({ tripId, transportId })
   const { updateTicket } = useTripTransport(tripId)
 
+  const { status } = useFlightStatus(
+    transport.type === TransportType.항공
+      ? {
+          airlineCode: transport.airlineCode,
+          flightNumber: transport.flightNumber,
+          departureAirportCode: transport.departureAirportCode,
+          arrivalAirportCode: transport.arrivalAirportCode,
+          departureAt: transport.departureAt,
+        }
+      : {},
+  )
+
   // 값이 없는 이유가 "탑승권이 없다"면 유도는 티켓 섹션이 한다.
   // 두 섹션이 맞붙어 있어 여기서도 하면 같은 버튼이 둘 뜬다.
   if (primaryTicket == null) return null
 
   return (
     <View style={styles.grid} accessibilityLabel={`${transport.type} 운행 정보`}>
-      {OPERATIONAL_FIELDS.map(({ name, label }) => (
-        <View key={name} style={styles.card}>
-          <Typography style={styles.label}>{label}</Typography>
-          <EditableText
-            value={primaryTicket[name] ?? ''}
-            format={(value) => (value === '' ? EMPTY_PLACEHOLDER : value)}
-            endIcon={primaryTicket[name] == null ? undefined : <MaterialIcons name="edit" size={12} color={palette.grey} style={{ marginRight: -12 }} />}
-            onSubmit={async (value) => {
-              await updateTicket({ id: primaryTicket.id, [name]: value.trim() || undefined })
-            }}
-            style={styles.value}
-          />
-        </View>
-      ))}
+      {OPERATIONAL_FIELDS.map(({ name, label }) => {
+        // 터미널·게이트는 항공사가 정하고 당일에도 바뀐다. 운항 정보가
+        // 답한 값이 있으면 그것이 사실이므로 사용자가 적은 값을 덮고
+        // 편집도 막는다. 좌석은 운항 정보가 모르는 내 티켓 정보다.
+        const liveValue = name === 'seat' ? undefined : status?.[name]
+
+        return (
+          <View key={name} style={styles.card}>
+            <Typography style={styles.label}>{label}</Typography>
+            {liveValue == null ? (
+              <EditableText
+                value={primaryTicket[name] ?? ''}
+                format={(value) => (value === '' ? EMPTY_PLACEHOLDER : value)}
+                endIcon={primaryTicket[name] == null ? undefined : <MaterialIcons name="edit" size={12} color={palette.grey} style={{ marginRight: -12 }} />}
+                onSubmit={async (value) => {
+                  await updateTicket({ id: primaryTicket.id, [name]: value.trim() || undefined })
+                }}
+                style={styles.value}
+              />
+            ) : (
+              <Typography style={styles.value}>{liveValue}</Typography>
+            )}
+          </View>
+        )
+      })}
     </View>
   )
 }
