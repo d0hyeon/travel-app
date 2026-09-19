@@ -12,9 +12,23 @@ import { buildMonthMatrix, isDateSelectable } from './calendar.utils'
 import type { DateBounds, DateSelection } from './datePicker.model'
 import { Typography } from '~/shared/components/design-system'
 import { palette } from '../../config/tokens'
-import { CalendarDay } from './CalendarDay'
+import { CalendarDay, CALENDAR_DAY_HEIGHT } from './CalendarDay'
 
 const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'] as const
+
+// 달은 4~6주에 걸친다. 격자를 가장 긴 달에 맞춰 잡아두면 달을 넘겨도 높이가
+// 변하지 않는다. 양옆에 깔린 앞뒤 달까지 같은 높이라야 미는 동안 흔들리지 않는다.
+const MAX_WEEKS_IN_MONTH = 6
+const GRID_ROW_GAP = 2
+/** 달력 격자가 늘 차지하는 높이. 시각 단계가 이 높이에 맞춰 시트를 유지한다. */
+export const CALENDAR_GRID_HEIGHT =
+  CALENDAR_DAY_HEIGHT * MAX_WEEKS_IN_MONTH + GRID_ROW_GAP * (MAX_WEEKS_IN_MONTH - 1)
+
+// 요일 줄. caption 의 lineHeight 와 아래 여백으로 정해진다.
+const WEEKDAY_ROW_HEIGHT = 16 + 4
+
+/** 요일 줄까지 더한 달력 전체 높이. 시트가 이 높이로 자리를 잡는다. */
+export const CALENDAR_HEIGHT = WEEKDAY_ROW_HEIGHT + CALENDAR_GRID_HEIGHT
 
 // 달을 넘길 때 쓰는 방향. 이름으로 부호의 의미를 남긴다.
 const Direction = { Previous: -1, Next: 1 } as const
@@ -92,7 +106,7 @@ export function Calendar({
   ]
 
   return (
-    <View>
+    <View >
       <View style={styles.weekdayRow}>
         {WEEKDAY_LABELS.map((label) => (
           <View key={label} style={styles.weekdayCell}>
@@ -163,10 +177,11 @@ function MonthGrid({ month, selection, bounds, onSelectDay }: MonthGridProps) {
 }
 
 const styles = StyleSheet.create({
-  weekdayRow: { flexDirection: 'row', paddingHorizontal: 8, paddingBottom: 4 },
+  weekdayRow: { flexDirection: 'row', paddingHorizontal: 8, height: WEEKDAY_ROW_HEIGHT },
   weekdayCell: { flex: 1, alignItems: 'center' },
   // 양옆에 깔린 달이 삐져나오지 않도록 잘라낸다.
   viewport: { overflow: 'hidden' },
-  grid: { paddingHorizontal: 8, gap: 2 },
+  // 주 수가 적은 달도 가장 긴 달만큼 자리를 잡아 시트 높이가 달마다 달라지지 않는다.
+  grid: { paddingHorizontal: 8, gap: GRID_ROW_GAP, height: CALENDAR_GRID_HEIGHT },
   week: { flexDirection: 'row' },
 })

@@ -67,11 +67,12 @@ export function CalendarDay({ day, month, selection, disabled, onPress }: Calend
   )
 }
 
-const CELL_HEIGHT = 40
+/** 격자 높이를 이 값으로 잡는 쪽이 있어 한 군데서만 정한다. */
+export const CALENDAR_DAY_HEIGHT = 40
 
 const styles = StyleSheet.create({
   // 7칸이 폭을 고르게 나눠 가져야 요일이 세로로 줄을 맞춘다.
-  cell: { flex: 1, height: CELL_HEIGHT },
+  cell: { flex: 1, height: CALENDAR_DAY_HEIGHT },
   rangeBand: {
     flex: 1,
     alignItems: 'center',
