@@ -8,8 +8,8 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native'
-import { buildMonthMatrix } from './calendar.utils'
-import type { DateSelection } from './datePicker.model'
+import { buildMonthMatrix, isDateSelectable } from './calendar.utils'
+import type { DateBounds, DateSelection } from './datePicker.model'
 import { Typography } from '~/shared/components/design-system'
 import { palette } from '../../config/tokens'
 import { CalendarDay } from './CalendarDay'
@@ -28,6 +28,8 @@ export type CalendarRef = {
 interface CalendarProps {
   cursor: Date
   selection: DateSelection
+  /** 고를 수 있는 날짜의 양 끝. 밖의 날은 회색으로 남고 눌리지 않는다. */
+  bounds?: DateBounds
   onCursorChange: (cursor: Date) => void
   onSelectDay: (day: Date) => void
   ref?: Ref<CalendarRef>
@@ -39,7 +41,14 @@ interface CalendarProps {
  * 스크롤이 완전히 멈춘 뒤에야 cursor를 갱신하고 위치를 조용히 가운데로 되돌리므로,
  * 되돌리는 순간이 화면에 애니메이션으로 보이지 않는다.
  */
-export function Calendar({ cursor, selection, onCursorChange, onSelectDay, ref }: CalendarProps) {
+export function Calendar({
+  cursor,
+  selection,
+  bounds,
+  onCursorChange,
+  onSelectDay,
+  ref,
+}: CalendarProps) {
   const { width } = useWindowDimensions()
   const scrollRef = useRef<ScrollView>(null)
   const cursorRef = useRef(cursor)
@@ -87,7 +96,7 @@ export function Calendar({ cursor, selection, onCursorChange, onSelectDay, ref }
       <View style={styles.weekdayRow}>
         {WEEKDAY_LABELS.map((label) => (
           <View key={label} style={styles.weekdayCell}>
-            <Typography variant="caption" color={palette.textSecondary}>
+            <Typography variant="caption" color="text.secondary">
               {label}
             </Typography>
           </View>
@@ -109,7 +118,12 @@ export function Calendar({ cursor, selection, onCursorChange, onSelectDay, ref }
         >
           {months.map((month) => (
             <View key={month.toISOString()} style={{ width }}>
-              <MonthGrid month={month} selection={selection} onSelectDay={onSelectDay} />
+              <MonthGrid
+                month={month}
+                selection={selection}
+                bounds={bounds ?? {}}
+                onSelectDay={onSelectDay}
+              />
             </View>
           ))}
         </ScrollView>
@@ -121,10 +135,11 @@ export function Calendar({ cursor, selection, onCursorChange, onSelectDay, ref }
 interface MonthGridProps {
   month: Date
   selection: DateSelection
+  bounds: DateBounds
   onSelectDay: (day: Date) => void
 }
 
-function MonthGrid({ month, selection, onSelectDay }: MonthGridProps) {
+function MonthGrid({ month, selection, bounds, onSelectDay }: MonthGridProps) {
   const weeks = buildMonthMatrix(month)
 
   return (
@@ -137,6 +152,7 @@ function MonthGrid({ month, selection, onSelectDay }: MonthGridProps) {
               day={day}
               month={month}
               selection={selection}
+              disabled={!isDateSelectable(day, bounds)}
               onPress={onSelectDay}
             />
           ))}

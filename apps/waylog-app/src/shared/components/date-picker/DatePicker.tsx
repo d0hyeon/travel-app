@@ -1,4 +1,4 @@
-import { format, setHours, setMinutes, startOfDay } from 'date-fns'
+import { setHours, setMinutes, startOfDay } from 'date-fns'
 import { useRef, useState } from 'react'
 import { Pressable, View } from 'react-native'
 
@@ -6,8 +6,8 @@ import { Calendar, type CalendarRef } from './Calendar'
 import { CalendarHeader } from './CalendarHeader'
 import { TimeStepHeader } from './TimeStepHeader'
 import { TimeWheel } from './TimeWheel'
-import { toggleRangeSelection } from './calendar.utils'
-import type { DatePickerStep, DateSelection, TimeOfDay } from './datePicker.model'
+import { clampToDateBounds, toggleRangeSelection } from './calendar.utils'
+import type { DateBounds, DatePickerStep, DateSelection, TimeOfDay } from './datePicker.model'
 import { DEFAULT_MINUTE_STEP } from './datePicker.model'
 
 import { MaterialIcons } from '@expo/vector-icons'
@@ -33,17 +33,18 @@ type DatePickerValueProps =
     onChange?: (value: DateSelection) => void
   }
 
-type DatePickerProps = DatePickerValueProps & {
-  /**
-   * 보여줄 단계. 주면 밖이 쥐고, 주지 않으면 안에서 쥔다.
-   * 하단 버튼이 단계를 따라가야 하는 곳만 주면 된다.
-   */
-  step?: DatePickerStep
-  /** dateTime 에서만 쓴다. */
-  minuteStep?: number
-  /** 단계가 바뀌어야 할 때. step 을 준 쪽은 이걸 받아 직접 옮긴다. */
-  onStepChange?: (step: DatePickerStep) => void
-}
+type DatePickerProps = DatePickerValueProps &
+  DateBounds & {
+    /**
+     * 보여줄 단계. 주면 밖이 쥐고, 주지 않으면 안에서 쥔다.
+     * 하단 버튼이 단계를 따라가야 하는 곳만 주면 된다.
+     */
+    step?: DatePickerStep
+    /** dateTime 에서만 쓴다. */
+    minuteStep?: number
+    /** 단계가 바뀌어야 할 때. step 을 준 쪽은 이걸 받아 직접 옮긴다. */
+    onStepChange?: (step: DatePickerStep) => void
+  }
 
 /**
  * 달력이 보여줄 달과 고르는 중인 날짜를 쥔다. 확정 시점은 위가 정한다.
@@ -52,7 +53,14 @@ type DatePickerProps = DatePickerValueProps & {
  * 이 전환은 안에서 끝내므로 소비처가 매번 다시 구현하지 않는다.
  */
 export function DatePicker(props: DatePickerProps) {
-  const { type = 'date', step, minuteStep = DEFAULT_MINUTE_STEP, onStepChange } = props
+  const {
+    type = 'date',
+    step,
+    minuteStep = DEFAULT_MINUTE_STEP,
+    minDate,
+    maxDate,
+    onStepChange,
+  } = props
 
   // 달력은 어느 타입이든 같은 모양으로 그리므로 안에서는 늘 기간 꼴로 쥔다.
   const selectionFromProps: DateSelection =
@@ -69,7 +77,10 @@ export function DatePicker(props: DatePickerProps) {
   const [start] = selection
   const currentStep = step ?? innerStep
 
-  const [cursor, setCursor] = useState(() => start ?? new Date())
+  // 아직 안 골랐다면 오늘 달을 편다. 오늘이 경계 밖이면 고를 수 있는 가장 가까운 달로 옮긴다.
+  const [cursor, setCursor] = useState(
+    () => start ?? clampToDateBounds(new Date(), { minDate, maxDate }),
+  )
   const calendarRef = useRef<CalendarRef>(null)
 
   const goToStep = (next: DatePickerStep) => {
@@ -144,6 +155,7 @@ export function DatePicker(props: DatePickerProps) {
         ref={calendarRef}
         cursor={cursor}
         selection={selection}
+        bounds={{ minDate, maxDate }}
         onCursorChange={setCursor}
         onSelectDay={handleSelectDay}
       />

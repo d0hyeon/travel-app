@@ -3,7 +3,7 @@ import { BottomSheet } from '../bottom-sheet/BottomSheet'
 import { Button } from '~/shared/components/design-system'
 import { DatePicker } from './DatePicker'
 import { DEFAULT_MINUTE_STEP } from './datePicker.model'
-import type { DatePickerStep, DateRange, DateSelection } from './datePicker.model'
+import type { DateBounds, DatePickerStep, DateRange, DateSelection } from './datePicker.model'
 
 /** 확정된 값의 모양도 타입이 정한다. 시트를 여는 쪽은 무엇을 고를지 이미 안다. */
 type DatePickerBottomSheetValueProps =
@@ -22,18 +22,19 @@ type DatePickerBottomSheetValueProps =
     onConfirm: (value: DateRange) => void
   }
 
-type DatePickerBottomSheetProps = DatePickerBottomSheetValueProps & {
-  isOpen: boolean
-  /** 사용자가 닫으려 한다 (취소·배경 탭·아래로 끌기) */
-  onDismiss: () => void
-  onClose?: () => void;
-}
+type DatePickerBottomSheetProps = DatePickerBottomSheetValueProps &
+  DateBounds & {
+    isOpen: boolean
+    /** 사용자가 닫으려 한다 (취소·배경 탭·아래로 끌기) */
+    onDismiss: () => void
+    onClose?: () => void
+  }
 
 // 시각 휠은 달력보다 자리를 덜 먹는다.
 const SNAP_POINTS = { date: [0.62], time: [0.45] } as const
 
 export function DatePickerBottomSheet(props: DatePickerBottomSheetProps) {
-  const { isOpen, onDismiss, onClose } = props
+  const { isOpen, minDate, maxDate, onDismiss, onClose } = props
 
   // 두 모양을 한 상태에 담으면 다시 빈 칸을 들고 다니게 되므로 따로 쥔다.
   const [day, setDay] = useState<Date | null>(
@@ -72,13 +73,21 @@ export function DatePickerBottomSheet(props: DatePickerBottomSheetProps) {
       <BottomSheet.Body>
         <BottomSheet.GestureArea>
           {props.type === 'range' ? (
-            <DatePicker type="range" value={range} onChange={setRange} />
+            <DatePicker
+              type="range"
+              value={range}
+              minDate={minDate}
+              maxDate={maxDate}
+              onChange={setRange}
+            />
           ) : (
             <DatePicker
               type={props.type ?? 'date'}
               value={day ?? undefined}
               step={step}
               minuteStep={props.minuteStep ?? DEFAULT_MINUTE_STEP}
+              minDate={minDate}
+              maxDate={maxDate}
               onChange={setDay}
               onStepChange={setStep}
             />

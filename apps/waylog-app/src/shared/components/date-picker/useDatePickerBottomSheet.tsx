@@ -1,15 +1,15 @@
 import { useCallback } from 'react'
 import { useOverlay } from '../../hooks/useOverlay'
 import { DatePickerBottomSheet } from './DatePickerBottomSheet'
-import type { DateRange, DateSelection } from './datePicker.model'
+import type { DateBounds, DateRange, DateSelection } from './datePicker.model'
 
-interface OpenDayParams {
+interface OpenDayParams extends DateBounds {
   type?: 'date' | 'dateTime'
   defaultValue?: Date | null
   minuteStep?: number
 }
 
-interface OpenRangeParams {
+interface OpenRangeParams extends DateBounds {
   defaultValue?: DateSelection
   /** 하루만 골라도 확정할 수 있게 한다. 이때 시작일과 종료일이 같아진다. */
   allowSingleDay?: boolean
@@ -25,7 +25,7 @@ export function useDatePickerBottomSheet() {
   const overlay = useOverlay()
 
   const openDay = useCallback(
-    ({ type = 'date', defaultValue = null, minuteStep }: OpenDayParams = {}) =>
+    ({ type = 'date', defaultValue = null, minuteStep, minDate, maxDate }: OpenDayParams = {}) =>
       new Promise<Date | null>((resolve) => {
         overlay.open(({ isOpen, close, onClose }) => {
           const settle = (value: Date | null) => {
@@ -39,6 +39,8 @@ export function useDatePickerBottomSheet() {
               type={type}
               defaultValue={defaultValue}
               minuteStep={minuteStep}
+              minDate={minDate}
+              maxDate={maxDate}
               onConfirm={settle}
               onDismiss={() => settle(null)}
               onClose={onClose}
@@ -50,7 +52,7 @@ export function useDatePickerBottomSheet() {
   )
 
   const openRange = useCallback(
-    ({ defaultValue = EMPTY_RANGE, allowSingleDay }: OpenRangeParams = {}) =>
+    ({ defaultValue = EMPTY_RANGE, allowSingleDay, minDate, maxDate }: OpenRangeParams = {}) =>
       new Promise<DateRange | null>((resolve) => {
         overlay.open(({ isOpen, close }) => {
           const settle = (value: DateRange | null) => {
@@ -64,6 +66,8 @@ export function useDatePickerBottomSheet() {
               type="range"
               defaultValue={defaultValue}
               allowSingleDay={allowSingleDay}
+              minDate={minDate}
+              maxDate={maxDate}
               onConfirm={settle}
               onDismiss={() => settle(null)}
             />

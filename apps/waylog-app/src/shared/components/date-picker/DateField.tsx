@@ -3,31 +3,32 @@ import { format as formatDate } from 'date-fns'
 import { Keyboard, Pressable, StyleSheet, View } from 'react-native'
 import { Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../config/tokens'
-import type { DateRange } from './datePicker.model'
+import type { DateBounds, DateRange } from './datePicker.model'
 import { useDatePickerBottomSheet } from './useDatePickerBottomSheet'
 
 type DateFieldTypeProps =
   | { type?: 'date'; value?: Date; onChange?: (value: Date) => void }
   | { type: 'dateTime'; value?: Date; minuteStep?: number; onChange?: (value: Date) => void }
   | {
-      type: 'range'
-      value?: DateRange
-      /** 하루만 골라도 확정할 수 있게 한다. 이때 시작일과 종료일이 같아진다. */
-      allowSingleDay?: boolean
-      onChange?: (value: DateRange) => void
-    }
+    type: 'range'
+    value?: DateRange
+    /** 하루만 골라도 확정할 수 있게 한다. 이때 시작일과 종료일이 같아진다. */
+    allowSingleDay?: boolean
+    onChange?: (value: DateRange) => void
+  }
 
-type DateFieldProps = DateFieldTypeProps & {
-  placeholder?: string
-  /** 표시 형식. 화면마다 다르므로 밖에서 정한다. */
-  format?: (value: Date) => string
-  disabled?: boolean
-}
+type DateFieldProps = DateFieldTypeProps &
+  DateBounds & {
+    placeholder?: string
+    /** 표시 형식. 화면마다 다르므로 밖에서 정한다. */
+    format?: (value: Date) => string
+    disabled?: boolean
+  }
 
 const DEFAULT_FORMAT = { date: 'yyyy/MM/dd', dateTime: 'yyyy/MM/dd HH:mm' } as const
 
 export function DateField(props: DateFieldProps) {
-  const { type = 'date', value, placeholder, format, disabled } = props
+  const { type = 'date', value, placeholder, format, disabled, minDate, maxDate } = props
 
   const datePickerBottomSheet = useDatePickerBottomSheet()
 
@@ -45,6 +46,8 @@ export function DateField(props: DateFieldProps) {
       const range = await datePickerBottomSheet.openRange({
         defaultValue: props.value ?? [null, null],
         allowSingleDay: props.allowSingleDay,
+        minDate,
+        maxDate,
       })
       // 취소하면 null 이 온다. 이때는 기존 값을 그대로 둔다.
       if (range == null) return
@@ -57,6 +60,8 @@ export function DateField(props: DateFieldProps) {
       type: props.type,
       defaultValue: props.value ?? null,
       minuteStep: props.type === 'dateTime' ? props.minuteStep : undefined,
+      minDate,
+      maxDate,
     })
     if (day == null) return
 
@@ -72,7 +77,7 @@ export function DateField(props: DateFieldProps) {
       <View style={styles.valueArea}>
         <Typography
           variant="body1"
-          color={displayText == null ? palette.textSecondary : palette.text}
+          color={displayText == null ? 'text.secondary' : 'text.primary'}
         >
           {displayText ?? placeholder ?? '날짜 선택'}
         </Typography>
