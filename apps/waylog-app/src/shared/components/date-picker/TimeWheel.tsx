@@ -15,6 +15,10 @@ const ITEM_HEIGHT = 40
 // 위아래로 한 칸씩 보여야 고르는 중이라는 게 읽힌다.
 const VISIBLE_COUNT = 3
 
+// 가운데 칸까지의 거리. 고른 값을 가운데 세우는 데 두 곳이 같은 값을 쓴다 —
+// 목록 위아래 여백과, 그 자리에 깔리는 선택 띠.
+const CENTER_OFFSET = ITEM_HEIGHT * ((VISIBLE_COUNT - 1) / 2)
+
 const HOUR_OPTIONS = Array.from({ length: 24 }, (_, hour) => hour)
 
 interface TimeWheelProps {
@@ -117,13 +121,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    top: ITEM_HEIGHT,
+    top: CENTER_OFFSET,
     height: ITEM_HEIGHT,
     borderRadius: radius.md,
     backgroundColor: 'rgba(76,132,255,0.10)',
   },
 
   wheelColumnFlatListContent: {
-    paddingVertical: ITEM_HEIGHT * ((VISIBLE_COUNT - 1) / 2),
+    paddingVertical: CENTER_OFFSET,
   },
 })
