@@ -26,7 +26,7 @@ export function TransportDetailScreen() {
           </AsyncBoundary>
         }
       />
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <TransportSummarySection tripId={tripId} transportId={transportId} />
         <TransportRealtimeInfoSection tripId={tripId} transportId={transportId} />
         <TransportOperationalInfoSection tripId={tripId} transportId={transportId} />
