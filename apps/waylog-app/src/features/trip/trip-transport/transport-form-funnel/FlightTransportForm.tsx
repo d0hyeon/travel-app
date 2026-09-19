@@ -7,6 +7,10 @@ import { FlightRouteFields } from './FlightRouteFields'
 import { TransportTimeFields } from './TransportTimeFields'
 import type { TransportFormValues } from './transportFormFunnel.types'
 
+// 실시간 상태는 편번호를 숫자로 바꿔 맞춘다. 'KE721' 이나 '721A' 가 들어오면
+// NaN 이 되어 매칭이 영영 실패하고, 사용자는 알림이 안 오는 이유를 알 수 없다.
+const FLIGHT_NUMBER_PATTERN = /^\d+$/
+
 interface Props {
   defaultValues?: Partial<TransportFormValues>
   onNext: (value: TransportFormValues) => void
@@ -38,10 +42,12 @@ export function FlightTransportForm({ defaultValues, onNext }: Props) {
         <Controller
           control={control}
           name="flightNumber"
+          rules={{ required: true, pattern: FLIGHT_NUMBER_PATTERN }}
           render={({ field }) => (
             <TextField
               label="편번호"
               placeholder="예: 721"
+              keyboardType="number-pad"
               value={field.value}
               onChangeText={field.onChange}
             />

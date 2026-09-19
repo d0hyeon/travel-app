@@ -1,4 +1,4 @@
-import { Controller, type Control, type UseFormSetValue } from 'react-hook-form'
+import { Controller, useController, type Control, type UseFormSetValue } from 'react-hook-form'
 import { Pressable, View } from 'react-native'
 import { TextField } from '~/shared/components/design-system'
 import { FieldPair, PairSlot, RouteArrow } from './scheduleFieldParts'
@@ -14,6 +14,10 @@ interface Props {
 // 밖에서 콜백으로 받으면 호출부마다 setValue 세 줄을 다시 적게 된다.
 export function FlightRouteFields({ control, setValue }: Props) {
   const airportSelect = useAirportSelectOverlay()
+
+  // 실시간 상태 매칭이 기대하는 값은 이름이 아니라 코드다.
+  useController({ control, name: 'departureAirportCode', rules: { required: true } })
+  useController({ control, name: 'arrivalAirportCode', rules: { required: true } })
 
   // shouldValidate 가 없으면 다 채워도 isValid 가 그대로라 버튼이 잠긴다.
   const selectDeparture = async () => {

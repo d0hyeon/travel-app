@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { useWatch, type Control, type UseFormSetValue } from 'react-hook-form'
+import { useController, useWatch, type Control, type UseFormSetValue } from 'react-hook-form'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../../../shared/config/tokens'
@@ -15,6 +15,9 @@ interface Props {
 export function AirlineField({ control, setValue }: Props) {
   const airlineSelect = useAirlineSelectOverlay()
   const airline = useWatch({ control, name: 'airline' })
+
+  // 실시간 상태 매칭이 기대하는 값은 이름이 아니라 코드다.
+  useController({ control, name: 'airlineCode', rules: { required: true } })
 
   // shouldValidate 가 없으면 다 채워도 isValid 가 그대로라 버튼이 잠긴다.
   const select = async () => {
