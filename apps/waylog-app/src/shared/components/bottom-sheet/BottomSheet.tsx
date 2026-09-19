@@ -148,14 +148,21 @@ export function BottomSheet({
   // 시트가 아니라 스크롤 몫이다.
   const maxH = useSharedValue(0)
 
-  // 자동 높이는 계약이 없으므로 하단 안전영역까지 더해 잡는다. snap 을 명시하면
-  // 그 비율이 계약이라 건드리지 않고, 안전영역은 그 안에서 본문이 자리를 내준다.
+  const isAutoHeight = snapPoints == null
+
+  // 자동 높이는 내용을 한 번 재서 정한다. 재기 전에는 null 이고, 그동안 시트는
+  // 높이를 강제하지 않은 채 투명하게 그려진다. 그래야 내용이 제 크기로 펼쳐져
+  // 참값이 나온다. 시트 높이로 감싼 채 재면 그 높이를 되읽어 서로를 묶는다.
+  const [contentH, setContentH] = useState<number | null>(null)
+  const isMeasuring = isAutoHeight && contentH == null
+
+  // snap 을 명시하면 그 비율이 계약이라 건드리지 않는다.
   const heights = useMemo(
     () =>
       snapPoints == null
-        ? [Math.round(baseH * 0.5) + safeBottom]
+        ? [Math.min((contentH ?? 0) + HANDLE_AREA_HEIGHT, baseH - insets.top)]
         : snapPoints.map((ratio) => Math.round(baseH * ratio)),
-    [snapPoints, baseH, safeBottom],
+    [snapPoints, baseH, contentH, insets.top],
   )
 
 
@@ -374,10 +381,16 @@ export function BottomSheet({
     // 화면 밖으로는 나갈 수 없다. 100% 스냅이어도, 키보드가 밀어 올려도
     // 상단 안전영역(다이나믹 아일랜드 등)은 항상 남긴다.
     const limit = baseH - lift - insets.top
+
+    // 재는 동안에는 높이를 주지 않는다. 내용이 제 크기로 펼쳐져야 잴 수 있다.
+    // 아직 얼마나 클지 모르니 투명하게 둬 덜 자란 시트가 보이지 않게 한다.
+    if (isMeasuring) return { opacity: 0 }
+
     const visibleHeight = Math.min(sheetH.get(), limit)
     const expandedHeight = Math.min(maxH.get() || visibleHeight, limit)
 
     return {
+      opacity: 1,
       // 항상 가장 큰 스냅 높이로 레이아웃을 잡고, 작은 스냅은 시트 전체를
       // 아래로 보낸다. 그래서 BottomActions도 화면 바닥에 고정되지 않고
       // 헤더·본문과 함께 움직인다.
@@ -395,6 +408,10 @@ export function BottomSheet({
   const bodyStyle = useAnimatedStyle(() => {
     const lift = kbLift.get()
     const visibleHeight = Math.min(sheetH.get(), baseH - lift - insets.top)
+
+    // 재는 동안에는 본문도 묶지 않는다. 여기서 뷰포트를 정하면 내용이 그 안에
+    // 눌려 잰 값이 시트 높이를 따라간다.
+    if (isMeasuring) return {}
 
     return {
       // 시트 전체는 최대 높이로 렌더링하지만 본문 뷰포트는 현재 보이는
@@ -415,7 +432,17 @@ export function BottomSheet({
     >
       {isOpen === true && backdrop && <Pressable style={styles.backdrop} onPress={onDismiss} />}
 
-      <Animated.View style={[styles.sheet, sheetStyle, style]}>
+      <Animated.View
+        style={[styles.sheet, sheetStyle, style]}
+        // 손잡이를 뺀 내용 전체를 한 번에 잰다. 재는 동안에는 위에서 높이를
+        // 주지 않으므로 이 값이 내용이 실제로 요구하는 높이다.
+        onLayout={
+          isMeasuring
+            ? (e) =>
+                setContentH(Math.round(e.nativeEvent.layout.height) - HANDLE_AREA_HEIGHT)
+            : undefined
+        }
+      >
         <SheetBottomInsetContext.Provider value={safeBottom}>
           <SheetDragContext.Provider value={dragContext}>
             <GestureDetector gesture={handlePan}>
