@@ -1,5 +1,27 @@
 import { addDays, endOfMonth, isBefore, isSameDay, startOfMonth, startOfWeek } from 'date-fns'
-import type { DateSelection } from './datePicker.model'
+import type { DateBounds, DateSelection } from './datePicker.model'
+
+/**
+ * 고를 수 있는 날인가. 경계일 당일은 고를 수 있다.
+ * 경계를 하루 단위로 보므로 경계일에 붙은 시각이 당일을 잘라내지 않는다.
+ */
+export function isDateSelectable(day: Date, { minDate, maxDate }: DateBounds): boolean {
+  if (minDate != null && isBefore(day, minDate) && !isSameDay(day, minDate)) return false
+  if (maxDate != null && isBefore(maxDate, day) && !isSameDay(day, maxDate)) return false
+
+  return true
+}
+
+/**
+ * 경계 안으로 끌어당긴 날. 경계 밖이면 가장 가까운 경계일이 된다.
+ * 달력을 열 때 전부 회색인 달이 펼쳐지지 않게 한다.
+ */
+export function clampToDateBounds(day: Date, { minDate, maxDate }: DateBounds): Date {
+  if (minDate != null && isBefore(day, minDate)) return minDate
+  if (maxDate != null && isBefore(maxDate, day)) return maxDate
+
+  return day
+}
 
 /**
  * 한 달을 주 단위 격자로 편다.

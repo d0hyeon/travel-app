@@ -17,6 +17,15 @@ export type DatePickerType = 'date' | 'dateTime' | 'range'
 /** dateTime 이 거치는 단계. 나머지 타입은 date 에 머문다. */
 export type DatePickerStep = 'date' | 'time'
 
+/**
+ * 고를 수 있는 날짜의 양 끝. 양 끝도 고를 수 있다.
+ * 하루 단위로만 본다. 경계일 당일의 시각은 자르지 않는다.
+ */
+export type DateBounds = {
+  minDate?: Date
+  maxDate?: Date
+}
+
 export const DEFAULT_MINUTE_STEP = 5
 
 /** 시각 휠이 주고받는 값. */
