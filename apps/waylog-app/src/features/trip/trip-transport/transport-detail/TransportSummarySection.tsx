@@ -1,5 +1,6 @@
 import { AsyncBoundary } from '@waylog/react'
-import { TransportTypeLabel } from '@waylog/domains/modules/transport'
+import { useFlightStatus } from '@waylog/domains/modules/flight-status'
+import { TransportType, TransportTypeLabel } from '@waylog/domains/modules/transport'
 import {
   formatArrivalTime,
   formatDepartureTime,
@@ -38,6 +39,22 @@ function Resolved({ tripId, transportId }: Props) {
   const { transport } = useTripTransportDetail({ tripId, transportId })
   const carrierLabel = toCarrierLabel(transport) ?? EMPTY_VALUE
 
+  const { status } = useFlightStatus(
+    transport.type === TransportType.항공
+      ? {
+          airlineCode: transport.airlineCode,
+          flightNumber: transport.flightNumber,
+          departureAirportCode: transport.departureAirportCode,
+          arrivalAirportCode: transport.arrivalAirportCode,
+          departureAt: transport.departureAt,
+        }
+      : {},
+  )
+
+  // 운항 정보가 시각을 답하면 그것이 사실이다. 사용자가 적은 값보다 앞선다.
+  const departureAt = status?.estimatedAt ?? status?.scheduledAt ?? transport.departureAt
+  const scheduled = { ...transport, departureAt }
+
   return (
     <View style={styles.section}>
       <View style={styles.typeBadge}>
@@ -45,7 +62,7 @@ function Resolved({ tripId, transportId }: Props) {
         <Typography style={styles.typeLabel}>{TransportTypeLabel[transport.type]}</Typography>
       </View>
       <View style={styles.times}>
-        <Typography style={styles.time}>{formatDepartureTime(transport) || EMPTY_VALUE}</Typography>
+        <Typography style={styles.time}>{formatDepartureTime(scheduled) || EMPTY_VALUE}</Typography>
         <Typography style={styles.arrow}>→</Typography>
         <Typography style={styles.time}>{formatArrivalTime(transport) ?? EMPTY_VALUE}</Typography>
       </View>
@@ -53,7 +70,7 @@ function Resolved({ tripId, transportId }: Props) {
         {transport.departureName || EMPTY_VALUE} → {transport.arrivalName || EMPTY_VALUE}
       </Typography>
       <Typography style={styles.carrier}>
-        {carrierLabel} · {format(new Date(transport.departureAt), 'M월 d일')}
+        {carrierLabel} · {format(new Date(departureAt), 'M월 d일')}
       </Typography>
     </View>
   )

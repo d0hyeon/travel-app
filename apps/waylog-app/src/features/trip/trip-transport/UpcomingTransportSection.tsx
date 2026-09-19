@@ -1,6 +1,6 @@
 import {
   splitByDeparture,
-  useTripTransport,
+  useTripScheduledFlights,
   type TripTransport,
 } from '@waylog/domains/modules/trip-transport'
 import { useRouter } from 'expo-router'
@@ -21,7 +21,7 @@ interface Props {
 // 다가오는 교통편만 보딩패스 형태로 보여준다. 다음 카드가 옆에 걸쳐 보이게 해
 // 더 있다는 것을 도트 없이 알린다.
 export function UpcomingTransportSection({ tripId }: Props) {
-  const { data: transports } = useTripTransport(tripId)
+  const { data: transports } = useTripScheduledFlights(tripId)
   const { upcoming } = useMemo(() => splitByDeparture(transports, new Date()), [transports])
 
   if (upcoming.length === 0) return null

@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons'
 import {
   groupByDepartureDate,
   splitByDeparture,
-  useTripTransport,
+  useTripScheduledFlights,
 } from '@waylog/domains/modules/trip-transport'
 import { format as formatDate } from 'date-fns'
 import { useMemo, useState } from 'react'
@@ -17,7 +17,7 @@ interface Props {
 }
 
 export function TripTransportList({ tripId, onTransportPress }: Props) {
-  const { data: transports } = useTripTransport(tripId)
+  const { data: transports } = useTripScheduledFlights(tripId)
   const [isPastOpen, setIsPastOpen] = useState(false)
 
   // 렌더마다 기준 시각이 달라지면 목록이 흔들린다. 조회 결과가 바뀔 때만 다시 가른다.
