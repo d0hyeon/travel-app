@@ -12,8 +12,8 @@ import type { TimeOfDay } from './datePicker.model'
 import { palette, radius } from '../../config/tokens'
 
 const ITEM_HEIGHT = 40
-// 위아래로 한 칸씩 보여야 고르는 중이라는 게 읽힌다.
-const VISIBLE_COUNT = 3
+// 위아래로 두 칸씩 보여야 고르는 중이라는 게 읽히고, 달력 단계와 자리도 맞는다.
+const VISIBLE_COUNT = 5
 
 // 가운데 칸까지의 거리. 고른 값을 가운데 세우는 데 두 곳이 같은 값을 쓴다 —
 // 목록 위아래 여백과, 그 자리에 깔리는 선택 띠.
