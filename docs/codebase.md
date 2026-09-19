@@ -695,6 +695,15 @@ src/
     `DatePickerBottomSheet` 는 버튼 라벨과 스냅 포인트가 단계를 따라가야 해서 이쪽이다.
 - `Calendar` — 앞뒤 달을 양옆에 깔아두고 통째로 미는 스와이프 페이저.
   헤더의 좌우 버튼도 `CalendarRef.slidePrevious/slideNext` 로 같은 애니메이션을 탄다.
+- `minDate`/`maxDate` 는 `DateBounds` 로 묶여 `DateField` 부터 `CalendarDay` 까지 그대로 내려간다.
+  이름은 웹의 MUI `maxDate` 를 승계한다.
+  경계는 **하루 단위**다. 경계일에 붙은 시각이 당일을 잘라내지 않는다.
+  `dateTime` 의 시각 휠은 제약하지 않는다. 지금 소비처가 모두 날짜 단위 제약이다.
+  경계 밖의 날은 `CalendarDay` 가 회색으로 남기고 `Pressable` 자체를 내지 않아
+  `toggleRangeSelection` 은 제약을 몰라도 된다.
+  기간 배경도 입히지 않는다. 칠하면 고른 것으로 읽혀 눌리지 않는 이유를 설명하지 못한다.
+  값이 없을 때 `DatePicker` 의 초기 커서는 `clampToDateBounds` 로 경계 안에 넣는다.
+  그러지 않으면 전부 회색인 달이 펼쳐진다.
 - 격자 계산과 기간 선택 규칙은 `calendar.utils.ts` 의 순수 함수로 분리해 두었다.
   웹 `shared/components/date-range/` 의 선택 규칙을 승계했다.
   소비처가 이 디렉토리뿐이라 공유 패키지로 올리지 않는다.
