@@ -3,6 +3,7 @@ import { useCallback } from 'react'
 import { FullScreenPopup } from '../../../../shared/components/FullScreenPopup'
 import { useOverlay } from '../../../../shared/hooks/useOverlay'
 import { AirportSearchPanel } from './AirportSearchPanel'
+import { KeyboardDismissArea } from '../../../../shared/components/KeyboardDismissArea'
 
 export function useAirportSelectOverlay() {
   const overlay = useOverlay()
@@ -11,19 +12,21 @@ export function useAirportSelectOverlay() {
     (title: string) => {
       return new Promise<Airport | null>((resolve) => {
         overlay.open(({ isOpen, close }) => (
-          <FullScreenPopup isOpen={isOpen} onClose={close}>
-            <AirportSearchPanel
-              title={title}
-              onSelect={(airport) => {
-                close()
-                resolve(airport)
-              }}
-              onClose={() => {
-                close()
-                resolve(null)
-              }}
-            />
-          </FullScreenPopup>
+          <KeyboardDismissArea>
+            <FullScreenPopup isOpen={isOpen} onClose={close}>
+              <AirportSearchPanel
+                title={title}
+                onSelect={(airport) => {
+                  close()
+                  resolve(airport)
+                }}
+                onClose={() => {
+                  close()
+                  resolve(null)
+                }}
+              />
+            </FullScreenPopup>
+          </KeyboardDismissArea>
         ))
       })
     },
