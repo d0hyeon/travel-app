@@ -1,4 +1,4 @@
-import { isSameDay, isSameMonth } from 'date-fns'
+import { isSameDay, isSameMonth, isToday as checkIsToday } from 'date-fns'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { isWithinRange } from './calendar.utils'
 import type { DateSelection } from './datePicker.model'
@@ -10,16 +10,32 @@ interface CalendarDayProps {
   /** 이 칸이 속한 달. 다른 달 날짜는 자리만 지킨다. */
   month: Date
   selection: DateSelection
+  /** 고를 수 없는 날. 눌러도 반응하지 않는다. */
+  disabled?: boolean
   onPress: (day: Date) => void
 }
 
 // 기간 배경은 칸을 꽉 채워야 날짜끼리 이어져 보인다.
 // 양 끝만 둥글려 알약 모양이 되게 한다.
-export function CalendarDay({ day, month, selection, onPress }: CalendarDayProps) {
+export function CalendarDay({ day, month, selection, disabled, onPress }: CalendarDayProps) {
   const [start, end] = selection
-
+  const isToday = checkIsToday(day)
   const isOutsideMonth = !isSameMonth(day, month)
   if (isOutsideMonth) return <View style={styles.cell} />
+
+  // 고를 수 없는 날은 기간 배경을 입히지 않는다.
+  // 칠해두면 고른 것으로 읽혀 눌리지 않는 이유를 설명하지 못한다.
+  if (disabled === true) {
+    return (
+      <View style={[styles.cell, styles.disabled]}>
+        <View style={styles.rangeBand}>
+          <Typography variant="body2" color="text.secondary">
+            {day.getDate()}
+          </Typography>
+        </View>
+      </View>
+    )
+  }
 
   const isStart = start != null && isSameDay(start, day)
   const isEnd = end != null && isSameDay(end, day)
@@ -40,9 +56,10 @@ export function CalendarDay({ day, month, selection, onPress }: CalendarDayProps
           isSelected && styles.view,
           (isStart || isLoneEdge) && styles.bandStart,
           (isEnd || isLoneEdge) && styles.bandEnd,
+          !isSelected && isToday && styles.outlined
         ]}
       >
-        <Typography variant="body2" color={isSelected ? '#fff' : palette.text}>
+        <Typography variant="body2" style={{ color: isSelected ? '#fff' : palette.text }}>
           {day.getDate()}
         </Typography>
       </View>
@@ -63,7 +80,8 @@ const styles = StyleSheet.create({
   },
   bandStart: { borderTopLeftRadius: radius.xxl, borderBottomLeftRadius: radius.xxl },
   bandEnd: { borderTopRightRadius: radius.xxl, borderBottomRightRadius: radius.xxl },
-
+  disabled: { opacity: 0.4 },
+  outlined: { borderWidth: 1, borderColor: palette.primary, borderStyle: 'solid', borderRadius: radius.xxl },
   view: {
     backgroundColor: palette.primary,
   },
