@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
 import { IconButton, TextField, Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../../../shared/config/tokens'
+import { useKeyboardMetrics } from '../../../../shared/hooks/env/useKeyboardMetrics'
 
 interface Props {
   title: string
@@ -27,10 +28,11 @@ export function SearchPanelLayout({
   children,
   onClose,
 }: Props) {
+  const { metrics: keyboard } = useKeyboardMetrics();
   // 목록만 스크롤한다. 제목과 입력이 같이 밀려 올라가면 무엇을 고르는
   // 중이었는지 잃고, 좁히려 해도 입력까지 되돌아가야 한다.
   return (
-    <View style={styles.screen}>
+    <View style={[styles.screen, { paddingBottom: keyboard?.height }]}>
       <View style={styles.head}>
         <View style={styles.header}>
           <Typography style={styles.title}>{title}</Typography>
