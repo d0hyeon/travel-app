@@ -21,7 +21,7 @@ export const VARIANT_STYLE = StyleSheet.create({
 export type TypographyVariant = keyof typeof VARIANT_STYLE
 
 // MUI 의 color="text.secondary" 같은 표기를 그대로 받는다.
-const COLOR_MAP: Record<string, string> = {
+const COLOR_MAP = {
   'text.primary': palette.text,
   'text.secondary': palette.textSecondary,
   'primary.main': palette.primary,
@@ -29,12 +29,12 @@ const COLOR_MAP: Record<string, string> = {
   error: '#d32f2f',
   warning: palette.warning,
   success: palette.success,
-}
+} as const;
 
 export interface TypographyProps extends RNTextProps {
   ref?: Ref<RNText>
   variant?: TypographyVariant
-  color?: string
+  color?: keyof typeof COLOR_MAP;
   fontWeight?: 'bold' | 'medium' | number | string
   /** MUI 축약 prop */
   mb?: number
