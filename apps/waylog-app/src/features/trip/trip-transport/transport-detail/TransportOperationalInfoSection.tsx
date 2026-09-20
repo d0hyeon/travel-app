@@ -1,6 +1,5 @@
 import { AsyncBoundary } from '@waylog/react'
 import { useFlightStatus } from '@waylog/domains/modules/flight-status'
-import { TransportType } from '@waylog/domains/modules/transport'
 import {
   getOperationalFields,
   useTripTransport,
@@ -12,6 +11,7 @@ import { Skeleton, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../../shared/config/tokens'
 import { TransportDetailSectionError } from './TransportDetailSectionError'
 import { MaterialIcons } from '@expo/vector-icons'
+import { TransportType } from '@waylog/domains/modules/transport'
 
 const EMPTY_PLACEHOLDER = '—'
 
@@ -38,17 +38,9 @@ function Resolved({ tripId, transportId }: Props) {
   const { transport, primaryTicket } = useTripTransportDetail({ tripId, transportId })
   const { updateTicket } = useTripTransport(tripId)
 
-  const { status } = useFlightStatus(
-    transport.type === TransportType.항공
-      ? {
-          airlineCode: transport.airlineCode,
-          flightNumber: transport.flightNumber,
-          departureAirportCode: transport.departureAirportCode,
-          arrivalAirportCode: transport.arrivalAirportCode,
-          departureAt: transport.departureAt,
-        }
-      : {},
-  )
+  const { status } = useFlightStatus(transport, {
+    enabled: transport.type === TransportType.항공
+  })
 
   const fields = getOperationalFields(transport.type)
 
