@@ -157,15 +157,13 @@ describe('getCarrierInfo', () => {
     expect(getCarrierInfo(항공편)).toEqual({ name: '대한항공', number: 'KE721' })
   })
 
-  it('기차·버스는 사업자와 편성번호를 읽는다', () => {
+  it('기차·버스는 읽을 운항 정보가 없다', () => {
     const 기차편: TripTransport = {
       ...createTransport('t1', '2026-03-01T09:10:00Z'),
       type: 'train',
-      provider: '코레일',
-      serviceNumber: 'KTX 101',
     }
 
-    expect(getCarrierInfo(기차편)).toEqual({ name: '코레일', number: 'KTX 101' })
+    expect(getCarrierInfo(기차편)).toEqual({ name: undefined, number: undefined })
   })
 
   it('비어 있는 필드는 그대로 비워 낸다', () => {

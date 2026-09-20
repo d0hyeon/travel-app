@@ -51,7 +51,7 @@ export function getCarrierInfo(
     return { name: transport.airline, number: transport.flightNumber };
   }
 
-  return { name: transport.provider, number: transport.serviceNumber };
+  return { name: undefined, number: undefined };
 }
 
 // 터미널·게이트·좌석은 모두 탑승권에 인쇄된 값이다. 종류마다 인쇄되는

@@ -34,8 +34,6 @@ type RawData = {
   airline: string | null
   airline_code: string | null
   flight_number: string | null
-  provider: string | null
-  service_number: string | null
   created_at: string
   trip_transport_tickets: RawTicket[]
 }
@@ -45,7 +43,7 @@ const TRIP_TRANSPORT_SELECT = `
   departure_name, arrival_name,
   departure_airport_code, arrival_airport_code,
   departure_at, arrival_at, departure_timezone, arrival_timezone,
-  airline, airline_code, flight_number, provider, service_number, created_at,
+  airline, airline_code, flight_number, created_at,
   trip_transport_tickets(id, transport_id, member_id, image, seat, terminal, gate, created_at)
 ` as const
 
@@ -97,8 +95,6 @@ function toData(row: RawData): TripTransport {
   return {
     ...base,
     type: row.type === TransportType.기차 ? TransportType.기차 : TransportType.버스,
-    provider: row.provider ?? undefined,
-    serviceNumber: row.service_number ?? undefined,
   }
 }
 
@@ -144,8 +140,8 @@ function toCarrierColumns(data: TripTransportCarrier) {
     airline: null,
     airline_code: null,
     flight_number: null,
-    provider: data.provider ?? null,
-    service_number: data.serviceNumber ?? null,
+    provider: null,
+    service_number: null,
   }
 }
 
