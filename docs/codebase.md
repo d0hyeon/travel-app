@@ -747,7 +747,11 @@ src/
 - 모듈: `packages/domains/src/modules/trip-transport/`
 - `TripTransport`은 `TripTransportBase & TripTransportCarrier`다.
   `TripTransportCarrier`가 종류별 필드를 가르는 판별 유니온이라
-  `type`으로 좁혀야 `airline` 또는 `provider`에 닿는다.
+  `type`으로 좁혀야 `airline`에 닿는다. 기차·버스 분기는 `type`만 갖는다 —
+  `provider`·`service_number`는 읽는 provider 가 없어 도메인 타입에서 뺐다.
+  DB 컬럼(`provider`, `service_number`)은 남아 있지만 쓰기는 항상 `null`로
+  고정한다(`toCarrierColumns`) — 종류를 바꿔도 이전 값이 남지 않게 하는
+  기존 규칙을 그대로 따른다.
   DB는 종류별 컬럼이 모두 nullable이므로 이 유니온은 코드가 잘못 쓰는 것을
   막는 장치이지 데이터 무결성 보장이 아니다.
 - 출발·도착은 `places`가 아니라 **`trip_places`를 참조**한다.
@@ -831,9 +835,15 @@ src/
   `KE721`·`ke 721`·`대한항공 721` 이 모두 들어와 매칭이 흔들린다.
 - 기차·버스는 출발·도착을 자유 입력으로 남긴다. `TransportScheduleFields`
   가 클릭 콜백을 받은 필드만 읽기 전용으로 바꾼다.
+  사업자·편명 같은 부가 입력은 없다 — 읽는 provider 가 없어 채워도 쓰이지
+  않으므로 폼에서 뺐다. `provider`·`service_number` DB 컬럼은 남아 있지만
+  더 이상 쓰지 않는다.
 - **실시간 운항 상태는 provider 로 가른다**(`flight-status`). 날씨의 축 분리를
   승계해 공항 코드로 provider 를 고르고, provider 가 `getIsAvailability` 로
   자기 기간 제약(인천 D+0~D+6)을 답한다. 김포·김해는 provider 를 더한다.
+  조회 가능한 편이 하나도 없으면(기차·버스뿐인 화면 등) 운항 목록 자체를
+  받지 않는다 — 목록 API 가 공항 하루치를 통째로 주므로 받을 이유가 없을
+  때 건너뛰는 것이 비용을 아낀다.
 - 인천공항 API 는 편명을 **제로패딩**(`KE011`)하고 일부에 **접미 문자**(`KE647Y`)를
   붙이며, 코드셰어로 같은 편이 여러 행에 걸친다(Slave 가 절반이다).
   문자열 비교로는 매칭되지 않아 편번호를 수로 비교한다.
@@ -847,6 +857,11 @@ src/
   하지 않는다. 바로 아래 `TransportTicketsSection`이 이미 하고 있어 같은 버튼이
   둘 뜬다. 티켓은 있고 추출만 실패한 경우는 빈 카드를 보여준다 — 눌러서
   직접 채울 수 있어야 한다.
+- 이 구획이 보여주는 칸은 종류마다 다르며 `getOperationalFields(type)`
+  (`trip-transport` 도메인)가 답한다. 항공은 터미널·게이트·좌석(나) 세 칸,
+  기차·버스는 게이트가 없어 두 칸이고 `terminal` 컬럼의 라벨만 플랫폼으로
+  바뀐다 — 컬럼 자체는 그대로다(탑승권에 인쇄된 값을 옮겨 적는 자리라는
+  의미가 항공·기차·버스 모두 같아, 새 컬럼을 만들지 않고 라벨만 갈랐다).
 - 세 값은 `EditableText`로 직접 고친다. 추출은 입력 보조이며, OCR 이 틀린
   값을 넣었을 때 고칠 길이 없으면 유일 입력이 되어 원칙과 어긋난다.
 - **지연·결항 알림은 서버가 폴링한다**. `pg_cron`(5분) → `pg_net` →
