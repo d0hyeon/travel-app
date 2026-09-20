@@ -1,4 +1,8 @@
-import type { TripTransport, TripTransportTicket } from "./tripTransport.types";
+import type {
+  TripTransport,
+  TripTransportTicket,
+  TripTransportType,
+} from "./tripTransport.types";
 
 // 타임존 값은 1차에서 채우지 않으므로 없으면 기기 로컬로 폴백한다.
 // date-fns 는 이름이 주어져도 타임존 변환을 하지 못해 Intl 을 쓴다.
@@ -48,6 +52,33 @@ export function getCarrierInfo(
   }
 
   return { name: transport.provider, number: transport.serviceNumber };
+}
+
+// 터미널·게이트·좌석은 모두 탑승권에 인쇄된 값이다. 종류마다 인쇄되는
+// 항목과 부르는 이름이 다르다 -- 기차·버스 승차권은 게이트를 찍지 않고,
+// 터미널 자리에 승강장을 찍는다.
+export interface TripTransportOperationalField {
+  name: "terminal" | "gate" | "seat";
+  label: string;
+}
+
+const SEAT_FIELD: TripTransportOperationalField = {
+  name: "seat",
+  label: "좌석(나)",
+};
+
+export function getOperationalFields(
+  type: TripTransportType,
+): readonly TripTransportOperationalField[] {
+  if (type === "flight") {
+    return [
+      { name: "terminal", label: "터미널" },
+      { name: "gate", label: "게이트" },
+      SEAT_FIELD,
+    ];
+  }
+
+  return [{ name: "terminal", label: "플랫폼" }, SEAT_FIELD];
 }
 
 // 출발·도착이 각자의 타임존에서 다른 날인지 본다.

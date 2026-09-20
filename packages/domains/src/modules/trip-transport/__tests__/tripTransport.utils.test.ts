@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   findMyTicket,
   getCarrierInfo,
+  getOperationalFields,
   isOvernightArrival,
   groupByDepartureDate,
   splitByDeparture,
@@ -121,6 +122,27 @@ describe('findMyTicket', () => {
     const 남의티켓 = createTicket('tk1', 'other')
 
     expect(findMyTicket([남의티켓], 'me')).toBeUndefined()
+  })
+})
+
+describe('getOperationalFields', () => {
+  it('항공은 터미널·게이트·좌석을 보여준다', () => {
+    expect(getOperationalFields('flight')).toEqual([
+      { name: 'terminal', label: '터미널' },
+      { name: 'gate', label: '게이트' },
+      { name: 'seat', label: '좌석(나)' },
+    ])
+  })
+
+  it('기차는 게이트가 없고 터미널을 플랫폼으로 부른다', () => {
+    expect(getOperationalFields('train')).toEqual([
+      { name: 'terminal', label: '플랫폼' },
+      { name: 'seat', label: '좌석(나)' },
+    ])
+  })
+
+  it('버스도 기차와 같다', () => {
+    expect(getOperationalFields('bus')).toEqual(getOperationalFields('train'))
   })
 })
 
