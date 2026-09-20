@@ -8,8 +8,8 @@ import { AsyncBoundary } from '@waylog/react'
 import { StyleSheet, View } from 'react-native'
 import { Skeleton, Typography } from '~/shared/components/design-system'
 import { TransportDetailSectionError } from './TransportDetailSectionError'
-import { assert } from '@waylog/utility'
 import { TransportType } from '@waylog/domains/modules/transport'
+import { assert } from '../../../../shared/utils/assert'
 
 interface Props {
   tripId: string
