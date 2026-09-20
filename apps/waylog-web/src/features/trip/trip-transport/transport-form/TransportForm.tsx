@@ -1,6 +1,5 @@
-import { Button, Divider, Stack, TextField, Typography } from '@mui/material'
-import { Controller, useForm } from 'react-hook-form'
-import { useIsMobile } from '~shared/hooks/env/useIsMobile'
+import { Button, Stack } from '@mui/material'
+import { useForm } from 'react-hook-form'
 import { GroundRouteFields } from './GroundRouteFields'
 import { TransportTimeFields } from './TransportTimeFields'
 import type { TransportFormValues } from './transportForm.types'
@@ -11,7 +10,6 @@ interface Props {
 }
 
 export function TransportForm({ defaultValues, onNext }: Props) {
-  const isMobile = useIsMobile()
   const {
     control,
     handleSubmit,
@@ -27,41 +25,6 @@ export function TransportForm({ defaultValues, onNext }: Props) {
     <Stack component="form" onSubmit={handleSubmit(onNext)} p={2} gap={2}>
       <GroundRouteFields control={control} />
       <TransportTimeFields control={control} />
-
-      <Divider />
-
-      <Typography variant="caption" color="text.secondary" fontWeight={700}>
-        선택 입력 — 실시간 매칭이 필요할 때만
-      </Typography>
-
-      <Stack direction={isMobile ? 'column' : 'row'} gap={2}>
-        <Controller
-          control={control}
-          name="provider"
-          render={({ field }) => (
-            <TextField
-              label="사업자"
-              placeholder="예: JR도카이"
-              fullWidth
-              {...field}
-              value={field.value ?? ''}
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name="serviceNumber"
-          render={({ field }) => (
-            <TextField
-              label="편명·호수"
-              placeholder="예: 노조미 25호"
-              fullWidth
-              {...field}
-              value={field.value ?? ''}
-            />
-          )}
-        />
-      </Stack>
 
       <Button type="submit" variant="contained" size="large" disabled={!isValid} sx={{ mt: 1 }}>
         다음
