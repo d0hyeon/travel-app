@@ -63,7 +63,7 @@ export default function TransportFormPage() {
                 airlineCode: detail.airlineCode,
                 flightNumber: detail.flightNumber,
               }
-            : { type, provider: detail.provider, serviceNumber: detail.serviceNumber }
+            : { type }
 
         const created = await add({
           departureName: detail.departureName!,

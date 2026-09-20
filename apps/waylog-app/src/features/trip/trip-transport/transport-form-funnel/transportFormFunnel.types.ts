@@ -17,6 +17,4 @@ export interface TransportFormValues {
   airline?: string
   airlineCode?: string
   flightNumber?: string
-  provider?: string
-  serviceNumber?: string
 }

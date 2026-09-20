@@ -1,6 +1,6 @@
-import { Controller, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { ScrollView, StyleSheet, View } from 'react-native'
-import { Button, Divider, TextField, Typography } from '~/shared/components/design-system'
+import { Button } from '~/shared/components/design-system'
 import { palette } from '../../../../shared/config/tokens'
 import { GroundRouteFields } from './GroundRouteFields'
 import { TransportTimeFields } from './TransportTimeFields'
@@ -28,35 +28,6 @@ export function TransportForm({ defaultValues, onNext }: Props) {
       <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
         <GroundRouteFields control={control} />
         <TransportTimeFields control={control} />
-
-        <Divider />
-
-        <Typography style={styles.sectionLabel}>선택 입력 — 실시간 매칭이 필요할 때만</Typography>
-
-        <Controller
-          control={control}
-          name="provider"
-          render={({ field }) => (
-            <TextField
-              label="사업자"
-              placeholder="예: JR도카이"
-              value={field.value}
-              onChangeText={field.onChange}
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name="serviceNumber"
-          render={({ field }) => (
-            <TextField
-              label="편명·호수"
-              placeholder="예: 노조미 25호"
-              value={field.value}
-              onChangeText={field.onChange}
-            />
-          )}
-        />
       </ScrollView>
 
       <View style={styles.footer}>
@@ -77,6 +48,5 @@ export function TransportForm({ defaultValues, onNext }: Props) {
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   body: { padding: 16, gap: 16 },
-  sectionLabel: { fontSize: 12, color: palette.textSecondary, fontWeight: '700' },
   footer: { padding: 16, borderTopWidth: 1, borderTopColor: palette.divider, flexDirection: 'row' },
 })
