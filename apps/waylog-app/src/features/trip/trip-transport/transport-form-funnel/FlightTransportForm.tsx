@@ -23,9 +23,7 @@ export function FlightTransportForm({ defaultValues, onNext }: Props) {
     setValue,
     formState: { isValid },
   } = useForm<TransportFormValues>({
-    values: defaultValues as TransportFormValues,
-    // isValid 는 검증이 돈 뒤에만 참이 된다. 제출 시점에만 검증하면
-    // 다 채워도 버튼이 계속 잠긴다.
+    defaultValues,
     mode: 'onChange',
   })
 
