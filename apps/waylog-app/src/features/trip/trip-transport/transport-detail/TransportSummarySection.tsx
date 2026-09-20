@@ -7,7 +7,7 @@ import {
   useTripTransportDetail,
 } from '@waylog/domains/modules/trip-transport'
 import { format } from 'date-fns'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, View, ViewProps } from 'react-native'
 import { Skeleton, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../../shared/config/tokens'
 import { TransportTypeIcon } from '../TransportTypeIcon'
@@ -21,23 +21,23 @@ interface Props {
   transportId: string
 }
 
-export function TransportSummarySection({ tripId, transportId }: Props) {
+export function TransportSummarySection({ tripId, transportId, ...props }: Props & ViewProps) {
   return (
     <AsyncBoundary
       resetKeys={[tripId, transportId]}
-      pendingFallback={<TransportSummarySkeleton />}
+      pendingFallback={<TransportSummarySkeleton {...props} />}
       rejectedFallback={({ error, resetError }) => (
         <TransportDetailSectionError message={error.message} onRetry={resetError} />
       )}
     >
-      <Resolved tripId={tripId} transportId={transportId} />
+      <Resolved tripId={tripId} transportId={transportId} {...props} />
     </AsyncBoundary>
   )
 }
 
-function Resolved({ tripId, transportId }: Props) {
+function Resolved({ tripId, transportId, style, ...props }: Props & ViewProps) {
   const { transport } = useTripTransportDetail({ tripId, transportId })
-  const carrierLabel = toCarrierLabel(transport) ?? EMPTY_VALUE
+  const carrierLabel = toCarrierLabel(transport)
 
   const { status } = useFlightStatus(
     transport.type === TransportType.항공
@@ -56,11 +56,14 @@ function Resolved({ tripId, transportId }: Props) {
   const scheduled = { ...transport, departureAt }
 
   return (
-    <View style={styles.section}>
+    <View style={[styles.section, style]} {...props}>
       <View style={styles.typeBadge}>
         <TransportTypeIcon type={transport.type} size={15} color={palette.textSecondary} />
         <Typography style={styles.typeLabel}>{TransportTypeLabel[transport.type]}</Typography>
       </View>
+      <Typography color="text.secondary">
+        {format(new Date(departureAt), 'M월 d일')}
+      </Typography>
       <View style={styles.times}>
         <Typography style={styles.time}>{formatDepartureTime(scheduled) || EMPTY_VALUE}</Typography>
         <Typography style={styles.arrow}>→</Typography>
@@ -69,16 +72,19 @@ function Resolved({ tripId, transportId }: Props) {
       <Typography style={styles.route}>
         {transport.departureName || EMPTY_VALUE} → {transport.arrivalName || EMPTY_VALUE}
       </Typography>
-      <Typography style={styles.carrier}>
-        {carrierLabel} · {format(new Date(departureAt), 'M월 d일')}
-      </Typography>
+      {carrierLabel != null && (
+        <Typography >
+          {carrierLabel}
+        </Typography>
+      )}
+
     </View>
   )
 }
 
-function TransportSummarySkeleton() {
+function TransportSummarySkeleton({ style, ...props }: ViewProps) {
   return (
-    <View style={styles.section}>
+    <View style={[styles.section, style]} {...props}>
       <Skeleton width={64} height={28} variant="rounded" />
       <View style={styles.times}>
         <Skeleton width={72} height={38} />
@@ -104,9 +110,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.04)',
   },
   typeLabel: { fontSize: 12, fontWeight: '700' },
-  times: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 8 },
+  times: { flexDirection: 'row', alignItems: 'center', gap: 12, },
   time: { fontSize: 30, lineHeight: 38, fontWeight: '700' },
   arrow: { fontSize: 22, lineHeight: 38, color: palette.textSecondary },
   route: { fontSize: 15, color: palette.textSecondary },
-  carrier: { fontSize: 13, color: palette.textSecondary, marginBottom: 10 },
+  carrier: { fontSize: 13, color: palette.textSecondary, marginTop: 8 },
 })
