@@ -96,7 +96,7 @@ function WheelColumn({ options, value, suffix, onChange }: WheelColumnProps) {
           <View style={styles.item}>
             <Typography
               variant={isSelected ? 'h6' : 'body1'}
-              color={isSelected ? palette.text : palette.textSecondary}
+              color={isSelected ? 'text.primary' : 'text.secondary'}
             >
               {String(item).padStart(2, '0')}
               {suffix}
