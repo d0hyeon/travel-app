@@ -21,7 +21,7 @@ export function RouteArrow() {
 }
 
 // TextField·DateField 에 에러 표시가 없어 폼에서 테두리를 그린다.
-export function PairSlot({ hasError, children }: { hasError: boolean; children: ReactNode }) {
+export function PairSlot({ hasError, children }: { hasError?: boolean; children: ReactNode }) {
   return <View style={[styles.slot, hasError && styles.slotError]}>{children}</View>
 }
 

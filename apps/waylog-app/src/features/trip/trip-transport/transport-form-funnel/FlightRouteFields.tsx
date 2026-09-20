@@ -44,8 +44,8 @@ export function FlightRouteFields({ control, setValue }: Props) {
         control={control}
         name="departureName"
         rules={{ required: true }}
-        render={({ field, fieldState }) => (
-          <PairSlot hasError={fieldState.invalid}>
+        render={({ field }) => (
+          <PairSlot>
             <SelectedAirport
               placeholder="출발 공항"
               value={field.value}
@@ -59,8 +59,8 @@ export function FlightRouteFields({ control, setValue }: Props) {
         control={control}
         name="arrivalName"
         rules={{ required: true }}
-        render={({ field, fieldState }) => (
-          <PairSlot hasError={fieldState.invalid}>
+        render={({ field }) => (
+          <PairSlot>
             <SelectedAirport placeholder="도착 공항" value={field.value} onPress={selectArrival} />
           </PairSlot>
         )}
