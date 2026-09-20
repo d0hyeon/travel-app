@@ -3,23 +3,25 @@ import '../src/shared/polyfills'
 
 import { QueryClientProvider } from '@tanstack/react-query'
 import { AuthErrorBoundary, AuthStateSync } from '@waylog/domains/clients'
+import { ExceptionError } from '@waylog/utility'
 import { Stack } from 'expo-router'
-import { GestureHandlerRootView } from 'react-native-gesture-handler'
-import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import { Suspense, type PropsWithChildren } from 'react'
-import { ActivityIndicator, View, StyleSheet } from 'react-native'
+import { ActivityIndicator, LogBox, StyleSheet, View } from 'react-native'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
+import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { TamaguiProvider } from 'tamagui'
-import { tamaguiConfig } from '../tamagui.config'
 import { setupApi } from '../src/api-config'
-import { queryClient } from '../src/shared/query-client'
-import { KeyboardDismissArea } from '../src/shared/components/KeyboardDismissArea'
-import { OverlayProvider } from '../src/shared/hooks/useOverlay.context'
-import { useChatNotificationResponse } from '../src/features/trip/trip-chat/notification/useChatNotification'
 import { useLoginRedirect } from '../src/features/auth/auth-redirect'
+import { useChatNotificationResponse } from '../src/features/trip/trip-chat/notification/useChatNotification'
+import { OverlayProvider } from '../src/shared/hooks/useOverlay.context'
+import { queryClient } from '../src/shared/query-client'
+import { tamaguiConfig } from '../tamagui.config'
 
-// 어떤 도메인 모듈보다 먼저 실행되어야 한다.
+
+
 setupApi()
+LogBox.ignoreLogs([ExceptionError.name])
 
 function Loading() {
   return (
