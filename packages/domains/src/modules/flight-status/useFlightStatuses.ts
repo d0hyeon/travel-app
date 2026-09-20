@@ -33,6 +33,12 @@ function getIsComplete(query: FlightQuery): query is GetFlightStatusParams {
   )
 }
 
+// 조회할 곳이 있는지는 훅의 지식이다 -- 호출부가 매번 다시 묻지 않는다.
+// 순수 판단이라 export 해 단위 테스트한다.
+export function getIsQueryable(query: FlightQuery): query is GetFlightStatusParams {
+  return findProvider(query) != null && getIsComplete(query)
+}
+
 export interface FlightStatusResult {
   status: FlightStatus | null
   provider?: string
@@ -51,8 +57,13 @@ export interface FlightStatusResult {
 export function useFlightStatuses(queries: readonly FlightQuery[]): FlightStatusResult[] {
   const [listProvider] = PROVIDERS
 
+  // 목록을 받을 이유가 하나도 없으면 받지 않는다. 기차·버스만 있는 화면이
+  // 인천 하루치 운항 목록을 받아오던 자리다.
+  const isEnabled = queries.some(getIsQueryable)
+
   const { data: schedules } = useSuspenseQuery({
     queryKey: useFlightStatuses.key(),
+    enabled: isEnabled,
     refetchInterval: REFETCH_INTERVAL,
     queryFn: () => listProvider.getFlightSchedules(),
   })
@@ -64,7 +75,7 @@ export function useFlightStatuses(queries: readonly FlightQuery[]): FlightStatus
     const isAvailable = isSupported && provider.getIsAvailability(query.departureAt)
 
     return {
-      status: isAvailable ? provider.findFlightStatus(schedules, query) : null,
+      status: isAvailable && schedules != null ? provider.findFlightStatus(schedules, query) : null,
       provider: provider?.provider,
       isSupported,
       isAvailable,
@@ -74,10 +85,21 @@ export function useFlightStatuses(queries: readonly FlightQuery[]): FlightStatus
 
 useFlightStatuses.key = () => ['flight-schedules']
 
-export type UseFlightStatusParams = FlightQuery
+export interface UseFlightStatusOptions {
+  /**
+   * false 를 주면 이 쿼리로 조회 가능한지와 무관하게 조회하지 않는다.
+   * 호출부가 "이 편은 항공이 아니다"처럼 조회 자체가 무의미함을
+   * 이미 알 때 쓴다. 기본값은 true.
+   */
+  enabled?: boolean
+}
 
-export function useFlightStatus(params: UseFlightStatusParams): FlightStatusResult {
-  const [result] = useFlightStatuses([params])
+export function useFlightStatus(
+  params: FlightQuery,
+  options?: UseFlightStatusOptions,
+): FlightStatusResult {
+  const query = options?.enabled === false ? {} : params
+  const [result] = useFlightStatuses([query])
   return result
 }
 
