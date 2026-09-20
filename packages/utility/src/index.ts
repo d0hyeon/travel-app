@@ -6,3 +6,4 @@ export * from "./urls";
 export * from "./utility.types";
 export * from "./coordinate.types";
 export * from "./createHttpClient";
+export * from "./exception";
