@@ -57,8 +57,9 @@ export interface FlightStatusResult {
 export function useFlightStatuses(queries: readonly FlightQuery[]): FlightStatusResult[] {
   const [listProvider] = PROVIDERS
 
-  // 목록을 받을 이유가 하나도 없으면 받지 않는다. 기차·버스만 있는 화면이
-  // 인천 하루치 운항 목록을 받아오던 자리다.
+  // 목록은 편마다 따로 받지 않고 하루치를 통째로 받는다. 그래서 "받을지
+  // 말지"는 배열 전체에 하나 -- 한 편이라도 조회 가능하면 받는다.
+  // "이 편이 그 목록에서 실제로 나오는지"는 아래 map 에서 편별로 다시 본다.
   const isEnabled = queries.some(getIsQueryable)
 
   const { data: schedules } = useSuspenseQuery({
