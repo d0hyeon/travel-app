@@ -27,7 +27,7 @@ export function TransportDetailScreen() {
         }
       />
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <TransportSummarySection tripId={tripId} transportId={transportId} />
+        <TransportSummarySection tripId={tripId} transportId={transportId} style={{ marginBottom: 10 }} />
         <TransportRealtimeInfoSection tripId={tripId} transportId={transportId} />
         <TransportOperationalInfoSection tripId={tripId} transportId={transportId} />
         <TransportTicketsSection tripId={tripId} transportId={transportId} />
