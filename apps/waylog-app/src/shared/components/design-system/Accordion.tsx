@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   root: {
     borderWidth: 1,
     borderColor: palette.divider,
-    borderRadius: radius.lg,
+    borderRadius: radius.xl,
     overflow: 'hidden',
   },
   summary: {
