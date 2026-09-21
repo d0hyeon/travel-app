@@ -1,8 +1,10 @@
 import { Button, Divider, Stack, TextField } from '@mui/material'
 import { Controller, useForm } from 'react-hook-form'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
+import { BottomArea } from '~shared/components/BottomArea'
 import { AirlineField } from './AirlineField'
 import { FlightRouteFields } from './FlightRouteFields'
+import { FieldPair } from './scheduleFieldParts'
 import { TransportTimeFields } from './TransportTimeFields'
 import type { TransportFormValues } from './transportForm.types'
 
@@ -26,32 +28,37 @@ export function FlightTransportForm({ defaultValues, onNext }: Props) {
   })
 
   return (
-    <Stack component="form" onSubmit={handleSubmit(onNext)} p={2} gap={2}>
+    <Stack component="form" onSubmit={handleSubmit(onNext)} p={2} gap={2} pb={9}>
       <FlightRouteFields control={control} setValue={setValue} />
       <TransportTimeFields control={control} />
 
       <Divider />
 
       <Stack direction={isMobile ? 'column' : 'row'} gap={2}>
-        <AirlineField control={control} setValue={setValue} />
-        <Controller
-          control={control}
-          name="flightNumber"
-          render={({ field }) => (
-            <TextField
-              label="편번호"
-              placeholder="예: 721"
-              fullWidth
-              {...field}
-              value={field.value ?? ''}
-            />
-          )}
-        />
+        <FieldPair label="항공사" required={false}>
+          <AirlineField control={control} setValue={setValue} />
+        </FieldPair>
+        <FieldPair label="편번호" required={false}>
+          <Controller
+            control={control}
+            name="flightNumber"
+            render={({ field }) => (
+              <TextField
+                placeholder="예: 721"
+                fullWidth
+                {...field}
+                value={field.value ?? ''}
+              />
+            )}
+          />
+        </FieldPair>
       </Stack>
 
-      <Button type="submit" variant="contained" size="large" disabled={!isValid} sx={{ mt: 1 }}>
-        다음
-      </Button>
+      <BottomArea left={0}>
+        <Button type="submit" variant="contained" size="large" disabled={!isValid} fullWidth>
+          다음
+        </Button>
+      </BottomArea>
     </Stack>
   )
 }

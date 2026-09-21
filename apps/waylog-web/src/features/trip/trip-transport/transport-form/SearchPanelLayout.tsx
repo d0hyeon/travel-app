@@ -60,7 +60,7 @@ export function SearchPanelLayout({
 
       <Stack flex={1} minHeight={0} px={2} pb={2} sx={{ overflowY: 'auto' }}>
         {!isEmpty && (
-          <Stack border="1px solid" borderColor="divider" borderRadius={2} overflow="hidden">
+          <Stack border="1px solid" borderColor="divider" borderRadius={2} >
             {children}
           </Stack>
         )}

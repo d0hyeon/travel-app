@@ -25,6 +25,7 @@ import {
   type TransportFormValues,
   type TransportTicketDraft,
 } from './transportForm.types'
+import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
 
 const STEP_TITLE: Record<TransportFormStep, string> = {
   type: '종류 선택',
@@ -58,11 +59,11 @@ export default function TransportFormPage() {
         const carrier =
           type === 'flight'
             ? {
-                type,
-                airline: detail.airline,
-                airlineCode: detail.airlineCode,
-                flightNumber: detail.flightNumber,
-              }
+              type,
+              airline: detail.airline,
+              airlineCode: detail.airlineCode,
+              flightNumber: detail.flightNumber,
+            }
             : { type }
 
         const created = await add({
@@ -104,33 +105,29 @@ export default function TransportFormPage() {
         disableGutters
         sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}
       >
-        <TopNavigation>
-          <IconButton sx={{ width: 36, height: 36 }} aria-label="뒤로" onClick={goBack}>
-            <ChevronLeftIcon />
-          </IconButton>
-          <Box flex={1} minWidth={0}>
-            <Typography variant="caption" color="text.secondary">
-              교통편 · {stepIndex + 1}/{TRANSPORT_FORM_STEPS.length}
-            </Typography>
-            <Typography fontSize={17} fontWeight={700} letterSpacing="-0.3px">
-              {STEP_TITLE[step]}
-            </Typography>
-          </Box>
-
-          <Stack direction="row" gap="4px" alignItems="center">
-            {TRANSPORT_FORM_STEPS.map((s, index) => (
-              <Box
-                key={s}
-                sx={{
-                  width: index === stepIndex ? 16 : 6,
-                  height: 6,
-                  borderRadius: '3px',
-                  bgcolor: index <= stepIndex ? 'primary.main' : 'action.disabledBackground',
-                  transition: 'all .2s',
-                }}
-              />
-            ))}
-          </Stack>
+        <TopNavigation
+          position="sticky"
+          leftElement={<TopNavigation.BackButton />}
+          rightElement={
+            <Stack direction="row" gap="4px" alignItems="center">
+              {TRANSPORT_FORM_STEPS.map((s, index) => (
+                <Box
+                  key={s}
+                  sx={{
+                    width: index === stepIndex ? 16 : 6,
+                    height: 6,
+                    borderRadius: '3px',
+                    bgcolor: index <= stepIndex ? 'primary.main' : 'action.disabledBackground',
+                    transition: 'all .2s',
+                  }}
+                />
+              ))}
+            </Stack>
+          }
+        >
+          <Typography variant='subtitle2'>
+            탑승권
+          </Typography>
         </TopNavigation>
 
         {!!error && (
@@ -187,24 +184,3 @@ export default function TransportFormPage() {
   )
 }
 
-function TopNavigation(props: PropsWithChildren) {
-  return (
-    <Box
-      position="sticky"
-      top={0}
-      zIndex={20}
-      sx={{
-        height: 64,
-        px: 2,
-        py: '14px',
-        bgcolor: 'background.paper',
-        borderBottom: '1px solid',
-        borderColor: 'divider',
-      }}
-    >
-      <Stack direction="row" alignItems="center" gap={1} height="100%">
-        {props.children}
-      </Stack>
-    </Box>
-  )
-}

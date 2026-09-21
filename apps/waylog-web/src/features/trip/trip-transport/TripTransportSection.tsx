@@ -7,9 +7,10 @@ import { TripTransportList } from './TripTransportList'
 
 interface Props extends StackProps {
   tripId: string
+  hideAddButton?: boolean
 }
 
-export function TripTransportSection({ tripId, ...props }: Props) {
+export function TripTransportSection({ tripId, hideAddButton, ...props }: Props) {
   const navigate = useNavigate()
 
   return (
@@ -23,16 +24,18 @@ export function TripTransportSection({ tripId, ...props }: Props) {
         </Suspense>
       </ErrorBoundary>
 
-      <Button
-        component={Link}
-        to={`/trip/${tripId}/transport/new`}
-        variant="contained"
-        size="large"
-        startIcon={<AddIcon />}
-        fullWidth
-      >
-        교통편 추가
-      </Button>
+      {!hideAddButton && (
+        <Button
+          component={Link}
+          to={`/trip/${tripId}/transport/new`}
+          variant="contained"
+          size="large"
+          startIcon={<AddIcon />}
+          fullWidth
+        >
+          교통편 추가
+        </Button>
+      )}
     </Stack>
   )
 }

@@ -25,7 +25,6 @@ export function AirlineField({ control, setValue }: Props) {
 
   return (
     <TextField
-      label="항공사"
       placeholder="목록에서 선택"
       value={airline ?? ''}
       onClick={select}

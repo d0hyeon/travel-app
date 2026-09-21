@@ -41,16 +41,7 @@ export function TripTransportList({ tripId, onTransportClick, ...props }: Props)
   return (
     <Stack gap={2} {...props}>
       {past.length > 0 && (
-        <Accordion
-          disableGutters
-          elevation={0}
-          sx={{
-            border: '1px solid',
-            borderColor: 'divider',
-            borderRadius: 2,
-            '&::before': { display: 'none' },
-          }}
-        >
+        <Accordion>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Typography variant="body2" fontWeight={700} color="text.secondary">
               지난 탑승권 ({past.length})

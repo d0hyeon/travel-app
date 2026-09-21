@@ -1,4 +1,5 @@
 import { createTheme } from "@mui/material";
+import type {} from "@mui/x-date-pickers/themeAugmentation";
 
 export const theme = createTheme({
   zIndex: {
@@ -162,6 +163,47 @@ export const theme = createTheme({
             fontSize: 14,
           },
         }),
+      },
+    },
+    MuiAccordion: {
+      defaultProps: {
+        disableGutters: true,
+        elevation: 0,
+      },
+      styleOverrides: {
+        root: (props) => ({
+          border: `1px solid ${props.theme.palette.divider}`,
+          borderRadius: 16,
+          // MuiPaper 의 그림자를 그대로 두면 테두리와 겹쳐 짙어 보인다. 옅게 깐다.
+          boxShadow: '0px 1px 3px rgba(0,0,0,0.04)',
+          '&::before': { display: 'none' },
+          // MUI 는 첫·마지막 항목의 라운드를 따로 0 으로 덮는다. 단독으로 써도 모서리가 남게 되돌린다.
+          '&:first-of-type, &:last-of-type': { borderRadius: 16 },
+        }),
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+        },
+        // medium 기본 높이(56px)는 모바일 폼에서 과하다. 입력 영역만 줄여 높이를 낮춘다.
+        input: {
+          paddingTop: 12,
+          paddingBottom: 12,
+        },
+      },
+    },
+    // 날짜 입력은 MuiOutlinedInput 이 아니라 자체 슬롯을 쓴다. 같은 높이·라운드를 따로 맞춘다.
+    MuiPickersOutlinedInput: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+        },
+        sectionsContainer: {
+          paddingTop: 12,
+          paddingBottom: 12,
+        },
       },
     },
     MuiTextField: {

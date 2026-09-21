@@ -41,7 +41,7 @@ export function TransportTypeStep({ defaultValue, onNext }: Props) {
                 width: '100%',
                 px: 2,
                 py: 2,
-                borderRadius: 2,
+                borderRadius: 3,
                 cursor: 'pointer',
                 border: '1px solid',
                 borderColor: isSelected ? 'primary.main' : 'divider',

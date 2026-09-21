@@ -18,6 +18,7 @@ import type { TripMember } from '@waylog/domains/modules/trip-member'
 import { useTripMembers } from '@waylog/domains/modules/trip-member'
 import type { TripTransportType } from '@waylog/domains/modules/trip-transport'
 import { useRef, useState } from 'react'
+import { BottomArea } from '~shared/components/BottomArea'
 import { TransportTypeIcon } from '../TransportTypeIcon'
 import { useTicketViewerOverlay } from '../useTicketViewerOverlay'
 import type { TransportTicketDraft } from './transportForm.types'
@@ -50,7 +51,7 @@ export function TransportTicketStep({ tripId, type, isSubmitting, onSkip, onSubm
   }
 
   return (
-    <Stack p={2} gap={3}>
+    <Stack p={2} gap={3} pb={9}>
       <Stack gap={0.5}>
         <Typography variant="h6" fontWeight={700}>
           탑승권을 올려둘까요?
@@ -67,6 +68,7 @@ export function TransportTicketStep({ tripId, type, isSubmitting, onSkip, onSubm
         multiple
         hidden
         onChange={(event) => {
+
           addFiles(event.target.files)
           event.target.value = ''
         }}
@@ -206,7 +208,7 @@ export function TransportTicketStep({ tripId, type, isSubmitting, onSkip, onSubm
         </Box>
       )}
 
-      <Stack direction="row" gap={1} alignItems="center" mt={1}>
+      <BottomArea left={0}>
         <Button color="inherit" disabled={isSubmitting} onClick={onSkip}>
           건너뛰기
         </Button>
@@ -219,7 +221,7 @@ export function TransportTicketStep({ tripId, type, isSubmitting, onSkip, onSubm
         >
           완료
         </Button>
-      </Stack>
+      </BottomArea>
     </Stack>
   )
 }

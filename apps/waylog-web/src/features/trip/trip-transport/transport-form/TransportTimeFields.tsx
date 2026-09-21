@@ -10,9 +10,7 @@ interface Props {
 
 export function TransportTimeFields({ control }: Props) {
   const isMobile = useIsMobile()
-  const pickerSx = isMobile
-    ? { '.MuiPickersSectionList-root': { paddingY: 1.5 }, '.MuiFormLabel-root': { lineHeight: 1 } }
-    : {}
+  const pickerSx = isMobile ? { '.MuiFormLabel-root': { lineHeight: 1 } } : {}
 
   return (
     <FieldPair label="일시">

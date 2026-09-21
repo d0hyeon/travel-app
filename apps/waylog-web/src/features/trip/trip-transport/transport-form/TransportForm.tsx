@@ -1,5 +1,6 @@
 import { Button, Stack } from '@mui/material'
 import { useForm } from 'react-hook-form'
+import { BottomArea } from '~shared/components/BottomArea'
 import { GroundRouteFields } from './GroundRouteFields'
 import { TransportTimeFields } from './TransportTimeFields'
 import type { TransportFormValues } from './transportForm.types'
@@ -22,13 +23,15 @@ export function TransportForm({ defaultValues, onNext }: Props) {
   })
 
   return (
-    <Stack component="form" onSubmit={handleSubmit(onNext)} p={2} gap={2}>
+    <Stack component="form" onSubmit={handleSubmit(onNext)} p={2} gap={2} pb={9}>
       <GroundRouteFields control={control} />
       <TransportTimeFields control={control} />
 
-      <Button type="submit" variant="contained" size="large" disabled={!isValid} sx={{ mt: 1 }}>
-        다음
-      </Button>
+      <BottomArea left={0}>
+        <Button type="submit" variant="contained" size="large" disabled={!isValid} fullWidth>
+          다음
+        </Button>
+      </BottomArea>
     </Stack>
   )
 }

@@ -1,5 +1,7 @@
-import { Box, Stack, Tab, Tabs, Typography } from "@mui/material"
+import AddIcon from '@mui/icons-material/Add'
+import { Box, Fab, Stack, Tab, Tabs, Typography } from "@mui/material"
 import { Suspense } from 'react'
+import { useNavigate } from 'react-router'
 import { BottomArea } from '~shared/components/BottomArea'
 import { BottomNavigation } from '~shared/components/BottomNavigation'
 import { ErrorBoundary } from "@waylog/react"
@@ -25,6 +27,7 @@ interface Props {
 
 export function TripBasicInfoContent({ tripId }: Props) {
   const [currentTab, setCurrentTab] = useQueryParamState('info-tab', { defaultValue: 'default' })
+  const navigate = useNavigate()
 
 
   return (
@@ -140,7 +143,22 @@ export function TripBasicInfoContent({ tripId }: Props) {
         )}
 
         {currentTab === 'transport' && (
-          <TripTransportSection tripId={tripId} paddingBottom={`${BottomNavigation.HEIGHT}px`} />
+          <>
+            <TripTransportSection
+              tripId={tripId}
+              hideAddButton
+              paddingBottom={`${BottomNavigation.HEIGHT}px`}
+            />
+            <Fab
+              color="primary"
+              size="medium"
+              aria-label="교통편 추가"
+              onClick={() => navigate(`/trip/${tripId}/transport/new`)}
+              sx={{ position: 'absolute', bottom: BottomNavigation.HEIGHT + 16, right: 16 }}
+            >
+              <AddIcon />
+            </Fab>
+          </>
         )}
 
       </Box>
