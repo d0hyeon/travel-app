@@ -26,11 +26,11 @@ export function TransportCreationScreen() {
       const carrier =
         values.type === 'flight'
           ? {
-              type: values.type,
-              airline: values.airline,
-              airlineCode: values.airlineCode,
-              flightNumber: values.flightNumber,
-            }
+            type: values.type,
+            airline: values.airline,
+            airlineCode: values.airlineCode,
+            flightNumber: values.flightNumber,
+          }
           : { type: values.type }
 
       const created = await add({
@@ -48,7 +48,7 @@ export function TransportCreationScreen() {
       await upload({ transportId: created.id, tickets: values.tickets })
 
       // 뒤로가기로 퍼널에 되돌아오지 않도록 이 스크린을 목록으로 교체한다.
-      router.replace(`/trip/${tripId}`)
+      router.replace(`/trip/${tripId}/transport/${created.id}`);
     } catch (e) {
       setError(e)
     } finally {

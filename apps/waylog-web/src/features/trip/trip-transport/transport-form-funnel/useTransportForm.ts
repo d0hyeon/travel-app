@@ -1,6 +1,7 @@
 import { TransportType } from "@waylog/domains/modules/transport";
 import {
   useTripTransport,
+  type TripTransport,
   type TripTransportCarrier,
 } from "@waylog/domains/modules/trip-transport";
 import type { TransportFormValues } from "~features/transport/transport-form/transportForm.types";
@@ -18,7 +19,9 @@ interface TransportForm {
    * 마지막 입력은 setState 반영을 기다리지 않도록 함께 넘긴다.
    * 넘긴 값은 폼에도 반영되어, 전송이 실패해도 화면에 남는다.
    */
-  create: (lastInput?: Partial<TransportSubmitValues>) => Promise<void>;
+  create: (
+    lastInput?: Partial<TransportSubmitValues>,
+  ) => Promise<TripTransport>;
 }
 
 export function useTransportForm(tripId: string): TransportForm {
@@ -49,6 +52,8 @@ export function useTransportForm(tripId: string): TransportForm {
     });
 
     await upload({ transportId: created.id, tickets });
+
+    return created;
   };
 
   return { form, update, create };

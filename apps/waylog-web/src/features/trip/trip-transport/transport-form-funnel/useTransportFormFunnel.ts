@@ -9,6 +9,7 @@ import {
   type TransportSubmitValues,
 } from "./transportForm.types";
 import { useTransportForm } from "./useTransportForm";
+import { useTripId } from "~features/trip/useTripId";
 
 interface TransportFormFunnel {
   tripId: string;
@@ -24,7 +25,7 @@ interface TransportFormFunnel {
 }
 
 export function useTransportFormFunnel(): TransportFormFunnel {
-  const { tripId = "" } = useParams();
+  const tripId = useTripId();
   const navigate = useNavigate();
   const { form, update, create } = useTransportForm(tripId);
   const [isSubmitting, startSubmit] = useLoading();
@@ -53,9 +54,9 @@ export function useTransportFormFunnel(): TransportFormFunnel {
   const submit = (lastInput?: Partial<TransportFormValues>) => {
     startSubmit(async () => {
       try {
-        await create(lastInput);
+        const created = await create(lastInput);
         // 뒤로가기로 퍼널에 되돌아오지 않도록 스텝 히스토리를 덮는다.
-        await navigate(`/trip/${tripId}?content=Info&info-tab=transport`, {
+        await navigate(`/trip/${tripId}/transport/${created.id}`, {
           replace: true,
         });
       } catch (e) {
