@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons'
 import type { ReactNode } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Typography } from '~/shared/components/design-system'
-import { palette } from '../../../../shared/config/tokens'
+import { palette } from '../../shared/config/tokens'
 
 // 출발과 도착은 한 쌍으로 읽힌다. 라벨을 따로 달면 둘이 짝이라는 것이 흐려진다.
 export function FieldPair({ label, children }: { label: string; children: ReactNode }) {

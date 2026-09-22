@@ -1,10 +1,10 @@
 import { useForm } from 'react-hook-form'
 import { ScrollView, StyleSheet, View } from 'react-native'
 import { Button } from '~/shared/components/design-system'
-import { palette } from '../../../../shared/config/tokens'
+import { palette } from '../../shared/config/tokens'
 import { GroundRouteFields } from './GroundRouteFields'
 import { TransportTimeFields } from './TransportTimeFields'
-import type { TransportFormValues } from './transportFormFunnel.types'
+import type { TransportFormValues } from './transportForm.types'
 
 interface Props {
   defaultValues?: Partial<TransportFormValues>

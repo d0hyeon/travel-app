@@ -9,7 +9,7 @@ import { format as formatDate, isSameDay, isSameYear } from 'date-fns'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Stack, Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../../shared/config/tokens'
-import { TransportTypeIcon } from './TransportTypeIcon'
+import { TransportTypeIcon } from '../../transport/TransportTypeIcon'
 import { toCarrierLabel } from './transportLabel'
 
 const EMPTY_TIME = '—'

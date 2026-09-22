@@ -6,10 +6,10 @@ import {
   useTripTransportDetail,
 } from '@waylog/domains/modules/trip-transport'
 import { StyleSheet, View } from 'react-native'
-import { EditableText } from '../../../../shared/components/EditableText'
+import { EditableText } from '../../../shared/components/EditableText'
 import { Skeleton, Typography } from '~/shared/components/design-system'
-import { palette } from '../../../../shared/config/tokens'
-import { TransportDetailSectionError } from './TransportDetailSectionError'
+import { palette } from '../../../shared/config/tokens'
+import { TransportDetailSectionError } from './transport-detail/TransportDetailSectionError'
 import { MaterialIcons } from '@expo/vector-icons'
 import { TransportType } from '@waylog/domains/modules/transport'
 

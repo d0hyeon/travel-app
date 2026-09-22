@@ -9,10 +9,10 @@ import {
 import { format } from 'date-fns'
 import { StyleSheet, View, ViewProps } from 'react-native'
 import { Skeleton, Typography } from '~/shared/components/design-system'
-import { palette } from '../../../../shared/config/tokens'
-import { TransportTypeIcon } from '../TransportTypeIcon'
-import { toCarrierLabel } from '../transportLabel'
-import { TransportDetailSectionError } from './TransportDetailSectionError'
+import { palette } from '../../../shared/config/tokens'
+import { TransportTypeIcon } from '../../transport/TransportTypeIcon'
+import { toCarrierLabel } from './transportLabel'
+import { TransportDetailSectionError } from './transport-detail/TransportDetailSectionError'
 
 const EMPTY_VALUE = '-'
 

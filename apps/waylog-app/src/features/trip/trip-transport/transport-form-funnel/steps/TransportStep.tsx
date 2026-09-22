@@ -1,8 +1,8 @@
 import { TransportType } from '@waylog/domains/modules/transport'
 import type { TripTransportType } from '@waylog/domains/modules/trip-transport'
-import { FlightTransportForm } from '../FlightTransportForm'
-import { TransportForm } from '../TransportForm'
-import type { TransportFormValues } from '../transportFormFunnel.types'
+import { FlightTransportForm } from '../../../../transport/FlightTransportForm'
+import { TransportForm } from '../../../../transport/TransportForm'
+import type { TransportFormValues } from '../../../../transport/transportForm.types'
 
 interface Props {
   type: TripTransportType

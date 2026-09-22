@@ -2,8 +2,8 @@ import { Controller, useController, type Control, type UseFormSetValue } from 'r
 import { Pressable, View } from 'react-native'
 import { TextField } from '~/shared/components/design-system'
 import { FieldPair, PairSlot, RouteArrow } from './scheduleFieldParts'
-import { useAirportSelectOverlay } from './useAirportSelectOverlay'
-import type { TransportFormValues } from './transportFormFunnel.types'
+import { useAirportSelectOverlay } from './airport/useAirportSelectOverlay'
+import type { TransportFormValues } from './transportForm.types'
 
 interface Props {
   control: Control<TransportFormValues>

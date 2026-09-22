@@ -5,9 +5,9 @@ import { useCallback, useState } from 'react'
 import { ActivityIndicator, Dimensions, Image, Modal, Pressable, StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Theme } from 'tamagui'
-import ConfirmDialog from '../../../shared/components/confirm-dialog/ConfirmDialog'
-import { PopMenu } from '../../../shared/components/PopMenu'
-import { useOverlay } from '../../../shared/hooks/useOverlay'
+import ConfirmDialog from '../../../../shared/components/confirm-dialog/ConfirmDialog'
+import { PopMenu } from '../../../../shared/components/PopMenu'
+import { useOverlay } from '../../../../shared/hooks/useOverlay'
 
 interface OpenParams {
   tripId: string

@@ -1,11 +1,11 @@
 import { Controller, useForm } from 'react-hook-form'
 import { ScrollView, StyleSheet, View } from 'react-native'
 import { Button, Divider, TextField } from '~/shared/components/design-system'
-import { palette } from '../../../../shared/config/tokens'
-import { AirlineField } from './AirlineField'
+import { palette } from '../../shared/config/tokens'
+import { AirlineField } from './airline/AirlineField'
 import { FlightRouteFields } from './FlightRouteFields'
 import { TransportTimeFields } from './TransportTimeFields'
-import type { TransportFormValues } from './transportFormFunnel.types'
+import type { TransportFormValues } from './transportForm.types'
 
 // 실시간 상태는 편번호를 숫자로 바꿔 맞춘다. 'KE721' 이나 '721A' 가 들어오면
 // NaN 이 되어 매칭이 영영 실패하고, 사용자는 알림이 안 오는 이유를 알 수 없다.

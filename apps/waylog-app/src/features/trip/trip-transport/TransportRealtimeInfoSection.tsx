@@ -7,9 +7,9 @@ import { useTripTransportDetail } from '@waylog/domains/modules/trip-transport'
 import { AsyncBoundary } from '@waylog/react'
 import { StyleSheet, View } from 'react-native'
 import { Skeleton, Typography } from '~/shared/components/design-system'
-import { TransportDetailSectionError } from './TransportDetailSectionError'
+import { TransportDetailSectionError } from './transport-detail/TransportDetailSectionError'
 import { TransportType } from '@waylog/domains/modules/transport'
-import { assert } from '../../../../shared/utils/assert'
+import { assert } from '../../../shared/utils/assert'
 
 interface Props {
   tripId: string

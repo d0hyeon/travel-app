@@ -2,8 +2,8 @@ import { MaterialIcons } from '@expo/vector-icons'
 import type { ReactNode } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
 import { IconButton, TextField, Typography } from '~/shared/components/design-system'
-import { palette, radius } from '../../../../shared/config/tokens'
-import { useKeyboardMetrics } from '../../../../shared/hooks/env/useKeyboardMetrics'
+import { palette, radius } from '../../shared/config/tokens'
+import { useKeyboardMetrics } from '../../shared/hooks/env/useKeyboardMetrics'
 
 interface Props {
   title: string

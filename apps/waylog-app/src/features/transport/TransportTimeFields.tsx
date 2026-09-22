@@ -1,8 +1,8 @@
 import { format as formatDate } from 'date-fns'
 import { Controller, useWatch, type Control } from 'react-hook-form'
-import { DateField } from '../../../../shared/components/date-picker'
+import { DateField } from '../../shared/components/date-picker'
 import { FieldPair, PairSlot, RouteArrow } from './scheduleFieldParts'
-import type { TransportFormValues } from './transportFormFunnel.types'
+import type { TransportFormValues } from './transportForm.types'
 
 interface Props {
   control: Control<TransportFormValues>

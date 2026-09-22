@@ -3,8 +3,8 @@ import { AsyncBoundary } from '@waylog/react'
 import { useTripTransportDetail } from '@waylog/domains/modules/trip-transport'
 import { Linking, Pressable, StyleSheet } from 'react-native'
 import { Skeleton, Typography } from '~/shared/components/design-system'
-import { palette } from '../../../../shared/config/tokens'
-import { TransportDetailSectionError } from './TransportDetailSectionError'
+import { palette } from '../../../shared/config/tokens'
+import { TransportDetailSectionError } from './transport-detail/TransportDetailSectionError'
 
 interface Props {
   tripId: string

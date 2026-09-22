@@ -9,7 +9,7 @@ import { Dimensions, ScrollView, StyleSheet, View, type ViewProps } from 'react-
 import { Button, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../shared/config/tokens'
 import { TransportCard } from './TransportCard'
-import { useTicketViewerOverlay } from './useTicketViewerOverlay'
+import { useTicketViewerOverlay } from './transport-ticket/useTicketViewerOverlay'
 
 const CARD_WIDTH = Dimensions.get('window').width * 0.82
 const CARD_GAP = 12

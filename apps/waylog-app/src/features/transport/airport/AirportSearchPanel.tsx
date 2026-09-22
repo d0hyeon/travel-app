@@ -1,36 +1,39 @@
-import { searchAirlines, type Airline } from '@waylog/domains/modules/airline'
+import { searchAirports, type Airport } from '@waylog/domains/modules/airport'
 import { useMemo, useState } from 'react'
 import { Pressable, StyleSheet } from 'react-native'
 import { Typography } from '~/shared/components/design-system'
-import { palette } from '../../../../shared/config/tokens'
-import { SearchPanelLayout } from './SearchPanelLayout'
+import { palette } from '../../../shared/config/tokens'
+import { SearchPanelLayout } from '../SearchPanelLayout'
 
 interface Props {
-  onSelect: (airline: Airline) => void
+  title: string
+  onSelect: (airport: Airport) => void
   onClose: () => void
 }
 
-export function AirlineSearchPanel({ onSelect, onClose }: Props) {
+export function AirportSearchPanel({ title, onSelect, onClose }: Props) {
   const [keyword, setKeyword] = useState('')
-  const results = useMemo(() => searchAirlines(keyword), [keyword])
+  const results = useMemo(() => searchAirports(keyword), [keyword])
 
   return (
     <SearchPanelLayout
-      title="항공사 선택"
-      placeholder="예: 대한항공, KE"
+      title={title}
+      placeholder="예: 인천공항, ICN, 오사카"
       keyword={keyword}
       onKeywordChange={setKeyword}
       isEmpty={results.length === 0}
       onClose={onClose}
     >
-      {results.map((airline, index) => (
+      {results.map((airport, index) => (
         <Pressable
-          key={airline.code}
+          key={airport.code}
           style={[styles.row, index > 0 && styles.rowDivided]}
-          onPress={() => onSelect(airline)}
+          onPress={() => onSelect(airport)}
         >
-          <Typography style={styles.name}>{airline.nameKo}</Typography>
-          <Typography style={styles.detail}>{airline.code}</Typography>
+          <Typography style={styles.name}>{airport.nameKo}</Typography>
+          <Typography style={styles.detail}>
+            {airport.code} · {airport.cityKo}
+          </Typography>
         </Pressable>
       ))}
     </SearchPanelLayout>
