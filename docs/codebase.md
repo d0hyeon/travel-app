@@ -818,9 +818,10 @@ src/
 
 ### 교통편 UI
 
-- 웹의 순수 교통수단 입력 UI(폼·필드·아이콘·공항/항공사 검색)는
-  `features/transport/`가 소유한다. `transportForm.types.ts`에는 입력값 인터페이스만 두고,
-  zod 검증과 여행별 저장은 두지 않는다.
+- 웹·앱의 순수 교통수단 입력 UI는 `features/transport/`가 소유한다.
+  `transport-form/`에는 폼과 필드, `transport-airport/`·`transport-airline/`에는 각각
+  공항·항공사 검색과 선택 오버레이를 둔다. `transport-form/transportForm.types.ts`에는
+  입력값 인터페이스만 두고, zod 검증과 여행별 저장은 두지 않는다.
 - 웹의 `features/trip/trip-transport/`는 여행에 귀속된 목록·라벨·상세 섹션을 소유한다.
   기본정보 탭 진입점은 `TripTransportSection.mobile.tsx`·`TripTransportSection.desktop.tsx`로
   나뉜다. FAB/카드 헤더·여백 같은 기기별 표현은 각 셸이 소유한다.
@@ -1034,6 +1035,12 @@ src/
 - 여닫는 시트는 화면 안에 직접 두지 말고 `useOverlay` 로 띄운다. 오버레이 층은
   `OverlayProvider` 가 `Stack` 바깥에 두는 형제라 화면의 `BottomArea` 와 아예
   겹칠 일이 없다. 화면에 상주하는 시트만 형제로 둔다 (여행 장소·경로 탭).
+
+`Fab`는 `variant`로 형태를 고른다. `circular`(기본)은 지금까지의 원형이고,
+`extended`는 `label`을 아이콘 오른쪽에 함께 놓는 알약 형태다. 두 경우 모두
+`size`는 높이(small 40 / medium 56 / large 64)를 뜻하며, `extended`의 너비만
+내용에 맞춰 늘어난다. 라벨 색은 `color`에 따라 컴포넌트가 정하므로 호출부는
+문자열만 넘긴다.
 
 장소 탭은 일반 `Fab`를 사용하고, 탭하면 `useTripPlaceAddition`을 통해
 장소 검색 바텀시트를 연다. 메뉴·경로 툴바는 계획 탭에만 둔다.
