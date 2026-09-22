@@ -18,7 +18,7 @@ import { TripPostCreateCard } from './TripPostCreateCard'
 import { RecommendedPlaceListSection } from '../trip-recommend/RecommendedPlaceListSection'
 import { CommunityRoutesSection } from '../trip-community-routes/CommunityRoutesSection'
 import { TripLeaveButton } from "../components/TripLeaveButton"
-import { TripTransportSection } from '../trip-transport/TripTransportSection'
+import { TripTransportSection } from '../trip-transport/TripTransportSection.mobile'
 import { UpcomingTransportSection } from '../trip-transport/UpcomingTransportSection'
 
 interface Props {
@@ -146,7 +146,6 @@ export function TripBasicInfoContent({ tripId }: Props) {
           <>
             <TripTransportSection
               tripId={tripId}
-              hideAddButton
               paddingBottom={`${BottomNavigation.HEIGHT}px`}
             />
             <Fab
@@ -154,7 +153,11 @@ export function TripBasicInfoContent({ tripId }: Props) {
               size="medium"
               aria-label="교통편 추가"
               onClick={() => navigate(`/trip/${tripId}/transport/new`)}
-              sx={{ position: 'absolute', bottom: BottomNavigation.HEIGHT + 16, right: 16 }}
+              sx={{
+                position: 'fixed',
+                bottom: `calc(${BottomNavigation.HEIGHT + 16}px + env(safe-area-inset-bottom))`,
+                right: 16
+              }}
             >
               <AddIcon />
             </Fab>
