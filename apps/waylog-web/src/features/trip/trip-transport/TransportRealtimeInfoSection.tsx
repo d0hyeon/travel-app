@@ -6,7 +6,7 @@ import {
 } from '@waylog/domains/modules/flight-status'
 import { useTripTransportDetail } from '@waylog/domains/modules/trip-transport'
 import { AsyncBoundary } from '@waylog/react'
-import { TransportDetailSectionError } from './TransportDetailSectionError'
+import { TransportDetailSectionError } from './transport-detail/TransportDetailSectionError'
 
 interface Props {
   tripId: string

@@ -3,7 +3,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn'
 import { Skeleton, Stack, Typography } from '@mui/material'
 import { useTripTransportDetail } from '@waylog/domains/modules/trip-transport'
 import { AsyncBoundary } from '@waylog/react'
-import { TransportDetailSectionError } from './TransportDetailSectionError'
+import { TransportDetailSectionError } from './transport-detail/TransportDetailSectionError'
 
 const EMPTY_VALUE = '-'
 

@@ -1,10 +1,10 @@
 import { Box, Typography } from '@mui/material'
 import { AsyncBoundary } from '@waylog/react'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
-import { useTripId } from '../useTripId'
+import { useTripId } from '../../useTripId'
 import { TransportDetailContent } from './TransportDetailContent'
-import { TransportDetailMenu } from './transport-detail/TransportDetailMenu'
-import { useTransportId } from './useTransportId'
+import { TransportDetailMenu } from './TransportDetailMenu'
+import { useTransportId } from '../useTransportId'
 
 export function TransportDetailPageMobile() {
   const tripId = useTripId()

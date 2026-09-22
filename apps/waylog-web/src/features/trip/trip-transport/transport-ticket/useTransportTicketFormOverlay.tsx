@@ -6,7 +6,7 @@ import { FullScreenPopup } from '~shared/components/FullScreenPopup'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useOverlay } from '~shared/hooks/useOverlay'
 import { TransportTicketForm } from './TransportTicketForm'
-import type { TransportTicketDraft } from '../transport-form/transportForm.types'
+import type { TransportTicketDraft } from '../transport-form-funnel/transportForm.types'
 
 interface OpenParams {
   tripId: string

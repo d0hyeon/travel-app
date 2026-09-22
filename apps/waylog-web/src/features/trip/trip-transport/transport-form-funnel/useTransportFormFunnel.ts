@@ -2,10 +2,11 @@ import { useLoading } from '@waylog/react'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState'
+import type { TransportFormValues } from '~features/transport/transportForm.types'
 import {
   TRANSPORT_FORM_STEPS,
   type TransportFormStep,
-  type TransportFormValues,
+  type TransportSubmitValues,
 } from './transportForm.types'
 import { useTransportForm } from './useTransportForm'
 
@@ -13,11 +14,11 @@ interface TransportFormFunnel {
   tripId: string
   currentStep: TransportFormStep
   stepIndex: number
-  form: Partial<TransportFormValues>
-  update: (value: Partial<TransportFormValues>) => void
+  form: Partial<TransportSubmitValues>
+  update: (value: Partial<TransportSubmitValues>) => void
   goNext: () => void
   goBack: () => void
-  submit: (lastInput?: Partial<TransportFormValues>) => void
+  submit: (lastInput?: Partial<TransportSubmitValues>) => void
   isSubmitting: boolean
   error: unknown
 }

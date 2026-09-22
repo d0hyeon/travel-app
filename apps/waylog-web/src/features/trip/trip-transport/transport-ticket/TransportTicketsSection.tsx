@@ -5,10 +5,10 @@ import {
   type TripTransportTicket,
 } from '@waylog/domains/modules/trip-transport'
 import { AsyncBoundary } from '@waylog/react'
-import { useTicketViewerOverlay } from '../useTicketViewerOverlay'
-import { useTransportTicketFormOverlay } from '../transport-ticket/useTransportTicketFormOverlay'
-import { useTransportTicketUpload } from '../transport-ticket/useTransportTicketUpload'
-import { TransportDetailSectionError } from './TransportDetailSectionError'
+import { useTicketViewerOverlay } from './useTicketViewerOverlay'
+import { useTransportTicketFormOverlay } from './useTransportTicketFormOverlay'
+import { useTransportTicketUpload } from './useTransportTicketUpload'
+import { TransportDetailSectionError } from '../transport-detail/TransportDetailSectionError'
 
 interface Props {
   tripId: string

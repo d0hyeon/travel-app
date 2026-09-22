@@ -1,10 +1,10 @@
 import { Box, Typography } from '@mui/material'
 import { AsyncBoundary } from '@waylog/react'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.desktop'
-import { useTripId } from '../useTripId'
+import { useTripId } from '../../useTripId'
 import { TransportDetailContent } from './TransportDetailContent'
-import { TransportDetailMenu } from './transport-detail/TransportDetailMenu'
-import { useTransportId } from './useTransportId'
+import { TransportDetailMenu } from './TransportDetailMenu'
+import { useTransportId } from '../useTransportId'
 
 // 시안 규격: 등록 퍼널과 같은 전체 페이지형 셸이다. 헤더 아래 본문을 480px 폭으로 가운데 둔다.
 const CONTENT_WIDTH = 480

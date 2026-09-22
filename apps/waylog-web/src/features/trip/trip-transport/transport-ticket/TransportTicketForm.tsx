@@ -17,9 +17,9 @@ import type { TripMember } from '@waylog/domains/modules/trip-member'
 import { useTripMembers } from '@waylog/domains/modules/trip-member'
 import type { TripTransportType } from '@waylog/domains/modules/trip-transport'
 import { useRef, useState } from 'react'
-import { TransportTypeIcon } from '../TransportTypeIcon'
-import { useTicketViewerOverlay } from '../useTicketViewerOverlay'
-import type { TransportTicketDraft } from '../transport-form/transportForm.types'
+import { TransportTypeIcon } from '~features/transport/TransportTypeIcon'
+import { useTicketViewerOverlay } from './useTicketViewerOverlay'
+import type { TransportTicketDraft } from '../transport-form-funnel/transportForm.types'
 
 interface Props {
   tripId: string

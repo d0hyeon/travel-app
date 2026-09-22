@@ -2,9 +2,9 @@ import { Stack } from '@mui/material'
 import { TransportType } from '@waylog/domains/modules/transport'
 import type { TripTransportType } from '@waylog/domains/modules/trip-transport'
 import { BottomArea } from '~shared/components/BottomArea'
-import { FlightTransportForm } from './FlightTransportForm'
-import { TransportForm } from './TransportForm'
-import type { TransportFormValues } from './transportForm.types'
+import { FlightTransportForm } from '~features/transport/FlightTransportForm'
+import { TransportForm } from '~features/transport/TransportForm'
+import type { TransportFormValues } from '~features/transport/transportForm.types'
 
 interface Props {
   type: TripTransportType

@@ -6,7 +6,7 @@ import {
   type TripTransport,
 } from '@waylog/domains/modules/trip-transport'
 import { formatDate, isSameDay } from 'date-fns'
-import { TransportTypeIcon } from './TransportTypeIcon'
+import { TransportTypeIcon } from '~features/transport/TransportTypeIcon'
 import { toCarrierLabel } from './transportLabel'
 
 const EMPTY_TIME = '—'

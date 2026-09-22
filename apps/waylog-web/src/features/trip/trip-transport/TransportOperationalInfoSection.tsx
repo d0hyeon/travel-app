@@ -5,8 +5,8 @@ import {
   useTripTransportDetail,
 } from '@waylog/domains/modules/trip-transport'
 import { AsyncBoundary } from '@waylog/react'
-import { EditableText } from '../../../../shared/components/EditableText'
-import { TransportDetailSectionError } from './TransportDetailSectionError'
+import { EditableText } from '../../../shared/components/EditableText'
+import { TransportDetailSectionError } from './transport-detail/TransportDetailSectionError'
 import EditIcon from '@mui/icons-material/Edit';
 
 const EMPTY_PLACEHOLDER = '—'

@@ -1,7 +1,7 @@
 import { TextField } from '@mui/material'
 import { Controller, useController, type Control, type UseFormSetValue } from 'react-hook-form'
 import { FieldPair, RouteArrow } from './scheduleFieldParts'
-import { useAirportSelectOverlay } from './useAirportSelectOverlay'
+import { useAirportSelectOverlay } from './airport/useAirportSelectOverlay'
 import type { TransportFormValues } from './transportForm.types'
 
 interface Props {

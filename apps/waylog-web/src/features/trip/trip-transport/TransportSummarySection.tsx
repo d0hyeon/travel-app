@@ -8,9 +8,9 @@ import {
 } from '@waylog/domains/modules/trip-transport'
 import { AsyncBoundary } from '@waylog/react'
 import { format } from 'date-fns'
-import { TransportTypeIcon } from '../TransportTypeIcon'
-import { toCarrierLabel } from '../transportLabel'
-import { TransportDetailSectionError } from './TransportDetailSectionError'
+import { TransportTypeIcon } from '~features/transport/TransportTypeIcon'
+import { toCarrierLabel } from './transportLabel'
+import { TransportDetailSectionError } from './transport-detail/TransportDetailSectionError'
 
 const EMPTY_VALUE = '-'
 

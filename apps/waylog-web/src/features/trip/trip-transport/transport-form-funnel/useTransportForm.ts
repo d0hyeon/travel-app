@@ -1,29 +1,30 @@
 import { TransportType } from '@waylog/domains/modules/transport'
 import { useTripTransport, type TripTransportCarrier } from '@waylog/domains/modules/trip-transport'
+import type { TransportFormValues } from '~features/transport/transportForm.types'
 import { useState } from 'react'
 import { useTransportTicketUpload } from '../transport-ticket/useTransportTicketUpload'
-import { TransportFormSchema, type TransportFormValues } from './transportForm.types'
+import { TransportFormSchema, type TransportSubmitValues } from './transportForm.types'
 
 interface TransportForm {
-  form: Partial<TransportFormValues>
-  update: (value: Partial<TransportFormValues>) => void
+  form: Partial<TransportSubmitValues>
+  update: (value: Partial<TransportSubmitValues>) => void
   /**
    * 마지막 입력은 setState 반영을 기다리지 않도록 함께 넘긴다.
    * 넘긴 값은 폼에도 반영되어, 전송이 실패해도 화면에 남는다.
    */
-  create: (lastInput?: Partial<TransportFormValues>) => Promise<void>
+  create: (lastInput?: Partial<TransportSubmitValues>) => Promise<void>
 }
 
 export function useTransportForm(tripId: string): TransportForm {
   const { add } = useTripTransport(tripId)
   const { upload } = useTransportTicketUpload(tripId)
-  const [form, setForm] = useState<Partial<TransportFormValues>>({})
+  const [form, setForm] = useState<Partial<TransportSubmitValues>>({})
 
-  const update = (value: Partial<TransportFormValues>) => {
+  const update = (value: Partial<TransportSubmitValues>) => {
     setForm((current) => ({ ...current, ...value }))
   }
 
-  const create = async (lastInput: Partial<TransportFormValues> = {}) => {
+  const create = async (lastInput: Partial<TransportSubmitValues> = {}) => {
     update(lastInput)
 
     const values = TransportFormSchema.parse({ ...form, ...lastInput })

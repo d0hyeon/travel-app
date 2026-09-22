@@ -1,4 +1,5 @@
 import { TransportType } from '@waylog/domains/modules/transport'
+import type { TransportFormValues } from '~features/transport/transportForm.types'
 import z from 'zod'
 
 export const TRANSPORT_FORM_STEPS = ['type', 'detail', 'ticket'] as const
@@ -15,10 +16,9 @@ const TicketDraftSchema: z.ZodType<TransportTicketDraft> = z.object({
   memberId: z.string().optional(),
 })
 
-// 교통편 하나가 갖는 값을 평평하게 든다. 입력 중에 종류가 바뀔 수 있어,
-// 판별 유니온으로 들면 종류를 바꿀 때마다 이미 적은 값이 통째로 날아간다.
-// 종류별로 갈리는 제약은 전송 시점에 TripTransportCarrier 로 접으며 회복한다.
-export const TransportFormSchema = z.object({
+// 제출 시점에만 필요한 검증이라 퍼널이 스키마를 소유한다.
+// 값의 모양(TransportFormValues) 자체는 trip과 무관한 순수 도메인이 소유한다.
+export const TransportFormSchema: z.ZodType<TransportFormValues & { tickets: TransportTicketDraft[] }> = z.object({
   type: z.enum([TransportType.항공, TransportType.기차, TransportType.버스]),
   departureName: z.string().min(1),
   arrivalName: z.string().min(1),
@@ -35,4 +35,4 @@ export const TransportFormSchema = z.object({
   tickets: z.array(TicketDraftSchema).default([]),
 })
 
-export type TransportFormValues = z.infer<typeof TransportFormSchema>
+export type TransportSubmitValues = TransportFormValues & { tickets: TransportTicketDraft[] }

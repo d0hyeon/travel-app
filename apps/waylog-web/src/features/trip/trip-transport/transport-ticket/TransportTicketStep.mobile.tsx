@@ -2,7 +2,7 @@ import { Button, Stack } from '@mui/material'
 import type { TripTransportType } from '@waylog/domains/modules/trip-transport'
 import { useState } from 'react'
 import { BottomArea } from '~shared/components/BottomArea'
-import type { TransportTicketDraft } from '../transport-form/transportForm.types'
+import type { TransportTicketDraft } from '../transport-form-funnel/transportForm.types'
 import { TransportTicketForm } from './TransportTicketForm'
 
 interface Props {

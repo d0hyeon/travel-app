@@ -2,7 +2,7 @@ import { Box, Button, Stack, Typography } from '@mui/material'
 import { TransportType, TransportTypeLabel } from '@waylog/domains/modules/transport'
 import type { TripTransportType } from '@waylog/domains/modules/trip-transport'
 import { useState } from 'react'
-import { TransportTypeIcon } from '../TransportTypeIcon'
+import { TransportTypeIcon } from '~features/transport/TransportTypeIcon'
 
 const SELECTABLE_TYPES: TripTransportType[] = [
   TransportType.항공,

@@ -1,9 +1,9 @@
 import { Stack, type StackProps } from '@mui/material'
-import { TransportDirectionsAction } from './transport-detail/TransportDirectionsAction'
-import { TransportOperationalInfoSection } from './transport-detail/TransportOperationalInfoSection'
-import { TransportRealtimeInfoSection } from './transport-detail/TransportRealtimeInfoSection'
-import { TransportSummarySection } from './transport-detail/TransportSummarySection'
-import { TransportTicketsSection } from './transport-detail/TransportTicketsSection'
+import { TransportDirectionsAction } from '../TransportDirectionsAction'
+import { TransportOperationalInfoSection } from '../TransportOperationalInfoSection'
+import { TransportRealtimeInfoSection } from '../TransportRealtimeInfoSection'
+import { TransportSummarySection } from '../TransportSummarySection'
+import { TransportTicketsSection } from '../transport-ticket/TransportTicketsSection'
 
 interface Props extends StackProps {
   tripId: string

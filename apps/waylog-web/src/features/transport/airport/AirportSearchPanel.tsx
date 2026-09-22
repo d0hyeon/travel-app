@@ -1,41 +1,42 @@
 import { Box, Stack, Typography } from '@mui/material'
-import { searchAirlines, type Airline } from '@waylog/domains/modules/airline'
+import { searchAirports, type Airport } from '@waylog/domains/modules/airport'
 import { useMemo, useState } from 'react'
-import { SearchPanelLayout } from './SearchPanelLayout'
+import { SearchPanelLayout } from '../SearchPanelLayout'
 
 interface Props {
-  onSelect: (airline: Airline) => void
+  title: string
+  onSelect: (airport: Airport) => void
   onClose: () => void
 }
 
-export function AirlineSearchPanel({ onSelect, onClose }: Props) {
+export function AirportSearchPanel({ title, onSelect, onClose }: Props) {
   const [keyword, setKeyword] = useState('')
-  const results = useMemo(() => searchAirlines(keyword), [keyword])
+  const results = useMemo(() => searchAirports(keyword), [keyword])
 
   return (
     <SearchPanelLayout
-      title="항공사 선택"
-      placeholder="예: 대한항공, KE"
+      title={title}
+      placeholder="예: 인천공항, ICN, 오사카"
       keyword={keyword}
       onKeywordChange={setKeyword}
       isEmpty={results.length === 0}
       onClose={onClose}
     >
-      {results.map((airline, index) => (
+      {results.map((airport, index) => (
         <Box
-          key={airline.code}
+          key={airport.code}
           p={1.5}
           borderTop={index === 0 ? undefined : '1px solid'}
           borderColor="divider"
-          onClick={() => onSelect(airline)}
+          onClick={() => onSelect(airport)}
           sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}
         >
           <Stack>
             <Typography variant="body2" fontWeight={700}>
-              {airline.nameKo}
+              {airport.nameKo}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              {airline.code}
+              {airport.code} · {airport.cityKo}
             </Typography>
           </Stack>
         </Box>
