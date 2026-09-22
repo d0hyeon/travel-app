@@ -3,12 +3,12 @@ import { Suspense } from 'react'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
 import { TransportTicketStepMobile } from '../transport-ticket/TransportTicketStep.mobile'
-import { TransportFormStepIndicator } from './TransportFormStepIndicator'
-import { TransportStepMobile } from './TransportStep.mobile'
-import { TransportTypeStep } from './TransportTypeStep'
-import { useTransportFormFunnel } from './useTransportFormFunnel'
+import { TransportFormFunnelStepIndicator } from '../transport-form-funnel/TransportFormFunnelStepIndicator'
+import { TransportStepMobile } from '../transport-form-funnel/TransportStep.mobile'
+import { TransportTypeStep } from '../transport-form-funnel/TransportTypeStep'
+import { useTransportFormFunnel } from '../transport-form-funnel/useTransportFormFunnel'
 
-export function TransportFormPageMobile() {
+export function TripTransportCreationPage() {
   const { currentStep, stepIndex, form, update, goNext, submit, isSubmitting, error, tripId } =
     useTransportFormFunnel()
 
@@ -16,7 +16,7 @@ export function TransportFormPageMobile() {
     <Box minHeight="100dvh" display="flex" flexDirection="column" overflow="auto" bgcolor="background.default">
       <Container maxWidth="sm" disableGutters sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
         <Paper sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <TopNavigation position="sticky" rightElement={<TransportFormStepIndicator stepIndex={stepIndex} />}>
+          <TopNavigation position="sticky" rightElement={<TransportFormFunnelStepIndicator stepIndex={stepIndex} />}>
             <Typography fontSize={16} fontWeight={700}>탑승권</Typography>
           </TopNavigation>
 
@@ -76,4 +76,4 @@ export function TransportFormPageMobile() {
   )
 }
 
-export default TransportFormPageMobile
+export default TripTransportCreationPage

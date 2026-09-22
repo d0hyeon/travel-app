@@ -6,7 +6,7 @@ import { TransportTypeIcon } from '~features/transport/TransportTypeIcon'
 import {
   TransportFormBody,
   TransportFormFooter,
-} from './TransportFormLayout.desktop'
+} from './TransportFormFunnelLayout.desktop'
 
 const SELECTABLE_TYPES: TripTransportType[] = [
   TransportType.항공,

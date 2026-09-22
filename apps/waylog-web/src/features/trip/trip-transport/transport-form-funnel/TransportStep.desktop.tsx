@@ -4,7 +4,7 @@ import type { TripTransportType } from '@waylog/domains/modules/trip-transport'
 import { FlightTransportForm } from '~features/transport/transport-form/FlightTransportForm'
 import { TransportForm } from '~features/transport/transport-form/TransportForm'
 import type { TransportFormValues } from '~features/transport/transport-form/transportForm.types'
-import { TransportFormBody, TransportFormFooter } from './TransportFormLayout.desktop'
+import { TransportFormBody, TransportFormFooter } from './TransportFormFunnelLayout.desktop'
 
 interface Props {
   type: TripTransportType

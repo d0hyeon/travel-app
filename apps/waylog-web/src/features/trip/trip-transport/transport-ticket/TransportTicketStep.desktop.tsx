@@ -4,7 +4,7 @@ import { useState } from 'react'
 import {
   TransportFormBody,
   TransportFormFooter,
-} from '../transport-form-funnel/TransportFormLayout.desktop'
+} from '../transport-form-funnel/TransportFormFunnelLayout.desktop'
 import type { TransportTicketDraft } from '../transport-form-funnel/transportForm.types'
 import { TransportTicketForm } from './TransportTicketForm'
 

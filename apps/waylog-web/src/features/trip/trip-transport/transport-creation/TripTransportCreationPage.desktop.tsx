@@ -3,14 +3,14 @@ import { Suspense } from 'react'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.desktop'
 import { TransportTicketStepDesktop } from '../transport-ticket/TransportTicketStep.desktop'
-import { TransportFormStepIndicator } from './TransportFormStepIndicator'
-import { TransportStepDesktop } from './TransportStep.desktop'
-import { TransportTypeStep } from './TransportTypeStep.desktop'
-import { useTransportFormFunnel } from './useTransportFormFunnel'
+import { TransportFormFunnelStepIndicator } from '../transport-form-funnel/TransportFormFunnelStepIndicator'
+import { TransportStepDesktop } from '../transport-form-funnel/TransportStep.desktop'
+import { TransportTypeStep } from '../transport-form-funnel/TransportTypeStep.desktop'
+import { useTransportFormFunnel } from '../transport-form-funnel/useTransportFormFunnel'
 
 // 시안 규격: 전체 페이지 퍼널이다. 다이얼로그로 띄우지 않는다.
 // 헤더 아래 남는 높이를 각 단계가 본문·푸터로 나눠 쓴다.
-export function TransportFormPageDesktop() {
+export function TripTransportCreationPage() {
   const { currentStep, stepIndex, form, update, goNext, goBack, submit, isSubmitting, error, tripId } =
     useTransportFormFunnel()
 
@@ -18,7 +18,7 @@ export function TransportFormPageDesktop() {
     <Box height="100dvh" display="flex" flexDirection="column" bgcolor="background.paper">
       <TopNavigation
         leftElement={<TopNavigation.BackButton onClick={goBack} />}
-        rightElement={<TransportFormStepIndicator stepIndex={stepIndex} />}
+        rightElement={<TransportFormFunnelStepIndicator stepIndex={stepIndex} />}
       >
         <Typography variant="h6">교통편 등록</Typography>
       </TopNavigation>
@@ -78,4 +78,4 @@ export function TransportFormPageDesktop() {
   )
 }
 
-export default TransportFormPageDesktop
+export default TripTransportCreationPage

@@ -5,7 +5,7 @@ interface Props {
   stepIndex: number
 }
 
-export function TransportFormStepIndicator({ stepIndex }: Props) {
+export function TransportFormFunnelStepIndicator({ stepIndex }: Props) {
   return (
     <Stack direction="row" gap="4px" alignItems="center">
       {TRANSPORT_FORM_STEPS.map((step, index) => (
