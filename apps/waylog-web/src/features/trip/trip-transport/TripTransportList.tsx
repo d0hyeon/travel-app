@@ -1,8 +1,11 @@
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff'
+import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone'
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Button,
   Box,
   Skeleton,
   Stack,
@@ -14,8 +17,11 @@ import {
   splitByDeparture,
   useTripScheduledFlights,
 } from '@waylog/domains/modules/trip-transport'
+import { getSupportedFlightStatusAirportCodes } from '@waylog/domains/modules/flight-status'
+import { findAirport } from '@waylog/domains/modules/airport'
 import { formatDate } from 'date-fns'
 import { useMemo } from 'react'
+import { useNavigate } from 'react-router'
 import { TransportCard } from './TransportCard'
 
 interface Props extends StackProps {
@@ -25,17 +31,36 @@ interface Props extends StackProps {
 
 export function TripTransportList({ tripId, onTransportClick, ...props }: Props) {
   const { data: transports } = useTripScheduledFlights(tripId)
+  const navigate = useNavigate()
 
   // 렌더마다 기준 시각이 달라지면 목록이 흔들린다. 조회 결과가 바뀔 때만 다시 가른다.
   const { past, upcoming } = useMemo(() => splitByDeparture(transports, new Date()), [transports])
   const upcomingGroups = useMemo(() => groupByDepartureDate(upcoming), [upcoming])
+  const supportedAirportNames = getSupportedFlightStatusAirportCodes()
+    .map((airportCode) => findAirport(airportCode)?.nameKo)
+    .filter((airportName): airportName is string => airportName != null)
 
   if (transports.length === 0) {
     return (
-      <Stack alignItems="center" py={6} {...props}>
-        <Typography variant="body2" color="text.secondary">
-          등록된 교통편이 없어요
+      <Stack alignItems="center" p={3} gap={1.5} border="1px solid" borderColor="divider" borderRadius={3} bgcolor="rgba(76, 132, 255, 0.08)" {...props}>
+        <Box display="flex" alignItems="center" justifyContent="center" width={56} height={56} borderRadius="50%" bgcolor="background.paper">
+          <FlightTakeoffIcon color="primary" />
+        </Box>
+        <Typography variant="subtitle1" fontWeight={700}>
+          탑승권을 등록해보세요
         </Typography>
+        <Typography variant="body2" color="text.secondary" textAlign="center" lineHeight={1.6}>
+          탑승 준비, 스케줄 변경(지연, 결항, 게이트 변경)등<br />필요한 정보를 실시간으로 알려드려요
+        </Typography>
+        <Stack direction="row" alignItems="center" gap={0.75} px={1.5} py={0.75} borderRadius={3} bgcolor="background.paper">
+          <NotificationsNoneIcon fontSize="small" color="action" />
+          <Typography variant="caption" color="text.secondary">
+            스케줄 변경 알림 대상 : {supportedAirportNames.join(', ')}
+          </Typography>
+        </Stack>
+        <Button variant="contained" startIcon={<FlightTakeoffIcon />} onClick={() => navigate(`/trip/${tripId}/transport/new`)}>
+          탑승권 등록
+        </Button>
       </Stack>
     )
   }

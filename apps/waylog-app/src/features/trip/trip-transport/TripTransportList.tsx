@@ -3,10 +3,14 @@ import {
   splitByDeparture,
   useTripScheduledFlights,
 } from '@waylog/domains/modules/trip-transport'
+import { getSupportedFlightStatusAirportCodes } from '@waylog/domains/modules/flight-status'
+import { findAirport } from '@waylog/domains/modules/airport'
+import { MaterialIcons } from '@expo/vector-icons'
 import { format as formatDate } from 'date-fns'
+import { useRouter } from 'expo-router'
 import { useMemo } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { Accordion, Typography } from '~/shared/components/design-system'
+import { Accordion, Box, Button, Stack, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../shared/config/tokens'
 import { TransportCard } from './TransportCard'
 
@@ -17,15 +21,42 @@ interface Props {
 
 export function TripTransportList({ tripId, onTransportPress }: Props) {
   const { data: transports } = useTripScheduledFlights(tripId)
+  const router = useRouter()
 
   // 렌더마다 기준 시각이 달라지면 목록이 흔들린다. 조회 결과가 바뀔 때만 다시 가른다.
   const { past, upcoming } = useMemo(() => splitByDeparture(transports, new Date()), [transports])
   const upcomingGroups = useMemo(() => groupByDepartureDate(upcoming), [upcoming])
+  const supportedAirportNames = getSupportedFlightStatusAirportCodes()
+    .map((airportCode) => findAirport(airportCode)?.nameKo)
+    .filter((airportName): airportName is string => airportName != null)
 
   if (transports.length === 0) {
     return (
       <View style={styles.empty}>
-        <Typography color="text.secondary">등록된 교통편이 없어요.</Typography>
+        <Box style={styles.emptyIcon}>
+          <MaterialIcons name="flight-takeoff" size={26} color={palette.primary} />
+        </Box>
+        <Typography variant="subtitle1" style={styles.emptyTitle}>
+          탑승권을 등록해보세요
+        </Typography>
+        <Typography color="text.secondary" textAlign="center" style={styles.emptyDescription}>
+          탑승 준비, 스케줄 변경(지연, 결항, 게이트 변경)등{`\n`}필요한 정보를 실시간으로 알려드려요
+        </Typography>
+        <Button
+          fullWidth
+          size="large"
+          variant="contained"
+          startIcon={<MaterialIcons name="add" size={18} color={palette.onPrimary} />}
+          onPress={() => router.push(`/trip/${tripId}/transport/new`)}
+        >
+          탑승권 등록
+        </Button>
+        <Stack direction="row" alignItems="center" style={styles.supportedAirport}>
+
+          <Typography color="text.secondary" style={styles.supportedAirportLabel}>
+            스케줄 변경 알림 지원 공항 : {supportedAirportNames.join(', ')}
+          </Typography>
+        </Stack>
       </View>
     )
   }
@@ -67,7 +98,12 @@ export function TripTransportList({ tripId, onTransportPress }: Props) {
 
 const styles = StyleSheet.create({
   list: { gap: 18 },
-  empty: { alignItems: 'center', paddingVertical: 48 },
+  empty: { alignItems: 'center', padding: 24, gap: 12, borderRadius: 16, borderWidth: 1, borderColor: palette.divider, backgroundColor: palette.primaryContainer },
+  emptyIcon: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', backgroundColor: palette.background },
+  emptyTitle: { fontWeight: '900' },
+  emptyDescription: { lineHeight: 21 },
+  supportedAirport: { gap: 6, borderRadius: 20, alignSelf: 'flex-end', marginTop: 8, marginBottom: -12 },
+  supportedAirportLabel: { fontSize: 12 },
   group: { gap: 8 },
   groupLabel: { fontSize: 12.5, fontWeight: '700', color: palette.textSecondary },
 })

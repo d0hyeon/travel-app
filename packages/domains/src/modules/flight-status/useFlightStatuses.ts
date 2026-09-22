@@ -1,12 +1,10 @@
 import { useSuspenseQuery } from '@waylog/react'
-import { incheonFlightStatusProvider } from './incheonFlightStatus.api'
+import { getFlightStatusProviders } from './flightStatus.utils'
 import type {
   FlightStatus,
   FlightStatusProvider,
   GetFlightStatusParams,
 } from './flightStatus.types'
-
-const PROVIDERS: readonly FlightStatusProvider[] = [incheonFlightStatusProvider]
 
 const REFETCH_INTERVAL = 3 * 60 * 1000
 
@@ -15,7 +13,7 @@ export type FlightQuery = Partial<GetFlightStatusParams>
 // 선택 축과 가용성 축이 다르다. 공항으로 provider 를 고르고,
 // provider 가 자기 기간 제약을 답한다. 날씨의 분리를 그대로 승계한다.
 function findProvider(query: FlightQuery) {
-  return PROVIDERS.find(
+  return getFlightStatusProviders().find(
     ({ supportedAirportCodes }) =>
       supportedAirportCodes.some(
         (code) => code === query.departureAirportCode || code === query.arrivalAirportCode,
@@ -55,7 +53,7 @@ export interface FlightStatusResult {
  * 결과는 물어본 순서 그대로다.
  */
 export function useFlightStatuses(queries: readonly FlightQuery[]): FlightStatusResult[] {
-  const [listProvider] = PROVIDERS
+  const [listProvider] = getFlightStatusProviders()
 
   // 목록은 편마다 따로 받지 않고 하루치를 통째로 받는다. 그래서 "받을지
   // 말지"는 배열 전체에 하나 -- 한 편이라도 조회 가능하면 받는다.

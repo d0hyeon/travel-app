@@ -465,7 +465,6 @@ src/
 │       │   ├── useUnreadChatCount.ts
 │       │   ├── ChatFab.tsx
 │       │   ├── ChatIconButton.tsx
-│       │   ├── ChatPushNoticeCard.tsx
 │       │   ├── TripUnreadCountBadge.tsx
 │       │   ├── notification/              # 푸시 알림
 │       │   └── trip-chat-pannel/          # 채팅 패널 UI
@@ -895,6 +894,19 @@ src/
   화면은 "지연"이라 말하는데 알림은 오지 않는다.
 - `FLIGHT_STATUS_NOTIFY_ALWAYS=true` 면 상태 변경 없이도 매번 보내고
   감시 창을 D+6 까지 넓힌다. 발송 경로를 실기기로 확인할 때만 쓴다.
+- 운항 상태 provider는 지원 공항 코드만 공개한다. `flightStatus.utils.ts`가
+  provider registry에서 지원 코드를 집계하고, 탑승권 목록 UI는 공항 vocabulary의
+  이름을 매핑해 현재 스케줄 변경 알림 대상을 보여준다. provider가 UI 문자열을
+  소유하지 않게 해 provider 정책과 표시 정책을 분리한다.
+- 운항 상태 푸시는 `tripId`와 `transportId`를 함께 싣고, 채팅 푸시는 `tripId`만
+  싣는다. 웹 `src/service-worker.ts`와 앱 `NotificationGateway`는 두 알림
+  모듈을 함께 등록할 뿐, 채팅·운항 상태 모듈은 상대 payload를 수용하지 않는다.
+  채팅 푸시의 공통 `data` 계약은 `@waylog/domains/modules/trip-chat/tripChatPush`의
+  `TripChatPushData`·`isTripChatPushData`가 소유하며, 웹 서비스워커와 앱은 같은
+  판별기를 사용한다. 웹 Push API의 제목·본문과 Expo의 알림 봉투는 플랫폼별로
+  다르므로 이 공통 모델에 넣지 않는다.
+  운항 상태 알림은 탑승권 상세(`/trip/:tripId/transport/:transportId`)로, 채팅
+  알림은 기존 채팅 목적지로 이동한다.
 - **티켓 뷰어**는 타이틀 없이 어두운 배경에 이미지만 둔다.
   탑승 시 밝기 조절 없이 바코드가 읽히는 것이 목적이다.
   상단은 좌측 닫기 · 우측 `PopMenu`(삭제)다.
@@ -915,6 +927,9 @@ src/
   티켓을 여는 동작과 구분되지 않는다.
   여러 장일 때만 가로 스크롤이고, 한 장이면 스크롤 컨테이너를 두지 않는다.
   가로 스크롤 안에서는 너비 `100%`가 화면이 아니라 콘텐츠 기준이라 닿지 않는다.
+- 교통편 목록이 비었을 때는 항공 아이콘·안내 문단·지원 공항 알림 칩과 함께
+  `탑승권 등록` 버튼을 표시한다. 목록은 이미 `tripId`를 소유하므로 버튼에서
+  기존 등록 경로(`/trip/:tripId/transport/new`)로 직접 이동한다.
 - **상세 화면**은 라우트다. 웹은 `/trip/:tripId/transport/:transportId`,
   앱은 `app/trip/[tripId]/transport/[transportId].tsx`.
   구획(요약·실시간·운항정보·티켓·길찾기)마다 `AsyncBoundary`를 따로 둬
@@ -1199,7 +1214,7 @@ ref 로 붙잡아야 끌던 도중 스냅이 바뀌어도 제스처가 갈아끼
 
 여행 상세 웹·앱 시나리오 및 스크린샷 대조 기록은 `docs/app-trip-screenshot-comparison.md`에서 관리한다.
 
-네이티브 `TripChatPanel.tsx`는 새로 추가된 메시지가 아래 40px에서 출발하는 Reanimated 슬라이드업·페이드인 효과를 적용하고, 목록의 레이아웃 전환으로 기존 메시지도 240ms 동안 부드럽게 위로 이동한다. 초기 목록·가상화 재마운트·전송 성공 시 ID 교체에는 진입 효과를 반복하지 않으며, 시스템 동작 줄이기 설정을 따른다. `ChatPushNoticeCard`는 배경을 투명하게 두고 카드 외곽에 반투명 검정 boxShadow를 적용한다. 기존 shadowOpacity·elevation은 꺼서 그림자가 중첩되지 않게 한다. 전송 버튼은 기본 고정 너비를 `width: 'auto'`로 덮어써 아이콘과 좌우 패딩에 맞추고, 남는 가로 공간은 입력창이 채운다.
+네이티브 `TripChatPanel.tsx`는 새로 추가된 메시지가 아래 40px에서 출발하는 Reanimated 슬라이드업·페이드인 효과를 적용하고, 목록의 레이아웃 전환으로 기존 메시지도 240ms 동안 부드럽게 위로 이동한다. 초기 목록·가상화 재마운트·전송 성공 시 ID 교체에는 진입 효과를 반복하지 않으며, 시스템 동작 줄이기 설정을 따른다. 인증 기능의 `PushNotificationCard`는 채팅 패널과 탑승권 상세가 함께 쓰며, 기본 흰 카드 위에 iOS shadow와 Android elevation을 적용해 화면 배경과 구분한다. `SlideReveal`의 overflow clip 안에서 그림자가 잘리지 않도록 카드 바깥 래퍼가 그림자 여백을 소유한다. 전송 버튼은 기본 고정 너비를 `width: 'auto'`로 덮어써 아이콘과 좌우 패딩에 맞추고, 남는 가로 공간은 입력창이 채운다.
 
 핫플레이스 목록(`explorer-recent`)은 웹·앱 모두 `byHotRank`로 정렬한다. 1차 기준은 `score`(방문·사진·포스트 정규화 합산)이고, 동률이면 `lastSavedAt`(RPC `get_explored_places`의 `last_saved_at` = `max(trip_places.created_at)`) 내림차순으로 최근 담긴 장소를 앞에 둔다. 사진·포스트가 없는 장소는 전부 같은 점수를 받아 동률이 대부분을 차지하며(실측 48건 중 39건), 이전에는 그 구간 순서가 RPC 반환 순서에 따라 임의로 정해져 오래전 여행지가 최근 여행지보다 앞에 왔다.
 

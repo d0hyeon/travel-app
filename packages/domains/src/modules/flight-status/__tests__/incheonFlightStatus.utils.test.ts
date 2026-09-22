@@ -5,6 +5,12 @@ import {
   toFlightStatusKind,
   toIsoFromApiDateTime,
 } from '../incheonFlightStatus.utils'
+import { getSupportedFlightStatusAirportCodes } from '../flightStatus.utils'
+describe('getSupportedFlightStatusAirportCodes', () => {
+  it('스케줄 변경 알림을 지원하는 공항 코드를 제공한다', () => {
+    expect(getSupportedFlightStatusAirportCodes()).toEqual(['ICN'])
+  })
+})
 
 describe('isSameFlight', () => {
   it('편명이 그대로 일치하면 같은 편이다', () => {
