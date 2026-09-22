@@ -40,7 +40,7 @@ export function TripTransportList({ tripId, onTransportPress }: Props) {
           탑승권을 등록해보세요
         </Typography>
         <Typography color="text.secondary" textAlign="center" style={styles.emptyDescription}>
-          탑승 준비, 스케줄 변경(지연, 결항, 게이트 변경)등{`\n`}필요한 정보를 실시간으로 알려드려요
+          탑승 전, 여정 변동(지연, 결항, 탑승구 변경)등{`\n`}중요한 상황을 놓치지 않도록 알려드려요
         </Typography>
         <Button
           fullWidth
@@ -54,7 +54,7 @@ export function TripTransportList({ tripId, onTransportPress }: Props) {
         <Stack direction="row" alignItems="center" style={styles.supportedAirport}>
 
           <Typography color="text.secondary" style={styles.supportedAirportLabel}>
-            스케줄 변경 알림 지원 공항 : {supportedAirportNames.join(', ')}
+            * 여정 변동 알림은 {supportedAirportNames} 출발 항공편에 한해 지원돼요.
           </Typography>
         </Stack>
       </View>

@@ -5,20 +5,20 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Button,
   Box,
+  Button,
   Skeleton,
   Stack,
   Typography,
   type StackProps,
 } from '@mui/material'
+import { findAirport } from '@waylog/domains/modules/airport'
+import { getSupportedFlightStatusAirportCodes } from '@waylog/domains/modules/flight-status'
 import {
   groupByDepartureDate,
   splitByDeparture,
   useTripScheduledFlights,
 } from '@waylog/domains/modules/trip-transport'
-import { getSupportedFlightStatusAirportCodes } from '@waylog/domains/modules/flight-status'
-import { findAirport } from '@waylog/domains/modules/airport'
 import { formatDate } from 'date-fns'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router'
@@ -50,12 +50,12 @@ export function TripTransportList({ tripId, onTransportClick, ...props }: Props)
           탑승권을 등록해보세요
         </Typography>
         <Typography variant="body2" color="text.secondary" textAlign="center" lineHeight={1.6}>
-          탑승 준비, 스케줄 변경(지연, 결항, 게이트 변경)등<br />필요한 정보를 실시간으로 알려드려요
+          탑승 전, 여정 변동(지연, 결항, 탑승구 변경)등{`\n`}중요한 상황을 놓치지 않도록 알려드려요
         </Typography>
         <Stack direction="row" alignItems="center" gap={0.75} px={1.5} py={0.75} borderRadius={3} bgcolor="background.paper">
           <NotificationsNoneIcon fontSize="small" color="action" />
           <Typography variant="caption" color="text.secondary">
-            스케줄 변경 알림 대상 : {supportedAirportNames.join(', ')}
+            * 여정 변동 알림은 {supportedAirportNames} 출발 항공편에 한해 지원돼요.
           </Typography>
         </Stack>
         <Button variant="contained" startIcon={<FlightTakeoffIcon />} onClick={() => navigate(`/trip/${tripId}/transport/new`)}>
