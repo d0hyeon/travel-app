@@ -6,6 +6,8 @@ import {
 } from '@waylog/domains/modules/trip-transport'
 import { AsyncBoundary } from '@waylog/react'
 import { useTicketViewerOverlay } from '../useTicketViewerOverlay'
+import { useTransportTicketFormOverlay } from '../transport-ticket/useTransportTicketFormOverlay'
+import { useTransportTicketUpload } from '../transport-ticket/useTransportTicketUpload'
 import { TransportDetailSectionError } from './TransportDetailSectionError'
 
 interface Props {
@@ -28,12 +30,24 @@ export function TransportTicketsSection({ tripId, transportId }: Props) {
 }
 
 function Resolved({ tripId, transportId }: Props) {
-  const { primaryTicket, companionTickets } = useTripTransportDetail({ tripId, transportId })
+  const { transport, primaryTicket, companionTickets } = useTripTransportDetail({ tripId, transportId })
   const ticketViewer = useTicketViewerOverlay()
+  const ticketForm = useTransportTicketFormOverlay()
+  const { upload } = useTransportTicketUpload(tripId)
 
   const openTicket = (ticket: TripTransportTicket) => {
-    ticketViewer.open(ticket.image)
+    ticketViewer.open({ tripId, ticketId: ticket.id })
   }
+
+  const addTickets = () => {
+    ticketForm.open({
+      tripId,
+      type: transport.type,
+      onSubmit: (tickets) => upload({ transportId, tickets }),
+    })
+  }
+
+  const hasNoTickets = primaryTicket == null && companionTickets.length === 0
 
   return (
     <Stack gap={1} mt={0.75}>
@@ -41,10 +55,14 @@ function Resolved({ tripId, transportId }: Props) {
         <Typography fontSize={16} fontWeight={700}>
           티켓
         </Typography>
-        <Typography fontSize={14} fontWeight={700} color="primary.main">
-          추가
-        </Typography>
+        {!hasNoTickets && <Button variant="text" onClick={addTickets}>추가</Button>}
       </Stack>
+
+      {hasNoTickets && (
+        <Button variant="outlined" size="large" fullWidth onClick={addTickets} sx={{ borderStyle: 'dashed' }}>
+          탑승권 추가
+        </Button>
+      )}
 
       {primaryTicket != null && (
         <Button
