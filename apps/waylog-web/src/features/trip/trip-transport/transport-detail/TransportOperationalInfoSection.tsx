@@ -1,14 +1,13 @@
 import { Skeleton, Stack, Typography } from '@mui/material'
-import { useTripTransport, useTripTransportDetail } from '@waylog/domains/modules/trip-transport'
+import {
+  getOperationalFields,
+  useTripTransport,
+  useTripTransportDetail,
+} from '@waylog/domains/modules/trip-transport'
 import { AsyncBoundary } from '@waylog/react'
 import { EditableText } from '../../../../shared/components/EditableText'
 import { TransportDetailSectionError } from './TransportDetailSectionError'
-
-const OPERATIONAL_FIELDS = [
-  { name: 'terminal', label: '터미널' },
-  { name: 'gate', label: '게이트' },
-  { name: 'seat', label: '좌석(나)' },
-] as const
+import EditIcon from '@mui/icons-material/Edit';
 
 const EMPTY_PLACEHOLDER = '—'
 
@@ -34,6 +33,7 @@ export function TransportOperationalInfoSection({ tripId, transportId }: Props) 
 function Resolved({ tripId, transportId }: Props) {
   const { transport, primaryTicket } = useTripTransportDetail({ tripId, transportId })
   const { updateTicket } = useTripTransport(tripId)
+  const fields = getOperationalFields(transport.type)
 
   // 값이 없는 이유가 "탑승권이 없다"면 유도는 티켓 섹션이 한다.
   // 두 섹션이 맞붙어 있어 여기서도 하면 같은 버튼이 둘 뜬다.
@@ -41,7 +41,7 @@ function Resolved({ tripId, transportId }: Props) {
 
   return (
     <Stack direction="row" gap={1.25} my={1} aria-label={`${transport.type} 운행 정보`}>
-      {OPERATIONAL_FIELDS.map(({ name, label }) => (
+      {fields.map(({ name, label }) => (
         <Stack
           key={name}
           flex={1}
@@ -50,6 +50,7 @@ function Resolved({ tripId, transportId }: Props) {
           py={1.75}
           borderRadius={3}
           bgcolor="rgba(0,0,0,0.04)"
+          paddingX={1}
         >
           <Typography fontSize={12} color="text.secondary">
             {label}
@@ -60,6 +61,7 @@ function Resolved({ tripId, transportId }: Props) {
             onSubmit={(value) => {
               void updateTicket({ id: primaryTicket.id, [name]: value.trim() || undefined })
             }}
+            endIcon={<EditIcon sx={{ fontSize: 'inherit', marginRight: -12 }} />}
             fontSize={16}
             fontWeight={700}
           />
@@ -72,9 +74,9 @@ function Resolved({ tripId, transportId }: Props) {
 function TransportOperationalInfoSkeleton() {
   return (
     <Stack direction="row" gap={1.25} my={1}>
-      {OPERATIONAL_FIELDS.map(({ name }) => (
+      {Array.from({ length: 3 }).map((_, index) => (
         <Stack
-          key={name}
+          key={index}
           flex={1}
           alignItems="center"
           gap={0.75}
