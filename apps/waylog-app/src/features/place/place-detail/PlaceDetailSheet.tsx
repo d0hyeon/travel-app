@@ -69,7 +69,7 @@ function MoreDetailButton({ placeId, onNavigate }: { placeId: string; onNavigate
         router.push(`/explorer/${placeId}`)
       }}
     >
-      <Typography variant="body2" color={palette.primary}>
+      <Typography variant="body2" color="primary">
         더 보기
       </Typography>
     </Pressable>
@@ -118,7 +118,7 @@ export function PlaceDetailBody({ placeId }: { placeId: string }) {
       </View>
 
       {place.address != null && place.address !== '' && (
-        <Typography variant="body2" color={palette.textSecondary}>
+        <Typography variant="body2" color="text.secondary">
           {place.address}
         </Typography>
       )}

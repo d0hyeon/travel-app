@@ -24,10 +24,14 @@ export type TypographyVariant = keyof typeof VARIANT_STYLE
 const COLOR_MAP = {
   'text.primary': palette.text,
   'text.secondary': palette.textSecondary,
+  'text.disabled': palette.textDisabled,
   'primary.main': palette.primary,
   primary: palette.primary,
-  error: '#d32f2f',
+  'common.white': palette.onPrimary,
+  'error.main': palette.error,
+  error: palette.error,
   warning: palette.warning,
+  'success.main': palette.success,
   success: palette.success,
 } as const;
 

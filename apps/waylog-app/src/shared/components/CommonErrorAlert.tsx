@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
 import { Button, Stack, Typography } from "./design-system";
-import { palette, radius } from "../config/tokens";
+import { radius } from "../config/tokens";
 import { ReactNode } from "react";
 import { ButtonProps } from "./design-system/Button";
 
@@ -20,10 +20,10 @@ export function CommonErrorAlert({ message = '에러가 발생했어요!', actio
       style={styles.container}
     >
       <Stack gap={2} style={styles.message}>
-        <Typography variant="subtitle1" color={ERROR_MAIN}>
+        <Typography variant="subtitle1" color="error">
           에러가 발생했어요!
         </Typography>
-        <Typography variant="caption" color={palette.textSecondary}>
+        <Typography variant="caption" color="text.secondary">
           {message}
         </Typography>
       </Stack>
@@ -39,7 +39,6 @@ CommonErrorAlert.RetryButton = (props: ButtonProps) => {
   )
 }
 
-const ERROR_MAIN = '#d32f2f'
 const ERROR_SURFACE = '#fdeded'
 
 const styles = StyleSheet.create({
@@ -54,4 +53,3 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
 })
-

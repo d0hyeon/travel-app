@@ -12,6 +12,8 @@ export const palette = {
   success: '#66BB6A',
   text: '#1a1a1a',
   textSecondary: '#787c7e',
+  textDisabled: 'rgba(0,0,0,0.38)',
+  onPrimary: '#fff',
   background: '#fff',
   divider: 'rgba(0,0,0,0.12)',
 } as const

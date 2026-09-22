@@ -41,8 +41,10 @@
 | Animation | Reanimated 4 + Gesture Handler 2                 |
 
 앱 UI 는 `shared/components/design-system/` 의 자체 디자인 시스템을 쓴다.
-디자인 어휘(`variant`, `color="text.secondary"`, spacing 8배수)는 웹 theme 에서 승계했지만
+디자인 어휘(`variant`, `color="text.secondary"`, `color="common.white"`, spacing 8배수)는 웹 theme 에서 승계했지만
 인터페이스는 RN 표준(`style`, `onPress`)이다. `~/shared/components/design-system` 별칭으로 임포트한다.
+`Typography`의 `color`에는 직접 색상값 대신 의미 토큰을 쓴다. 지원 토큰은
+`text.primary`·`text.secondary`·`text.disabled`·`primary`·`primary.main`·`common.white`·`error`·`error.main`·`warning`·`success`·`success.main`이다.
 바텀시트·정렬 목록처럼 손이 많이 가는 것은 직접 구현한다 — 아래 "주요 패턴" 참조.
 
 기존 화면은 `StyleSheet.create` 로 파일 하단에 모은다. 인라인 객체는 렌더마다

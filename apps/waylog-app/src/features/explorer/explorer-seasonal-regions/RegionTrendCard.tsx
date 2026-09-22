@@ -21,7 +21,7 @@ export function RegionTrendCard({ trend, rank }: RegionTrendCardProps) {
     <View style={styles.card}>
       <View style={styles.heading}>
         <View style={styles.rankBadge}>
-          <Typography variant="caption" fontWeight="bold" color="#fff" style={styles.rankLabel}>
+          <Typography variant="caption" fontWeight="bold" color="common.white" style={styles.rankLabel}>
             {rank}
           </Typography>
         </View>

@@ -110,7 +110,7 @@ function ExchangeRateRow({ code, rate, onSubmit }: RowProps) {
           textLayout: { style: styles.rateInput }
         }}
         style={styles.rateValue}
-        color={palette.primary}
+        color="primary"
         format={(x) => Number(x).toLocaleString()}
 
         endIcon={
