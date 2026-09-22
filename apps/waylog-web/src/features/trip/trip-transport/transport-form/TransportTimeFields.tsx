@@ -10,7 +10,13 @@ interface Props {
 
 export function TransportTimeFields({ control }: Props) {
   const isMobile = useIsMobile()
-  const pickerSx = isMobile ? { '.MuiFormLabel-root': { lineHeight: 1 } } : {}
+  const pickerSx = isMobile
+    ? {
+      '& .MuiInputBase-root': { height: 48 },
+      '& .MuiInputBase-input': { py: 0, display: 'flex', alignItems: 'center' },
+      '& .MuiInputBase-input::placeholder': { color: 'text.secondary', opacity: 1 },
+    }
+    : {}
 
   return (
     <FieldPair label="일시">
@@ -20,10 +26,9 @@ export function TransportTimeFields({ control }: Props) {
         rules={{ required: true }}
         render={({ field: { value, onChange, ...field }, fieldState }) => (
           <DateTimePicker
-            label="출발"
             value={value ? new Date(value) : null}
             onChange={(next) => onChange(next ? (next as Date).toISOString() : '')}
-            slotProps={{ textField: { error: fieldState.invalid, fullWidth: true } }}
+            slotProps={{ textField: { error: fieldState.invalid, fullWidth: true, placeholder: '출발' } }}
             sx={{ flex: 1, ...pickerSx }}
             ampm={false}
             {...field}
@@ -36,10 +41,9 @@ export function TransportTimeFields({ control }: Props) {
         name="arrivalAt"
         render={({ field: { value, onChange, ...field }, fieldState }) => (
           <DateTimePicker
-            label="도착"
             value={value ? new Date(value) : null}
             onChange={(next) => onChange(next ? (next as Date).toISOString() : '')}
-            slotProps={{ textField: { error: fieldState.invalid, fullWidth: true } }}
+            slotProps={{ textField: { error: fieldState.invalid, fullWidth: true, placeholder: '도착' } }}
             sx={{ flex: 1, ...pickerSx }}
             ampm={false}
             {...field}

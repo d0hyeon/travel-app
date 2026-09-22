@@ -1,5 +1,5 @@
 import { TextField } from '@mui/material'
-import { Controller, type Control, type UseFormSetValue } from 'react-hook-form'
+import { Controller, useController, type Control, type UseFormSetValue } from 'react-hook-form'
 import { FieldPair, RouteArrow } from './scheduleFieldParts'
 import { useAirportSelectOverlay } from './useAirportSelectOverlay'
 import type { TransportFormValues } from './transportForm.types'
@@ -18,6 +18,9 @@ const readOnlyStyle = {
 // 밖에서 콜백으로 받으면 호출부마다 setValue 세 줄을 다시 적게 된다.
 export function FlightRouteFields({ control, setValue }: Props) {
   const airportSelect = useAirportSelectOverlay()
+
+  useController({ control, name: 'departureAirportCode', rules: { required: true } })
+  useController({ control, name: 'arrivalAirportCode', rules: { required: true } })
 
   // shouldValidate 가 없으면 다 채워도 isValid 가 그대로라 버튼이 잠긴다.
   const selectDeparture = async () => {

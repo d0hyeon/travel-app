@@ -1,6 +1,6 @@
 import SearchIcon from '@mui/icons-material/Search'
 import { InputAdornment, TextField } from '@mui/material'
-import { useWatch, type Control, type UseFormSetValue } from 'react-hook-form'
+import { useController, useWatch, type Control, type UseFormSetValue } from 'react-hook-form'
 import { useAirlineSelectOverlay } from './useAirlineSelectOverlay'
 import type { TransportFormValues } from './transportForm.types'
 
@@ -13,6 +13,8 @@ interface Props {
 export function AirlineField({ control, setValue }: Props) {
   const airlineSelect = useAirlineSelectOverlay()
   const airline = useWatch({ control, name: 'airline' })
+
+  useController({ control, name: 'airlineCode', rules: { required: true } })
 
   // shouldValidate 가 없으면 다 채워도 isValid 가 그대로라 버튼이 잠긴다.
   const select = async () => {
