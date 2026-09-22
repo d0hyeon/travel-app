@@ -1,4 +1,6 @@
 import { Stack, type StackProps } from '@mui/material'
+import { Suspense } from 'react'
+import { PushNotificationCard } from '~features/auth/PushNotificationCard'
 import { TransportDirectionsAction } from '../TransportDirectionsAction'
 import { TransportOperationalInfoSection } from '../TransportOperationalInfoSection'
 import { TransportRealtimeInfoSection } from '../TransportRealtimeInfoSection'
@@ -13,6 +15,9 @@ interface Props extends StackProps {
 export function TransportDetailContent({ tripId, transportId, ...props }: Props) {
   return (
     <Stack gap={1.5} {...props}>
+      <Suspense>
+        <PushNotificationCard />
+      </Suspense>
       <TransportSummarySection tripId={tripId} transportId={transportId} />
       <TransportRealtimeInfoSection tripId={tripId} transportId={transportId} />
       <TransportOperationalInfoSection tripId={tripId} transportId={transportId} />

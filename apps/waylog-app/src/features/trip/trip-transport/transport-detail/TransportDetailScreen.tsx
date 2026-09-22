@@ -1,4 +1,5 @@
 import { AsyncBoundary } from '@waylog/react'
+import { Suspense } from 'react'
 import { ScrollView, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { AppBar } from '~/shared/components/design-system/AppBar'
@@ -11,6 +12,8 @@ import { TransportSummarySection } from '../TransportSummarySection'
 import { TransportTicketsSection } from '../transport-ticket/TransportTicketsSection'
 import { useTripId } from '../../useTripId'
 import { useTransportId } from '../useTransportId'
+import { PushNotificationCard } from '../../../auth/PushNotificationCard'
+import { Box, Stack } from '~/shared/components/design-system'
 
 export function TransportDetailScreen() {
   const tripId = useTripId()
@@ -27,11 +30,16 @@ export function TransportDetailScreen() {
         }
       />
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <TransportSummarySection tripId={tripId} transportId={transportId} style={{ marginBottom: 10 }} />
-        <TransportRealtimeInfoSection tripId={tripId} transportId={transportId} />
-        <TransportOperationalInfoSection tripId={tripId} transportId={transportId} />
-        <TransportTicketsSection tripId={tripId} transportId={transportId} />
-        <TransportDirectionsAction tripId={tripId} transportId={transportId} />
+        <Suspense>
+          <PushNotificationCard />
+        </Suspense>
+        <Stack gap={1} style={styles.wrapper}>
+          <TransportSummarySection tripId={tripId} transportId={transportId} style={{ marginBottom: 10 }} />
+          <TransportRealtimeInfoSection tripId={tripId} transportId={transportId} />
+          <TransportOperationalInfoSection tripId={tripId} transportId={transportId} />
+          <TransportTicketsSection tripId={tripId} transportId={transportId} />
+          <TransportDirectionsAction tripId={tripId} transportId={transportId} />
+        </Stack>
       </ScrollView>
     </SafeAreaView>
   )
@@ -39,5 +47,6 @@ export function TransportDetailScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: palette.background },
-  content: { padding: 20, gap: 12 },
+  content: { paddingVertical: 20, gap: 12 },
+  wrapper: { paddingHorizontal: 20 }
 })

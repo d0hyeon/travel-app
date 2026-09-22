@@ -14,7 +14,7 @@ import { Suspense, useCallback, useRef, type ReactNode } from 'react'
 
 import { useForm } from 'react-hook-form'
 import { useChatActivation } from '~features/trip/trip-chat/notification/useChatActivation'
-import { ChatPushNoticeCard } from '../ChatPushNoticeCard'
+import { PushNotificationCard } from '~features/auth/PushNotificationCard'
 import { useTripChatMessages } from '@waylog/domains/modules/trip-chat'
 import { markAsRead } from '@waylog/domains/modules/trip-chat'
 import { TripChatMessage } from './TripChatMessage'
@@ -79,7 +79,7 @@ function Resolved({ tripId }: Props) {
   return (
     <Box flex={1} minHeight={0} display="flex" flexDirection="column">
       <Suspense>
-        <ChatPushNoticeCard margin={2} flex={0} />
+        <PushNotificationCard margin={2} flex={0} />
       </Suspense>
       <Box flex={1} overflow="auto" display="flex" flexDirection="column-reverse">
         <Stack padding={2}>

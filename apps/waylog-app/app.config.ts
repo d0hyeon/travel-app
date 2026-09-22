@@ -6,6 +6,9 @@ import type { ExpoConfig } from "expo/config";
 const config: ExpoConfig = {
   name: "WayLog:me",
   slug: "waylog-app",
+  // EAS 프로젝트가 @ehgus6887/waylog-app 이다. 없으면 eas 명령이
+  // 현재 로그인 계정 기준으로 다른 프로젝트를 찾는다.
+  owner: "ehgus6887",
   version: "1.0.0",
   orientation: "portrait",
   icon: "./assets/logo.png",

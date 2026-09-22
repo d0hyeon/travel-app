@@ -7,7 +7,7 @@ import Animated, { FadeInDown, LinearTransition, ReduceMotion } from 'react-nati
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { IconButton, Skeleton, Stack, Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../../shared/config/tokens'
-import { ChatPushNoticeCard } from './ChatPushNoticeCard'
+import { PushNotificationCard } from '../../auth/PushNotificationCard'
 import { TripChatMessage } from './TripChatMessage'
 import { useKeyboardMetrics } from '../../../shared/hooks/env/useKeyboardMetrics'
 
@@ -90,7 +90,7 @@ function Resolved({ tripId }: Props) {
 
     >
       <Suspense>
-        <ChatPushNoticeCard style={styles.pushNotice} />
+        <PushNotificationCard style={styles.pushNotice} />
       </Suspense>
 
       {/* 메시지가 수백 개가 되면 한 번에 그리는 비용이 커밋을 수백 ms 막는다.

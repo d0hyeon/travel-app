@@ -12,7 +12,7 @@ import {
 } from './pushSubscription.api'
 
 // 웹 useWebPushSubscription 과 같은 모양을 유지한다.
-// ChatPushNoticeCard 같은 호출부가 양쪽에서 같은 코드여야 하기 때문이다.
+// PushNotificationCard 가 양쪽에서 같은 책임으로 쓸 수 있어야 하기 때문이다.
 const ANDROID_CHANNEL_ID = 'default'
 
 /**
@@ -92,6 +92,7 @@ export function useNativePushSubscription() {
     isEnabled,
     isSubscribed,
     hasPermission,
+    permissionStatus,
     requestPermission,
     subscribe,
     unsubscribe,
