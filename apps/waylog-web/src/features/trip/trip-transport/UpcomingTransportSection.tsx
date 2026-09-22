@@ -1,7 +1,7 @@
 import { Button, Stack, Typography, type StackProps } from '@mui/material'
 import {
   splitByDeparture,
-  useTripTransport,
+  useTripScheduledFlights,
   type TripTransport,
 } from '@waylog/domains/modules/trip-transport'
 import { useMemo } from 'react'
@@ -16,7 +16,7 @@ interface Props extends StackProps {
 // 다가오는 교통편만 보딩패스 형태로 보여준다. 다음 카드가 옆에 걸쳐 보이게 해
 // 더 있다는 것을 도트 없이 알린다.
 export function UpcomingTransportSection({ tripId, sx, ...props }: Props) {
-  const { data: transports } = useTripTransport(tripId)
+  const { data: transports } = useTripScheduledFlights(tripId)
   const { upcoming } = useMemo(() => splitByDeparture(transports, new Date()), [transports])
 
   if (upcoming.length === 0) return null
@@ -30,7 +30,7 @@ export function UpcomingTransportSection({ tripId, sx, ...props }: Props) {
         direction="row"
         spacing={1.5}
         sx={[
-          {
+          upcoming.length > 1 && {
             overflowX: 'auto',
             scrollSnapType: 'x mandatory',
             pb: 0.5,
@@ -40,14 +40,27 @@ export function UpcomingTransportSection({ tripId, sx, ...props }: Props) {
         ]}
       >
         {upcoming.map((transport) => (
-          <BoardingPassCard key={transport.id} tripId={tripId} transport={transport} />
+          <BoardingPassCard
+            key={transport.id}
+            tripId={tripId}
+            transport={transport}
+            isSingleCard={upcoming.length === 1}
+          />
         ))}
       </Stack>
     </Stack>
   )
 }
 
-function BoardingPassCard({ tripId, transport }: { tripId: string; transport: TripTransport }) {
+function BoardingPassCard({
+  tripId,
+  transport,
+  isSingleCard,
+}: {
+  tripId: string
+  transport: TripTransport
+  isSingleCard: boolean
+}) {
   const navigate = useNavigate()
   const ticketViewer = useTicketViewerOverlay()
 
@@ -56,21 +69,22 @@ function BoardingPassCard({ tripId, transport }: { tripId: string; transport: Tr
   const [firstTicket] = transport.tickets
 
   return (
-    <Stack sx={{ width: '82%', flexShrink: 0, scrollSnapAlign: 'start' }} gap={1}>
+    <Stack sx={{ width: isSingleCard ? '100%' : '82%', flexShrink: 0, scrollSnapAlign: 'start' }} gap={1}>
       <TransportCard
         transport={transport}
         onClick={() => navigate(`/trip/${tripId}/transport/${transport.id}`)}
       />
 
       {firstTicket != null && (
-        <Button
-          variant="outlined"
-          size="small"
-          sx={{ height: 36 }}
-          onClick={() => ticketViewer.open(firstTicket.image)}
-        >
-          탑승권 보기
-        </Button>
+        <Stack px={1}>
+          <Button
+            variant="outlined"
+            fullWidth
+            onClick={() => ticketViewer.open({ tripId, ticketId: firstTicket.id })}
+          >
+            탑승권 열기
+          </Button>
+        </Stack>
       )}
     </Stack>
   )

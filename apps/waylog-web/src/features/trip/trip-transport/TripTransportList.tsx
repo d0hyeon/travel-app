@@ -3,14 +3,16 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Box,
+  Skeleton,
   Stack,
   Typography,
   type StackProps,
 } from '@mui/material'
 import {
-  useTripTransport,
   groupByDepartureDate,
   splitByDeparture,
+  useTripScheduledFlights,
 } from '@waylog/domains/modules/trip-transport'
 import { formatDate } from 'date-fns'
 import { useMemo } from 'react'
@@ -22,7 +24,7 @@ interface Props extends StackProps {
 }
 
 export function TripTransportList({ tripId, onTransportClick, ...props }: Props) {
-  const { data: transports } = useTripTransport(tripId)
+  const { data: transports } = useTripScheduledFlights(tripId)
 
   // 렌더마다 기준 시각이 달라지면 목록이 흔들린다. 조회 결과가 바뀔 때만 다시 가른다.
   const { past, upcoming } = useMemo(() => splitByDeparture(transports, new Date()), [transports])
@@ -76,5 +78,46 @@ export function TripTransportList({ tripId, onTransportClick, ...props }: Props)
         </Stack>
       ))}
     </Stack>
+  )
+}
+
+TripTransportList.Skeleton = function TripTransportListSkeleton(props: StackProps) {
+  return (
+    <Stack gap={2} {...props}>
+      <Stack gap={1}>
+        <Skeleton variant="text" width={32} height={20} />
+        <TransportCardSkeleton />
+        <TransportCardSkeleton />
+      </Stack>
+    </Stack>
+  )
+}
+
+function TransportCardSkeleton() {
+  return (
+    <Box sx={{ p: 2, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
+      <Stack direction="row" alignItems="center" gap={0.5} mb={1}>
+        <Skeleton variant="circular" width={14} height={14} />
+        <Skeleton variant="text" width={48} height={20} />
+      </Stack>
+
+      <Skeleton variant="text" width={64} height={20} />
+
+      <Stack direction="row" alignItems="flex-start" justifyContent="space-between" mt={1}>
+        <Stack gap={0.5}>
+          <Skeleton variant="text" width={56} height={28} />
+          <Skeleton variant="text" width={72} height={16} />
+        </Stack>
+
+        <Box flex={1} mx={1} mt="14px" borderTop="1px dashed" borderColor="divider" />
+
+        <Stack alignItems="end" gap={0.5}>
+          <Skeleton variant="text" width={56} height={28} />
+          <Skeleton variant="text" width={72} height={16} />
+        </Stack>
+      </Stack>
+
+      <Skeleton variant="text" width={96} height={16} sx={{ mt: 1.25 }} />
+    </Box>
   )
 }

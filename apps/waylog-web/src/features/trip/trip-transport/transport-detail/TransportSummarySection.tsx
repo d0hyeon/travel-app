@@ -4,6 +4,7 @@ import {
   formatArrivalTime,
   formatDepartureTime,
   useTripTransportDetail,
+  useTripScheduledFlights,
 } from '@waylog/domains/modules/trip-transport'
 import { AsyncBoundary } from '@waylog/react'
 import { format } from 'date-fns'
@@ -33,7 +34,9 @@ export function TransportSummarySection({ tripId, transportId }: Props) {
 }
 
 function Resolved({ tripId, transportId }: Props) {
-  const { transport } = useTripTransportDetail({ tripId, transportId })
+  const { transport: detailTransport } = useTripTransportDetail({ tripId, transportId })
+  const { data: transports } = useTripScheduledFlights(tripId)
+  const transport = transports.find(({ id }) => id === detailTransport.id) ?? detailTransport
 
   const carrierLabel = toCarrierLabel(transport) ?? EMPTY_VALUE
 
