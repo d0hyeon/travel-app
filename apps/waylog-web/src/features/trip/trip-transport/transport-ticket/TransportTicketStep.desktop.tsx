@@ -4,8 +4,8 @@ import { useState } from 'react'
 import {
   TransportFormBody,
   TransportFormFooter,
-} from '../transport-form/TransportFormLayout.desktop'
-import type { TransportTicketDraft } from '../transport-form/transportForm.types'
+} from '../transport-form-funnel/TransportFormLayout.desktop'
+import type { TransportTicketDraft } from '../transport-form-funnel/transportForm.types'
 import { TransportTicketForm } from './TransportTicketForm'
 
 interface Props {

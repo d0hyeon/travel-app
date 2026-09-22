@@ -1,6 +1,6 @@
 import { getTicketInfo, useTripTransport } from '@waylog/domains/modules/trip-transport'
 import { uploadTransportTicketImage } from '~features/photo/photo.api'
-import type { TransportTicketDraft } from '../transport-form/transportForm.types'
+import type { TransportTicketDraft } from '../transport-form-funnel/transportForm.types'
 
 interface UploadParams {
   transportId: string

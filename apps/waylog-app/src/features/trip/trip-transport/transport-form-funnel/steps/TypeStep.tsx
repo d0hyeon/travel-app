@@ -4,7 +4,7 @@ import { TransportType, TransportTypeLabel } from '@waylog/domains/modules/trans
 import type { TripTransportType } from '@waylog/domains/modules/trip-transport'
 import { useState } from 'react'
 import { palette, radius } from '../../../../../shared/config/tokens'
-import { TransportTypeIcon } from '../../TransportTypeIcon'
+import { TransportTypeIcon } from '../../../../transport/TransportTypeIcon'
 
 const SELECTABLE_TYPES: TripTransportType[] = [
   TransportType.항공,

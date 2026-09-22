@@ -7,7 +7,7 @@ import { Pressable, StyleSheet, View } from 'react-native'
 import { Typography } from '~/shared/components/design-system'
 import { PopMenu } from '../../../../shared/components/PopMenu'
 import { palette, radius } from '../../../../shared/config/tokens'
-import { TransportTypeIcon } from '../TransportTypeIcon'
+import { TransportTypeIcon } from '../../../transport/TransportTypeIcon'
 import { useTicketDraftPreviewOverlay } from './useTicketDraftPreviewOverlay'
 import type { TransportTicketDraft } from './transportTicket.types'
 

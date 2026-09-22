@@ -7,7 +7,7 @@ import {
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { TransportCard } from './TransportCard'
-import { useTicketViewerOverlay } from './useTicketViewerOverlay'
+import { useTicketViewerOverlay } from './transport-ticket/useTicketViewerOverlay'
 
 interface Props extends StackProps {
   tripId: string
