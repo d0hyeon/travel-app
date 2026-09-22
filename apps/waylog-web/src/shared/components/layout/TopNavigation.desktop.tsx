@@ -42,11 +42,16 @@ export function TopNavigation({
   )
 }
 TopNavigation.BackButton = BackButton;
-function BackButton(props: IconButtonProps) {
+function BackButton({ onClick, ...props }: IconButtonProps) {
   const navigate = useNavigate();
 
+  const goBack = () => {
+    if (window.history.length <= 1) return navigate('/')
+    navigate(-1)
+  }
+
   return (
-    <IconButton {...props} onClick={() => navigate('/')}>
+    <IconButton {...props} onClick={onClick ?? goBack}>
       <ArrowBackIcon />
     </IconButton>
   )
