@@ -3,6 +3,7 @@ import '../src/shared/polyfills'
 
 import { QueryClientProvider } from '@tanstack/react-query'
 import { AuthErrorBoundary, AuthStateSync } from '@waylog/domains/clients'
+import { getActivedChatTripId } from '@waylog/domains/modules/trip-chat'
 import { ExceptionError } from '@waylog/utility'
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
@@ -13,15 +14,33 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { TamaguiProvider } from 'tamagui'
 import { setupApi } from '../src/api-config'
 import { useLoginRedirect } from '../src/features/auth/auth-redirect'
+import { isTripChatPushData } from '@waylog/domains/modules/trip-chat/tripChatPush'
 import { useChatNotificationResponse } from '../src/features/trip/trip-chat/notification/useChatNotification'
+import { useFlightStatusNotificationResponse } from '../src/features/trip/trip-transport/notification/useFlightStatusNotification'
 import { OverlayProvider } from '../src/shared/hooks/useOverlay.context'
 import { queryClient } from '../src/shared/query-client'
 import { tamaguiConfig } from '../tamagui.config'
+import * as Notifications from 'expo-notifications'
 
 
 
 setupApi()
 LogBox.ignoreLogs([ExceptionError.name])
+Notifications.setNotificationHandler({
+  handleNotification: async (notification) => {
+    const tripMessage = notification.request.content.data
+    const isActiveTripMessage = isTripChatPushData(tripMessage)
+      && tripMessage.tripId === getActivedChatTripId()
+    const shouldPresent = !isActiveTripMessage
+
+    return {
+      shouldShowBanner: shouldPresent,
+      shouldShowList: shouldPresent,
+      shouldPlaySound: shouldPresent,
+      shouldSetBadge: false,
+    }
+  },
+})
 
 function Loading() {
   return (
@@ -40,7 +59,7 @@ export default function RootLayout() {
             <AuthStateSync />
             <OverlayProvider>
               <Suspense fallback={<Loading />}>
-                <ChatNotificationGateway />
+                <NotificationGateway />
                 <AuthGateway>
                   <Stack screenOptions={{ headerShown: false }}>
                     {/* 인증 판정 후 곧바로 리다이렉트되는 진입점이다. 전환 애니메이션이 보이면
@@ -65,9 +84,10 @@ function AuthGateway({ children }: PropsWithChildren) {
   return <AuthErrorBoundary onSessionExpired={redirectToLogin}>{children}</AuthErrorBoundary>
 }
 
-/** 알림을 탭했을 때 채팅방으로 보낸다. 라우터가 필요해 Stack 안쪽에서 건다. */
-function ChatNotificationGateway() {
+/** 알림 도메인별 응답 처리를 루트에서 함께 등록한다. */
+function NotificationGateway() {
   useChatNotificationResponse()
+  useFlightStatusNotificationResponse()
   return null
 }
 

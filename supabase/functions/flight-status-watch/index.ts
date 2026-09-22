@@ -107,7 +107,7 @@ async function notify(transport: TransportRow, status: WatchedStatus) {
   const nativeRows = rows.filter((row) => isExpoPushToken(row.endpoint))
   const webRows = rows.filter((row) => !isExpoPushToken(row.endpoint))
 
-  const payload = JSON.stringify({ title, body, tripId: transport.trip_id })
+  const payload = JSON.stringify({ title, body, tripId: transport.trip_id, transportId: transport.id })
 
   const webResults = await Promise.allSettled(
     webRows.map((row) =>
@@ -128,7 +128,7 @@ async function notify(transport: TransportRow, status: WatchedStatus) {
     nativeRows.length > 0
       ? await sendExpoPush(
           nativeRows.map((row) => row.endpoint),
-          { title, body, data: { tripId: transport.trip_id } },
+          { title, body, data: { tripId: transport.trip_id, transportId: transport.id } },
         )
       : { sent: 0, invalidTokens: [] as string[] }
 

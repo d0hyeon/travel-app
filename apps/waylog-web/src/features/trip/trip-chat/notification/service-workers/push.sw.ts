@@ -1,9 +1,11 @@
 /// <reference lib="webworker" />
 
-import { generatePath } from 'react-router';
-import { AppRoute } from '~app/routes';
 import { ChattingNotificationMessageSchema, ChattingNotificationType } from './chatting-notification.types';
-import z, { type ZodSchema } from 'zod';
+import {
+  getChatPushNotificationDestination,
+  getChatPushNotificationTripId,
+  parseChatPushNotification,
+} from './chatPushNotification';
 
 declare const self: ServiceWorkerGlobalScope;
 const openChatTripIds = new Set<string>()
@@ -24,22 +26,11 @@ self.addEventListener('message', (event: ExtendableMessageEvent) => {
   }
 })
 
-type ChatPushEventPayload = {
-  title: string;
-  body: string;
-  tripId: string;
-}
-const ChatPushEventDataSchema = z.object({
-  title: z.string(),
-  body: z.string(),
-  tripId: z.string()
-}) satisfies ZodSchema<ChatPushEventPayload>;
-
 self.addEventListener('push', (event: PushEvent) => {
-  const parsed = ChatPushEventDataSchema.safeParse(event.data?.json());
-  if (!parsed.success) return;
+  const notification = parseChatPushNotification(event.data?.json());
+  if (notification == null) return;
   
-  const { title, body, tripId } = parsed.data;
+  const { title, body, tripId } = notification;
   if (openChatTripIds.has(tripId)) return;
 
   event.waitUntil(
@@ -47,26 +38,17 @@ self.addEventListener('push', (event: PushEvent) => {
       body,
       icon: '/pwa-192x192.png',
       badge: '/pwa-192x192.png',
-      data: { tripId } satisfies ChatNotificationPayload,
+      data: { tripId },
     })
   )
 })
 
-type ChatNotificationPayload = {
-  tripId: string;
-} 
-const ChatNotificationPayloadSchema = z.object({
-  tripId: z.string()
-}) satisfies ZodSchema<ChatNotificationPayload>
-
-
 self.addEventListener('notificationclick', (event: NotificationEvent) => {
-  const parsed = ChatNotificationPayloadSchema.safeParse(event.notification.data);
-  if (!parsed.success) return;
+  const tripId = getChatPushNotificationTripId(event.notification.data);
+  if (tripId == null) return;
   
   event.notification.close();
-  const { tripId } = parsed.data;
-  const targetUrl = generatePath(AppRoute.여행_채팅, { tripId });
+  const targetUrl = getChatPushNotificationDestination(tripId);
 
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
@@ -77,4 +59,3 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
     })
   )
 })
-
