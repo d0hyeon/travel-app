@@ -1,9 +1,9 @@
 import { Button } from '@mui/material'
 import { TransportType } from '@waylog/domains/modules/transport'
 import type { TripTransportType } from '@waylog/domains/modules/trip-transport'
-import { FlightTransportForm } from '~features/transport/FlightTransportForm'
-import { TransportForm } from '~features/transport/TransportForm'
-import type { TransportFormValues } from '~features/transport/transportForm.types'
+import { FlightTransportForm } from '~features/transport/transport-form/FlightTransportForm'
+import { TransportForm } from '~features/transport/transport-form/TransportForm'
+import type { TransportFormValues } from '~features/transport/transport-form/transportForm.types'
 import { TransportFormBody, TransportFormFooter } from './TransportFormLayout.desktop'
 
 interface Props {

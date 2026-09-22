@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react'
 import { Pressable, StyleSheet } from 'react-native'
 import { Typography } from '~/shared/components/design-system'
 import { palette } from '../../../shared/config/tokens'
-import { SearchPanelLayout } from '../SearchPanelLayout'
+import { SearchPanelLayout } from '../transport-form/SearchPanelLayout'
 
 interface Props {
   title: string

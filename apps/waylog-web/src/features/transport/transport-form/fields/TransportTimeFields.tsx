@@ -2,7 +2,7 @@ import { DateTimePicker } from '@mui/x-date-pickers'
 import { Controller, type Control } from 'react-hook-form'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { FieldPair, RouteArrow } from './scheduleFieldParts'
-import type { TransportFormValues } from './transportForm.types'
+import type { TransportFormValues } from '../transportForm.types'
 
 interface Props {
   control: Control<TransportFormValues>

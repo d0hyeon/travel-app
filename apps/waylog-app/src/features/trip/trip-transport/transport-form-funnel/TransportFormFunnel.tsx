@@ -11,7 +11,7 @@ import { TransportStep } from './steps/TransportStep'
 import { TypeStep } from './steps/TypeStep'
 import { TransportFormFunnelHeader } from './TransportFormFunnelHeader'
 import type { TransportTicketDraft } from '../transport-ticket/transportTicket.types'
-import type { TransportFormValues } from '../../../transport/transportForm.types'
+import type { TransportFormValues } from '../../../transport/transport-form/transportForm.types'
 
 // 퍼널을 자체 스택으로 세운다. 부모 스택에서 이 화면은 엔트리 하나이므로
 // 소비자가 replace 한 번만 해도 스텝 전체가 함께 걷힌다.
@@ -39,7 +39,7 @@ export function TransportFormFunnel({
 }: Props) {
   const insets = useSafeAreaInsets()
   // 포커스된 스텝이 자기 navigation 을 올린다. 헤더가 셸에 있어 직접 참조할 수 없다.
-  const goBackRef = useRef<() => void>(() => {})
+  const goBackRef = useRef<() => void>(() => { })
   const [type, setType] = useState<TripTransportType>()
   const [detail, setDetail] = useState<Partial<TransportFormValues>>()
   // 프로그레스바는 스텝을 넘어 살아있어야 차오르는 모션이 나온다.

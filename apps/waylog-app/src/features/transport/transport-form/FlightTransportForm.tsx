@@ -1,10 +1,10 @@
 import { Controller, useForm } from 'react-hook-form'
 import { ScrollView, StyleSheet, View } from 'react-native'
 import { Button, Divider, TextField } from '~/shared/components/design-system'
-import { palette } from '../../shared/config/tokens'
-import { AirlineField } from './airline/AirlineField'
-import { FlightRouteFields } from './FlightRouteFields'
-import { TransportTimeFields } from './TransportTimeFields'
+import { palette } from '../../../shared/config/tokens'
+import { AirlineField } from './fields/AirlineField'
+import { FlightRouteFields } from './fields/FlightRouteFields'
+import { TransportTimeFields } from './fields/TransportTimeFields'
 import type { TransportFormValues } from './transportForm.types'
 
 // 실시간 상태는 편번호를 숫자로 바꿔 맞춘다. 'KE721' 이나 '721A' 가 들어오면

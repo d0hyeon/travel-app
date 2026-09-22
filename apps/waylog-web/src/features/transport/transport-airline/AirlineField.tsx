@@ -2,7 +2,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import { InputAdornment, TextField } from '@mui/material'
 import { useController, useWatch, type Control, type UseFormSetValue } from 'react-hook-form'
 import { useAirlineSelectOverlay } from './useAirlineSelectOverlay'
-import type { TransportFormValues } from '../transportForm.types'
+import type { TransportFormValues } from '../transport-form/transportForm.types'
 
 interface Props {
   control: Control<TransportFormValues>

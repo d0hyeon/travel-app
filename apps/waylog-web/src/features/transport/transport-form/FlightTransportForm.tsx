@@ -1,10 +1,10 @@
 import { Button, Divider, Stack, TextField, type ButtonProps } from '@mui/material'
 import { Controller, createFormControl, useForm, useFormState } from 'react-hook-form'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
-import { AirlineField } from './airline/AirlineField'
-import { FlightRouteFields } from './FlightRouteFields'
-import { FieldPair } from './scheduleFieldParts'
-import { TransportTimeFields } from './TransportTimeFields'
+import { AirlineField } from '../transport-airline/AirlineField'
+import { FlightRouteFields } from './fields/FlightRouteFields'
+import { FieldPair } from './fields/scheduleFieldParts'
+import { TransportTimeFields } from './fields/TransportTimeFields'
 import type { TransportFormValues } from './transportForm.types'
 
 const FLIGHT_NUMBER_PATTERN = /^\d+$/

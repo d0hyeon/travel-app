@@ -1,7 +1,7 @@
+import { TextField } from '@mui/material'
 import { Controller, type Control } from 'react-hook-form'
-import { TextField } from '~/shared/components/design-system'
-import { FieldPair, PairSlot, RouteArrow } from './scheduleFieldParts'
-import type { TransportFormValues } from './transportForm.types'
+import { FieldPair, RouteArrow } from './scheduleFieldParts'
+import type { TransportFormValues } from '../transportForm.types'
 
 interface Props {
   control: Control<TransportFormValues>
@@ -17,13 +17,13 @@ export function GroundRouteFields({ control }: Props) {
         name="departureName"
         rules={{ required: true }}
         render={({ field, fieldState }) => (
-          <PairSlot hasError={fieldState.invalid}>
-            <TextField
-              placeholder="출발지"
-              value={field.value}
-              onChangeText={field.onChange}
-            />
-          </PairSlot>
+          <TextField
+            placeholder="출발지"
+            error={fieldState.invalid}
+            fullWidth
+            {...field}
+            value={field.value ?? ''}
+          />
         )}
       />
       <RouteArrow />
@@ -32,13 +32,13 @@ export function GroundRouteFields({ control }: Props) {
         name="arrivalName"
         rules={{ required: true }}
         render={({ field, fieldState }) => (
-          <PairSlot hasError={fieldState.invalid}>
-            <TextField
-              placeholder="도착지"
-              value={field.value}
-              onChangeText={field.onChange}
-            />
-          </PairSlot>
+          <TextField
+            placeholder="도착지"
+            error={fieldState.invalid}
+            fullWidth
+            {...field}
+            value={field.value ?? ''}
+          />
         )}
       />
     </FieldPair>

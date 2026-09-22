@@ -1,7 +1,7 @@
 import { Box, Stack, Typography } from '@mui/material'
 import { searchAirports, type Airport } from '@waylog/domains/modules/airport'
 import { useMemo, useState } from 'react'
-import { SearchPanelLayout } from '../SearchPanelLayout'
+import { SearchPanelLayout } from '../transport-form/SearchPanelLayout'
 
 interface Props {
   title: string

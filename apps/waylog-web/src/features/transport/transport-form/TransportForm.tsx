@@ -1,7 +1,7 @@
 import { Button, Stack, type ButtonProps } from '@mui/material'
 import { createFormControl, useForm, useFormState } from 'react-hook-form'
-import { GroundRouteFields } from './GroundRouteFields'
-import { TransportTimeFields } from './TransportTimeFields'
+import { GroundRouteFields } from './fields/GroundRouteFields'
+import { TransportTimeFields } from './fields/TransportTimeFields'
 import type { TransportFormValues } from './transportForm.types'
 
 const FORM_ID = 'ground-transport-form'

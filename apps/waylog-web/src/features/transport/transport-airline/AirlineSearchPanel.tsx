@@ -1,7 +1,7 @@
 import { Box, Stack, Typography } from '@mui/material'
 import { searchAirlines, type Airline } from '@waylog/domains/modules/airline'
 import { useMemo, useState } from 'react'
-import { SearchPanelLayout } from '../SearchPanelLayout'
+import { SearchPanelLayout } from '../transport-form/SearchPanelLayout'
 
 interface Props {
   onSelect: (airline: Airline) => void
