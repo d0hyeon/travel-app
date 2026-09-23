@@ -1,6 +1,7 @@
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2'
 import webpush from 'npm:web-push'
 import { isExpoPushToken, sendExpoPush } from '../chat-web-push/expoPush.ts'
+import { getAirportCityName } from './airports.ts'
 import { getCongestionSnapshotData, getFreshCongestionSnapshot } from './congestion.ts'
 import {
   getAirportArrivalGuidance,
@@ -38,6 +39,7 @@ interface TransportRow {
   type: string
   departure_at: string
   departure_airport_code: string | null
+  arrival_airport_code: string | null
 }
 
 interface FlightStatusRow {
@@ -271,7 +273,7 @@ async function sendPushToRecipients(
 async function processJob(job: DueJobRow, now: Date): Promise<'delivered' | 'skipped'> {
   const { data: transport } = await supabase
     .from('trip_transports')
-    .select('id, trip_id, type, departure_at, departure_airport_code')
+    .select('id, trip_id, type, departure_at, departure_airport_code, arrival_airport_code')
     .eq('id', job.trip_transport_id)
     .maybeSingle()
 
@@ -291,7 +293,15 @@ async function processJob(job: DueJobRow, now: Date): Promise<'delivered' | 'ski
     return 'skipped'
   }
 
-  const message = toAirportArrivalPushMessage(guidance)
+  const [departureCityName, arrivalCityName] = await Promise.all([
+    getAirportCityName(supabase, typedTransport.departure_airport_code ?? ''),
+    getAirportCityName(supabase, typedTransport.arrival_airport_code ?? ''),
+  ])
+
+  const message = toAirportArrivalPushMessage(guidance, {
+    departureCityName: departureCityName ?? '출발지',
+    arrivalCityName: arrivalCityName ?? '도착지',
+  })
   const result = await sendPushToRecipients(supabase, typedTransport.trip_id, message, {
     tripId: typedTransport.trip_id,
     transportId: typedTransport.id,
