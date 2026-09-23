@@ -393,20 +393,32 @@ function isServiceRoleRequest(req: Request): boolean {
   return serviceRoleKey != null && req.headers.get('authorization') === `Bearer ${serviceRoleKey}`
 }
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+}
+
 Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
   try {
     const request = (await req.json()) as AirportArrivalGuidanceFunctionRequest
     if (request.action === 'get-guidance') {
       const userId = await getAuthenticatedUserId(req)
       const isTripMember = userId != null && (await canReadTripGuidance(userId, request.tripId))
-      if (!isTripMember) return Response.json({ error: '권한이 없습니다.' }, { status: 403 })
+      if (!isTripMember) {
+        return Response.json({ error: '권한이 없습니다.' }, { status: 403, headers: corsHeaders })
+      }
     } else if (!isServiceRoleRequest(req)) {
-      return Response.json({ error: '권한이 없습니다.' }, { status: 403 })
+      return Response.json({ error: '권한이 없습니다.' }, { status: 403, headers: corsHeaders })
     }
 
     const result = await handleAirportArrivalGuidance(request)
-    return Response.json(result)
+    return Response.json(result, { headers: corsHeaders })
   } catch (error) {
-    return Response.json({ error: (error as Error).message }, { status: 500 })
+    return Response.json({ error: (error as Error).message }, { status: 500, headers: corsHeaders })
   }
 })
