@@ -898,6 +898,13 @@ src/
   provider registry에서 지원 코드를 집계하고, 탑승권 목록 UI는 공항 vocabulary의
   이름을 매핑해 현재 스케줄 변경 알림 대상을 보여준다. provider가 UI 문자열을
   소유하지 않게 해 provider 정책과 표시 정책을 분리한다.
+- **공항 도착 안내**는 `airport-arrival-guidance` 도메인 훅이 Edge Function의
+  `get-guidance`만 호출한다. 화면은 정책·혼잡 스냅샷을 직접 읽지 않으며, Edge가
+  여행 멤버 권한, `trips.is_overseas`, 터미널, 운항 상태, 정책과 혼잡 데이터를
+  함께 판단해 표시 결과만 반환한다.
+- `trips.is_overseas`가 해외 여부의 단일 기준이다. 생성·목적지 변경 시
+  `trip.api.ts`가 `destinations`로 저장값을 갱신하고, 예약 트리거와 Edge Function은
+  그 저장값만 읽는다. 국내편은 화면 안내만 만들고 푸시를 예약하지 않는다.
 - 운항 상태 푸시는 `tripId`와 `transportId`를 함께 싣고, 채팅 푸시는 `tripId`만
   싣는다. 웹 `src/service-worker.ts`와 앱 `NotificationGateway`는 두 알림
   모듈을 함께 등록할 뿐, 채팅·운항 상태 모듈은 상대 payload를 수용하지 않는다.

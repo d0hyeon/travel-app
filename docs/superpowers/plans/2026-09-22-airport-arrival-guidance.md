@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- 국내·해외 판단은 여행 목적지 좌표의 기존 `isOverseas` 규칙을 사용한다.
+- 국내·해외 판단은 `trips.is_overseas`를 단일 기준으로 사용한다. 목적지 변경 시에만 기존 좌표 규칙으로 이 값을 갱신한다.
 - 터미널은 탑승권별 값이며, 한 항공편의 입력된 터미널이 하나로 일치할 때만 대상이다.
 - 기본 여유는 국내 120분, 국제 180분이며 등급별 추가 여유와 출국장 기준값은 DB 정책이 소유한다.
 - 해외편 푸시는 D-1 18:00(Asia/Seoul), 국내선 푸시는 범위 밖이다.
@@ -39,15 +39,177 @@
 
 **Produces:** 사용자 승인된 DB·엣지 함수·도메인·화면 공개 계약과 `it.todo` 검증 케이스 제목.
 
-- [ ] **Step 1: 구현 없이 공개 인터페이스를 작성한다.**
+- [x] **Step 1: 구현 없이 공개 인터페이스를 작성한다.**
 
-  정책·기준값·스냅샷·예약 작업 테이블의 필드와 상태 전이, 엣지 함수 요청·응답, 도메인 입력·출력 타입, 기존 항공편 카드가 받는 안내 표시값을 문서에 적는다.
+  구현과 실제 테스트 본문은 이 승인 뒤에만 작성한다. 다음 계약은 Task 1~6이
+  소비할 승인 대상이며, 정책의 의미는 설계 문서가 소유한다.
 
-- [ ] **Step 2: `it.todo` 검증 케이스 제목을 작성한다.**
+  **DB 모델 계약**
 
-  국내·국제 기본 여유, 네 혼잡 등급, 터미널 없음·불일치 제외, 결항·출발 후 제외, D-1 18:00 예약, 변경·삭제·터미널 수정에 따른 취소·재예약, 세 번 재시도, 화면 간 동일 결과를 제목으로 확정한다.
+  ```text
+  airport_arrival_guidance_policies
+    id, is_active, domestic_base_buffer_minutes,
+    international_base_buffer_minutes, calm_max_ratio, normal_max_ratio,
+    crowded_max_ratio, calm_extra_minutes, normal_extra_minutes,
+    crowded_extra_minutes, very_crowded_extra_minutes, created_at, updated_at
 
-- [ ] **Step 3: 사용자에게 인터페이스와 검증 케이스 검토·승인을 요청한다.**
+  airport_congestion_reference_counts
+    id, policy_id, source_kind(forecast|realtime|domestic), airport_code,
+    terminal, departure_gate, reference_passenger_count, created_at, updated_at
+    unique: (policy_id, source_kind, airport_code, terminal, departure_gate)
+
+  airport_congestion_snapshots
+    id, source_kind, airport_code, terminal, snapshot_date(nullable, forecast D+0|D+1),
+    observed_at, expires_at, raw_response, departure_gates, created_at
+    departure_gates: [{ gate, passengerCount }]
+    unique: (source_kind, airport_code, terminal, snapshot_date, observed_at)
+
+  scheduled_notification_jobs
+    id, trip_transport_id, type(airport_arrival_guidance), status,
+    scheduled_for, attempt_count, last_error, locked_at, delivered_at,
+    cancelled_at, created_at, updated_at
+    partial unique: (trip_transport_id, type) where status in (pending, processing)
+  ```
+
+  `scheduled_notification_jobs.status`는
+  `pending → processing → delivered` 또는 `pending|processing → cancelled`만
+  정상 완료 경로로 허용한다. 조회·발송 오류는 `processing → pending`으로 되돌리며
+  `scheduled_for`를 5분·15분·30분 뒤로 재설정한다. 세 번째 오류 뒤에는
+  `processing → failed`로 끝낸다. 정책·기준값·스냅샷·작업은 service role만
+  쓰고, 사용자는 직접 읽거나 수정하지 않는다.
+
+  DB는 다음 함수로 예약 정책의 재평가를 소유한다.
+
+  ```sql
+  sync_airport_arrival_guidance_job(p_transport_id uuid) returns void
+  ```
+
+  이 함수는 `trip_transports`와 `trip_transport_tickets`의 INSERT/UPDATE/DELETE
+  트리거에서 호출한다. 항공편의 입력된 모든 터미널이 하나로 일치하고, 여행
+  목적지 좌표가 해외이며, 출발 시각이 미래이고 결항이 아닐 때만 D-1 18:00
+  Asia/Seoul 작업을 만든다. 그 밖의 경우 미발송 작업을 취소한다.
+
+  **엣지 함수 계약**
+
+  `POST /functions/v1/airport-arrival-guidance`는 service role 요청만 받는다.
+
+  ```ts
+  type AirportArrivalGuidanceFunctionRequest =
+    | {
+        action: 'refresh-congestion'
+        sourceKind: 'forecast' | 'realtime' | 'domestic'
+        airportCode: string
+        terminal: string
+        forecastDate?: string
+      }
+    | { action: 'deliver-due-jobs'; now: string }
+
+  type AirportArrivalGuidanceFunctionResponse =
+    | { action: 'refresh-congestion'; snapshotId: string; isCacheHit: boolean }
+    | { action: 'deliver-due-jobs'; claimedJobCount: number; deliveredJobCount: number }
+  ```
+
+  `refresh-congestion`은 유효한 스냅샷을 재사용하거나 제공자 응답을
+  `{ gate, passengerCount }` 행으로 정규화해 저장한다. `deliver-due-jobs`는
+  due `pending` 작업만 원자적으로 점유하고, 최신 운항 상태·D+1 예고
+  스냅샷·여행 멤버십·푸시 구독을 다시 검증해 유효 수신자에게만 보낸다.
+  데이터 오류·결항·수신자 없음은 빈 푸시를 만들지 않는다.
+
+  **도메인 계약**
+
+  ```ts
+  export type AirportCongestionSourceKind = 'forecast' | 'realtime' | 'domestic'
+  export type AirportCongestionTier = 'calm' | 'normal' | 'crowded' | 'veryCrowded'
+
+  export interface AirportArrivalGuidanceInput {
+    departureAt: string
+    estimatedDepartureAt?: string
+    isCancelled: boolean
+    isOverseas: boolean
+    departureTerminal: string | null
+    now: string
+    policy: AirportArrivalGuidancePolicy
+    snapshot: AirportCongestionSnapshot | null
+  }
+
+  export interface AirportArrivalGuidance {
+    recommendedArrivalAt: string
+    appliedDepartureAt: string
+    terminal: string
+    baseBufferMinutes: number
+    congestionBufferMinutes: number
+    congestionTier: AirportCongestionTier
+    sourceKind: 'forecast' | 'domestic'
+    observedAt: string
+    recommendedDepartureGate?: string
+  }
+
+  export function getConsistentDepartureTerminal(
+    tickets: readonly Pick<TripTransportTicket, 'terminal'>[],
+  ): string | null
+  export function getCongestionTier(input: CongestionTierInput): AirportCongestionTier
+  export function getAirportArrivalGuidance(
+    input: AirportArrivalGuidanceInput,
+  ): AirportArrivalGuidance | null
+  export function useAirportArrivalGuidance(input: {
+    tripId: string
+    transportId: string
+  }): AirportArrivalGuidance | null
+  ```
+
+  `getConsistentDepartureTerminal`은 입력된 터미널이 없거나 둘 이상이면 `null`을
+  반환한다. `getAirportArrivalGuidance`는 네트워크·현재 시각을 직접 읽지 않고
+  입력을 바탕으로만 결정한다. 변경 출발 시각이 있으면 그것을 적용하며,
+  예고·국내 스냅샷의 가장 혼잡한 출국장을 사용한다. 실시간 스냅샷은 이
+  계산에 넣지 않고, 국제선 권장 도착 시각이 가까운 경우의 출국장 추천만
+  덧붙인다. `useAirportArrivalGuidance`는 여행 목적지 좌표의 기존
+  `isOverseas` 규칙으로 대상과 데이터 종류를 정하고, 조회 결과를 위 순수
+  함수에 전달한다.
+
+  **UI 계약**
+
+  ```ts
+  interface TransportCardProps {
+    transport: TripTransport
+    airportArrivalGuidance?: AirportArrivalGuidance | null
+  }
+  ```
+
+  기존 `TransportCard`는 `airportArrivalGuidance`가 있을 때만
+  `HH:mm까지 공항 도착을 권장해요`를 추가한다. 따라서 기본정보의
+  `UpcomingTransportSection`과 교통편 탭 목록 모두 같은 표시 계약을 쓴다.
+  상세 화면은 기존 `TransportRealtimeInfoSection({ tripId, transportId })`와
+  같은 위치에서 훅을 직접 사용해 적용 출발 시각·터미널·기본/혼잡 보정·출처와
+  갱신 시각을 표시한다. 해외편만 도착 직전의 여유 출국장 추천을 추가하며,
+  안내가 `null`이면 카드·상세 모두 아무것도 렌더링하지 않는다.
+
+- [x] **Step 2: `it.todo` 검증 케이스 제목을 작성한다.**
+
+  Task 4의 `airportArrivalGuidance.utils.test.ts`에 아래 제목을 먼저
+  `it.todo(...)`로 기록하고, 승인 뒤 한 항목씩 실제 테스트로 전환한다.
+
+  ```ts
+  it.todo('국내선은 활성 정책의 120분 기본 여유로 권장 도착 시각을 계산한다')
+  it.todo('국제선은 활성 정책의 180분 기본 여유로 권장 도착 시각을 계산한다')
+  it.todo('혼잡 비율이 50% 이하이면 추가 여유를 더하지 않는다')
+  it.todo('혼잡 비율이 50% 초과 75% 이하이면 15분을 더한다')
+  it.todo('혼잡 비율이 75% 초과 100% 이하이면 30분을 더한다')
+  it.todo('혼잡 비율이 100%를 초과하면 45분을 더한다')
+  it.todo('가장 혼잡한 출국장 기준으로 하나의 혼잡 보정을 적용한다')
+  it.todo('변경 출발 시각이 있으면 원래 출발 시각 대신 사용한다')
+  it.todo('탑승권에 터미널이 없으면 안내와 예약 대상에서 제외한다')
+  it.todo('탑승권 터미널 값이 서로 다르면 안내와 예약 대상에서 제외한다')
+  it.todo('결항·출발 시각 경과·혼잡 스냅샷 부재에는 안내를 만들지 않는다')
+  it.todo('여행 목적지 좌표가 해외인 항공편만 D-1 18:00 Asia/Seoul 작업을 예약한다')
+  it.todo('국내 여행 항공편은 한국공항공사 혼잡도 화면 안내만 만들고 푸시를 예약하지 않는다')
+  it.todo('항공편 출발 시각 또는 터미널 변경은 미발송 작업을 취소하고 새 시각으로 하나만 예약한다')
+  it.todo('항공편 삭제·결항·터미널 삭제·해외 대상 이탈은 미발송 작업을 취소한다')
+  it.todo('조회 오류는 5분·15분·30분 간격으로 재시도하고 세 번째 오류 뒤 failed로 남긴다')
+  it.todo('실시간 인천 혼잡도는 미래 권장 도착 시각 계산에 사용하지 않는다')
+  it.todo('기본정보 카드와 상세 화면은 같은 항공편에 같은 권장 도착 시각을 표시한다')
+  ```
+
+- [x] **Step 3: 사용자에게 인터페이스와 검증 케이스 검토·승인을 요청한다.**
 
   승인 전에는 Task 1 이후의 실제 테스트 본문, 마이그레이션, 엣지 함수, 제품 코드를 시작하지 않는다.
 
