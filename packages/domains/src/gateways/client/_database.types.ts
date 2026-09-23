@@ -131,6 +131,36 @@ export type Database = {
           },
         ]
       }
+      airports: {
+        Row: {
+          code: string
+          name_ko: string
+          name_en: string
+          city_ko: string
+          timezone: string
+          aliases: string[] | null
+          created_at: string
+        }
+        Insert: {
+          code: string
+          name_ko: string
+          name_en: string
+          city_ko: string
+          timezone: string
+          aliases?: string[] | null
+          created_at?: string
+        }
+        Update: {
+          code?: string
+          name_ko?: string
+          name_en?: string
+          city_ko?: string
+          timezone?: string
+          aliases?: string[] | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       airport_congestion_snapshots: {
         Row: {
           airport_code: string

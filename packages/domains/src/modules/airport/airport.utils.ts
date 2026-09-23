@@ -1,10 +1,9 @@
-import { AIRPORTS } from './airport.data'
-import type { Airport } from './airport.types'
+import type { Airport } from "./airport.types";
 
-const NOISE_PATTERN = /국제|공항|\s/g
+const NOISE_PATTERN = /국제|공항|\s/g;
 
 function normalize(value: string) {
-  return value.toLowerCase().replace(NOISE_PATTERN, '')
+  return value.toLowerCase().replace(NOISE_PATTERN, "");
 }
 
 function toSearchText(airport: Airport) {
@@ -16,16 +15,17 @@ function toSearchText(airport: Airport) {
     ...(airport.aliases ?? []),
   ]
     .map(normalize)
-    .join(' ')
+    .join(" ");
 }
 
-export function findAirport(code: string): Airport | undefined {
-  return AIRPORTS.find((airport) => airport.code === code)
-}
+export function searchAirports(
+  airports: readonly Airport[],
+  keyword: string,
+): Airport[] {
+  const normalized = normalize(keyword);
+  if (normalized === "") return [...airports];
 
-export function searchAirports(keyword: string): Airport[] {
-  const normalized = normalize(keyword)
-  if (normalized === '') return [...AIRPORTS]
-
-  return AIRPORTS.filter((airport) => toSearchText(airport).includes(normalized))
+  return airports.filter((airport) =>
+    toSearchText(airport).includes(normalized),
+  );
 }
