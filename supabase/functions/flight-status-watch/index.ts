@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import webpush from 'npm:web-push'
+import { getAirportCityName } from '../airport-arrival-guidance/airports.ts'
 import { isExpoPushToken, sendExpoPush } from '../chat-web-push/expoPush.ts'
 import {
   getIncheonFlights,
@@ -96,8 +97,15 @@ async function notify(transport: TransportRow, status: WatchedStatus) {
 
   if (subscriptions == null || subscriptions.length === 0) return 0
 
-  const flightLabel = `${transport.airline ?? transport.airline_code} ${transport.flight_number ?? ''}`.trim()
-  const { title, body } = toNotificationText(flightLabel, status)
+  const arrivalCityName = (await getAirportCityName(supabase, transport.arrival_airport_code ?? '')) ?? '도착지'
+  const { title, body } = toNotificationText(
+    {
+      airline: transport.airline ?? transport.airline_code,
+      flightNumber: transport.flight_number ?? '',
+      arrivalCityName,
+    },
+    status,
+  )
 
   // chat-web-push 는 제목을 여행 이름으로 덮고 발신자를 제외한다.
   // 운항 알림은 제목이 편명이고 제외할 발신자가 없어 계약이 맞지 않는다.

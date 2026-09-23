@@ -1,13 +1,13 @@
-import { FlightStatusKind } from './flightStatusKind'
+import { FlightStatusKind } from "./flightStatusKind";
 
 export interface WatchedStatus {
-  kind: string
-  estimatedAt: string | null
+  kind: string;
+  estimatedAt: string | null;
 }
 
 export interface NotifiedStatus {
-  lastNotifiedKind: string | null
-  lastNotifiedEstimatedAt: string | null
+  lastNotifiedKind: string | null;
+  lastNotifiedEstimatedAt: string | null;
 }
 
 // 알림을 보낼 상태는 셋뿐이다. 출발·도착은 이미 일어난 일이라 늦고,
@@ -16,17 +16,17 @@ const NOTIFIABLE: readonly string[] = [
   FlightStatusKind.지연,
   FlightStatusKind.결항,
   FlightStatusKind.회항,
-]
+];
 
 export function getIsNotifiable(kind: string) {
-  return NOTIFIABLE.includes(kind)
+  return NOTIFIABLE.includes(kind);
 }
 
 const STATUS_LABEL: Record<string, string> = {
-  [FlightStatusKind.예정]: '정상 운항 예정',
-  [FlightStatusKind.출발]: '출발',
-  [FlightStatusKind.도착]: '도착',
-}
+  [FlightStatusKind.예정]: "정상 운항 예정",
+  [FlightStatusKind.출발]: "출발",
+  [FlightStatusKind.도착]: "도착",
+};
 
 /**
  * 이번 확인에서 알림을 보내야 하는지 답한다.
@@ -43,7 +43,7 @@ export interface ShouldNotifyOptions {
    * 켜면 5분마다 같은 알림이 오고 정상 운항편도 알린다. 운영에서 켜면
    * 사용자가 알림을 꺼버려 지연을 영영 못 받는다.
    */
-  notifyAlways?: boolean
+  notifyAlways?: boolean;
 }
 
 export function getShouldNotify(
@@ -51,64 +51,81 @@ export function getShouldNotify(
   notified: NotifiedStatus,
   { notifyAlways = false }: ShouldNotifyOptions = {},
 ) {
-  if (notifyAlways) return true
+  if (notifyAlways) return true;
 
-  if (!getIsNotifiable(current.kind)) return false
+  if (!getIsNotifiable(current.kind)) return false;
 
-  if (current.kind !== notified.lastNotifiedKind) return true
+  if (current.kind !== notified.lastNotifiedKind) return true;
 
   return (
     current.kind === FlightStatusKind.지연 &&
     current.estimatedAt !== notified.lastNotifiedEstimatedAt
-  )
+  );
 }
 
 function toClock(value: string | null) {
-  if (value == null) return null
+  if (value == null) return null;
 
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return null
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
 
-  return new Intl.DateTimeFormat('ko-KR', {
-    hour: '2-digit',
-    minute: '2-digit',
+  return new Intl.DateTimeFormat("ko-KR", {
+    hour: "2-digit",
+    minute: "2-digit",
     hour12: false,
-    timeZone: 'Asia/Seoul',
-  }).format(date)
+    timeZone: "Asia/Seoul",
+  }).format(date);
 }
 
 export interface NotificationText {
-  title: string
-  body: string
+  title: string;
+  body: string;
+}
+
+export interface WatchedFlight {
+  airline: string;
+  flightNumber: string;
+  /** 도착 공항의 도시명. "{항공사} {도시명}행 (편명)" 형태로 제목에 쓴다. */
+  arrivalCityName: string;
+}
+
+function toTitle(flight: WatchedFlight, label: string) {
+  return `${flight.airline} ${flight.arrivalCityName}행 (${flight.flightNumber}편) ${label}`;
 }
 
 export function toNotificationText(
-  flightLabel: string,
+  flight: WatchedFlight,
   status: WatchedStatus,
 ): NotificationText {
   if (status.kind === FlightStatusKind.결항) {
     return {
-      title: `${flightLabel}편 결항`,
-      body: '항공편이 결항됐어요. 일정을 확인해 주세요.',
-    }
+      title: toTitle(flight, "결항"),
+      body: "항공편이 결항됐어요. 일정을 확인해 주세요.",
+    };
   }
 
   if (status.kind === FlightStatusKind.회항) {
     return {
-      title: `${flightLabel}편 회항`,
-      body: '항공편이 회항했어요. 일정을 확인해 주세요.',
-    }
+      title: toTitle(flight, "회항"),
+      body: "항공편이 회항했어요. 일정을 확인해 주세요.",
+    };
   }
 
   if (status.kind === FlightStatusKind.지연) {
-    const clock = toClock(status.estimatedAt)
+    const clock = toClock(status.estimatedAt);
     return {
-      title: `${flightLabel}편 지연`,
-      body: clock == null ? '항공편이 지연됐어요.' : `출발이 ${clock} 으로 변경됐어요.`,
-    }
+      title: toTitle(flight, "지연"),
+      body:
+        clock == null
+          ? "항공편이 지연됐어요."
+          : `출발이 ${clock} 으로 변경됐어요.`,
+    };
   }
 
   // notifyAlways 로만 닿는 자리다. 정상 운항편을 알릴 일은 평소에 없다.
-  const label = STATUS_LABEL[status.kind] ?? status.kind
-  return { title: `${flightLabel}편 ${label}`, body: `현재 상태는 '${label}' 이에요.` }
+  const label = STATUS_LABEL[status.kind] ?? status.kind;
+  return {
+    title: toTitle(flight, label),
+    body: `현재 상태는 '${label}' 이에요.`,
+  };
 }

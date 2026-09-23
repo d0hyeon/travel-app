@@ -70,20 +70,31 @@ export interface NotificationText {
   body: string
 }
 
+export interface WatchedFlight {
+  airline: string
+  flightNumber: string
+  /** 도착 공항의 도시명. "{항공사} {도시명}행 (편명)" 형태로 제목에 쓴다. */
+  arrivalCityName: string
+}
+
+function toTitle(flight: WatchedFlight, label: string) {
+  return `${flight.airline} ${flight.arrivalCityName}행 (${flight.flightNumber}편) ${label}`
+}
+
 export function toNotificationText(
-  flightLabel: string,
+  flight: WatchedFlight,
   status: WatchedStatus,
 ): NotificationText {
   if (status.kind === 'cancelled') {
     return {
-      title: `${flightLabel}편 결항`,
+      title: toTitle(flight, '결항'),
       body: '항공편이 결항됐어요. 일정을 확인해 주세요.',
     }
   }
 
   if (status.kind === 'diverted') {
     return {
-      title: `${flightLabel}편 회항`,
+      title: toTitle(flight, '회항'),
       body: '항공편이 회항했어요. 일정을 확인해 주세요.',
     }
   }
@@ -91,12 +102,12 @@ export function toNotificationText(
   if (status.kind === 'delayed') {
     const clock = toClock(status.estimatedAt)
     return {
-      title: `${flightLabel}편 지연`,
+      title: toTitle(flight, '지연'),
       body: clock == null ? '항공편이 지연됐어요.' : `출발이 ${clock} 으로 변경됐어요.`,
     }
   }
 
   // notifyAlways 로만 닿는 자리다. 정상 운항편을 알릴 일은 평소에 없다.
   const label = STATUS_LABEL[status.kind] ?? status.kind
-  return { title: `${flightLabel}편 ${label}`, body: `현재 상태는 '${label}' 이에요.` }
+  return { title: toTitle(flight, label), body: `현재 상태는 '${label}' 이에요.` }
 }
