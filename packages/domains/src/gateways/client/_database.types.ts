@@ -39,6 +39,137 @@ export type Database = {
   }
   public: {
     Tables: {
+      airport_arrival_guidance_policies: {
+        Row: {
+          calm_extra_minutes: number
+          calm_max_ratio: number
+          created_at: string
+          crowded_extra_minutes: number
+          crowded_max_ratio: number
+          domestic_base_buffer_minutes: number
+          id: string
+          international_base_buffer_minutes: number
+          is_active: boolean
+          normal_extra_minutes: number
+          normal_max_ratio: number
+          updated_at: string
+          very_crowded_extra_minutes: number
+        }
+        Insert: {
+          calm_extra_minutes: number
+          calm_max_ratio: number
+          created_at?: string
+          crowded_extra_minutes: number
+          crowded_max_ratio: number
+          domestic_base_buffer_minutes: number
+          id?: string
+          international_base_buffer_minutes: number
+          is_active?: boolean
+          normal_extra_minutes: number
+          normal_max_ratio: number
+          updated_at?: string
+          very_crowded_extra_minutes: number
+        }
+        Update: {
+          calm_extra_minutes?: number
+          calm_max_ratio?: number
+          created_at?: string
+          crowded_extra_minutes?: number
+          crowded_max_ratio?: number
+          domestic_base_buffer_minutes?: number
+          id?: string
+          international_base_buffer_minutes?: number
+          is_active?: boolean
+          normal_extra_minutes?: number
+          normal_max_ratio?: number
+          updated_at?: string
+          very_crowded_extra_minutes?: number
+        }
+        Relationships: []
+      }
+      airport_congestion_reference_counts: {
+        Row: {
+          airport_code: string
+          created_at: string
+          departure_gate: string
+          id: string
+          policy_id: string
+          reference_passenger_count: number
+          source_kind: string
+          terminal: string
+          updated_at: string
+        }
+        Insert: {
+          airport_code: string
+          created_at?: string
+          departure_gate: string
+          id?: string
+          policy_id: string
+          reference_passenger_count: number
+          source_kind: string
+          terminal: string
+          updated_at?: string
+        }
+        Update: {
+          airport_code?: string
+          created_at?: string
+          departure_gate?: string
+          id?: string
+          policy_id?: string
+          reference_passenger_count?: number
+          source_kind?: string
+          terminal?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "airport_congestion_reference_counts_policy_id_fkey"
+            columns: ["policy_id"]
+            isOneToOne: false
+            referencedRelation: "airport_arrival_guidance_policies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      airport_congestion_snapshots: {
+        Row: {
+          airport_code: string
+          created_at: string
+          departure_gates: Json
+          expires_at: string
+          id: string
+          observed_at: string
+          raw_response: Json
+          snapshot_date: string | null
+          source_kind: string
+          terminal: string
+        }
+        Insert: {
+          airport_code: string
+          created_at?: string
+          departure_gates: Json
+          expires_at: string
+          id?: string
+          observed_at: string
+          raw_response: Json
+          snapshot_date?: string | null
+          source_kind: string
+          terminal: string
+        }
+        Update: {
+          airport_code?: string
+          created_at?: string
+          departure_gates?: Json
+          expires_at?: string
+          id?: string
+          observed_at?: string
+          raw_response?: Json
+          snapshot_date?: string | null
+          source_kind?: string
+          terminal?: string
+        }
+        Relationships: []
+      }
       checklist: {
         Row: {
           content: string | null
@@ -494,6 +625,59 @@ export type Database = {
             columns: ["trip_id"]
             isOneToOne: false
             referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scheduled_notification_jobs: {
+        Row: {
+          attempt_count: number
+          cancelled_at: string | null
+          created_at: string
+          delivered_at: string | null
+          id: string
+          last_error: string | null
+          locked_at: string | null
+          scheduled_for: string
+          status: string
+          trip_transport_id: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          attempt_count?: number
+          cancelled_at?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          id?: string
+          last_error?: string | null
+          locked_at?: string | null
+          scheduled_for: string
+          status: string
+          trip_transport_id: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          attempt_count?: number
+          cancelled_at?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          id?: string
+          last_error?: string | null
+          locked_at?: string | null
+          scheduled_for?: string
+          status?: string
+          trip_transport_id?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduled_notification_jobs_trip_transport_id_fkey"
+            columns: ["trip_transport_id"]
+            isOneToOne: false
+            referencedRelation: "trip_transports"
             referencedColumns: ["id"]
           },
         ]
@@ -997,6 +1181,10 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      sync_airport_arrival_guidance_job: {
+        Args: { p_transport_id: string }
+        Returns: undefined
       }
     }
     Enums: {

@@ -12,6 +12,7 @@ const BASE_TRIP: Trip = {
   destinations: ['도쿄'],
   lat: 35.6762,
   lng: 139.6503,
+  isOverseas: true,
   shareLink: 'share-abc',
   createdAt: '2025-01-01T00:00:00Z',
   exchangeRate: null,

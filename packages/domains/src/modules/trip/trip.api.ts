@@ -11,6 +11,7 @@ import {
 } from "../expense/currency";
 import { deletePhotosByTripId } from "../photo";
 import type { Trip } from "../trip";
+import { isIncludeOverseas } from "./trip.utils";
 
 function getDatesBetween(startDate: string, endDate: string): string[] {
   const dates: string[] = [];
@@ -48,6 +49,7 @@ export function toTrip(row: DataRaw<"trips">): Trip {
     destinations,
     lat: row.lat,
     lng: row.lng,
+    isOverseas: row.is_overseas ?? false,
     startDate: row.start_date,
     endDate: row.end_date,
     shareLink: row.share_link,
@@ -93,7 +95,7 @@ export async function getTripByShareLink(
 }
 
 export async function createTrip(
-  data: Omit<Trip, "id" | "shareLink" | "createdAt" | "userId">,
+  data: Omit<Trip, "id" | "shareLink" | "createdAt" | "userId" | "isOverseas">,
 ): Promise<Trip> {
   const user = getAuth();
   if (!user) throw new Error("로그인이 필요합니다");
@@ -108,6 +110,7 @@ export async function createTrip(
         data.destinations as unknown as import("../../gateways/client").Json,
       lat: data.lat,
       lng: data.lng,
+      is_overseas: isIncludeOverseas(data.destinations),
       start_date: data.startDate,
       end_date: data.endDate,
       share_link: crypto.randomUUID(),
@@ -145,13 +148,14 @@ export async function createTrip(
 
 export async function updateTrip(
   id: string,
-  data: Partial<Omit<Trip, "id" | "createdAt">>,
+  data: Partial<Omit<Trip, "id" | "createdAt" | "isOverseas">>,
 ): Promise<Trip | undefined> {
   const updateData: Record<string, unknown> = {};
   if (data.name !== undefined) updateData.name = data.name;
   if (data.destinations !== undefined) {
     updateData.destination = data.destinations[0];
     updateData.destinations = data.destinations;
+    updateData.is_overseas = isIncludeOverseas(data.destinations);
   }
   if (data.lat !== undefined) updateData.lat = data.lat;
   if (data.lng !== undefined) updateData.lng = data.lng;

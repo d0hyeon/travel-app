@@ -27,6 +27,7 @@ const MOCK_TRIP = {
   destinations: ['도쿄'],
   lat: 35.6762,
   lng: 139.6503,
+  isOverseas: true,
   startDate: '2025-07-01',
   endDate: '2025-07-07',
   shareLink: 'share-abc123',
@@ -42,6 +43,7 @@ const DOMESTIC_TRIP = {
   destinations: ['제주'],
   lat: 33.4996,
   lng: 126.5312,
+  isOverseas: false,
 }
 
 beforeEach(() => {

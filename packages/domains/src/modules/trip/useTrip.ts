@@ -3,8 +3,6 @@ import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-q
 import { deleteTrip, getTripById, tripKey, updateTrip } from "./trip.api";
 import { leaveTrip } from "../trip-member";
 import type { Trip } from "../trip";
-import { getCoordinateByLocation, isLocation } from "../location";
-import { isOverseasByCoordinate } from "../../utils";
 
 export function useTrip(id: string) {
   const queryClient = useQueryClient();
@@ -13,12 +11,6 @@ export function useTrip(id: string) {
     queryKey: useTrip.key(id),
     queryFn: () => getTripById(id),
   });
-  const isOverseas = data.destinations.some(x => {
-    if (!isLocation(x)) return false;
-
-    const coordinate = getCoordinateByLocation(x);
-    return isOverseasByCoordinate(coordinate.lat, coordinate.lng)
-  })
 
   const update = useMutation({
     mutationFn: (data: Partial<Omit<Trip, 'id' | 'createdAt'>>) => updateTrip(id, data),
@@ -45,7 +37,7 @@ export function useTrip(id: string) {
   
 
   return {
-    data: { isOverseas, ...data },
+    data,
     update: Object.assign(update.mutateAsync, update),
     remove: Object.assign(remove.mutateAsync, remove),
     leave: Object.assign(leave.mutateAsync, leave),

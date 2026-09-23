@@ -1,5 +1,6 @@
 export * from './trip.api'
 export * from './trip.types'
+export * from './trip.utils'
 export * from './useTrip'
 export * from './useTrips'
 export * from './tripList.utils'

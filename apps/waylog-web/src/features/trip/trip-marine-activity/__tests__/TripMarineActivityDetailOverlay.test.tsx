@@ -53,6 +53,7 @@ describe("TripMarineActivityDetailOverlay", () => {
           destinations: ["제주"],
           lat: 33.2451,
           lng: 126.4099,
+          isOverseas: false,
           startDate: "2026-08-13",
           endDate: "2026-08-14",
           shareLink: "share-link",

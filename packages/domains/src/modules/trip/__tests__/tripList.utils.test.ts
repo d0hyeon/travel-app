@@ -119,6 +119,7 @@ describe('groupTripsByStatus', () => {
       destinations: [],
       lat: 0,
       lng: 0,
+      isOverseas: false,
       startDate,
       endDate,
       shareLink: '',
