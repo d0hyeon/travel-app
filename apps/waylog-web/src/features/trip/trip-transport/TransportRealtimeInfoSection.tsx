@@ -6,6 +6,7 @@ import {
 } from '@waylog/domains/modules/flight-status'
 import { useTripTransportDetail } from '@waylog/domains/modules/trip-transport'
 import { AsyncBoundary } from '@waylog/react'
+import { AirportArrivalGuidanceSection } from './AirportArrivalGuidanceSection'
 import { TransportDetailSectionError } from './transport-detail/TransportDetailSectionError'
 
 interface Props {
@@ -22,15 +23,18 @@ const TONE_COLOR: Record<FlightStatusTone, { bg: string; fg: string }> = {
 
 export function TransportRealtimeInfoSection({ tripId, transportId }: Props) {
   return (
-    <AsyncBoundary
-      resetKeys={[tripId, transportId]}
-      pendingFallback={<TransportRealtimeInfoSkeleton />}
-      rejectedFallback={({ error, resetError }) => (
-        <TransportDetailSectionError message={error.message} onRetry={resetError} />
-      )}
-    >
-      <Resolved tripId={tripId} transportId={transportId} />
-    </AsyncBoundary>
+    <>
+      <AirportArrivalGuidanceSection tripId={tripId} transportId={transportId} />
+      <AsyncBoundary
+        resetKeys={[tripId, transportId]}
+        pendingFallback={<TransportRealtimeInfoSkeleton />}
+        rejectedFallback={({ error, resetError }) => (
+          <TransportDetailSectionError message={error.message} onRetry={resetError} />
+        )}
+      >
+        <Resolved tripId={tripId} transportId={transportId} />
+      </AsyncBoundary>
+    </>
   )
 }
 

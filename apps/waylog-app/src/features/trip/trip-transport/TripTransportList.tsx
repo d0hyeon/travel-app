@@ -3,6 +3,7 @@ import {
   splitByDeparture,
   useTripScheduledFlights,
 } from '@waylog/domains/modules/trip-transport'
+import { useAirportArrivalGuidances } from '@waylog/domains/modules/airport-arrival-guidance'
 import { getSupportedFlightStatusAirportCodes } from '@waylog/domains/modules/flight-status'
 import { findAirport } from '@waylog/domains/modules/airport'
 import { MaterialIcons } from '@expo/vector-icons'
@@ -21,6 +22,10 @@ interface Props {
 
 export function TripTransportList({ tripId, onTransportPress }: Props) {
   const { data: transports } = useTripScheduledFlights(tripId)
+  const airportArrivalGuidances = useAirportArrivalGuidances({
+    tripId,
+    transportIds: transports.map((transport) => transport.id),
+  })
   const router = useRouter()
 
   // 렌더마다 기준 시각이 달라지면 목록이 흔들린다. 조회 결과가 바뀔 때만 다시 가른다.
@@ -71,6 +76,7 @@ export function TripTransportList({ tripId, onTransportPress }: Props) {
               <TransportCard
                 key={transport.id}
                 transport={transport}
+                airportArrivalGuidance={airportArrivalGuidances.find((item) => item.transportId === transport.id)?.guidance}
                 onPress={() => onTransportPress?.(transport.id)}
               />
             ))}
@@ -87,6 +93,7 @@ export function TripTransportList({ tripId, onTransportPress }: Props) {
             <TransportCard
               key={transport.id}
               transport={transport}
+              airportArrivalGuidance={airportArrivalGuidances.find((item) => item.transportId === transport.id)?.guidance}
               onPress={() => onTransportPress?.(transport.id)}
             />
           ))}

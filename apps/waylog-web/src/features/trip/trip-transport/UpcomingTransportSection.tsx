@@ -4,6 +4,10 @@ import {
   useTripScheduledFlights,
   type TripTransport,
 } from '@waylog/domains/modules/trip-transport'
+import {
+  useAirportArrivalGuidances,
+  type AirportArrivalGuidance,
+} from '@waylog/domains/modules/airport-arrival-guidance'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { TransportCard } from './TransportCard'
@@ -18,6 +22,10 @@ interface Props extends StackProps {
 export function UpcomingTransportSection({ tripId, sx, ...props }: Props) {
   const { data: transports } = useTripScheduledFlights(tripId)
   const { upcoming } = useMemo(() => splitByDeparture(transports, new Date()), [transports])
+  const airportArrivalGuidances = useAirportArrivalGuidances({
+    tripId,
+    transportIds: upcoming.map((transport) => transport.id),
+  })
 
   if (upcoming.length === 0) return null
 
@@ -44,6 +52,7 @@ export function UpcomingTransportSection({ tripId, sx, ...props }: Props) {
             key={transport.id}
             tripId={tripId}
             transport={transport}
+            airportArrivalGuidance={airportArrivalGuidances.find((item) => item.transportId === transport.id)?.guidance}
             isSingleCard={upcoming.length === 1}
           />
         ))}
@@ -55,10 +64,12 @@ export function UpcomingTransportSection({ tripId, sx, ...props }: Props) {
 function BoardingPassCard({
   tripId,
   transport,
+  airportArrivalGuidance,
   isSingleCard,
 }: {
   tripId: string
   transport: TripTransport
+  airportArrivalGuidance?: AirportArrivalGuidance
   isSingleCard: boolean
 }) {
   const navigate = useNavigate()
@@ -72,6 +83,7 @@ function BoardingPassCard({
     <Stack sx={{ width: isSingleCard ? '100%' : '82%', flexShrink: 0, scrollSnapAlign: 'start' }} gap={1}>
       <TransportCard
         transport={transport}
+        airportArrivalGuidance={airportArrivalGuidance}
         onClick={() => navigate(`/trip/${tripId}/transport/${transport.id}`)}
       />
 

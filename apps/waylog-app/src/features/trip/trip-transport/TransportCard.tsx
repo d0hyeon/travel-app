@@ -5,6 +5,7 @@ import {
   isOvernightArrival,
   type TripTransport,
 } from '@waylog/domains/modules/trip-transport'
+import type { AirportArrivalGuidance } from '@waylog/domains/modules/airport-arrival-guidance'
 import { format as formatDate, isSameDay, isSameYear } from 'date-fns'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Stack, Typography } from '~/shared/components/design-system'
@@ -16,10 +17,11 @@ const EMPTY_TIME = '—'
 
 interface Props {
   transport: TripTransport
+  airportArrivalGuidance?: AirportArrivalGuidance
   onPress?: () => void
 }
 
-export function TransportCard({ transport, onPress }: Props) {
+export function TransportCard({ transport, airportArrivalGuidance, onPress }: Props) {
   const arrivalTime = formatArrivalTime(transport)
   const carrierLabel = toCarrierLabel(transport)
 
@@ -64,6 +66,11 @@ export function TransportCard({ transport, onPress }: Props) {
       </View>
 
       {carrierLabel != null && <Typography style={styles.carrier}>{carrierLabel}</Typography>}
+      {airportArrivalGuidance != null && (
+        <Typography style={styles.arrivalGuidance}>
+          {formatDate(new Date(airportArrivalGuidance.recommendedArrivalAt), 'HH:mm')}까지 공항 도착을 권장해요
+        </Typography>
+      )}
     </Pressable>
   )
 }
@@ -100,4 +107,5 @@ const styles = StyleSheet.create({
   arrivalTimeRow: { flexDirection: 'row', alignItems: 'baseline', gap: 4 },
   arrivalDate: { fontSize: 11, fontWeight: '600', color: palette.textSecondary },
   carrier: { fontSize: 12, color: palette.textSecondary, marginTop: 10 },
+  arrivalGuidance: { fontSize: 12, color: palette.primary, marginTop: 10 },
 })

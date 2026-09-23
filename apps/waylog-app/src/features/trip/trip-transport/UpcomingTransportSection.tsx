@@ -3,6 +3,10 @@ import {
   useTripScheduledFlights,
   type TripTransport,
 } from '@waylog/domains/modules/trip-transport'
+import {
+  useAirportArrivalGuidances,
+  type AirportArrivalGuidance,
+} from '@waylog/domains/modules/airport-arrival-guidance'
 import { useRouter } from 'expo-router'
 import { useMemo } from 'react'
 import { Dimensions, ScrollView, StyleSheet, View, type ViewProps } from 'react-native'
@@ -23,6 +27,10 @@ interface Props {
 export function UpcomingTransportSection({ tripId }: Props) {
   const { data: transports } = useTripScheduledFlights(tripId)
   const { upcoming } = useMemo(() => splitByDeparture(transports, new Date()), [transports])
+  const airportArrivalGuidances = useAirportArrivalGuidances({
+    tripId,
+    transportIds: upcoming.map((transport) => transport.id),
+  })
 
   if (upcoming.length === 0) return null
 
@@ -32,7 +40,11 @@ export function UpcomingTransportSection({ tripId }: Props) {
     <View style={styles.section}>
       <Typography style={styles.sectionLabel}>다가오는 교통편</Typography>
       {isSingleCard ? (
-        <BoardingPassCard tripId={tripId} transport={upcoming[0]} />
+        <BoardingPassCard
+          tripId={tripId}
+          transport={upcoming[0]}
+          airportArrivalGuidance={airportArrivalGuidances.find((item) => item.transportId === upcoming[0].id)?.guidance}
+        />
       ) : (
         <ScrollView
           horizontal
@@ -45,9 +57,10 @@ export function UpcomingTransportSection({ tripId }: Props) {
           {upcoming.map((transport) => (
             <BoardingPassCard
               key={transport.id}
-              tripId={tripId}
-              transport={transport}
-              style={styles.carouselCard}
+            tripId={tripId}
+            transport={transport}
+            airportArrivalGuidance={airportArrivalGuidances.find((item) => item.transportId === transport.id)?.guidance}
+            style={styles.carouselCard}
             />
           ))}
         </ScrollView>
@@ -59,9 +72,10 @@ export function UpcomingTransportSection({ tripId }: Props) {
 interface BoardingPassCardProps extends ViewProps {
   tripId: string
   transport: TripTransport
+  airportArrivalGuidance?: AirportArrivalGuidance
 }
 
-function BoardingPassCard({ tripId, transport, style, ...props }: BoardingPassCardProps) {
+function BoardingPassCard({ tripId, transport, airportArrivalGuidance, style, ...props }: BoardingPassCardProps) {
   const router = useRouter()
   const ticketViewer = useTicketViewerOverlay()
 
@@ -73,6 +87,7 @@ function BoardingPassCard({ tripId, transport, style, ...props }: BoardingPassCa
     <View style={[styles.cardWrapper, style]} {...props}>
       <TransportCard
         transport={transport}
+        airportArrivalGuidance={airportArrivalGuidance}
         onPress={() => router.push(`/trip/${tripId}/transport/${transport.id}`)}
       />
       {firstTicket != null && (

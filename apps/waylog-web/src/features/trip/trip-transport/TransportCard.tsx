@@ -5,7 +5,8 @@ import {
   formatDepartureTime,
   type TripTransport,
 } from '@waylog/domains/modules/trip-transport'
-import { formatDate, isSameDay } from 'date-fns'
+import type { AirportArrivalGuidance } from '@waylog/domains/modules/airport-arrival-guidance'
+import { format, formatDate, isSameDay } from 'date-fns'
 import { TransportTypeIcon } from '~features/transport/TransportTypeIcon'
 import { toCarrierLabel } from './transportLabel'
 
@@ -13,10 +14,11 @@ const EMPTY_TIME = '—'
 
 interface Props {
   transport: TripTransport
+  airportArrivalGuidance?: AirportArrivalGuidance
   onClick?: () => void
 }
 
-export function TransportCard({ transport, onClick }: Props) {
+export function TransportCard({ transport, airportArrivalGuidance, onClick }: Props) {
   const arrivalTime = formatArrivalTime(transport)
   const carrierLabel = toCarrierLabel(transport)
 
@@ -78,6 +80,11 @@ export function TransportCard({ transport, onClick }: Props) {
       {carrierLabel != null && (
         <Typography variant="caption" color="text.secondary" display="block" mt={1.25}>
           {carrierLabel}
+        </Typography>
+      )}
+      {airportArrivalGuidance != null && (
+        <Typography variant="caption" color="primary" display="block" mt={1.25}>
+          {format(new Date(airportArrivalGuidance.recommendedArrivalAt), 'HH:mm')}까지 공항 도착을 권장해요
         </Typography>
       )}
     </Box>

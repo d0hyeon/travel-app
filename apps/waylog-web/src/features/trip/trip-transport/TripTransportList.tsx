@@ -5,20 +5,21 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Box,
   Button,
+  Box,
   Skeleton,
   Stack,
   Typography,
   type StackProps,
 } from '@mui/material'
-import { findAirport } from '@waylog/domains/modules/airport'
-import { getSupportedFlightStatusAirportCodes } from '@waylog/domains/modules/flight-status'
 import {
   groupByDepartureDate,
   splitByDeparture,
   useTripScheduledFlights,
 } from '@waylog/domains/modules/trip-transport'
+import { useAirportArrivalGuidances } from '@waylog/domains/modules/airport-arrival-guidance'
+import { getSupportedFlightStatusAirportCodes } from '@waylog/domains/modules/flight-status'
+import { findAirport } from '@waylog/domains/modules/airport'
 import { formatDate } from 'date-fns'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router'
@@ -31,6 +32,10 @@ interface Props extends StackProps {
 
 export function TripTransportList({ tripId, onTransportClick, ...props }: Props) {
   const { data: transports } = useTripScheduledFlights(tripId)
+  const airportArrivalGuidances = useAirportArrivalGuidances({
+    tripId,
+    transportIds: transports.map((transport) => transport.id),
+  })
   const navigate = useNavigate()
 
   // 렌더마다 기준 시각이 달라지면 목록이 흔들린다. 조회 결과가 바뀔 때만 다시 가른다.
@@ -80,6 +85,7 @@ export function TripTransportList({ tripId, onTransportClick, ...props }: Props)
                 <TransportCard
                   key={transport.id}
                   transport={transport}
+                  airportArrivalGuidance={airportArrivalGuidances.find((item) => item.transportId === transport.id)?.guidance}
                   onClick={() => onTransportClick?.(transport.id)}
                 />
               ))}
@@ -97,6 +103,7 @@ export function TripTransportList({ tripId, onTransportClick, ...props }: Props)
             <TransportCard
               key={transport.id}
               transport={transport}
+              airportArrivalGuidance={airportArrivalGuidances.find((item) => item.transportId === transport.id)?.guidance}
               onClick={() => onTransportClick?.(transport.id)}
             />
           ))}

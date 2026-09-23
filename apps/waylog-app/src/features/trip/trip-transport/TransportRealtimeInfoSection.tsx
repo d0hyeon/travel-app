@@ -7,6 +7,7 @@ import { useTripTransportDetail } from '@waylog/domains/modules/trip-transport'
 import { AsyncBoundary } from '@waylog/react'
 import { StyleSheet, View } from 'react-native'
 import { Skeleton, Typography } from '~/shared/components/design-system'
+import { AirportArrivalGuidanceSection } from './AirportArrivalGuidanceSection'
 import { TransportDetailSectionError } from './transport-detail/TransportDetailSectionError'
 import { TransportType } from '@waylog/domains/modules/transport'
 import { assert } from '../../../shared/utils/assert'
@@ -25,12 +26,15 @@ const TONE_COLOR: Record<FlightStatusTone, { bg: string; fg: string }> = {
 
 export function TransportRealtimeInfoSection({ tripId, transportId }: Props) {
   return (
-    <AsyncBoundary
-      resetKeys={[tripId, transportId]}
-      pendingFallback={<TransportRealtimeInfoSkeleton />}
-    >
-      <Resolved tripId={tripId} transportId={transportId} />
-    </AsyncBoundary>
+    <>
+      <AirportArrivalGuidanceSection tripId={tripId} transportId={transportId} />
+      <AsyncBoundary
+        resetKeys={[tripId, transportId]}
+        pendingFallback={<TransportRealtimeInfoSkeleton />}
+      >
+        <Resolved tripId={tripId} transportId={transportId} />
+      </AsyncBoundary>
+    </>
   )
 }
 
