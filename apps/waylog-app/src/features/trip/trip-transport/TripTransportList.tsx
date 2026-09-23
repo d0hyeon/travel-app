@@ -5,7 +5,7 @@ import {
 } from '@waylog/domains/modules/trip-transport'
 import { useAirportArrivalGuidances } from '@waylog/domains/modules/airport-arrival-guidance'
 import { getSupportedFlightStatusAirportCodes } from '@waylog/domains/modules/flight-status'
-import { findAirport } from '@waylog/domains/modules/airport'
+import { useAirports } from '@waylog/domains/modules/airport'
 import { MaterialIcons } from '@expo/vector-icons'
 import { format as formatDate } from 'date-fns'
 import { useRouter } from 'expo-router'
@@ -31,8 +31,9 @@ export function TripTransportList({ tripId, onTransportPress }: Props) {
   // 렌더마다 기준 시각이 달라지면 목록이 흔들린다. 조회 결과가 바뀔 때만 다시 가른다.
   const { past, upcoming } = useMemo(() => splitByDeparture(transports, new Date()), [transports])
   const upcomingGroups = useMemo(() => groupByDepartureDate(upcoming), [upcoming])
+  const { data: airports } = useAirports()
   const supportedAirportNames = getSupportedFlightStatusAirportCodes()
-    .map((airportCode) => findAirport(airportCode)?.nameKo)
+    .map((airportCode) => airports.find((airport) => airport.code === airportCode)?.nameKo)
     .filter((airportName): airportName is string => airportName != null)
 
   if (transports.length === 0) {

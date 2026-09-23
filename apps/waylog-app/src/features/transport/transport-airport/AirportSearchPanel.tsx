@@ -1,8 +1,9 @@
-import { searchAirports, type Airport } from '@waylog/domains/modules/airport'
-import { useMemo, useState } from 'react'
-import { Pressable, StyleSheet } from 'react-native'
-import { Typography } from '~/shared/components/design-system'
-import { palette } from '../../../shared/config/tokens'
+import { useAirportSearch, type Airport } from '@waylog/domains/modules/airport'
+import { AsyncBoundary } from '@waylog/react'
+import { useState } from 'react'
+import { Pressable, StyleSheet, View } from 'react-native'
+import { Skeleton, Typography } from '~/shared/components/design-system'
+import { palette, radius } from '../../../shared/config/tokens'
 import { SearchPanelLayout } from '../transport-form/SearchPanelLayout'
 
 interface Props {
@@ -13,7 +14,6 @@ interface Props {
 
 export function AirportSearchPanel({ title, onSelect, onClose }: Props) {
   const [keyword, setKeyword] = useState('')
-  const results = useMemo(() => searchAirports(keyword), [keyword])
 
   return (
     <SearchPanelLayout
@@ -21,9 +21,29 @@ export function AirportSearchPanel({ title, onSelect, onClose }: Props) {
       placeholder="예: 인천공항, ICN, 오사카"
       keyword={keyword}
       onKeywordChange={setKeyword}
-      isEmpty={results.length === 0}
+      isEmpty={false}
       onClose={onClose}
     >
+      <AsyncBoundary
+        resetKeys={[keyword]}
+        pendingFallback={<AirportSearchPanelSkeleton />}
+        rejectedFallback={() => <Typography style={styles.emptyText}>공항 목록을 불러오지 못했어요.</Typography>}
+      >
+        <Resolved keyword={keyword} onSelect={onSelect} />
+      </AsyncBoundary>
+    </SearchPanelLayout>
+  )
+}
+
+function Resolved({ keyword, onSelect }: { keyword: string; onSelect: (airport: Airport) => void }) {
+  const results = useAirportSearch(keyword)
+
+  if (results.length === 0) {
+    return <Typography style={styles.emptyText}>검색 결과가 없어요.</Typography>
+  }
+
+  return (
+    <View style={styles.results}>
       {results.map((airport, index) => (
         <Pressable
           key={airport.code}
@@ -36,7 +56,18 @@ export function AirportSearchPanel({ title, onSelect, onClose }: Props) {
           </Typography>
         </Pressable>
       ))}
-    </SearchPanelLayout>
+    </View>
+  )
+}
+
+function AirportSearchPanelSkeleton() {
+  return (
+    <View style={styles.results}>
+      <View style={styles.row}>
+        <Skeleton width="70%" height={17} />
+        <Skeleton width="50%" height={14} style={{ marginTop: 6 }} />
+      </View>
+    </View>
   )
 }
 
@@ -45,4 +76,11 @@ const styles = StyleSheet.create({
   rowDivided: { borderTopWidth: 1, borderTopColor: palette.divider },
   name: { fontSize: 13.5, fontWeight: '700' },
   detail: { fontSize: 12, color: palette.textSecondary },
+  results: {
+    borderWidth: 1,
+    borderColor: palette.divider,
+    borderRadius: radius.lg,
+    overflow: 'hidden',
+  },
+  emptyText: { fontSize: 12.5, color: palette.textSecondary, textAlign: 'center', paddingVertical: 32 },
 })
