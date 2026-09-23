@@ -121,7 +121,7 @@ async function getGuidanceForTransport(input: {
     sourceKind: isOverseas ? 'forecast' : 'domestic',
     airportCode: typedTransport.departure_airport_code,
     terminal,
-    forecastDate,
+    forecastDate: forecastDate ?? undefined,
   })
   const snapshot = await getCongestionSnapshotData(supabase, snapshotId)
 
@@ -196,21 +196,27 @@ async function markJobFailedOrRetry(jobId: string, attemptCount: number, error: 
     .eq('id', jobId)
 }
 
+interface PushDeliveryResult {
+  attempted: number
+  sent: number
+  errors: string[]
+}
+
 async function sendPushToRecipients(
   supabase: SupabaseClient,
   tripId: string,
   message: { title: string; body: string },
   data: Record<string, unknown>,
-): Promise<number> {
+): Promise<PushDeliveryResult> {
   const { data: members } = await supabase.from('trip_members').select('user_id').eq('trip_id', tripId)
   const recipientIds = (members ?? []).map((m: { user_id: string }) => m.user_id)
-  if (recipientIds.length === 0) return 0
+  if (recipientIds.length === 0) return { attempted: 0, sent: 0, errors: [] }
 
   const { data: subscriptions } = await supabase
     .from('push_subscriptions')
     .select('id, endpoint, subscription')
     .in('user_id', recipientIds)
-  if (subscriptions == null || subscriptions.length === 0) return 0
+  if (subscriptions == null || subscriptions.length === 0) return { attempted: 0, sent: 0, errors: [] }
 
   type SubscriptionRow = { id: string; endpoint: string; subscription: unknown }
   const rows = subscriptions as SubscriptionRow[]
@@ -221,7 +227,7 @@ async function sendPushToRecipients(
 
   const webResults = await Promise.allSettled(
     webRows.map((row) =>
-      webpush.sendNotification(row.subscription as webpush.PushSubscription, payload).catch(async (err: { statusCode?: number }) => {
+      webpush.sendNotification(row.subscription as webpush.PushSubscription, payload).catch(async (err: { statusCode?: number; message?: string }) => {
         if (err.statusCode === 410 || err.statusCode === 404) {
           await supabase.from('push_subscriptions').delete().eq('id', row.id)
         }
@@ -229,6 +235,15 @@ async function sendPushToRecipients(
       }),
     ),
   )
+
+  const errors: string[] = []
+  webResults.forEach((result, index) => {
+    if (result.status !== 'rejected') return
+    const reason = result.reason as { statusCode?: number; message?: string }
+    const error = `webpush ${webRows[index].id}: HTTP ${reason.statusCode ?? '?'} ${reason.message ?? String(reason)}`
+    console.error('airport-arrival-guidance push failed', error)
+    errors.push(error)
+  })
   const webSent = webResults.filter((result) => result.status === 'fulfilled').length
 
   const native =
@@ -243,7 +258,14 @@ async function sendPushToRecipients(
     await supabase.from('push_subscriptions').delete().in('endpoint', native.invalidTokens)
   }
 
-  return webSent + native.sent
+  const nativeFailedCount = nativeRows.length - native.sent
+  if (nativeFailedCount > 0) {
+    const error = `expo push: ${nativeFailedCount}/${nativeRows.length} 건 실패`
+    console.error('airport-arrival-guidance push failed', error)
+    errors.push(error)
+  }
+
+  return { attempted: webRows.length + nativeRows.length, sent: webSent + native.sent, errors }
 }
 
 async function processJob(job: DueJobRow, now: Date): Promise<'delivered' | 'skipped'> {
@@ -270,13 +292,19 @@ async function processJob(job: DueJobRow, now: Date): Promise<'delivered' | 'ski
   }
 
   const message = toAirportArrivalPushMessage(guidance)
-  const sent = await sendPushToRecipients(supabase, typedTransport.trip_id, message, {
+  const result = await sendPushToRecipients(supabase, typedTransport.trip_id, message, {
     tripId: typedTransport.trip_id,
     transportId: typedTransport.id,
   })
 
+  // 보낼 구독은 있었는데 전부 실패했으면 재시도 대상으로 남긴다.
+  // 구독이 애초에 없던 경우(attempted === 0)는 정상 완료로 본다.
+  if (result.attempted > 0 && result.sent === 0) {
+    throw new Error(`푸시 발송 전체 실패: ${result.errors.join('; ')}`)
+  }
+
   await markJobDelivered(job.id)
-  return sent > 0 ? 'delivered' : 'skipped'
+  return result.sent > 0 ? 'delivered' : 'skipped'
 }
 
 interface PolicyRow {
