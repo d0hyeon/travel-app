@@ -100,7 +100,7 @@ describe('toNotificationText', () => {
   it('지연은 변경된 출발 시각을 말한다', () => {
     const { title, body } = toNotificationText('대한항공 011', 지연)
 
-    expect(title).toBe('대한항공 011 지연')
+    expect(title).toBe('대한항공 011편 지연')
     expect(body).toContain('20:00')
   })
 
@@ -110,14 +110,14 @@ describe('toNotificationText', () => {
       estimatedAt: null,
     })
 
-    expect(title).toBe('대한항공 011 결항')
+    expect(title).toBe('대한항공 011편 결항')
     expect(body).not.toContain(':')
   })
 
   it('회항을 알린다', () => {
     expect(
       toNotificationText('대한항공 011', { kind: FlightStatusKind.회항, estimatedAt: null }).title,
-    ).toBe('대한항공 011 회항')
+    ).toBe('대한항공 011편 회항')
   })
 
   it('정상 운항편도 문구를 갖는다', () => {
@@ -126,7 +126,7 @@ describe('toNotificationText', () => {
       estimatedAt: null,
     })
 
-    expect(title).toBe('대한항공 011 정상 운항 예정')
+    expect(title).toBe('대한항공 011편 정상 운항 예정')
     expect(body).toContain('정상 운항 예정')
   })
 
