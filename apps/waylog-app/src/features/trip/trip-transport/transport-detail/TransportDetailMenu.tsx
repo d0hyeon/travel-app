@@ -18,7 +18,7 @@ export function TransportDetailMenu({ tripId, transportId }: Props) {
   const removeTransport = async () => {
     if (!(await confirm('교통편을 삭제하시겠어요?'))) return
 
-    await remove(transportId)
+    remove(transportId)
     router.back()
   }
 
