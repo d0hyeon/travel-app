@@ -690,3 +690,429 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
 EOF
 )"
 ```
+
+---
+
+## Task 5: `TripDetail` 하위 트리 연결 (스택 + 탭 중첩, 가장 복잡)
+
+**Files:**
+- Create: `apps/waylog-app/src/features/trip/TripDetailStack.tsx` (스택 스크린, 기존
+  `app/trip/[tripId]/_layout.tsx` 대체)
+- Create: `apps/waylog-app/src/features/trip/TripDetailTabs.tsx` (탭 트리, 기존
+  `app/trip/[tripId]/(detail)/_layout.tsx` 대체)
+- Modify: `apps/waylog-app/src/features/trip/useTripId.ts` (스코프별 분리)
+- Modify: `apps/waylog-app/src/features/trip/components/TripDetailHeader.tsx`
+- Modify: `apps/waylog-app/src/features/trip/trip-basic-info/TripBasicInfoContent.tsx`
+- Modify: `apps/waylog-app/src/features/trip/trip-route/TripRoutesContent.tsx`
+- Modify: `apps/waylog-app/src/features/trip/trip-route/useActiveTripDay.ts`
+- Modify: `apps/waylog-app/src/features/trip/trip-transport/UpcomingTransportSection.tsx`
+- Modify: `apps/waylog-app/src/features/trip/trip-memo/TripMemo.tsx`
+- Modify: `apps/waylog-app/src/features/trip/trip-memo/TripPinnedMemos.tsx`
+- Modify: `apps/waylog-app/src/features/trip/trip-transport/TripTransportList.tsx`
+- Modify: `apps/waylog-app/src/features/trip/trip-basic-info/TripPostCreateCard.tsx`
+- Modify: `apps/waylog-app/src/app/RootNavigator.tsx` (`TripDetail` 플레이스홀더 제거)
+
+**Interfaces:**
+- Consumes: `RootStackParamList`, `TripDetailTabParamList` (Task 1), `useAppNavigation`,
+  `useAppRoute`, `useTripDetailTabNavigation`, `useTripDetailTabRoute` (Task 2),
+  `RouterTabNavigation`(기존, 무변경)
+- Produces: `TripDetailStack`(`RootStack`에 등록될 컴포넌트)
+
+**배경**: 기존 `app/trip/[tripId]/_layout.tsx`(스택)와 `app/trip/[tripId]/(detail)/_layout.tsx`
+(탭)를 하나로 합쳐 `TripDetailStack` 하나로 만든다. 탭 안에서 렌더되지만 탭 밖 스크린
+(`TransportDetail`, `TripMemoDetail`, `TransportNew`, `PostNew`)으로 이동하는 컴포넌트들은
+설계 스펙의 "탭 내부에서 스택 레벨 화면으로 이동" 절에 따라 `useAppNavigation`을 그대로 쓴다.
+
+- [ ] **Step 1: `useTripId.ts`를 스코프별로 분리**
+
+```ts
+// apps/waylog-app/src/features/trip/useTripId.ts
+import { assert } from '@waylog/utility'
+import { useTripDetailTabRoute } from '../../shared/hooks/useAppNavigation'
+
+/** TripDetail 탭(정보/장소/계획/정산/사진) 내부에서만 쓴다. */
+export function useTripDetailTabTripId() {
+  const { params } = useTripDetailTabRoute()
+  assert(!!params?.tripId, 'tripId is required')
+
+  return params.tripId
+}
+```
+
+`TransportDetailScreen`은 `useAppRoute<'TransportDetail'>().params.tripId`를 인라인으로 직접
+쓰도록 아래 Step에서 수정한다 — 별도 헬퍼 없음(소비처 1곳뿐).
+
+- [ ] **Step 2: `(detail)` 탭 5개 파일에서 `useTripId` → `useTripDetailTabTripId` 치환**
+
+`app/trip/[tripId]/(detail)/index.tsx`, `place.tsx`, `route.tsx`, `expense.tsx`, `photo.tsx`의
+내용을 각각 아래 경로의 새 컴포넌트로 옮기고 import를 치환한다. 5개 모두 동일 패턴이므로
+`index.tsx` 예시만 전체를 보이고 나머지는 치환 규칙만 적용한다.
+
+```tsx
+// apps/waylog-app/src/features/trip/trip-basic-info/TripInfoTabScreen.tsx
+// (기존 app/trip/[tripId]/(detail)/index.tsx 를 그대로 옮기되 import만 교체)
+import { Suspense } from 'react'
+import { useTripDetailTabTripId } from '../useTripId'
+import { ActivityIndicator, View, StyleSheet } from 'react-native'
+import { TripBasicInfoContent } from './TripBasicInfoContent'
+import { palette } from '../../../shared/config/tokens'
+
+export function TripInfoTabScreen() {
+  const tripId = useTripDetailTabTripId()
+
+  return (
+    <View style={styles.screen}>
+      <Suspense fallback={<ActivityIndicator style={styles.fill} />}>
+        <TripBasicInfoContent tripId={tripId} />
+      </Suspense>
+    </View>
+  )
+}
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: palette.background },
+  fill: { flex: 1 },
+})
+```
+
+나머지 4개(치환 규칙 동일 — `useTripId` → `useTripDetailTabTripId`, import 경로만 조정):
+
+- `place.tsx` → `apps/waylog-app/src/features/trip/trip-place/TripPlaceTabScreen.tsx`
+  (`TripPlaceContent` 렌더)
+- `route.tsx` → `apps/waylog-app/src/features/trip/trip-route/TripRouteTabScreen.tsx`
+  (`TripRoutesContent` 렌더)
+- `expense.tsx` → `apps/waylog-app/src/features/trip/trip-expense/TripExpenseTabScreen.tsx`
+  (`TripExpenseContent` 렌더)
+- `photo.tsx` → `apps/waylog-app/src/features/trip/trip-photo/TripPhotoTabScreen.tsx`
+  (`TripPhotoContent` 렌더)
+
+- [ ] **Step 3: `checklist.tsx`를 탭 밖 `RootStack` 스크린으로 이전**
+
+```tsx
+// apps/waylog-app/src/features/trip/trip-checklist/TripDetailChecklistScreen.tsx
+// (기존 app/trip/[tripId]/(detail)/checklist.tsx 를 옮기되, 탭이 아니라 RootStack 소속이므로
+// useAppRoute를 쓴다)
+import { Suspense } from 'react'
+import { useAppRoute } from '../../../shared/hooks/useAppNavigation'
+import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native'
+import { TripChecklist } from './TripChecklist'
+import { palette } from '../../../shared/config/tokens'
+import { FLOATING_TAB_BAR_RESERVE } from '../../../shared/components'
+
+export function TripDetailChecklistScreen() {
+  const { params } = useAppRoute<'TripDetailChecklist'>()
+
+  return (
+    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
+      <Suspense fallback={<ActivityIndicator style={styles.fill} />}>
+        <TripChecklist tripId={params.tripId} />
+      </Suspense>
+    </ScrollView>
+  )
+}
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: palette.background },
+  fill: { flex: 1 },
+  content: { padding: 16, paddingBottom: 16 + FLOATING_TAB_BAR_RESERVE },
+})
+```
+
+- [ ] **Step 4: `TripDetailTabs.tsx` 작성 (기존 `(detail)/_layout.tsx` 대체)**
+
+```tsx
+// apps/waylog-app/src/features/trip/TripDetailTabs.tsx
+import { MaterialIcons } from '@expo/vector-icons'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { RouterTabNavigation, TRANSPARENT_SCENE_STYLE } from '../../shared/components'
+import { palette } from '../../shared/config/tokens'
+import { TripInfoTabScreen } from './trip-basic-info/TripInfoTabScreen'
+import { TripPlaceTabScreen } from './trip-place/TripPlaceTabScreen'
+import { TripRouteTabScreen } from './trip-route/TripRouteTabScreen'
+import { TripExpenseTabScreen } from './trip-expense/TripExpenseTabScreen'
+import { TripPhotoTabScreen } from './trip-photo/TripPhotoTabScreen'
+import type { TripDetailTabParamList } from '../../app/routes'
+
+const Tab = createBottomTabNavigator<TripDetailTabParamList>()
+
+export function TripDetailTabs() {
+  return (
+    <Tab.Navigator
+      // 탭은 replace 로 동작한다. 뒤로가기는 직전 탭이 아니라 여행 화면을 벗어난다.
+      backBehavior="none"
+      tabBar={(props) => (
+        <RouterTabNavigation
+          {...props}
+          variant="apple"
+          visibleNames={['TripInfo', 'TripPlace', 'TripRoute', 'TripExpense', 'TripPhoto']}
+          style={styles.floatingTabBar}
+        />
+      )}
+      screenOptions={{
+        headerShown: false,
+        sceneStyle: TRANSPARENT_SCENE_STYLE,
+        tabBarActiveTintColor: palette.primary,
+        tabBarInactiveTintColor: palette.grey,
+      }}
+    >
+      <Tab.Screen name="TripInfo" component={TripInfoTabScreen} options={{ tabBarIcon: ({ color }) => <MaterialIcons name="info" size={22} color={color} />, title: '정보' }} />
+      <Tab.Screen name="TripPlace" component={TripPlaceTabScreen} options={{ tabBarIcon: ({ color }) => <MaterialIcons name="pin-drop" size={22} color={color} />, title: '장소' }} />
+      <Tab.Screen name="TripRoute" component={TripRouteTabScreen} options={{ tabBarIcon: ({ color }) => <MaterialIcons name="near-me" size={22} color={color} />, title: '계획' }} />
+      <Tab.Screen name="TripExpense" component={TripExpenseTabScreen} options={{ tabBarIcon: ({ color }) => <MaterialIcons name="receipt" size={22} color={color} />, title: '정산' }} />
+      <Tab.Screen name="TripPhoto" component={TripPhotoTabScreen} options={{ tabBarIcon: ({ color }) => <MaterialIcons name="photo" size={22} color={color} />, title: '사진' }} />
+    </Tab.Navigator>
+  )
+}
+
+const styles = StyleSheet.create({
+  // 탭바가 scene 위에 얹혀야 콘텐츠가 바닥까지 이어진다. 가려지는 높이는
+  // 각 화면이 FLOATING_TAB_BAR_RESERVE 로 비운다.
+  floatingTabBar: { position: 'absolute', left: 0, right: 0, bottom: 0 },
+})
+```
+
+`checklist`는 `visibleNames`에서 빠졌으므로 탭바에 보이지 않는다(기존 `href: null`과 동일 효과) —
+Step 3에서 이미 탭 트리 밖으로 옮겼으므로 여기 등록 자체가 없다.
+
+- [ ] **Step 5: `TripDetailStack.tsx` 작성 (기존 `[tripId]/_layout.tsx` 대체)**
+
+```tsx
+// apps/waylog-app/src/features/trip/TripDetailStack.tsx
+import { ErrorBoundary } from '@waylog/react'
+import { View, StyleSheet } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { Button, Stack, Typography } from '~/shared/components/design-system'
+import { palette } from '../../shared/config/tokens'
+import { TripDetailHeader } from './components/TripDetailHeader'
+import { TripDetailTabs } from './TripDetailTabs'
+
+export function TripDetailStack() {
+  const insets = useSafeAreaInsets()
+
+  return (
+    <View style={styles.screen}>
+      <ErrorBoundary
+        fallback={({ resetError }) => (
+          <Stack style={styles.error}>
+            <Typography color="text.secondary">여행 정보를 불러오지 못했어요</Typography>
+            <Button variant="contained" onPress={resetError} style={styles.retryButton}>다시 시도</Button>
+          </Stack>
+        )}
+      >
+        <View style={[styles.header, { paddingTop: insets.top }]}>
+          <TripDetailHeader />
+        </View>
+        <View style={styles.fill}>
+          <TripDetailTabs />
+        </View>
+      </ErrorBoundary>
+    </View>
+  )
+}
+
+const styles = StyleSheet.create({
+  error: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
+  fill: { flex: 1 },
+  screen: { flex: 1, backgroundColor: palette.background },
+  retryButton: { marginTop: 12 },
+  header: { backgroundColor: palette.background },
+})
+```
+
+주의: 기존 `(detail)/_layout.tsx`는 `headerShown: false`인 `[tripId]/_layout.tsx`(Stack) 안에
+탭이 중첩된 구조였다. `RootStack.Screen name="TripDetail"`도 `screenOptions={{ headerShown:
+false }}`를 이미 상속하므로(Task 4의 `RootNavigator`) 여기서 별도로 `headerShown` 옵션을
+줄 필요가 없다.
+
+- [ ] **Step 6: `TripDetailHeader` API 치환**
+
+```tsx
+// apps/waylog-app/src/features/trip/components/TripDetailHeader.tsx
+// Resolved 함수 내부, 변경 전:
+// const { tripId } = useLocalSearchParams<{ tripId: string }>()
+// const router = useRouter()
+// ...
+// onPress={() => router.back()}
+
+// 변경 후:
+import { useAppNavigation, useAppRoute } from '../../../shared/hooks/useAppNavigation'
+// ...
+function Resolved() {
+  const { params } = useAppRoute<'TripDetail'>()
+  const navigation = useAppNavigation()
+  const { data: trip, update } = useTrip(params.tripId)
+  return (
+    <Stack direction="row" alignItems="center" style={styles.header}>
+      <Pressable accessibilityLabel="뒤로가기" onPress={() => navigation.goBack()} style={styles.backButton}>
+        <MaterialIcons name="arrow-back" size={22} color={palette.text} />
+      </Pressable>
+      {/* ...나머지 동일, ChatIconButton tripId={params.tripId} */}
+    </Stack>
+  )
+}
+```
+
+`useLocalSearchParams`, `useRouter` import를 제거하고 위 두 훅으로 교체한다.
+
+- [ ] **Step 7: `TripBasicInfoContent` API 치환**
+
+```tsx
+// 변경 전: import { useRouter } from 'expo-router'; const router = useRouter()
+// 변경 후:
+import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
+// ...
+const navigation = useAppNavigation()
+
+// 변경 전: onPress={(transportId) => router.push(`/trip/${tripId}/transport/${transportId}`)}
+// 변경 후:
+onTransportPress={(transportId) => navigation.navigate('TransportDetail', { tripId, transportId })}
+
+// 변경 전: onPress={() => router.push(`/trip/${tripId}/transport/new`)}
+// 변경 후:
+onPress={() => navigation.navigate('TransportNew', { tripId })}
+```
+
+`useQueryParamState('info-tab', ...)` 호출은 이 태스크에서 손대지 않는다(Task 8에서 일괄
+재구현). `app/`이 아직 있는 동안은 정상 동작한다 — 이 파일은 이제 탭 트리 안(`TripInfo`)에서
+렌더되지만, `useQueryParamState`가 `useLocalSearchParams`/`useRouter`(expo-router)를 호출하는
+것은 `NavigationContainer`(react-navigation)와 무관하게 expo-router 모듈 자체의 함수 호출이라,
+Task 4에서 `index.ts`를 이미 바꿨으므로 **실제로는 크래시한다** — Task 4의 `UserProfileScreen`과
+같은 문제. 이 태스크에서 `TripBasicInfoContent`의 `useQueryParamState` 한 줄도 임시로
+`useState`로 바꿔야 한다:
+
+```tsx
+// 변경 전: const [currentTab, setCurrentTab] = useQueryParamState('info-tab', { defaultValue: 'default' })
+// 변경 후 (Task 8에서 재교체 예정):
+const [currentTab, setCurrentTab] = useState('default')
+```
+
+`useState`를 이미 import하고 있지 않다면 `react`에서 추가로 import한다.
+
+- [ ] **Step 8: `TripRoutesContent`, `useActiveTripDay` 임시 처리**
+
+같은 이유로 `TripRoutesContent.tsx`의 `useQueryParamState<string>('route-id', ...)`와
+`useActiveTripDay.ts`의 `useQueryParamState<string>('days', ...)`도 이 태스크에서 임시
+`useState`로 바꾼다(Task 8에서 재교체):
+
+```ts
+// useActiveTripDay.ts, 변경 전:
+// const [value, update] = useQueryParamState<string>('days', {
+//   defaultValue: () => getDefaultTripDay(trip, new Date().toISOString().split('T')[0]!),
+// })
+// 변경 후:
+import { useState } from 'react'
+// ...
+const [value, update] = useState<string>(() => getDefaultTripDay(trip, new Date().toISOString().split('T')[0]!))
+```
+
+```tsx
+// TripRoutesContent.tsx, 변경 전:
+// const [selectedRouteId, setSelectedRouteId] = useQueryParamState<string>('route-id', {
+//   defaultValue: () => routes[0]?.id ?? '',
+// })
+// 변경 후:
+const [selectedRouteId, setSelectedRouteId] = useState<string>(() => routes[0]?.id ?? '')
+```
+
+- [ ] **Step 9: `UpcomingTransportSection`, `TripMemo`, `TripPinnedMemos`, `TripTransportList`,
+  `TripPostCreateCard` API 치환**
+
+5개 파일 모두 같은 패턴(`useRouter` → `useAppNavigation`, 문자열 경로 → `navigate` 호출):
+
+```ts
+// UpcomingTransportSection.tsx
+// 변경 전: const router = useRouter(); onPress={() => router.push(`/trip/${tripId}/transport/${transport.id}`)}
+// 변경 후:
+const navigation = useAppNavigation()
+onPress={() => navigation.navigate('TransportDetail', { tripId, transportId: transport.id })}
+
+// TripMemo.tsx
+// 변경 전: const router = useRouter(); onPress={() => router.push(`/trip/${tripId}/memo/${memo.id}`)}
+// 변경 후:
+const navigation = useAppNavigation()
+onPress={() => navigation.navigate('TripMemoDetail', { tripId, memoId: memo.id })}
+
+// TripPinnedMemos.tsx — TripMemo.tsx와 동일 패턴
+const navigation = useAppNavigation()
+onPress={() => navigation.navigate('TripMemoDetail', { tripId, memoId: memo.id })}
+
+// TripTransportList.tsx
+// 변경 전: const router = useRouter(); onPress={() => router.push(`/trip/${tripId}/transport/new`)}
+// 변경 후:
+const navigation = useAppNavigation()
+onPress={() => navigation.navigate('TransportNew', { tripId })}
+
+// TripPostCreateCard.tsx
+// 변경 전: const router = useRouter(); onPress={() => router.push({ pathname: '/post/new', params: { tripId } })}
+// 변경 후:
+const navigation = useAppNavigation()
+onPress={() => navigation.navigate('PostNew', { tripId })}
+```
+
+각 파일에서 `import { useRouter } from 'expo-router'`를 제거하고
+`import { useAppNavigation } from '.../useAppNavigation'`으로 교체한다(상대 경로는 파일
+위치에 맞게 조정 — 예: `trip-transport/`에서는 `../../../shared/hooks/useAppNavigation`,
+`trip-basic-info/`에서도 동일).
+
+- [ ] **Step 10: `TransportDetailScreen`의 `useTripId` 인라인 치환**
+
+```tsx
+// apps/waylog-app/src/features/trip/trip-transport/transport-detail/TransportDetailScreen.tsx
+// 변경 전: import { useTripId } from '../../useTripId'; const tripId = useTripId()
+// 변경 후:
+import { useAppRoute } from '../../../../shared/hooks/useAppNavigation'
+// ...
+export function TransportDetailScreen() {
+  const { params: { tripId } } = useAppRoute<'TransportDetail'>()
+  // ...
+```
+
+- [ ] **Step 11: `RootNavigator.tsx`에 `TripDetail`, `TripDetailChecklist` 실제 스크린 연결**
+
+```tsx
+// RootStack.Screen name="TripDetail" component={NotYetMigratedScreen} 를 아래로 교체:
+<RootStack.Screen name="TripDetail" component={TripDetailStack} />
+// RootStack.Screen name="TripDetailChecklist" component={NotYetMigratedScreen} 를 아래로 교체:
+<RootStack.Screen name="TripDetailChecklist" component={TripDetailChecklistScreen} />
+```
+
+import 추가: `import { TripDetailStack } from '../features/trip/TripDetailStack'`,
+`import { TripDetailChecklistScreen } from '../features/trip/trip-checklist/TripDetailChecklistScreen'`.
+
+`TripBasicInfoContent`가 체크리스트를 자체 탭(`currentTab === 'checklist'`)으로도 보여주고
+있었다는 점에 주의 — 이건 `TripDetailChecklistScreen`(스택 스크린, `checklist-id` 없는 전체
+목록)과는 다른 화면이다. 기존 동작 그대로 둔다(이 태스크에서 `TripBasicInfoContent` 내부
+탭 전환 로직은 건드리지 않음).
+
+- [ ] **Step 12: 남은 `app/trip/[tripId]/*` 파일에서 옛 import 정리 확인**
+
+`app/trip/[tripId]/(detail)/*.tsx`와 `app/trip/[tripId]/_layout.tsx`는 이제 `RootNavigator`
+트리에서 참조되지 않지만 파일은 아직 존재한다(Task 7에서 삭제). 이 파일들이 여전히
+`expo-router`를 import하고 있어도 컴파일은 되므로 이 태스크에서는 그대로 둔다.
+
+- [ ] **Step 13: 타입 검증**
+
+Run: `cd apps/waylog-app && pnpm exec tsc --noEmit`
+Expected: `apps/waylog-app/src/` 하위에 에러 없음.
+
+- [ ] **Step 14: 실기기/시뮬레이터 확인**
+
+Run: `pnpm --filter waylog-app ios`
+Expected: `Home`의 "내 여행" 탭에서 여행을 하나 눌러 `TripDetail`로 진입한다. 상단에
+`TripDetailHeader`(여행 이름, 뒤로가기, 채팅 아이콘)가 보이고, 하단에 5개 탭(정보/장소/계획/
+정산/사진)이 기존과 동일한 "apple" 스타일 플로팅 탭바로 보인다. 각 탭을 전환해 화면이 정상
+렌더되는지 확인한다. "정보" 탭에서 다가오는 교통편을 눌러 `TransportDetail`로, 고정 메모를
+눌러 `TripMemoDetail`로 이동해본다(둘 다 아직 `NotYetMigratedScreen` — Task 6에서 연결).
+뒤로가기로 `TripDetail` → `Home`까지 정상 복귀하는지 확인한다.
+
+- [ ] **Step 15: Commit**
+
+```bash
+git add apps/waylog-app/src/features/trip apps/waylog-app/src/app/RootNavigator.tsx
+git commit -m "$(cat <<'EOF'
+feat(앱): TripDetail 스택과 탭 트리를 react-navigation으로 연결한다
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+EOF
+)"
+```
