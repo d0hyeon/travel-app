@@ -25,7 +25,7 @@ export function TransportDetailPageDesktop() {
         <Typography variant="h6">탑승권 상세</Typography>
       </TopNavigation>
 
-      <Box flex={1} overflow="auto" display="flex" justifyContent="center" py={4}>
+      <Box flex={1} display="flex" justifyContent="center" pt={2} pb={10}>
         <Box width={CONTENT_WIDTH}>
           <TransportDetailContent tripId={tripId} transportId={transportId} />
         </Box>

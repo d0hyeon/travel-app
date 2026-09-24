@@ -21,7 +21,7 @@ export function TransportDetailPageMobile() {
       >
         <Typography fontSize={16} fontWeight={700}>탑승권 상세</Typography>
       </TopNavigation>
-      <TransportDetailContent tripId={tripId} transportId={transportId} p={2.5} />
+      <TransportDetailContent tripId={tripId} transportId={transportId} p={2.5} pt={1} />
     </Box>
   )
 }

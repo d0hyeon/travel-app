@@ -14,6 +14,7 @@ import { useTripId } from '../../useTripId'
 import { useTransportId } from '../useTransportId'
 import { PushNotificationCard } from '../../../auth/PushNotificationCard'
 import { Box, Stack } from '~/shared/components/design-system'
+import { AirportArrivalGuidanceSection } from '../AirportArrivalGuidanceSection'
 
 export function TransportDetailScreen() {
   const tripId = useTripId()
@@ -36,6 +37,7 @@ export function TransportDetailScreen() {
         <Stack gap={3} style={styles.wrapper}>
           <TransportSummarySection tripId={tripId} transportId={transportId} style={{ marginBottom: 10 }} />
           <TransportRealtimeInfoSection tripId={tripId} transportId={transportId} />
+          <AirportArrivalGuidanceSection tripId={tripId} transportId={transportId} />
           <TransportOperationalInfoSection tripId={tripId} transportId={transportId} />
           <TransportTicketsSection tripId={tripId} transportId={transportId} />
           <TransportDirectionsAction tripId={tripId} transportId={transportId} />
