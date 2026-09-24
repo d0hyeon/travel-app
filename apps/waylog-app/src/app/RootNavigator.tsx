@@ -1,7 +1,7 @@
 import 'react-native-url-polyfill/auto'
 import '../shared/polyfills'
 
-import { NavigationContainer } from '@react-navigation/native'
+import { NavigationContainer, type LinkingOptions } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { AuthErrorBoundary, AuthStateSync } from '@waylog/domains/clients'
@@ -61,6 +61,15 @@ Notifications.setNotificationHandler({
 
 const RootStack = createNativeStackNavigator<RootStackParamList>()
 
+const linking: LinkingOptions<RootStackParamList> = {
+  prefixes: ['waylog://', 'https://waylog.me', 'https://www.waylog.me'],
+  config: {
+    screens: {
+      TripInvite: 'trip/invite/:shareLink',
+    },
+  },
+}
+
 function Loading() {
   return (
     <View style={styles.loading}>
@@ -79,7 +88,7 @@ export function RootNavigator() {
             <OverlayProvider>
               <Suspense fallback={<Loading />}>
                 <NotificationGateway />
-                <NavigationContainer>
+                <NavigationContainer linking={linking}>
                   <AuthGateway>
                     <RootStack.Navigator screenOptions={{ headerShown: false }}>
                       <RootStack.Screen name="Home" component={HomeTabs} options={{ animation: 'none' }} />
