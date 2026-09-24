@@ -55,18 +55,19 @@ app/trip/[tripId]/transport/new.tsx, transport/[transportId].tsx
 `@react-navigation/bottom-tabs`의 `BottomTabBarProps`를 표준 인터페이스로 받는 커스텀 tabBar
 렌더러라 **변경 없이 재사용 가능**.
 
-API 사용 빈도 (`app/`, `src/` 전체):
+API 사용 빈도 (`app/`, `src/` 전체, 전수 조사로 확정한 실측치):
 
 | API | 횟수 |
 |---|---|
-| `useRouter` | 70 |
 | `router.push` | 28 |
-| `useLocalSearchParams` | 26 |
+| `useLocalSearchParams` | 13 (호출 지점 기준) |
 | `router.back` | 12 |
 | `router.replace` | 6 |
 | `useFocusEffect` | 4 (react-navigation과 동일 API, 무변경) |
-| `usePathname` | 3 |
-| `router.setParams` | 2 |
+| `usePathname` | 2 (`src/features/auth/auth-redirect.tsx` 한 파일) |
+| `router.setParams` | 1 (`src/shared/hooks/useQueryParamState.ts`) |
+| `<Redirect>` | 5 |
+| `<Link href="...">` | 0 (매핑 대상 아님) |
 
 ## 신규 구조
 
@@ -101,22 +102,31 @@ TripDetail (Stack, headerShown: false)
 
 ```ts
 // src/app/routes.ts
+
+// location/category/explorer-view-mode 는 3개 탐색 랭킹 화면이 공유하는
+// useQueryParamState 기반 필터·뷰모드 파라미터다.
+type ExplorerFilterParams = {
+  location?: string
+  category?: string
+  'explorer-view-mode'?: string
+}
+
 export type RootStackParamList = {
   Login: undefined
   Home: undefined
-  TripDetail: { tripId: string }
+  TripDetail: { tripId: string; days?: string; 'route-id'?: string; 'info-tab'?: string }
   TripDetailChecklist: { tripId: string }
   TripMemoDetail: { tripId: string; memoId: string }
   TripMemoEdit: { tripId: string; memoId: string }
-  TripCreate: undefined
+  TripCreate: { step?: string }
   TripInvite: { shareLink: string }
-  ExplorerDetail: { placeId: string }
-  ExplorerTopVisited: undefined
-  ExplorerRecentHot: undefined
-  ExplorerMostSaved: undefined
-  PostNew: undefined
+  ExplorerDetail: { placeId: string; tab?: string }
+  ExplorerTopVisited: ExplorerFilterParams
+  ExplorerRecentHot: ExplorerFilterParams
+  ExplorerMostSaved: ExplorerFilterParams
+  PostNew: { tripId?: string }
   PostDetail: { postId: string }
-  UserProfile: { userId: string }
+  UserProfile: { userId: string; tab?: string }
   TransportNew: { tripId: string }
   TransportDetail: { tripId: string; transportId: string }
 }
@@ -129,13 +139,20 @@ export type HomeTabParamList = {
 }
 
 export type TripDetailTabParamList = {
-  TripInfo: { tripId: string }
+  TripInfo: { tripId: string; 'info-tab'?: string }
   TripPlace: { tripId: string }
-  TripRoute: { tripId: string }
+  TripRoute: { tripId: string; days?: string; 'route-id'?: string }
   TripExpense: { tripId: string }
   TripPhoto: { tripId: string }
 }
 ```
+
+`TripDetail`(스택)이 받는 `days`/`route-id`/`info-tab`은 화면 진입 시 초기값 전달용으로만
+쓰고(딥링크·`navigate('TripDetail', { tripId, days })` 식 초기 포커스 지정), 탭이 뜬 뒤의
+실제 상태 갱신은 각 탭 스크린 자신의 `TripDetailTabParamList` 파라미터(`useAppNavigation`을
+`TripDetailTabParamList`용으로도 쓸 수 있도록 탭 전용 오버로드 필요 — 아래 훅 계층 참조)를
+`setParams`하는 방식으로 탭 스크린 스코프에서 처리한다. 즉 `TripRoute` 탭 안의
+`TripRoutesContent`는 `TripDetail`이 아니라 `TripRoute`의 params를 읽고 쓴다.
 
 ## 네비게이션 훅 계층
 
@@ -150,6 +167,17 @@ export function useAppNavigation<T extends keyof RootStackParamList = keyof Root
 export function useAppRoute<T extends keyof RootStackParamList>() {
   return useRoute<RouteProp<RootStackParamList, T>>()
 }
+
+// TripDetail 탭(정보/장소/계획/정산/사진) 내부에서만 쓰는 탭 스코프 전용 오버로드.
+// RootStackParamList 훅과 이름이 겹치지 않게 별도로 둔다 — 탭 내부 컴포넌트가 실수로
+// 스택 레벨 네비게이터를 잡아 상위 화면으로 잘못 navigate 하는 걸 타입으로 막는다.
+export function useTripDetailTabNavigation<T extends keyof TripDetailTabParamList = keyof TripDetailTabParamList>() {
+  return useNavigation<BottomTabNavigationProp<TripDetailTabParamList, T>>()
+}
+
+export function useTripDetailTabRoute<T extends keyof TripDetailTabParamList>() {
+  return useRoute<RouteProp<TripDetailTabParamList, T>>()
+}
 ```
 
 ### API 매핑
@@ -161,9 +189,45 @@ export function useAppRoute<T extends keyof RootStackParamList>() {
 | `useRouter().replace(...)` | `useAppNavigation().replace(...)` |
 | `useRouter().setParams(...)` | `useAppNavigation().setParams(...)` |
 | `useLocalSearchParams<{tripId: string}>()` | `useAppRoute<'TripDetail'>().params` |
-| `usePathname()` | 화면별로 `useAppRoute().name` 또는 `useNavigationState()`로 개별 대응 (3곳) |
-| `<Link href="...">` (expo-router) | `<Link>` (`@react-navigation/native`), `to={{ screen, params }}` |
+| `usePathname()` | `src/features/auth/auth-redirect.tsx`의 `LoginRedirect`/`useLoginRedirect` 2곳에서만 사용. `useAppRoute().name` + `.params`로 "돌아갈 화면"을 구성하는 지역 로직으로 대체 (조사 결과 실사용 2건, 설계 초안의 "3곳"은 부정확했음) |
 | `<Redirect href="..." />` (expo-router, 선언적) | 마운트 시 `navigate(..., { replace: true })`를 호출하는 소형 컴포넌트로 직접 구현 (react-navigation엔 선언적 Redirect 없음) |
+
+`<Link href="...">`는 코드베이스 전수 조사 결과 실사용 0건이라 매핑 대상에서 제외한다.
+
+### `useQueryParamState` — route params 기반으로 재구현, 소비처 9곳은 시그니처 무변경
+
+`src/shared/hooks/useQueryParamState.ts`는 URL 쿼리 파라미터에 화면 내부 UI 상태(탭 선택,
+필터, 위저드 스텝 등)를 영속화해 화면 재진입·딥링크·뒤로가기에도 값이 살아남게 하는 범용
+훅이다. `useLocalSearchParams()` + `router.setParams()`로 구현되어 있고, 9곳에서 소비한다:
+
+| 소비 파일 | 키 | 해당 라우트 |
+|---|---|---|
+| `src/features/explorer/PlaceDetailScreen.tsx` | `tab` | `ExplorerDetail` |
+| `src/features/explorer/explorer-filters/useExplorerFilterParams.ts` | `location`, `category` | `ExplorerTopVisited`/`ExplorerRecentHot`/`ExplorerMostSaved`(모두 소비) |
+| `src/features/explorer/explorer-view/useExplorerViewMode.ts` | `explorer-view-mode` | 위와 동일 화면들 공용 |
+| `src/features/user-profile/UserProfileScreen.tsx` | `tab` | `UserProfile` |
+| `src/features/trip/trip-route/useActiveTripDay.ts` | `days` | `TripDetail`(TripRoute 탭) |
+| `src/features/trip/trip-route/TripRoutesContent.tsx` | `route-id` | `TripDetail`(TripRoute 탭) |
+| `src/features/trip/trip-create/TripCreateScreen.tsx` | `step` | `TripCreate` |
+| `src/features/trip/trip-basic-info/TripBasicInfoContent.tsx` | `info-tab` | `TripDetail`(TripInfo 탭) |
+
+**"URL 파람처럼 컨텍스트만 유지"하면 되고 웹과 시그니처를 맞출 필요는 없다는 방향에 따라**,
+`useState`가 아니라 **route params**로 통일한다. `useState`는 컴포넌트가 언마운트-재마운트되면
+초기화되지만, route params는 `@react-navigation`이 네비게이션 상태의 일부로 들고 있어 화면을
+벗어났다 돌아와도, 딥링크로 특정 값을 지정해 열어도 유지된다 — 지금 `router.setParams` 기반
+구현과 동일한 특성이다.
+
+**구현**: 위 표의 각 라우트(`RootStackParamList`)에 해당 키를 optional 파라미터로 추가하고,
+`useQueryParamState`를 내부적으로 `useAppNavigation().setParams()` + `useAppRoute().params`로
+재구현한다. 시그니처(`useQueryParamState<T>(key, options): [T, Dispatch<T>]`)는 그대로 유지해
+9곳의 호출부 코드는 무변경으로 둔다. `router.setParams`의 다음 렌더 반영 지연을 우회하던
+`optimisticValue` state는, `navigation.setParams`도 동일하게 비동기 반영될 수 있으므로 **그대로
+유지**한다(제거하지 않음).
+
+전수 조사로 초기 설계안과 달라진 점: `PostNew`는 `undefined`가 아니라
+`TripPostCreateCard.tsx`가 `router.push({ pathname: '/post/new', params: { tripId } })`로
+넘기는 `tripId`를 받는다. 나머지 옵셔널 키들은 모두 `useQueryParamState` 소비처 조사로 확정한
+것이며, 위 "타입 정의" 코드가 이미 최종본이다.
 
 ## 딥링크
 
@@ -209,7 +273,10 @@ const linking: LinkingOptions<RootStackParamList> = {
 - `TripDetail`의 스택-안-탭 중첩 애니메이션/제스처가 expo-router와 동일하게 보이는지. 둘 다
   `@react-navigation` 위에서 동작하므로 이론상 동일해야 하나 실기기 확인 필요.
 - `checklist`를 탭 밖 스택으로 옮겼을 때 뒤로가기 동작이 기존과 같은지.
-- `usePathname` 3곳은 개별 코드를 봐야 정확한 대체 방법이 나온다(플랜 단계에서 확정).
+- `useQueryParamState` route params 재구현이 `TripDetail`처럼 스택 스크린과 그 안의 탭 스크린이
+  같은 개념적 상태(`route-id` 등)를 서로 다른 파라미터 리스트(`RootStackParamList` vs
+  `TripDetailTabParamList`)로 나눠 갖는 구조라, 초기값 전달(스택)과 상태 갱신(탭)의 경계가
+  헷갈리기 쉽다 — 구현 시 "누가 읽고 누가 쓰는지"를 파일별로 명확히 주석해야 한다.
 - 화면별 세부 옵션(예: 루트 `index` 화면의 `animation: 'none'`, 각 `Tabs.Screen`의 `tabBarIcon`/`title`)은
   트리를 옮겨 적는 과정에서 하나씩 대조하며 빠짐없이 이전해야 한다 — 파일 트리를 그대로 복사하는 것이
   아니므로 놓치기 쉽다.
@@ -218,4 +285,5 @@ const linking: LinkingOptions<RootStackParamList> = {
 
 - UI 컴포넌트(`*.tsx`)이므로 컴포넌트 테스트 인프라 없음. 빌드와 실기기 확인으로 검증한다
   (`docs/testing.md`, `CLAUDE.md` 방침과 동일).
-- 순수 로직으로 분리 가능한 부분(예: `usePathname` 대체 로직)이 있다면 `*.utils.ts`로 분리해 단위 테스트.
+- 순수 로직으로 분리 가능한 부분(예: `useQueryParamState`의 옵션 파싱, `toLoginHref`류 URL/파라미터
+  조합 로직)이 있다면 `*.utils.ts`로 분리해 단위 테스트.
