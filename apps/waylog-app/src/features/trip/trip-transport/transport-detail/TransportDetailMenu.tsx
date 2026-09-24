@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { useTripTransports } from '@waylog/domains/modules/trip-transport'
-import { useRouter } from 'expo-router'
+import { useAppNavigation } from '../../../../shared/hooks/useAppNavigation'
 import { PopMenu } from '../../../../shared/components/PopMenu'
 import { useConfirmDialog } from '../../../../shared/components/confirm-dialog/useConfirmDialog'
 
@@ -10,7 +10,7 @@ interface Props {
 }
 
 export function TransportDetailMenu({ tripId, transportId }: Props) {
-  const router = useRouter()
+  const navigation = useAppNavigation()
   const { remove } = useTripTransports(tripId)
   const confirm = useConfirmDialog()
 
@@ -19,7 +19,7 @@ export function TransportDetailMenu({ tripId, transportId }: Props) {
     if (!(await confirm('교통편을 삭제하시겠어요?'))) return
 
     remove(transportId)
-    router.back()
+    navigation.goBack()
   }
 
   return (

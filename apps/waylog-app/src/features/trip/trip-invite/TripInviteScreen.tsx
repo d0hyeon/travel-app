@@ -1,8 +1,6 @@
 import { StyleSheet } from 'react-native'
 import { AuthError } from '@waylog/domains/clients'
 import { useInvitedTrip } from '@waylog/domains/modules/trip'
-import { assert } from '@waylog/utility'
-import { useLocalSearchParams, useRouter } from 'expo-router'
 import { Suspense, useTransition } from 'react'
 import { ErrorBoundary } from '@waylog/react'
 import {
@@ -12,6 +10,7 @@ import {
   Stack,
   Typography,
 } from '~/shared/components/design-system'
+import { useAppNavigation, useAppRoute } from '../../../shared/hooks/useAppNavigation'
 import { palette } from '../../../shared/config/tokens'
 
 export function TripInviteScreen() {
@@ -36,10 +35,10 @@ export function TripInviteScreen() {
 }
 
 function Resolved() {
-  const router = useRouter()
+  const navigation = useAppNavigation()
 
-  const { shareLink } = useLocalSearchParams<{ shareLink: string }>()
-  assert(!!shareLink, '잘못된 접근입니다.')
+  const { params } = useAppRoute<'TripInvite'>()
+  const { shareLink } = params
   const { data: trip, join } = useInvitedTrip({ sharedLink: shareLink })
 
   const [isPending, startTransition] = useTransition()
@@ -47,7 +46,7 @@ function Resolved() {
   const handleJoin = () => {
     startTransition(async () => {
       await join()
-      router.replace(`/trip/${trip.id}`)
+      navigation.replace('TripDetail', { tripId: trip.id })
     })
   }
 

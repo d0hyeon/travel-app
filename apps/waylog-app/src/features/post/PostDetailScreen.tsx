@@ -1,37 +1,35 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { PostVisibility, type Post, usePost } from '@waylog/domains/modules/post'
-import { useRouter } from 'expo-router'
 import { Suspense } from 'react'
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ListItem } from '../../shared/components/ListItem'
 import { Map } from '../../shared/components/Map'
 import { Stack, Typography } from '~/shared/components/design-system'
+import { useAppNavigation, useAppRoute } from '../../shared/hooks/useAppNavigation'
 import { palette } from '../../shared/config/tokens'
 import { PostAuthor } from './PostAuthor'
 import { PostLikeButton } from './PostLikeButton'
 import { PostMenu } from './PostMenu'
 import { LoadableImage } from '../../shared/components/LoadableImage'
 
-interface Props {
-  postId: string
-}
-
-export function PostDetailScreen({ postId }: Props) {
+export function PostDetailScreen() {
   return (
     <Suspense fallback={<PostDetailLoading />}>
-      <ResolvedPostDetail postId={postId} />
+      <ResolvedPostDetail />
     </Suspense>
   )
 }
 
-function ResolvedPostDetail({ postId }: Props) {
+function ResolvedPostDetail() {
+  const { params } = useAppRoute<'PostDetail'>()
+  const { postId } = params
   const { data: post } = usePost(postId)
-  const router = useRouter()
+  const navigation = useAppNavigation()
   const insets = useSafeAreaInsets()
 
   const openAuthorProfile = () => {
-    router.push(`/u/${post.authorId}`)
+    navigation.navigate('UserProfile', { userId: post.authorId })
   }
 
   return (
@@ -43,12 +41,12 @@ function ResolvedPostDetail({ postId }: Props) {
         style={[styles.header, { paddingTop: insets.top + 4 }]}
       >
         <Stack direction="row" alignItems="center">
-          <Pressable accessibilityLabel="뒤로가기" onPress={() => router.back()} style={styles.backButton}>
+          <Pressable accessibilityLabel="뒤로가기" onPress={() => navigation.goBack()} style={styles.backButton}>
             <MaterialIcons name="arrow-back" size={22} color={palette.text} />
           </Pressable>
           <Typography variant="subtitle1" style={styles.headerTitle}>포스트</Typography>
         </Stack>
-        <PostMenu postId={postId} onDelete={() => router.back()} />
+        <PostMenu postId={postId} onDelete={() => navigation.goBack()} />
       </Stack>
 
       <ScrollView
@@ -65,7 +63,7 @@ function ResolvedPostDetail({ postId }: Props) {
             <Typography style={styles.visibilityLabel}>비공개</Typography>
           </Stack>
         )}
-        {post.places.length > 0 && <PostPlaces places={post.places} onPlacePress={(placeId) => router.push(`/explorer/${placeId}`)} />}
+        {post.places.length > 0 && <PostPlaces places={post.places} onPlacePress={(placeId) => navigation.navigate('ExplorerDetail', { placeId })} />}
         <PostLikeButton postId={post.id} />
       </ScrollView>
     </View>

@@ -1,12 +1,11 @@
 import { useTrips } from '@waylog/domains/modules/trip'
 import { MaterialIcons } from '@expo/vector-icons'
-import { useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { StyleSheet, Alert, Pressable } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Box, LinearProgress, Stack, Typography } from '~/shared/components/design-system'
 import { SwitchCase } from '../../../shared/components/SwitchCase'
-import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
+import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
 import { palette } from '../../../shared/config/tokens'
 import { DateStep } from './DateStep'
 import { DestinationStep, type Destination } from './DestinationStep'
@@ -22,11 +21,12 @@ const STEP_LABELS: Record<Step, string> = {
 }
 
 export function TripCreateScreen() {
-  const router = useRouter()
+  const navigation = useAppNavigation()
   const { create } = useTrips()
   const insets = useSafeAreaInsets()
 
-  const [step, setStep] = useQueryParamState<Step>('step', { defaultValue: 'destination' })
+  // Task 8 에서 useQueryParamState(route params 기반)로 재교체 예정 — 지금은 임시로 useState.
+  const [step, setStep] = useState<Step>('destination')
   const currentIndex = STEPS.indexOf(step)
 
   const [destinations, setDestinations] = useState<Destination[]>([])
@@ -67,7 +67,7 @@ export function TripCreateScreen() {
         exchangeRate: null,
         exchangeRates: null,
       })
-      router.replace(`/trip/${trip.id}`)
+      navigation.replace('TripDetail', { tripId: trip.id })
     } catch (error) {
       console.error('여행 생성 실패:', error)
       Alert.alert(
@@ -82,7 +82,7 @@ export function TripCreateScreen() {
       <Stack direction="row" alignItems="center" style={styles.header}>
         <Pressable
           accessibilityLabel="뒤로가기"
-          onPress={() => router.back()}
+          onPress={() => navigation.goBack()}
           style={styles.backButton}
         >
           <MaterialIcons name="arrow-back" size={22} color={palette.text} />

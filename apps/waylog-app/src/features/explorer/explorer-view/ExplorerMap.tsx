@@ -1,9 +1,8 @@
-import { useRouter } from 'expo-router'
 import { getCoordinateByLocation, type Location } from '@waylog/domains/modules/location'
 import { StyleSheet, View } from 'react-native'
 import { Map } from '../../../shared/components/Map'
 import { Typography } from '~/shared/components/design-system'
-import { buildExplorerPlaceDetailPath } from '../explorer.utils'
+import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
 
 interface ExplorerMapPlace {
   placeId: string
@@ -19,7 +18,7 @@ interface Props {
 }
 
 export function ExplorerMap({ places, location }: Props) {
-  const router = useRouter()
+  const navigation = useAppNavigation()
   const defaultCenter = location == null ? undefined : getCoordinateByLocation(location)
 
   return (
@@ -33,7 +32,7 @@ export function ExplorerMap({ places, location }: Props) {
             lng={place.lng}
             label={place.name}
             thumbnailUrl={place.thumbnailUrl}
-            onPress={() => router.push(buildExplorerPlaceDetailPath(place.placeId))}
+            onPress={() => navigation.navigate('ExplorerDetail', { placeId: place.placeId })}
           />
         ))}
       </Map>

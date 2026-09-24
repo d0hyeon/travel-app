@@ -1,9 +1,9 @@
 import { createTripPlace, usePlace } from '@waylog/domains/modules/place'
-import { useRouter } from 'expo-router'
 import { Suspense } from 'react'
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import { Button, Stack, Typography } from '~/shared/components/design-system'
 import { Map } from '../../../shared/components/Map'
+import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
 import { palette, radius } from '../../../shared/config/tokens'
 import { useScheduledTrips } from '../../trip/useScheduledTrips'
 import { PlacePhotoList } from '../PlacePhotoList'
@@ -60,13 +60,13 @@ export function PlaceDetailSheet({ placeId, isOpen, onClose }: Props) {
 }
 
 function MoreDetailButton({ placeId, onNavigate }: { placeId: string; onNavigate: () => void }) {
-  const router = useRouter()
+  const navigation = useAppNavigation()
 
   return (
     <Pressable
       onPress={() => {
         onNavigate()
-        router.push(`/explorer/${placeId}`)
+        navigation.navigate('ExplorerDetail', { placeId })
       }}
     >
       <Typography variant="body2" color="primary">

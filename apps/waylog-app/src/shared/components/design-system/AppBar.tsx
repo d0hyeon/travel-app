@@ -2,7 +2,7 @@ import { Pressable, StyleSheet } from 'react-native'
 import { Stack, StackProps } from './Stack'
 import { ComponentProps, ReactNode } from 'react'
 import { palette } from '../../config/tokens'
-import { useRouter } from 'expo-router'
+import { useAppNavigation } from '../../hooks/useAppNavigation'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Typography } from './Typography'
 
@@ -12,13 +12,13 @@ interface Props extends StackProps {
 }
 
 export function AppBar({ title, rightAddon, style, ...props }: Props) {
-  const router = useRouter()
+  const navigation = useAppNavigation()
 
   return (
     <Stack direction="row" alignItems="center" style={[styles.header, style]} {...props}>
       <Pressable
         accessibilityLabel="뒤로가기"
-        onPress={() => router.back()}
+        onPress={() => navigation.goBack()}
         style={styles.backButton}
       >
         <MaterialIcons name="arrow-back" size={22} color={palette.text} />

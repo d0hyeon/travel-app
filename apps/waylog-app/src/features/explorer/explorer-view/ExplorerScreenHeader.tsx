@@ -1,11 +1,11 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { useRouter } from 'expo-router'
 import type { PropsWithChildren, ReactNode } from 'react'
 import { StyleSheet, Pressable, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Animated from 'react-native-reanimated'
 import { useExtrude } from '../../../shared/components/animation/Extrude'
 import { Typography } from '~/shared/components/design-system'
+import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
 import { palette } from '../../../shared/config/tokens'
 import { ExplorerFilterBar } from '../explorer-filters/ExplorerFilterBar'
 import { FilterNavigation } from './FilterNavigation'
@@ -39,7 +39,7 @@ export function ExplorerScreenHeader({
   onChangeViewMode,
   filterExtras,
 }: PropsWithChildren<Props>) {
-  const router = useRouter()
+  const navigation = useAppNavigation()
   const insets = useSafeAreaInsets()
   const extrude = useExtrude({ active: isScrollDown, axis: extrudeAxis })
 
@@ -48,7 +48,7 @@ export function ExplorerScreenHeader({
       <View style={styles.header}>
         <View style={styles.titleRow}>
           {showBack && (
-            <Pressable onPress={() => router.back()} hitSlop={8}>
+            <Pressable onPress={() => navigation.goBack()} hitSlop={8}>
               <MaterialIcons name="arrow-back" size={22} color={palette.text} />
             </Pressable>
           )}

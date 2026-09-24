@@ -25,9 +25,21 @@ import { queryClient } from '../shared/query-client'
 import { tamaguiConfig } from '../../tamagui.config'
 import type { RootStackParamList } from './routes'
 import { HomeTabs } from './HomeTabs'
-import { NotYetMigratedScreen } from './NotYetMigratedScreen'
 import { TripDetailStack } from '../features/trip/TripDetailStack'
 import { TripDetailChecklistScreen } from '../features/trip/trip-checklist/TripDetailChecklistScreen'
+import { TripMemoDetailScreen } from '../features/trip/trip-memo/TripMemoDetailScreen'
+import { TripMemoEditScreen } from '../features/trip/trip-memo/TripMemoEditScreen'
+import { TripCreateScreen } from '../features/trip/trip-create/TripCreateScreen'
+import { TripInviteScreen } from '../features/trip/trip-invite/TripInviteScreen'
+import { PlaceDetailScreen } from '../features/explorer/PlaceDetailScreen'
+import { TopVisitedScreen } from '../features/explorer/explorer-ranking/TopVisitedScreen'
+import { RecentHotScreen } from '../features/explorer/explorer-recent/RecentHotScreen'
+import { MostSavedScreen } from '../features/explorer/explorer-saved/MostSavedScreen'
+import { PostCreationScreen } from '../features/post/PostCreationScreen'
+import { PostDetailScreen } from '../features/post/PostDetailScreen'
+import { UserProfileDetailScreen } from '../features/user-profile/UserProfileDetailScreen'
+import { TransportCreationScreen } from '../features/trip/trip-transport/TransportCreationScreen'
+import { TransportDetailScreen } from '../features/trip/trip-transport/transport-detail/TransportDetailScreen'
 
 setupApi()
 LogBox.ignoreLogs([ExceptionError.name])
@@ -72,22 +84,21 @@ export function RootNavigator() {
                     <RootStack.Navigator screenOptions={{ headerShown: false }}>
                       <RootStack.Screen name="Home" component={HomeTabs} options={{ animation: 'none' }} />
                       <RootStack.Screen name="Login" component={LoginRoute} />
-                      {/* Task 5, 6에서 하나씩 실제 스크린으로 교체되며 이 배열에서 빠진다. */}
                       <RootStack.Screen name="TripDetail" component={TripDetailStack} />
                       <RootStack.Screen name="TripDetailChecklist" component={TripDetailChecklistScreen} />
-                      <RootStack.Screen name="TripMemoDetail" component={NotYetMigratedScreen} />
-                      <RootStack.Screen name="TripMemoEdit" component={NotYetMigratedScreen} />
-                      <RootStack.Screen name="TripCreate" component={NotYetMigratedScreen} />
-                      <RootStack.Screen name="TripInvite" component={NotYetMigratedScreen} />
-                      <RootStack.Screen name="ExplorerDetail" component={NotYetMigratedScreen} />
-                      <RootStack.Screen name="ExplorerTopVisited" component={NotYetMigratedScreen} />
-                      <RootStack.Screen name="ExplorerRecentHot" component={NotYetMigratedScreen} />
-                      <RootStack.Screen name="ExplorerMostSaved" component={NotYetMigratedScreen} />
-                      <RootStack.Screen name="PostNew" component={NotYetMigratedScreen} />
-                      <RootStack.Screen name="PostDetail" component={NotYetMigratedScreen} />
-                      <RootStack.Screen name="UserProfile" component={NotYetMigratedScreen} />
-                      <RootStack.Screen name="TransportNew" component={NotYetMigratedScreen} />
-                      <RootStack.Screen name="TransportDetail" component={NotYetMigratedScreen} />
+                      <RootStack.Screen name="TripMemoDetail" component={TripMemoDetailScreen} />
+                      <RootStack.Screen name="TripMemoEdit" component={TripMemoEditScreen} />
+                      <RootStack.Screen name="TripCreate" component={TripCreateScreen} />
+                      <RootStack.Screen name="TripInvite" component={TripInviteScreen} />
+                      <RootStack.Screen name="ExplorerDetail" component={PlaceDetailScreen} />
+                      <RootStack.Screen name="ExplorerTopVisited" component={TopVisitedScreen} />
+                      <RootStack.Screen name="ExplorerRecentHot" component={RecentHotScreen} />
+                      <RootStack.Screen name="ExplorerMostSaved" component={MostSavedScreen} />
+                      <RootStack.Screen name="PostNew" component={PostCreationScreen} />
+                      <RootStack.Screen name="PostDetail" component={PostDetailScreen} />
+                      <RootStack.Screen name="UserProfile" component={UserProfileDetailScreen} />
+                      <RootStack.Screen name="TransportNew" component={TransportCreationScreen} />
+                      <RootStack.Screen name="TransportDetail" component={TransportDetailScreen} />
                     </RootStack.Navigator>
                   </AuthGateway>
                 </NavigationContainer>

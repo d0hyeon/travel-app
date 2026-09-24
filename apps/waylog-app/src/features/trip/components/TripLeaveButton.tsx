@@ -1,8 +1,8 @@
 import { useAuth } from '@waylog/domains/clients'
 import { useTrip } from '@waylog/domains/modules/trip'
-import { useRouter } from 'expo-router'
 import { Button } from '~/shared/components/design-system'
 import type { ButtonProps } from '~/shared/components/design-system/Button'
+import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
 import { useConfirmDialog } from '../../../shared/components/confirm-dialog/useConfirmDialog'
 
 interface Props extends ButtonProps {
@@ -17,12 +17,12 @@ export function TripLeaveButton({ tripId, children = '여행에서 나가기', .
     leave: leaveTrip,
   } = useTrip(tripId)
   const confirm = useConfirmDialog()
-  const router = useRouter()
+  const navigation = useAppNavigation()
 
   const handleLeaveTrip = async () => {
     if (!(await confirm('여행을 나가시겠어요?'))) return
 
-    router.replace('/')
+    navigation.reset({ index: 0, routes: [{ name: 'Home' }] })
     if (auth.id === userId) {
       await removeTrip()
       return

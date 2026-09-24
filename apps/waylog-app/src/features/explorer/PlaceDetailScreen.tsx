@@ -2,7 +2,6 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { usePlace } from '@waylog/domains/modules/place'
 import { usePlacePhotos } from '../place/usePlacePhotos'
 import { PlacePhotoStrip } from '../place/PlacePhotoStrip'
-import { useRouter } from 'expo-router'
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native'
 import { Suspense, useState } from 'react'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -12,25 +11,25 @@ import { palette, radius } from '../../shared/config/tokens'
 import { BottomSheet } from '../../shared/components/bottom-sheet/BottomSheet'
 import { useOverlay } from '../../shared/hooks/useOverlay'
 import { PostCard } from '../post/PostCard'
-import { useQueryParamState } from '../../shared/hooks/useQueryParamState'
+import { useAppNavigation, useAppRoute } from '../../shared/hooks/useAppNavigation'
 import { useExplorerPlaceFeed } from './useExplorerPlaceFeed'
 import { LoadableImage } from '../../shared/components/LoadableImage'
 
 type PlaceDetailTab = 'info' | 'feed'
 
-export function PlaceDetailScreen({ placeId }: { placeId: string }) {
+export function PlaceDetailScreen() {
+  const { params } = useAppRoute<'ExplorerDetail'>()
+  const { placeId } = params
   const insets = useSafeAreaInsets()
-  const router = useRouter()
-  const [currentTab, selectTab] = useQueryParamState<PlaceDetailTab>('tab', {
-    defaultValue: 'info',
-    parse: parsePlaceDetailTab,
-  })
+  const navigation = useAppNavigation()
+  // Task 8 에서 useQueryParamState(route params 기반)로 재교체 예정 — 지금은 임시로 useState.
+  const [currentTab, selectTab] = useState<PlaceDetailTab>('info')
   const { data: place } = usePlace(placeId)
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <View style={styles.header}>
-        <Pressable accessibilityLabel="장소 상세 닫기" onPress={() => router.back()} hitSlop={8} style={styles.backButton}>
+        <Pressable accessibilityLabel="장소 상세 닫기" onPress={() => navigation.goBack()} hitSlop={8} style={styles.backButton}>
           <MaterialIcons name="arrow-back" size={22} color={palette.text} />
         </Pressable>
         <Typography variant="subtitle1" numberOfLines={1} style={styles.headerTitle}>{place.name}</Typography>
@@ -80,7 +79,7 @@ function PlaceInfoContent({ placeId }: { placeId: string }) {
 
 function PlaceFeedContent({ placeId }: { placeId: string }) {
   const { data: posts } = useExplorerPlaceFeed(placeId)
-  const router = useRouter()
+  const navigation = useAppNavigation()
 
   if (posts.length === 0) {
     return <View style={styles.emptyFeed}><Typography variant="body2" color="text.secondary">아직 이 장소의 기록이 없어요</Typography></View>
@@ -88,7 +87,7 @@ function PlaceFeedContent({ placeId }: { placeId: string }) {
 
   return (
     <ScrollView style={styles.feed} contentContainerStyle={styles.feedContent} showsVerticalScrollIndicator={false}>
-      {posts.map((post) => <PostCard key={post.id} post={post} onPress={() => router.push(`/post/${post.id}`)} />)}
+      {posts.map((post) => <PostCard key={post.id} post={post} onPress={() => navigation.navigate('PostDetail', { postId: post.id })} />)}
     </ScrollView>
   )
 }

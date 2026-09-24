@@ -1,6 +1,5 @@
 import type { PlaceCategoryType } from '@waylog/domains/modules/place'
 import type { Location } from '@waylog/domains/modules/location'
-import { useRouter } from 'expo-router'
 import { Suspense } from 'react'
 import { StyleSheet, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'

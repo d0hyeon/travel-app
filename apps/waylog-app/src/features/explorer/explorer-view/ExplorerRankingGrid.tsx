@@ -1,8 +1,7 @@
-import { useRouter } from 'expo-router'
 import { StyleSheet, ScrollView, useWindowDimensions, View } from 'react-native'
 import { ExplorerPlaceCard } from '../explorer-place-item/ExplorerPlaceCard'
-import { buildExplorerPlaceDetailPath } from '../explorer.utils'
 import { ExplorerEmptyState } from './ExplorerEmptyState'
+import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
 import type { useScrollStatus } from '../../../shared/hooks/interaction/useScrollStatus'
 import type { ExplorerPlace } from '../useAttentionPlaces'
 
@@ -16,7 +15,7 @@ interface Props {
 /** 순위 화면(top-visited/recent-hot/most-saved) 공통 2열 그리드 목록. */
 export function ExplorerRankingGrid({ places, countLabel, onScroll, contentTopInset }: Props) {
   const { width } = useWindowDimensions()
-  const router = useRouter()
+  const navigation = useAppNavigation()
 
   return (
     <ScrollView
@@ -31,7 +30,7 @@ export function ExplorerRankingGrid({ places, countLabel, onScroll, contentTopIn
             key={place.placeId}
             width={(width - 44) / 2}
             place={{ ...place, countLabel: countLabel(place) }}
-            onPress={() => router.push(buildExplorerPlaceDetailPath(place.placeId))}
+            onPress={() => navigation.navigate('ExplorerDetail', { placeId: place.placeId })}
           />
         ))}
       </View>

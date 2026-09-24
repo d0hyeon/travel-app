@@ -1,12 +1,10 @@
 import type { Location } from '@waylog/domains/modules/location'
 import type { PlaceCategoryType } from '@waylog/domains/modules/place'
-import { withQueryParams } from '@waylog/utility'
-import { useRouter } from 'expo-router'
 import { ScrollView, StyleSheet, View } from 'react-native'
 import { ExplorerPlaceCard } from '../explorer-place-item/ExplorerPlaceCard'
 import { ExplorerEmptyState } from '../explorer-view/ExplorerEmptyState'
 import { SectionHeader } from '../explorer-view/SectionHeader'
-import { buildExplorerPlaceDetailPath } from '../explorer.utils'
+import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
 import { useRecentHotPlaces } from './useRecentHotPlaces'
 
 interface Props {
@@ -16,7 +14,7 @@ interface Props {
 
 export function RecentHotPlacesSection({ location, category }: Props) {
   const { data: hotPlaces } = useRecentHotPlaces(3, { location, category })
-  const router = useRouter()
+  const navigation = useAppNavigation()
   const places = hotPlaces.slice(0, 10);
 
   return (
@@ -24,9 +22,7 @@ export function RecentHotPlacesSection({ location, category }: Props) {
       <SectionHeader
         title="최근 핫한 곳이에요"
         onMore={() => {
-          router.push(
-            withQueryParams('/explorer/recent-hot', { category: category ?? '', location: location ?? '' })
-          )
+          navigation.navigate('ExplorerRecentHot', { category, location })
         }}
       />
       {places.length === 0 ? (
@@ -38,7 +34,7 @@ export function RecentHotPlacesSection({ location, category }: Props) {
               key={place.placeId}
               width={160}
               place={{ ...place, countLabel: `${place.visitorCount.toLocaleString()}번 방문` }}
-              onPress={() => router.push(buildExplorerPlaceDetailPath(place.placeId))}
+              onPress={() => navigation.navigate('ExplorerDetail', { placeId: place.placeId })}
             />
           ))}
         </ScrollView>

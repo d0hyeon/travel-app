@@ -1,6 +1,6 @@
 import { useTripTransports } from '@waylog/domains/modules/trip-transport'
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useAppNavigation, useAppRoute } from '../../../shared/hooks/useAppNavigation'
 import {
   TransportFormFunnel,
   type TransportSubmitValues,
@@ -10,15 +10,21 @@ import { useTransportTicketUpload } from './transport-ticket/useTransportTicketU
 const START_STEP = 'type'
 
 export function TransportCreationScreen() {
-  const router = useRouter()
-  const params = useLocalSearchParams<{ tripId?: string | string[] }>()
-  const tripId = Array.isArray(params.tripId) ? params.tripId[0] : (params.tripId ?? '')
+  const navigation = useAppNavigation()
+  const { params } = useAppRoute<'TransportNew'>()
+  const { tripId } = params
 
   const { add } = useTripTransports(tripId)
   const { upload } = useTransportTicketUpload(tripId)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<unknown>(null)
   const [step, setStep] = useState(START_STEP)
+
+  // 퍼널이 자체 스택을 갖는다. 두 스택에 제스처를 함께 열어두면 같은 스와이프를
+  // 다투어 스텝 백과 퍼널 이탈이 번갈아 일어난다. 첫 스텝에서만 부모가 받는다.
+  useEffect(() => {
+    navigation.setOptions({ gestureEnabled: step === START_STEP })
+  }, [navigation, step])
 
   const handleSubmit = async (values: TransportSubmitValues) => {
     setIsSubmitting(true)
@@ -48,7 +54,7 @@ export function TransportCreationScreen() {
       await upload({ transportId: created.id, tickets: values.tickets })
 
       // 뒤로가기로 퍼널에 되돌아오지 않도록 이 스크린을 목록으로 교체한다.
-      router.replace(`/trip/${tripId}/transport/${created.id}`);
+      navigation.replace('TransportDetail', { tripId, transportId: created.id })
     } catch (e) {
       setError(e)
     } finally {
@@ -57,17 +63,12 @@ export function TransportCreationScreen() {
   }
 
   return (
-    <>
-      {/* 퍼널이 자체 스택을 갖는다. 두 스택에 제스처를 함께 열어두면 같은 스와이프를
-          다투어 스텝 백과 퍼널 이탈이 번갈아 일어난다. 첫 스텝에서만 부모가 받는다. */}
-      <Stack.Screen options={{ gestureEnabled: step === START_STEP }} />
-      <TransportFormFunnel
-        tripId={tripId}
-        isSubmitting={isSubmitting}
-        error={error}
-        onStepChange={setStep}
-        onSubmit={handleSubmit}
-      />
-    </>
+    <TransportFormFunnel
+      tripId={tripId}
+      isSubmitting={isSubmitting}
+      error={error}
+      onStepChange={setStep}
+      onSubmit={handleSubmit}
+    />
   )
 }
