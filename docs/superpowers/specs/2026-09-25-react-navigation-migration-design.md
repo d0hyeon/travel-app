@@ -252,6 +252,28 @@ const linking: LinkingOptions<RootStackParamList> = {
 현재 방식을 그대로 유지한다. `EXPO_ROUTER_DISABLE_RN_NAVIGATION_CHECK` 환경변수와 그 검사 자체가
 사라지므로, 이 두 파일은 실질적으로 수정 없이 동작한다.
 
+## `useTripId` — 스코프별로 분리
+
+`src/features/trip/useTripId.ts`는 `useLocalSearchParams<{ tripId?: string }>()`로 전역
+파라미터를 읽는 헬퍼로, `TripDetail` 하위 탭 5개(`index`/`place`/`route`/`expense`/`photo`,
+`checklist`는 탭 밖으로 이동 예정)와 `TransportDetailScreen`(별도 스택 스크린)이 함께 쓴다.
+
+새 구조에서 이 둘은 서로 다른 파라미터 리스트에 속한다 — 탭 5개는 `TripDetailTabParamList`,
+`TransportDetailScreen`은 `RootStackParamList`의 `TransportDetail`. 하나의 훅으로 통일할 수
+없으므로 스코프별로 나눈다:
+
+- `useTripDetailTabTripId()` (`src/features/trip/useTripId.ts`에 함께 정의) —
+  `useTripDetailTabRoute().params.tripId`를 반환. `TripDetail` 탭 5개(`checklist` 이전 대상
+  `TripDetailChecklist` 포함하지 않음)가 쓴다.
+- `TransportDetailScreen`은 `useAppRoute<'TransportDetail'>().params.tripId`를 직접 쓴다
+  (별도 헬퍼 없이 인라인, 소비처가 1곳뿐이라 헬퍼로 뺄 이유가 없다).
+- `TripDetailChecklist`(`RootStackParamList`)는 `useAppRoute<'TripDetailChecklist'>().params.tripId`를
+  직접 쓴다(마찬가지로 소비처 1곳).
+
+기존 `useTripId`의 주석("한 번 더 렌더되므로 tripId를 잃는다")이 설명하던 expo-router 특유의
+전역 파라미터 렌더 타이밍 문제는, `@react-navigation`에서 각 스크린이 자기 자신의 route
+params를 직접 받는 구조로 바뀌면서 애초에 해당하지 않게 된다 — 우회 로직 자체가 불필요해진다.
+
 ## 마이그레이션 순서
 
 독립적으로 빌드 검증 가능한 단위로 나눈다. 각 단계 종료 시 `pnpm ios`로 실행 확인.
