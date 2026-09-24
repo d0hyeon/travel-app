@@ -1,12 +1,12 @@
 import { Skeleton, Stack, Typography } from '@mui/material'
 import {
   toFlightStatusView,
+  useFlightGateChange,
   useFlightStatus,
   type FlightStatusTone,
 } from '@waylog/domains/modules/flight-status'
-import { useTripTransportDetail } from '@waylog/domains/modules/trip-transport'
+import { useTripTransportTickets } from '@waylog/domains/modules/trip-transport'
 import { AsyncBoundary } from '@waylog/react'
-import { AirportArrivalGuidanceSection } from './AirportArrivalGuidanceSection'
 import { TransportDetailSectionError } from './transport-detail/TransportDetailSectionError'
 
 interface Props {
@@ -15,16 +15,16 @@ interface Props {
 }
 
 const TONE_COLOR: Record<FlightStatusTone, { bg: string; fg: string }> = {
-  normal: { bg: '#e8f4ff', fg: '#0b6bcb' },
-  warning: { bg: '#fff3e0', fg: '#d55a00' },
-  error: { bg: '#ffebee', fg: '#c62828' },
+  normal: { bg: '#EEF3FF', fg: '#3A63D8' },
+  warning: { bg: '#FFF4E6', fg: '#C5631A' },
+  error: { bg: '#FDECEC', fg: '#D14343' },
   done: { bg: '#f1f3f5', fg: '#5f6b76' },
 }
 
 export function TransportRealtimeInfoSection({ tripId, transportId }: Props) {
   return (
     <>
-      <AirportArrivalGuidanceSection tripId={tripId} transportId={transportId} />
+
       <AsyncBoundary
         resetKeys={[tripId, transportId]}
         pendingFallback={<TransportRealtimeInfoSkeleton />}
@@ -39,8 +39,10 @@ export function TransportRealtimeInfoSection({ tripId, transportId }: Props) {
 }
 
 function Resolved({ tripId, transportId }: Props) {
-  const { transport } = useTripTransportDetail({ tripId, transportId })
-  const { status, provider, isSupported } = useFlightStatus({
+  const {
+    data: { transport },
+  } = useTripTransportTickets({ tripId, transportId })
+  const { status, isSupported } = useFlightStatus({
     airlineCode: transport.type === 'flight' ? transport.airlineCode : undefined,
     flightNumber: transport.type === 'flight' ? transport.flightNumber : undefined,
     departureAirportCode: transport.departureAirportCode,
@@ -48,11 +50,13 @@ function Resolved({ tripId, transportId }: Props) {
     departureAt: transport.departureAt,
   })
 
+  const gateChange = useFlightGateChange(transport.type === 'flight' ? transportId : undefined)
+
   // 코드 없이 등록된 교통편과 인천을 지나지 않는 노선은 조회할 곳이 없다.
   // 빈 카드를 남기면 데이터를 기다리는 것처럼 보인다.
   if (!isSupported) return null
 
-  const view = toFlightStatusView(status)
+  const view = toFlightStatusView(status, gateChange)
   if (view == null) return null
 
   const color = TONE_COLOR[view.tone]
@@ -61,24 +65,42 @@ function Resolved({ tripId, transportId }: Props) {
     <Stack
       gap={0.75}
       p={2}
-      borderRadius={4}
+      borderRadius={3}
       bgcolor={color.bg}
       aria-label={`${transport.type} 실시간 정보`}
     >
       <Typography fontSize={13} fontWeight={700} color={color.fg}>
-        실시간 정보
+        {view.title}
       </Typography>
-      <Typography fontSize={14}>{view.title}</Typography>
-      {view.description != null && (
-        <Typography fontSize={12.5} color="text.secondary">
-          {view.description}
-        </Typography>
-      )}
-      {provider != null && (
-        <Typography fontSize={11.5} color="text.secondary">
-          {provider} 제공
-        </Typography>
-      )}
+      <Typography fontSize={13} color="text.primary" lineHeight={1.5}>
+        {view.timeChange != null && (
+          <>
+            출발 시간이{' '}
+            <Typography component="span" fontSize="inherit" color="text.disabled" sx={{ textDecoration: 'line-through' }}>
+              {view.timeChange.fromClock}
+            </Typography>{' '}
+            →{' '}
+            <Typography component="span" fontSize="inherit" fontWeight={700} color={color.fg}>
+              {view.timeChange.toClock}
+            </Typography>
+            로 변경됐어요.
+          </>
+        )}
+        {view.gateChange != null && (
+          <>
+            탑승구가{' '}
+            <Typography component="span" fontSize="inherit" color="text.disabled" sx={{ textDecoration: 'line-through' }}>
+              {view.gateChange.fromGate}
+            </Typography>{' '}
+            →{' '}
+            <Typography component="span" fontSize="inherit" fontWeight={700} color={color.fg}>
+              {view.gateChange.toGate}
+            </Typography>
+            (으)로 변경됐어요.
+          </>
+        )}
+        {view.description}
+      </Typography>
     </Stack>
   )
 }

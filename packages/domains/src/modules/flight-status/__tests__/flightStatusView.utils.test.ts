@@ -12,10 +12,9 @@ describe('toFlightStatusView', () => {
       estimatedAt: '2026-09-17T20:00:00+09:00',
     })
 
-    expect(view.tone).toBe('warning')
-    expect(view.title).toBe('20분 지연')
-    expect(view.description).toContain('19:40')
-    expect(view.description).toContain('20:00')
+    expect(view?.tone).toBe('warning')
+    expect(view?.title).toBe('항공편이 20분 지연됐어요')
+    expect(view?.timeChange).toEqual({ fromClock: '19:40', toClock: '20:00' })
   })
 
   it('한 시간을 넘긴 지연은 시간으로 읽는다', () => {
@@ -25,43 +24,58 @@ describe('toFlightStatusView', () => {
       estimatedAt: '2026-09-17T21:45:00+09:00',
     })
 
-    expect(view.title).toBe('2시간 45분 지연')
+    expect(view?.title).toBe('항공편이 2시간 45분 지연됐어요')
   })
 
-  it('결항은 변경 시각을 말하지 않는다', () => {
+  it('결항은 출발 예정 시각과 함께 안내한다', () => {
     const view = toFlightStatusView({ kind: FlightStatusKind.결항, scheduledAt })
 
-    expect(view.tone).toBe('error')
-    expect(view.title).toBe('결항')
-    expect(view.description).toBeUndefined()
+    expect(view?.tone).toBe('error')
+    expect(view?.title).toBe('항공편이 결항됐어요')
+    expect(view?.description).toContain('19:40')
   })
 
   it('회항을 알린다', () => {
     const view = toFlightStatusView({ kind: FlightStatusKind.회항, scheduledAt })
 
-    expect(view.tone).toBe('error')
-    expect(view.title).toBe('회항')
+    expect(view?.tone).toBe('error')
+    expect(view?.title).toBe('도착지가 변경됐어요')
+    expect(view?.description).toBeDefined()
   })
 
-  it('예정은 정상으로 보이고 예정 시각을 말한다', () => {
-    const view = toFlightStatusView({ kind: FlightStatusKind.예정, scheduledAt })
+  it('탑승구가 바뀐 예정편은 이전 → 변경 탑승구를 대조한다', () => {
+    const view = toFlightStatusView(
+      { kind: FlightStatusKind.예정, scheduledAt, gate: '41' },
+      { gate: '41', prevGate: '23' },
+    )
 
-    expect(view.tone).toBe('normal')
-    expect(view.title).toBe('정상 운항 예정')
-    expect(view.description).toContain('19:40')
+    expect(view?.tone).toBe('normal')
+    expect(view?.title).toBe('탑승구가 변경 됐어요')
+    expect(view?.gateChange).toEqual({ fromGate: '23', toGate: '41' })
   })
 
-  it('출발·도착은 완료로 보인다', () => {
-    expect(toFlightStatusView({ kind: FlightStatusKind.출발, scheduledAt }).tone).toBe('done')
-    expect(toFlightStatusView({ kind: FlightStatusKind.도착, scheduledAt }).title).toBe('도착')
+  // 화면에 실을 변경은 지연·결항·회항·탑승구 변경 네 가지뿐이다.
+  it('탑승구가 바뀌지 않았으면 알릴 변경이 없어 카드를 만들지 않는다', () => {
+    expect(
+      toFlightStatusView(
+        { kind: FlightStatusKind.예정, scheduledAt, gate: '41' },
+        { gate: '41', prevGate: '41' },
+      ),
+    ).toBeNull()
   })
 
-  // 지연으로 왔는데 변경 시각이 없으면 분을 셀 수 없다.
-  it('지연인데 변경 시각이 없으면 분을 만들어내지 않는다', () => {
-    const view = toFlightStatusView({ kind: FlightStatusKind.지연, scheduledAt })
+  it('이전 탑승구를 모르면 대조할 수 없어 카드를 만들지 않는다', () => {
+    expect(toFlightStatusView({ kind: FlightStatusKind.예정, scheduledAt, gate: '41' })).toBeNull()
+  })
 
-    expect(view.title).toBe('지연')
-    expect(view.tone).toBe('warning')
+  it('출발·도착은 알릴 변경이 없어 카드를 만들지 않는다', () => {
+    expect(toFlightStatusView({ kind: FlightStatusKind.출발, scheduledAt })).toBeNull()
+    expect(toFlightStatusView({ kind: FlightStatusKind.도착, scheduledAt })).toBeNull()
+  })
+
+  // 지연으로 왔는데 변경 시각이 없으면 분을 셀 수 없다 -- 알릴 변경이 아니다.
+  it('지연인데 변경 시각이 없으면 카드를 만들지 않는다', () => {
+    expect(toFlightStatusView({ kind: FlightStatusKind.지연, scheduledAt })).toBeNull()
   })
 
   // 예정 시각보다 앞당겨지는 편이 실제로 있다(KE647Y).
@@ -72,7 +86,7 @@ describe('toFlightStatusView', () => {
       estimatedAt: '2026-09-16T23:42:00+09:00',
     })
 
-    expect(view.title).toBe('지연')
+    expect(view).toBeNull()
   })
 
   it('상태가 없으면 아무것도 보여주지 않는다', () => {

@@ -50,6 +50,8 @@ interface TransportRow {
 
 interface StatusRow {
   transport_id: string
+  gate: string | null
+  prev_gate: string | null
   last_notified_kind: string | null
   last_notified_estimated_at: string | null
   last_notified_gate: string | null
@@ -194,7 +196,7 @@ Deno.serve(async () => {
 
   const { data: previousRows } = await supabase
     .from('trip_transport_flight_status')
-    .select('transport_id, last_notified_kind, last_notified_estimated_at, last_notified_gate')
+    .select('transport_id, gate, prev_gate, last_notified_kind, last_notified_estimated_at, last_notified_gate')
     .in(
       'transport_id',
       watched.map((t: TransportRow) => t.id),
@@ -233,12 +235,20 @@ Deno.serve(async () => {
       if (sent > 0) notified += 1
     }
 
+    // 알림 발송 여부와 무관하게, 실제 gate 가 바뀐 순간의 직전 값을 그대로
+    // 남긴다. 안 바뀌었으면 이미 저장된 이전 값을 지키고, 저장된 적이
+    // 없으면(첫 조회) 비교 대상이 없어 비워둔다.
+    const isRealGateChanged =
+      previous != null && previous.gate != null && status.gate != null && previous.gate !== status.gate
+    const prevGate = isRealGateChanged ? previous.gate : (previous?.prev_gate ?? null)
+
     await supabase.from('trip_transport_flight_status').upsert({
       transport_id: transport.id,
       kind: status.kind,
       scheduled_at: toIsoFromApiDateTime(flight.scheduleDateTime),
       estimated_at: status.estimatedAt,
       gate: status.gate,
+      prev_gate: prevGate,
       // 보내지 못했으면 직전 값을 지킨다. 지우면 다음 턴에 다시 보낸다.
       last_notified_kind: shouldNotify ? status.kind : (previous?.last_notified_kind ?? null),
       last_notified_estimated_at: shouldNotify
