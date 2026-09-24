@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Skeleton, Stack, Typography, type StackProps } from "~/shared/components/design-system";
 import { Suspense } from "react";
 import { StyleSheet, Pressable } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useAppNavigation } from '../../../shared/hooks/useAppNavigation';
 import { ListItem } from "../../../shared/components/ListItem";
 import { useTripMemo } from '@waylog/domains/modules/trip-memo';
 import { getMemoDisplayTitle } from './memoTitle';
@@ -36,7 +36,7 @@ function Pending({ tripId: _tripId, hideOnEmpty: _hideOnEmpty, ...props }: Props
 
 function Resolved({ tripId, hideOnEmpty, ...props }: Props) {
   const { data: { pinnedMemos } } = useTripMemo(tripId);
-  const router = useRouter();
+  const navigation = useAppNavigation();
 
   if (pinnedMemos.length === 0 && hideOnEmpty) return null;
 
@@ -57,7 +57,7 @@ function Resolved({ tripId, hideOnEmpty, ...props }: Props) {
         const previewText = hasExplicitTitle ? preview : null;
 
         return (
-          <Pressable key={memo.id} onPress={() => router.push(`/trip/${tripId}/memo/${memo.id}`)}>
+          <Pressable key={memo.id} onPress={() => navigation.navigate('TripMemoDetail', { tripId, memoId: memo.id })}>
             <ListItem
               leftAddon={<MaterialIcons name="push-pin" size={16} color="#4C84FF" />}
               style={styles.memoItem}

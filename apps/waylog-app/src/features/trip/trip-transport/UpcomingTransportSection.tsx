@@ -7,10 +7,10 @@ import {
   useAirportArrivalGuidances,
   type AirportArrivalGuidance,
 } from '@waylog/domains/modules/airport-arrival-guidance'
-import { useRouter } from 'expo-router'
 import { useMemo } from 'react'
 import { Dimensions, ScrollView, StyleSheet, View, type ViewProps } from 'react-native'
 import { Button, Typography } from '~/shared/components/design-system'
+import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
 import { palette } from '../../../shared/config/tokens'
 import { TransportCard } from './TransportCard'
 import { useTicketViewerOverlay } from './transport-ticket/useTicketViewerOverlay'
@@ -76,7 +76,7 @@ interface BoardingPassCardProps extends ViewProps {
 }
 
 function BoardingPassCard({ tripId, transport, airportArrivalGuidance, style, ...props }: BoardingPassCardProps) {
-  const router = useRouter()
+  const navigation = useAppNavigation()
   const ticketViewer = useTicketViewerOverlay()
 
   // 티켓 이미지는 카드에 넣지 않는다. 카드가 티켓 자체로 보이면
@@ -88,7 +88,7 @@ function BoardingPassCard({ tripId, transport, airportArrivalGuidance, style, ..
       <TransportCard
         transport={transport}
         airportArrivalGuidance={airportArrivalGuidance}
-        onPress={() => router.push(`/trip/${tripId}/transport/${transport.id}`)}
+        onPress={() => navigation.navigate('TransportDetail', { tripId, transportId: transport.id })}
       />
       {firstTicket != null && (
         <View style={styles.ticketAction}>

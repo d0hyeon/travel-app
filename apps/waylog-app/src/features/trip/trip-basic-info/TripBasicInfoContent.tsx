@@ -1,10 +1,9 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { useRouter } from 'expo-router'
 import { StyleSheet, ScrollView } from 'react-native'
 import { Box, Fab, Stack, Tab, Tabs, Typography } from "~/shared/components/design-system"
-import { Suspense } from 'react'
+import { Suspense, useState } from 'react'
 import { ErrorBoundary } from '@waylog/react'
-import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
+import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
 import { TripChecklist } from '../trip-checklist/TripChecklist'
 import { useTripChecklistFormOverlay } from '../trip-checklist/useTripChecklistFormOverlay'
 import { TripDeadlineChecklist } from '../trip-checklist/TripDeadlineChecklist'
@@ -26,9 +25,10 @@ interface Props {
 }
 
 export function TripBasicInfoContent({ tripId }: Props) {
-  const [currentTab, setCurrentTab] = useQueryParamState('info-tab', { defaultValue: 'default' })
+  // Task 8 에서 useQueryParamState(route params 기반)로 재교체 예정 — 지금은 임시로 useState.
+  const [currentTab, setCurrentTab] = useState('default')
   const checklistForm = useTripChecklistFormOverlay(tripId)
-  const router = useRouter()
+  const navigation = useAppNavigation()
 
 
   return (
@@ -120,13 +120,13 @@ export function TripBasicInfoContent({ tripId }: Props) {
             <ScrollView contentContainerStyle={styles.scrollContent}>
               <TripTransportList
                 tripId={tripId}
-                onTransportPress={(transportId) => router.push(`/trip/${tripId}/transport/${transportId}`)}
+                onTransportPress={(transportId) => navigation.navigate('TransportDetail', { tripId, transportId })}
               />
             </ScrollView>
             <Fab
               color="primary"
               size="medium"
-              onPress={() => router.push(`/trip/${tripId}/transport/new`)}
+              onPress={() => navigation.navigate('TransportNew', { tripId })}
               style={styles.addButton}
             >
               <MaterialIcons name="add" size={24} color="#fff" />

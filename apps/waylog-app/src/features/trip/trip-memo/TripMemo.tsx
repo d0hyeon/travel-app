@@ -1,8 +1,8 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { Box, Button, Fab, Skeleton, Stack, Typography } from '~/shared/components/design-system';
 import { Suspense, useRef } from 'react';
-import { useRouter } from 'expo-router';
 import { StyleSheet, Pressable } from 'react-native';
+import { useAppNavigation } from '../../../shared/hooks/useAppNavigation';
 import { useOverlay } from '../../../shared/hooks/useOverlay';
 import { useTripMemo } from '@waylog/domains/modules/trip-memo';
 import type { TripMemo as TripMemoType } from '@waylog/domains/modules/trip-memo';
@@ -108,10 +108,10 @@ function MemoRow({ tripId, memo }: MemoRowProps) {
   const hasExplicitTitle = trimmedTitle.length > 0;
   const previewText = hasExplicitTitle ? preview : null;
   const date = formatDate(memo.createdAt, 'yyyy-MM-dd');
-  const router = useRouter();
+  const navigation = useAppNavigation();
 
   return (
-    <Pressable onPress={() => router.push(`/trip/${tripId}/memo/${memo.id}`)}>
+    <Pressable onPress={() => navigation.navigate('TripMemoDetail', { tripId, memoId: memo.id })}>
       <Stack
         direction="row"
         alignItems="center"

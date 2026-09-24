@@ -26,6 +26,8 @@ import { tamaguiConfig } from '../../tamagui.config'
 import type { RootStackParamList } from './routes'
 import { HomeTabs } from './HomeTabs'
 import { NotYetMigratedScreen } from './NotYetMigratedScreen'
+import { TripDetailStack } from '../features/trip/TripDetailStack'
+import { TripDetailChecklistScreen } from '../features/trip/trip-checklist/TripDetailChecklistScreen'
 
 setupApi()
 LogBox.ignoreLogs([ExceptionError.name])
@@ -71,8 +73,8 @@ export function RootNavigator() {
                       <RootStack.Screen name="Home" component={HomeTabs} options={{ animation: 'none' }} />
                       <RootStack.Screen name="Login" component={LoginRoute} />
                       {/* Task 5, 6에서 하나씩 실제 스크린으로 교체되며 이 배열에서 빠진다. */}
-                      <RootStack.Screen name="TripDetail" component={NotYetMigratedScreen} />
-                      <RootStack.Screen name="TripDetailChecklist" component={NotYetMigratedScreen} />
+                      <RootStack.Screen name="TripDetail" component={TripDetailStack} />
+                      <RootStack.Screen name="TripDetailChecklist" component={TripDetailChecklistScreen} />
                       <RootStack.Screen name="TripMemoDetail" component={NotYetMigratedScreen} />
                       <RootStack.Screen name="TripMemoEdit" component={NotYetMigratedScreen} />
                       <RootStack.Screen name="TripCreate" component={NotYetMigratedScreen} />

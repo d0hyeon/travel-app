@@ -10,15 +10,13 @@ import { TransportOperationalInfoSection } from '../TransportOperationalInfoSect
 import { TransportRealtimeInfoSection } from '../TransportRealtimeInfoSection'
 import { TransportSummarySection } from '../TransportSummarySection'
 import { TransportTicketsSection } from '../transport-ticket/TransportTicketsSection'
-import { useTripId } from '../../useTripId'
-import { useTransportId } from '../useTransportId'
+import { useAppRoute } from '../../../../shared/hooks/useAppNavigation'
 import { PushNotificationCard } from '../../../auth/PushNotificationCard'
 import { Box, Stack } from '~/shared/components/design-system'
 import { AirportArrivalGuidanceSection } from '../AirportArrivalGuidanceSection'
 
 export function TransportDetailScreen() {
-  const tripId = useTripId()
-  const transportId = useTransportId()
+  const { params: { tripId, transportId } } = useAppRoute<'TransportDetail'>()
 
   return (
     <SafeAreaView style={styles.screen}>

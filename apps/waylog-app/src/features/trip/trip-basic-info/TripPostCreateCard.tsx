@@ -1,8 +1,8 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { useTrip } from '@waylog/domains/modules/trip'
-import { useRouter } from 'expo-router'
 import { StyleSheet, Pressable } from 'react-native'
 import { Stack, Typography } from '~/shared/components/design-system'
+import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
 
 interface Props {
   tripId: string
@@ -10,14 +10,14 @@ interface Props {
 
 export function TripPostCreateCard({ tripId }: Props) {
   const { data: trip } = useTrip(tripId)
-  const router = useRouter()
+  const navigation = useAppNavigation()
 
   if (!isTripOver(trip.endDate)) return null
 
   return (
     <Pressable
       accessibilityLabel="여행을 회고하는 포스트 만들기"
-      onPress={() => router.push({ pathname: '/post/new', params: { tripId } })}
+      onPress={() => navigation.navigate('PostNew', { tripId })}
       style={styles.card}
     >
       <Stack style={styles.icon}>

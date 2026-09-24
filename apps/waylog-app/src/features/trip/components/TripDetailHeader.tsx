@@ -1,5 +1,5 @@
 import { useTrip } from '@waylog/domains/modules/trip'
-import { useLocalSearchParams, useRouter } from 'expo-router'
+import { useAppNavigation, useAppRoute } from '../../../shared/hooks/useAppNavigation'
 import { StyleSheet, Pressable } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Suspense } from 'react'
@@ -29,12 +29,13 @@ function TripDetailHeaderSkeleton() {
 }
 
 function Resolved() {
-  const { tripId } = useLocalSearchParams<{ tripId: string }>()
-  const router = useRouter()
+  const { params } = useAppRoute<'TripDetail'>()
+  const { tripId } = params
+  const navigation = useAppNavigation()
   const { data: trip, update } = useTrip(tripId)
   return (
     <Stack direction="row" alignItems="center" style={styles.header}>
-      <Pressable accessibilityLabel="뒤로가기" onPress={() => router.back()} style={styles.backButton}>
+      <Pressable accessibilityLabel="뒤로가기" onPress={() => navigation.goBack()} style={styles.backButton}>
         <MaterialIcons name="arrow-back" size={22} color={palette.text} />
       </Pressable>
       <Stack style={styles.titleArea}>

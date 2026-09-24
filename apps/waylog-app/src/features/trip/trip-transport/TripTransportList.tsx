@@ -8,10 +8,10 @@ import { getSupportedFlightStatusAirportCodes } from '@waylog/domains/modules/fl
 import { useAirports } from '@waylog/domains/modules/airport'
 import { MaterialIcons } from '@expo/vector-icons'
 import { format as formatDate } from 'date-fns'
-import { useRouter } from 'expo-router'
 import { useMemo } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Accordion, Box, Button, Stack, Typography } from '~/shared/components/design-system'
+import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
 import { palette } from '../../../shared/config/tokens'
 import { TransportCard } from './TransportCard'
 
@@ -26,7 +26,7 @@ export function TripTransportList({ tripId, onTransportPress }: Props) {
     tripId,
     transportIds: transports.map((transport) => transport.id),
   })
-  const router = useRouter()
+  const navigation = useAppNavigation()
 
   // 렌더마다 기준 시각이 달라지면 목록이 흔들린다. 조회 결과가 바뀔 때만 다시 가른다.
   const { past, upcoming } = useMemo(() => splitByDeparture(transports, new Date()), [transports])
@@ -53,7 +53,7 @@ export function TripTransportList({ tripId, onTransportPress }: Props) {
           size="large"
           variant="contained"
           startIcon={<MaterialIcons name="add" size={18} color={palette.onPrimary} />}
-          onPress={() => router.push(`/trip/${tripId}/transport/new`)}
+          onPress={() => navigation.navigate('TransportNew', { tripId })}
         >
           탑승권 등록
         </Button>
