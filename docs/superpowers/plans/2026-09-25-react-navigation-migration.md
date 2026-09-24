@@ -1658,3 +1658,391 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
 EOF
 )"
 ```
+
+---
+
+## Task 7: 딥링크 연결
+
+**Files:**
+- Modify: `apps/waylog-app/src/app/RootNavigator.tsx` (`linking` config 추가)
+
+**Interfaces:**
+- Consumes: `RootStackParamList` (Task 1)
+
+**배경**: 여행 초대 링크(`trip/invite/:shareLink`)를 딥링크로 연결한다. 카카오 로그인 콜백
+(`waylog://auth/callback`)은 화면 전환이 아니라 Supabase 인증 SDK(`@waylog/domains/clients`)가
+자체적으로 처리하는 리스너이므로 `linking.config.screens`에 포함하지 않는다 — 이 부분은
+`LoginScreen.tsx`의 `Linking.createURL('auth/callback')` 호출을 포함해 변경하지 않는다.
+
+- [ ] **Step 1: `RootNavigator.tsx`에 `linking` config 추가**
+
+```tsx
+// apps/waylog-app/src/app/RootNavigator.tsx
+import { NavigationContainer, type LinkingOptions } from '@react-navigation/native'
+// ...
+
+const linking: LinkingOptions<RootStackParamList> = {
+  prefixes: ['waylog://', 'https://waylog.me', 'https://www.waylog.me'],
+  config: {
+    screens: {
+      TripInvite: 'trip/invite/:shareLink',
+    },
+  },
+}
+
+export function RootNavigator() {
+  return (
+    // ...
+            <NavigationContainer linking={linking}>
+    // ...
+  )
+}
+```
+
+- [ ] **Step 2: 타입 검증**
+
+Run: `cd apps/waylog-app && pnpm exec tsc --noEmit`
+Expected: 에러 없음.
+
+- [ ] **Step 3: 딥링크 동작 확인**
+
+Run (시뮬레이터가 실행 중인 상태에서):
+```bash
+xcrun simctl openurl booted "waylog://trip/invite/test-share-link"
+```
+Expected: 앱이 이미 떠 있으면 `TripInvite` 화면으로 즉시 전환된다(`shareLink` 파라미터로
+"test-share-link"를 받아 `useInvitedTrip` 조회를 시도 — 존재하지 않는 링크라 에러 화면이
+떠도 정상, 확인 대상은 화면 전환 자체다).
+
+앱을 완전히 종료한 뒤(cold start) 같은 명령을 실행해 콜드 스타트에서도 `TripInvite`로 바로
+진입되는지 추가로 확인한다:
+```bash
+xcrun simctl terminate booted me.waylog.app
+xcrun simctl openurl booted "waylog://trip/invite/test-share-link"
+```
+
+카카오 로그인 버튼을 눌러 로그인 플로우가 기존과 동일하게 동작하는지도 확인한다(콜백 URL이
+화면 전환을 일으키지 않고 세션만 갱신하는지).
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add apps/waylog-app/src/app/RootNavigator.tsx
+git commit -m "$(cat <<'EOF'
+feat(앱): 여행 초대 딥링크를 react-navigation linking으로 연결한다
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+EOF
+)"
+```
+
+---
+
+## Task 8: `useQueryParamState` route params 기반 정식 재구현
+
+**Files:**
+- Modify: `apps/waylog-app/src/shared/hooks/useQueryParamState.ts` (전체 재작성)
+- Modify: `apps/waylog-app/src/features/explorer/PlaceDetailScreen.tsx` (임시 `useState` → 정식 재교체)
+- Modify: `apps/waylog-app/src/features/explorer/explorer-filters/useExplorerFilterParams.ts`
+- Modify: `apps/waylog-app/src/features/explorer/explorer-view/useExplorerViewMode.ts`
+- Modify: `apps/waylog-app/src/features/user-profile/UserProfileScreen.tsx` (임시 `useState` → 정식 재교체)
+- Modify: `apps/waylog-app/src/features/trip/trip-route/useActiveTripDay.ts` (임시 `useState` → 정식 재교체)
+- Modify: `apps/waylog-app/src/features/trip/trip-route/TripRoutesContent.tsx` (임시 `useState` → 정식 재교체)
+- Modify: `apps/waylog-app/src/features/trip/trip-create/TripCreateScreen.tsx` (임시 `useState` → 정식 재교체)
+- Modify: `apps/waylog-app/src/features/trip/trip-basic-info/TripBasicInfoContent.tsx` (임시 `useState` → 정식 재교체)
+
+**Interfaces:**
+- Consumes: `useAppNavigation`, `useAppRoute` (Task 2)
+- Produces: `useQueryParamState<T>(key, options): [T, Dispatch<T>]` (시그니처 무변경, 9곳 호출부는
+  이 태스크에서 손대지 않는다 — 단, Task 4~6에서 임시로 `useState`로 바꿔둔 8곳은 원래
+  `useQueryParamState` 호출로 되돌린다)
+
+**배경**: Task 4~6에서 앱이 계속 실행 가능한 상태를 유지하기 위해 9곳 중 8곳
+(`TripBasicInfoContent`, `TripRoutesContent`, `useActiveTripDay`, `TripCreateScreen`,
+`UserProfileScreen`, `PlaceDetailScreen`)을 임시로 `useState`로 바꿔뒀다(`useExplorerFilterParams`,
+`useExplorerViewMode`는 아직 손대지 않음 — Task 6에서 명시적으로 건드리지 않았다). 이 태스크에서
+`useQueryParamState` 자체를 route params 기반으로 정식 재구현하고, 임시로 바꿨던 곳을 전부
+원래 훅 호출로 되돌린다.
+
+- [ ] **Step 1: `useQueryParamState.ts`를 route params 기반으로 재작성**
+
+```ts
+// apps/waylog-app/src/shared/hooks/useQueryParamState.ts
+import { useCallback, useEffect, useState } from 'react'
+import { useAppNavigation, useAppRoute } from './useAppNavigation'
+
+interface OptionWithDefault<T> {
+  parse?: (value: string) => T
+  defaultValue: T | (() => T)
+}
+
+interface Options<T> {
+  parse?: (value?: string) => T
+  defaultValue?: T | (() => T)
+}
+
+type Dispatch<A> = (value: A) => void
+
+export function useQueryParamState<T>(key: string, options: OptionWithDefault<T>): [T, Dispatch<T>]
+export function useQueryParamState<T>(
+  key: string,
+  options?: Options<T>,
+): [T | undefined, Dispatch<T | undefined>]
+
+export function useQueryParamState<T>(
+  key: string,
+  { defaultValue, parse }: Options<T> | OptionWithDefault<T> = {},
+) {
+  const navigation = useAppNavigation()
+  const route = useAppRoute()
+
+  const raw = (route.params as Record<string, unknown> | undefined)?.[key]
+  const param = typeof raw === 'string' ? raw : undefined
+
+  const resolvedFromParam = useMemo(() => {
+    if (param == null) {
+      return defaultValue instanceof Function ? defaultValue() : defaultValue
+    }
+
+    if (param === '') return undefined
+
+    return parse != null ? parse(param) : param
+  }, [param])
+
+  // navigation.setParams 도 router.setParams 와 마찬가지로 다음 렌더에야 반영될 수 있다.
+  // 그 사이 param 이 순간적으로 이전 값(또는 defaultValue)으로 읽히면 화면이 한 프레임
+  // 초기화된 것처럼 깜빡인다. 요청 즉시 반영되는 로컬 값을 두고, params 가 실제로 그
+  // 값에 수렴하면 그대로 유지한다.
+  const [optimisticValue, setOptimisticValue] = useState(resolvedFromParam)
+
+  useEffect(() => {
+    setOptimisticValue(resolvedFromParam)
+  }, [resolvedFromParam])
+
+  const setValue = useCallback(
+    (next: T) => {
+      setOptimisticValue(next)
+      navigation.setParams({ [key]: next == null ? '' : String(next) } as never)
+    },
+    [key, navigation],
+  )
+
+  return [optimisticValue, setValue]
+}
+```
+
+`useMemo`를 새로 import해야 한다(`import { useCallback, useEffect, useMemo, useState } from 'react'`).
+
+- [ ] **Step 2: 8곳의 임시 `useState`를 `useQueryParamState` 호출로 되돌림**
+
+```tsx
+// TripBasicInfoContent.tsx
+// 변경 전(Task 5에서 임시): const [currentTab, setCurrentTab] = useState('default')
+// 변경 후:
+import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
+const [currentTab, setCurrentTab] = useQueryParamState('info-tab', { defaultValue: 'default' })
+```
+
+```ts
+// useActiveTripDay.ts
+// 변경 전(Task 5에서 임시): const [value, update] = useState<string>(() => getDefaultTripDay(...))
+// 변경 후:
+import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
+const [value, update] = useQueryParamState<string>('days', {
+  defaultValue: () => getDefaultTripDay(trip, new Date().toISOString().split('T')[0]!),
+})
+```
+
+```tsx
+// TripRoutesContent.tsx
+// 변경 전(Task 5에서 임시): const [selectedRouteId, setSelectedRouteId] = useState<string>(() => routes[0]?.id ?? '')
+// 변경 후:
+import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
+const [selectedRouteId, setSelectedRouteId] = useQueryParamState<string>('route-id', {
+  defaultValue: () => routes[0]?.id ?? '',
+})
+```
+
+```tsx
+// TripCreateScreen.tsx
+// 변경 전(Task 6에서 임시): const [step, setStep] = useState<Step>('destination')
+// 변경 후:
+import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
+const [step, setStep] = useQueryParamState<Step>('step', { defaultValue: 'destination' })
+```
+
+```tsx
+// UserProfileScreen.tsx
+// 변경 전(Task 4에서 임시): const [currentTab, selectTab] = useState<ProfileTab>('feed')
+// 변경 후:
+import { useQueryParamState } from '../../shared/hooks/useQueryParamState'
+const [currentTab, selectTab] = useQueryParamState<ProfileTab>('tab', { defaultValue: 'feed', parse: parseProfileTab })
+```
+
+```tsx
+// PlaceDetailScreen.tsx
+// 변경 전(Task 6에서 임시): const [currentTab, selectTab] = useState<PlaceDetailTab>('info')
+// 변경 후:
+import { useQueryParamState } from '../../shared/hooks/useQueryParamState'
+const [currentTab, selectTab] = useQueryParamState<PlaceDetailTab>('tab', {
+  defaultValue: 'info',
+  parse: parsePlaceDetailTab,
+})
+```
+
+- [ ] **Step 3: `useExplorerFilterParams`, `useExplorerViewMode` 동작 확인**
+
+이 두 훅은 Task 4~6에서 손대지 않았다 — `useQueryParamState`를 그대로 호출하고 있었으므로
+Step 1의 재구현이 적용되면 자동으로 route params 기반으로 동작한다. 코드 변경 없이 동작만
+확인한다.
+
+- [ ] **Step 4: 타입 검증**
+
+Run: `cd apps/waylog-app && pnpm exec tsc --noEmit`
+Expected: 에러 없음.
+
+- [ ] **Step 5: 실기기/시뮬레이터 확인 — Review Focus의 낙관적 업데이트 항목 집중 확인**
+
+Run: `pnpm --filter waylog-app ios`
+
+다음을 실기기에서 빠르게 반복해 깜빡임이나 이전 값으로의 역행이 없는지 확인한다:
+- 여행 상세 "정보" 탭에서 기본정보/체크리스트/메모/교통편 탭을 빠르게 연속 전환
+- 여행 상세 "계획" 탭에서 날짜와 경로를 빠르게 연속 전환
+- 탐색 → 장소 상세에서 기본정보/피드 탭을 빠르게 연속 전환
+- 프로필 화면에서 피드/기록 탭을 빠르게 연속 전환
+- 여행 만들기 위저드에서 뒤로/앞으로 스텝 이동
+
+Expected: 탭 전환 시 화면이 한 프레임 이전 상태로 돌아가거나 깜빡이지 않는다(Review Focus의
+"낙관적 업데이트가 실제로 동작하는지" 항목).
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add apps/waylog-app/src/shared/hooks/useQueryParamState.ts apps/waylog-app/src/features/explorer/PlaceDetailScreen.tsx apps/waylog-app/src/features/user-profile/UserProfileScreen.tsx apps/waylog-app/src/features/trip/trip-route/useActiveTripDay.ts apps/waylog-app/src/features/trip/trip-route/TripRoutesContent.tsx apps/waylog-app/src/features/trip/trip-create/TripCreateScreen.tsx apps/waylog-app/src/features/trip/trip-basic-info/TripBasicInfoContent.tsx
+git commit -m "$(cat <<'EOF'
+feat(앱): useQueryParamState를 route params 기반으로 재구현한다
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+EOF
+)"
+```
+
+---
+
+## Task 9: expo-router 제거, 폼 퍼널 검증, 최종 정리
+
+**Files:**
+- Delete: `apps/waylog-app/app/` (디렉토리 전체)
+- Modify: `apps/waylog-app/package.json` (`expo-router` 의존성 제거)
+- Modify: `apps/waylog-app/app.config.ts` (`expo-router` 플러그인 제거)
+- Modify: `apps/waylog-app/src/app/NotYetMigratedScreen.tsx` (삭제 — 더 이상 쓰이지 않음)
+- Modify: `apps/waylog-app/src/app/HomeTabs.tsx`, `RootNavigator.tsx` (`NotYetMigratedScreen`
+  import·등록 제거)
+- Modify: 실행 스크립트에서 `EXPO_ROUTER_DISABLE_RN_NAVIGATION_CHECK` 제거(있다면)
+
+**Interfaces:**
+- Consumes: 없음(정리 태스크)
+
+- [ ] **Step 1: `app/` 디렉토리 삭제**
+
+```bash
+rm -rf apps/waylog-app/app
+```
+
+- [ ] **Step 2: `NotYetMigratedScreen` 제거**
+
+`apps/waylog-app/src/app/NotYetMigratedScreen.tsx` 파일을 삭제하고,
+`RootNavigator.tsx`에서 이 컴포넌트를 참조하는 `RootStack.Screen` 등록이 이제 하나도 없는지
+확인한다(Task 6 Step 10에서 전부 실제 스크린으로 교체했으므로 이미 없어야 정상 — 남아있다면
+빠뜨린 라우트다).
+
+```bash
+rm apps/waylog-app/src/app/NotYetMigratedScreen.tsx
+```
+
+- [ ] **Step 3: `expo-router` 의존성과 플러그인 제거**
+
+`apps/waylog-app/package.json`에서 `dependencies.expo-router` 줄을 삭제한다.
+
+`apps/waylog-app/app.config.ts`에서 `plugins` 배열의 `"expo-router"` 항목을 삭제한다:
+
+```ts
+// 변경 전:
+// plugins: [
+//   "expo-router",
+//   "expo-web-browser",
+//   ...
+// ]
+// 변경 후:
+plugins: [
+  "expo-web-browser",
+  // ...
+]
+```
+
+- [ ] **Step 4: 의존성 재설치**
+
+Run: `cd apps/waylog-app && pnpm install`
+Expected: `expo-router`와 그 하위 의존성이 제거된 채로 설치 완료.
+
+- [ ] **Step 5: 네이티브 프로젝트 재생성**
+
+`expo-router`는 config plugin으로 네이티브 설정을 건드리므로, 제거 후 반드시 prebuild를
+다시 돌린다.
+
+Run:
+```bash
+cd apps/waylog-app
+rm -rf ios android
+pnpm exec expo prebuild --platform ios
+```
+
+- [ ] **Step 6: 타입 검증**
+
+Run: `cd apps/waylog-app && pnpm exec tsc --noEmit`
+Expected: 에러 없음. `expo-router` 관련 타입 참조가 전부 사라졌으므로 어딘가 남아있었다면
+여기서 "Cannot find module 'expo-router'" 에러로 드러난다.
+
+- [ ] **Step 7: 폼 퍼널 동작 확인 (이번 전환의 원래 동기)**
+
+Run: `pnpm --filter waylog-app ios --device` (또는 시뮬레이터)
+Expected: `PostFormFunnel`(포스트 작성 3단계)과 `TransportFormFunnel`(교통편 작성 폼)이
+`EXPO_ROUTER_DISABLE_RN_NAVIGATION_CHECK` 없이도 정상 동작한다 — 더 이상 그 환경변수 자체가
+필요 없다(expo-router가 프로젝트에서 완전히 빠졌으므로 애초에 그 검사 코드가 실행되지 않는다).
+Xcode 27 Device Hub에서 앱이 정상적으로 빌드·설치·실행되는지도 함께 확인한다(SDK 57 업그레이드의
+원래 목표).
+
+- [ ] **Step 8: 전체 경로 회귀 확인**
+
+Task 4~7의 "실기기/시뮬레이터 확인" 스텝에서 확인했던 모든 경로(4개 탭, TripDetail 5개 탭,
+평면 라우트 전체, 딥링크)를 한 번 더 빠르게 훑어 빠진 게 없는지 최종 확인한다.
+
+- [ ] **Step 9: 유닛 테스트 실행**
+
+Run: `cd apps/waylog-app && pnpm test`
+Expected: 기존 122개 테스트가 모두 통과한다(SDK 업그레이드 커밋 시점과 동일 — 이번 전환은
+UI 컴포넌트만 건드렸으므로 순수 로직 테스트에는 영향이 없어야 한다).
+
+- [ ] **Step 10: `docs/codebase.md` 갱신**
+
+`docs/codebase.md`의 "앱 (`apps/waylog-app`)" 기술 스택 표에서 `Routing` 항목을
+`Expo Router 6 (파일 기반)`에서 `@react-navigation 7 (코드 기반 트리, src/app/routes.ts)`로
+수정한다. `## 디렉토리 구조`의 `app/` 관련 설명도 삭제하고 `src/app/`(routes.ts,
+RootNavigator.tsx, HomeTabs.tsx) 설명으로 교체한다.
+
+- [ ] **Step 11: Commit**
+
+```bash
+git add -A apps/waylog-app docs/codebase.md
+git commit -m "$(cat <<'EOF'
+chore(앱): expo-router를 제거하고 react-navigation 전환을 마무리한다
+
+app/ 디렉토리, expo-router 의존성·플러그인을 제거하고 네이티브
+프로젝트를 재생성한다. 폼 퍼널이 EXPO_ROUTER_DISABLE_RN_NAVIGATION_CHECK
+없이 정상 동작하는 것으로 이번 전환의 원래 동기가 해소됐음을 확인했다.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+EOF
+)"
+```
+```
