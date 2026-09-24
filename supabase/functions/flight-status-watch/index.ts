@@ -11,6 +11,7 @@ import {
   type IncheonFlightItem,
 } from './incheonFlights.ts'
 import {
+  getIsGateChanged,
   getShouldNotify,
   toNotificationText,
   type WatchedStatus,
@@ -51,6 +52,7 @@ interface StatusRow {
   transport_id: string
   last_notified_kind: string | null
   last_notified_estimated_at: string | null
+  last_notified_gate: string | null
 }
 
 function findFlight(
@@ -81,7 +83,7 @@ function findFlight(
   return sameDay ?? matched[0]
 }
 
-async function notify(transport: TransportRow, status: WatchedStatus) {
+async function notify(transport: TransportRow, status: WatchedStatus, isGateChanged: boolean) {
   const { data: members } = await supabase
     .from('trip_members')
     .select('user_id')
@@ -105,6 +107,7 @@ async function notify(transport: TransportRow, status: WatchedStatus) {
       arrivalCityName,
     },
     status,
+    isGateChanged,
   )
 
   // chat-web-push 는 제목을 여행 이름으로 덮고 발신자를 제외한다.
@@ -191,7 +194,7 @@ Deno.serve(async () => {
 
   const { data: previousRows } = await supabase
     .from('trip_transport_flight_status')
-    .select('transport_id, last_notified_kind, last_notified_estimated_at')
+    .select('transport_id, last_notified_kind, last_notified_estimated_at, last_notified_gate')
     .in(
       'transport_id',
       watched.map((t: TransportRow) => t.id),
@@ -213,20 +216,20 @@ Deno.serve(async () => {
     const status: WatchedStatus = {
       kind: toFlightStatusKind(flight.remark),
       estimatedAt: toIsoFromApiDateTime(flight.estimatedDateTime),
+      gate: flight.gatenumber,
     }
 
     const previous = previousById.get(transport.id)
-    const shouldNotify = getShouldNotify(
-      status,
-      {
-        lastNotifiedKind: previous?.last_notified_kind ?? null,
-        lastNotifiedEstimatedAt: previous?.last_notified_estimated_at ?? null,
-      },
-      { notifyAlways },
-    )
+    const notifiedStatus = {
+      lastNotifiedKind: previous?.last_notified_kind ?? null,
+      lastNotifiedEstimatedAt: previous?.last_notified_estimated_at ?? null,
+      lastNotifiedGate: previous?.last_notified_gate ?? null,
+    }
+    const shouldNotify = getShouldNotify(status, notifiedStatus, { notifyAlways })
+    const isGateChanged = getIsGateChanged(status, notifiedStatus)
 
     if (shouldNotify) {
-      const sent = await notify(transport, status)
+      const sent = await notify(transport, status, isGateChanged)
       if (sent > 0) notified += 1
     }
 
@@ -235,11 +238,13 @@ Deno.serve(async () => {
       kind: status.kind,
       scheduled_at: toIsoFromApiDateTime(flight.scheduleDateTime),
       estimated_at: status.estimatedAt,
+      gate: status.gate,
       // 보내지 못했으면 직전 값을 지킨다. 지우면 다음 턴에 다시 보낸다.
       last_notified_kind: shouldNotify ? status.kind : (previous?.last_notified_kind ?? null),
       last_notified_estimated_at: shouldNotify
         ? status.estimatedAt
         : (previous?.last_notified_estimated_at ?? null),
+      last_notified_gate: shouldNotify ? status.gate : (previous?.last_notified_gate ?? null),
       checked_at: new Date().toISOString(),
     })
   }
