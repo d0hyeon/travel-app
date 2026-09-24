@@ -2,8 +2,7 @@ import { AsyncBoundary } from '@waylog/react'
 import { useFlightStatus } from '@waylog/domains/modules/flight-status'
 import {
   getOperationalFields,
-  useTripTransport,
-  useTripTransportDetail,
+  useTripTransportTickets,
 } from '@waylog/domains/modules/trip-transport'
 import { StyleSheet, View } from 'react-native'
 import { EditableText } from '../../../shared/components/EditableText'
@@ -35,8 +34,10 @@ export function TransportOperationalInfoSection({ tripId, transportId }: Props) 
 }
 
 function Resolved({ tripId, transportId }: Props) {
-  const { transport, primaryTicket } = useTripTransportDetail({ tripId, transportId })
-  const { updateTicket } = useTripTransport(tripId)
+  const {
+    data: { transport, primaryTicket },
+    update: updateTicket,
+  } = useTripTransportTickets({ tripId, transportId })
 
   const { status } = useFlightStatus(transport, {
     enabled: transport.type === TransportType.항공
