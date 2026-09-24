@@ -12,6 +12,7 @@ import { SortableItem, SortableList, type SortableListRef } from '../../../share
 import { Map, type MapRef } from '../../../shared/components/Map'
 import { useCurrentCoordinate } from '../../../shared/hooks/env/useCurrentCoordinate'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
+import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
 import { palette } from '../../../shared/config/tokens'
 import { useRouteLegsPathList } from '../hooks/useRouteLegsPathList'
 import { TripRouteMapFloatingControls } from './components/TripRouteMapFloatingControls'
@@ -54,8 +55,9 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
     updateNotes,
   } = useDayTripRoutes({ tripId, date: selectedDate })
 
-  // Task 8 에서 useQueryParamState(route params 기반)로 재교체 예정 — 지금은 임시로 useState.
-  const [selectedRouteId, setSelectedRouteId] = useState<string>(() => routes[0]?.id ?? '')
+  const [selectedRouteId, setSelectedRouteId] = useQueryParamState<string>('route-id', {
+    defaultValue: () => routes[0]?.id ?? '',
+  })
 
   const currentRoute = useMemo(
     () => routes.find((route) => route.id === selectedRouteId) ?? routes[0],

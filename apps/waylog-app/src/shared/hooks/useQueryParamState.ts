@@ -1,8 +1,6 @@
-import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useAppNavigation, useAppRoute } from './useAppNavigation'
 
-// 웹 shared/hooks/urls/useQueryParamState 와 같은 시그니처를 유지한다.
-// Expo Router 도 파일 라우팅 위에 실제 URL 개념을 가지므로 저장 모델이 같다.
 interface OptionWithDefault<T> {
   parse?: (value: string) => T
   defaultValue: T | (() => T)
@@ -25,11 +23,11 @@ export function useQueryParamState<T>(
   key: string,
   { defaultValue, parse }: Options<T> | OptionWithDefault<T> = {},
 ) {
-  const params = useLocalSearchParams()
-  const router = useRouter()
+  const navigation = useAppNavigation()
+  const route = useAppRoute()
 
-  const raw = params[key]
-  const param = Array.isArray(raw) ? raw[0] : raw
+  const raw = (route.params as Record<string, unknown> | undefined)?.[key]
+  const param = typeof raw === 'string' ? raw : undefined
 
   const resolvedFromParam = useMemo(() => {
     if (param == null) {
@@ -41,9 +39,10 @@ export function useQueryParamState<T>(
     return parse != null ? parse(param) : param
   }, [param])
 
-  // router.setParams 는 다음 렌더에야 반영된다. 그 사이 param 이 순간적으로
-  // 이전 값(또는 defaultValue)으로 읽히면 화면이 한 프레임 초기화된 것처럼 깜빡인다.
-  // 요청 즉시 반영되는 로컬 값을 두고, URL 이 실제로 그 값에 수렴하면 그대로 유지한다.
+  // navigation.setParams 도 router.setParams 와 마찬가지로 다음 렌더에야 반영될 수 있다.
+  // 그 사이 param 이 순간적으로 이전 값(또는 defaultValue)으로 읽히면 화면이 한 프레임
+  // 초기화된 것처럼 깜빡인다. 요청 즉시 반영되는 로컬 값을 두고, params 가 실제로 그
+  // 값에 수렴하면 그대로 유지한다.
   const [optimisticValue, setOptimisticValue] = useState(resolvedFromParam)
 
   useEffect(() => {
@@ -53,9 +52,9 @@ export function useQueryParamState<T>(
   const setValue = useCallback(
     (next: T) => {
       setOptimisticValue(next)
-      router.setParams({ [key]: next == null ? '' : String(next) })
+      navigation.setParams({ [key]: next == null ? '' : String(next) } as never)
     },
-    [key, router],
+    [key, navigation],
   )
 
   return [optimisticValue, setValue]

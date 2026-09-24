@@ -3,7 +3,7 @@ import { usePlace } from '@waylog/domains/modules/place'
 import { usePlacePhotos } from '../place/usePlacePhotos'
 import { PlacePhotoStrip } from '../place/PlacePhotoStrip'
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native'
-import { Suspense, useState } from 'react'
+import { Suspense } from 'react'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Map } from '../../shared/components/Map'
 import { Tab, Tabs, Typography } from '~/shared/components/design-system'
@@ -12,6 +12,7 @@ import { BottomSheet } from '../../shared/components/bottom-sheet/BottomSheet'
 import { useOverlay } from '../../shared/hooks/useOverlay'
 import { PostCard } from '../post/PostCard'
 import { useAppNavigation, useAppRoute } from '../../shared/hooks/useAppNavigation'
+import { useQueryParamState } from '../../shared/hooks/useQueryParamState'
 import { useExplorerPlaceFeed } from './useExplorerPlaceFeed'
 import { LoadableImage } from '../../shared/components/LoadableImage'
 
@@ -22,8 +23,10 @@ export function PlaceDetailScreen() {
   const { placeId } = params
   const insets = useSafeAreaInsets()
   const navigation = useAppNavigation()
-  // Task 8 에서 useQueryParamState(route params 기반)로 재교체 예정 — 지금은 임시로 useState.
-  const [currentTab, selectTab] = useState<PlaceDetailTab>('info')
+  const [currentTab, selectTab] = useQueryParamState<PlaceDetailTab>('tab', {
+    defaultValue: 'info',
+    parse: parsePlaceDetailTab,
+  })
   const { data: place } = usePlace(placeId)
 
   return (

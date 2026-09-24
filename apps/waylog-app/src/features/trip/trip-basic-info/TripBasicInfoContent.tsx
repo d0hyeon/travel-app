@@ -1,9 +1,10 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { StyleSheet, ScrollView } from 'react-native'
 import { Box, Fab, Stack, Tab, Tabs, Typography } from "~/shared/components/design-system"
-import { Suspense, useState } from 'react'
+import { Suspense } from 'react'
 import { ErrorBoundary } from '@waylog/react'
 import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
+import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
 import { TripChecklist } from '../trip-checklist/TripChecklist'
 import { useTripChecklistFormOverlay } from '../trip-checklist/useTripChecklistFormOverlay'
 import { TripDeadlineChecklist } from '../trip-checklist/TripDeadlineChecklist'
@@ -25,8 +26,7 @@ interface Props {
 }
 
 export function TripBasicInfoContent({ tripId }: Props) {
-  // Task 8 에서 useQueryParamState(route params 기반)로 재교체 예정 — 지금은 임시로 useState.
-  const [currentTab, setCurrentTab] = useState('default')
+  const [currentTab, setCurrentTab] = useQueryParamState('info-tab', { defaultValue: 'default' })
   const checklistForm = useTripChecklistFormOverlay(tripId)
   const navigation = useAppNavigation()
 

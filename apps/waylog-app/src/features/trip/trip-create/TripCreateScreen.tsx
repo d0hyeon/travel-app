@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Box, LinearProgress, Stack, Typography } from '~/shared/components/design-system'
 import { SwitchCase } from '../../../shared/components/SwitchCase'
 import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
+import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
 import { palette } from '../../../shared/config/tokens'
 import { DateStep } from './DateStep'
 import { DestinationStep, type Destination } from './DestinationStep'
@@ -25,8 +26,7 @@ export function TripCreateScreen() {
   const { create } = useTrips()
   const insets = useSafeAreaInsets()
 
-  // Task 8 에서 useQueryParamState(route params 기반)로 재교체 예정 — 지금은 임시로 useState.
-  const [step, setStep] = useState<Step>('destination')
+  const [step, setStep] = useQueryParamState<Step>('step', { defaultValue: 'destination' })
   const currentIndex = STEPS.indexOf(step)
 
   const [destinations, setDestinations] = useState<Destination[]>([])
