@@ -1,5 +1,4 @@
 import { SeasonLabel, useRegionTourismTrends } from '@waylog/domains/modules/tourism-trend'
-import { useRouter } from 'expo-router'
 import { StyleSheet, Pressable, ScrollView, View } from 'react-native'
 import { Skeleton, Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../../shared/config/tokens'

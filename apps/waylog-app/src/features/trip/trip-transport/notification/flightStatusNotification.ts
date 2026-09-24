@@ -1,6 +1,6 @@
-export function getFlightStatusNotificationDestination(data: unknown): string | null {
+export function getFlightStatusNotificationDestination(data: unknown): { tripId: string; transportId: string } | null {
   if (!hasExactStringFields(data, ['tripId', 'transportId'])) return null
-  return `/trip/${data.tripId}/transport/${data.transportId}`
+  return { tripId: data.tripId, transportId: data.transportId }
 }
 
 function hasExactStringFields(data: unknown, fieldNames: readonly string[]): data is Record<string, string> {

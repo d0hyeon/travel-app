@@ -87,8 +87,8 @@ export function RootNavigator() {
             <AuthStateSync />
             <OverlayProvider>
               <Suspense fallback={<Loading />}>
-                <NotificationGateway />
                 <NavigationContainer linking={linking}>
+                  <NotificationGateway />
                   <AuthGateway>
                     <RootStack.Navigator screenOptions={{ headerShown: false }}>
                       <RootStack.Screen name="Home" component={HomeTabs} options={{ animation: 'none' }} />

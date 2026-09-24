@@ -1,10 +1,10 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { useTripMembers } from '@waylog/domains/modules/trip-member'
-import { useRouter } from 'expo-router'
 import { Suspense } from 'react'
 import { StyleSheet, Pressable } from 'react-native'
 import { ListItem } from '../../../shared/components/ListItem'
 import { Skeleton, Stack, Typography } from '~/shared/components/design-system'
+import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
 import { TripInviteButton } from '../components/TripInviteButton'
 import { MemberAvatar } from './MemberAvatar'
 
@@ -21,7 +21,7 @@ export function TripMemberSection(props: Props) {
 }
 
 function Resolved({ tripId }: Props) {
-  const router = useRouter()
+  const navigation = useAppNavigation()
   const { data: members } = useTripMembers(tripId)
   // 호스트를 앞으로 보낸다.
   const orderedMembers = members.toSorted((a) => (a.isHost ? -1 : 0))
@@ -47,7 +47,7 @@ function Resolved({ tripId }: Props) {
         ) : (
           orderedMembers.map((member) => (
             <ListItem key={member.id} leftAddon={<MemberAvatar member={member} size={28} />}>
-              <Pressable onPress={() => router.push(`/u/${member.userId}`)}>
+              <Pressable onPress={() => navigation.navigate('UserProfile', { userId: member.userId })}>
                 <Stack direction="row" alignItems="center" gap={0.5}>
                   <Typography variant="body2">{member.name || '(이름 없음)'}</Typography>
                   {member.isHost && (

@@ -34,8 +34,8 @@
 
 | 분류      | 기술                                             |
 | --------- | ------------------------------------------------ |
-| Native    | Expo SDK 54 + React Native 0.81.5                |
-| Routing   | Expo Router 6 (파일 기반)                        |
+| Native    | Expo SDK 57 + React Native 0.86.3                |
+| Routing   | `@react-navigation` 7 (코드 기반 트리, `src/app/routes.ts`) |
 | UI        | `StyleSheet` + 자체 디자인 시스템 + Tamagui 2 (점진 도입) |
 | Maps      | `react-native-maps` (Google 단일)                |
 | Animation | Reanimated 4 + Gesture Handler 2                 |
@@ -113,18 +113,16 @@ TicketViewer 내부의 `ConfirmDialog`와 `ActionSheet`다. 공용 `Button`도 T
 
 ```
 apps/
-├── waylog-app/                 # 네이티브 앱 (Expo SDK 54 + RN 0.81)
-│   ├── app/                    # Expo Router 라우트 (파일 기반)
-│   │   ├── _layout.tsx         # Provider 구성 (QueryClient·Auth·Overlay·AuthErrorBoundary)
-│   │   ├── index.tsx           # 여행 목록
-│   │   ├── login.tsx
-│   │   ├── explorer.tsx        # 장소 탐색 카탈로그/지도
-│   │   ├── explorer/           # 탐색 순위 상세 (최다 방문·급상승·저장순)
-│   │   ├── u/[userId].tsx      # 사용자 프로필
-│   │   └── trip/[tripId]/      # 상세 탭 셸 (정보·장소·계획·정산·사진)
+├── waylog-app/                 # 네이티브 앱 (Expo SDK 57 + RN 0.86)
+│   ├── index.ts                 # registerRootComponent(RootNavigator)
 │   ├── ios/                    # prebuild 산출물 (gitignore, 네이티브 빌드용)
 │   ├── src/
-│   │   ├── features/           # 웹 features 구조를 미러링
+│   │   ├── app/                # 코드 기반 네비게이터 트리 (파일 라우팅 없음)
+│   │   │   ├── routes.ts       # RootStackParamList·HomeTabParamList·TripDetailTabParamList
+│   │   │   ├── RootNavigator.tsx # Provider 구성 + NavigationContainer + RootStack (linking 포함)
+│   │   │   └── HomeTabs.tsx    # 홈 4탭(내 여행/피드/탐색/프로필)
+│   │   ├── features/           # 웹 features 구조를 미러링. trip/TripDetailStack.tsx·TripDetailTabs.tsx 가
+│   │   │   │                    #   여행 상세 스택+탭 중첩을 구성
 │   │   └── shared/
 │   │       ├── components/
 │   │       │   ├── design-system/ # 자체 디자인 시스템 — 웹 theme 어휘 + RN 표준 인터페이스
@@ -135,13 +133,15 @@ apps/
 │   │       │   ├── bottom-sheet/ # 자체 구현 (Reanimated) — 웹과 같은 공개 API. Body 레이아웃·ScrollView 제스처
 │   │       │   ├── action-sheet/ # 하단 액션 시트 (Modal + 슬라이드업). PopMenu 가 트리거를 얹어 쓴다
 │   │       │   ├── tab-navigation/ # 하단 탭바. variant default(라운드+그림자)·apple(블러) 전환.
-│   │       │   │                #   RouterTabNavigation 이 Expo Router tabBar 어댑터
+│   │       │   │                #   RouterTabNavigation 이 react-navigation bottom-tabs 어댑터
 │   │       │   ├── date-picker/ # 날짜·기간·시각 선택 (바텀시트 + 스와이프 달력)
 │   │       │   ├── photo/      # PhotoBottomSheet(여행·장소 공용 상세 뷰어), usePhotoViewerState,
 │   │       │   │                #   ZoomArea, PhotoVisibilityBadge
 │   │       │   └── dnd/        # 제스처 기반 정렬 목록 (드래그 핸들)
 │   │       ├── config/tokens.ts # 웹 theme.ts 에서 승계한 값
-│   │       └── hooks/          # useOverlay·useQueryParamState (웹과 동일 시그니처)
+│   │       └── hooks/          # useAppNavigation·useAppRoute(RootStackParamList 스코프),
+│   │                            #   useTripDetailTabNavigation·useTripDetailTabRoute(TripDetail 탭 스코프),
+│   │                            #   useOverlay·useQueryParamState(route params 기반, 웹과 동일 시그니처)
 │   ├── metro.config.js         # 워크스페이스 해석 설정
 │   └── app.config.ts
 └── waylog-web/                 # 웹 앱 (React Router 7 + Vite)

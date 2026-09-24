@@ -1,7 +1,7 @@
-import { useRouter } from "expo-router";
 import * as Notifications from "expo-notifications";
 import { useEffect } from "react";
 import { isTripChatPushData } from '@waylog/domains/modules/trip-chat/tripChatPush'
+import { useAppNavigation } from '../../../../shared/hooks/useAppNavigation'
 
 /**
  * 알림을 탭했을 때 해당 채팅방으로 보낸다.
@@ -10,7 +10,7 @@ import { isTripChatPushData } from '@waylog/domains/modules/trip-chat/tripChatPu
  * getLastNotificationResponseAsync 가 그 응답을 들고 있다.
  */
 export function useChatNotificationResponse() {
-  const router = useRouter();
+  const navigation = useAppNavigation();
 
   useEffect(() => {
     let isMounted = true;
@@ -19,7 +19,7 @@ export function useChatNotificationResponse() {
       const tripMessage = response?.notification.request.content.data
       if (!isTripChatPushData(tripMessage)) return
 
-      router.push(`/trip/${tripMessage.tripId}`);
+      navigation.navigate('TripDetail', { tripId: tripMessage.tripId });
     };
 
     // 알림으로 앱이 켜진 경우
@@ -35,5 +35,5 @@ export function useChatNotificationResponse() {
       isMounted = false;
       subscription.remove();
     };
-  }, [router]);
+  }, [navigation]);
 }

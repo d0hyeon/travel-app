@@ -1,10 +1,10 @@
-import { useRouter } from 'expo-router'
 import * as Notifications from 'expo-notifications'
 import { useEffect } from 'react'
+import { useAppNavigation } from '../../../../shared/hooks/useAppNavigation'
 import { getFlightStatusNotificationDestination } from './flightStatusNotification'
 
 export function useFlightStatusNotificationResponse() {
-  const router = useRouter()
+  const navigation = useAppNavigation()
 
   useEffect(() => {
     let isMounted = true
@@ -13,7 +13,7 @@ export function useFlightStatusNotificationResponse() {
       const destination = getFlightStatusNotificationDestination(response?.notification.request.content.data)
       if (destination == null) return
 
-      router.push(destination)
+      navigation.navigate('TransportDetail', destination)
     }
 
     void Notifications.getLastNotificationResponseAsync().then((response) => {
@@ -26,5 +26,5 @@ export function useFlightStatusNotificationResponse() {
       isMounted = false
       subscription.remove()
     }
-  }, [router])
+  }, [navigation])
 }

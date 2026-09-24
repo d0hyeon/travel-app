@@ -37,7 +37,6 @@ const config: ExpoConfig = {
   web: { favicon: "./assets/logo.png" },
   scheme: "waylog",
   plugins: [
-    "expo-router",
     "expo-web-browser",
     [
       "@rnmapbox/maps",
