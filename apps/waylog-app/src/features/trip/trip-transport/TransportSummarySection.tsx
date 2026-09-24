@@ -4,7 +4,7 @@ import { TransportType, TransportTypeLabel } from '@waylog/domains/modules/trans
 import {
   formatArrivalTime,
   formatDepartureTime,
-  useTripTransportDetail,
+  useTripTransportTickets,
 } from '@waylog/domains/modules/trip-transport'
 import { format } from 'date-fns'
 import { StyleSheet, View, ViewProps } from 'react-native'
@@ -36,7 +36,9 @@ export function TransportSummarySection({ tripId, transportId, ...props }: Props
 }
 
 function Resolved({ tripId, transportId, style, ...props }: Props & ViewProps) {
-  const { transport } = useTripTransportDetail({ tripId, transportId })
+  const {
+    data: { transport },
+  } = useTripTransportTickets({ tripId, transportId })
   const carrierLabel = toCarrierLabel(transport)
 
   const { status } = useFlightStatus(transport, { enabled: transport.type === TransportType.항공 })

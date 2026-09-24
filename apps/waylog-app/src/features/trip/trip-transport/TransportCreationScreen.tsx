@@ -1,4 +1,4 @@
-import { useTripTransport } from '@waylog/domains/modules/trip-transport'
+import { useTripTransports } from '@waylog/domains/modules/trip-transport'
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
 import { useState } from 'react'
 import {
@@ -14,7 +14,7 @@ export function TransportCreationScreen() {
   const params = useLocalSearchParams<{ tripId?: string | string[] }>()
   const tripId = Array.isArray(params.tripId) ? params.tripId[0] : (params.tripId ?? '')
 
-  const { add } = useTripTransport(tripId)
+  const { add } = useTripTransports(tripId)
   const { upload } = useTransportTicketUpload(tripId)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<unknown>(null)

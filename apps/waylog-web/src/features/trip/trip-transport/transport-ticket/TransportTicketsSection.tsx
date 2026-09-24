@@ -1,7 +1,7 @@
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { Avatar, Button, Skeleton, Stack, Typography } from '@mui/material'
 import {
-  useTripTransportDetail,
+  useTripTransportTickets,
   type TripTransportTicket,
 } from '@waylog/domains/modules/trip-transport'
 import { AsyncBoundary } from '@waylog/react'
@@ -30,7 +30,9 @@ export function TransportTicketsSection({ tripId, transportId }: Props) {
 }
 
 function Resolved({ tripId, transportId }: Props) {
-  const { transport, primaryTicket, companionTickets } = useTripTransportDetail({ tripId, transportId })
+  const {
+    data: { transport, primaryTicket, companionTickets },
+  } = useTripTransportTickets({ tripId, transportId })
   const ticketViewer = useTicketViewerOverlay()
   const ticketForm = useTransportTicketFormOverlay()
   const { upload } = useTransportTicketUpload(tripId)

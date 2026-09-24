@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { AsyncBoundary } from '@waylog/react'
 import {
-  useTripTransportDetail,
+  useTripTransportTickets,
   type TripTransportTicket,
 } from '@waylog/domains/modules/trip-transport'
 import { Pressable, StyleSheet, View } from 'react-native'
@@ -32,10 +32,9 @@ export function TransportTicketsSection({ tripId, transportId }: Props) {
 }
 
 function Resolved({ tripId, transportId }: Props) {
-  const { transport, primaryTicket, companionTickets } = useTripTransportDetail({
-    tripId,
-    transportId,
-  })
+  const {
+    data: { transport, primaryTicket, companionTickets },
+  } = useTripTransportTickets({ tripId, transportId })
   const ticketViewer = useTicketViewerOverlay()
   const ticketForm = useTransportTicketFormOverlay()
   const { upload } = useTransportTicketUpload(tripId)

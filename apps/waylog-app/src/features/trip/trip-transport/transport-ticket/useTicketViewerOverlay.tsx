@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { AsyncBoundary } from '@waylog/react'
-import { useTripTransport } from '@waylog/domains/modules/trip-transport'
+import { removeTripTransportTicket, useTripTransports } from '@waylog/domains/modules/trip-transport'
 import { useCallback, useState } from 'react'
 import { ActivityIndicator, Dimensions, Image, Modal, Pressable, StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -48,7 +48,7 @@ interface Props {
 }
 
 function TicketViewer({ tripId, ticketId, onClose }: Props) {
-  const { data: transports, removeTicket } = useTripTransport(tripId)
+  const { data: transports, refetch } = useTripTransports(tripId)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
 
   const ticket = transports
@@ -59,7 +59,8 @@ function TicketViewer({ tripId, ticketId, onClose }: Props) {
 
   const deleteTicket = async () => {
     setIsConfirmOpen(false)
-    await removeTicket(ticketId)
+    await removeTripTransportTicket(ticketId)
+    await refetch()
     onClose()
   }
 

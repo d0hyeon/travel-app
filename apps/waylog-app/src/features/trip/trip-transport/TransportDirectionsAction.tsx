@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { AsyncBoundary } from '@waylog/react'
-import { useTripTransportDetail } from '@waylog/domains/modules/trip-transport'
+import { useTripTransportTickets } from '@waylog/domains/modules/trip-transport'
 import { Linking, Pressable, StyleSheet } from 'react-native'
 import { Skeleton, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../shared/config/tokens'
@@ -26,7 +26,9 @@ export function TransportDirectionsAction({ tripId, transportId }: Props) {
 }
 
 function Resolved({ tripId, transportId }: Props) {
-  const { transport } = useTripTransportDetail({ tripId, transportId })
+  const {
+    data: { transport },
+  } = useTripTransportTickets({ tripId, transportId })
   const departureName = transport.departureName || '-'
   return (
     <Pressable

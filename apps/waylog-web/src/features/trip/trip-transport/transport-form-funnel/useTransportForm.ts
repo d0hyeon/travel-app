@@ -1,6 +1,6 @@
 import { TransportType } from "@waylog/domains/modules/transport";
 import {
-  useTripTransport,
+  useTripTransports,
   type TripTransport,
   type TripTransportCarrier,
 } from "@waylog/domains/modules/trip-transport";
@@ -25,7 +25,7 @@ interface TransportForm {
 }
 
 export function useTransportForm(tripId: string): TransportForm {
-  const { add } = useTripTransport(tripId);
+  const { add } = useTripTransports(tripId);
   const { upload } = useTransportTicketUpload(tripId);
   const [form, setForm] = useState<Partial<TransportSubmitValues>>({});
 

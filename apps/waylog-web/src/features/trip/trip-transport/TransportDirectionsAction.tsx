@@ -1,7 +1,7 @@
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
 import { Skeleton, Stack, Typography } from '@mui/material'
-import { useTripTransportDetail } from '@waylog/domains/modules/trip-transport'
+import { useTripTransportTickets } from '@waylog/domains/modules/trip-transport'
 import { AsyncBoundary } from '@waylog/react'
 import { TransportDetailSectionError } from './transport-detail/TransportDetailSectionError'
 
@@ -27,7 +27,9 @@ export function TransportDirectionsAction({ tripId, transportId }: Props) {
 }
 
 function Resolved({ tripId, transportId }: Props) {
-  const { transport } = useTripTransportDetail({ tripId, transportId })
+  const {
+    data: { transport },
+  } = useTripTransportTickets({ tripId, transportId })
   const departureName = transport.departureName || EMPTY_VALUE
 
   return (

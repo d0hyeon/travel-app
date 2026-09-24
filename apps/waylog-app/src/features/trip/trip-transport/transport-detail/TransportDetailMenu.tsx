@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { useTripTransport } from '@waylog/domains/modules/trip-transport'
+import { useTripTransports } from '@waylog/domains/modules/trip-transport'
 import { useRouter } from 'expo-router'
 import { PopMenu } from '../../../../shared/components/PopMenu'
 import { useConfirmDialog } from '../../../../shared/components/confirm-dialog/useConfirmDialog'
@@ -11,7 +11,7 @@ interface Props {
 
 export function TransportDetailMenu({ tripId, transportId }: Props) {
   const router = useRouter()
-  const { remove } = useTripTransport(tripId)
+  const { remove } = useTripTransports(tripId)
   const confirm = useConfirmDialog()
 
   // 지운 교통편의 상세에 남아 있으면 조회가 곧바로 실패한다. 목록으로 되돌린다.

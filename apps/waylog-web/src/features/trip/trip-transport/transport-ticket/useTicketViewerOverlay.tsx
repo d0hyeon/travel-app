@@ -2,7 +2,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import { Box, Dialog, IconButton } from '@mui/material'
-import { useTripTransport } from '@waylog/domains/modules/trip-transport'
+import { removeTripTransportTicket, useTripTransports } from '@waylog/domains/modules/trip-transport'
 import { AsyncBoundary } from '@waylog/react'
 import { useCallback, type ReactNode } from 'react'
 import { PopMenu } from '~shared/components/PopMenu'
@@ -90,7 +90,7 @@ interface StoredTicketViewerProps extends TicketViewerParams {
 }
 
 function StoredTicketViewer({ tripId, ticketId, onClose }: StoredTicketViewerProps) {
-  const { data: transports, removeTicket } = useTripTransport(tripId)
+  const { data: transports, refetch } = useTripTransports(tripId)
   const confirm = useConfirmDialog()
   const ticket = transports.flatMap(({ tickets }) => tickets).find(({ id }) => id === ticketId)
 
@@ -100,7 +100,8 @@ function StoredTicketViewer({ tripId, ticketId, onClose }: StoredTicketViewerPro
     const isConfirmed = await confirm('탑승권을 삭제하시겠어요?')
     if (!isConfirmed) return
 
-    await removeTicket(ticketId)
+    await removeTripTransportTicket(ticketId)
+    await refetch()
     onClose()
   }
 
