@@ -1116,3 +1116,545 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
 EOF
 )"
 ```
+
+---
+
+## Task 6: 나머지 평면 라우트 연결 (explorer, post, u, transport, memo, trip/new, trip/invite)
+
+**Files:**
+- Create: `apps/waylog-app/src/features/trip/trip-memo/TripMemoDetailScreen.tsx` (기존
+  `app/trip/[tripId]/memo/[memoId].tsx` 대체)
+- Create: `apps/waylog-app/src/features/trip/trip-memo/TripMemoEditScreen.tsx` (기존
+  `app/trip/[tripId]/memo/[memoId]/edit.tsx` 대체)
+- Modify: `apps/waylog-app/src/app/RootNavigator.tsx` (남은 모든 플레이스홀더 교체)
+- Modify: `apps/waylog-app/src/features/post/PostDetailScreen.tsx`
+- Modify: `apps/waylog-app/src/features/post/PostCreationScreen.tsx`
+- Modify: `apps/waylog-app/src/features/explorer/PlaceDetailScreen.tsx`
+- Modify: `apps/waylog-app/src/features/explorer/ExplorerCatalogScreen.tsx` (죽은 `useRouter` import 제거)
+- Modify: `apps/waylog-app/src/features/explorer/explorer-saved/MostSavedPlacesSection.tsx`
+- Modify: `apps/waylog-app/src/features/explorer/explorer-ranking/ExploredPlacesRankingSection.tsx`
+- Modify: `apps/waylog-app/src/features/explorer/explorer-recent/RecentHotPlacesSection.tsx`
+- Modify: `apps/waylog-app/src/features/explorer/explorer-view/ExplorerRankingGrid.tsx`
+- Modify: `apps/waylog-app/src/features/explorer/explorer-view/ExplorerMap.tsx`
+- Modify: `apps/waylog-app/src/features/explorer/explorer-view/ExplorerScreenHeader.tsx`
+- Modify: `apps/waylog-app/src/features/explorer/explorer.utils.ts` (`buildExplorerPlaceDetailPath` 제거)
+- Modify: `apps/waylog-app/src/features/user-profile/UserProfileScreen.tsx` (`tab` params 정식화)
+- Modify: `apps/waylog-app/src/features/user-profile/ProfileFeedTab.tsx`
+- Modify: `apps/waylog-app/src/features/trip/trip-create/TripCreateScreen.tsx`
+- Modify: `apps/waylog-app/src/features/trip/trip-invite/TripInviteScreen.tsx`
+- Modify: `apps/waylog-app/src/features/trip/components/TripLeaveButton.tsx`
+- Modify: `apps/waylog-app/src/features/place/place-detail/PlaceDetailSheet.tsx`
+- Modify: `apps/waylog-app/src/shared/components/design-system/AppBar.tsx`
+- Modify: `apps/waylog-app/src/features/trip/trip-transport/useTransportId.ts` (삭제 — 소비처를
+  `useAppRoute`로 직접 전환)
+- Modify: `apps/waylog-app/src/features/trip/trip-transport/TransportCreationScreen.tsx`
+- Modify: `apps/waylog-app/src/features/trip/trip-transport/transport-detail/TransportDetailMenu.tsx`
+
+**Interfaces:**
+- Consumes: `RootStackParamList` (Task 1), `useAppNavigation`, `useAppRoute` (Task 2)
+- Produces: 없음(이 태스크로 `RootStackParamList`의 모든 화면이 실제 스크린으로 연결 완료)
+
+- [ ] **Step 1: `PostDetailScreen`, `PostCreationScreen` API 치환**
+
+```tsx
+// PostDetailScreen.tsx, ResolvedPostDetail 함수 내부
+// 변경 전: const router = useRouter()
+// 변경 후:
+import { useAppNavigation, useAppRoute } from '../../shared/hooks/useAppNavigation'
+const navigation = useAppNavigation()
+const { params } = useAppRoute<'PostDetail'>()
+const { postId } = params
+// (기존 postId prop 대신 route params에서 직접 읽는다 — 아래 Step 8에서
+// RootNavigator 연결부가 이 컴포넌트를 prop 없이 직접 등록하도록 정리한다)
+
+// 변경 전: onPress={() => router.push(`/u/${post.authorId}`)}
+// 변경 후:
+onPress={() => navigation.navigate('UserProfile', { userId: post.authorId })}
+
+// 변경 전: onPress={() => router.back()} (2곳: 뒤로가기 버튼, PostMenu onDelete)
+// 변경 후:
+onPress={() => navigation.goBack()}
+
+// 변경 전: onPlacePress={(placeId) => router.push(`/explorer/${placeId}`)}
+// 변경 후:
+onPlacePress={(placeId) => navigation.navigate('ExplorerDetail', { placeId })}
+```
+
+```tsx
+// PostCreationScreen.tsx
+// 변경 전:
+// import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
+// const router = useRouter()
+// const params = useLocalSearchParams<{ tripId?: string | string[] }>()
+// const fixedTripId = Array.isArray(params.tripId) ? params.tripId[0] : params.tripId
+// ...
+// <Stack.Screen options={{ gestureEnabled: step === startStep }} />
+// ...
+// router.replace(`/post/${post.id}`)
+
+// 변경 후:
+import { useAppNavigation, useAppRoute } from '../../shared/hooks/useAppNavigation'
+// ...
+const navigation = useAppNavigation()
+const { params } = useAppRoute<'PostNew'>()
+const fixedTripId = params.tripId
+// ...
+navigation.setOptions({ gestureEnabled: step === startStep })
+// ...
+navigation.replace('PostDetail', { postId: post.id })
+```
+
+주의: `<Stack.Screen options={{...}} />`(expo-router의 선언적 옵션 설정)는 react-navigation에서
+`navigation.setOptions({...})`(명령형 호출)로 바뀐다 — 렌더 중 호출해도 되는 React Navigation
+표준 API이므로 `useEffect`로 감쌀 필요는 없다.
+
+- [ ] **Step 2: `PlaceDetailScreen` API 치환 + `tab` params 정식화**
+
+```tsx
+// PlaceDetailScreen.tsx
+// 변경 전:
+// import { useRouter } from 'expo-router'
+// import { useQueryParamState } from '../../shared/hooks/useQueryParamState'
+// export function PlaceDetailScreen({ placeId }: { placeId: string }) {
+//   const router = useRouter()
+//   const [currentTab, selectTab] = useQueryParamState<PlaceDetailTab>('tab', {
+//     defaultValue: 'info',
+//     parse: parsePlaceDetailTab,
+//   })
+
+// 변경 후 (Task 8 이전이므로 tab은 임시 useState — Task 8에서 route params로 재교체):
+import { useAppNavigation, useAppRoute } from '../../shared/hooks/useAppNavigation'
+import { useState } from 'react'
+
+export function PlaceDetailScreen() {
+  const { params } = useAppRoute<'ExplorerDetail'>()
+  const { placeId } = params
+  const navigation = useAppNavigation()
+  const [currentTab, selectTab] = useState<PlaceDetailTab>('info')
+  // ...
+
+// 변경 전: onPress={() => router.back()}
+// 변경 후:
+onPress={() => navigation.goBack()}
+
+// PlaceFeedContent 내부, 변경 전: const router = useRouter(); onPress={() => router.push(`/post/${post.id}`)}
+// 변경 후:
+const navigation = useAppNavigation()
+onPress={() => navigation.navigate('PostDetail', { postId: post.id })}
+```
+
+`placeId` prop을 없애고 route params에서 직접 읽도록 시그니처를 바꿨다 — Step 8에서
+`RootNavigator`가 이 컴포넌트를 prop 없이 `component={PlaceDetailScreen}`으로 직접 등록한다.
+
+- [ ] **Step 3: Explorer 랭킹/지도 컴포넌트 6개 API 치환**
+
+`buildExplorerPlaceDetailPath` 헬퍼는 문자열 경로 생성용이라 더 이상 필요 없다 —
+`explorer.utils.ts`에서 제거하고, 6개 소비처 모두 `navigate('ExplorerDetail', { placeId })`로
+직접 바꾼다.
+
+```tsx
+// MostSavedPlacesSection.tsx, ExploredPlacesRankingSection.tsx,
+// ExplorerRankingGrid.tsx, ExplorerMap.tsx — 공통 패턴
+// 변경 전: const router = useRouter(); onPress={() => router.push(buildExplorerPlaceDetailPath(place.placeId))}
+// 변경 후:
+import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
+const navigation = useAppNavigation()
+onPress={() => navigation.navigate('ExplorerDetail', { placeId: place.placeId })}
+```
+
+```tsx
+// MostSavedPlacesSection.tsx, 변경 전: onMore={() => router.push('/explorer/most-saved')}
+// 변경 후:
+onMore={() => navigation.navigate('ExplorerMostSaved', {})}
+
+// ExploredPlacesRankingSection.tsx, 변경 전: onMore={() => router.push('/explorer/top-visited')}
+// 변경 후:
+onMore={() => navigation.navigate('ExplorerTopVisited', {})}
+```
+
+```tsx
+// RecentHotPlacesSection.tsx, 변경 전:
+// router.push(withQueryParams('/explorer/recent-hot', { category: category ?? '', location: location ?? '' }))
+// 변경 후 (withQueryParams import 제거):
+navigation.navigate('ExplorerRecentHot', { category, location })
+```
+
+```tsx
+// ExplorerScreenHeader.tsx, 변경 전: const router = useRouter(); onPress={() => router.back()}
+// 변경 후:
+const navigation = useAppNavigation()
+onPress={() => navigation.goBack()}
+```
+
+`explorer.utils.ts`에서 `buildExplorerPlaceDetailPath` 함수 전체를 삭제한다
+(`ExplorerFilterVisibility`, `getExplorerFilterVisibility`는 네비게이션과 무관하므로 유지).
+
+- [ ] **Step 4: `ExplorerCatalogScreen`의 죽은 import 제거**
+
+```tsx
+// 변경 전: import { useRouter } from 'expo-router'  ← 실제로 어디서도 쓰이지 않는다
+// 변경 후: 이 import 줄 자체를 삭제
+```
+
+- [ ] **Step 5: `UserProfileScreen`, `ProfileFeedTab` API 치환**
+
+```tsx
+// UserProfileScreen.tsx
+// 변경 전: const [currentTab, selectTab] = useQueryParamState<ProfileTab>('tab', { defaultValue: 'feed', parse: parseProfileTab })
+// 변경 후 (Task 4에서 이미 임시로 useState로 바꿔둔 상태 — Task 8에서 route params로 정식 교체 예정,
+// 이 태스크에서는 손대지 않는다)
+
+// ProfileFeedTab.tsx
+// 변경 전: const router = useRouter(); onPress={() => router.push(`/post/${post.postId}`)}
+// 변경 후:
+import { useAppNavigation } from '../../shared/hooks/useAppNavigation'
+const navigation = useAppNavigation()
+onPress={() => navigation.navigate('PostDetail', { postId: post.postId })}
+```
+
+- [ ] **Step 6: `TripCreateScreen`, `TripInviteScreen`, `TripLeaveButton` API 치환**
+
+```tsx
+// TripCreateScreen.tsx
+// 변경 전: const router = useRouter(); const [step, setStep] = useQueryParamState<Step>('step', { defaultValue: 'destination' })
+// 변경 후 (step 은 Task 8 이전이므로 임시 useState):
+import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
+import { useState } from 'react'
+const navigation = useAppNavigation()
+const [step, setStep] = useState<Step>('destination')
+
+// 변경 전: onPress={() => router.back()}
+// 변경 후:
+onPress={() => navigation.goBack()}
+
+// 변경 전: router.replace(`/trip/${trip.id}`)
+// 변경 후:
+navigation.replace('TripDetail', { tripId: trip.id })
+```
+
+```tsx
+// TripInviteScreen.tsx
+// 변경 전:
+// import { useLocalSearchParams, useRouter } from 'expo-router'
+// const router = useRouter()
+// const { shareLink } = useLocalSearchParams<{ shareLink: string }>()
+// ...
+// router.replace(`/trip/${trip.id}`)
+
+// 변경 후:
+import { useAppNavigation, useAppRoute } from '../../../shared/hooks/useAppNavigation'
+const navigation = useAppNavigation()
+const { params } = useAppRoute<'TripInvite'>()
+const { shareLink } = params
+// ...
+navigation.replace('TripDetail', { tripId: trip.id })
+```
+
+```tsx
+// TripLeaveButton.tsx
+// 변경 전: const router = useRouter(); ... router.replace('/')
+// 변경 후:
+import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
+const navigation = useAppNavigation()
+// ...
+navigation.reset({ index: 0, routes: [{ name: 'Home' }] })
+```
+
+주의: 기존 `router.replace('/')`는 "루트로 완전히 교체"였다. `@react-navigation`의
+`replace`는 스택 맨 위 화면 하나만 바꾸므로, 완전히 새 스택으로 만들려면 `reset`이 더
+정확하다 — 여행을 나간 뒤 뒤로가기로 그 여행 화면에 다시 못 돌아가야 하는 의도와 일치한다.
+
+- [ ] **Step 7: `PlaceDetailSheet`, `AppBar` API 치환**
+
+```tsx
+// PlaceDetailSheet.tsx, 변경 전: const router = useRouter(); router.push(`/explorer/${placeId}`)
+// 변경 후:
+import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
+const navigation = useAppNavigation()
+navigation.navigate('ExplorerDetail', { placeId })
+
+// AppBar.tsx (공용 디자인시스템 컴포넌트), 변경 전: const router = useRouter(); onPress={() => router.back()}
+// 변경 후:
+import { useAppNavigation } from '../../hooks/useAppNavigation'
+const navigation = useAppNavigation()
+onPress={() => navigation.goBack()}
+```
+
+- [ ] **Step 8: 교통편 관련 3개 파일 API 치환**
+
+```ts
+// useTransportId.ts 는 삭제한다. 유일한 소비처(TransportDetailScreen)는 Task 5 Step 10에서
+// 이미 useAppRoute<'TransportDetail'>().params.transportId 로 직접 읽도록 바뀌었으므로
+// 이 파일 자체가 더 이상 필요 없다.
+```
+
+```tsx
+// TransportCreationScreen.tsx
+// 변경 전:
+// import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
+// const router = useRouter()
+// const params = useLocalSearchParams<{ tripId?: string | string[] }>()
+// ...
+// router.replace(`/trip/${tripId}/transport/${created.id}`)
+
+// 변경 후:
+import { useAppNavigation, useAppRoute } from '../../../shared/hooks/useAppNavigation'
+const navigation = useAppNavigation()
+const { params } = useAppRoute<'TransportNew'>()
+const { tripId } = params
+// ...
+navigation.replace('TransportDetail', { tripId, transportId: created.id })
+```
+
+```tsx
+// TransportDetailMenu.tsx, 변경 전: const router = useRouter(); router.back()
+// 변경 후:
+import { useAppNavigation } from '../../../../shared/hooks/useAppNavigation'
+const navigation = useAppNavigation()
+navigation.goBack()
+```
+
+- [ ] **Step 9: `TripMemoDetailScreen`, `TripMemoEditScreen` 신규 작성**
+
+```tsx
+// apps/waylog-app/src/features/trip/trip-memo/TripMemoDetailScreen.tsx
+// (기존 app/trip/[tripId]/memo/[memoId].tsx 를 옮기되 useLocalSearchParams/useRouter 를 교체)
+import { MaterialIcons } from '@expo/vector-icons'
+import { useTripMemo } from '@waylog/domains/modules/trip-memo'
+import { formatDate } from 'date-fns'
+import { Suspense } from 'react'
+import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { IconButton, Stack, Typography } from '~/shared/components/design-system'
+import { useAppNavigation, useAppRoute } from '../../../shared/hooks/useAppNavigation'
+import { OgPreviewCard } from '../../open-graph/OgPreviewCard'
+import { PopMenu } from '../../../shared/components/PopMenu'
+import { useConfirmDialog } from '../../../shared/components/confirm-dialog/useConfirmDialog'
+import { extractUrls, renderTextWithLinks } from '../../../shared/utils/urls'
+
+export function TripMemoDetailScreen() {
+  return (
+    <Suspense fallback={<ActivityIndicator style={styles.fill} />}>
+      <Resolved />
+    </Suspense>
+  )
+}
+
+function Resolved() {
+  const { params } = useAppRoute<'TripMemoDetail'>()
+  const { tripId } = params
+  const navigation = useAppNavigation()
+  const confirm = useConfirmDialog()
+  const { data: { memos }, togglePin, remove } = useTripMemo(tripId)
+  const memo = memos.find((item) => item.id === params.memoId)
+
+  if (!memo) {
+    return <Typography style={styles.emptyMessage}>메모를 찾을 수 없어요</Typography>
+  }
+
+  const urls = extractUrls(memo.content)
+
+  return (
+    <SafeAreaView style={styles.fill}>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" style={styles.header}>
+        <IconButton onPress={() => navigation.goBack()}>
+          <MaterialIcons name="arrow-back" size={24} />
+        </IconButton>
+
+        {memo.isPinned && <MaterialIcons name="push-pin" size={18} color="#4C84FF" />}
+        <Typography variant="subtitle1" numberOfLines={1} style={styles.title}>
+          {memo.title || '메모'}
+        </Typography>
+
+        <PopMenu
+          items={[
+            <PopMenu.Item key="pin" onPress={() => togglePin(memo.id)}>
+              {memo.isPinned ? '고정 해제' : '고정'}
+            </PopMenu.Item>,
+            <PopMenu.Item key="edit" onPress={() => navigation.navigate('TripMemoEdit', { tripId, memoId: memo.id })}>
+              수정
+            </PopMenu.Item>,
+            <PopMenu.Item
+              key="delete"
+              color="error"
+              onPress={async () => {
+                if (!(await confirm('이 메모를 삭제하시겠습니까?'))) return
+                await remove(memo.id)
+                navigation.goBack()
+              }}
+            >
+              삭제
+            </PopMenu.Item>,
+          ]}
+        />
+      </Stack>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+        <Typography variant="caption" color="text.secondary">
+          {formatDate(memo.createdAt, 'yyyy년 M월 d일 a h:mm')}
+        </Typography>
+        <Typography variant={memo.title ? 'body2' : 'body1'}>
+          {renderTextWithLinks(memo.content)}
+        </Typography>
+        {urls.length > 0 && <OgPreviewCard url={urls[0]} />}
+      </ScrollView>
+    </SafeAreaView>
+  )
+}
+
+const styles = StyleSheet.create({
+  fill: { flex: 1 },
+  scroll: { flex: 1 },
+  emptyMessage: { padding: 24, textAlign: 'center' },
+  title: { flex: 1, paddingHorizontal: 8 },
+  header: { padding: 8 },
+  content: { padding: 20, gap: 8 },
+})
+```
+
+```tsx
+// apps/waylog-app/src/features/trip/trip-memo/TripMemoEditScreen.tsx
+// (기존 app/trip/[tripId]/memo/[memoId]/edit.tsx 를 옮기되 useLocalSearchParams/useRouter 를 교체)
+import { MaterialIcons } from '@expo/vector-icons'
+import { useTripMemo } from '@waylog/domains/modules/trip-memo'
+import { Suspense, useRef, useState } from 'react'
+import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { Button, IconButton, Stack, Typography } from '~/shared/components/design-system'
+import { useAppNavigation, useAppRoute } from '../../../shared/hooks/useAppNavigation'
+import { BottomArea } from '../../../shared/components/BottomArea'
+import { TripMemoForm, type TripMemoFormRef } from './TripMemoForm'
+
+export function TripMemoEditScreen() {
+  return (
+    <Suspense fallback={<ActivityIndicator style={styles.fill} />}>
+      <Resolved />
+    </Suspense>
+  )
+}
+
+function Resolved() {
+  const { params } = useAppRoute<'TripMemoEdit'>()
+  const { tripId, memoId } = params
+  const navigation = useAppNavigation()
+  const { data: { memos }, update } = useTripMemo(tripId)
+  const [isSaving, setIsSaving] = useState(false)
+  const formRef = useRef<TripMemoFormRef>(null)
+  const memo = memos.find((item) => item.id === memoId)
+
+  if (!memo) return <Typography style={styles.emptyMessage}>메모를 찾을 수 없어요</Typography>
+
+  return (
+    <SafeAreaView style={styles.fill}>
+      <Stack direction="row" alignItems="center" style={styles.header}>
+        <IconButton onPress={() => navigation.goBack()}>
+          <MaterialIcons name="arrow-back" size={24} />
+        </IconButton>
+        <Typography variant="subtitle1" style={styles.title}>메모 수정</Typography>
+      </Stack>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+        <TripMemoForm
+          ref={formRef}
+          defaultValues={{ title: memo.title ?? '', content: memo.content }}
+          onSubmit={async ({ title, content }) => {
+            setIsSaving(true)
+            await update({ id: memo.id, title: title || null, content })
+            navigation.goBack()
+          }}
+        />
+      </ScrollView>
+      <BottomArea position="static">
+        <Button size="large" variant="contained" disabled={isSaving} onPress={() => formRef.current?.submit()} fullWidth >
+          저장
+        </Button>
+      </BottomArea>
+    </SafeAreaView>
+  )
+}
+
+const styles = StyleSheet.create({
+  fill: { flex: 1 },
+  scroll: { flex: 1 },
+  emptyMessage: { padding: 24, textAlign: 'center' },
+  title: { paddingHorizontal: 8 },
+  header: { padding: 8 },
+  content: { padding: 16, paddingBottom: 24 },
+})
+```
+
+- [ ] **Step 10: `RootNavigator.tsx`의 남은 플레이스홀더 전부 실제 스크린으로 교체**
+
+```tsx
+// 아래 매핑대로 RootStack.Screen 의 component 를 NotYetMigratedScreen 에서 교체하고,
+// 해당 스크린 컴포넌트가 이제 prop 없이 route params 만으로 동작하는지 확인한다.
+// (PostDetailScreen, PlaceDetailScreen 은 이 태스크 Step 1, 2 에서 이미 prop 없는 시그니처로 바꿨다)
+
+TripDetailChecklist    → TripDetailChecklistScreen (Task 5에서 이미 연결)
+TripMemoDetail         → TripMemoDetailScreen (이 태스크 Step 9)
+TripMemoEdit           → TripMemoEditScreen (이 태스크 Step 9)
+TripCreate             → TripCreateScreen
+TripInvite             → TripInviteScreen
+ExplorerDetail         → PlaceDetailScreen (prop 없는 시그니처로 등록: component={PlaceDetailScreen})
+ExplorerTopVisited     → TopVisitedScreen
+ExplorerRecentHot      → RecentHotScreen
+ExplorerMostSaved      → MostSavedScreen
+PostNew                → PostCreationScreen
+PostDetail             → PostDetailScreen (prop 없는 시그니처로 등록)
+UserProfile            → UserProfileDetailScreen (아래 참고 — Home 탭의 UserProfileScreen과는
+                          다른 얇은 래퍼가 필요하다)
+TransportNew           → TransportCreationScreen
+TransportDetail        → TransportDetailScreen (Task 5에서 이미 연결)
+```
+
+`UserProfile`(RootStack, 남의 프로필 보기)은 `Home` 탭의 `Profile`(자기 프로필)과 컴포넌트가
+같지만 `userId`를 얻는 방법이 다르다 — `Profile` 탭은 `useAuth().id`, `UserProfile` 스크린은
+route params다. 얇은 래퍼를 하나 추가한다:
+
+```tsx
+// apps/waylog-app/src/features/user-profile/UserProfileDetailScreen.tsx
+import { useAppRoute } from '../../shared/hooks/useAppNavigation'
+import { UserProfileScreen } from './UserProfileScreen'
+
+export function UserProfileDetailScreen() {
+  const { params } = useAppRoute<'UserProfile'>()
+  return <UserProfileScreen userId={params.userId} />
+}
+```
+
+`RootNavigator.tsx`의 `UserProfile` 스크린은 `component={UserProfileDetailScreen}`으로 등록한다.
+
+- [ ] **Step 11: 타입 검증**
+
+Run: `cd apps/waylog-app && pnpm exec tsc --noEmit`
+Expected: `apps/waylog-app/src/` 하위에 에러 없음. `RootStackParamList`의 모든 키가
+`RootNavigator`에 실제 컴포넌트로 등록되어 있는지 타입이 검증한다(빠진 게 있으면 여기서
+에러가 난다).
+
+- [ ] **Step 12: 실기기/시뮬레이터 확인**
+
+Run: `pnpm --filter waylog-app ios`
+Expected: `NotYetMigratedScreen`이 더 이상 어디서도 보이지 않아야 한다. 아래 경로를 모두
+왕복 확인한다:
+- 피드 탭 → 포스트 작성(+) → 저장 → 포스트 상세로 replace → 뒤로가기로 피드 복귀
+- 포스트 상세 → 작성자 프로필(`UserProfile`) → 뒤로가기
+- 탐색 탭 → 장소 상세(`ExplorerDetail`) → 정보/피드 탭 전환 → 뒤로가기
+- 탐색 탭 → "가장 많이 방문" 더보기(`ExplorerTopVisited`), "핫플레이스" 더보기
+  (`ExplorerRecentHot`), "많이 저장됨" 더보기(`ExplorerMostSaved`) 각각 진입·뒤로가기
+- 내 여행 탭 → 여행 만들기(`TripCreate`) 3단계 진행 → 완료 시 `TripDetail`로 이동
+- 여행 상세 → 교통편 추가(`TransportNew`) → 저장 → 교통편 상세로 replace
+- 여행 상세 → 메모 상세(`TripMemoDetail`) → 수정(`TripMemoEdit`) → 저장 → 상세로 복귀
+- 여행 나가기(`TripLeaveButton`) → `Home`으로 리셋되어 뒤로가기로 나간 여행에 못 돌아가는지 확인
+
+- [ ] **Step 13: Commit**
+
+```bash
+git add apps/waylog-app/src
+git commit -m "$(cat <<'EOF'
+feat(앱): 나머지 평면 라우트를 react-navigation으로 연결한다
+
+RootStackParamList 의 모든 화면이 실제 스크린으로 연결되어
+NotYetMigratedScreen 플레이스홀더가 더 이상 쓰이지 않는다.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+EOF
+)"
+```
