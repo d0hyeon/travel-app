@@ -1,8 +1,8 @@
 import { getTripYear, groupTripsByStatus, useTrips } from '@waylog/domains/modules/trip'
-import { useRouter } from 'expo-router'
 import { Pressable, ScrollView, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Box, Fab, Stack, Typography } from '~/shared/components/design-system'
+import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
 import { palette } from '../../../shared/config/tokens'
 import { CreateTripCard } from './CreateTripCard'
 import { OngoingTripCard } from './OngoingTripCard'
@@ -13,14 +13,14 @@ type Trip = Parameters<typeof groupTripsByStatus>[0][number]
 
 export function TripListScreen() {
   const { data: trips } = useTrips()
-  const router = useRouter()
+  const navigation = useAppNavigation()
   const insets = useSafeAreaInsets()
   const { ongoing: ongoingTrips, upcoming: upcomingTrips, past: pastTrips } = groupTripsByStatus(trips)
   const pastTripsByYear = groupTripsByYear(pastTrips)
   const pastYears = Object.keys(pastTripsByYear).toSorted((firstYear, secondYear) => Number(secondYear) - Number(firstYear))
   const hasTrips = trips.length > 0
-  const openTrip = (tripId: string) => router.push(`/trip/${tripId}`)
-  const openTripCreation = () => router.push('/trip/new')
+  const openTrip = (tripId: string) => navigation.navigate('TripDetail', { tripId })
+  const openTripCreation = () => navigation.navigate('TripCreate', {})
 
   return (
     <Box style={styles.screen}>

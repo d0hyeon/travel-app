@@ -3,7 +3,6 @@ import { useAuth, signOut } from '@waylog/domains/clients'
 import { useEffect, useRef, useState } from 'react'
 import { StyleSheet, Pressable, ScrollView, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useQueryParamState } from '../../shared/hooks/useQueryParamState'
 import { Tabs, Tab } from '~/shared/components/design-system'
 import { palette } from '../../shared/config/tokens'
 import { ProfileFeedTab } from './ProfileFeedTab'
@@ -20,7 +19,8 @@ interface Props {
 
 export function UserProfileScreen({ userId, bottomContentInset = 0 }: Props) {
   const { data: auth } = useAuth()
-  const [currentTab, selectTab] = useQueryParamState<ProfileTab>('tab', { defaultValue: 'feed', parse: parseProfileTab })
+  // Task 8 에서 useQueryParamState(route params 기반)로 재교체 예정 — 지금은 임시로 useState.
+  const [currentTab, selectTab] = useState<ProfileTab>('feed')
   const [isSigningOut, setIsSigningOut] = useState(false)
   // 지도를 만지는 동안 세로 스크롤을 멈춘다. 두 제스처가 겹치면 지도가 끊긴다.
   const [isMapInteracting, setIsMapInteracting] = useState(false)

@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useAppNavigation, useAppRoute } from '../../shared/hooks/useAppNavigation'
+import { useAppNavigation } from '../../shared/hooks/useAppNavigation'
 import type { RootStackParamList } from '../../app/routes'
 
 type ReturnTo = { screen: keyof RootStackParamList; params?: Record<string, unknown> }
@@ -27,13 +27,20 @@ export function RequireAuthRedirect({ returnTo = HOME }: { returnTo?: ReturnTo }
   return null
 }
 
-/** 세션 만료를 감지한 쪽이 명령형으로 호출한다. */
+/**
+ * 세션 만료를 감지한 쪽이 명령형으로 호출한다. 네비게이터 트리 최상단(스크린이 아닌
+ * 위치)에서도 동작해야 하므로 useAppRoute(=useRoute) 대신 현재 활성 라우트를
+ * navigation.getState()에서 직접 읽는다.
+ */
 export function useLoginRedirect() {
   const navigation = useAppNavigation()
-  const route = useAppRoute()
 
   return () => {
-    const returnTo: ReturnTo = { screen: route.name, params: route.params as Record<string, unknown> }
+    const state = navigation.getState()
+    const activeRoute = state?.routes[state.index]
+    const returnTo: ReturnTo = activeRoute == null
+      ? HOME
+      : { screen: activeRoute.name as keyof RootStackParamList, params: activeRoute.params as Record<string, unknown> }
     navigation.reset({ index: 0, routes: [{ name: 'Login', params: { returnTo } }] })
   }
 }

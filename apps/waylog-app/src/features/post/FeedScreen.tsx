@@ -1,15 +1,15 @@
 import { useFeed } from '@waylog/domains/modules/post'
-import { useRouter } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Suspense } from 'react'
 import { StyleSheet, ScrollView } from 'react-native'
 import { Box, Fab, Stack, Typography } from '~/shared/components/design-system'
+import { useAppNavigation } from '../../shared/hooks/useAppNavigation'
 import { palette } from '../../shared/config/tokens'
 import { PostCard } from './PostCard'
 
 export function FeedScreen() {
-  const router = useRouter()
+  const navigation = useAppNavigation()
   const insets = useSafeAreaInsets()
 
   return (
@@ -33,17 +33,17 @@ export function FeedScreen() {
           <Contents />
         </Suspense>
       </ScrollView>
-      <Fab size="large" onPress={() => router.push('/post/new')} style={styles.createButton}><MaterialIcons name="add" size={30} color="#fff" /></Fab>
+      <Fab size="large" onPress={() => navigation.navigate('PostNew', {})} style={styles.createButton}><MaterialIcons name="add" size={30} color="#fff" /></Fab>
     </Box>
   )
 }
 
 function Contents() {
   const { data: posts } = useFeed()
-  const router = useRouter()
+  const navigation = useAppNavigation()
 
   const openPost = (postId: string) => {
-    router.push(`/post/${postId}`)
+    navigation.navigate('PostDetail', { postId })
   }
 
   if (posts.length === 0) {
