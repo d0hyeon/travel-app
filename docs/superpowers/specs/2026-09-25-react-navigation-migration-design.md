@@ -154,6 +154,23 @@ export type TripDetailTabParamList = {
 `setParams`하는 방식으로 탭 스크린 스코프에서 처리한다. 즉 `TripRoute` 탭 안의
 `TripRoutesContent`는 `TripDetail`이 아니라 `TripRoute`의 params를 읽고 쓴다.
 
+### 탭 내부에서 스택 레벨 화면으로 이동 — `useAppNavigation`을 그대로 쓴다
+
+`TripDetail`의 `TripInfo` 탭 안에서 렌더되는 여러 컴포넌트(`UpcomingTransportSection`,
+`TripMemo`, `TripPinnedMemos`, `TripTransportList`, `TripPostCreateCard`,
+`TripBasicInfoContent`의 교통편 섹션)는 `TransportDetail`/`TripMemoDetail`/`TransportNew`/
+`PostNew`처럼 탭 트리 **밖**(`RootStackParamList`)에 있는 화면으로 이동한다. `@react-navigation`은
+자식 네비게이터(탭) 안에서도 `useNavigation()`이 타입 파라미터로 지정한 부모 스택의 라우트로
+바로 `navigate`할 수 있으므로, 이 컴포넌트들은 `useTripDetailTabNavigation`이 아니라
+**`useAppNavigation`**(스택 스코프)을 그대로 쓴다. 반대로 `TripDetailHeader`(탭 트리 밖,
+`TripDetail` 스택 스크린이 직접 렌더)도 `useAppRoute<'TripDetail'>()`로 `tripId`를 읽고
+`useAppNavigation().goBack()`으로 뒤로가기 한다 — 탭 스코프 훅과는 무관하다.
+
+정리하면 "이 컴포넌트가 최종적으로 어느 파라미터 리스트의 화면으로 이동/조회하는가"가 기준이지
+"어디서 렌더되는가"가 기준이 아니다. `TripRoutesContent`(경로 탭 내부 상태)만 자기 탭 자신의
+params를 쓰므로 `useTripDetailTabNavigation`/`useTripDetailTabRoute`가 필요하고, 나머지는 모두
+`useAppNavigation`/`useAppRoute`로 충분하다.
+
 ## 네비게이션 훅 계층
 
 40개 소비 파일이 `@react-navigation`을 직접 import하지 않고 이 계층을 통해서만 접근한다.
