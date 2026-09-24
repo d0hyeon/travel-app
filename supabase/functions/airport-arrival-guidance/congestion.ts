@@ -1,6 +1,13 @@
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2'
 import type { AirportCongestionSourceKind } from './types.ts'
 
+// 티켓의 터미널은 사용자 자유 입력이라 "2", "T2", "제2터미널"처럼 표기가
+// 갈린다. 인천공항은 여객터미널이 1·2 뿐이므로 "2"가 있으면 T2, 그 외
+// (미기재 포함)는 T1로 본다.
+function toIncheonTerminalCode(terminal: string): 'T1' | 'T2' {
+  return terminal.includes('2') ? 'T2' : 'T1'
+}
+
 export interface CongestionDepartureGate {
   gate: string
   passengerCount: number
@@ -27,12 +34,18 @@ export interface CongestionSnapshotData {
 interface Envelope<TItem> {
   response: {
     header: { resultCode: string; resultMsg: string }
-    body?: { items?: { item?: TItem | TItem[] } }
+    // 출국장 혼잡도 API 는 items 가 배열 자체다. 다른 공공데이터 API 는
+    // items.item 래퍼를 쓰므로 둘 다 받는다.
+    body?: { items?: TItem[] | { item?: TItem | TItem[] } }
   }
 }
 
 function toItemArray<TItem>(body: Envelope<TItem>['response']['body']): TItem[] {
-  const item = body?.items?.item
+  const items = body?.items
+  if (items == null) return []
+  if (Array.isArray(items)) return items
+
+  const item = items.item
   if (item == null) return []
   return Array.isArray(item) ? item : [item]
 }
@@ -82,7 +95,7 @@ async function fetchForecastCongestion(
   url.searchParams.set('selectdate', forecastDate)
 
   const items = await fetchDataGoKr<PassgrAnncmtItem>(url)
-  const gateKeys = terminal === 'T2' ? T2_FORECAST_GATES : T1_FORECAST_GATES
+  const gateKeys = toIncheonTerminalCode(terminal) === 'T2' ? T2_FORECAST_GATES : T1_FORECAST_GATES
 
   // 예고 데이터는 시간대별로 여러 행이 온다. 출국장별 가장 혼잡한(최댓값)
   // 시간대를 그 출국장의 대표값으로 쓴다.
@@ -118,16 +131,16 @@ async function fetchRealtimeCongestion(
   serviceKey: string,
   terminal: string,
 ): Promise<NormalizedCongestion> {
-  const url =
-    terminal === 'T2'
-      ? new URL('https://apis.data.go.kr/B551177/statusOfDepartureCongestionT2/getDepartureCongestionT2')
-      : new URL('https://apis.data.go.kr/B551177/statusOfDepartureCongestion/getDepartureCongestion')
+  const isT2 = toIncheonTerminalCode(terminal) === 'T2'
+  const url = isT2
+    ? new URL('https://apis.data.go.kr/B551177/statusOfDepartureCongestionT2/getDepartureCongestionT2')
+    : new URL('https://apis.data.go.kr/B551177/statusOfDepartureCongestion/getDepartureCongestion')
 
   url.searchParams.set('serviceKey', serviceKey)
   url.searchParams.set('type', 'json')
   url.searchParams.set('numOfRows', '20')
   url.searchParams.set('pageNo', '1')
-  if (terminal !== 'T2') url.searchParams.set('terminalId', 'P01')
+  if (!isT2) url.searchParams.set('terminalId', 'P01')
 
   const items = await fetchDataGoKr<DepartureCongestionItem>(url)
 
