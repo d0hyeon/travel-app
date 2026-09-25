@@ -29,7 +29,9 @@ export function HomeTabs() {
         options={{ title: '내 여행', tabBarIcon: ({ color, size }) => <MaterialIcons name="luggage" color={color} size={size} /> }}
       >
         {() => (
-          <AuthGuard fallback={<RequireAuthRedirect />}>
+          // Home 탭 이름(MyTrips)은 RootStackParamList에 없어 그대로 넘기면 로그인 후
+          // 되돌아갈 수 없다. Home 자체로 돌려보낸다.
+          <AuthGuard fallback={<RequireAuthRedirect returnTo={{ screen: 'Home' }} />}>
             <TripListScreen />
           </AuthGuard>
         )}
@@ -50,7 +52,7 @@ export function HomeTabs() {
         options={{ title: '프로필', tabBarIcon: ({ color, size }) => <MaterialIcons name="person-outline" color={color} size={size} /> }}
       >
         {() => (
-          <AuthGuard fallback={<RequireAuthRedirect />}>
+          <AuthGuard fallback={<RequireAuthRedirect returnTo={{ screen: 'Home' }} />}>
             <ProfileTab />
           </AuthGuard>
         )}
