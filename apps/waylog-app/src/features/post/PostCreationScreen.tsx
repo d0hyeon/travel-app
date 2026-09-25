@@ -1,11 +1,21 @@
+import { AuthGuard } from '@waylog/domains/clients'
 import { PostVisibility, useCreatePost } from '@waylog/domains/modules/post'
 import { useEffect, useState } from 'react'
 import { useAppNavigation, useAppRoute } from '../../shared/hooks/useAppNavigation'
 import { uploadPostPhoto } from '../photo/photo.api'
 import { PostFormFunnel } from './post-form-funnel/PostFormFunnel'
 import type { PostFormStep, PostFormValues } from './post-form-funnel/postFormFunnel.types'
+import { RequireAuthRedirect } from '../auth/auth-redirect'
 
 export function PostCreationScreen() {
+  return (
+    <AuthGuard fallback={<RequireAuthRedirect />}>
+      <ResolvedPostCreationScreen />
+    </AuthGuard>
+  )
+}
+
+function ResolvedPostCreationScreen() {
   const navigation = useAppNavigation()
   const { params } = useAppRoute<'PostNew'>()
   const fixedTripId = params.tripId

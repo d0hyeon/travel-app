@@ -1,3 +1,4 @@
+import { AuthGuard } from '@waylog/domains/clients'
 import { useTripTransports } from '@waylog/domains/modules/trip-transport'
 import { useEffect, useState } from 'react'
 import { useAppNavigation, useAppRoute } from '../../../shared/hooks/useAppNavigation'
@@ -6,10 +7,19 @@ import {
   type TransportSubmitValues,
 } from './transport-form-funnel/TransportFormFunnel'
 import { useTransportTicketUpload } from './transport-ticket/useTransportTicketUpload'
+import { RequireAuthRedirect } from '../../auth/auth-redirect'
 
 const START_STEP = 'type'
 
 export function TransportCreationScreen() {
+  return (
+    <AuthGuard fallback={<RequireAuthRedirect />}>
+      <ResolvedTransportCreationScreen />
+    </AuthGuard>
+  )
+}
+
+function ResolvedTransportCreationScreen() {
   const navigation = useAppNavigation()
   const { params } = useAppRoute<'TransportNew'>()
   const { tripId } = params

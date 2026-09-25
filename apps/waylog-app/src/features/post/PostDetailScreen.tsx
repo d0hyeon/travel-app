@@ -1,4 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons'
+import { AuthGuard } from '@waylog/domains/clients'
 import { PostVisibility, type Post, usePost } from '@waylog/domains/modules/post'
 import { Suspense } from 'react'
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native'
@@ -12,12 +13,15 @@ import { PostAuthor } from './PostAuthor'
 import { PostLikeButton } from './PostLikeButton'
 import { PostMenu } from './PostMenu'
 import { LoadableImage } from '../../shared/components/LoadableImage'
+import { RequireAuthRedirect } from '../auth/auth-redirect'
 
 export function PostDetailScreen() {
   return (
-    <Suspense fallback={<PostDetailLoading />}>
-      <ResolvedPostDetail />
-    </Suspense>
+    <AuthGuard fallback={<RequireAuthRedirect />}>
+      <Suspense fallback={<PostDetailLoading />}>
+        <ResolvedPostDetail />
+      </Suspense>
+    </AuthGuard>
   )
 }
 

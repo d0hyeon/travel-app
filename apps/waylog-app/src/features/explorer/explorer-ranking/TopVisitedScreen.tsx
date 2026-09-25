@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native'
+import { AuthGuard } from '@waylog/domains/clients'
 import { Suspense } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { palette } from '../../../shared/config/tokens'
@@ -10,8 +11,17 @@ import { ExplorerRankingGrid } from '../explorer-view/ExplorerRankingGrid'
 import { ExplorerScreenHeader } from '../explorer-view/ExplorerScreenHeader'
 import { useExplorerViewMode } from '../explorer-view/useExplorerViewMode'
 import { useExploredPlaces } from './useExploredPlaces'
+import { RequireAuthRedirect } from '../../auth/auth-redirect'
 
 export function TopVisitedScreen() {
+  return (
+    <AuthGuard fallback={<RequireAuthRedirect />}>
+      <ResolvedTopVisitedScreen />
+    </AuthGuard>
+  )
+}
+
+function ResolvedTopVisitedScreen() {
   const { location, category } = useExplorerFilterParams()
   const [viewMode, setViewMode] = useExplorerViewMode()
   const { isScrollDown, onScroll } = useScrollStatus()
