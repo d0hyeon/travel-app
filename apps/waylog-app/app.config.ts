@@ -45,6 +45,10 @@ const config: ExpoConfig = {
         // Mapbox.setAccessToken() 호출로 별도 주입한다 (Task 2).
       },
     ],
+    // Xcode 27이 UIKit Scene lifecycle 미채택 앱을 크래시시킨다(EXC_BREAKPOINT).
+    // 공식 패치(expo/config-plugins#326)가 npm엔 아직 배포되지 않아 워크스페이스
+    // 패키지로 직접 들여왔다.
+    "@config-plugins/expo-uiscene-lifecycle",
     // expo-notifications 가 autolinking 으로 주입하는 aps-environment 를 걷어낸다.
     // 반드시 마지막에 둔다 — 앞선 플러그인이 넣은 뒤에 지워야 한다.
     "./plugins/withPersonalTeamSigning",

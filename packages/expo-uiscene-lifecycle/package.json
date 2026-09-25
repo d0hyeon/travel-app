@@ -1,0 +1,17 @@
+{
+  "name": "@config-plugins/expo-uiscene-lifecycle",
+  "version": "0.1.1",
+  "description": "Config plugin for adopting the UIKit scene lifecycle in Expo SDK 57 apps on Xcode 27 (vendored from https://github.com/expo/config-plugins/pull/326, not yet published to npm).",
+  "main": "build/index.js",
+  "files": [
+    "app.plugin.js",
+    "build"
+  ],
+  "dependencies": {
+    "semver": "^7.6.3"
+  },
+  "peerDependencies": {
+    "expo": ">=57.0.23 <58.0.0"
+  },
+  "private": true
+}
