@@ -26,7 +26,6 @@ import { tamaguiConfig } from '../../tamagui.config'
 import type { RootStackParamList } from './routes'
 import { HomeTabs } from './HomeTabs'
 import { TripDetailScreen } from '../features/trip/TripDetailScreen'
-import { TripDetailChecklistScreen } from '../features/trip/trip-checklist/TripDetailChecklistScreen'
 import { TripMemoDetailScreen } from '../features/trip/trip-memo/TripMemoDetailScreen'
 import { TripMemoEditScreen } from '../features/trip/trip-memo/TripMemoEditScreen'
 import { TripCreateScreen } from '../features/trip/trip-create/TripCreateScreen'
@@ -105,7 +104,6 @@ export function RootNavigator() {
                         // 들고 있어, 헤더는 새 여행을 보여줘도 탭은 이전 여행에 머문다.
                         getId={({ params }) => params.tripId}
                       />
-                      <RootStack.Screen name="TripDetailChecklist" component={TripDetailChecklistScreen} />
                       <RootStack.Screen name="TripMemoDetail" component={TripMemoDetailScreen} />
                       <RootStack.Screen name="TripMemoEdit" component={TripMemoEditScreen} />
                       <RootStack.Screen name="TripCreate" component={TripCreateScreen} />

@@ -10,7 +10,6 @@ export type RootStackParamList = {
   Login: { returnTo?: { screen: keyof RootStackParamList; params?: Record<string, unknown> } }
   Home: undefined
   TripDetail: { tripId: string }
-  TripDetailChecklist: { tripId: string }
   TripMemoDetail: { tripId: string; memoId: string }
   TripMemoEdit: { tripId: string; memoId: string }
   TripCreate: { step?: string }
