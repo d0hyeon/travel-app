@@ -64,7 +64,11 @@ const RootStack = createNativeStackNavigator<RootStackParamList>()
 const linking: LinkingOptions<RootStackParamList> = {
   prefixes: ['waylog://', 'https://waylog.me', 'https://www.waylog.me'],
   config: {
+    // 콜드 스타트로 딥링크가 열려도 스택 맨 아래에 Home을 깔아둔다. 없으면 스택이
+    // TripInvite 하나뿐이라 뒤로가기·초대 참여 후 replace가 갈 곳을 잃는다.
+    initialRouteName: 'Home',
     screens: {
+      Home: '',
       TripInvite: 'trip/invite/:shareLink',
     },
   },

@@ -9,7 +9,7 @@ type ExplorerFilterParams = {
 export type RootStackParamList = {
   Login: { returnTo?: { screen: keyof RootStackParamList; params?: Record<string, unknown> } }
   Home: undefined
-  TripDetail: { tripId: string; days?: string; 'route-id'?: string; 'info-tab'?: string }
+  TripDetail: { tripId: string }
   TripDetailChecklist: { tripId: string }
   TripMemoDetail: { tripId: string; memoId: string }
   TripMemoEdit: { tripId: string; memoId: string }
