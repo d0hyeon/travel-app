@@ -11,13 +11,14 @@ import { Typography } from '../Typography'
 import { useMenuFabContext } from './MenuFabContext'
 import { getItemOffsetY, getItemStagger, ITEM_HEIGHT } from './menuFabMotion'
 
-// Liquid Glass 는 뒤를 굴절시켜 스스로 명암을 만든다. 흰 배경 위에서는
-// 굴절할 것이 없어 흰 틴트를 주면 아무것도 보이지 않는다. 탭 캡슐과 같은
-// 어두운 틴트를 줘야 밝은 콘텐츠 위에서도 유리의 윤곽이 잡힌다.
-const GLASS_TINT = 'rgba(0,0,0,0.09)'
-
-// 라벨이 읽힐 만큼만 뒤를 덮는다. 불투명하게 채우면 유리가 아니라 판이 된다.
-const PILL_SCRIM = 'rgba(255,255,255,0.85)'
+// 검은 틴트는 블러와 겹치면 탁한 회색으로 보인다. 흰 틴트를 줘야 서리
+// 낀 유리(frosted glass) 특유의 밝고 뽀얀 느낌이 난다. 지도·사진처럼 색이
+// 있는 배경은 그 색이 옅게 비쳐야 하므로 흰 틴트를 옅게, 흰 리스트 화면
+// 위에서는 더 진하게 줘 존재감을 확보한다.
+const GLASS_TINT: Record<'colored' | 'plain', string> = {
+  colored: 'rgba(255,255,255,0.35)',
+  plain: 'rgba(255,255,255,0.55)',
+}
 
 export interface MenuFabItemProps {
   icon?: ReactNode
@@ -26,7 +27,7 @@ export interface MenuFabItemProps {
 }
 
 export function MenuFabItem({ icon, onPress, children }: MenuFabItemProps) {
-  const { menuProgress, index, itemCount, isOpen, closeMenu } = useMenuFabContext()
+  const { menuProgress, index, itemCount, isOpen, closeMenu, surface } = useMenuFabContext()
   const { start, end } = getItemStagger(index, itemCount)
 
   const animatedStyle = useAnimatedStyle(() => {
@@ -53,8 +54,8 @@ export function MenuFabItem({ icon, onPress, children }: MenuFabItemProps) {
       importantForAccessibility={isOpen ? 'auto' : 'no-hide-descendants'}
       style={[styles.slot, { bottom: getItemOffsetY(index) }, animatedStyle]}
     >
-      <View style={styles.pillBase}>
-        <GlassSurface fallbackBlurIntensity={40} tintColor={GLASS_TINT} style={styles.pill}>
+      <View style={styles.clip}>
+        <GlassSurface fallbackBlurIntensity={40} tintColor={GLASS_TINT[surface]} style={styles.pill}>
           <Pressable
             accessibilityRole="button"
             disabled={!isOpen}
@@ -87,14 +88,13 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
   },
-  // 유리 뒤로 콘텐츠가 비쳐야 하므로 불투명하게 덮지 않는다. 다만 완전히
-  // 비추면 라벨이 묻히므로 반투명한 흰 판을 깔아 글자의 바탕만 확보한다.
-  pillBase: {
+  // 라운드 안쪽으로 블러를 가둔다. 이게 없으면 블러가 사각으로 삐져나온다.
+  // 배경은 깔지 않는다 — GlassSurface 의 tintColor 가 곧 명암이다. 불투명한
+  // 판을 더 얹으면 굴절이 판 위에서 일어나 유리가 아니라 회색 판이 된다.
+  clip: {
     borderRadius: radius.xl,
-    backgroundColor: PILL_SCRIM,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: palette.divider,
-    // 라운드 안쪽으로 블러를 가둔다. 이게 없으면 블러가 사각으로 삐져나온다.
     overflow: 'hidden',
   },
   pill: {

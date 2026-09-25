@@ -9,12 +9,10 @@ import { useDayTripRoutes } from '@waylog/domains/modules/trip'
 import { useConfirmDialog } from '../../../shared/components/confirm-dialog/useConfirmDialog';
 import { useQueryClient } from '@tanstack/react-query'
 
-// Liquid Glass 는 뒤를 굴절시켜 스스로 명암을 만든다. 흰 틴트를 주면
-// 밝은 지도 위에서 아무것도 보이지 않아 탭 캡슐과 같은 어두운 틴트를 준다.
-const GLASS_TINT = 'rgba(0,0,0,0.09)'
-
-// 칩과 아이콘이 읽힐 만큼만 지도를 덮는다. 불투명하게 채우면 유리가 아니라 판이 된다.
-const TOOLBAR_SCRIM = 'rgba(255,255,255,0.62)'
+// 검은 틴트는 블러와 겹치면 탁한 회색으로 보인다. 흰 틴트를 줘야 서리
+// 낀 유리(frosted glass) 특유의 밝고 뽀얀 느낌이 나면서 지도 색도 옅게
+// 비친다.
+const GLASS_TINT = 'rgba(255,255,255,0.4)'
 
 interface TripRouteConfigToolbarProps {
   tripId: string;
@@ -44,7 +42,7 @@ export function TripRouteConfigToolbar({
 
   return (
     <Animated.View entering={FadeIn.duration(180)} exiting={FadeOut.duration(140)} style={styles.toolbar}>
-      <View style={styles.scrim}>
+      <View style={styles.clip}>
         <GlassSurface fallbackBlurIntensity={45} tintColor={GLASS_TINT} style={styles.surface}>
           <ScrollView
             ref={scrollViewRef}
@@ -128,12 +126,11 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 4,
   },
-  // 유리 뒤로 지도가 비쳐야 하므로 불투명하게 덮지 않는다. 반투명한 흰 판만
-  // 깔아 칩과 아이콘의 바탕을 확보한다.
-  scrim: {
+  // 라운드 안쪽으로 블러를 가둔다. 이게 없으면 블러가 사각으로 삐져나온다.
+  // 배경은 깔지 않는다 — GlassSurface 의 tintColor 가 곧 명암이다. 불투명한
+  // 판을 더 얹으면 굴절이 판 위에서 일어나 유리가 아니라 회색 판이 된다.
+  clip: {
     borderRadius: 16,
-    backgroundColor: TOOLBAR_SCRIM,
-    // 라운드 안쪽으로 블러를 가둔다. 이게 없으면 블러가 사각으로 삐져나온다.
     overflow: 'hidden',
   },
   surface: {

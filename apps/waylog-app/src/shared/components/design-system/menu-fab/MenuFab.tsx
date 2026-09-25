@@ -15,9 +15,11 @@ export interface MenuFabProps {
   children?: ReactNode
   disabled?: boolean
   style?: StyleProp<ViewStyle>
+  /** 메뉴 뒤에 깔리는 배경. 지도 위는 'colored', 흰 리스트 화면 위는 'plain'. */
+  surface?: 'colored' | 'plain'
 }
 
-function MenuFabRoot({ onPress, children, disabled = false, style }: MenuFabProps) {
+function MenuFabRoot({ onPress, children, disabled = false, style, surface = 'colored' }: MenuFabProps) {
   const [isOpen, setIsOpen] = useState(false)
   const menuProgress = useSharedValue(0)
   const pressProgress = useSharedValue(0)
@@ -83,7 +85,7 @@ function MenuFabRoot({ onPress, children, disabled = false, style }: MenuFabProp
         {items.map((item, index) => (
           <MenuFabContext.Provider
             key={isValidElement(item) ? item.key : index}
-            value={{ index, itemCount, menuProgress, isOpen: isMenuInteractive, closeMenu }}
+            value={{ index, itemCount, menuProgress, isOpen: isMenuInteractive, closeMenu, surface }}
           >
             {item}
           </MenuFabContext.Provider>

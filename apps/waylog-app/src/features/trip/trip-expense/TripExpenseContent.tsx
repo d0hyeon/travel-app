@@ -65,7 +65,7 @@ export default function TripExpenseContent({ tripId }: Props) {
         </ScrollView>
       )}
 
-      <MenuFab onPress={handleAddExpense} disabled={!hasMember} style={styles.menuFab}>
+      <MenuFab onPress={handleAddExpense} disabled={!hasMember} style={styles.menuFab} surface="plain">
         <MenuFab.Item
           icon={<MaterialIcons name="add" size={18} color={palette.primary} />}
           onPress={handleAddExpense}
