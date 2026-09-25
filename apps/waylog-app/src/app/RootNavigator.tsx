@@ -25,7 +25,7 @@ import { queryClient } from '../shared/query-client'
 import { tamaguiConfig } from '../../tamagui.config'
 import type { RootStackParamList } from './routes'
 import { HomeTabs } from './HomeTabs'
-import { TripDetailStack } from '../features/trip/TripDetailStack'
+import { TripDetailScreen } from '../features/trip/TripDetailScreen'
 import { TripDetailChecklistScreen } from '../features/trip/trip-checklist/TripDetailChecklistScreen'
 import { TripMemoDetailScreen } from '../features/trip/trip-memo/TripMemoDetailScreen'
 import { TripMemoEditScreen } from '../features/trip/trip-memo/TripMemoEditScreen'
@@ -93,7 +93,7 @@ export function RootNavigator() {
                     <RootStack.Navigator screenOptions={{ headerShown: false }}>
                       <RootStack.Screen name="Home" component={HomeTabs} options={{ animation: 'none' }} />
                       <RootStack.Screen name="Login" component={LoginRoute} />
-                      <RootStack.Screen name="TripDetail" component={TripDetailStack} />
+                      <RootStack.Screen name="TripDetail" component={TripDetailScreen} />
                       <RootStack.Screen name="TripDetailChecklist" component={TripDetailChecklistScreen} />
                       <RootStack.Screen name="TripMemoDetail" component={TripMemoDetailScreen} />
                       <RootStack.Screen name="TripMemoEdit" component={TripMemoEditScreen} />

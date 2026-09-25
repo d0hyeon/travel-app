@@ -7,7 +7,7 @@ import { palette } from '../../shared/config/tokens'
 import { TripDetailHeader } from './components/TripDetailHeader'
 import { TripDetailTabs } from './TripDetailTabs'
 
-export function TripDetailStack() {
+export function TripDetailScreen() {
   const insets = useSafeAreaInsets()
   const { params } = useAppRoute<'TripDetail'>()
 
