@@ -1,5 +1,5 @@
 import { Navigate, useLocation, useNavigate } from "react-router";
-import { AppRoute } from "~app/routes";
+import { AppRoute } from "@waylog/routes";
 
 export function AuthNavigate() {
   return <Navigate to={AppRoute.로그인} state={{ from: window.location.href }} replace />

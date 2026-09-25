@@ -2,7 +2,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Button, IconButton, Stack, Typography } from '@mui/material';
 import { useTransition } from 'react';
 import { generatePath, useNavigate, useParams } from 'react-router';
-import { AppRoute } from '~app/routes';
+import { AppRoute } from '@waylog/routes';
 import { TripMemoForm } from './TripMemoForm';
 import { useTripMemo } from '@waylog/domains/modules/trip-memo';
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile';

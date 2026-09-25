@@ -5,7 +5,7 @@ import { ListItem } from "~shared/components/ListItem";
 import { useTripMemo } from '@waylog/domains/modules/trip-memo';
 import { getMemoDisplayTitle } from './memoTitle';
 import { generatePath, Link } from 'react-router';
-import { AppRoute } from '~app/routes';
+import { AppRoute } from '@waylog/routes';
 
 interface Props extends StackProps {
   tripId: string;

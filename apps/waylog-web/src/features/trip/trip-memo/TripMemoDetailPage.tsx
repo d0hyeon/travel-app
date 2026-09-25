@@ -6,7 +6,7 @@ import { Skeleton, Stack, Typography } from '@mui/material';
 import { formatDate } from 'date-fns';
 import { Suspense } from 'react';
 import { generatePath, useNavigate, useParams } from 'react-router';
-import { AppRoute } from '~app/routes';
+import { AppRoute } from '@waylog/routes';
 import { OgPreviewCard } from '~features/open-graph/OgPreviewCard';
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog';
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile';

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
 import { generatePath } from "react-router"
-import { AppRoute } from "~app/routes"
+import { AppRoute } from "@waylog/routes"
 import { PlaceFullScreenModal } from "~features/place/place-detail/PlaceFullScreenModal"
 import { PlaceSidePanel } from "~features/place/place-detail/PlaceSidePanel"
 import { useRouteOverlay } from "~shared/hooks/extends/route-overlay/useRouteOverlay"

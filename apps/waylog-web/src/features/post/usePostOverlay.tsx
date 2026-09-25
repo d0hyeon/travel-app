@@ -1,6 +1,6 @@
 import { Container } from "@mui/material";
 import { generatePath } from "react-router";
-import { AppRoute } from "~app/routes";
+import { AppRoute } from "@waylog/routes";
 import { FullScreenPopup } from "~shared/components/FullScreenPopup";
 import { TopNavigation } from "~shared/components/layout/TopNavigation.mobile";
 import { useRouteOverlay } from "~shared/hooks/extends/route-overlay/useRouteOverlay";

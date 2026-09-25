@@ -4,7 +4,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { useOverlay } from "~shared/hooks/useOverlay";
 import { useIsMobile } from "~shared/hooks/env/useIsMobile";
 import { useNavigate } from "react-router";
-import { AppRoute } from "~app/routes";
+import { AppRoute } from "@waylog/routes";
 import { TripFormDialog } from "../components/TripFormDialog";
 import { useTrips } from "@waylog/domains/modules/trip";
 

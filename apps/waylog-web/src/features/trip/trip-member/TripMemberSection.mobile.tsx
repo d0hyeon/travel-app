@@ -8,7 +8,7 @@ import { TripInviteButton } from '../components/TripInviteButton'
 import { MemberAvatar } from './MemberAvatar'
 import { SortCommand } from '~shared/utils/sorts'
 import { generatePath, Link } from 'react-router'
-import { AppRoute } from '~app/routes'
+import { AppRoute } from '@waylog/routes'
 
 interface Props {
   tripId: string

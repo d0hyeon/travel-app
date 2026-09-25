@@ -1,6 +1,6 @@
 import { Box, ImageList, ImageListItem, Stack, Typography } from '@mui/material'
 import { generatePath, Link } from 'react-router'
-import { AppRoute } from '~app/routes'
+import { AppRoute } from '@waylog/routes'
 import { useUserFeed } from '~features/post/useUserFeed'
 
 interface Props {

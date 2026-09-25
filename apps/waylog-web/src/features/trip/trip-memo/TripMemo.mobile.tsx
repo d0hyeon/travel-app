@@ -3,7 +3,7 @@ import PushPinIcon from '@mui/icons-material/PushPin';
 import { Box, Fab, Skeleton, Stack, Typography, Button } from '@mui/material';
 import { Suspense } from 'react';
 import { generatePath, Link } from 'react-router';
-import { AppRoute } from '~app/routes';
+import { AppRoute } from '@waylog/routes';
 import { useOverlay } from '~shared/hooks/useOverlay';
 import { useTripMemo } from '@waylog/domains/modules/trip-memo';
 import type { TripMemo as TripMemoType } from '@waylog/domains/modules/trip-memo';

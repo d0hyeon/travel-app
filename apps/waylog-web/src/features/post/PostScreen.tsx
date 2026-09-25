@@ -1,7 +1,7 @@
 import { Box, ImageList, ImageListItem, Skeleton, Stack, Typography } from '@mui/material'
 import { Suspense } from 'react'
 import { generatePath, Link } from 'react-router'
-import { AppRoute } from '~app/routes'
+import { AppRoute } from '@waylog/routes'
 import { useAuth } from '@waylog/domains/clients'
 import { PlaceFullScreenModal } from '~features/place/place-detail/PlaceFullScreenModal'
 import { UserProfile } from '~features/user-profile/UserProfile'

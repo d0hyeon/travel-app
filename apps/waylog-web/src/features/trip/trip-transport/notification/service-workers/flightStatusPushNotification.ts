@@ -1,6 +1,6 @@
 import { generatePath } from 'react-router'
 import z from 'zod'
-import { AppRoute } from '~app/routes'
+import { AppRoute } from '@waylog/routes'
 
 const FlightStatusPushNotificationSchema = z.strictObject({
   title: z.string(),

@@ -4,30 +4,9 @@ import {
   layout,
   route,
 } from "@react-router/dev/routes";
+import { AppRoute } from "@waylog/routes";
 
-export const AppRoute = {
-  메인: "/",
-  통계: "/statistics",
-  탐색: "/explorer",
-  여행_상세: "/trip/:tripId",
-  여행_채팅: "/trip/:tripId/chat",
-  여행_메모_상세: "/trip/:tripId/memo/:memoId",
-  여행_메모_편집: "/trip/:tripId/memo/:memoId/edit",
-  여행_생성: "/trip/new",
-  여행_교통편_추가: "/trip/:tripId/transport/new",
-  여행_교통편_상세: "/trip/:tripId/transport/:transportId",
-  여행_초대: "/trip/invite/:shareLink",
-  로그인: "/login",
-  피드: "/feed",
-  장소_상세: "/place/:placeId",
-  유저_프로필: "/u/:userId",
-  포스트_생성: "/post/new",
-  포스트_상세: "/post/:postId",
-  어드민_여행_목록: "/admin/trips",
-  장소_최다방문순: "/explorer/top-visited",
-  장소_급상승: "/explorer/recent-hot",
-  장소_저장순: "/explorer/most-saved",
-} as const;
+export { AppRoute };
 
 export default [
   route(AppRoute.로그인, "../features/auth/LoginPage.tsx"),

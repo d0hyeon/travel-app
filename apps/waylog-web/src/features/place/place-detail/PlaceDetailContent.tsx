@@ -1,6 +1,6 @@
 import { Box, Skeleton, Stack } from '@mui/material'
 import { generatePath, Link } from 'react-router'
-import { AppRoute } from '~app/routes'
+import { AppRoute } from '@waylog/routes'
 import { PostCard } from '~features/post/PostCard'
 import { usePlaceFeed } from '../../post/place-feed/usePlaceFeed'
 import { PlaceInfoWidget } from '../PlaceInfoWIdget'

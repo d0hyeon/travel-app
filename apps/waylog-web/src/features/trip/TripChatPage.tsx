@@ -3,7 +3,7 @@ import { generatePath, useNavigate } from 'react-router'
 import { useTripChatOverlay } from './trip-chat/useTripChatOverlay'
 import { useTripId } from './useTripId'
 import TripDetailPage from './TripDetailPage'
-import { AppRoute } from '~app/routes'
+import { AppRoute } from '@waylog/routes'
 
 export default function TripChatPage() {
   const tripId = useTripId()

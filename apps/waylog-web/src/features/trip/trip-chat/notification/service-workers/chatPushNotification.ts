@@ -1,6 +1,6 @@
 import { generatePath } from 'react-router'
 import z from 'zod'
-import { AppRoute } from '~app/routes'
+import { AppRoute } from '@waylog/routes'
 import { isTripChatPushData } from '@waylog/domains/modules/trip-chat/tripChatPush'
 
 const ChatPushNotificationSchema = z.strictObject({
