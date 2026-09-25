@@ -163,13 +163,26 @@ const linking: LinkingOptions<RootStackParamList> = {
 이렇게 하면 `RootStackParamList`의 키가 곧 `AppRoute`의 값이 되어, 경로 문자열 하나가 URL 겸
 스크린 식별자 겸 파라미터 레지스트리 키로 통일된다.
 
+화면 파일의 깊이에 따라 `../../app/routes`, `../../../app/routes`처럼 상대경로가 매번 달라지는
+것을 피하기 위해, `declare module`의 대상은 tsconfig `paths`에 등록한 별칭(`~app/routes`)을
+쓴다. TypeScript는 `declare module`의 대상 문자열도 `paths`로 해석하므로, 별칭으로 선언해도
+실제 파일과 동일한 모듈로 인식되어 병합된다.
+
+```json
+// apps/waylog-app/tsconfig.json
+"paths": {
+  "~app/routes": ["./src/app/routes.ts"],
+  // ...기존 항목
+}
+```
+
 ```ts
 // apps/waylog-app/src/features/trip/TripDetailScreen.tsx
 import { AppRoute } from '@waylog/routes'
 
 export type TripDetailParams = { tripId: string }
 
-declare module '../../app/routes' {
+declare module '~app/routes' {
   interface RouteParamsRegistry {
     [AppRoute.여행_상세]: TripDetailParams   // "/trip/:tripId"를 키로 병합
   }
@@ -193,6 +206,27 @@ export type RootStackParamList = RouteParamsRegistry
 등록을 위해 이미 모든 화면 컴포넌트를 import하고 있다. 화면 컴포넌트를 import하는 시점에 그
 파일의 `declare module` 부수효과도 함께 로드되므로, "화면 파일이 import되지 않으면 타입이
 누락된다"는 declaration merging의 일반적 리스크가 이 구조에서는 발생하지 않는다.
+
+### 6. 런타임 검증 확장 지점 (비목표의 구체화)
+
+타입 선언과 별개로, 화면 파일이 원하면 파라미터 검증 함수도 같이 export할 수 있게 자리를
+남긴다. 등록(declaration merging)과 검증(런타임 함수)은 독립적이며, 검증 함수는 지금은 아무
+데서도 호출되지 않는다 — 신뢰할 수 없는 소스(딥링크 등)에서 파라미터가 들어오는 화면이
+생기면 그 진입점에서 이 함수를 호출하도록 나중에 연결한다.
+
+```ts
+// TripDetailScreen.tsx
+export type TripDetailParams = { tripId: string }
+
+// 지금은 안 쓰지만, 나중에 딥링크 등으로 신뢰 못 할 소스에서 params가 들어오는
+// 화면이 생기면 이 자리에 검증 로직(zod 등)을 채운다.
+export function parseTripDetailParams(raw: unknown): TripDetailParams {
+  return raw as TripDetailParams
+}
+```
+
+이번 작업 범위에서는 `parseTripDetailParams` 같은 함수를 만들지 않는다 — 이미 신뢰할 수 없는
+소스를 다루고 있는 화면(`TripInvite`)에 한해서만, 실행 계획 단계에서 필요 여부를 판단한다.
 
 쿼리성 파라미터(예: `TripCreate.step`, `ExplorerDetail.tab`)는 경로 문자열에 나타나지 않으므로
 화면이 선언하는 타입에 그대로 포함시킨다(path/query를 구분하는 별도 장치는 두지 않는다 — 화면
@@ -223,3 +257,8 @@ export type RootStackParamList = RouteParamsRegistry
   원본(`@waylog/routes`) `AppRoute` 값을 쓴다 — 두 값이 다른 문자열이지만 타입 조회와 런타임
   등록이 분리되어 있어 문제되지 않는다는 전제가 실제로 깨지지 않는지, 즉 `useAppRoute<T>()`가
   런타임에 키 문자열로 무언가를 조회하는 코드가 없는지 전수 확인한다.
+- **`declare module '~app/routes'` 별칭이 실제로 병합되는지**: tsconfig `paths` 별칭을 통한
+  `declare module` 대상 해석이 `tsc`뿐 아니라 Metro(런타임 번들러)의 타입 체크 경로(예:
+  `tsc --noEmit`을 돌리는 CI, 에디터의 TS 서버)에서도 동일하게 동작하는지 확인한다 — 별칭
+  해석이 도구마다 다르면 에디터에서는 타입이 보이는데 CI에서는 깨지는 식의 불일치가 생길 수
+  있다.
