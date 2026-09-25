@@ -2,12 +2,14 @@ import { ErrorBoundary } from '@waylog/react'
 import { View, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Button, Stack, Typography } from '~/shared/components/design-system'
+import { useAppRoute } from '../../shared/hooks/useAppNavigation'
 import { palette } from '../../shared/config/tokens'
 import { TripDetailHeader } from './components/TripDetailHeader'
 import { TripDetailTabs } from './TripDetailTabs'
 
 export function TripDetailStack() {
   const insets = useSafeAreaInsets()
+  const { params } = useAppRoute<'TripDetail'>()
 
   return (
     <View style={styles.screen}>
@@ -23,7 +25,7 @@ export function TripDetailStack() {
           <TripDetailHeader />
         </View>
         <View style={styles.fill}>
-          <TripDetailTabs />
+          <TripDetailTabs tripId={params.tripId} />
         </View>
       </ErrorBoundary>
     </View>

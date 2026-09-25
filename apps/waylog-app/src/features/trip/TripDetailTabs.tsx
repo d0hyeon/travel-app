@@ -12,7 +12,11 @@ import type { TripDetailTabParamList } from '../../app/routes'
 
 const Tab = createBottomTabNavigator<TripDetailTabParamList>()
 
-export function TripDetailTabs() {
+interface Props {
+  tripId: string
+}
+
+export function TripDetailTabs({ tripId }: Props) {
   return (
     <Tab.Navigator
       // 탭은 replace 로 동작한다. 뒤로가기는 직전 탭이 아니라 여행 화면을 벗어난다.
@@ -32,11 +36,11 @@ export function TripDetailTabs() {
         tabBarInactiveTintColor: palette.grey,
       }}
     >
-      <Tab.Screen name="TripInfo" component={TripInfoTabScreen} options={{ tabBarIcon: ({ color }) => <MaterialIcons name="info" size={22} color={color} />, title: '정보' }} />
-      <Tab.Screen name="TripPlace" component={TripPlaceTabScreen} options={{ tabBarIcon: ({ color }) => <MaterialIcons name="pin-drop" size={22} color={color} />, title: '장소' }} />
-      <Tab.Screen name="TripRoute" component={TripRouteTabScreen} options={{ tabBarIcon: ({ color }) => <MaterialIcons name="near-me" size={22} color={color} />, title: '계획' }} />
-      <Tab.Screen name="TripExpense" component={TripExpenseTabScreen} options={{ tabBarIcon: ({ color }) => <MaterialIcons name="receipt" size={22} color={color} />, title: '정산' }} />
-      <Tab.Screen name="TripPhoto" component={TripPhotoTabScreen} options={{ tabBarIcon: ({ color }) => <MaterialIcons name="photo" size={22} color={color} />, title: '사진' }} />
+      <Tab.Screen name="TripInfo" component={TripInfoTabScreen} initialParams={{ tripId }} options={{ tabBarIcon: ({ color }) => <MaterialIcons name="info" size={22} color={color} />, title: '정보' }} />
+      <Tab.Screen name="TripPlace" component={TripPlaceTabScreen} initialParams={{ tripId }} options={{ tabBarIcon: ({ color }) => <MaterialIcons name="pin-drop" size={22} color={color} />, title: '장소' }} />
+      <Tab.Screen name="TripRoute" component={TripRouteTabScreen} initialParams={{ tripId }} options={{ tabBarIcon: ({ color }) => <MaterialIcons name="near-me" size={22} color={color} />, title: '계획' }} />
+      <Tab.Screen name="TripExpense" component={TripExpenseTabScreen} initialParams={{ tripId }} options={{ tabBarIcon: ({ color }) => <MaterialIcons name="receipt" size={22} color={color} />, title: '정산' }} />
+      <Tab.Screen name="TripPhoto" component={TripPhotoTabScreen} initialParams={{ tripId }} options={{ tabBarIcon: ({ color }) => <MaterialIcons name="photo" size={22} color={color} />, title: '사진' }} />
     </Tab.Navigator>
   )
 }
