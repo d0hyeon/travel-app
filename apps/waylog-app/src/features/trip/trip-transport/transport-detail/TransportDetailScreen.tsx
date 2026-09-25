@@ -1,3 +1,4 @@
+import { AppRoute } from '@waylog/routes'
 import { AsyncBoundary } from '@waylog/react'
 import { Suspense } from 'react'
 import { ScrollView, StyleSheet } from 'react-native'
@@ -15,8 +16,16 @@ import { PushNotificationCard } from '../../../auth/PushNotificationCard'
 import { Box, Stack } from '~/shared/components/design-system'
 import { AirportArrivalGuidanceSection } from '../AirportArrivalGuidanceSection'
 
+export type TransportDetailParams = { tripId: string; transportId: string }
+
+declare module '~app/routes' {
+  interface RouteParamsRegistry {
+    [AppRoute.여행_교통편_상세]: TransportDetailParams
+  }
+}
+
 export function TransportDetailScreen() {
-  const { params: { tripId, transportId } } = useAppRoute<'TransportDetail'>()
+  const { params: { tripId, transportId } } = useAppRoute<typeof AppRoute.여행_교통편_상세>()
 
   return (
     <SafeAreaView style={styles.screen}>

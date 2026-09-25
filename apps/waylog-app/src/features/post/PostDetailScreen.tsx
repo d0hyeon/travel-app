@@ -1,3 +1,4 @@
+import { AppRoute } from '@waylog/routes'
 import { MaterialIcons } from '@expo/vector-icons'
 import { AuthGuard } from '@waylog/domains/clients'
 import { PostVisibility, type Post, usePost } from '@waylog/domains/modules/post'
@@ -15,6 +16,14 @@ import { PostMenu } from './PostMenu'
 import { LoadableImage } from '../../shared/components/LoadableImage'
 import { RequireAuthRedirect } from '../auth/auth-redirect'
 
+export type PostDetailParams = { postId: string }
+
+declare module '~app/routes' {
+  interface RouteParamsRegistry {
+    [AppRoute.포스트_상세]: PostDetailParams
+  }
+}
+
 export function PostDetailScreen() {
   return (
     <AuthGuard fallback={<RequireAuthRedirect />}>
@@ -26,7 +35,7 @@ export function PostDetailScreen() {
 }
 
 function ResolvedPostDetail() {
-  const { params } = useAppRoute<'PostDetail'>()
+  const { params } = useAppRoute<typeof AppRoute.포스트_상세>()
   const { postId } = params
   const { data: post } = usePost(postId)
   const navigation = useAppNavigation()

@@ -1,3 +1,4 @@
+import { AppRoute } from '@waylog/routes'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useTripMemo } from '@waylog/domains/modules/trip-memo'
 import { formatDate } from 'date-fns'
@@ -11,6 +12,14 @@ import { PopMenu } from '../../../shared/components/PopMenu'
 import { useConfirmDialog } from '../../../shared/components/confirm-dialog/useConfirmDialog'
 import { extractUrls, renderTextWithLinks } from '../../../shared/utils/urls'
 
+export type TripMemoDetailParams = { tripId: string; memoId: string }
+
+declare module '~app/routes' {
+  interface RouteParamsRegistry {
+    [AppRoute.여행_메모_상세]: TripMemoDetailParams
+  }
+}
+
 export function TripMemoDetailScreen() {
   return (
     <Suspense fallback={<ActivityIndicator style={styles.fill} />}>
@@ -20,7 +29,7 @@ export function TripMemoDetailScreen() {
 }
 
 function Resolved() {
-  const { params } = useAppRoute<'TripMemoDetail'>()
+  const { params } = useAppRoute<typeof AppRoute.여행_메모_상세>()
   const { tripId } = params
   const navigation = useAppNavigation()
   const confirm = useConfirmDialog()

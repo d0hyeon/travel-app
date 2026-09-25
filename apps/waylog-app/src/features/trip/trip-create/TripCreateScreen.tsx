@@ -1,3 +1,4 @@
+import { AppRoute } from '@waylog/routes'
 import { useTrips } from '@waylog/domains/modules/trip'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useEffect, useState } from 'react'
@@ -11,6 +12,14 @@ import { palette } from '../../../shared/config/tokens'
 import { DateStep } from './DateStep'
 import { DestinationStep, type Destination } from './DestinationStep'
 import { InfoStep } from './InfoStep'
+
+export type TripCreateParams = { step?: string }
+
+declare module '~app/routes' {
+  interface RouteParamsRegistry {
+    [AppRoute.여행_생성]: TripCreateParams
+  }
+}
 
 const STEPS = ['destination', 'date', 'info'] as const
 type Step = (typeof STEPS)[number]

@@ -1,3 +1,4 @@
+import { AppRoute } from '@waylog/routes'
 import { AuthGuard } from '@waylog/domains/clients'
 import { useTripTransports } from '@waylog/domains/modules/trip-transport'
 import { useEffect, useState } from 'react'
@@ -11,6 +12,14 @@ import { RequireAuthRedirect } from '../../auth/auth-redirect'
 
 const START_STEP = 'type'
 
+export type TransportNewParams = { tripId: string }
+
+declare module '~app/routes' {
+  interface RouteParamsRegistry {
+    [AppRoute.여행_교통편_추가]: TransportNewParams
+  }
+}
+
 export function TransportCreationScreen() {
   return (
     <AuthGuard fallback={<RequireAuthRedirect />}>
@@ -21,7 +30,7 @@ export function TransportCreationScreen() {
 
 function ResolvedTransportCreationScreen() {
   const navigation = useAppNavigation()
-  const { params } = useAppRoute<'TransportNew'>()
+  const { params } = useAppRoute<typeof AppRoute.여행_교통편_추가>()
   const { tripId } = params
 
   const { add } = useTripTransports(tripId)

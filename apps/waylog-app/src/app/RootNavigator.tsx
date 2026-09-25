@@ -7,6 +7,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { AuthErrorBoundary, AuthStateSync } from '@waylog/domains/clients'
 import { getActivedChatTripId } from '@waylog/domains/modules/trip-chat'
 import { isTripChatPushData } from '@waylog/domains/modules/trip-chat/tripChatPush'
+import { AppRoute as BaseAppRoute } from '@waylog/routes'
 import { ExceptionError } from '@waylog/utility'
 import * as Notifications from 'expo-notifications'
 import { StatusBar } from 'expo-status-bar'
@@ -24,6 +25,8 @@ import { OverlayProvider } from '../shared/hooks/useOverlay.context'
 import { queryClient } from '../shared/query-client'
 import { tamaguiConfig } from '../../tamagui.config'
 import type { RootStackParamList } from './routes'
+import { AppRoute } from './AppRoute'
+import { registerLinkingScreens } from './registerLinkingScreens'
 import { HomeTabs } from './HomeTabs'
 import { TripDetailScreen } from '../features/trip/TripDetailScreen'
 import { TripMemoDetailScreen } from '../features/trip/trip-memo/TripMemoDetailScreen'
@@ -58,6 +61,13 @@ Notifications.setNotificationHandler({
   },
 })
 
+declare module '~app/routes' {
+  interface RouteParamsRegistry {
+    [BaseAppRoute.메인]: undefined
+    [BaseAppRoute.로그인]: { returnTo?: { screen: keyof RootStackParamList; params?: Record<string, unknown> } }
+  }
+}
+
 const RootStack = createNativeStackNavigator<RootStackParamList>()
 
 const linking: LinkingOptions<RootStackParamList> = {
@@ -65,11 +75,8 @@ const linking: LinkingOptions<RootStackParamList> = {
   config: {
     // 콜드 스타트로 딥링크가 열려도 스택 맨 아래에 Home을 깔아둔다. 없으면 스택이
     // TripInvite 하나뿐이라 뒤로가기·초대 참여 후 replace가 갈 곳을 잃는다.
-    initialRouteName: 'Home',
-    screens: {
-      Home: '',
-      TripInvite: 'trip/invite/:shareLink',
-    },
+    initialRouteName: AppRoute.메인,
+    screens: registerLinkingScreens([BaseAppRoute.메인, BaseAppRoute.여행_초대]),
   },
 }
 
@@ -94,29 +101,29 @@ export function RootNavigator() {
                   <NotificationGateway />
                   <AuthGateway>
                     <RootStack.Navigator screenOptions={{ headerShown: false }}>
-                      <RootStack.Screen name="Home" component={HomeTabs} options={{ animation: 'none' }} />
-                      <RootStack.Screen name="Login" component={LoginRoute} />
+                      <RootStack.Screen name={AppRoute.메인} component={HomeTabs} options={{ animation: 'none' }} />
+                      <RootStack.Screen name={AppRoute.로그인} component={LoginRoute} />
                       <RootStack.Screen
-                        name="TripDetail"
+                        name={AppRoute.여행_상세}
                         component={TripDetailScreen}
                         // tripId 가 다르면 같은 이름의 라우트를 재사용하지 않고 새로 만든다.
                         // 재사용되면 이미 마운트된 탭들이 이전 tripId의 initialParams를 그대로
                         // 들고 있어, 헤더는 새 여행을 보여줘도 탭은 이전 여행에 머문다.
                         getId={({ params }) => params.tripId}
                       />
-                      <RootStack.Screen name="TripMemoDetail" component={TripMemoDetailScreen} />
-                      <RootStack.Screen name="TripMemoEdit" component={TripMemoEditScreen} />
-                      <RootStack.Screen name="TripCreate" component={TripCreateScreen} />
-                      <RootStack.Screen name="TripInvite" component={TripInviteScreen} />
-                      <RootStack.Screen name="ExplorerDetail" component={PlaceDetailScreen} />
-                      <RootStack.Screen name="ExplorerTopVisited" component={TopVisitedScreen} />
-                      <RootStack.Screen name="ExplorerRecentHot" component={RecentHotScreen} />
-                      <RootStack.Screen name="ExplorerMostSaved" component={MostSavedScreen} />
-                      <RootStack.Screen name="PostNew" component={PostCreationScreen} />
-                      <RootStack.Screen name="PostDetail" component={PostDetailScreen} />
-                      <RootStack.Screen name="UserProfile" component={UserProfileDetailScreen} />
-                      <RootStack.Screen name="TransportNew" component={TransportCreationScreen} />
-                      <RootStack.Screen name="TransportDetail" component={TransportDetailScreen} />
+                      <RootStack.Screen name={AppRoute.여행_메모_상세} component={TripMemoDetailScreen} />
+                      <RootStack.Screen name={AppRoute.여행_메모_편집} component={TripMemoEditScreen} />
+                      <RootStack.Screen name={AppRoute.여행_생성} component={TripCreateScreen} />
+                      <RootStack.Screen name={AppRoute.여행_초대} component={TripInviteScreen} />
+                      <RootStack.Screen name={AppRoute.장소_상세} component={PlaceDetailScreen} />
+                      <RootStack.Screen name={AppRoute.장소_최다방문순} component={TopVisitedScreen} />
+                      <RootStack.Screen name={AppRoute.장소_급상승} component={RecentHotScreen} />
+                      <RootStack.Screen name={AppRoute.장소_저장순} component={MostSavedScreen} />
+                      <RootStack.Screen name={AppRoute.포스트_생성} component={PostCreationScreen} />
+                      <RootStack.Screen name={AppRoute.포스트_상세} component={PostDetailScreen} />
+                      <RootStack.Screen name={AppRoute.유저_프로필} component={UserProfileDetailScreen} />
+                      <RootStack.Screen name={AppRoute.여행_교통편_추가} component={TransportCreationScreen} />
+                      <RootStack.Screen name={AppRoute.여행_교통편_상세} component={TransportDetailScreen} />
                     </RootStack.Navigator>
                   </AuthGateway>
                 </NavigationContainer>

@@ -1,6 +1,6 @@
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import type { RootStackParamList, TripDetailTabParamList } from '../../app/routes'
+import type { RootStackParamList, TripDetailTabParamList } from '~app/routes'
 
 export function useAppNavigation<T extends keyof RootStackParamList = keyof RootStackParamList>() {
   return useNavigation<NativeStackNavigationProp<RootStackParamList, T>>()

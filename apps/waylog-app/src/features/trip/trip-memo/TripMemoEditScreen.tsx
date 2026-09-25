@@ -1,3 +1,4 @@
+import { AppRoute } from '@waylog/routes'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useTripMemo } from '@waylog/domains/modules/trip-memo'
 import { Suspense, useRef, useState } from 'react'
@@ -8,6 +9,14 @@ import { useAppNavigation, useAppRoute } from '../../../shared/hooks/useAppNavig
 import { BottomArea } from '../../../shared/components/BottomArea'
 import { TripMemoForm, type TripMemoFormRef } from './TripMemoForm'
 
+export type TripMemoEditParams = { tripId: string; memoId: string }
+
+declare module '~app/routes' {
+  interface RouteParamsRegistry {
+    [AppRoute.여행_메모_편집]: TripMemoEditParams
+  }
+}
+
 export function TripMemoEditScreen() {
   return (
     <Suspense fallback={<ActivityIndicator style={styles.fill} />}>
@@ -17,7 +26,7 @@ export function TripMemoEditScreen() {
 }
 
 function Resolved() {
-  const { params } = useAppRoute<'TripMemoEdit'>()
+  const { params } = useAppRoute<typeof AppRoute.여행_메모_편집>()
   const { tripId, memoId } = params
   const navigation = useAppNavigation()
   const { data: { memos }, update } = useTripMemo(tripId)

@@ -1,3 +1,4 @@
+import { AppRoute } from '@waylog/routes'
 import { StyleSheet } from 'react-native'
 import { AuthGuard } from '@waylog/domains/clients'
 import { Suspense, useState } from 'react'
@@ -5,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { palette } from '../../../shared/config/tokens'
 import { useScrollStatus } from '../../../shared/hooks/interaction/useScrollStatus'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
+import type { ExplorerFilterParams } from '../explorerFilterParams'
 import { ExplorerMap } from '../explorer-view/ExplorerMap'
 import { ExplorerGridSkeleton, ExplorerMapSkeleton } from '../explorer-view/ExplorerSkeletons'
 import { ExplorerRankingGrid } from '../explorer-view/ExplorerRankingGrid'
@@ -14,6 +16,12 @@ import { PeriodFilterChip } from './PeriodFilterChip'
 import type { RecentHotPeriodMonths } from './recentHotPeriod.constants'
 import { useRecentHotPlaces } from './useRecentHotPlaces'
 import { RequireAuthRedirect } from '../../auth/auth-redirect'
+
+declare module '~app/routes' {
+  interface RouteParamsRegistry {
+    [AppRoute.장소_급상승]: ExplorerFilterParams
+  }
+}
 
 export function RecentHotScreen() {
   return (

@@ -1,3 +1,4 @@
+import { AppRoute } from '@waylog/routes'
 import { StyleSheet } from 'react-native'
 import { AuthGuard } from '@waylog/domains/clients'
 import { Suspense } from 'react'
@@ -5,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { palette } from '../../../shared/config/tokens'
 import { useScrollStatus } from '../../../shared/hooks/interaction/useScrollStatus'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
+import type { ExplorerFilterParams } from '../explorerFilterParams'
 import { ExplorerMap } from '../explorer-view/ExplorerMap'
 import { ExplorerGridSkeleton, ExplorerMapSkeleton } from '../explorer-view/ExplorerSkeletons'
 import { ExplorerRankingGrid } from '../explorer-view/ExplorerRankingGrid'
@@ -12,6 +14,12 @@ import { ExplorerScreenHeader } from '../explorer-view/ExplorerScreenHeader'
 import { useExplorerViewMode } from '../explorer-view/useExplorerViewMode'
 import { useExploredPlaces } from './useExploredPlaces'
 import { RequireAuthRedirect } from '../../auth/auth-redirect'
+
+declare module '~app/routes' {
+  interface RouteParamsRegistry {
+    [AppRoute.장소_최다방문순]: ExplorerFilterParams
+  }
+}
 
 export function TopVisitedScreen() {
   return (

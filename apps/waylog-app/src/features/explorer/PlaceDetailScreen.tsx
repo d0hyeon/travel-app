@@ -1,3 +1,4 @@
+import { AppRoute } from '@waylog/routes'
 import { MaterialIcons } from '@expo/vector-icons'
 import { AuthGuard } from '@waylog/domains/clients'
 import { usePlace } from '@waylog/domains/modules/place'
@@ -20,6 +21,14 @@ import { RequireAuthRedirect } from '../auth/auth-redirect'
 
 type PlaceDetailTab = 'info' | 'feed'
 
+export type PlaceDetailParams = { placeId: string; tab?: string }
+
+declare module '~app/routes' {
+  interface RouteParamsRegistry {
+    [AppRoute.장소_상세]: PlaceDetailParams
+  }
+}
+
 export function PlaceDetailScreen() {
   return (
     <AuthGuard fallback={<RequireAuthRedirect />}>
@@ -29,7 +38,7 @@ export function PlaceDetailScreen() {
 }
 
 function ResolvedPlaceDetailScreen() {
-  const { params } = useAppRoute<'ExplorerDetail'>()
+  const { params } = useAppRoute<typeof AppRoute.장소_상세>()
   const { placeId } = params
   const insets = useSafeAreaInsets()
   const navigation = useAppNavigation()

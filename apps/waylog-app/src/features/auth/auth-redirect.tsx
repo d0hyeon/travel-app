@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useAppNavigation, useAppRoute } from '../../shared/hooks/useAppNavigation'
-import type { RootStackParamList } from '../../app/routes'
+import type { RootStackParamList } from '~app/routes'
 
 type ReturnTo = { screen: keyof RootStackParamList; params?: Record<string, unknown> }
 

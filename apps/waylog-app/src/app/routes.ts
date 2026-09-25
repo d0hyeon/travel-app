@@ -1,29 +1,10 @@
-// location/category/explorer-view-mode 는 3개 탐색 랭킹 화면이 공유하는
-// useQueryParamState 기반 필터·뷰모드 파라미터다.
-type ExplorerFilterParams = {
-  location?: string
-  category?: string
-  'explorer-view-mode'?: string
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- 화면별 declare module 병합 대상
+export interface RouteParamsRegistry {}
 
-export type RootStackParamList = {
-  Login: { returnTo?: { screen: keyof RootStackParamList; params?: Record<string, unknown> } }
-  Home: undefined
-  TripDetail: { tripId: string }
-  TripMemoDetail: { tripId: string; memoId: string }
-  TripMemoEdit: { tripId: string; memoId: string }
-  TripCreate: { step?: string }
-  TripInvite: { shareLink: string }
-  ExplorerDetail: { placeId: string; tab?: string }
-  ExplorerTopVisited: ExplorerFilterParams
-  ExplorerRecentHot: ExplorerFilterParams
-  ExplorerMostSaved: ExplorerFilterParams
-  PostNew: { tripId?: string }
-  PostDetail: { postId: string }
-  UserProfile: { userId: string; tab?: string }
-  TransportNew: { tripId: string }
-  TransportDetail: { tripId: string; transportId: string }
-}
+// RouteParamsRegistry는 declaration merging 대상이라 인덱스 시그니처가 없다.
+// react-navigation의 ParamListBase(Record<string, object | undefined>) 제약을
+// 만족시키기 위해 여기서만 인덱스 시그니처를 더해 합성한다.
+export type RootStackParamList = RouteParamsRegistry & Record<string, object | undefined>
 
 export type HomeTabParamList = {
   MyTrips: undefined
