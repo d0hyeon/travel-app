@@ -166,7 +166,7 @@ export function TripPhotoContent({ tripId }: Props) {
                 <Box
                   pointerEvents="none"
                   style={{
-                    ...StyleSheet.absoluteFillObject,
+                    ...StyleSheet.absoluteFill,
                     borderRadius: 8,
                     backgroundColor: 'rgba(0, 0, 0, 0.4)',
                   }}

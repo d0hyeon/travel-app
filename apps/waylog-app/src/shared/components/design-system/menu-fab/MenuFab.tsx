@@ -180,15 +180,15 @@ export const MenuFab = Object.assign(MenuFabRoot, { Item: MenuFabItem })
 
 const styles = StyleSheet.create({
   root: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     zIndex: zLayer.mapFab,
   },
   overlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(0,0,0,0.03)',
   },
   menuArea: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     right: 16,
     bottom: 16,
     zIndex: zLayer.mapFabMenu,
