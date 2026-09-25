@@ -106,9 +106,6 @@ export function RootNavigator() {
                       <RootStack.Screen
                         name={AppRoute.여행_상세}
                         component={TripDetailScreen}
-                        // tripId 가 다르면 같은 이름의 라우트를 재사용하지 않고 새로 만든다.
-                        // 재사용되면 이미 마운트된 탭들이 이전 tripId의 initialParams를 그대로
-                        // 들고 있어, 헤더는 새 여행을 보여줘도 탭은 이전 여행에 머문다.
                         getId={({ params }) => params.tripId}
                       />
                       <RootStack.Screen name={AppRoute.여행_메모_상세} component={TripMemoDetailScreen} />

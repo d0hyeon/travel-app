@@ -14,7 +14,7 @@ export function LoginRoute() {
     if (auth == null) return
     navigation.reset({
       index: 0,
-      routes: [{ name: returnTo.screen, params: returnTo.params } as never],
+      routes: [{ name: returnTo.screen, params: returnTo.params }],
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth, navigation, returnTo.screen])

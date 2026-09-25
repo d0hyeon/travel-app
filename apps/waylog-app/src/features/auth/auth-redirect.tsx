@@ -45,7 +45,7 @@ export function useLoginRedirect() {
     const activeRoute = state?.routes[state.index]
     const returnTo: ReturnTo = activeRoute == null
       ? HOME
-      : { screen: activeRoute.name as keyof RootStackParamList, params: activeRoute.params as Record<string, unknown> }
+      : { screen: activeRoute.name, params: activeRoute.params as Record<string, unknown> }
     navigation.reset({ index: 0, routes: [{ name: AppRoute.로그인, params: { returnTo } }] })
   }
 }

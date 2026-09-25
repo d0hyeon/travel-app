@@ -105,23 +105,34 @@ import 경로만 바뀐다. `route()`, `generatePath()`, `useParams()` 등 기�
 `apps/waylog-app/src/app/AppRoute.ts` (신규):
 
 ```ts
-// react-navigation 스크린 이름에 콜론(:)이 들어가면 getPatternParts가
-// path 파라미터 문법으로 오인해 예외를 던질 수 있다(alias·중첩 조합 시).
-// 그래서 앱은 원본 AppRoute 대신 콜론을 치환한 이 버전만 스크린 이름으로 쓴다.
 import { AppRoute as BaseAppRoute } from '@waylog/routes'
 
-export function toScreenName(path: string): string {
-  return path.replaceAll(':', '_')
+type ToScreenName<S extends string> = S extends `${infer H}:${infer T}` ? `${H}_${ToScreenName<T>}` : S
+
+export function toScreenName<S extends string>(path: S): ToScreenName<S> {
+  return path.replaceAll(':', '_') as ToScreenName<S>
 }
+
+type ScreenRoute = { readonly [K in keyof typeof BaseAppRoute]: ToScreenName<(typeof BaseAppRoute)[K]> }
 
 export const AppRoute = Object.fromEntries(
   Object.entries(BaseAppRoute).map(([key, value]) => [key, toScreenName(value)]),
-) as typeof BaseAppRoute
+) as ScreenRoute
 ```
+
+`as ScreenRoute`는 `typeof BaseAppRoute`로 넓히는 단언이 아니라, `Object.fromEntries`가
+표현할 수 없는 "각 키마다 콜론이 치환된 리터럴 타입"이라는 정확한 계산 결과를 타입
+레벨에 전달하는 단언이다 — `ScreenRoute`의 각 값 타입은 `ToScreenName<...>`으로
+콜론이 실제로 치환된 리터럴이므로, `AppRoute.여행_상세`의 타입은 `"trip/_tripId"`이지
+`"trip/:tripId"`가 아니다. `toScreenName` 함수 본문의 `as ToScreenName<S>`는
+`replaceAll`의 반환 타입이 일반 `string`이라 컴파일러가 좁혀진 리터럴을 추론할 수
+없어서 남아있는 경계 단언이다.
 
 앱의 네비게이션 관련 코드(`RootStack.Screen`, `navigation.navigate/reset/replace`,
 `linking.config`)는 전부 이 로컬 `AppRoute`(치환된 값)만 참조한다. 원본
-`@waylog/routes`의 `AppRoute`를 직접 import하는 곳은 이 파일 하나뿐이다.
+`@waylog/routes`의 `AppRoute`를 직접 import하는 곳은 `AppRoute.ts`(치환 로직 정의)와
+`RootNavigator.tsx`(스크린 이름 등록·linking.config 조립을 위해 원본·치환본을 함께
+써야 하는 인프라 파일) 두 곳뿐이다.
 
 `toScreenName`은 멱등이다(`replaceAll(':', '_')`은 콜론이 없으면 원본을 그대로 반환) —
 그래서 `useAppRoute()`가 돌려주는 `route.name`(이미 치환된 값)을 다시 `navigate()`에 넘겨도
@@ -131,21 +142,20 @@ export const AppRoute = Object.fromEntries(
 
 ```ts
 // apps/waylog-app/src/app/registerLinkingScreens.ts
-import { AppRoute as BaseAppRoute } from '@waylog/routes'
 import { toScreenName } from './AppRoute'
 
-export function registerLinkingScreens(paths: readonly string[]) {
+export function registerLinkingScreens(paths: readonly string[]): Record<string, string> {
   return Object.fromEntries(paths.map((path) => [toScreenName(path), path]))
 }
 ```
 
-사용 예:
+사용 예(`RootNavigator.tsx`):
 
 ```ts
 const linking: LinkingOptions<RootStackParamList> = {
   prefixes: ['waylog://', 'https://waylog.me', 'https://www.waylog.me'],
   config: {
-    initialRouteName: toScreenName(BaseAppRoute.메인),
+    initialRouteName: AppRoute.메인,
     screens: registerLinkingScreens([BaseAppRoute.메인, BaseAppRoute.여행_초대]),
   },
 }
@@ -162,6 +172,14 @@ const linking: LinkingOptions<RootStackParamList> = {
 `AppRoute`(`apps/waylog-app/src/app/AppRoute.ts`)의 값을 쓴다** — 화면 이름이라는 별도 이름
 체계를 만들지 않기 위함이다. 이렇게 하면 `RootStackParamList`의 키가 곧 런타임 스크린 이름과
 같은 값이 되어, 하나의 로컬 상수가 스크린 식별자 겸 파라미터 레지스트리 키로 통일된다.
+
+이 값 동일성은 타입 레벨에서도 성립한다 — `AppRoute.ts`의 `AppRoute` 상수는 `ScreenRoute`
+타입(`ToScreenName<...>` 템플릿 리터럴로 콜론 치환 결과를 그대로 표현)으로 선언되어 있어,
+`AppRoute.여행_상세`의 타입은 실제 런타임 값과 같은 리터럴(`"trip/_tripId"`)이다. 즉
+`declare module`에 `[AppRoute.여행_상세]: TripDetailParams`로 등록한 키는 타입 체커
+입장에서도 `RootStack.Screen name={AppRoute.여행_상세}`가 쓰는 런타임 스크린 이름과
+문자 그대로 같은 리터럴 타입이므로, 원본(콜론 있는) `AppRoute` 값을 실수로 스크린 이름
+자리에 넣으면 타입 에러로 잡힌다.
 
 **변경 이력**: 최초 설계는 등록 키로 `@waylog/routes`의 원본 `AppRoute`(콜론 있는 경로 문자열)
 값을 쓰도록 했다. 웹-앱이 같은 문자열 값을 공유한다는 의도였으나, 실제로는 화면 파일마다
@@ -200,7 +218,7 @@ declare module '~app/routes' {
 ```ts
 // apps/waylog-app/src/app/routes.ts
 export interface RouteParamsRegistry {}
-export type RootStackParamList = RouteParamsRegistry
+export type RootStackParamList = { [K in keyof RouteParamsRegistry]: RouteParamsRegistry[K] }
 ```
 
 `RootStack.Screen name`에는 앱 로컬(치환된) `AppRoute`(`apps/waylog-app/src/app/AppRoute.ts`)의
@@ -261,7 +279,13 @@ export function parseTripDetailParams(raw: unknown): TripDetailParams {
 - **타입 조회 키와 런타임 스크린 이름이 같은 값(둘 다 치환본)이라는 점**: `RootStack.Screen
   name`과 `RootStackParamList`/`RouteParamsRegistry` 등록 키 모두 앱 로컬(치환된) `AppRoute`
   값을 쓴다 — 화면 파일이 원본(`@waylog/routes`)과 로컬 `AppRoute`를 동시에 import할 필요가
-  없어졌는지, 즉 화면 파일에 `BaseAppRoute`(원본) 참조가 남아있지 않은지 전수 확인한다.
+  없어졌는지, 즉 화면 파일에 `BaseAppRoute`(원본) 참조가 남아있지 않은지 전수 확인한다. 이
+  값 동일성이 런타임뿐 아니라 **타입 레벨에서도** 성립하는지 별도로 확인해야 한다 — `AppRoute`
+  상수를 `as typeof BaseAppRoute`처럼 원본 타입으로 단언하면, 런타임 값은 치환본인데 타입은
+  콜론 원본 리터럴로 남아 `BaseAppRoute` 값이 스크린 이름 자리에 잘못 들어가도 타입 체커가
+  잡지 못한다. `AppRoute.ts`가 `ToScreenName<S>` 템플릿 리터럴 타입으로 `AppRoute`를 선언해
+  런타임 값과 타입이 실제로 일치하는지(`const x: typeof AppRoute.여행_상세 = '/trip/_tripId'`는
+  통과, `'/trip/:tripId'`는 타입 에러) 확인한다.
 - **`declare module '~app/routes'` 별칭이 실제로 병합되는지**: tsconfig `paths` 별칭을 통한
   `declare module` 대상 해석이 `tsc`뿐 아니라 Metro(런타임 번들러)의 타입 체크 경로(예:
   `tsc --noEmit`을 돌리는 CI, 에디터의 TS 서버)에서도 동일하게 동작하는지 확인한다 — 별칭
