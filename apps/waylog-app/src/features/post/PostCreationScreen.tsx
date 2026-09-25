@@ -1,4 +1,3 @@
-import { AppRoute as BaseAppRoute } from '@waylog/routes'
 import { AuthGuard } from '@waylog/domains/clients'
 import { PostVisibility, useCreatePost } from '@waylog/domains/modules/post'
 import { useEffect, useState } from 'react'
@@ -13,7 +12,7 @@ export type PostNewParams = { tripId?: string }
 
 declare module '~app/routes' {
   interface RouteParamsRegistry {
-    [BaseAppRoute.포스트_생성]: PostNewParams
+    [AppRoute.포스트_생성]: PostNewParams
   }
 }
 
@@ -27,7 +26,7 @@ export function PostCreationScreen() {
 
 function ResolvedPostCreationScreen() {
   const navigation = useAppNavigation()
-  const { params } = useAppRoute<typeof BaseAppRoute.포스트_생성>()
+  const { params } = useAppRoute<typeof AppRoute.포스트_생성>()
   const fixedTripId = params.tripId
   const { mutateAsync: createPost } = useCreatePost()
   const startStep: PostFormStep = fixedTripId == null ? 'trip' : 'photo'

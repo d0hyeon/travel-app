@@ -1,4 +1,3 @@
-import { AppRoute as BaseAppRoute } from '@waylog/routes'
 import { useEffect } from 'react'
 import { useAuth } from '@waylog/domains/clients'
 import { useAppNavigation, useAppRoute } from '../../shared/hooks/useAppNavigation'
@@ -8,7 +7,7 @@ import { LoginScreen } from './LoginScreen'
 export function LoginRoute() {
   const { data: auth } = useAuth({ required: false })
   const navigation = useAppNavigation()
-  const { params } = useAppRoute<typeof BaseAppRoute.로그인>()
+  const { params } = useAppRoute<typeof AppRoute.로그인>()
   const returnTo = params?.returnTo ?? { screen: AppRoute.메인 }
 
   useEffect(() => {

@@ -1,4 +1,3 @@
-import { AppRoute as BaseAppRoute } from '@waylog/routes'
 import { MaterialIcons } from '@expo/vector-icons'
 import { AuthGuard } from '@waylog/domains/clients'
 import { usePlace } from '@waylog/domains/modules/place'
@@ -26,7 +25,7 @@ export type PlaceDetailParams = { placeId: string; tab?: string }
 
 declare module '~app/routes' {
   interface RouteParamsRegistry {
-    [BaseAppRoute.장소_상세]: PlaceDetailParams
+    [AppRoute.장소_상세]: PlaceDetailParams
   }
 }
 
@@ -39,7 +38,7 @@ export function PlaceDetailScreen() {
 }
 
 function ResolvedPlaceDetailScreen() {
-  const { params } = useAppRoute<typeof BaseAppRoute.장소_상세>()
+  const { params } = useAppRoute<typeof AppRoute.장소_상세>()
   const { placeId } = params
   const insets = useSafeAreaInsets()
   const navigation = useAppNavigation()

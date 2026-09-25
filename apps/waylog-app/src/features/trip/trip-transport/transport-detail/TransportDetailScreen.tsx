@@ -1,4 +1,3 @@
-import { AppRoute as BaseAppRoute } from '@waylog/routes'
 import { AsyncBoundary } from '@waylog/react'
 import { Suspense } from 'react'
 import { ScrollView, StyleSheet } from 'react-native'
@@ -12,6 +11,7 @@ import { TransportRealtimeInfoSection } from '../TransportRealtimeInfoSection'
 import { TransportSummarySection } from '../TransportSummarySection'
 import { TransportTicketsSection } from '../transport-ticket/TransportTicketsSection'
 import { useAppRoute } from '../../../../shared/hooks/useAppNavigation'
+import { AppRoute } from '../../../../app/AppRoute'
 import { PushNotificationCard } from '../../../auth/PushNotificationCard'
 import { Box, Stack } from '~/shared/components/design-system'
 import { AirportArrivalGuidanceSection } from '../AirportArrivalGuidanceSection'
@@ -20,12 +20,12 @@ export type TransportDetailParams = { tripId: string; transportId: string }
 
 declare module '~app/routes' {
   interface RouteParamsRegistry {
-    [BaseAppRoute.여행_교통편_상세]: TransportDetailParams
+    [AppRoute.여행_교통편_상세]: TransportDetailParams
   }
 }
 
 export function TransportDetailScreen() {
-  const { params: { tripId, transportId } } = useAppRoute<typeof BaseAppRoute.여행_교통편_상세>()
+  const { params: { tripId, transportId } } = useAppRoute<typeof AppRoute.여행_교통편_상세>()
 
   return (
     <SafeAreaView style={styles.screen}>

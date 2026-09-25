@@ -1,4 +1,3 @@
-import { AppRoute as BaseAppRoute } from '@waylog/routes'
 import { MaterialIcons } from '@expo/vector-icons'
 import { AuthGuard } from '@waylog/domains/clients'
 import { PostVisibility, type Post, usePost } from '@waylog/domains/modules/post'
@@ -21,7 +20,7 @@ export type PostDetailParams = { postId: string }
 
 declare module '~app/routes' {
   interface RouteParamsRegistry {
-    [BaseAppRoute.포스트_상세]: PostDetailParams
+    [AppRoute.포스트_상세]: PostDetailParams
   }
 }
 
@@ -36,7 +35,7 @@ export function PostDetailScreen() {
 }
 
 function ResolvedPostDetail() {
-  const { params } = useAppRoute<typeof BaseAppRoute.포스트_상세>()
+  const { params } = useAppRoute<typeof AppRoute.포스트_상세>()
   const { postId } = params
   const { data: post } = usePost(postId)
   const navigation = useAppNavigation()

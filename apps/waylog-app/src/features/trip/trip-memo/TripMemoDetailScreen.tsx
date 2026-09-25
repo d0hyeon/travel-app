@@ -1,4 +1,3 @@
-import { AppRoute as BaseAppRoute } from '@waylog/routes'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useTripMemo } from '@waylog/domains/modules/trip-memo'
 import { formatDate } from 'date-fns'
@@ -17,7 +16,7 @@ export type TripMemoDetailParams = { tripId: string; memoId: string }
 
 declare module '~app/routes' {
   interface RouteParamsRegistry {
-    [BaseAppRoute.여행_메모_상세]: TripMemoDetailParams
+    [AppRoute.여행_메모_상세]: TripMemoDetailParams
   }
 }
 
@@ -30,7 +29,7 @@ export function TripMemoDetailScreen() {
 }
 
 function Resolved() {
-  const { params } = useAppRoute<typeof BaseAppRoute.여행_메모_상세>()
+  const { params } = useAppRoute<typeof AppRoute.여행_메모_상세>()
   const { tripId } = params
   const navigation = useAppNavigation()
   const confirm = useConfirmDialog()

@@ -158,10 +158,18 @@ const linking: LinkingOptions<RootStackParamList> = {
 ### 5. 라우트 파라미터 co-location
 
 각 화면 파일이 자기 파라미터 타입을 선언하고 export하며, declaration merging으로
-`RootStackParamList`에 자동 등록한다. 등록 키는 별도로 지어내지 않고 **`@waylog/routes`의
-`AppRoute` 경로 문자열을 그대로 쓴다** — 화면 이름이라는 별도 이름 체계를 만들지 않기 위함이다.
-이렇게 하면 `RootStackParamList`의 키가 곧 `AppRoute`의 값이 되어, 경로 문자열 하나가 URL 겸
-스크린 식별자 겸 파라미터 레지스트리 키로 통일된다.
+`RootStackParamList`에 자동 등록한다. 등록 키는 별도로 지어내지 않고 **앱 로컬(치환본)
+`AppRoute`(`apps/waylog-app/src/app/AppRoute.ts`)의 값을 쓴다** — 화면 이름이라는 별도 이름
+체계를 만들지 않기 위함이다. 이렇게 하면 `RootStackParamList`의 키가 곧 런타임 스크린 이름과
+같은 값이 되어, 하나의 로컬 상수가 스크린 식별자 겸 파라미터 레지스트리 키로 통일된다.
+
+**변경 이력**: 최초 설계는 등록 키로 `@waylog/routes`의 원본 `AppRoute`(콜론 있는 경로 문자열)
+값을 쓰도록 했다. 웹-앱이 같은 문자열 값을 공유한다는 의도였으나, 실제로는 화면 파일마다
+원본 `AppRoute`(등록·타입 조회용)와 로컬 치환본 `AppRoute`(네비게이션 호출용)를 동시에
+import해야 했다. 이 혼용이 실수를 유발해 `TripDetailScreen.tsx`에서 `Navigate.push(AppRoute.로그인,
+{})` 호출이 의도와 다르게 원본 `AppRoute`를 참조하는 버그로 이어졌다. 이후 등록 키를 로컬
+치환본으로 통일해, 화면 파일이 `AppRoute` import 하나만으로 등록·타입 조회·네비게이션 호출을
+전부 처리하도록 바꿨다.
 
 화면 파일의 깊이에 따라 `../../app/routes`, `../../../app/routes`처럼 상대경로가 매번 달라지는
 것을 피하기 위해, `declare module`의 대상은 tsconfig `paths`에 등록한 별칭(`~app/routes`)을
@@ -178,13 +186,13 @@ const linking: LinkingOptions<RootStackParamList> = {
 
 ```ts
 // apps/waylog-app/src/features/trip/TripDetailScreen.tsx
-import { AppRoute } from '@waylog/routes'
+import { AppRoute } from '../../app/AppRoute'
 
 export type TripDetailParams = { tripId: string }
 
 declare module '~app/routes' {
   interface RouteParamsRegistry {
-    [AppRoute.여행_상세]: TripDetailParams   // "/trip/:tripId"를 키로 병합
+    [AppRoute.여행_상세]: TripDetailParams   // 치환본("trip/_tripId")을 키로 병합
   }
 }
 ```
@@ -195,12 +203,10 @@ export interface RouteParamsRegistry {}
 export type RootStackParamList = RouteParamsRegistry
 ```
 
-`RootStack.Screen name`에는 이 원본 경로 문자열이 아니라 앱 로컬(치환된) `AppRoute`
-(`apps/waylog-app/src/app/AppRoute.ts`)의 값을 쓴다. `useAppRoute<T>()` 같은 훅의 타입 파라미터
-`T`는 `RootStackParamList`의 키(=원본 `AppRoute` 값, 콜론 있는 문자열)를 그대로 받는다 —
-런타임 스크린 이름(치환본)과 타입 조회 키(원본)가 다른 문자열이지만, 이는 `RootStackParamList`
-가 타입 전용이고 실제 `useRoute()`는 제네릭으로만 타입을 좁힐 뿐 키 문자열로 런타임 조회를
-하지 않으므로 문제되지 않는다.
+`RootStack.Screen name`에는 앱 로컬(치환된) `AppRoute`(`apps/waylog-app/src/app/AppRoute.ts`)의
+값을 쓴다. `useAppRoute<T>()` 같은 훅의 타입 파라미터 `T`도 같은 로컬 `AppRoute`의 값을 받는다 —
+`RootStackParamList`의 키와 런타임 스크린 이름이 이제 같은 값(둘 다 치환본)이므로, 화면 파일은
+로컬 `AppRoute` import 하나로 등록·타입 조회·네비게이션 호출을 모두 처리한다.
 
 **declaration merging 누락 문제가 실질적으로 없는 이유**: `RootNavigator.tsx`는 `RootStack.Screen`
 등록을 위해 이미 모든 화면 컴포넌트를 import하고 있다. 화면 컴포넌트를 import하는 시점에 그
@@ -252,11 +258,10 @@ export function parseTripDetailParams(raw: unknown): TripDetailParams {
   케이스(예: 조건부 렌더링되는 화면, 지연 로딩되는 화면)가 있는지 전수 확인한다.
 - **웹 23곳 마이그레이션 누락**: `AppRoute` import 경로 변경 시 전수 조사로 놓치는 파일이
   없는지 확인한다(이전 react-navigation 전환 때 4곳을 놓쳤던 전례가 있다).
-- **런타임 스크린 이름(치환본)과 타입 조회 키(원본)가 다른 문자열이라는 점**: `RootStack.Screen
-  name`에는 앱 로컬(치환된) `AppRoute` 값을, `RootStackParamList`/`RouteParamsRegistry`에는
-  원본(`@waylog/routes`) `AppRoute` 값을 쓴다 — 두 값이 다른 문자열이지만 타입 조회와 런타임
-  등록이 분리되어 있어 문제되지 않는다는 전제가 실제로 깨지지 않는지, 즉 `useAppRoute<T>()`가
-  런타임에 키 문자열로 무언가를 조회하는 코드가 없는지 전수 확인한다.
+- **타입 조회 키와 런타임 스크린 이름이 같은 값(둘 다 치환본)이라는 점**: `RootStack.Screen
+  name`과 `RootStackParamList`/`RouteParamsRegistry` 등록 키 모두 앱 로컬(치환된) `AppRoute`
+  값을 쓴다 — 화면 파일이 원본(`@waylog/routes`)과 로컬 `AppRoute`를 동시에 import할 필요가
+  없어졌는지, 즉 화면 파일에 `BaseAppRoute`(원본) 참조가 남아있지 않은지 전수 확인한다.
 - **`declare module '~app/routes'` 별칭이 실제로 병합되는지**: tsconfig `paths` 별칭을 통한
   `declare module` 대상 해석이 `tsc`뿐 아니라 Metro(런타임 번들러)의 타입 체크 경로(예:
   `tsc --noEmit`을 돌리는 CI, 에디터의 TS 서버)에서도 동일하게 동작하는지 확인한다 — 별칭

@@ -1,8 +1,8 @@
-import { AppRoute as BaseAppRoute } from '@waylog/routes'
 import { StyleSheet } from 'react-native'
 import { AuthGuard } from '@waylog/domains/clients'
 import { Suspense, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { AppRoute } from '../../../app/AppRoute'
 import { palette } from '../../../shared/config/tokens'
 import { useScrollStatus } from '../../../shared/hooks/interaction/useScrollStatus'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
@@ -19,7 +19,7 @@ import { RequireAuthRedirect } from '../../auth/auth-redirect'
 
 declare module '~app/routes' {
   interface RouteParamsRegistry {
-    [BaseAppRoute.장소_급상승]: ExplorerFilterParams
+    [AppRoute.장소_급상승]: ExplorerFilterParams
   }
 }
 

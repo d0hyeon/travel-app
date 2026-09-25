@@ -1,4 +1,3 @@
-import { AppRoute as BaseAppRoute } from '@waylog/routes'
 import { StyleSheet } from 'react-native'
 import { AuthError } from '@waylog/domains/clients'
 import { useInvitedTrip } from '@waylog/domains/modules/trip'
@@ -19,7 +18,7 @@ export type TripInviteParams = { shareLink: string }
 
 declare module '~app/routes' {
   interface RouteParamsRegistry {
-    [BaseAppRoute.여행_초대]: TripInviteParams
+    [AppRoute.여행_초대]: TripInviteParams
   }
 }
 
@@ -47,7 +46,7 @@ export function TripInviteScreen() {
 function Resolved() {
   const navigation = useAppNavigation()
 
-  const { params } = useAppRoute<typeof BaseAppRoute.여행_초대>()
+  const { params } = useAppRoute<typeof AppRoute.여행_초대>()
   const { shareLink } = params
   const { data: trip, join } = useInvitedTrip({ sharedLink: shareLink })
 

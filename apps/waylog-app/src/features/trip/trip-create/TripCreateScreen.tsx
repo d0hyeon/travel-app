@@ -1,4 +1,3 @@
-import { AppRoute as BaseAppRoute } from '@waylog/routes'
 import { useTrips } from '@waylog/domains/modules/trip'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useEffect, useState } from 'react'
@@ -18,7 +17,7 @@ export type TripCreateParams = { step?: string }
 
 declare module '~app/routes' {
   interface RouteParamsRegistry {
-    [BaseAppRoute.여행_생성]: TripCreateParams
+    [AppRoute.여행_생성]: TripCreateParams
   }
 }
 

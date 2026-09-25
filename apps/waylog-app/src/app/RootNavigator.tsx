@@ -63,8 +63,8 @@ Notifications.setNotificationHandler({
 
 declare module '~app/routes' {
   interface RouteParamsRegistry {
-    [BaseAppRoute.메인]: undefined
-    [BaseAppRoute.로그인]: { returnTo?: { screen: keyof RootStackParamList; params?: Record<string, unknown> } }
+    [AppRoute.메인]: undefined
+    [AppRoute.로그인]: { returnTo?: { screen: keyof RootStackParamList; params?: Record<string, unknown> } }
   }
 }
 
