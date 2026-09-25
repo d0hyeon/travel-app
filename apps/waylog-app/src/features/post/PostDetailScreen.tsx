@@ -1,4 +1,4 @@
-import { AppRoute } from '@waylog/routes'
+import { AppRoute as BaseAppRoute } from '@waylog/routes'
 import { MaterialIcons } from '@expo/vector-icons'
 import { AuthGuard } from '@waylog/domains/clients'
 import { PostVisibility, type Post, usePost } from '@waylog/domains/modules/post'
@@ -9,6 +9,7 @@ import { ListItem } from '../../shared/components/ListItem'
 import { Map } from '../../shared/components/Map'
 import { Stack, Typography } from '~/shared/components/design-system'
 import { useAppNavigation, useAppRoute } from '../../shared/hooks/useAppNavigation'
+import { AppRoute } from '../../app/AppRoute'
 import { palette } from '../../shared/config/tokens'
 import { PostAuthor } from './PostAuthor'
 import { PostLikeButton } from './PostLikeButton'
@@ -20,7 +21,7 @@ export type PostDetailParams = { postId: string }
 
 declare module '~app/routes' {
   interface RouteParamsRegistry {
-    [AppRoute.포스트_상세]: PostDetailParams
+    [BaseAppRoute.포스트_상세]: PostDetailParams
   }
 }
 
@@ -35,14 +36,14 @@ export function PostDetailScreen() {
 }
 
 function ResolvedPostDetail() {
-  const { params } = useAppRoute<typeof AppRoute.포스트_상세>()
+  const { params } = useAppRoute<typeof BaseAppRoute.포스트_상세>()
   const { postId } = params
   const { data: post } = usePost(postId)
   const navigation = useAppNavigation()
   const insets = useSafeAreaInsets()
 
   const openAuthorProfile = () => {
-    navigation.navigate('UserProfile', { userId: post.authorId })
+    navigation.navigate(AppRoute.유저_프로필, { userId: post.authorId })
   }
 
   return (
@@ -76,7 +77,7 @@ function ResolvedPostDetail() {
             <Typography style={styles.visibilityLabel}>비공개</Typography>
           </Stack>
         )}
-        {post.places.length > 0 && <PostPlaces places={post.places} onPlacePress={(placeId) => navigation.navigate('ExplorerDetail', { placeId })} />}
+        {post.places.length > 0 && <PostPlaces places={post.places} onPlacePress={(placeId) => navigation.navigate(AppRoute.장소_상세, { placeId })} />}
         <PostLikeButton postId={post.id} />
       </ScrollView>
     </View>

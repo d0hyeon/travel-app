@@ -12,6 +12,7 @@ import { useMemo } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Accordion, Box, Button, Stack, Typography } from '~/shared/components/design-system'
 import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
+import { AppRoute } from '../../../app/AppRoute'
 import { palette } from '../../../shared/config/tokens'
 import { TransportCard } from './TransportCard'
 
@@ -53,7 +54,7 @@ export function TripTransportList({ tripId, onTransportPress }: Props) {
           size="large"
           variant="contained"
           startIcon={<MaterialIcons name="add" size={18} color={palette.onPrimary} />}
-          onPress={() => navigation.navigate('TransportNew', { tripId })}
+          onPress={() => navigation.navigate(AppRoute.여행_교통편_추가, { tripId })}
         >
           탑승권 등록
         </Button>

@@ -1,4 +1,4 @@
-import { AppRoute } from '@waylog/routes'
+import { AppRoute as BaseAppRoute } from '@waylog/routes'
 import { MaterialIcons } from '@expo/vector-icons'
 import { AuthGuard } from '@waylog/domains/clients'
 import { usePlace } from '@waylog/domains/modules/place'
@@ -14,6 +14,7 @@ import { BottomSheet } from '../../shared/components/bottom-sheet/BottomSheet'
 import { useOverlay } from '../../shared/hooks/useOverlay'
 import { PostCard } from '../post/PostCard'
 import { useAppNavigation, useAppRoute } from '../../shared/hooks/useAppNavigation'
+import { AppRoute } from '../../app/AppRoute'
 import { useQueryParamState } from '../../shared/hooks/useQueryParamState'
 import { useExplorerPlaceFeed } from './useExplorerPlaceFeed'
 import { LoadableImage } from '../../shared/components/LoadableImage'
@@ -25,7 +26,7 @@ export type PlaceDetailParams = { placeId: string; tab?: string }
 
 declare module '~app/routes' {
   interface RouteParamsRegistry {
-    [AppRoute.장소_상세]: PlaceDetailParams
+    [BaseAppRoute.장소_상세]: PlaceDetailParams
   }
 }
 
@@ -38,7 +39,7 @@ export function PlaceDetailScreen() {
 }
 
 function ResolvedPlaceDetailScreen() {
-  const { params } = useAppRoute<typeof AppRoute.장소_상세>()
+  const { params } = useAppRoute<typeof BaseAppRoute.장소_상세>()
   const { placeId } = params
   const insets = useSafeAreaInsets()
   const navigation = useAppNavigation()
@@ -109,7 +110,7 @@ function PlaceFeedContent({ placeId }: { placeId: string }) {
 
   return (
     <ScrollView style={styles.feed} contentContainerStyle={styles.feedContent} showsVerticalScrollIndicator={false}>
-      {posts.map((post) => <PostCard key={post.id} post={post} onPress={() => navigation.navigate('PostDetail', { postId: post.id })} />)}
+      {posts.map((post) => <PostCard key={post.id} post={post} onPress={() => navigation.navigate(AppRoute.포스트_상세, { postId: post.id })} />)}
     </ScrollView>
   )
 }

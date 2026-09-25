@@ -3,6 +3,7 @@ import { useTrip } from '@waylog/domains/modules/trip'
 import { StyleSheet, Pressable } from 'react-native'
 import { Stack, Typography } from '~/shared/components/design-system'
 import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
+import { AppRoute } from '../../../app/AppRoute'
 
 interface Props {
   tripId: string
@@ -17,7 +18,7 @@ export function TripPostCreateCard({ tripId }: Props) {
   return (
     <Pressable
       accessibilityLabel="여행을 회고하는 포스트 만들기"
-      onPress={() => navigation.navigate('PostNew', { tripId })}
+      onPress={() => navigation.navigate(AppRoute.포스트_생성, { tripId })}
       style={styles.card}
     >
       <Stack style={styles.icon}>

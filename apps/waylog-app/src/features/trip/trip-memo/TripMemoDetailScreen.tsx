@@ -1,4 +1,4 @@
-import { AppRoute } from '@waylog/routes'
+import { AppRoute as BaseAppRoute } from '@waylog/routes'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useTripMemo } from '@waylog/domains/modules/trip-memo'
 import { formatDate } from 'date-fns'
@@ -7,6 +7,7 @@ import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { IconButton, Stack, Typography } from '~/shared/components/design-system'
 import { useAppNavigation, useAppRoute } from '../../../shared/hooks/useAppNavigation'
+import { AppRoute } from '../../../app/AppRoute'
 import { OgPreviewCard } from '../../open-graph/OgPreviewCard'
 import { PopMenu } from '../../../shared/components/PopMenu'
 import { useConfirmDialog } from '../../../shared/components/confirm-dialog/useConfirmDialog'
@@ -16,7 +17,7 @@ export type TripMemoDetailParams = { tripId: string; memoId: string }
 
 declare module '~app/routes' {
   interface RouteParamsRegistry {
-    [AppRoute.여행_메모_상세]: TripMemoDetailParams
+    [BaseAppRoute.여행_메모_상세]: TripMemoDetailParams
   }
 }
 
@@ -29,7 +30,7 @@ export function TripMemoDetailScreen() {
 }
 
 function Resolved() {
-  const { params } = useAppRoute<typeof AppRoute.여행_메모_상세>()
+  const { params } = useAppRoute<typeof BaseAppRoute.여행_메모_상세>()
   const { tripId } = params
   const navigation = useAppNavigation()
   const confirm = useConfirmDialog()
@@ -59,7 +60,7 @@ function Resolved() {
             <PopMenu.Item key="pin" onPress={() => togglePin(memo.id)}>
               {memo.isPinned ? '고정 해제' : '고정'}
             </PopMenu.Item>,
-            <PopMenu.Item key="edit" onPress={() => navigation.navigate('TripMemoEdit', { tripId, memoId: memo.id })}>
+            <PopMenu.Item key="edit" onPress={() => navigation.navigate(AppRoute.여행_메모_편집, { tripId, memoId: memo.id })}>
               수정
             </PopMenu.Item>,
             <PopMenu.Item

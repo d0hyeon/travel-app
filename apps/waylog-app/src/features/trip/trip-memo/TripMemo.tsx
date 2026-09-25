@@ -3,6 +3,7 @@ import { Box, Button, Fab, Skeleton, Stack, Typography } from '~/shared/componen
 import { Suspense, useRef } from 'react';
 import { StyleSheet, Pressable } from 'react-native';
 import { useAppNavigation } from '../../../shared/hooks/useAppNavigation';
+import { AppRoute } from '../../../app/AppRoute';
 import { useOverlay } from '../../../shared/hooks/useOverlay';
 import { useTripMemo } from '@waylog/domains/modules/trip-memo';
 import type { TripMemo as TripMemoType } from '@waylog/domains/modules/trip-memo';
@@ -111,7 +112,7 @@ function MemoRow({ tripId, memo }: MemoRowProps) {
   const navigation = useAppNavigation();
 
   return (
-    <Pressable onPress={() => navigation.navigate('TripMemoDetail', { tripId, memoId: memo.id })}>
+    <Pressable onPress={() => navigation.navigate(AppRoute.여행_메모_상세, { tripId, memoId: memo.id })}>
       <Stack
         direction="row"
         alignItems="center"

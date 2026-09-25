@@ -1,8 +1,9 @@
-import { AppRoute } from '@waylog/routes'
+import { AppRoute as BaseAppRoute } from '@waylog/routes'
 import { AuthGuard } from '@waylog/domains/clients'
 import { PostVisibility, useCreatePost } from '@waylog/domains/modules/post'
 import { useEffect, useState } from 'react'
 import { useAppNavigation, useAppRoute } from '../../shared/hooks/useAppNavigation'
+import { AppRoute } from '../../app/AppRoute'
 import { uploadPostPhoto } from '../photo/photo.api'
 import { PostFormFunnel } from './post-form-funnel/PostFormFunnel'
 import type { PostFormStep, PostFormValues } from './post-form-funnel/postFormFunnel.types'
@@ -12,7 +13,7 @@ export type PostNewParams = { tripId?: string }
 
 declare module '~app/routes' {
   interface RouteParamsRegistry {
-    [AppRoute.포스트_생성]: PostNewParams
+    [BaseAppRoute.포스트_생성]: PostNewParams
   }
 }
 
@@ -26,7 +27,7 @@ export function PostCreationScreen() {
 
 function ResolvedPostCreationScreen() {
   const navigation = useAppNavigation()
-  const { params } = useAppRoute<typeof AppRoute.포스트_생성>()
+  const { params } = useAppRoute<typeof BaseAppRoute.포스트_생성>()
   const fixedTripId = params.tripId
   const { mutateAsync: createPost } = useCreatePost()
   const startStep: PostFormStep = fixedTripId == null ? 'trip' : 'photo'
@@ -60,7 +61,7 @@ function ResolvedPostCreationScreen() {
       placeIds: formValues.places.map((place) => place.placeId),
       photos: uploadedPhotos,
     })
-    navigation.replace('PostDetail', { postId: post.id })
+    navigation.replace(AppRoute.포스트_상세, { postId: post.id })
   }
 
   return (

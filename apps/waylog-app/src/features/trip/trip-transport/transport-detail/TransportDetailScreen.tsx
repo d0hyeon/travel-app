@@ -1,4 +1,4 @@
-import { AppRoute } from '@waylog/routes'
+import { AppRoute as BaseAppRoute } from '@waylog/routes'
 import { AsyncBoundary } from '@waylog/react'
 import { Suspense } from 'react'
 import { ScrollView, StyleSheet } from 'react-native'
@@ -20,12 +20,12 @@ export type TransportDetailParams = { tripId: string; transportId: string }
 
 declare module '~app/routes' {
   interface RouteParamsRegistry {
-    [AppRoute.여행_교통편_상세]: TransportDetailParams
+    [BaseAppRoute.여행_교통편_상세]: TransportDetailParams
   }
 }
 
 export function TransportDetailScreen() {
-  const { params: { tripId, transportId } } = useAppRoute<typeof AppRoute.여행_교통편_상세>()
+  const { params: { tripId, transportId } } = useAppRoute<typeof BaseAppRoute.여행_교통편_상세>()
 
   return (
     <SafeAreaView style={styles.screen}>

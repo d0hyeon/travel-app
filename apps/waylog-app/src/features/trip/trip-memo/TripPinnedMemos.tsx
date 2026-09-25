@@ -3,6 +3,7 @@ import { Skeleton, Stack, Typography, type StackProps } from "~/shared/component
 import { Suspense } from "react";
 import { StyleSheet, Pressable } from 'react-native';
 import { useAppNavigation } from '../../../shared/hooks/useAppNavigation';
+import { AppRoute } from '../../../app/AppRoute';
 import { ListItem } from "../../../shared/components/ListItem";
 import { useTripMemo } from '@waylog/domains/modules/trip-memo';
 import { getMemoDisplayTitle } from './memoTitle';
@@ -57,7 +58,7 @@ function Resolved({ tripId, hideOnEmpty, ...props }: Props) {
         const previewText = hasExplicitTitle ? preview : null;
 
         return (
-          <Pressable key={memo.id} onPress={() => navigation.navigate('TripMemoDetail', { tripId, memoId: memo.id })}>
+          <Pressable key={memo.id} onPress={() => navigation.navigate(AppRoute.여행_메모_상세, { tripId, memoId: memo.id })}>
             <ListItem
               leftAddon={<MaterialIcons name="push-pin" size={16} color="#4C84FF" />}
               style={styles.memoItem}

@@ -5,6 +5,7 @@ import { ExplorerPlaceCard } from '../explorer-place-item/ExplorerPlaceCard'
 import { ExplorerEmptyState } from '../explorer-view/ExplorerEmptyState'
 import { SectionHeader } from '../explorer-view/SectionHeader'
 import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
+import { AppRoute } from '../../../app/AppRoute'
 import { useMostSavedPlaces } from './useMostSavedPlaces'
 
 interface Props {
@@ -19,7 +20,7 @@ export function MostSavedPlacesSection({ location, category }: Props) {
 
   return (
     <View>
-      <SectionHeader title="많이 저장된 곳이에요" onMore={() => navigation.navigate('ExplorerMostSaved', {})} />
+      <SectionHeader title="많이 저장된 곳이에요" onMore={() => navigation.navigate(AppRoute.장소_저장순, {})} />
       {places.length === 0 ? (
         <ExplorerEmptyState />
       ) : (
@@ -29,7 +30,7 @@ export function MostSavedPlacesSection({ location, category }: Props) {
               key={place.placeId}
               width={160}
               place={{ ...place, countLabel: `${place.saveCount.toLocaleString()}번 저장됨` }}
-              onPress={() => navigation.navigate('ExplorerDetail', { placeId: place.placeId })}
+              onPress={() => navigation.navigate(AppRoute.장소_상세, { placeId: place.placeId })}
             />
           ))}
         </ScrollView>

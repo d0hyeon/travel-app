@@ -4,6 +4,7 @@ import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, View } fro
 import { Button, Stack, Typography } from '~/shared/components/design-system'
 import { Map } from '../../../shared/components/Map'
 import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
+import { AppRoute } from '../../../app/AppRoute'
 import { palette, radius } from '../../../shared/config/tokens'
 import { useScheduledTrips } from '../../trip/useScheduledTrips'
 import { PlacePhotoList } from '../PlacePhotoList'
@@ -66,7 +67,7 @@ function MoreDetailButton({ placeId, onNavigate }: { placeId: string; onNavigate
     <Pressable
       onPress={() => {
         onNavigate()
-        navigation.navigate('ExplorerDetail', { placeId })
+        navigation.navigate(AppRoute.장소_상세, { placeId })
       }}
     >
       <Typography variant="body2" color="primary">

@@ -1,4 +1,4 @@
-import { AppRoute } from '@waylog/routes'
+import { AppRoute as BaseAppRoute } from '@waylog/routes'
 import { useTrip } from '@waylog/domains/modules/trip'
 import { useAppNavigation, useAppRoute } from '../../../shared/hooks/useAppNavigation'
 import { StyleSheet, Pressable } from 'react-native'
@@ -30,7 +30,7 @@ function TripDetailHeaderSkeleton() {
 }
 
 function Resolved() {
-  const { params } = useAppRoute<typeof AppRoute.여행_상세>()
+  const { params } = useAppRoute<typeof BaseAppRoute.여행_상세>()
   const { tripId } = params
   const navigation = useAppNavigation()
   const { data: trip, update } = useTrip(tripId)

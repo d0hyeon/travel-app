@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native'
 import { Map } from '../../../shared/components/Map'
 import { Typography } from '~/shared/components/design-system'
 import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
+import { AppRoute } from '../../../app/AppRoute'
 
 interface ExplorerMapPlace {
   placeId: string
@@ -32,7 +33,7 @@ export function ExplorerMap({ places, location }: Props) {
             lng={place.lng}
             label={place.name}
             thumbnailUrl={place.thumbnailUrl}
-            onPress={() => navigation.navigate('ExplorerDetail', { placeId: place.placeId })}
+            onPress={() => navigation.navigate(AppRoute.장소_상세, { placeId: place.placeId })}
           />
         ))}
       </Map>

@@ -1,8 +1,9 @@
-import { AppRoute } from '@waylog/routes'
+import { AppRoute as BaseAppRoute } from '@waylog/routes'
 import { AuthGuard } from '@waylog/domains/clients'
 import { useTripTransports } from '@waylog/domains/modules/trip-transport'
 import { useEffect, useState } from 'react'
 import { useAppNavigation, useAppRoute } from '../../../shared/hooks/useAppNavigation'
+import { AppRoute } from '../../../app/AppRoute'
 import {
   TransportFormFunnel,
   type TransportSubmitValues,
@@ -16,7 +17,7 @@ export type TransportNewParams = { tripId: string }
 
 declare module '~app/routes' {
   interface RouteParamsRegistry {
-    [AppRoute.여행_교통편_추가]: TransportNewParams
+    [BaseAppRoute.여행_교통편_추가]: TransportNewParams
   }
 }
 
@@ -30,7 +31,7 @@ export function TransportCreationScreen() {
 
 function ResolvedTransportCreationScreen() {
   const navigation = useAppNavigation()
-  const { params } = useAppRoute<typeof AppRoute.여행_교통편_추가>()
+  const { params } = useAppRoute<typeof BaseAppRoute.여행_교통편_추가>()
   const { tripId } = params
 
   const { add } = useTripTransports(tripId)
@@ -73,7 +74,7 @@ function ResolvedTransportCreationScreen() {
       await upload({ transportId: created.id, tickets: values.tickets })
 
       // 뒤로가기로 퍼널에 되돌아오지 않도록 이 스크린을 목록으로 교체한다.
-      navigation.replace('TransportDetail', { tripId, transportId: created.id })
+      navigation.replace(AppRoute.여행_교통편_상세, { tripId, transportId: created.id })
     } catch (e) {
       setError(e)
     } finally {

@@ -4,6 +4,7 @@ import { Box, Fab, Stack, Tab, Tabs, Typography } from "~/shared/components/desi
 import { Suspense } from 'react'
 import { ErrorBoundary } from '@waylog/react'
 import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
+import { AppRoute } from '../../../app/AppRoute'
 import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
 import { TripChecklist } from '../trip-checklist/TripChecklist'
 import { useTripChecklistFormOverlay } from '../trip-checklist/useTripChecklistFormOverlay'
@@ -120,13 +121,13 @@ export function TripBasicInfoContent({ tripId }: Props) {
             <ScrollView contentContainerStyle={styles.scrollContent}>
               <TripTransportList
                 tripId={tripId}
-                onTransportPress={(transportId) => navigation.navigate('TransportDetail', { tripId, transportId })}
+                onTransportPress={(transportId) => navigation.navigate(AppRoute.여행_교통편_상세, { tripId, transportId })}
               />
             </ScrollView>
             <Fab
               color="primary"
               size="medium"
-              onPress={() => navigation.navigate('TransportNew', { tripId })}
+              onPress={() => navigation.navigate(AppRoute.여행_교통편_추가, { tripId })}
               style={styles.addButton}
             >
               <MaterialIcons name="add" size={24} color="#fff" />

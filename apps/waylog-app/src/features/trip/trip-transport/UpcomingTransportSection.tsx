@@ -11,6 +11,7 @@ import { useMemo } from 'react'
 import { Dimensions, ScrollView, StyleSheet, View, type ViewProps } from 'react-native'
 import { Button, Typography } from '~/shared/components/design-system'
 import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
+import { AppRoute } from '../../../app/AppRoute'
 import { palette } from '../../../shared/config/tokens'
 import { TransportCard } from './TransportCard'
 import { useTicketViewerOverlay } from './transport-ticket/useTicketViewerOverlay'
@@ -88,7 +89,7 @@ function BoardingPassCard({ tripId, transport, airportArrivalGuidance, style, ..
       <TransportCard
         transport={transport}
         airportArrivalGuidance={airportArrivalGuidance}
-        onPress={() => navigation.navigate('TransportDetail', { tripId, transportId: transport.id })}
+        onPress={() => navigation.navigate(AppRoute.여행_교통편_상세, { tripId, transportId: transport.id })}
       />
       {firstTicket != null && (
         <View style={styles.ticketAction}>

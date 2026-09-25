@@ -1,4 +1,4 @@
-import { AppRoute } from '@waylog/routes'
+import { AppRoute as BaseAppRoute } from '@waylog/routes'
 import { ErrorBoundary } from '@waylog/react'
 import { View, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -12,13 +12,13 @@ export type TripDetailParams = { tripId: string }
 
 declare module '~app/routes' {
   interface RouteParamsRegistry {
-    [AppRoute.여행_상세]: TripDetailParams
+    [BaseAppRoute.여행_상세]: TripDetailParams
   }
 }
 
 export function TripDetailScreen() {
   const insets = useSafeAreaInsets()
-  const { params } = useAppRoute<typeof AppRoute.여행_상세>()
+  const { params } = useAppRoute<typeof BaseAppRoute.여행_상세>()
 
   return (
     <View style={styles.screen}>

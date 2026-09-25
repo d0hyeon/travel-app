@@ -4,6 +4,7 @@ import { Button } from '~/shared/components/design-system'
 import type { ButtonProps } from '~/shared/components/design-system/Button'
 import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
 import { useConfirmDialog } from '../../../shared/components/confirm-dialog/useConfirmDialog'
+import { AppRoute } from '../../../app/AppRoute'
 
 interface Props extends ButtonProps {
   tripId: string
@@ -22,7 +23,7 @@ export function TripLeaveButton({ tripId, children = '여행에서 나가기', .
   const handleLeaveTrip = async () => {
     if (!(await confirm('여행을 나가시겠어요?'))) return
 
-    navigation.reset({ index: 0, routes: [{ name: 'Home' }] })
+    navigation.reset({ index: 0, routes: [{ name: AppRoute.메인 }] })
     if (auth.id === userId) {
       await removeTrip()
       return

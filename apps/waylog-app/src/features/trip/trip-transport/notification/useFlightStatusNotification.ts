@@ -1,6 +1,7 @@
 import * as Notifications from 'expo-notifications'
 import { useEffect } from 'react'
 import { useAppNavigation } from '../../../../shared/hooks/useAppNavigation'
+import { AppRoute } from '../../../../app/AppRoute'
 import { getFlightStatusNotificationDestination } from './flightStatusNotification'
 
 export function useFlightStatusNotificationResponse() {
@@ -13,7 +14,7 @@ export function useFlightStatusNotificationResponse() {
       const destination = getFlightStatusNotificationDestination(response?.notification.request.content.data)
       if (destination == null) return
 
-      navigation.navigate('TransportDetail', destination)
+      navigation.navigate(AppRoute.여행_교통편_상세, destination)
     }
 
     void Notifications.getLastNotificationResponseAsync().then((response) => {

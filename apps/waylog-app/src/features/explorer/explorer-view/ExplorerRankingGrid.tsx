@@ -2,6 +2,7 @@ import { StyleSheet, ScrollView, useWindowDimensions, View } from 'react-native'
 import { ExplorerPlaceCard } from '../explorer-place-item/ExplorerPlaceCard'
 import { ExplorerEmptyState } from './ExplorerEmptyState'
 import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
+import { AppRoute } from '../../../app/AppRoute'
 import type { useScrollStatus } from '../../../shared/hooks/interaction/useScrollStatus'
 import type { ExplorerPlace } from '../useAttentionPlaces'
 
@@ -30,7 +31,7 @@ export function ExplorerRankingGrid({ places, countLabel, onScroll, contentTopIn
             key={place.placeId}
             width={(width - 44) / 2}
             place={{ ...place, countLabel: countLabel(place) }}
-            onPress={() => navigation.navigate('ExplorerDetail', { placeId: place.placeId })}
+            onPress={() => navigation.navigate(AppRoute.장소_상세, { placeId: place.placeId })}
           />
         ))}
       </View>

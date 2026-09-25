@@ -9,6 +9,7 @@ import { FeedScreen } from '../features/post/FeedScreen'
 import { ExplorerCatalogScreen } from '../features/explorer/ExplorerCatalogScreen'
 import { UserProfileScreen } from '../features/user-profile/UserProfileScreen'
 import type { HomeTabParamList } from './routes'
+import { AppRoute } from './AppRoute'
 
 const Tab = createBottomTabNavigator<HomeTabParamList>()
 
@@ -31,7 +32,7 @@ export function HomeTabs() {
         {() => (
           // Home 탭 이름(MyTrips)은 RootStackParamList에 없어 그대로 넘기면 로그인 후
           // 되돌아갈 수 없다. Home 자체로 돌려보낸다.
-          <AuthGuard fallback={<RequireAuthRedirect returnTo={{ screen: 'Home' }} />}>
+          <AuthGuard fallback={<RequireAuthRedirect returnTo={{ screen: AppRoute.메인 }} />}>
             <TripListScreen />
           </AuthGuard>
         )}
@@ -52,7 +53,7 @@ export function HomeTabs() {
         options={{ title: '프로필', tabBarIcon: ({ color, size }) => <MaterialIcons name="person-outline" color={color} size={size} /> }}
       >
         {() => (
-          <AuthGuard fallback={<RequireAuthRedirect returnTo={{ screen: 'Home' }} />}>
+          <AuthGuard fallback={<RequireAuthRedirect returnTo={{ screen: AppRoute.메인 }} />}>
             <ProfileTab />
           </AuthGuard>
         )}

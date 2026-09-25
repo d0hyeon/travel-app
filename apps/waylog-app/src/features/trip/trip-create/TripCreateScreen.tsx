@@ -1,4 +1,4 @@
-import { AppRoute } from '@waylog/routes'
+import { AppRoute as BaseAppRoute } from '@waylog/routes'
 import { useTrips } from '@waylog/domains/modules/trip'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useEffect, useState } from 'react'
@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Box, LinearProgress, Stack, Typography } from '~/shared/components/design-system'
 import { SwitchCase } from '../../../shared/components/SwitchCase'
 import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
+import { AppRoute } from '../../../app/AppRoute'
 import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
 import { palette } from '../../../shared/config/tokens'
 import { DateStep } from './DateStep'
@@ -17,7 +18,7 @@ export type TripCreateParams = { step?: string }
 
 declare module '~app/routes' {
   interface RouteParamsRegistry {
-    [AppRoute.여행_생성]: TripCreateParams
+    [BaseAppRoute.여행_생성]: TripCreateParams
   }
 }
 
@@ -76,7 +77,7 @@ export function TripCreateScreen() {
         exchangeRate: null,
         exchangeRates: null,
       })
-      navigation.replace('TripDetail', { tripId: trip.id })
+      navigation.replace(AppRoute.여행_상세, { tripId: trip.id })
     } catch (error) {
       console.error('여행 생성 실패:', error)
       Alert.alert(

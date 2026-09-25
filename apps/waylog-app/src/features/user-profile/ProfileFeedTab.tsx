@@ -2,6 +2,7 @@ import { StyleSheet, Pressable, View, useWindowDimensions } from 'react-native'
 import { Typography } from '~/shared/components/design-system'
 import { LoadableImage } from '../../shared/components/LoadableImage'
 import { useAppNavigation } from '../../shared/hooks/useAppNavigation'
+import { AppRoute } from '../../app/AppRoute'
 import { useUserPostPhotos } from './useUserPostPhotos'
 
 export function ProfileFeedTab({ userId }: { userId: string }) {
@@ -15,7 +16,7 @@ export function ProfileFeedTab({ userId }: { userId: string }) {
   return (
     <View style={styles.photoGrid}>
       {posts.map((post) => (
-        <Pressable key={post.postId} onPress={() => navigation.navigate('PostDetail', { postId: post.postId })}>
+        <Pressable key={post.postId} onPress={() => navigation.navigate(AppRoute.포스트_상세, { postId: post.postId })}>
           <LoadableImage source={{ uri: post.url }} style={{ width: cellSize, height: cellSize }} resizeMode="cover" />
         </Pressable>
       ))}

@@ -5,6 +5,7 @@ import { ExplorerPlaceCard } from '../explorer-place-item/ExplorerPlaceCard'
 import { ExplorerEmptyState } from '../explorer-view/ExplorerEmptyState'
 import { SectionHeader } from '../explorer-view/SectionHeader'
 import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
+import { AppRoute } from '../../../app/AppRoute'
 import { useRecentHotPlaces } from './useRecentHotPlaces'
 
 interface Props {
@@ -22,7 +23,7 @@ export function RecentHotPlacesSection({ location, category }: Props) {
       <SectionHeader
         title="최근 핫한 곳이에요"
         onMore={() => {
-          navigation.navigate('ExplorerRecentHot', { category, location })
+          navigation.navigate(AppRoute.장소_급상승, { category, location })
         }}
       />
       {places.length === 0 ? (
@@ -34,7 +35,7 @@ export function RecentHotPlacesSection({ location, category }: Props) {
               key={place.placeId}
               width={160}
               place={{ ...place, countLabel: `${place.visitorCount.toLocaleString()}번 방문` }}
-              onPress={() => navigation.navigate('ExplorerDetail', { placeId: place.placeId })}
+              onPress={() => navigation.navigate(AppRoute.장소_상세, { placeId: place.placeId })}
             />
           ))}
         </ScrollView>

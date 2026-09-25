@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Box, Fab, Stack, Typography } from '~/shared/components/design-system'
 import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
+import { AppRoute } from '../../../app/AppRoute'
 import { palette } from '../../../shared/config/tokens'
 import { CreateTripCard } from './CreateTripCard'
 import { OngoingTripCard } from './OngoingTripCard'
@@ -19,8 +20,8 @@ export function TripListScreen() {
   const pastTripsByYear = groupTripsByYear(pastTrips)
   const pastYears = Object.keys(pastTripsByYear).toSorted((firstYear, secondYear) => Number(secondYear) - Number(firstYear))
   const hasTrips = trips.length > 0
-  const openTrip = (tripId: string) => navigation.navigate('TripDetail', { tripId })
-  const openTripCreation = () => navigation.navigate('TripCreate', {})
+  const openTrip = (tripId: string) => navigation.navigate(AppRoute.여행_상세, { tripId })
+  const openTripCreation = () => navigation.navigate(AppRoute.여행_생성, {})
 
   return (
     <Box style={styles.screen}>

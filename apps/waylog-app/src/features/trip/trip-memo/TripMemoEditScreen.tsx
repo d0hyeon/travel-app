@@ -1,4 +1,4 @@
-import { AppRoute } from '@waylog/routes'
+import { AppRoute as BaseAppRoute } from '@waylog/routes'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useTripMemo } from '@waylog/domains/modules/trip-memo'
 import { Suspense, useRef, useState } from 'react'
@@ -13,7 +13,7 @@ export type TripMemoEditParams = { tripId: string; memoId: string }
 
 declare module '~app/routes' {
   interface RouteParamsRegistry {
-    [AppRoute.여행_메모_편집]: TripMemoEditParams
+    [BaseAppRoute.여행_메모_편집]: TripMemoEditParams
   }
 }
 
@@ -26,7 +26,7 @@ export function TripMemoEditScreen() {
 }
 
 function Resolved() {
-  const { params } = useAppRoute<typeof AppRoute.여행_메모_편집>()
+  const { params } = useAppRoute<typeof BaseAppRoute.여행_메모_편집>()
   const { tripId, memoId } = params
   const navigation = useAppNavigation()
   const { data: { memos }, update } = useTripMemo(tripId)

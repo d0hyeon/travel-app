@@ -1,10 +1,11 @@
 import { useEffect } from 'react'
 import { useAppNavigation, useAppRoute } from '../../shared/hooks/useAppNavigation'
 import type { RootStackParamList } from '~app/routes'
+import { AppRoute } from '../../app/AppRoute'
 
 type ReturnTo = { screen: keyof RootStackParamList; params?: Record<string, unknown> }
 
-const HOME: ReturnTo = { screen: 'Home' }
+const HOME: ReturnTo = { screen: AppRoute.메인 }
 
 /**
  * 인증이 필요한 화면의 fallback. 돌아올 자리를 들고 로그인으로 보낸다.
@@ -21,7 +22,7 @@ export function RequireAuthRedirect({ returnTo }: { returnTo?: ReturnTo }) {
   useEffect(() => {
     navigation.reset({
       index: 0,
-      routes: [{ name: 'Login', params: { returnTo: resolvedReturnTo } }],
+      routes: [{ name: AppRoute.로그인, params: { returnTo: resolvedReturnTo } }],
     })
     // resolvedReturnTo 는 매 렌더 새 객체일 수 있다. screen 값만 실제로 의미 있는
     // 변경이므로 그것만 의존성으로 좁힌다.
@@ -45,6 +46,6 @@ export function useLoginRedirect() {
     const returnTo: ReturnTo = activeRoute == null
       ? HOME
       : { screen: activeRoute.name as keyof RootStackParamList, params: activeRoute.params as Record<string, unknown> }
-    navigation.reset({ index: 0, routes: [{ name: 'Login', params: { returnTo } }] })
+    navigation.reset({ index: 0, routes: [{ name: AppRoute.로그인, params: { returnTo } }] })
   }
 }

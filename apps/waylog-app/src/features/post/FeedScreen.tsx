@@ -5,6 +5,7 @@ import { Suspense } from 'react'
 import { StyleSheet, ScrollView } from 'react-native'
 import { Box, Fab, Stack, Typography } from '~/shared/components/design-system'
 import { useAppNavigation } from '../../shared/hooks/useAppNavigation'
+import { AppRoute } from '../../app/AppRoute'
 import { palette } from '../../shared/config/tokens'
 import { PostCard } from './PostCard'
 
@@ -33,7 +34,7 @@ export function FeedScreen() {
           <Contents />
         </Suspense>
       </ScrollView>
-      <Fab size="large" onPress={() => navigation.navigate('PostNew', {})} style={styles.createButton}><MaterialIcons name="add" size={30} color="#fff" /></Fab>
+      <Fab size="large" onPress={() => navigation.navigate(AppRoute.포스트_생성, {})} style={styles.createButton}><MaterialIcons name="add" size={30} color="#fff" /></Fab>
     </Box>
   )
 }
@@ -43,7 +44,7 @@ function Contents() {
   const navigation = useAppNavigation()
 
   const openPost = (postId: string) => {
-    navigation.navigate('PostDetail', { postId })
+    navigation.navigate(AppRoute.포스트_상세, { postId })
   }
 
   if (posts.length === 0) {

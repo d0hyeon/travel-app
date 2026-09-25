@@ -1,4 +1,4 @@
-import { AppRoute } from '@waylog/routes'
+import { AppRoute as BaseAppRoute } from '@waylog/routes'
 import { StyleSheet } from 'react-native'
 import { AuthGuard } from '@waylog/domains/clients'
 import { Suspense, useState } from 'react'
@@ -19,7 +19,7 @@ import { RequireAuthRedirect } from '../../auth/auth-redirect'
 
 declare module '~app/routes' {
   interface RouteParamsRegistry {
-    [AppRoute.장소_급상승]: ExplorerFilterParams
+    [BaseAppRoute.장소_급상승]: ExplorerFilterParams
   }
 }
 
