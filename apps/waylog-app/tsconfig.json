@@ -4,7 +4,8 @@
     "strict": true,
     "paths": {
       "~/shared/components/design-system": ["./src/shared/components/design-system/index.ts"],
-      "~/shared/components/design-system/*": ["./src/shared/components/design-system/*"]
+      "~/shared/components/design-system/*": ["./src/shared/components/design-system/*"],
+      "~app/routes": ["./src/app/routes.ts"]
     }
   }
 }
