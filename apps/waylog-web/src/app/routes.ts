@@ -6,8 +6,6 @@ import {
 } from "@react-router/dev/routes";
 import { AppRoute } from "@waylog/routes";
 
-export { AppRoute };
-
 export default [
   route(AppRoute.로그인, "../features/auth/LoginPage.tsx"),
   layout("../app/HomeLayout.tsx", [

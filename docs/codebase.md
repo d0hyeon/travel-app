@@ -91,7 +91,7 @@ TicketViewer 내부의 `ConfirmDialog`와 `ActionSheet`다. 공용 `Button`도 T
 *                              → NotFound
 ```
 
-**파일 위치:** `src/app/routes.ts` — `AppRoute` 상수로 라우트 경로 관리
+**파일 위치:** `AppRoute`는 `@waylog/routes`(웹/앱 공유 패키지)에서 온다. `src/app/routes.ts`는 라우트 트리 정의만 남아 있다.
 
 **렌더링 모드:** `react-router.config.ts`의 `ssr: false` — 서버 렌더링 없는 CSR(SPA)이다.
 서버에서 실행되는 코드가 없으므로 hydration 불일치를 고려할 필요가 없고,
@@ -118,7 +118,9 @@ apps/
 │   ├── ios/                    # prebuild 산출물 (gitignore, 네이티브 빌드용)
 │   ├── src/
 │   │   ├── app/                # 코드 기반 네비게이터 트리 (파일 라우팅 없음)
-│   │   │   ├── routes.ts       # RootStackParamList·HomeTabParamList·TripDetailTabParamList
+│   │   │   ├── routes.ts       # RouteParamsRegistry(화면별 declare module 병합 대상) + 매핑 타입으로 합성되는 RootStackParamList·HomeTabParamList·TripDetailTabParamList
+│   │   │   ├── AppRoute.ts     # @waylog/routes(콜론 경로)를 언더스코어로 치환한 내부 AppRoute + toScreenName
+│   │   │   ├── registerLinkingScreens.ts # linking.config.screens를 내부 AppRoute 키로 생성
 │   │   │   ├── RootNavigator.tsx # Provider 구성 + NavigationContainer + RootStack (linking 포함)
 │   │   │   └── HomeTabs.tsx    # 홈 4탭(내 여행/피드/탐색/프로필)
 │   │   ├── features/           # 웹 features 구조를 미러링. trip/TripDetailStack.tsx·TripDetailTabs.tsx 가
@@ -152,6 +154,7 @@ apps/
     ├── tsconfig.json           # 앱 프로젝트 레퍼런스 루트
     └── vite.config.ts 등       # 앱 빌드·테스트 설정
 packages/
+├── routes/                     # @waylog/routes — 웹/앱 공유 URL 경로 상수(AppRoute). 한글 키·콜론 경로(`/trip/:tripId`)
 ├── utility/                    # @waylog/utility — 플랫폼·도메인 비의존 순수 유틸리티·공용 타입
 ├── domains/                    # @waylog/domains — 도메인·데이터 계층
 │   └── src/
@@ -199,6 +202,10 @@ eslint.config.js                # 레포 전역 lint 설정 + 의존성
 
 **환경변수:** 웹은 `apps/waylog-web/.env`(Vite), 앱은 `apps/waylog-app/.env`를
 `app.config.ts`가 읽어 `extra`로 넘긴다.
+
+**앱 라우팅 규칙:** 화면 파일은 로컬(내부라우트) `AppRoute`(`app/AppRoute.ts`)만 import한다.
+원본 패키지라우트(`@waylog/routes`)는 `AppRoute.ts`(치환 로직)와 `RootNavigator.tsx`(스크린 등록·linking)
+두 인프라 파일에서만 쓴다.
 
 ### 공유 경계
 
@@ -278,7 +285,7 @@ eslint.config.js                # 레포 전역 lint 설정 + 의존성
 ```
 src/
 ├── app/                        # 애플리케이션 컨텍스트
-│   ├── routes.ts               # 라우트 정의 (AppRoute 상수 포함)
+│   ├── routes.ts               # 라우트 트리 정의. `AppRoute` 상수는 `@waylog/routes`에서 import
 │   ├── root.tsx                # 루트 레이아웃 & 전역 Provider
 │   ├── AuthGuardLayout.tsx     # 인증 필요 라우트 가드
 │   ├── HomeLayout.tsx          # 하단 탭 네비게이션 레이아웃

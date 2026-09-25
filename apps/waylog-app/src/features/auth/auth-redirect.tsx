@@ -3,7 +3,7 @@ import { useAppNavigation, useAppRoute } from '../../shared/hooks/useAppNavigati
 import type { RootStackParamList } from '~app/routes'
 import { AppRoute } from '../../app/AppRoute'
 
-type ReturnTo = { screen: keyof RootStackParamList; params?: Record<string, unknown> }
+export type ReturnTo = { screen: keyof RootStackParamList; params?: Record<string, unknown> }
 
 const HOME: ReturnTo = { screen: AppRoute.메인 }
 

@@ -1,4 +1,6 @@
+import { AppRoute as BaseAppRoute } from '@waylog/routes'
 import { describe, expect, it } from 'vitest'
+import { AppRoute } from './AppRoute'
 import { registerLinkingScreens } from './registerLinkingScreens'
 
 describe('registerLinkingScreens', () => {
@@ -13,5 +15,11 @@ describe('registerLinkingScreens', () => {
       '/': '/',
       '/trip/invite/_shareLink': '/trip/invite/:shareLink',
     })
+  })
+
+  it('linking.config 키가 RootStack.Screen name과 같은 로컬 AppRoute에서 나온다', () => {
+    const screens = registerLinkingScreens([BaseAppRoute.여행_초대])
+
+    expect(Object.keys(screens)).toContain(AppRoute.여행_초대)
   })
 })

@@ -18,7 +18,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { TamaguiProvider } from 'tamagui'
 import { setupApi } from '../api-config'
 import { LoginRoute } from '../features/auth/LoginRoute'
-import { useLoginRedirect } from '../features/auth/auth-redirect'
+import { useLoginRedirect, type ReturnTo } from '../features/auth/auth-redirect'
 import { useChatNotificationResponse } from '../features/trip/trip-chat/notification/useChatNotification'
 import { useFlightStatusNotificationResponse } from '../features/trip/trip-transport/notification/useFlightStatusNotification'
 import { OverlayProvider } from '../shared/hooks/useOverlay.context'
@@ -64,7 +64,7 @@ Notifications.setNotificationHandler({
 declare module '~app/routes' {
   interface RouteParamsRegistry {
     [AppRoute.메인]: undefined
-    [AppRoute.로그인]: { returnTo?: { screen: keyof RootStackParamList; params?: Record<string, unknown> } }
+    [AppRoute.로그인]: { returnTo?: ReturnTo }
   }
 }
 
@@ -73,8 +73,6 @@ const RootStack = createNativeStackNavigator<RootStackParamList>()
 const linking: LinkingOptions<RootStackParamList> = {
   prefixes: ['waylog://', 'https://waylog.me', 'https://www.waylog.me'],
   config: {
-    // 콜드 스타트로 딥링크가 열려도 스택 맨 아래에 Home을 깔아둔다. 없으면 스택이
-    // TripInvite 하나뿐이라 뒤로가기·초대 참여 후 replace가 갈 곳을 잃는다.
     initialRouteName: AppRoute.메인,
     screens: registerLinkingScreens([BaseAppRoute.메인, BaseAppRoute.여행_초대]),
   },

@@ -1,4 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- 화면별 declare module 병합 대상
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface RouteParamsRegistry {}
 
 export type RootStackParamList = { [K in keyof RouteParamsRegistry]: RouteParamsRegistry[K] }
