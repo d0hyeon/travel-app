@@ -4,19 +4,33 @@ import { palette } from '../../config/tokens'
 
 // 웹 theme.ts 의 값을 그대로 옮긴다. 앱은 모바일이므로
 // breakpoints.down('md') 쪽 수치를 쓴다.
+// RN 커스텀 폰트는 fontWeight 를 무시하므로, weight 는 fontFamily 선택으로 표현한다.
 export const VARIANT_STYLE = StyleSheet.create({
-  h4: { fontSize: 24, lineHeight: 34, fontWeight: '900' },
-  h5: { fontSize: 20, lineHeight: 28, fontWeight: '900' },
-  h6: { fontSize: 16, lineHeight: 22, fontWeight: '900' },
+  h4: { fontSize: 24, lineHeight: 34, fontWeight: '900', fontFamily: 'SUIT-Heavy' },
+  h5: { fontSize: 20, lineHeight: 28, fontWeight: '900', fontFamily: 'SUIT-Heavy' },
+  h6: { fontSize: 16, lineHeight: 22, fontWeight: '900', fontFamily: 'SUIT-Heavy' },
 
-  subtitle1: { fontSize: 14, lineHeight: 20, fontWeight: '700' },
-  subtitle2: { fontSize: 13, lineHeight: 18, fontWeight: '700' },
+  subtitle1: { fontSize: 14, lineHeight: 20, fontWeight: '700', fontFamily: 'SUIT-Bold' },
+  subtitle2: { fontSize: 13, lineHeight: 18, fontWeight: '700', fontFamily: 'SUIT-Bold' },
 
-  body1: { fontSize: 14, lineHeight: 20, fontWeight: '700' },
-  body2: { fontSize: 13, lineHeight: 18, fontWeight: '700' },
+  body1: { fontSize: 14, lineHeight: 20, fontWeight: '700', fontFamily: 'SUIT-Bold' },
+  body2: { fontSize: 13, lineHeight: 18, fontWeight: '700', fontFamily: 'SUIT-Bold' },
 
-  caption: { fontSize: 11, lineHeight: 16, fontWeight: '700' },
+  caption: { fontSize: 11, lineHeight: 16, fontWeight: '700', fontFamily: 'SUIT-Bold' },
 })
+
+// fontWeight prop 으로 넘어온 값을 로드된 SUIT family 이름으로 치환한다.
+// 숫자/문자열 weight 는 굵기 구간별로 가장 가까운 family 에 매핑한다.
+function resolveFontFamily(fontWeight: TypographyProps['fontWeight']): string {
+  if (fontWeight === 'medium') return 'SUIT'
+  if (fontWeight === 'bold') return 'SUIT-Bold'
+
+  const numeric = typeof fontWeight === 'number' ? fontWeight : Number(fontWeight)
+  if (Number.isNaN(numeric)) return 'SUIT-Bold'
+  if (numeric >= 800) return 'SUIT-Heavy'
+  if (numeric >= 600) return 'SUIT-Bold'
+  return 'SUIT'
+}
 
 export type TypographyVariant = keyof typeof VARIANT_STYLE
 
@@ -76,6 +90,7 @@ export function Typography({
         { color: color != null ? (COLOR_MAP[color] ?? color) : palette.text },
         fontWeight != null && {
           fontWeight: (fontWeight === 'medium' ? '700' : String(fontWeight)) as never,
+          fontFamily: resolveFontFamily(fontWeight),
         },
         {
           marginBottom: mb != null ? mb * 8 : undefined,

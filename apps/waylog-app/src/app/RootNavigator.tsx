@@ -9,7 +9,11 @@ import { getActivedChatTripId } from '@waylog/domains/modules/trip-chat'
 import { isTripChatPushData } from '@waylog/domains/modules/trip-chat/tripChatPush'
 import { AppRoute as BaseAppRoute } from '@waylog/routes'
 import { ExceptionError } from '@waylog/utility'
+import { useFonts } from 'expo-font'
 import * as Notifications from 'expo-notifications'
+import SuitRegular from '../../assets/fonts/SUIT-Regular.ttf'
+import SuitBold from '../../assets/fonts/SUIT-Bold.ttf'
+import SuitHeavy from '../../assets/fonts/SUIT-Heavy.ttf'
 import { StatusBar } from 'expo-status-bar'
 import { Suspense, type PropsWithChildren } from 'react'
 import { ActivityIndicator, LogBox, StyleSheet, View } from 'react-native'
@@ -87,6 +91,16 @@ function Loading() {
 }
 
 export function RootNavigator() {
+  const [fontsLoaded] = useFonts({
+    SUIT: SuitRegular,
+    'SUIT-Bold': SuitBold,
+    'SUIT-Heavy': SuitHeavy,
+  })
+
+  if (!fontsLoaded) {
+    return <Loading />
+  }
+
   return (
     <TamaguiProvider config={tamaguiConfig} defaultTheme="light">
       <GestureHandlerRootView style={styles.fill}>

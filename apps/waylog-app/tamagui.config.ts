@@ -1,6 +1,28 @@
 import { defaultConfig } from '@tamagui/config/v5'
-import { createTamagui } from 'tamagui'
+import { createFont, createTamagui } from 'tamagui'
 import { palette } from './src/shared/config/tokens'
+
+// RN 커스텀 폰트는 fontWeight 를 무시하므로 weight 별로 다른 SUIT family 를 지정한다.
+// Typography.tsx 의 resolveFontFamily 와 같은 굵기 구간을 쓴다.
+const suitFace = {
+  normal: { normal: 'SUIT' },
+  600: { normal: 'SUIT-Bold' },
+  700: { normal: 'SUIT-Bold' },
+  800: { normal: 'SUIT-Heavy' },
+  900: { normal: 'SUIT-Heavy' },
+}
+
+const suitFont = createFont({
+  ...defaultConfig.fonts.body,
+  family: 'SUIT',
+  face: suitFace,
+})
+
+const suitHeadingFont = createFont({
+  ...defaultConfig.fonts.heading,
+  family: 'SUIT',
+  face: suitFace,
+})
 
 export const appThemes = {
   light: {
@@ -31,6 +53,11 @@ export const appThemes = {
 
 export const tamaguiConfig = createTamagui({
   ...defaultConfig,
+  fonts: {
+    ...defaultConfig.fonts,
+    body: suitFont,
+    heading: suitHeadingFont,
+  },
   themes: {
     ...defaultConfig.themes,
     ...appThemes,
