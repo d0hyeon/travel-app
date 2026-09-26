@@ -197,7 +197,7 @@ export function TripPhotoContent({ tripId }: Props) {
       {/* 웹과 같이 선택 모드에서는 하단 고정 삭제 버튼만 둔다.
           공개 전환은 사진을 열었을 때 뷰어 안에서 한다. */}
       {!isReadonly && (
-        <BottomArea position="static">
+        <BottomArea position="static" bottom={16 + FLOATING_TAB_BAR_RESERVE}>
           <Button
             size="large"
             color="error"
