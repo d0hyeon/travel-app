@@ -10,7 +10,7 @@ import { Box, IconButton, Stack, Typography } from '~/shared/components/design-s
 import { palette } from '../../../shared/config/tokens'
 import { Map, type MapRef } from '../../../shared/components/Map'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
-import { useRouteLegsPathList } from '../hooks/useRouteLegsPathList'
+import { useRoadRoutes } from '../../route/road-route/useRoadRoute'
 import { ExpenseFormDeletationActions } from './ExpenseFormDeletationActions'
 import { ExpenseFormOverlayActions, useExpenseFormBottomSheet } from './useExpenseFormOverlay'
 import { getRouteColor } from './routeExpenseView.utils'
@@ -67,7 +67,7 @@ export function RouteExpenseView({ tripId }: Props) {
       ),
     [routes, places],
   )
-  const legsByRoute = useRouteLegsPathList(waypointsByRoute)
+  const roadRoutesByRoute = useRoadRoutes(waypointsByRoute)
 
   // 장소에 새 지출 추가
   const addExpense = async (place: PlaceWithRoute) => {
@@ -111,7 +111,7 @@ export function RouteExpenseView({ tripId }: Props) {
               const dayIndex = tripDates.indexOf(route.scheduledDate ?? '')
               const isActiveDay = activeDayIndex === dayIndex
 
-              return (legsByRoute[routeIndex] ?? []).map((leg, legIndex) => (
+              return (roadRoutesByRoute[routeIndex]?.legs ?? []).map((leg, legIndex) => (
                 <Map.Path
                   key={`route_${route.id}_leg_${legIndex}`}
                   coordinates={leg.coordinates}
