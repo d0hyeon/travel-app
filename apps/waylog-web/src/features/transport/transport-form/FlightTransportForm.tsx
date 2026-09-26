@@ -35,9 +35,8 @@ export function FlightTransportForm({ defaultValues, onNext }: Props) {
       <FlightRouteFields control={control} setValue={setValue} />
       <TransportTimeFields control={control} />
 
-      <Divider />
 
-      <Stack direction={isMobile ? 'column' : 'row'} gap={2}>
+      <Stack direction="column" gap={2}>
         <FieldPair label="항공사">
           <AirlineField control={control} setValue={setValue} />
         </FieldPair>
