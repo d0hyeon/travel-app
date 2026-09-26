@@ -77,8 +77,6 @@ const styles = StyleSheet.create({
   name: { fontSize: 13.5, fontWeight: '700' },
   detail: { fontSize: 12, color: palette.textSecondary },
   results: {
-    borderWidth: 1,
-    borderColor: palette.divider,
     borderRadius: radius.lg,
     overflow: 'hidden',
   },
