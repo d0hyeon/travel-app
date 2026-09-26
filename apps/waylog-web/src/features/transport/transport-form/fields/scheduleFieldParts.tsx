@@ -14,7 +14,7 @@ export function FieldPair({
 }) {
   return (
     <Stack gap={0.75} flex={1} minWidth={0}>
-      <Typography variant="caption" color="text.secondary" fontWeight={600}>
+      <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ whiteSpace: 'nowrap' }}>
         {label}
         {required && (
           <>

@@ -1,4 +1,5 @@
 import { DateTimePicker } from '@mui/x-date-pickers'
+import { Stack } from '@mui/material'
 import { Controller, type Control } from 'react-hook-form'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { FieldPair, RouteArrow } from './scheduleFieldParts'
@@ -19,37 +20,43 @@ export function TransportTimeFields({ control }: Props) {
     : {}
 
   return (
-    <FieldPair label="일시">
-      <Controller
-        control={control}
-        name="departureAt"
-        rules={{ required: true }}
-        render={({ field: { value, onChange, ...field }, fieldState }) => (
-          <DateTimePicker
-            value={value ? new Date(value) : null}
-            onChange={(next) => onChange(next ? (next as Date).toISOString() : '')}
-            slotProps={{ textField: { error: fieldState.invalid, fullWidth: true, placeholder: '출발' } }}
-            sx={{ flex: 1, ...pickerSx }}
-            ampm={false}
-            {...field}
-          />
-        )}
-      />
-      <RouteArrow />
-      <Controller
-        control={control}
-        name="arrivalAt"
-        render={({ field: { value, onChange, ...field }, fieldState }) => (
-          <DateTimePicker
-            value={value ? new Date(value) : null}
-            onChange={(next) => onChange(next ? (next as Date).toISOString() : '')}
-            slotProps={{ textField: { error: fieldState.invalid, fullWidth: true, placeholder: '도착' } }}
-            sx={{ flex: 1, ...pickerSx }}
-            ampm={false}
-            {...field}
-          />
-        )}
-      />
-    </FieldPair>
+    <Stack direction="row" alignItems="flex-start" gap={1}>
+      <FieldPair label="출발 일시">
+        <Controller
+          control={control}
+          name="departureAt"
+          rules={{ required: true }}
+          render={({ field: { value, onChange, ...field }, fieldState }) => (
+            <DateTimePicker
+              value={value ? new Date(value) : null}
+              onChange={(next) => onChange(next ? (next as Date).toISOString() : '')}
+              slotProps={{ textField: { error: fieldState.invalid, fullWidth: true } }}
+              sx={{ flex: 1, ...pickerSx }}
+              ampm={false}
+              {...field}
+            />
+          )}
+        />
+      </FieldPair>
+      <Stack pt={3}>
+        <RouteArrow />
+      </Stack>
+      <FieldPair label="도착 일시" required={false}>
+        <Controller
+          control={control}
+          name="arrivalAt"
+          render={({ field: { value, onChange, ...field }, fieldState }) => (
+            <DateTimePicker
+              value={value ? new Date(value) : null}
+              onChange={(next) => onChange(next ? (next as Date).toISOString() : '')}
+              slotProps={{ textField: { error: fieldState.invalid, fullWidth: true } }}
+              sx={{ flex: 1, ...pickerSx }}
+              ampm={false}
+              {...field}
+            />
+          )}
+        />
+      </FieldPair>
+    </Stack>
   )
 }
