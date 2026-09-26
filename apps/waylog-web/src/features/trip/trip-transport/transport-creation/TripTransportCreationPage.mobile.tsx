@@ -9,20 +9,24 @@ import { TransportTypeStep } from '../transport-form-funnel/TransportTypeStep'
 import { useTransportFormFunnel } from '../transport-form-funnel/useTransportFormFunnel'
 
 export function TripTransportCreationPage() {
-  const { currentStep, stepIndex, form, update, goNext, submit, isSubmitting, error, tripId } =
+  const { currentStep, stepIndex, form, update, goNext, goBack, submit, isSubmitting, error, tripId } =
     useTransportFormFunnel()
 
   return (
     <Box minHeight="100dvh" display="flex" flexDirection="column" overflow="auto" bgcolor="background.default">
       <Container maxWidth="sm" disableGutters sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
         <Paper sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <TopNavigation position="sticky" rightElement={<TransportFormFunnelStepIndicator stepIndex={stepIndex} />}>
+          <TopNavigation
+            position="sticky"
+            leftElement={<TopNavigation.BackButton onClick={goBack} />}
+            rightElement={<TransportFormFunnelStepIndicator stepIndex={stepIndex} />}
+          >
             <Typography fontSize={16} fontWeight={700}>탑승권</Typography>
           </TopNavigation>
 
           {!!error && (
             <Alert severity="error">
-              <AlertTitle>교통편을 등록하지 못했어요</AlertTitle>
+              <AlertTitle>탑승권을 등록하지 못했어요</AlertTitle>
               <Typography variant="caption">{error instanceof Error ? error.message : ''}</Typography>
             </Alert>
           )}
