@@ -1,6 +1,6 @@
 import * as ImagePicker from 'expo-image-picker'
 import { MaterialIcons } from '@expo/vector-icons'
-import { StyleSheet, Pressable } from 'react-native'
+import { StyleSheet, Pressable, ScrollView } from 'react-native'
 import { Box, Skeleton, Stack, StackProps, Typography } from '~/shared/components/design-system'
 import { LoadableImage } from '../../../shared/components/LoadableImage'
 import { PhotoBottomSheet } from '../../../shared/components/photo/PhotoBottomSheet'
@@ -54,18 +54,20 @@ export function PlacePhotoSection({ tripId, placeId, ...props }: PlacePhotoSecti
   return (
     <Stack gap={1} {...props}>
       <Typography variant="subtitle2" style={styles.title}>사진</Typography>
-      <Stack direction="row" gap={1} style={styles.photoList}>
-        <Pressable onPress={() => void addPhoto()}>
-          <Box style={styles.uploadButton}>
-            <MaterialIcons name="add-photo-alternate" size={30} color="#777" />
-          </Box>
-        </Pressable>
-        {photos.map((photo, index) => (
-          <Pressable key={photo.id} onPress={() => openPhotoViewer(index)}>
-            <LoadableImage source={{ uri: photo.url }} style={styles.photo} resizeMode="cover" />
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <Stack direction="row" gap={1}>
+          <Pressable onPress={() => void addPhoto()}>
+            <Box style={styles.uploadButton}>
+              <MaterialIcons name="add-photo-alternate" size={30} color="#777" />
+            </Box>
           </Pressable>
-        ))}
-      </Stack>
+          {photos.map((photo, index) => (
+            <Pressable key={photo.id} onPress={() => openPhotoViewer(index)}>
+              <LoadableImage source={{ uri: photo.url }} style={styles.photo} resizeMode="cover" />
+            </Pressable>
+          ))}
+        </Stack>
+      </ScrollView>
     </Stack>
   )
 }
@@ -73,22 +75,23 @@ PlacePhotoSection.Skeleton = (props: StackProps) => {
   return (
     <Stack gap={1} {...props}>
       <Typography variant="subtitle2" style={styles.title}>사진</Typography>
-      <Stack direction="row" gap={1} style={styles.photoList}>
-        <Box style={styles.uploadButton}>
-          <MaterialIcons name="add-photo-alternate" size={30} color="#777" />
-        </Box>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <Stack direction="row" gap={1}>
+          <Box style={styles.uploadButton}>
+            <MaterialIcons name="add-photo-alternate" size={30} color="#777" />
+          </Box>
 
-        <Skeleton style={styles.photo} />
-        <Skeleton style={styles.photo} />
-        <Skeleton style={styles.photo} />
-      </Stack>
+          <Skeleton style={styles.photo} />
+          <Skeleton style={styles.photo} />
+          <Skeleton style={styles.photo} />
+        </Stack>
+      </ScrollView>
     </Stack>
   )
 }
 
 const styles = StyleSheet.create({
   title: { fontWeight: '800' },
-  photoList: { flexWrap: 'wrap' },
   uploadButton: { width: 96, height: 96, flexShrink: 0, borderWidth: 2, borderStyle: 'dashed', borderColor: '#dddddd', borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   photo: { width: 96, height: 96, borderRadius: 12 },
 })
