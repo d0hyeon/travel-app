@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { StyleSheet, Pressable } from 'react-native'
-import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
+import { BottomSheet } from '../../../../shared/components/bottom-sheet/BottomSheet'
 import { Button, Stack, TextField, Typography } from '~/shared/components/design-system'
-import { palette } from '../../../shared/config/tokens'
-import { useOverlay } from '../../../shared/hooks/useOverlay'
+import { palette } from '../../../../shared/config/tokens'
+import { useOverlay } from '../../../../shared/hooks/useOverlay'
 
 interface Props {
   notes: string[]

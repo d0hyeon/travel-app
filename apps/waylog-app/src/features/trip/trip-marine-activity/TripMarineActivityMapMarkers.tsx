@@ -5,7 +5,7 @@ import { useTrip } from '@waylog/domains/modules/trip'
 import { Map } from '../../../shared/components/Map'
 import { MarineActivityMarkerIcon } from './MarineActivityMarkerIcon'
 import { useTripMarineActivityDetailOverlay } from './TripMarineActivityDetailOverlay'
-import { useActiveTripDay } from '../trip-route/useActiveTripDay'
+import { useActiveTripDay } from '../trip-route/trip-route-configuration/useActiveTripDay'
 
 interface TripMarineActivityMapMarkersProps {
   tripId: string

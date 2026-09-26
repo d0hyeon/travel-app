@@ -9,7 +9,7 @@ import { useConfirmDialog } from '../../../../shared/components/confirm-dialog/u
 import { useDayTripRoutes, useTripRoutes } from '@waylog/domains/modules/trip';
 import { useTripPlaceFormOverlay } from '../../trip-place/trip-place-form/useTripPlaceFormOverlay';
 import { assert } from '../../../../shared/utils/assert';
-import { NoteEditor } from '../RouteNoteList';
+import { NoteEditor } from './RouteNoteList';
 
 type ListItemButtonProps = Parameters<typeof ListItem.Button>[0];
 

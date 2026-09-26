@@ -7,7 +7,7 @@ import { ErrorBoundary } from '@waylog/react'
 import { IconButton } from '~/shared/components/design-system'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { WeatherIcon } from '../../weather/WeatherIcon'
-import { useActiveTripDay } from '../trip-route/useActiveTripDay'
+import { useActiveTripDay } from '../trip-route/trip-route-configuration/useActiveTripDay'
 import { TripWeatherForecastSheet } from './TripWeatherForecastSheet'
 
 interface Props {

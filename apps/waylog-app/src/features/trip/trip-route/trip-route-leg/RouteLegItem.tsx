@@ -2,9 +2,9 @@ import { StyleSheet, View, type ViewStyle } from 'react-native'
 import type { ReactNode } from 'react'
 import type { RouteLeg } from '@waylog/domains/modules/route'
 import { formatDistance, formatDuration } from '@waylog/utility'
-import { palette } from '../../../shared/config/tokens'
+import { palette } from '../../../../shared/config/tokens'
 import { Typography, type StackProps } from '~/shared/components/design-system'
-import { TransportIcon } from './TransportIcon'
+import { TransportIcon } from '../components/TransportIcon'
 
 
 interface RouteLegItemProps extends StackProps {

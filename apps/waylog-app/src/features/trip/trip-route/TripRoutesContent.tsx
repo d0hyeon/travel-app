@@ -1,9 +1,9 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { PlaceCategoryColorCode } from '@waylog/domains/modules/place'
-import { findNearestPlace, useDayTripRoutes, useTrip, useTripPlaces } from '@waylog/domains/modules/trip'
+import { findNearestPlace, useTrip, useTripPlaces } from '@waylog/domains/modules/trip'
 import { formatDisplayDate, formatDuration, formatShortDate } from '@waylog/utility'
 import { TransportTypeLabel } from '@waylog/domains/modules/transport'
-import { Fragment, ReactNode, Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, Suspense, useEffect, useRef, useState } from 'react'
 import { StyleSheet } from 'react-native'
 import { Box, IconButton, MenuFab, Stack, Tab, Tabs, Typography } from '~/shared/components/design-system'
 import { getItemOffsetY, ITEM_HEIGHT } from '~/shared/components/design-system/menu-fab/menuFabMotion'
@@ -16,7 +16,6 @@ import { Map, type MapRef } from '../../../shared/components/Map'
 import { palette } from '../../../shared/config/tokens'
 import { useCurrentCoordinate } from '../../../shared/hooks/env/useCurrentCoordinate'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
-import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
 import { FloatingControl } from '../components/FloatingControl'
 import { getRouteColor } from '../trip-expense/routeExpenseView.utils'
 import { TripMarineActivityMapMarkers } from '../trip-marine-activity/TripMarineActivityMapMarkers'
@@ -24,14 +23,13 @@ import { useTripPlaceFormOverlay } from '../trip-place/trip-place-form/useTripPl
 import { TripWeatherIconButton } from '../trip-weather/TripWeatherIconButton'
 import { TripRouteMapFloatingControls } from './components/TripRouteMapFloatingControls'
 import { TripRoutePlaceListItem } from './components/TripRoutePlaceListItem'
-import { NoteEditor } from './RouteNoteList'
-import { RouteLegItem } from './RouteTimeline'
+import { RouteLegItem } from './trip-route-leg/RouteLegItem'
 import { TripRouteConfigToolbar } from './trip-route-configuration/TripRouteConfigToolbar'
 import { useTripViewConfigValue } from './trip-route-configuration/useTripViewConfig'
 import { PlaceSelectSheet } from './trip-route-place/PlaceSelectSheet'
 import { usePlaceSelectSheet } from './trip-route-place/usePlaceSelectSheet'
-import { useActiveTripDay } from './useActiveTripDay'
-import { useRouteLegs } from './useRouteLegs'
+import { useActiveTripDay } from './trip-route-configuration/useActiveTripDay'
+import { useTripRoutePlaces } from './useTripRoutePlaces'
 import { useVariation } from '@waylog/react'
 import { CurrenntLocationIconButton } from './components/CurrentLocationIconButton'
 import { View } from 'tamagui'
@@ -49,26 +47,11 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
   const { data: allPlaces } = useTripPlaces(tripId)
 
   const { value: selectedDate, update: setSelectedDate } = useActiveTripDay(tripId)
-  const { data: { routes, tripDates }, update } = useDayTripRoutes({ tripId, date: selectedDate })
-
-  const [selectedRouteId, setSelectedRouteId] = useQueryParamState<string>('route-id', {
-    defaultValue: () => routes[0]?.id ?? '',
-  })
-
-  const currentRoute = useMemo(
-    () => routes.find((route) => route.id === selectedRouteId) ?? routes[0],
-    [routes, selectedRouteId],
-  )
-
-  // 숨긴 장소는 경로 계산에서 뺀다. 지도·리스트 모두 선택된 route만 그린다.
-  const visiblePlaces = useMemo(
-    () => currentRoute?.places.filter((x) => !currentRoute.hiddenPlaces.includes(x.id)) ?? [],
-    [currentRoute],
-  )
-  const legByArrivalPlaceId = useRouteLegs(visiblePlaces)
-  const legs = useMemo(() => [...legByArrivalPlaceId.values()], [legByArrivalPlaceId])
-
-  const currentPlaces = currentRoute?.places ?? []
+  const {
+    data: { routes, tripDates, currentRoute, currentPlaces, legs: legByArrivalPlaceId },
+    setRouteId,
+    update,
+  } = useTripRoutePlaces({ tripId, date: selectedDate })
 
   const viewConfig = useTripViewConfigValue()
   const mapRef = useRef<MapRef>(null)
@@ -128,12 +111,12 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
             tripId={tripId}
             date={selectedDate}
             value={currentRoute.id}
-            onSelect={setSelectedRouteId}
-            onAdd={(route) => setSelectedRouteId(route.id)}
+            onSelect={setRouteId}
+            onAdd={(route) => setRouteId(route.id)}
             onDelete={(id) => {
               if (currentRoute.id === id) {
                 const index = routes.findIndex(x => x.id === id);
-                setSelectedRouteId(routes[index - 1].id);
+                setRouteId(routes[index - 1].id);
               }
             }}
             rightAddon={
@@ -176,7 +159,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
               strokeWeight={5}
               strokeOpacity={1}
             >
-              {legs.map((leg, legIndex) => (
+              {Object.values(legByArrivalPlaceId).map((leg, legIndex) => (
                 <Map.Polyline.Line
                   key={`route_${currentRoute.id}_leg_${legIndex}`}
                   coordinates={leg.coordinates}
@@ -252,7 +235,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                 value={selectedDate}
                 onChange={(_, date) => {
                   setSelectedDate(date)
-                  setSelectedRouteId('')
+                  setRouteId('')
                 }}
                 scrollable
               >
@@ -278,7 +261,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                   }}
                   renderItem={(place, idx) => {
                     if (currentRoute == null) return null
-                    const inboundLeg = legByArrivalPlaceId.get(place.id)
+                    const inboundLeg = legByArrivalPlaceId[place.id]
 
                     return (
                       <Fragment key={place.id}>
