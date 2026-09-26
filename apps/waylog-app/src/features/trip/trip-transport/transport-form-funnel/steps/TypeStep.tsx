@@ -23,7 +23,7 @@ export function TypeStep({ defaultValue, onNext }: Props) {
   return (
     <View style={styles.screen}>
       <View style={styles.body}>
-        <Typography style={styles.heading}>어떤 교통편인가요?</Typography>
+        <Typography style={styles.heading}>어떤 탑승권인가요?</Typography>
 
         <View style={styles.tiles}>
           {SELECTABLE_TYPES.map((type) => {

@@ -36,7 +36,7 @@ export function TripBasicInfoContent({ tripId }: Props) {
         <Tab value="default" label="기본정보" />
         <Tab value="checklist" label="체크리스트" />
         <Tab value="memo" label="메모" />
-        <Tab value="transport" label="교통편" />
+        <Tab value="transport" label="탑승권" />
       </Tabs>
       <Box
         position="relative"
@@ -151,7 +151,7 @@ export function TripBasicInfoContent({ tripId }: Props) {
             <Fab
               color="primary"
               size="medium"
-              aria-label="교통편 추가"
+              aria-label="탑승권 추가"
               onClick={() => navigate(`/trip/${tripId}/transport/new`)}
               sx={{
                 position: 'fixed',

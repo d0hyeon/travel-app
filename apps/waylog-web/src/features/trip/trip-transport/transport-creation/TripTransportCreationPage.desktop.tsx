@@ -20,12 +20,12 @@ export function TripTransportCreationPage() {
         leftElement={<TopNavigation.BackButton onClick={goBack} />}
         rightElement={<TransportFormFunnelStepIndicator stepIndex={stepIndex} />}
       >
-        <Typography variant="h6">교통편 등록</Typography>
+        <Typography variant="h6">탑승권 등록</Typography>
       </TopNavigation>
 
       {!!error && (
         <Alert severity="error">
-          <AlertTitle>교통편을 등록하지 못했어요</AlertTitle>
+          <AlertTitle>탑승권을 등록하지 못했어요</AlertTitle>
           <Typography variant="caption">{error instanceof Error ? error.message : ''}</Typography>
         </Alert>
       )}

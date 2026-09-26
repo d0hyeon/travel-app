@@ -65,7 +65,7 @@ export function TransportFormFunnel({
       {error != null && (
         <View style={styles.errorNotice}>
           <Typography color="error">
-            {error instanceof Error ? error.message : '교통편을 등록하지 못했어요'}
+            {error instanceof Error ? error.message : '탑승권을 등록하지 못했어요'}
           </Typography>
         </View>
       )}
@@ -93,7 +93,7 @@ export function TransportFormFunnel({
           )}
         </Funnel.Screen>
 
-        <Funnel.Screen name="detail" options={{ title: '교통편 정보' }}>
+        <Funnel.Screen name="detail" options={{ title: '탑승권 정보' }}>
           {({ navigation }) =>
             type == null ? null : (
               <StepBoundary step="detail" goBack={navigation.goBack} onFocus={handleStepFocus}>

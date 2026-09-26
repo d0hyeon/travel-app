@@ -15,7 +15,7 @@ export function TransportDetailMenu({ tripId, transportId }: Props) {
   const { remove } = useTripTransports(tripId)
 
   const removeTransport = async () => {
-    const isConfirmed = await confirm('이 교통편을 삭제하시겠어요?')
+    const isConfirmed = await confirm('이 탑승권을 삭제하시겠어요?')
     if (!isConfirmed) return
 
     await remove(transportId)

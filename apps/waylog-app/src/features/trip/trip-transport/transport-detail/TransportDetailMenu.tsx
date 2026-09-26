@@ -16,7 +16,7 @@ export function TransportDetailMenu({ tripId, transportId }: Props) {
 
   // 지운 교통편의 상세에 남아 있으면 조회가 곧바로 실패한다. 목록으로 되돌린다.
   const removeTransport = async () => {
-    if (!(await confirm('교통편을 삭제하시겠어요?'))) return
+    if (!(await confirm('탑승권을 삭제하시겠어요?'))) return
 
     remove(transportId)
     navigation.goBack()

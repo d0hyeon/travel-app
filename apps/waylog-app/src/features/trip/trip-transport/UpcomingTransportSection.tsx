@@ -39,7 +39,7 @@ export function UpcomingTransportSection({ tripId }: Props) {
 
   return (
     <View style={styles.section}>
-      <Typography style={styles.sectionLabel}>다가오는 교통편</Typography>
+      <Typography style={styles.sectionLabel}>다가오는 탑승권</Typography>
       {isSingleCard ? (
         <BoardingPassCard
           tripId={tripId}

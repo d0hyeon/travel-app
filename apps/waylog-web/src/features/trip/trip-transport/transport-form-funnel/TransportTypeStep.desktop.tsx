@@ -25,9 +25,9 @@ export function TransportTypeStep({ defaultValue, onNext }: Props) {
   return (
     <>
       <TransportFormBody>
-        <Stack gap={2}>
-          <Typography fontSize={17} fontWeight={700}>
-            어떤 교통편인가요?
+        <Stack gap={4}>
+          <Typography variant='h6' fontWeight={700}>
+            어떤 탑승권인가요?
           </Typography>
 
           <Stack gap={1.5}>

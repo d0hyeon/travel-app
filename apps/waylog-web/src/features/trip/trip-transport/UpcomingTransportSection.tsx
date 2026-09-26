@@ -32,7 +32,7 @@ export function UpcomingTransportSection({ tripId, sx, ...props }: Props) {
   return (
     <Stack gap={1} {...props}>
       <Typography variant="subtitle2" color="text.secondary">
-        다가오는 교통편
+        다가오는 탑승권
       </Typography>
       <Stack
         direction="row"

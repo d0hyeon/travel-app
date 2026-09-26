@@ -15,7 +15,7 @@ export function TripTransportSection({ tripId }: Props) {
   return (
     <Card variant="outlined">
       <Stack direction="row" paddingY={1} marginTop={0.5} paddingX={2} alignItems="center" justifyContent="space-between">
-        <CardHeader title="교통편" />
+        <CardHeader title="탑승권" />
         <Button component={Link} to={`/trip/${tripId}/transport/new`} variant="contained" size="small">
           추가
         </Button>

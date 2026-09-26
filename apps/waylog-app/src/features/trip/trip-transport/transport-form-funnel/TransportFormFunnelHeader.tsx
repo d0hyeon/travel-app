@@ -6,7 +6,7 @@ import { TRANSPORT_FORM_STEPS, type TransportFormStep } from './transportFormFun
 
 const STEP_TITLE: Record<string, string> = {
   type: '종류 선택',
-  detail: '교통편 정보',
+  detail: '탑승권 정보',
   ticket: '탑승권 등록',
 }
 
@@ -28,7 +28,7 @@ export function TransportFormFunnelHeader({ step, onBack }: Props) {
         </Pressable>
         <View style={styles.heading}>
           <Typography style={styles.stepLabel}>
-            교통편 · {stepIndex + 1}/{TRANSPORT_FORM_STEPS.length}
+            탑승권 · {stepIndex + 1}/{TRANSPORT_FORM_STEPS.length}
           </Typography>
           <Typography style={styles.title}>{STEP_TITLE[step] ?? ''}</Typography>
         </View>
