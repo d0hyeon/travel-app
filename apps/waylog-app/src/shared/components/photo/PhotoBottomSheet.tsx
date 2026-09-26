@@ -82,18 +82,20 @@ export function PhotoBottomSheet({
     overlay.open(({ isOpen: pickerOpen, close: closePicker }) => (
       <BottomSheet isOpen={pickerOpen} onDismiss={closePicker} snapPoints={[0.5]} defaultSnapIndex={0} safeArea>
         <BottomSheet.Body style={styles.menuBody}>
-          {[{ id: 'none', label: '장소 미지정' }, ...(places ?? []).map((place) => ({ id: place.placeId, label: place.name }))].map((option) => {
-            const isUnassigned = option.id === 'none'
-            const isSelected = isUnassigned ? currentPhoto.placeId == null : currentPhoto.placeId === option.id
-            return (
-              <Pressable key={option.id} onPress={async () => { await updateCurrentPhoto({ placeId: isUnassigned ? null : option.id }); closePicker() }} style={[styles.menuItem, { backgroundColor: isSelected ? '#eef4ff' : '#fff' }]}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
-                  <Typography style={[styles.menuItemLabel, { color: isUnassigned ? '#888' : '#222' }]}>{option.label}</Typography>
-                  {isSelected && <MaterialIcons name="check" size={24} color="#4c84ff" />}
-                </Stack>
-              </Pressable>
-            )
-          })}
+          <BottomSheet.ScrollView>
+            {[{ id: 'none', label: '장소 미지정' }, ...(places ?? []).map((place) => ({ id: place.placeId, label: place.name }))].map((option) => {
+              const isUnassigned = option.id === 'none'
+              const isSelected = isUnassigned ? currentPhoto.placeId == null : currentPhoto.placeId === option.id
+              return (
+                <Pressable key={option.id} onPress={async () => { await updateCurrentPhoto({ placeId: isUnassigned ? null : option.id }); closePicker() }} style={[styles.menuItem, { backgroundColor: isSelected ? '#eef4ff' : '#fff' }]}>
+                  <Stack direction="row" justifyContent="space-between" alignItems="center">
+                    <Typography style={[styles.menuItemLabel, { color: isUnassigned ? '#888' : '#222' }]}>{option.label}</Typography>
+                    {isSelected && <MaterialIcons name="check" size={24} color="#4c84ff" />}
+                  </Stack>
+                </Pressable>
+              )
+            })}
+          </BottomSheet.ScrollView>
         </BottomSheet.Body>
       </BottomSheet>
     ))
