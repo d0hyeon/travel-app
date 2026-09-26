@@ -28,6 +28,7 @@ export function PushNotificationCard({ style }: Props) {
             <Button
               variant="contained"
               disabled={isLoading}
+              fullWidth
               style={styles.button}
               onPress={() => {
                 startTransition(async () => {
@@ -49,7 +50,7 @@ export function PushNotificationCard({ style }: Props) {
                 : '푸시 알림은 실기기에서만 사용할 수 있어요.'}
             </NotificationCard.Text>
             {push.permissionStatus === 'denied' && (
-              <Button variant="outlined" style={styles.button} onPress={() => void Linking.openSettings()}>
+              <Button variant="outlined" fullWidth style={styles.button} onPress={() => void Linking.openSettings()}>
                 설정 열기
               </Button>
             )}
