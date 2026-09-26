@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
   },
   destinationChip: {
     paddingVertical: 1,
-    paddingHorizontal: 2,
+    paddingHorizontal: 8,
     backgroundColor: 'rgba(76,132,255,0.08)',
   },
 })

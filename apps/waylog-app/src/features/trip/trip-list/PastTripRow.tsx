@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
   },
   destinationChip: {
     paddingVertical: 0,
-    paddingHorizontal: 1,
+    paddingHorizontal: 8,
     backgroundColor: 'rgba(0,0,0,0.06)',
   },
 })
