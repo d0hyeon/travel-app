@@ -1,5 +1,6 @@
 import {
   createContext,
+  PropsWithChildren,
   useCallback,
   useContext,
   useEffect,
@@ -87,8 +88,7 @@ function useSheetDrag(): SheetDragContextValue {
 // 그 인스턴스를 알아야 하므로 본문이 자기 것을 아래로 내려준다.
 const BodyPanContext = createContext<PanGesture | null>(null)
 
-interface BottomSheetProps {
-  children: ReactNode
+export interface BottomSheetProps {
   /** 스냅 포인트 (0-1 비율, 바텀시트가 차지하는 비율) */
   snapPoints?: number[] | readonly number[]
   /** 초기 스냅 포인트 인덱스 */
@@ -133,7 +133,7 @@ export function BottomSheet({
   safeArea = false,
   style,
   ref,
-}: BottomSheetProps) {
+}: PropsWithChildren<BottomSheetProps>) {
   const { height: screenH } = useWindowDimensions()
 
   // 시트는 화면이 아니라 자기가 놓인 자리(탭 화면)를 덮는다.
@@ -439,7 +439,7 @@ export function BottomSheet({
         onLayout={
           isMeasuring
             ? (e) =>
-                setContentH(Math.round(e.nativeEvent.layout.height) - HANDLE_AREA_HEIGHT)
+              setContentH(Math.round(e.nativeEvent.layout.height) - HANDLE_AREA_HEIGHT)
             : undefined
         }
       >

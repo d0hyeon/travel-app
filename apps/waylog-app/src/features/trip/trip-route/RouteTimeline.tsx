@@ -6,8 +6,6 @@ import { palette } from '../../../shared/config/tokens'
 import { Typography, type StackProps } from '~/shared/components/design-system'
 import { TransportIcon } from './TransportIcon'
 
-// 경로 순서를 나타내는 번호 원. 연결선이 이 폭의 중심에 정렬되도록 크기를 공유한다.
-const DOT_SIZE = 20
 
 interface RouteLegItemProps extends StackProps {
   leg: RouteLeg
@@ -29,9 +27,6 @@ export function RouteLegItem({ leg, style, ...props }: RouteLegItemProps) {
   )
 }
 
-export function Dot({ children }: { children?: ReactNode }) {
-  return <View style={styles.dot}>{children}</View>
-}
 
 // Chip 이 가운데를 덮으므로 위·아래 두 구간으로 나눠 그린다.
 function Line({ style }: { style?: ViewStyle }) {
@@ -47,20 +42,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 6,
   },
-  dot: {
-    width: DOT_SIZE,
-    height: DOT_SIZE,
-    minWidth: DOT_SIZE,
-    minHeight: DOT_SIZE,
-    borderRadius: DOT_SIZE / 2,
-    backgroundColor: palette.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexGrow: 0,
-    flexShrink: 0,
-    flexBasis: 'auto',
-    overflow: 'hidden',
-  },
+
   line: {
     position: 'absolute',
     left: '50%',

@@ -1,29 +1,27 @@
 import { StyleSheet, Keyboard, Pressable, TextInput, View } from 'react-native'
 import { useTrip, useTripPlaces } from '@waylog/domains/modules/trip'
 import { PlaceCategoryColorCode } from '@waylog/domains/modules/place'
-import { useState } from 'react'
+import { ComponentProps, useState } from 'react'
 import { MaterialIcons } from '@expo/vector-icons'
-import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
-import { ListItem } from '../../../shared/components/ListItem'
-import { PlaceSearchSelectScreen } from '../../place/place-search/PlaceSearchSelectScreen'
+import { BottomSheet, BottomSheetProps } from '../../../../shared/components/bottom-sheet/BottomSheet'
+import { ListItem } from '../../../../shared/components/ListItem'
+import { PlaceSearchSelectScreen } from '../../../place/place-search/PlaceSearchSelectScreen'
 import { Button, Checkbox, Chip, IconButton, Stack, Typography } from '~/shared/components/design-system'
-import { palette, radius } from '../../../shared/config/tokens'
+import { palette, radius } from '../../../../shared/config/tokens'
 
-interface PlaceSelectSheetProps {
-  isOpen: boolean
-  onClose: () => void
+export interface PlaceSelectSheetProps {
   tripId: string
-  selectedPlaceIds: string[]
+  defaultValue?: string[]
   onConfirm: (placeIds: string[]) => void
 }
 
 export function PlaceSelectSheet({
   isOpen,
-  onClose,
   tripId,
-  selectedPlaceIds,
+  defaultValue: selectedPlaceIds = [],
   onConfirm,
-}: PlaceSelectSheetProps) {
+  ...props
+}: PlaceSelectSheetProps & BottomSheetProps) {
   const { data: trip } = useTrip(tripId)
   const { data: places, create } = useTripPlaces(tripId)
 
@@ -64,7 +62,7 @@ export function PlaceSelectSheet({
 
   return (
     <>
-      <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.6, 0.9]} defaultSnapIndex={0} safeArea>
+      <BottomSheet isOpen={isOpen} snapPoints={[0.6, 0.9]} defaultSnapIndex={0} safeArea {...props}>
         <BottomSheet.Header>장소 선택</BottomSheet.Header>
         <BottomSheet.Body style={styles.sheetBody}>
           <View style={styles.searchBar}>
@@ -137,7 +135,7 @@ export function PlaceSelectSheet({
           </BottomSheet.ScrollView>
         </BottomSheet.Body>
         <BottomSheet.BottomActions>
-          <Button variant="outlined" fullWidth onPress={onClose}>
+          <Button variant="outlined" fullWidth onPress={props.onDismiss}>
             취소
           </Button>
           <Button
@@ -148,7 +146,6 @@ export function PlaceSelectSheet({
               onConfirm(pickedPlaceIds)
               setPickedPlaceIds([])
               setKeyword('')
-              onClose()
             }}
           >
             추가 ({pickedPlaceIds.length})

@@ -3,7 +3,7 @@ import { IconButton } from '~/shared/components/design-system/IconButton'
 import { palette } from '../../../../shared/config/tokens'
 import { useOverlay } from '../../../../shared/hooks/useOverlay'
 import { FloatingControl } from '../../components/FloatingControl'
-import { TripRouteMapConfigDialog } from './TripRouteMapConfigDialog'
+import { TripRouteMapConfigDialog } from '../trip-route-configuration/TripRouteMapConfigDialog'
 
 export function TripRouteMapFloatingControls() {
   const overlay = useOverlay()

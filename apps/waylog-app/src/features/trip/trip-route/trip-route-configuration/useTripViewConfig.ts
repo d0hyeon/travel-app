@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
-import { useStorageStore } from "../../../shared/hooks/useStorageStore";
-import { useTripCluastering } from "../hooks/useTripCluastering";
+import { useStorageStore } from "../../../../shared/hooks/useStorageStore";
+import { useTripCluastering } from "../../hooks/useTripCluastering";
 
 interface TripViewConfig {
   isCluasterlingView: boolean;

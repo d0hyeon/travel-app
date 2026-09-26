@@ -3,10 +3,10 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'
 import { MaterialIcons } from '@expo/vector-icons'
 import type { Route } from '@waylog/domains/modules/route'
 import { Chip, GlassSurface } from '~/shared/components/design-system'
-import { palette, zLayer } from '../../../shared/config/tokens'
+import { palette, zLayer } from '../../../../shared/config/tokens'
 import { ReactNode, useRef } from 'react'
 import { useDayTripRoutes } from '@waylog/domains/modules/trip'
-import { useConfirmDialog } from '../../../shared/components/confirm-dialog/useConfirmDialog';
+import { useConfirmDialog } from '../../../../shared/components/confirm-dialog/useConfirmDialog';
 import { useQueryClient } from '@tanstack/react-query'
 
 // 검은 틴트는 블러와 겹치면 탁한 회색으로 보인다. 흰 틴트를 줘야 서리

@@ -1,26 +1,62 @@
 import { StyleSheet } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons';
-import { Box } from '~/shared/components/design-system';
-import type { ReactNode } from 'react';
+import { Box, Stack } from '~/shared/components/design-system';
+import { useMemo, type ReactNode } from 'react';
 import type { TripPlace } from '@waylog/domains/modules/place';
 import { ListItem } from '../../../../shared/components/ListItem';
 import { PopMenu } from '../../../../shared/components/PopMenu';
 import { useConfirmDialog } from '../../../../shared/components/confirm-dialog/useConfirmDialog';
-import { useDayTripRoutes } from '@waylog/domains/modules/trip';
+import { useDayTripRoutes, useTripRoutes } from '@waylog/domains/modules/trip';
 import { useTripPlaceFormOverlay } from '../../trip-place/trip-place-form/useTripPlaceFormOverlay';
+import { assert } from '../../../../shared/utils/assert';
+import { NoteEditor } from '../RouteNoteList';
 
 type ListItemButtonProps = Parameters<typeof ListItem.Button>[0];
 
 interface TripRoutePlaceListItemProps extends ListItemButtonProps {
+  tripId: string;
+  routeId: string,
   title?: ReactNode;
+  titleIcon?: ReactNode;
   data: TripPlace;
 }
 
-export function TripRoutePlaceListItem({ title, data: place, children, ...listItemProps }: TripRoutePlaceListItemProps) {
+export function TripRoutePlaceListItem({ tripId, routeId, title, titleIcon, data: place, children, ...listItemProps }: TripRoutePlaceListItemProps) {
+  const { data: { routes }, toggleVisible, update } = useTripRoutes(tripId);
+  const currentRoute = useMemo(() => routes.find(route => route.id === routeId), [routeId, routes]);
+  assert(currentRoute != null, `존재하지 않는 routeId입니다.`);
+
+  const isHidden = useMemo(() => {
+    return currentRoute.hiddenPlaces.includes(place.id);
+  }, [currentRoute, place.id]);
+
+  const routePlaceMemo = currentRoute.placeMemos[place.id];
+
+  const updateMemos = (memos: string[]) => {
+    update({
+      routeId,
+      placeMemos: {
+        ...currentRoute.placeMemos,
+        [place.id]: memos
+      }
+    })
+  }
+
 
   return (
-    <ListItem.Button {...listItemProps}>
-      {title ?? <ListItem.Title>{place.name}</ListItem.Title>}
+    <ListItem.Button
+      {...listItemProps}
+    >
+      <Stack direction="row" alignItems="center" gap={0.5} style={styles.placeTitle}>
+        {titleIcon}
+        <ListItem.Title>{place.name}</ListItem.Title>
+        <MaterialIcons
+          name={place ? 'visibility-off' : 'visibility'}
+          size={18}
+          color={isHidden ? '#bbb' : '#787c7e'}
+          onPress={() => toggleVisible({ routeId, placeId: place.id })}
+        />
+      </Stack>
       <Box>
         {!!place.address && (
           <ListItem.Text variant="body2" color="text.secondary" style={styles.tripRoutePlaceListItemText}>
@@ -32,8 +68,10 @@ export function TripRoutePlaceListItem({ title, data: place, children, ...listIt
             {place.memo}
           </ListItem.Text>
         )}
-        {children}
-
+        <NoteEditor
+          notes={routePlaceMemo ?? []}
+          onChange={(memos) => updateMemos(memos)}
+        />
       </Box>
     </ListItem.Button>
   );
@@ -81,4 +119,5 @@ TripRoutePlaceListItem.Actions = function TripRoutePlaceListItemActions({ tripId
 
 const styles = StyleSheet.create({
   tripRoutePlaceListItemText: { fontSize: 12 },
+  placeTitle: { flex: 1, minWidth: 0 },
 })
