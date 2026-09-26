@@ -49,7 +49,7 @@ export function TripBasicInfoContent({ tripId }: Props) {
 
             <Stack gap={3} >
               <ErrorBoundary>
-                <Suspense fallback={null}>
+                <Suspense fallback={<TripPostCreateCard.Skeleton />}>
                   <TripPostCreateCard tripId={tripId} />
                 </Suspense>
               </ErrorBoundary>
@@ -66,7 +66,7 @@ export function TripBasicInfoContent({ tripId }: Props) {
               <TripDeadlineChecklist tripId={tripId} gap={1} hideOnEmpty />
 
               <ErrorBoundary>
-                <Suspense fallback={null}>
+                <Suspense fallback={<UpcomingTransportSection.Skeleton />}>
                   <UpcomingTransportSection tripId={tripId} />
                 </Suspense>
               </ErrorBoundary>
@@ -119,10 +119,12 @@ export function TripBasicInfoContent({ tripId }: Props) {
         {currentTab === 'transport' && (
           <>
             <ScrollView contentContainerStyle={styles.scrollContent}>
-              <TripTransportList
-                tripId={tripId}
-                onTransportPress={(transportId) => navigation.navigate(AppRoute.여행_교통편_상세, { tripId, transportId })}
-              />
+              <Suspense fallback={<TripTransportList.Skeleton />}>
+                <TripTransportList
+                  tripId={tripId}
+                  onTransportPress={(transportId) => navigation.navigate(AppRoute.여행_교통편_상세, { tripId, transportId })}
+                />
+              </Suspense>
             </ScrollView>
             <Fab
               color="primary"

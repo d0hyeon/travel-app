@@ -10,10 +10,10 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { format as formatDate } from 'date-fns'
 import { useMemo } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { Accordion, Box, Button, Stack, Typography } from '~/shared/components/design-system'
+import { Accordion, Box, Button, Skeleton, Stack, Typography } from '~/shared/components/design-system'
 import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
 import { AppRoute } from '../../../app/AppRoute'
-import { palette } from '../../../shared/config/tokens'
+import { palette, radius } from '../../../shared/config/tokens'
 import { TransportCard } from './TransportCard'
 
 interface Props {
@@ -105,6 +105,39 @@ export function TripTransportList({ tripId, onTransportPress }: Props) {
   )
 }
 
+TripTransportList.Skeleton = function TripTransportListSkeleton() {
+  return (
+    <View style={styles.list}>
+      <View style={styles.group}>
+        <Skeleton variant="text" width={40} height={12.5} />
+        <TransportCardSkeleton />
+      </View>
+      <View style={styles.group}>
+        <TransportCardSkeleton />
+      </View>
+    </View>
+  )
+}
+
+function TransportCardSkeleton() {
+  return (
+    <View style={styles.skeletonCard}>
+      <Skeleton variant="text" width={60} height={12} style={styles.skeletonTypeRow} />
+      <Skeleton variant="text" width={90} height={12} />
+      <Stack direction="row" justifyContent="space-between" style={styles.skeletonTimes}>
+        <Stack gap={1}>
+          <Skeleton variant="text" width={70} height={22} />
+          <Skeleton variant="text" width={80} height={12} />
+        </Stack>
+        <Stack gap={1} alignItems="flex-end">
+          <Skeleton variant="text" width={70} height={22} />
+          <Skeleton variant="text" width={80} height={12} />
+        </Stack>
+      </Stack>
+    </View>
+  )
+}
+
 const styles = StyleSheet.create({
   list: { gap: 18 },
   empty: { alignItems: 'center', padding: 24, gap: 12, borderRadius: 16, borderWidth: 1, borderColor: palette.divider, backgroundColor: palette.primaryContainer },
@@ -115,4 +148,13 @@ const styles = StyleSheet.create({
   supportedAirportLabel: { fontSize: 12 },
   group: { gap: 8 },
   groupLabel: { fontSize: 12.5, fontWeight: '700', color: palette.textSecondary },
+  skeletonCard: {
+    padding: 16,
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: palette.divider,
+    backgroundColor: palette.background,
+  },
+  skeletonTypeRow: { marginBottom: 8 },
+  skeletonTimes: { marginTop: 16 },
 })

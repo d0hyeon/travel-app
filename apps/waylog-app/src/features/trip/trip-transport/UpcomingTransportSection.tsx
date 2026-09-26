@@ -9,10 +9,10 @@ import {
 } from '@waylog/domains/modules/airport-arrival-guidance'
 import { useMemo } from 'react'
 import { Dimensions, ScrollView, StyleSheet, View, type ViewProps } from 'react-native'
-import { Button, Typography } from '~/shared/components/design-system'
+import { Button, Skeleton, Stack, Typography } from '~/shared/components/design-system'
 import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
 import { AppRoute } from '../../../app/AppRoute'
-import { palette } from '../../../shared/config/tokens'
+import { palette, radius } from '../../../shared/config/tokens'
 import { TransportCard } from './TransportCard'
 import { useTicketViewerOverlay } from './transport-ticket/useTicketViewerOverlay'
 
@@ -106,6 +106,28 @@ function BoardingPassCard({ tripId, transport, airportArrivalGuidance, style, ..
   )
 }
 
+UpcomingTransportSection.Skeleton = function UpcomingTransportSectionSkeleton() {
+  return (
+    <View style={styles.section}>
+      <Skeleton variant="text" width={120} height={13} />
+      <View style={styles.skeletonCard}>
+        <Skeleton variant="text" width={60} height={12} style={styles.skeletonTypeRow} />
+        <Skeleton variant="text" width={90} height={12} />
+        <Stack direction="row" justifyContent="space-between" style={styles.skeletonTimes}>
+          <Stack gap={1}>
+            <Skeleton variant="text" width={70} height={22} />
+            <Skeleton variant="text" width={80} height={12} />
+          </Stack>
+          <Stack gap={1} alignItems="flex-end">
+            <Skeleton variant="text" width={70} height={22} />
+            <Skeleton variant="text" width={80} height={12} />
+          </Stack>
+        </Stack>
+      </View>
+    </View>
+  )
+}
+
 const styles = StyleSheet.create({
   section: { gap: 8, width: '100%' },
   sectionLabel: { fontSize: 13, fontWeight: '600', color: palette.textSecondary },
@@ -115,4 +137,13 @@ const styles = StyleSheet.create({
   carouselCard: { width: CARD_WIDTH },
   cardWrapper: { gap: 8 },
   ticketAction: { paddingHorizontal: 8 },
+  skeletonCard: {
+    padding: 16,
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: palette.divider,
+    backgroundColor: palette.background,
+  },
+  skeletonTypeRow: { marginBottom: 8 },
+  skeletonTimes: { marginTop: 16 },
 })

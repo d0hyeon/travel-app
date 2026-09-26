@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { useTrip } from '@waylog/domains/modules/trip'
-import { StyleSheet, Pressable } from 'react-native'
-import { Stack, Typography } from '~/shared/components/design-system'
+import { StyleSheet, Pressable, View } from 'react-native'
+import { Skeleton, Stack, Typography } from '~/shared/components/design-system'
 import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
 import { AppRoute } from '../../../app/AppRoute'
 
@@ -30,6 +30,18 @@ export function TripPostCreateCard({ tripId }: Props) {
       </Stack>
       <MaterialIcons name="chevron-right" size={24} color="#4A7AFF" />
     </Pressable>
+  )
+}
+
+TripPostCreateCard.Skeleton = function TripPostCreateCardSkeleton() {
+  return (
+    <View style={styles.card}>
+      <Skeleton variant="circular" width={44} height={44} />
+      <Stack style={styles.titleArea} gap={1}>
+        <Skeleton variant="text" width="70%" height={14.5} />
+        <Skeleton variant="text" width="90%" height={12.5} style={styles.description} />
+      </Stack>
+    </View>
   )
 }
 
