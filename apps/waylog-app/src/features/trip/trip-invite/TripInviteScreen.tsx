@@ -77,7 +77,7 @@ function Resolved() {
         size="large"
         onPress={handleJoin}
         loading={isPending}
-        style={styles.joinButton}
+        fullWidth
       >
         참여하기
       </Button>
@@ -88,5 +88,4 @@ function Resolved() {
 const styles = StyleSheet.create({
   screen: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 24, paddingHorizontal: 24, backgroundColor: palette.background },
   errorMessage: { color: palette.error },
-  joinButton: { width: 200 },
 })
