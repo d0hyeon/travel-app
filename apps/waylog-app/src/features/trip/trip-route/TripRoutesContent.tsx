@@ -306,9 +306,9 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                     return (
                       <Fragment key={place.id}>
                         <SortableList.Item id={place.id}>
-                          {inboundLeg != null && inboundLeg.duration > 0 && (
+                          {(inboundLeg != null && inboundLeg.duration > 0) ? (
                             <RouteLegItem leg={inboundLeg} />
-                          )}
+                          ) : <Box height={16} />}
                           <TripRoutePlaceListItem
                             data={place}
                             focused={focusedId === place.id}
