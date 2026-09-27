@@ -283,6 +283,17 @@ eslint.config.js                # 레포 전역 lint 설정 + 의존성
 `@waylog/domains/client`는 앱이 주입한 client를 기존 `.api.ts`에 제공하기 위해 Proxy 지연 참조를 사용한다.
 초기화 전에 접근하면 명확한 에러를 던진다.
 
+**supabase 의존성 분리:** 런타임 라이브러리(`@supabase/supabase-js`)와 코드젠 CLI(`supabase`)는
+성격이 다르다.
+
+- `@supabase/supabase-js`: 클라이언트 인스턴스 생성이 앱 소유이므로 웹·앱 각자 `dependencies`에
+  둔다(설계 의도, 꼬임 아님). 대신 두 앱과 `@waylog/domains`(devDependency로 보유,
+  peerDependency도 유지해 중복 인스턴스를 막음)가 같은 버전을 쓰도록 specifier를 통일한다.
+- `supabase` CLI: 런타임에 쓰이지 않는 빌드타임 코드젠 도구이며, 테이블 정의 주체(`supabase/`
+  마이그레이션)와 타입 생성 대상(`packages/domains`)이 모두 워크스페이스 전체 관심사이므로
+  루트 `devDependencies`에 둔다. `gen-types` 스크립트도 루트 `package.json`에 있다
+  (`pnpm gen-types`).
+
 ### 앱 내부 구조
 
 경로는 `apps/waylog-web/` 기준이다.

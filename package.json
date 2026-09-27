@@ -9,7 +9,8 @@
     "test": "pnpm -r --if-present run test",
     "test:e2e": "pnpm --filter waylog-web test:e2e",
     "lint": "eslint .",
-    "ts-check": "pnpm --filter waylog-web ts-check"
+    "ts-check": "pnpm --filter waylog-web ts-check",
+    "gen-types": "supabase gen types typescript --project-id feubgswdgmxrbpbfbqje > packages/domains/src/gateways/client/_database.types.ts"
   },
   "packageManager": "pnpm@10.33.0",
   "devDependencies": {
@@ -19,6 +20,7 @@
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^17.6.0",
     "minimatch": "^10.2.5",
+    "supabase": "^2.118.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.48.0"
   }
