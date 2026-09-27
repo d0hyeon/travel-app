@@ -131,36 +131,6 @@ export type Database = {
           },
         ]
       }
-      airports: {
-        Row: {
-          code: string
-          name_ko: string
-          name_en: string
-          city_ko: string
-          timezone: string
-          aliases: string[] | null
-          created_at: string
-        }
-        Insert: {
-          code: string
-          name_ko: string
-          name_en: string
-          city_ko: string
-          timezone: string
-          aliases?: string[] | null
-          created_at?: string
-        }
-        Update: {
-          code?: string
-          name_ko?: string
-          name_en?: string
-          city_ko?: string
-          timezone?: string
-          aliases?: string[] | null
-          created_at?: string
-        }
-        Relationships: []
-      }
       airport_congestion_snapshots: {
         Row: {
           airport_code: string
@@ -197,6 +167,36 @@ export type Database = {
           snapshot_date?: string | null
           source_kind?: string
           terminal?: string
+        }
+        Relationships: []
+      }
+      airports: {
+        Row: {
+          aliases: string[] | null
+          city_ko: string
+          code: string
+          created_at: string
+          name_en: string
+          name_ko: string
+          timezone: string
+        }
+        Insert: {
+          aliases?: string[] | null
+          city_ko: string
+          code: string
+          created_at?: string
+          name_en: string
+          name_ko: string
+          timezone: string
+        }
+        Update: {
+          aliases?: string[] | null
+          city_ko?: string
+          code?: string
+          created_at?: string
+          name_en?: string
+          name_ko?: string
+          timezone?: string
         }
         Relationships: []
       }
@@ -828,27 +828,36 @@ export type Database = {
         Row: {
           checked_at: string
           estimated_at: string | null
+          gate: string | null
           kind: string
           last_notified_estimated_at: string | null
+          last_notified_gate: string | null
           last_notified_kind: string | null
+          prev_gate: string | null
           scheduled_at: string | null
           transport_id: string
         }
         Insert: {
           checked_at?: string
           estimated_at?: string | null
+          gate?: string | null
           kind: string
           last_notified_estimated_at?: string | null
+          last_notified_gate?: string | null
           last_notified_kind?: string | null
+          prev_gate?: string | null
           scheduled_at?: string | null
           transport_id: string
         }
         Update: {
           checked_at?: string
           estimated_at?: string | null
+          gate?: string | null
           kind?: string
           last_notified_estimated_at?: string | null
+          last_notified_gate?: string | null
           last_notified_kind?: string | null
+          prev_gate?: string | null
           scheduled_at?: string | null
           transport_id?: string
         }
