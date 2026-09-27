@@ -27,8 +27,11 @@ export function PlaceSearchBottomSheet({
   onSelect,
 }: PlaceSearchBottomSheetProps) {
   const [keyword, setKeyword] = useState('')
-  const searchKeyword = useDebouncedValue(keyword, 300)
-
+  const {
+    value: searchKeyword,
+    isDebouncing: isTypings
+  } = useDebouncedValue(keyword, 300)
+  console.log(isTypings)
   const { data: results, isLoading } = usePlaceSearch({
     keyword: searchKeyword,
     service,
@@ -84,9 +87,9 @@ export function PlaceSearchBottomSheet({
           </View>
         </BottomSheet.Header>
         <BottomSheet.Body style={styles.body} onTouchStart={() => Keyboard.dismiss()}>
-          {isLoading && <ActivityIndicator style={styles.loading} color={palette.primary} />}
+          {(isLoading || isTypings) && <ActivityIndicator style={styles.loading} color={palette.primary} />}
 
-          {!isLoading && results.length === 0 && keyword !== '' && (
+          {!isLoading && !isTypings && results.length === 0 && keyword !== '' && (
             <Typography color="text.secondary" textAlign="center" style={styles.emptyState}>
               검색 결과가 없습니다
             </Typography>
@@ -115,7 +118,7 @@ export function PlaceSearchBottomSheet({
             </View>
           )}
 
-          {!isLoading && results.length > 0 && (
+          {!isLoading && !isTypings && results.length > 0 && (
             <FlatList
               data={results}
               keyExtractor={(place) => place.externalId}

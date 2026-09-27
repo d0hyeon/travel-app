@@ -34,7 +34,10 @@ interface Props {
 
 export function PlaceSearchBottomSheet({ isOpen, onClose, onSelect, center, service = 'kakao' }: Props) {
   const [keyword, setKeyword] = useState('')
-  const searchKeyword = useDebouncedValue(keyword, 300);
+  const {
+    value: searchKeyword,
+    isDebouncing: isTypings
+  } = useDebouncedValue(keyword, 300);
 
   const { data: results, isLoading, error, } = usePlaceSearch({
     keyword: searchKeyword,
@@ -89,7 +92,7 @@ export function PlaceSearchBottomSheet({ isOpen, onClose, onSelect, center, serv
           />
         </BottomSheet.Header>
         <BottomSheet.Body>
-          {isLoading && (
+          {(isLoading || !isTypings) && (
             <Box display="flex" justifyContent="center" py={4}>
               <CircularProgress size={24} />
             </Box>
@@ -101,7 +104,7 @@ export function PlaceSearchBottomSheet({ isOpen, onClose, onSelect, center, serv
             </Typography>
           )}
 
-          {!isLoading && !error && results.length === 0 && keyword && (
+          {!isLoading && !isTypings && !error && results.length === 0 && keyword && (
             <Typography color="text.secondary" textAlign="center" py={4}>
               검색 결과가 없습니다
             </Typography>
@@ -127,7 +130,7 @@ export function PlaceSearchBottomSheet({ isOpen, onClose, onSelect, center, serv
             </Box>
           )}
 
-          {!isLoading && results.length > 0 && (
+          {!isLoading && !isTypings && results.length > 0 && (
             <List disablePadding>
               {results.map((place) => (
                 <ListItemButton
