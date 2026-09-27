@@ -3,6 +3,7 @@ import { Box, CircularProgress, Container, Stack, ToggleButton, Typography } fro
 import { Suspense, useMemo, useState } from 'react'
 import { useLocationsCoordinates } from '~features/explorer/useLocationsCoordinates'
 import { Country } from '@waylog/domains/modules/location'
+import { getVisitedCountryColors, resolveVisitedCountryColor } from '@waylog/domains/modules/map'
 import { Map } from '~shared/components/Map'
 import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
 import { useStorageState } from '~shared/hooks/useStorageState'
@@ -22,6 +23,7 @@ export function ProfileRecordsTab({ userId }: Props) {
   const [isVisibleLocation, setIsVisibleLocation] = useIsVisibleLocation();
   const visited = useMemo(() => deriveVisitedLocations(trips), [trips])
   const countries = useMemo(() => deriveVisitedCountries(trips), [trips])
+  const countryColors = useMemo(() => getVisitedCountryColors([...countries.keys()]), [countries])
   const [domestic, foreign] = useMemo(
     () => arraySplit(visited, item => item.countryCode === Country.한국),
     [visited],
@@ -65,8 +67,8 @@ export function ProfileRecordsTab({ userId }: Props) {
                 <Map.Region
                   key={country}
                   country={country}
-                  color="#2a9d6f"
-                  opacity={getPolygonOpacity(count)}
+                  color={countryColors.get(country)}
+                  opacity={getCountryPolygonOpacity(count)}
                 />
               ))}
               {domestic.map((v) => {
@@ -76,7 +78,10 @@ export function ProfileRecordsTab({ userId }: Props) {
                   <Map.Polygon
                     key={v.location}
                     coordinates={polygons}
-                    {...getRegionPolygonStyle(v.visitCount, v.location === selected?.location)}
+                    {...getRegionPolygonStyle(
+                      v.visitCount,
+                      resolveVisitedCountryColor(countryColors, v.countryCode),
+                    )}
                   />
                 )
               })}
@@ -84,7 +89,10 @@ export function ProfileRecordsTab({ userId }: Props) {
                 <Map.Region
                   key={v.location}
                   location={v.location}
-                  {...getRegionPolygonStyle(v.visitCount, v.location === selected?.location)}
+                  {...getRegionPolygonStyle(
+                    v.visitCount,
+                    resolveVisitedCountryColor(countryColors, v.countryCode),
+                  )}
                 />
               ))}
             </Map.PolygonLayer>
@@ -173,18 +181,23 @@ function LocationMetaInfo({ value }: DetailViewProps) {
   )
 }
 
-function getPolygonOpacity(count: number) {
-  return Math.max(Math.min(count * 0.14, 0.4), 0.18)
+const MIN_VISIT_OPACITY = 0.3
+const OPACITY_STEP_PER_VISIT = 0.2
+const COUNTRY_MAX_VISIT_OPACITY = 0.6
+const REGION_MAX_VISIT_OPACITY = 0.8
+
+function getVisitOpacity(count: number, maxOpacity: number) {
+  return Math.max(Math.min(MIN_VISIT_OPACITY + (count - 1) * OPACITY_STEP_PER_VISIT, maxOpacity), MIN_VISIT_OPACITY)
 }
 
-function getRegionPolygonStyle(count: number, isSelected: boolean) {
-  const baseColor = count >= 3 ? '#b95454' : '#2a9d6f'
-  const baseOpacity = count >= 3
-    ? Math.min(getPolygonOpacity(count - 2), 0.3)
-    : getPolygonOpacity(count)
+function getCountryPolygonOpacity(count: number) {
+  return getVisitOpacity(count, COUNTRY_MAX_VISIT_OPACITY)
+}
+
+function getRegionPolygonStyle(count: number, countryColor: string) {
   return {
-    color: isSelected ? '#4C84FF' : baseColor,
-    opacity: isSelected ? Math.min(baseOpacity + 0.2, 0.55) : baseOpacity,
+    color: countryColor,
+    opacity: getVisitOpacity(count, REGION_MAX_VISIT_OPACITY),
   }
 }
 

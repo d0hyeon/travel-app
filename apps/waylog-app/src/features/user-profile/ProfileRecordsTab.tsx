@@ -7,6 +7,7 @@ import { Stack, Typography } from '~/shared/components/design-system'
 import { palette } from '../../shared/config/tokens'
 import { useUserTrips } from './useUserTrips'
 import { Country } from '@waylog/domains/modules/location'
+import { getVisitedCountryColors, resolveVisitedCountryColor } from '@waylog/domains/modules/map'
 import { deriveVisitedCountries, deriveVisitedLocations, type VisitedLocation } from './user-profile.utils'
 import { UserTripPhotoList } from './UserTripPhotoList'
 import { useOverlay } from '../../shared/hooks/useOverlay'
@@ -25,6 +26,7 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
   const mapHeight = Math.max(viewportHeight - TAB_BAR_HEIGHT, 0)
   const visitedLocations = useMemo(() => deriveVisitedLocations(trips), [trips])
   const visitCountByCountry = useMemo(() => deriveVisitedCountries(trips), [trips])
+  const countryColors = useMemo(() => getVisitedCountryColors([...visitCountByCountry.keys()]), [visitCountByCountry])
   const [selectedLocation, setSelectedLocation] = useState<VisitedLocation | null>(null)
   const [isLocationVisible, setIsLocationVisible] = useStorageStore('user-record-visible-location', true)
   const locationOverlay = useOverlay()
@@ -91,7 +93,7 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
         <Map autoFocus="marker" clustering>
           <Map.PolygonLayer>
             {[...visitCountByCountry].map(([country, visitCount]) => (
-              <Map.Region key={country} country={country} color={COUNTRY_COLOR} opacity={getPolygonOpacity(visitCount)} />
+              <Map.Region key={country} country={country} color={countryColors.get(country)} opacity={getCountryPolygonOpacity(visitCount)} />
             ))}
             {visitedLocations.map((visitedLocation) => (
               <Map.Region
@@ -100,7 +102,7 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
                 level={visitedLocation.countryCode === Country.한국 ? 'city' : 'region'}
                 {...getRegionPolygonStyle(
                   visitedLocation.visitCount,
-                  visitedLocation.location === selectedLocation?.location,
+                  resolveVisitedCountryColor(countryColors, visitedLocation.countryCode),
                 )}
               />
             ))}
@@ -127,25 +129,23 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
 // 웹의 calc(100svh - 40px) 과 같다. 탭바를 뺀 만큼을 지도에 준다.
 const TAB_BAR_HEIGHT = 40
 
-const COUNTRY_COLOR = '#2a9d6f'
-const FREQUENT_VISIT_COLOR = '#b95454'
-const SELECTED_COLOR = '#4C84FF'
-const FREQUENT_VISIT_THRESHOLD = 3
+const MIN_VISIT_OPACITY = 0.3
+const OPACITY_STEP_PER_VISIT = 0.2
 
-function getPolygonOpacity(visitCount: number) {
-  return Math.max(Math.min(visitCount * 0.14, 0.4), 0.18)
+function getVisitOpacity(visitCount: number, maxOpacity: number) {
+  return Math.max(Math.min(MIN_VISIT_OPACITY + (visitCount - 1) * OPACITY_STEP_PER_VISIT, maxOpacity), MIN_VISIT_OPACITY)
 }
 
-function getRegionPolygonStyle(visitCount: number, isSelected: boolean) {
-  const isFrequentlyVisited = visitCount >= FREQUENT_VISIT_THRESHOLD
-  const baseColor = isFrequentlyVisited ? FREQUENT_VISIT_COLOR : COUNTRY_COLOR
-  const baseOpacity = isFrequentlyVisited
-    ? Math.min(getPolygonOpacity(visitCount - 2), 0.3)
-    : getPolygonOpacity(visitCount)
+const COUNTRY_MAX_VISIT_OPACITY = 0.6;
+function getCountryPolygonOpacity(visitCount: number) {
+  return getVisitOpacity(visitCount, COUNTRY_MAX_VISIT_OPACITY)
+}
 
+const REGION_MAX_VISIT_OPACITY = 0.8
+function getRegionPolygonStyle(visitCount: number, countryColor: string) {
   return {
-    color: isSelected ? SELECTED_COLOR : baseColor,
-    opacity: isSelected ? Math.min(baseOpacity + 0.2, 0.55) : baseOpacity,
+    color: countryColor,
+    opacity: getVisitOpacity(visitCount, REGION_MAX_VISIT_OPACITY),
   }
 }
 
