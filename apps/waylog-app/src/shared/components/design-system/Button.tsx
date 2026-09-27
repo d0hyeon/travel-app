@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
-import { StyleSheet, ActivityIndicator, type StyleProp, type TextStyle, type ViewStyle } from 'react-native'
-import { Button as TamaguiButton, Text, useTheme } from 'tamagui'
+import { StyleSheet, ActivityIndicator, Pressable, Text, type StyleProp, type TextStyle, type ViewStyle } from 'react-native'
+import { useTheme } from 'tamagui'
 import { radius } from '../../config/tokens'
 import { resolveButtonColors, type ButtonColor, type ButtonVariant } from './Button.theme'
 
@@ -50,23 +50,23 @@ export function Button({
   })
 
   return (
-    <TamaguiButton
-      unstyled
+    <Pressable
       disabled={isInactive}
       onPress={isInactive ? undefined : onPress}
-      style={[
+      style={({ pressed }) => [
         styles.button,
         {
           height: dims.height,
           borderRadius: dims.borderRadius,
           paddingHorizontal: dims.paddingHorizontal,
-          ...colors,
-          opacity: isInactive ? 0.4 : 1,
+          backgroundColor: colors.backgroundColor,
+          borderColor: colors.borderColor,
+          borderWidth: colors.borderWidth,
+          opacity: isInactive ? 0.4 : pressed ? 0.72 : 1,
           ...(fullWidth ? { flex: 1, width: '100%', alignSelf: 'center' } : { alignSelf: 'flex-start' }),
         },
         style,
       ]}
-      pressStyle={isInactive ? undefined : styles.pressed}
     >
       {startIcon}
       {loading === true && <ActivityIndicator size="small" color={colors.textColor} />}
@@ -79,7 +79,7 @@ export function Button({
       >
         {children}
       </Text>
-    </TamaguiButton>
+    </Pressable>
   )
 }
 
@@ -92,8 +92,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
-  },
-  pressed: {
-    opacity: 0.72,
   },
 })
