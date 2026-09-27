@@ -90,7 +90,7 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
         <Pressable onPress={() => setIsLocationVisible(!isLocationVisible)} style={styles.locationToggle}>
           <MaterialIcons name={isLocationVisible ? 'visibility' : 'visibility-off'} size={18} color={palette.textSecondary} />
         </Pressable>
-        <Map autoFocus="marker" clustering>
+        <Map autoFocus="marker" defaultZoom={1} clustering>
           <Map.PolygonLayer>
             {[...visitCountByCountry].map(([country, visitCount]) => (
               <Map.Region key={country} country={country} color={countryColors.get(country)} opacity={getCountryPolygonOpacity(visitCount)} />

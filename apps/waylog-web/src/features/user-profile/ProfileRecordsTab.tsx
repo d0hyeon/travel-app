@@ -1,4 +1,4 @@
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
+import VisibilityOnIcon from '@mui/icons-material/Visibility'
 import { Box, CircularProgress, Container, Stack, ToggleButton, Typography } from '@mui/material'
 import { Suspense, useMemo, useState } from 'react'
 import { useLocationsCoordinates } from '~features/explorer/useLocationsCoordinates'
@@ -54,13 +54,15 @@ export function ProfileRecordsTab({ userId }: Props) {
             zIndex: 100
           }}
         >
-          <VisibilityOffIcon fontSize="small" />
+          <VisibilityOnIcon fontSize="small" />
         </ToggleButton>
         {visited.length > 0 ? (
           <Map
             type="google"
             sx={{ width: '100%', height: '100%' }}
             autoFocus="marker"
+            defaultZoom={1}
+            clustering
           >
             <Map.PolygonLayer>
               {[...countries.entries()].map(([country, count]) => (
