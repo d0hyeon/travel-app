@@ -16,7 +16,8 @@ import { TripPlaceItemButton } from './TripPlaceItemButton';
 import { TripPlaceMapFloatingControls } from './TripPlaceMapFloatingControls';
 import { useTripPlaces } from '@waylog/domains/modules/trip';
 
-const MICRO_ZOOM_LEVEL = 8;
+const MICRO_ZOOM_LEVEL = 14; // 기존 카카오 level > 8(축소) 과 동일한 확대 정도의 표준 축 값
+const FOCUS_ZOOM = 17; // 기존 카카오 level 5 와 동일한 확대 정도
 
 
 interface PlaceContentProps {
@@ -71,19 +72,19 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
                 {places.map(place => (
                   <Map.Marker
                     key={place.id}
-                    label={zoom > MICRO_ZOOM_LEVEL ? undefined : place.name}
+                    label={zoom < MICRO_ZOOM_LEVEL ? undefined : place.name}
                     lat={place.lat}
                     lng={place.lng}
                     color={place.category
                       ? PlaceCategoryColorCode[place.category]
                       : plannedPlaceIds.has(place.id) ? 'selected' : 'default'
                     }
-                    variant={zoom > MICRO_ZOOM_LEVEL ? 'circle' : 'pin'}
+                    variant={zoom < MICRO_ZOOM_LEVEL ? 'circle' : 'pin'}
                     onClick={() => setFocusedId(place.id)}
                   />
                 ))}
 
-                {zoom <= MICRO_ZOOM_LEVEL && (
+                {zoom >= MICRO_ZOOM_LEVEL && (
                   <Suspense>
                     <RecommendedMarkers
                       tripId={tripId}
@@ -140,7 +141,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
           tripId={tripId}
           onAddedPlace={(place) => {
             setFocusedId(place.id)
-            mapRef.current?.panTo(place.lat, place.lng, 5);
+            mapRef.current?.panTo(place.lat, place.lng, FOCUS_ZOOM);
           }}
           size="large"
           variant="contained"

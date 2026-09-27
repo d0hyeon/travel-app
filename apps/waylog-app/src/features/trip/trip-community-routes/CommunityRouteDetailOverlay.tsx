@@ -34,6 +34,8 @@ interface Props {
   onClose: () => void
 }
 
+const FOCUS_ZOOM = 12 // 기존 카카오 level 5가 변환되던 Mapbox zoomLevel과 동일한 확대 정도
+
 export function useCommunityRouteDetailOverlay() {
   const overlay = useOverlay()
 
@@ -156,7 +158,7 @@ function DetailContent({
           {currentRoute?.places.map((place, index) => (
             <Pressable
               key={`community-route-place-${place.placeId}`}
-              onPress={() => mapRef.current?.panTo(place.lat, place.lng, 5)}
+              onPress={() => mapRef.current?.panTo(place.lat, place.lng, FOCUS_ZOOM)}
             >
               <PlaceRow
 

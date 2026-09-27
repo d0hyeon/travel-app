@@ -19,7 +19,7 @@ import { TripPlaceMapFloatingControls } from './TripPlaceMapFloatingControls'
 import { useTripPlaceFormOverlay } from './trip-place-form/useTripPlaceFormOverlay'
 import { useTripPlaces } from '@waylog/domains/modules/trip'
 
-const MICRO_ZOOM_LEVEL = 8;
+const MICRO_ZOOM_LEVEL = 14; // 기존 카카오 level <= 8(확대) 과 동일한 확대 정도의 표준 축 값
 interface TripPlaceContentProps {
   tripId: string
 }
@@ -147,7 +147,7 @@ export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
                   }}
                 />
               ))}
-              {zoom <= MICRO_ZOOM_LEVEL && (
+              {zoom >= MICRO_ZOOM_LEVEL && (
                 <Suspense>
                   <RecommendedMarkers
                     tripId={tripId}

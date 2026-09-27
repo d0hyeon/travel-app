@@ -10,7 +10,6 @@ import Mapbox from '@rnmapbox/maps'
 import { MapContext } from './MapContext'
 import { NativeMapCluster } from './NativeMapCluster'
 import { useBatchedCallback } from '../../hooks/useBatchedCallback'
-import { DEFAULT_DELTA, deltaToZoom } from './NativeMap.utils'
 import { MapMarkerRegistryProvider, useRegisteredMapMarkers } from './useMapMarkerRegistry'
 import { computeMarkerVisibility } from './useMapMarkerRegistry.utils'
 import { useMapCamera } from './useMapCamera'
@@ -24,6 +23,7 @@ const VIEWPORT_PADDING_RATIO = 0.4
 // 클러스터를 눌렀을 때 묶인 마커들 주위로 남길 여백. 작을수록 바짝 당긴다.
 const CLUSTER_TAP_PADDING = 50
 const CLUSTER_TAP_DURATION = 500
+const DEFAULT_ZOOM = 14 // 웹 KakaoMap 기본값(defaultZoom=14, 카카오 level 8 상당)과 동일한 확대 정도
 
 
 export function NativeMap(props: MapProps & { style?: StyleProp<ViewStyle> }) {
@@ -38,6 +38,7 @@ function NativeMapInner({
   autoFocus = 'marker',
   defaultCenter,
   center,
+  defaultZoom = DEFAULT_ZOOM,
   children,
   ref,
   clustering,
@@ -45,7 +46,7 @@ function NativeMapInner({
   onBoundsChange,
   style,
 }: MapProps & { style?: StyleProp<ViewStyle> }) {
-  const [zoom, setZoom] = useState(() => deltaToZoom(DEFAULT_DELTA))
+  const [zoom, setZoom] = useState(defaultZoom)
   const { width: screenWidth } = useWindowDimensions()
 
   const { camera, ref: cameraRef, fitTo, fitToViewport, panTo, track } = useMapCamera({
@@ -56,7 +57,7 @@ function NativeMapInner({
   useImperativeHandle<MapRef, MapRef>(
     ref as never,
     () => ({
-      panTo: (lat, lng, level) => panTo({ lat, lng }, level),
+      panTo: (lat, lng, zoom) => panTo({ lat, lng }, zoom),
       relayout: () => { },
       focus: () => { },
     }),
@@ -110,7 +111,7 @@ function NativeMapInner({
           ref={cameraRef}
           defaultSettings={{
             centerCoordinate: initial ? [initial.lng, initial.lat] : undefined,
-            zoomLevel: deltaToZoom(DEFAULT_DELTA),
+            zoomLevel: defaultZoom,
           }}
         />
         {rendered as ReactNode}

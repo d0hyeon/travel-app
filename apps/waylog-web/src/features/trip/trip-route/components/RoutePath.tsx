@@ -12,13 +12,15 @@ interface RoutePathProps {
   isSelected: boolean;
 }
 
+const SCALED_UP_ZOOM_THRESHOLD = 12; // 기존 카카오 level < 10 과 동일한 확대 정도
+
 // 경로를 구간(leg)별 폴리라인으로 그리고, 선택된 경로는 구간마다 이동수단·예상시간 라벨을 표시한다.
 export function RoutePath({ waypoints, color, isSelected }: RoutePathProps) {
   const { data: { legs } } = useRoadRoute({ waypoints, suspense: false });
   const { isVisibleRouteLegs } = useTripViewConfigValue();
 
-  const zoomLevel = useMapZoomLevel();
-  const isScaledUpViewport = zoomLevel < 10;
+  const zoom = useMapZoomLevel();
+  const isScaledUpViewport = zoom > SCALED_UP_ZOOM_THRESHOLD;
   const isVisibleLegLabel = isVisibleRouteLegs && isSelected && isScaledUpViewport;
 
   if (legs.length === 0) return null;

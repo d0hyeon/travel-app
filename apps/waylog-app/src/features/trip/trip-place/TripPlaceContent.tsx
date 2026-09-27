@@ -18,10 +18,9 @@ import { TripPlaceMapFloatingControls } from './TripPlaceMapFloatingControls';
 import { useTripPlaces } from '@waylog/domains/modules/trip';
 import { FLOATING_TAB_BAR_RESERVE } from '../../../shared/components'
 
-// 웹은 zoom 이 커질수록 축소되는 스케일(레벨)을 쓰지만, 앱(deltaToZoom)은 반대로
-// zoom 이 커질수록 확대된다. 웹의 MICRO_ZOOM_LEVEL(8, "이 이상 축소되면")과 같은
-// 지점을 앱 스케일로 표현하면 "이 미만으로 축소되면"이 된다.
+// 웹·앱 모두 zoom 이 커질수록 확대되는 표준 축을 쓴다 (카카오만 내부에서 반전).
 const MICRO_ZOOM_LEVEL = 9;
+const FOCUS_ZOOM = 12 // 기존 카카오 level 5가 변환되던 Mapbox zoomLevel과 동일한 확대 정도
 
 
 interface PlaceContentProps {
@@ -58,7 +57,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
     if (added == null) return
 
     setFocusedId(added.id)
-    mapRef.current?.panTo(added.lat, added.lng, 5)
+    mapRef.current?.panTo(added.lat, added.lng, FOCUS_ZOOM)
   }
 
   return (

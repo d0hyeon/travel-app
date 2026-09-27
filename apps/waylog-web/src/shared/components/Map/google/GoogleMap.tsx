@@ -9,8 +9,7 @@ import { useBoundsChangeListener, useViewportFit } from './GoogleMap.hooks';
 import { loadGoogleMaps } from './loader';
 import { useMapZoomLevel } from './useMapZoomLevel';
 
-const ZOOM_MAX_LEVEL = 22;
-
+const DEFAULT_ZOOM = 10;
 
 type Props = MapProps & Omit<BoxProps, 'ref' | 'autoFocus' | 'children'>
 
@@ -21,6 +20,7 @@ export function preload() {
 export default function GoogleMap({
   center,
   defaultCenter = DEFAULT_MAP_CENTER,
+  defaultZoom = DEFAULT_ZOOM,
   ref,
   autoFocus = 'marker',
   clustering = false,
@@ -38,7 +38,7 @@ export default function GoogleMap({
     setMap(
       new google.maps.Map(container, {
         center: center ?? defaultCenter,
-        zoom: 10,
+        zoom: defaultZoom,
         disableDefaultUI: true,
         styles: pastelMapStyle,
       })
@@ -52,10 +52,10 @@ export default function GoogleMap({
   const { extend: extendBound, fit: focusBounds } = useViewportFit(map);
 
   useImperativeHandle(ref, () => ({
-    panTo: (lat: number, lng: number, z?: number) => {
+    panTo: (lat: number, lng: number, zoom?: number) => {
       if (!map) return;
       map.panTo({ lat, lng });
-      if (z != null) map.setZoom(ZOOM_MAX_LEVEL - z);
+      if (zoom != null) map.setZoom(zoom);
     },
     relayout: () => {
       if (!map) return;
@@ -89,6 +89,6 @@ export default function GoogleMap({
 function Resolved({ children }: Props) {
   const zoom = useMapZoomLevel();
 
-  if (typeof children === 'function') return children({ zoom: ZOOM_MAX_LEVEL - zoom });
+  if (typeof children === 'function') return children({ zoom });
   return children;
 }

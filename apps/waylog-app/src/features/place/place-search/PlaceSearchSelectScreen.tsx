@@ -12,6 +12,7 @@ import { useVariation } from '@waylog/react'
 const MARKER_COLORS = ['#66BB6A', '#EB5757', '#5DADE2', '#7986CB']
 
 const SEARCH_HERE_THRESHOLD_M = 500
+const FOCUS_ZOOM = 15 // 기존 카카오 level 2가 변환되던 Mapbox zoomLevel과 동일한 확대 정도
 
 function boundsToCenter(bounds: MapBounds): Coordinate {
   return {
@@ -50,7 +51,7 @@ export function PlaceSearchSelectScreen({ keyword, center, mapServiceProvider = 
   useDidUpdate(() => {
     const [result] = results
     if (result) {
-      mapRef.current?.panTo(result.lat, result.lng, 2)
+      mapRef.current?.panTo(result.lat, result.lng, FOCUS_ZOOM)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [keyword])

@@ -12,6 +12,7 @@ import { usePreservedValue } from "@waylog/react";
 const COLORS = ['#66BB6A', '#EB5757', '#5DADE2', '#7986CB']
 
 const SEARCH_HERE_THRESHOLD_M = 500;
+const FOCUS_ZOOM = 20; // 기존 카카오 level 2 와 동일한 확대 정도
 
 function boundsToCenter(bounds: MapBounds): Coordinate {
   return {
@@ -55,7 +56,7 @@ export function PlaceSearchSelectScreen({
   useEffect(() => {
     const [result] = results;
     if (result) {
-      mapRef.current?.panTo(result.lat, result.lng, 2);
+      mapRef.current?.panTo(result.lat, result.lng, FOCUS_ZOOM);
     }
   }, [keyword])
 
@@ -141,7 +142,7 @@ export function PlaceSearchSelectScreen({
                   secondary={x.address}
                   primaryTypographyProps={{ fontWeight: 'medium', fontSize: 14 }}
                   secondaryTypographyProps={{ fontSize: 12 }}
-                  onClick={() => mapRef.current?.panTo(x.lat, x.lng, 2)}
+                  onClick={() => mapRef.current?.panTo(x.lat, x.lng, FOCUS_ZOOM)}
                 />
               </ListItem.Button>
             ))}

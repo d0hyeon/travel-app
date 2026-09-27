@@ -7,15 +7,17 @@ import { KakaoMapClusterOverlays } from './cluster/KakaoMapClusterOverlays';
 import { useBoundsChangeListener, useViewportFit } from './KakaoMap.hooks';
 import { loadKakaoMap } from './loader';
 import { useMapZoomLevel } from './useMapZoomLevel';
+import { zoomToKakaoLevel } from './zoomLevel.utils';
 import { DEFAULT_MAP_CENTER } from '@waylog/domains/modules/map'
 
-
+const DEFAULT_ZOOM = 14; // 기존 level: 8 과 동일한 확대 정도 (22 - 14 = 8)
 
 type Props = MapProps & Omit<BoxProps, 'ref' | 'autoFocus' | 'children'>
 
 export default function KakaoMap({
   center,
   defaultCenter = DEFAULT_MAP_CENTER,
+  defaultZoom = DEFAULT_ZOOM,
   ref,
   autoFocus = 'marker',
   clustering = false,
@@ -33,7 +35,7 @@ export default function KakaoMap({
     const coordinate = center ?? defaultCenter;
     const mapInstance = new kakao.maps.Map(container, {
       center: new kakao.maps.LatLng(coordinate.lat, coordinate.lng),
-      level: 8,
+      level: zoomToKakaoLevel(defaultZoom),
     });
 
     setMap(mapInstance);
@@ -48,9 +50,9 @@ export default function KakaoMap({
   const { extend: extendBound, fit: focusBounds } = useViewportFit(map);
 
   useImperativeHandle(ref, () => ({
-    panTo: (lat: number, lng: number, level?: number) => {
+    panTo: (lat: number, lng: number, zoom?: number) => {
       if (!map) return;
-      if (level != null) map.setLevel(level);
+      if (zoom != null) map.setLevel(zoomToKakaoLevel(zoom));
       map.panTo(new kakao.maps.LatLng(lat, lng));
     },
     relayout: () => map?.relayout(),

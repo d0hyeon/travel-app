@@ -1,6 +1,6 @@
 import { use, useEffect, useState } from "react";
 import { KakaoMapContext } from "../MapContext";
-
+import { kakaoLevelToZoom } from "./zoomLevel.utils";
 
 type Options = {
   enabled?: boolean;
@@ -8,13 +8,13 @@ type Options = {
 
 export function useMapZoomLevel({ enabled = true }: Options = {}) {
   const context = use(KakaoMapContext);
-  const [zoom, setZoom] = useState(context?.map?.getLevel() ?? 8);
-  
+  const [level, setLevel] = useState(context?.map?.getLevel() ?? 8);
+
   useEffect(() => {
     if (!enabled || context?.map == null) return;
-    
-    setZoom(context.map.getLevel());
-    const zoomHandler = () => setZoom(context.map!.getLevel());
+
+    setLevel(context.map.getLevel());
+    const zoomHandler = () => setLevel(context.map!.getLevel());
     kakao.maps.event.addListener(context.map, 'zoom_changed', zoomHandler);
 
     return () => {
@@ -22,5 +22,5 @@ export function useMapZoomLevel({ enabled = true }: Options = {}) {
     };
   }, [enabled, context?.map])
 
-  return zoom;
+  return kakaoLevelToZoom(level);
 }

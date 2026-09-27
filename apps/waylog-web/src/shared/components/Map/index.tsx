@@ -24,7 +24,7 @@ const GooglePolylineLine = lazy(() => import('./google/GoogleMapPolylineLine'));
 interface Props extends MapProps, Omit<BoxProps, 'autoFocus' | 'ref' | 'children'> {
   type: 'kakao' | 'google';
 }
-const MAP_PROP_KEYS: (keyof MapProps)[] = ['autoFocus', 'children', 'clusterGridSize', 'clustering', 'defaultCenter', 'center', 'ref']
+const MAP_PROP_KEYS: (keyof MapProps)[] = ['autoFocus', 'children', 'clusterGridSize', 'clustering', 'defaultCenter', 'defaultZoom', 'center', 'ref']
 
 export function Map({ type, ...props }: Props) {
   return (
@@ -113,16 +113,13 @@ function PolylineLine(props: PolylineLineProps) {
   )
 }
 
-const GOOGLE_MAX_SCALE_DOWN_LEVEL = 22;
-
 export function useMapZoomLevel() {
   const type = use(MapTypeContext);
 
   const googleZoom = useGoogleMapZoomLevel({ enabled: type === 'google' });
   const kakaoZoom = useKakaoMapZoomLevel({ enabled: type === 'kakao' });
 
-  /** @NOTE 카카오는 레벨이 작을수록 확대 / 구글은 레벨이 작을수록 축소  */
-  if (type === 'google') return GOOGLE_MAX_SCALE_DOWN_LEVEL - googleZoom;
+  if (type === 'google') return googleZoom;
   return kakaoZoom;
 }
 

@@ -31,6 +31,8 @@ export interface MapRenderProps {
 export interface MapProps {
   defaultCenter?: Coordinate;
   center?: Coordinate;
+  /** 초기 줌. 구글·Mapbox 축 기준(0~22, 클수록 확대) — 카카오 구현체가 내부에서 변환한다. */
+  defaultZoom?: number;
   autoFocus?: AutoFocus;
   children?: ReactNode | ((props: MapRenderProps) => ReactNode);
   ref?: Ref<MapRef>;
