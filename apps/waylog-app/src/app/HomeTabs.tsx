@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { createBottomTabNavigator, useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { StyleSheet } from 'react-native'
 import { AuthGuard, useAuth } from '@waylog/domains/clients'
 import { palette } from '../shared/config/tokens'
@@ -8,6 +8,7 @@ import { TripListScreen } from '../features/trip/trip-list/TripListScreen'
 import { FeedScreen } from '../features/post/FeedScreen'
 import { ExplorerCatalogScreen } from '../features/explorer/ExplorerCatalogScreen'
 import { UserProfileScreen } from '../features/user-profile/UserProfileScreen'
+import { RouterTabNavigation, TRANSPARENT_SCENE_STYLE, FLOATING_TAB_BAR_RESERVE } from '../shared/components'
 import type { HomeTabParamList } from './routes'
 import { AppRoute } from './AppRoute'
 
@@ -17,12 +18,19 @@ export function HomeTabs() {
   return (
     <Tab.Navigator
       backBehavior="history"
+      tabBar={(props) => (
+        <RouterTabNavigation
+          {...props}
+
+          visibleNames={['MyTrips', 'Feed', 'Explorer', 'Profile']}
+          style={styles.floatingTabBar}
+        />
+      )}
       screenOptions={{
         headerShown: false,
+        sceneStyle: TRANSPARENT_SCENE_STYLE,
         tabBarActiveTintColor: palette.primary,
         tabBarInactiveTintColor: palette.textSecondary,
-        tabBarStyle: styles.tabBar,
-        tabBarLabelStyle: styles.tabLabel,
       }}
     >
       <Tab.Screen
@@ -62,18 +70,17 @@ export function HomeTabs() {
 
 // 기존 app/(tabs)/explorer.tsx 가 하던 것 그대로 — 탭바 높이를 콘텐츠 바닥 여백으로 넘긴다.
 function ExplorerTab() {
-  const bottomTabBarHeight = useBottomTabBarHeight()
-  return <ExplorerCatalogScreen bottomContentInset={bottomTabBarHeight} />
+  return <ExplorerCatalogScreen bottomContentInset={FLOATING_TAB_BAR_RESERVE} />
 }
 
 // 기존 app/(tabs)/profile.tsx 가 하던 것 그대로.
 function ProfileTab() {
   const { data: auth } = useAuth()
-  const bottomTabBarHeight = useBottomTabBarHeight()
-  return <UserProfileScreen userId={auth.id} bottomContentInset={bottomTabBarHeight} />
+  return <UserProfileScreen userId={auth.id} bottomContentInset={FLOATING_TAB_BAR_RESERVE} />
 }
 
 const styles = StyleSheet.create({
-  tabBar: { height: 84, paddingTop: 8, paddingBottom: 24 },
-  tabLabel: { fontSize: 11, fontWeight: '700' },
+  // 탭바가 scene 위에 얹혀야 콘텐츠가 바닥까지 이어진다. 가려지는 높이는
+  // 각 화면이 FLOATING_TAB_BAR_RESERVE 로 비운다.
+  floatingTabBar: { position: 'absolute', left: 0, right: 0, bottom: 0 },
 })

@@ -2,6 +2,7 @@ import { getTripYear, groupTripsByStatus, useTrips } from '@waylog/domains/modul
 import { Pressable, ScrollView, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Box, Fab, Stack, Typography } from '~/shared/components/design-system'
+import { FLOATING_TAB_BAR_RESERVE } from '../../../shared/components'
 import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
 import { AppRoute } from '../../../app/AppRoute'
 import { palette } from '../../../shared/config/tokens'
@@ -9,6 +10,7 @@ import { CreateTripCard } from './CreateTripCard'
 import { OngoingTripCard } from './OngoingTripCard'
 import { PastTripRow } from './PastTripRow'
 import { UpcomingTripCard } from './UpcomingTripCard'
+import { MaterialIcons } from '@expo/vector-icons'
 
 type Trip = Parameters<typeof groupTripsByStatus>[0][number]
 
@@ -89,7 +91,7 @@ export function TripListScreen() {
         onPress={openTripCreation}
         style={styles.fab}
       >
-        <Typography style={styles.fabLabel}>+</Typography>
+        <MaterialIcons name="add" size={30} color="#fff" />
       </Fab>
     </Box>
   )
@@ -191,7 +193,7 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 20,
-    bottom: 20,
+    bottom: 20 + FLOATING_TAB_BAR_RESERVE,
   },
   fabLabel: {
     color: '#fff',
