@@ -52,7 +52,7 @@ export const pastelMapboxStyle = {
       type: 'symbol',
       source: 'mapbox-streets',
       'source-layer': 'place_label',
-      layout: { 'text-field': ['get', 'name'], 'text-size': 12 },
+      layout: { 'text-field': ['coalesce', ['get', 'name_ko'], ['get', 'name']], 'text-size': 12 },
       paint: { 'text-color': '#7b6f6a', 'text-halo-color': '#f5f0eb', 'text-halo-width': 1 },
     },
   ],
