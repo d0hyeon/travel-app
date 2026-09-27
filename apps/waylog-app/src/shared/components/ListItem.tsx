@@ -76,21 +76,22 @@ function ListItemButton({
   // 좌우 애드온은 자체 버튼을 갖는 경우가 많다(정렬 핸들·메뉴).
   // 통째로 Pressable 안에 넣으면 바깥이 터치를 먼저 가져가 눌리지 않는다.
   return (
-    <ListItem
-      leftAddon={leftAddon}
-      rightAddon={rightAddon}
-      style={[
-        [styles.buttonLayout, { ...(focused ? { backgroundColor: 'rgba(76,132,255,0.2)' } : {}) }],
-        style,
-      ]}
-      {...props}
-    >
-      {/* 스타일 없는 Pressable 은 컨텐츠 폭으로 수축한다.
+    <Pressable onPress={onPress} style={styles.button}>
+      <ListItem
+        leftAddon={leftAddon}
+        rightAddon={rightAddon}
+        style={[
+          [styles.buttonLayout, { ...(focused ? { backgroundColor: 'rgba(76,132,255,0.2)' } : {}) }],
+          style,
+        ]}
+        {...props}
+      >
+        {/* 스타일 없는 Pressable 은 컨텐츠 폭으로 수축한다.
           그 안의 제목 행이 함께 눌려 순번 원이 찌그러진다. */}
-      <Pressable onPress={onPress} style={styles.button}>
+
         {children}
-      </Pressable>
-    </ListItem>
+      </ListItem>
+    </Pressable>
   )
 }
 

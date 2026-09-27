@@ -152,7 +152,7 @@ export function PhotoBottomSheet({
       )}
       <BottomSheet.BottomActions style={styles.viewerBackground}>
         {onDelete && (
-          <Button variant="outlined" color="error" fullWidth onPress={() => void onDelete(currentPhoto)}>삭제</Button>
+          <Button variant="outlined" color="error" onPress={() => void onDelete(currentPhoto)}>삭제</Button>
         )}
         <Button variant="contained" fullWidth onPress={onClose}>닫기</Button>
       </BottomSheet.BottomActions>

@@ -75,10 +75,10 @@ function MultiSelectSheet({
     )
 
   return (
-    <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.7]} defaultSnapIndex={0}>
+    <BottomSheet isOpen={isOpen} onDismiss={onClose} >
       <BottomSheet.Header>{placeholder}</BottomSheet.Header>
       <BottomSheet.Body style={styles.multiSelectSheetBody}>
-        <Stack gap={0.5}>
+        <Stack gap={0.5} style={{ marginBottom: 16 }}>
           {options.map((option) => (
             <ListItem.Button
               key={option.value}
@@ -96,12 +96,13 @@ function MultiSelectSheet({
         </Stack>
       </BottomSheet.Body>
       <BottomSheet.BottomActions style={{ paddingBottom: insets.bottom + 8 }}>
-        <Button variant="outlined" fullWidth onPress={() => setPicked([])}>
+        <Button size="large" variant="outlined" fullWidth onPress={() => setPicked([])}>
           초기화
         </Button>
         <Button
           variant="contained"
           fullWidth
+          size="large"
           onPress={() => {
             onChange(picked)
             onClose()
