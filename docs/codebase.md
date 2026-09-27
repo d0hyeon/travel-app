@@ -260,6 +260,11 @@ eslint.config.js                # 레포 전역 lint 설정 + 의존성
   값은 `app.config.ts`의 `extra`가 아니라 `process.env.EXPO_PUBLIC_WEB_BASE_URL`을
   직접 읽는다 — `extra`는 네이티브 빌드에 구워져 `.env`를 고쳐도 재빌드 전엔 반영되지
   않는다(Mapbox 토큰이 같은 이유로 직접 읽는다)
+- 프로필 기록 지도는 `@waylog/domains/modules/map`의 `getVisitedCountryColors()`로 국가별
+  파스텔 무지개 색을 결정론적으로 배정한다. 팔레트는 코랄·노랑·초록·민트·파랑·보라
+  계열로 구성하며, 팔레트가 충분한 동안 국가색은 중복되지 않는다. 소진 뒤에도 사용하지
+  않은 색을 먼저 배정하고 인접국의 색 대비를 우선한다. 국가 및 해당 국가의 지역 폴리곤은
+  같은 색을 공유하며, 방문 횟수는 색상이 아니라 투명도로만 표현한다.
 - 컴포넌트(`.tsx`)를 두지 않는다
 - MUI·react-router·브라우저 전역 API(`window`, `document`, `HTMLElement`,
   `requestAnimationFrame`, `localStorage`, IndexedDB 등)에 의존하지 않는다
