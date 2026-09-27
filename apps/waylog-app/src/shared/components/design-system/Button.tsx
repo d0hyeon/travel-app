@@ -1,8 +1,12 @@
 import type { ReactNode } from 'react'
-import { StyleSheet, ActivityIndicator, Pressable, Text, type StyleProp, type TextStyle, type ViewStyle } from 'react-native'
+import { StyleSheet, Pressable, Text, type StyleProp, type TextStyle, type ViewStyle } from 'react-native'
+import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { useTheme } from 'tamagui'
 import { radius } from '../../config/tokens'
+import { CircularProgress } from './CircularProgress'
 import { resolveButtonColors, type ButtonColor, type ButtonVariant } from './Button.theme'
+
+const LOADER_SIZE = 14
 
 // 웹 theme.ts 의 MuiButton size variant 를 모바일 수치로 옮긴다.
 const SIZE = {
@@ -48,6 +52,18 @@ export function Button({
     onPrimary: theme.onPrimary.val,
     onSurface: theme.onSurface.val,
   })
+  const isLoading = loading === true
+  const loaderStyle = useAnimatedStyle(() => ({
+    width: withTiming(isLoading ? LOADER_SIZE : 0),
+    marginRight: withTiming(isLoading ? 4 : 0),
+    opacity: withTiming(isLoading ? 1 : 0),
+  }))
+
+  const fillOpacity = (() => {
+    if (disabled) return 0.4;
+    if (isLoading) return 0.55;
+    return 1;
+  })()
 
   return (
     <Pressable
@@ -62,14 +78,16 @@ export function Button({
           backgroundColor: colors.backgroundColor,
           borderColor: colors.borderColor,
           borderWidth: colors.borderWidth,
-          opacity: isInactive ? 0.4 : pressed ? 0.72 : 1,
+          opacity: pressed ? 0.72 : fillOpacity,
           ...(fullWidth ? { flex: 1, width: '100%', alignSelf: 'center' } : { alignSelf: 'flex-start' }),
         },
         style,
       ]}
     >
-      {startIcon}
-      {loading === true && <ActivityIndicator size="small" color={colors.textColor} />}
+      {startIcon != null && <Animated.View style={styles.startIcon}>{startIcon}</Animated.View>}
+      <Animated.View style={[styles.loader, loaderStyle]}>
+        <CircularProgress size={LOADER_SIZE} color={colors.textColor} />
+      </Animated.View>
       <Text
         style={[
           styles.label,
@@ -91,6 +109,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+  },
+  loader: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  startIcon: {
+    marginRight: 4,
   },
 })
