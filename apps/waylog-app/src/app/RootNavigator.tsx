@@ -26,6 +26,7 @@ import { RecentHotScreen } from '../features/explorer/explorer-recent/RecentHotS
 import { MostSavedScreen } from '../features/explorer/explorer-saved/MostSavedScreen'
 import { PostCreationScreen } from '../features/post/PostCreationScreen'
 import { PostDetailScreen } from '../features/post/PostDetailScreen'
+import { SettingsDetailScreen } from '../features/settings/SettingsDetailScreen'
 import { TripDetailScreen } from '../features/trip/TripDetailScreen'
 import { useChatNotificationResponse } from '../features/trip/trip-chat/notification/useChatNotification'
 import { TripCreateScreen } from '../features/trip/trip-create/TripCreateScreen'
@@ -66,6 +67,7 @@ declare module '~app/routes' {
   interface RouteParamsRegistry {
     [AppRoute.메인]: undefined
     [AppRoute.로그인]: { returnTo?: ReturnTo }
+    [AppRoute.설정]: undefined
   }
 }
 
@@ -120,6 +122,7 @@ export function RootNavigator() {
                         <RootStack.Screen name={AppRoute.포스트_생성} component={PostCreationScreen} />
                         <RootStack.Screen name={AppRoute.포스트_상세} component={PostDetailScreen} />
                         <RootStack.Screen name={AppRoute.유저_프로필} component={UserProfileDetailScreen} />
+                        <RootStack.Screen name={AppRoute.설정} component={SettingsDetailScreen} />
                         <RootStack.Screen name={AppRoute.여행_교통편_추가} component={TransportCreationScreen} />
                         <RootStack.Screen name={AppRoute.여행_교통편_상세} component={TransportDetailScreen} />
                       </RootStack.Navigator>

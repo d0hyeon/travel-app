@@ -1,11 +1,13 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { useAuth, signOut } from '@waylog/domains/clients'
+import { useAuth } from '@waylog/domains/clients'
 import { useEffect, useRef, useState } from 'react'
 import { StyleSheet, Pressable, ScrollView, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Tabs, Tab } from '~/shared/components/design-system'
 import { useQueryParamState } from '../../shared/hooks/useQueryParamState'
 import { palette } from '../../shared/config/tokens'
+import { AppRoute } from '../../app/AppRoute'
+import { useAppNavigation } from '../../shared/hooks/useAppNavigation'
 import { ProfileFeedTab } from './ProfileFeedTab'
 import { ProfileHeader } from './ProfileHeader'
 import { ProfileRecordsTab } from './ProfileRecordsTab'
@@ -20,23 +22,14 @@ interface Props {
 
 export function UserProfileScreen({ userId, bottomContentInset = 0 }: Props) {
   const { data: auth } = useAuth()
+  const navigation = useAppNavigation()
   const [currentTab, selectTab] = useQueryParamState<ProfileTab>('tab', { defaultValue: 'feed', parse: parseProfileTab })
-  const [isSigningOut, setIsSigningOut] = useState(false)
   // 지도를 만지는 동안 세로 스크롤을 멈춘다. 두 제스처가 겹치면 지도가 끊긴다.
   const [isMapInteracting, setIsMapInteracting] = useState(false)
   // 안전 영역을 뺀 실제 높이. 기록 탭 지도가 이 높이를 채운다.
   const [viewportHeight, setViewportHeight] = useState(0)
   const profileScrollRef = useRef<ScrollView>(null)
   const tabBarOffset = useRef<number | null>(null)
-
-  const handleSignOut = async () => {
-    setIsSigningOut(true)
-    try {
-      await signOut()
-    } finally {
-      setIsSigningOut(false)
-    }
-  }
 
   // 기록 탭을 연 순간에만 옮긴다. 웹처럼 탭바가 화면 맨 위에 붙어 남도록
   // 탭 아래 내용이 아니라 탭바 자리로 스크롤한다.
@@ -73,7 +66,11 @@ export function UserProfileScreen({ userId, bottomContentInset = 0 }: Props) {
       >
         <View style={styles.header}>
           <ProfileHeader userId={userId} />
-          {auth.id === userId && <Pressable disabled={isSigningOut} onPress={handleSignOut} style={styles.signOutButton}><MaterialIcons name="logout" size={22} color="#d32f2f" /></Pressable>}
+          {auth.id === userId && (
+            <Pressable onPress={() => navigation.navigate(AppRoute.설정)} style={styles.settingsButton}>
+              <MaterialIcons name="settings" size={22} color={palette.textSecondary} />
+            </Pressable>
+          )}
         </View>
         <ProfileStatStrip userId={userId} />
         <View
@@ -114,6 +111,6 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: palette.background },
   scroll: { flex: 1 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  signOutButton: { padding: 16 },
+  settingsButton: { padding: 16 },
   tabs: { backgroundColor: palette.background },
 })
