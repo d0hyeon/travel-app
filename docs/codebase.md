@@ -84,6 +84,8 @@ TicketViewer 내부의 `ConfirmDialog`와 `ActionSheet`다. 공용 `Button`도 T
 /trip/invite/:shareLink        → TripInvitePage
 /place/:placeId                → PlaceDetailPage
 /u/:userId                     → UserProfilePage
+/settings                      → SettingsPage (앱은 웹뷰로만 진입, 네이티브 스크린 없음)
+/settings/profile              → SettingsProfilePage (`@waylog/routes`에 없는 로컬 하위 경로)
 /post/new                      → PostFormPage
 /post/:postId                  → PostDetailPage
 /admin/trips                   → (어드민 여행 목록)
@@ -122,6 +124,15 @@ apps/
 │   │   │   ├── AppRoute.ts     # @waylog/routes(콜론 경로)를 언더스코어로 치환한 내부 AppRoute + toScreenName
 │   │   │   ├── registerLinkingScreens.ts # linking.config.screens를 내부 AppRoute 키로 생성
 │   │   │   ├── RootNavigator.tsx # Provider 구성 + NavigationContainer + RootStack (linking 포함)
+│   │   │   ├── bootstrap/      # 부팅 준비 오케스트레이션
+│   │   │   │   ├── AppBootstrap.tsx # 네이티브 스플래시(expo-splash-screen) preventAutoHideAsync 소유.
+│   │   │   │   │                #   useAuth Suspense로 세션 확인이 끝나면 hideAsync, 그 전까지 AppSplashScreen을
+│   │   │   │   │                #   fallback으로 유지. 번들 자동 업데이트(useAutoBundleUpdate)는 부팅을 막지 않는
+│   │   │   │   │                #   백그라운드 정책이라 이 대기 흐름과 분리해 나란히 구동
+│   │   │   │   ├── AppSplashScreen.tsx # JS 스플래시 UI. 네이티브 스플래시(app.config.ts)와 배경색 통일해 전환 시 깜빡임 없앰
+│   │   │   │   └── useAppBundleManager.ts # 번들 컨트롤러(CodePush 도입 전 자리). checkForUpdate가 항상 null 고정,
+│   │   │   │                    #   applyOnNextRestart는 즉시 적용이 아니라 다음 재시작 적용 예약. 언제 확인·적용할지의
+│   │   │   │                    #   정책은 이 훅이 아니라 AppBootstrap의 useAutoBundleUpdate가 조립
 │   │   │   └── HomeTabs.tsx    # 홈 4탭(내 여행/피드/탐색/프로필)
 │   │   ├── features/           # 웹 features 구조를 미러링. trip/TripDetailStack.tsx·TripDetailTabs.tsx 가
 │   │   │   │                    #   여행 상세 스택+탭 중첩을 구성
@@ -223,6 +234,18 @@ eslint.config.js                # 레포 전역 lint 설정 + 의존성
 `@waylog/bridge`의 contract는 정적 capability space만 소유한다. Native feature는 자신의
 lifecycle에 맞춰 host handler를 등록하고 해제한다. 따라서 구버전 앱이 method를 모르면
 `supports()`는 false이며, 지원하는 앱에서도 현재 handler가 없으면 unavailable error가 된다.
+`useBridgeHandler`류 React 등록 훅은 패키지가 아니라 각 앱이 소유한다(`packages/bridge`는
+React에 의존하지 않는다) — 앱은 `apps/waylog-app/src/shared/bridge/useBridgeHandlers.ts`에서
+여러 handler를 한 effect로 등록·해제한다.
+
+`getAuthTokens`·`notifyAuthSignedOut`은 설정 웹뷰가 앱의 Supabase 세션을 그대로 쓰기 위한
+capability다. 웹은 `bridgeClient.ready()`(네이티브 transport가 없으면 즉시 reject) 성공 시에만
+`getAuthTokens()`로 access/refresh token을 받아 `supabase.auth.setSession()`에 주입한다
+(`apps/waylog-web/src/shared/bridge/useWebviewSession.ts`). 일반 브라우저에서는 이 흐름이
+실패로 끝나고 기존 localStorage 세션을 그대로 쓴다 — 같은 SPA, 같은 Supabase client
+싱글턴이며 웹뷰 전용 client를 별도로 만들지 않는다. `AuthService`도 `readTokens()`를
+추가로 노출하지만 `readSession()`(도메인 계층이 쓰는 `AuthUser`)과 분리되어 있어 토큰이
+도메인 계층으로 새지 않는다.
 
 공유 패키지가 지켜야 하는 것:
 
@@ -1295,6 +1318,7 @@ ref 로 붙잡아야 끌던 도중 스냅이 바뀌어도 제스처가 갈아끼
 | 계절 인기 지역       | `features/tourism-trend/`, `features/explorer/explorer-seasonal-regions/` |
 | 피드/포스트          | `features/post/FeedPage.tsx`, `features/post/post-form-funnel/`          |
 | 사용자 프로필        | `features/user-profile/UserProfilePage.tsx`                       |
+| 설정 (내정보 변경·로그아웃) | 웹 `features/settings/`(SettingsPage·SettingsProfilePage, 진입 라우트만 `@waylog/routes`의 `설정`, 하위 `/settings/profile`은 로컬 상수). 앱은 `features/settings/SettingsWebViewScreen.tsx`로 이 웹 라우트를 웹뷰로 띄우기만 한다 — 별도 네이티브 UI 없음 |
 | 통계                 | `features/statistics/StatisticsPage.tsx`                          |
 | 지도 (공통)          | `shared/components/Map/` (kakao / google 구현 분기)               |
 | 사진 업로드          | `shared/components/photo/PhotoUploader.tsx`                       |
