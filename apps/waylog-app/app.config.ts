@@ -55,6 +55,14 @@ const config: ExpoConfig = {
         ],
       },
     ],
+    [
+      "expo-splash-screen",
+      {
+        image: "./assets/splash-icon.png",
+        imageWidth: 160,
+        backgroundColor: "#E6F4FE",
+      },
+    ],
     // Xcode 27이 UIKit Scene lifecycle 미채택 앱을 크래시시킨다(EXC_BREAKPOINT).
     // 공식 패치(expo/config-plugins#326)가 npm엔 아직 배포되지 않아 워크스페이스
     // 패키지로 직접 들여왔다.
