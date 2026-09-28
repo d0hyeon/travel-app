@@ -1,4 +1,11 @@
-import { bridgeMethods, type BridgeMethod, type CloseWebViewParams, type RefetchQueriesParams } from './contract'
+import {
+  bridgeMethods,
+  type BridgeMethod,
+  type CloseWebViewParams,
+  type GetAuthTokensParams,
+  type NotifyAuthSignedOutParams,
+  type RefetchQueriesParams,
+} from './contract'
 
 export type BridgeErrorCode = 'unsupported' | 'unavailable' | 'timeout' | 'protocol' | 'handler'
 
@@ -47,12 +54,16 @@ function isBridgeQueryPart(value: unknown): boolean {
 
 export function validateBridgeParams(method: 'closeWebView', params: unknown): params is CloseWebViewParams
 export function validateBridgeParams(method: 'refetchQueries', params: unknown): params is RefetchQueriesParams
+export function validateBridgeParams(method: 'getAuthTokens', params: unknown): params is GetAuthTokensParams
+export function validateBridgeParams(method: 'notifyAuthSignedOut', params: unknown): params is NotifyAuthSignedOutParams
 export function validateBridgeParams(method: BridgeMethod, params: unknown): boolean
 export function validateBridgeParams(method: BridgeMethod, params: unknown): boolean {
   if (!isPlainObject(params)) return false
-  if (method === 'closeWebView') return Object.keys(params).length === 0
-  const queryKeys = params.queryKeys
-  return Array.isArray(queryKeys) && queryKeys.every((key) => Array.isArray(key) && key.every(isBridgeQueryPart))
+  if (method === 'refetchQueries') {
+    const queryKeys = params.queryKeys
+    return Array.isArray(queryKeys) && queryKeys.every((key) => Array.isArray(key) && key.every(isBridgeQueryPart))
+  }
+  return Object.keys(params).length === 0
 }
 
 export function isBridgeRequest(value: unknown): value is BridgeRequest {
