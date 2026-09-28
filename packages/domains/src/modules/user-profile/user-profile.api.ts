@@ -27,6 +27,27 @@ export async function getUserProfileById(id: string): Promise<UserProfile | null
   return toUserProfile(data)
 }
 
+export interface UserProfileUpdate {
+  name?: string
+  profileUrl?: string
+}
+
+export async function updateUserProfile(id: string, patch: UserProfileUpdate): Promise<UserProfile> {
+  const update: { name?: string; avatar_url?: string } = {}
+  if (patch.name !== undefined) update.name = patch.name
+  if (patch.profileUrl !== undefined) update.avatar_url = patch.profileUrl
+
+  const { data, error } = await supabase
+    .from('user_profiles')
+    .update(update)
+    .eq('id', id)
+    .select('id, name, avatar_url')
+    .single()
+
+  if (error) throw error
+  return toUserProfile(data)
+}
+
 interface CreateProfilePayload {
   id: string
   name?: string
