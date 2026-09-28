@@ -154,6 +154,7 @@ apps/
     ├── tsconfig.json           # 앱 프로젝트 레퍼런스 루트
     └── vite.config.ts 등       # 앱 빌드·테스트 설정
 packages/
+├── bridge/                     # @waylog/bridge — App↔WebView 정적 계약(contract), Native handler host, Web client
 ├── routes/                     # @waylog/routes — 웹/앱 공유 URL 경로 상수(AppRoute). 한글 키·콜론 경로(`/trip/:tripId`)
 ├── utility/                    # @waylog/utility — 플랫폼·도메인 비의존 순수 유틸리티·공용 타입
 ├── domains/                    # @waylog/domains — 도메인·데이터 계층
@@ -216,7 +217,12 @@ eslint.config.js                # 레포 전역 lint 설정 + 의존성
 | Supabase 쿼리, 도메인 로직·타입, 도메인 훅 | `@waylog/domains` |
 | 플랫폼·도메인 비의존 순수 유틸·공용 타입 | `@waylog/utility` |
 | 플랫폼 비의존 React 훅 | `@waylog/react` |
+| App ↔ WebView protocol·host·client | `@waylog/bridge` |
 | 컴포넌트, 라우팅, 애니메이션, raw 스토리지, 디바이스 권한 | 각 앱 |
+
+`@waylog/bridge`의 contract는 정적 capability space만 소유한다. Native feature는 자신의
+lifecycle에 맞춰 host handler를 등록하고 해제한다. 따라서 구버전 앱이 method를 모르면
+`supports()`는 false이며, 지원하는 앱에서도 현재 handler가 없으면 unavailable error가 된다.
 
 공유 패키지가 지켜야 하는 것:
 
