@@ -122,6 +122,13 @@ export async function uploadTransportTicketImage(transportId: string, file: File
   return uploadToStorage(storagePath, resized)
 }
 
+export async function uploadUserAvatarImage(userId: string, file: File): Promise<string> {
+  const resized = await resizeImage(file, 'Low')
+  const storagePath = `user-avatars/${userId}/${crypto.randomUUID()}.webp`
+
+  return uploadToStorage(storagePath, resized)
+}
+
 export async function createPhotoFileFromUrl(url: string, fileName = `${Date.now()}.jpg`): Promise<File> {
   const { data, contentType } = await fileClient.get('/functions/v1/file', {
     params: { url },

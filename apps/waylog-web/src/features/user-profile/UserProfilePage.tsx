@@ -1,7 +1,7 @@
 import { Box, Container, IconButton, Stack, Tab, Tabs, Typography } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import 'scrollyfills'
-import { useParams } from 'react-router'
+import { useParams, useNavigate } from 'react-router'
 import { ResizeObserverArea } from '~shared/components/ResizeObserverArea'
 import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState'
 import { arrayIncludes, assert } from '@waylog/utility'
@@ -10,9 +10,8 @@ import { ProfileHeader } from './ProfileHeader'
 import { ProfileRecordsTab } from './ProfileRecordsTab'
 import { ProfileStatStrip } from './ProfileStatStrip'
 import { useScrollContainer } from '~shared/hooks/interaction/useScrollRestore'
-import LogoutIcon from '@mui/icons-material/Logout';
+import SettingsIcon from '@mui/icons-material/Settings';
 import { useAuth } from '@waylog/domains/clients'
-import { signOut } from '@waylog/domains/clients'
 
 const TABS = ['feed', 'records'] as const
 type Tab = typeof TABS[number];
@@ -26,6 +25,7 @@ const EXTEND_VIEWPORT_CONTENTS = ['records'] satisfies Tab[]
 
 export default function UserProfilePage() {
   const userId = useUserId();
+  const navigate = useNavigate();
   const { data: { id: currentUserId } } = useAuth();
   const [currentTab, selectTab] = useQueryParamState<Tab>('tab', { defaultValue: 'feed' })
 
@@ -51,8 +51,8 @@ export default function UserProfilePage() {
         <Stack direction="row" alignItems="center" justifyContent="space-between" py={1}>
           <ProfileHeader userId={userId} />
           {currentUserId === userId && (
-            <IconButton color="error" onClick={() => signOut()}>
-              <LogoutIcon />
+            <IconButton onClick={() => navigate('/settings')}>
+              <SettingsIcon />
             </IconButton>
           )}
 
