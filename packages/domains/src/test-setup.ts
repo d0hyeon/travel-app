@@ -5,6 +5,7 @@ import { initializeClient } from './gateways/client'
 const client = createClient('https://placeholder.supabase.co', 'placeholder')
 const authService: AuthService = {
   readSession: async () => null,
+  readTokens: async () => null,
   signIn: async () => {},
   signInWithProvider: async () => true,
   signOut: async () => {},

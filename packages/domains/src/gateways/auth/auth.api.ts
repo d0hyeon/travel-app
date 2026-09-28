@@ -8,3 +8,4 @@ export async function signInWithEmail(email: string, password: string) {
 }
 export async function signOut() { await getAuthService().signOut() }
 export async function getCurrentUser() { return (await getAuthService().readSession())?.user ?? null }
+export async function readAuthTokens() { return getAuthService().readTokens() }

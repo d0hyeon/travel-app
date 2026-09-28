@@ -17,6 +17,12 @@ export function createAuthService(client: SupabaseClient<Database>): AuthService
       if (error) throw error
       return data.session == null ? null : { user: toAuthUser(data.session.user) }
     },
+    async readTokens() {
+      const { data, error } = await client.auth.getSession()
+      if (error) throw error
+      if (data.session == null) return null
+      return { accessToken: data.session.access_token, refreshToken: data.session.refresh_token }
+    },
     async signIn(input) {
       const { error } = await client.auth.signInWithPassword(input)
       if (error) throw error
