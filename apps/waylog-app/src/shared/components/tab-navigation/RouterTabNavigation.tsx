@@ -12,7 +12,7 @@ const ICON_SIZE = 22
 export const TRANSPARENT_SCENE_STYLE = { backgroundColor: 'transparent' } as const
 
 interface RouterTabNavigationProps extends BottomTabBarProps {
-  variant: TabNavigationVariant
+  variant?: TabNavigationVariant
   /** 탭바가 놓일 자리. 떠 있는 배치는 소비자가 정한다 */
   style?: StyleProp<ViewStyle>
   /** 하단바에 보일 라우트 이름. 순서도 이 배열을 따른다 */
@@ -25,7 +25,7 @@ export function RouterTabNavigation({
   state,
   descriptors,
   navigation,
-  variant,
+  variant = 'default',
   visibleNames,
   onTab,
   style,
