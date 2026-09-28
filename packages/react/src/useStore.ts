@@ -7,6 +7,7 @@ type SetState<T> = (prev: T) => T;
 interface BaseStore<T> {
   setState: (nextState: T | SetState<T>) => void;
   subscribe: (observer: () => void) => CleanUpFn;
+  preload: () => void;
 }
 
 interface DefaultStore<T> extends BaseStore<T> {
@@ -65,6 +66,7 @@ export function createStore<T>(initialState: InitialState<T>): Store<T> {
   }
 
   return {
+    preload: initialize,
     get resolved() {
       initialize();
       return resolved;
