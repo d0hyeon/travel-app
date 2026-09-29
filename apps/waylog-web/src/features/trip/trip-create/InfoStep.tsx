@@ -25,9 +25,6 @@ export function InfoStep({ destination, onNext }: Props) {
           variant="standard"
           fullWidth
         />
-        <Typography variant="body2" color="text.secondary" mt={3}>
-          멤버는 여행 생성 후 초대 링크로 추가할 수 있어요
-        </Typography>
       </Box>
 
       <BottomArea>
