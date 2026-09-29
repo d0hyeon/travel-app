@@ -15,6 +15,7 @@ export const AppRoute = {
   장소_상세: "/place/:placeId",
   유저_프로필: "/u/:userId",
   설정: "/settings",
+  계정_설정: "/settings/profile",
   포스트_생성: "/post/new",
   포스트_상세: "/post/:postId",
   어드민_여행_목록: "/admin/trips",

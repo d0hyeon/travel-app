@@ -20,14 +20,13 @@ export default [
     route(AppRoute.피드, "../features/post/FeedPage.tsx"),
     route(AppRoute.탐색, "../features/explorer/PlaceExplorerPage.tsx"),
   ]),
-  layout("./AuthGuardLayout.tsx", [
-    layout("../features/settings/SettingsLayout.tsx", [
+  layout("../features/settings/SettingsLayout.tsx", [
+    layout("./AuthGuardLayout.tsx", [
       route(AppRoute.설정, "../features/settings/SettingsPage.tsx"),
-      route(
-        `${AppRoute.설정}/profile`,
-        "../features/settings/SettingsProfilePage.tsx",
-      ),
+      route(AppRoute.계정_설정, "../features/settings/SettingsProfilePage.tsx"),
     ]),
+  ]),
+  layout("./AuthGuardLayout.tsx", [
     route(AppRoute.여행_상세, "../features/trip/TripDetailPage.tsx"),
     route(AppRoute.여행_채팅, "../features/trip/TripChatPage.tsx"),
     route(
