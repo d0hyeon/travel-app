@@ -21,7 +21,7 @@ export default [
     route(AppRoute.탐색, "../features/explorer/PlaceExplorerPage.tsx"),
   ]),
   layout("../features/settings/SettingsLayout.tsx", [
-    layout("./AuthGuardLayout.tsx", [
+    layout("./AuthGuardLayout.tsx", { id: "SETTING_LAYOUT" }, [
       route(AppRoute.설정, "../features/settings/SettingsPage.tsx"),
       route(AppRoute.계정_설정, "../features/settings/SettingsProfilePage.tsx"),
     ]),
