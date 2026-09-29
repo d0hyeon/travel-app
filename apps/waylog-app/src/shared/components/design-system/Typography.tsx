@@ -6,15 +6,15 @@ import { palette } from '../../config/tokens'
 // breakpoints.down('md') 쪽 수치를 쓴다.
 // RN 커스텀 폰트는 fontWeight 를 무시하므로, weight 는 fontFamily 선택으로 표현한다.
 export const VARIANT_STYLE = StyleSheet.create({
-  h4: { fontSize: 24, lineHeight: 34, fontWeight: '900', fontFamily: 'SUIT-Heavy' },
-  h5: { fontSize: 20, lineHeight: 28, fontWeight: '900', fontFamily: 'SUIT-Heavy' },
-  h6: { fontSize: 16, lineHeight: 22, fontWeight: '900', fontFamily: 'SUIT-Heavy' },
+  h4: { fontSize: 24, lineHeight: 34, fontWeight: 900, fontFamily: 'SUIT-Heavy' },
+  h5: { fontSize: 20, lineHeight: 28, fontWeight: 700, fontFamily: 'SUIT-Bold' },
+  h6: { fontSize: 16, lineHeight: 22, fontWeight: 700, fontFamily: 'SUIT-Bold' },
 
   subtitle1: { fontSize: 14, lineHeight: 20, fontWeight: '700', fontFamily: 'SUIT-Bold' },
   subtitle2: { fontSize: 13, lineHeight: 18, fontWeight: '700', fontFamily: 'SUIT-Bold' },
 
-  body1: { fontSize: 14, lineHeight: 20, fontWeight: '700', fontFamily: 'SUIT-Bold' },
-  body2: { fontSize: 13, lineHeight: 18, fontWeight: '700', fontFamily: 'SUIT-Bold' },
+  body1: { fontSize: 16, lineHeight: 20, fontWeight: '700', fontFamily: 'SUIT-Bold' },
+  body2: { fontSize: 14, lineHeight: 18, fontWeight: '700', fontFamily: 'SUIT-Bold' },
 
   caption: { fontSize: 11, lineHeight: 16, fontWeight: '700', fontFamily: 'SUIT-Bold' },
 })
