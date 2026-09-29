@@ -99,7 +99,7 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
               <Map.Region
                 key={visitedLocation.location}
                 location={visitedLocation.location}
-                level={visitedLocation.countryCode === Country.한국 ? 'city' : 'region'}
+                level="auto"
                 {...getRegionPolygonStyle(
                   visitedLocation.visitCount,
                   resolveVisitedCountryColor(countryColors, visitedLocation.countryCode),
