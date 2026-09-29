@@ -26,7 +26,7 @@ import { RecentHotScreen } from '../features/explorer/explorer-recent/RecentHotS
 import { MostSavedScreen } from '../features/explorer/explorer-saved/MostSavedScreen'
 import { PostCreationScreen } from '../features/post/PostCreationScreen'
 import { PostDetailScreen } from '../features/post/PostDetailScreen'
-import { SettingsDetailScreen } from '../features/settings/SettingsDetailScreen'
+import { SettingsScreen } from '../features/settings/SettingsScreen'
 import { TripDetailScreen } from '../features/trip/TripDetailScreen'
 import { useChatNotificationResponse } from '../features/trip/trip-chat/notification/useChatNotification'
 import { TripCreateScreen } from '../features/trip/trip-create/TripCreateScreen'
@@ -44,6 +44,7 @@ import { HomeTabs } from './HomeTabs'
 import { AppBootstrap } from './bootstrap/AppBootstrap'
 import { registerLinkingScreens } from './registerLinkingScreens'
 import type { RootStackParamList } from './routes'
+import { AccountSettingScreen } from '../features/settings/AccountSettingScreen';
 
 setupApi()
 LogBox.ignoreLogs([ExceptionError.name])
@@ -122,7 +123,8 @@ export function RootNavigator() {
                         <RootStack.Screen name={AppRoute.포스트_생성} component={PostCreationScreen} />
                         <RootStack.Screen name={AppRoute.포스트_상세} component={PostDetailScreen} />
                         <RootStack.Screen name={AppRoute.유저_프로필} component={UserProfileDetailScreen} />
-                        <RootStack.Screen name={AppRoute.설정} component={SettingsDetailScreen} />
+                        <RootStack.Screen name={AppRoute.설정} component={SettingsScreen} />
+                        <RootStack.Screen name={AppRoute.계정_설정} component={AccountSettingScreen} />
                         <RootStack.Screen name={AppRoute.여행_교통편_추가} component={TransportCreationScreen} />
                         <RootStack.Screen name={AppRoute.여행_교통편_상세} component={TransportDetailScreen} />
                       </RootStack.Navigator>
