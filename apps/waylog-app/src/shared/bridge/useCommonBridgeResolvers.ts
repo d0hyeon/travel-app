@@ -17,9 +17,6 @@ export function useCommonBridgeResolvers() {
           if (!tokens) throw new Error("로그인 세션이 없습니다.");
           return tokens;
         },
-        notifyAuthSignedOut: async () => {
-          await signOut();
-        },
       }) satisfies Partial<BridgeInterface>,
     [navigation],
   );

@@ -14,7 +14,6 @@ export interface BridgeInterface {
   closeWebView: () => Promise<void>;
   refetchQueries: (params: RefetchQueriesParams) => Promise<void>;
   getAuthTokens: () => Promise<AuthTokens>;
-  notifyAuthSignedOut: () => Promise<void>;
 }
 
 export type BridgeMethod = Extract<keyof BridgeInterface, string>;
@@ -23,7 +22,6 @@ export const bridgeMethods = [
   "closeWebView",
   "refetchQueries",
   "getAuthTokens",
-  "notifyAuthSignedOut",
 ] as const satisfies readonly BridgeMethod[];
 export const bridgeVersion = 1;
 
