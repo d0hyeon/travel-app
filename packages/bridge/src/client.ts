@@ -1,7 +1,7 @@
 import {
   bridgeMethods,
   bridgeVersion,
-  type BridgeContract,
+  type BridgeInterface,
   type BridgeMethod,
 } from "./contract";
 import {
@@ -18,42 +18,44 @@ import {
 } from "./protocol";
 
 const requestTimeoutMs = 10_000;
+const bridgeInfoTimeoutMs = 10_000;
 
 interface PendingRequest {
-  resolve: () => void;
+  resolve: (result: unknown) => void;
   reject: (error: Error) => void;
   timeoutId: ReturnType<typeof setTimeout>;
 }
 
 export type BridgeClientApi = Pick<BridgeClient, "ready" | "supports"> &
-  BridgeContract;
+  BridgeInterface;
 
 class BridgeClient {
-  private readonly transport: BridgeTransport | undefined;
+  private readonly transport: BridgeTransport;
   private methods = new Set<BridgeMethod>();
   private readonly pendingRequests = new Map<string, PendingRequest>();
   private readonly readyPromise: Promise<void>;
   private readonly unsubscribe: (() => void) | undefined;
+  private readonly bridgeInfoTimeoutId: ReturnType<typeof setTimeout>;
   private resolveReady: (() => void) | undefined;
   private rejectReady: ((error: Error) => void) | undefined;
   private bridgeError: Error | undefined;
   private isDisposed = false;
   private isReady = false;
 
-  constructor(transport?: BridgeTransport) {
+  constructor(transport: BridgeTransport) {
     this.transport = transport;
     this.readyPromise = new Promise<void>((resolve, reject) => {
       this.resolveReady = resolve;
       this.rejectReady = reject;
     });
+    void this.readyPromise.catch(() => undefined);
     this.unsubscribe = transport?.subscribe(this.handleMessage);
 
-    if (!transport) {
+    this.bridgeInfoTimeoutId = setTimeout(() => {
+      if (this.isReady || this.bridgeError || this.isDisposed) return;
       this.bridgeError = new BridgeUnavailableError();
       this.rejectReady?.(this.bridgeError);
-      return;
-    }
-
+    }, bridgeInfoTimeoutMs);
     transport.send(JSON.stringify({ type: "bridge-init" }));
   }
 
@@ -66,6 +68,7 @@ class BridgeClient {
     if (this.isDisposed) return;
 
     this.isDisposed = true;
+    clearTimeout(this.bridgeInfoTimeoutId);
     this.unsubscribe?.();
     this.pendingRequests.forEach((pending) => {
       clearTimeout(pending.timeoutId);
@@ -85,7 +88,7 @@ class BridgeClient {
           typeof property === "string" &&
           bridgeMethods.includes(property as BridgeMethod)
         ) {
-          return (params: object) =>
+          return (params?: object) =>
             client.invoke(property as BridgeMethod, params);
         }
         return undefined;
@@ -109,11 +112,12 @@ class BridgeClient {
     this.pendingRequests.delete(parsed.requestId);
     clearTimeout(pending.timeoutId);
 
-    if (parsed.ok) pending.resolve();
+    if (parsed.ok) pending.resolve(parsed.result);
     else pending.reject(toBridgeError(parsed.error.code, parsed.error.message));
   };
 
   private handleBridgeInfo(version: number, methods: BridgeMethod[]): void {
+    clearTimeout(this.bridgeInfoTimeoutId);
     if (Math.trunc(version) !== bridgeVersion) {
       this.bridgeError = new BridgeUnsupportedError();
       this.rejectReady?.(this.bridgeError);
@@ -125,7 +129,10 @@ class BridgeClient {
     this.resolveReady?.();
   }
 
-  private invoke(method: BridgeMethod, params: object): Promise<void> {
+  private invoke(
+    method: BridgeMethod,
+    params: object | undefined,
+  ): Promise<unknown> {
     if (this.bridgeError) return Promise.reject(this.bridgeError);
     if (!this.transport || this.isDisposed || !this.isReady) {
       return Promise.reject(new BridgeUnavailableError());
@@ -137,7 +144,7 @@ class BridgeClient {
     if (!transport) return Promise.reject(new BridgeUnavailableError());
     const requestId = crypto.randomUUID();
 
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<unknown>((resolve, reject) => {
       const timeoutId = setTimeout(() => {
         this.pendingRequests.delete(requestId);
         reject(new BridgeTimeoutError());
@@ -152,7 +159,7 @@ class BridgeClient {
 }
 
 export function createBridgeClient(
-  transport?: BridgeTransport,
+  transport: BridgeTransport,
 ): BridgeClientApi {
   return new BridgeClient(transport).expose();
 }

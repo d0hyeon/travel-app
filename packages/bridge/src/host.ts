@@ -1,7 +1,7 @@
 import {
   bridgeMethods,
   bridgeVersion,
-  type BridgeContract,
+  type BridgeInterface,
   type BridgeInfo,
   type BridgeMethod,
 } from "./contract";
@@ -15,11 +15,10 @@ import {
   isBridgeInitMessage,
   isBridgeRequest,
   parseBridgeMessage,
-  validateBridgeParams,
   type BridgeResponse,
   type BridgeTransport,
 } from "./protocol";
-type RegisteredHandler = (params: object) => Promise<void>;
+type RegisteredHandler = (params: object | undefined) => Promise<unknown>;
 
 class BridgeHost {
   private readonly transport: BridgeTransport;
@@ -33,22 +32,29 @@ class BridgeHost {
 
   constructor(
     transport: BridgeTransport,
-    { appVersion }: { appVersion: string },
+    {
+      appVersion,
+      resolvers = {},
+    }: { appVersion: string; resolvers?: Partial<BridgeInterface> },
   ) {
     this.transport = transport;
     this.bridgeInfo = {
       bridgeVersion,
       appVersion,
-      methods: [...bridgeMethods],
+      methods: bridgeMethods.filter((method) => resolvers[method] != null),
     };
     this.unsubscribe = transport.subscribe((message) => {
       void this.handleMessage(message);
+    });
+    bridgeMethods.forEach((method) => {
+      const resolver = resolvers[method];
+      if (resolver) this.register(method, resolver);
     });
     this.send({ type: "bridge-info", info: this.bridgeInfo });
   }
   register<Method extends BridgeMethod>(
     method: Method,
-    handler: BridgeContract[Method],
+    handler: BridgeInterface[Method],
   ): () => void {
     const entry = { id: Symbol(method), handler: handler as RegisteredHandler };
     const stack = this.handlerStacks.get(method) ?? [];
@@ -104,32 +110,27 @@ class BridgeHost {
     }
     if (!isBridgeRequest(parsed)) {
       const requestId = getBridgeRequestId(parsed);
-      if (requestId)
+      if (requestId) {
         this.sendError(
           requestId,
           new BridgeProtocolError("Bridge request is invalid."),
         );
+      }
       return;
     }
-    if (!validateBridgeParams(parsed.method, parsed.params)) {
-      this.sendError(
-        parsed.requestId,
-        new BridgeProtocolError("Bridge parameters are invalid."),
-      );
-      return;
-    }
+
     const handler = this.handlerStacks.get(parsed.method)?.at(-1);
     if (!handler) {
       this.sendError(parsed.requestId, new BridgeUnavailableError());
       return;
     }
     try {
-      await handler.handler(parsed.params);
+      const result = await handler.handler(parsed.params);
       this.send({
         type: "bridge-response",
         requestId: parsed.requestId,
         ok: true,
-        result: undefined,
+        result,
       });
     } catch (error) {
       this.sendError(
@@ -142,11 +143,11 @@ class BridgeHost {
   }
 }
 
-export type BridgeHostApi = BridgeHost;
+export type { BridgeHost };
 
 export function createBridgeHost(
   transport: BridgeTransport,
-  options: { appVersion: string },
-): BridgeHostApi {
+  options: { appVersion: string; resolvers?: Partial<BridgeInterface> },
+): BridgeHost {
   return new BridgeHost(transport, options);
 }
