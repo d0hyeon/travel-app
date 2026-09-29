@@ -1,22 +1,22 @@
-import type { Coordinate } from '@waylog/utility'
-import { Country } from '@waylog/domains/modules/location'
-import type { Location } from '@waylog/domains/modules/location'
+import type { Coordinate } from "@waylog/utility";
+import { Country } from "@waylog/domains/modules/location";
+import type { Location } from "@waylog/domains/modules/location";
 import {
   getCoordinateByLocation,
   getCountryByLocation,
   getCountryNameByLocation,
   isLocation,
-} from '@waylog/domains/modules/location'
-import type { Trip } from '@waylog/domains/modules/trip'
+} from "@waylog/domains/modules/location";
+import type { Trip } from "@waylog/domains/modules/trip";
 
 export interface VisitedLocation {
-  location: Location
-  countryCode: Country | undefined
-  countryName: string
-  coordinate: Coordinate
-  visitCount: number
-  lastVisitedAt: string
-  trips: Trip[]
+  location: Location;
+  countryCode: Country | undefined;
+  countryName: string;
+  coordinate: Coordinate;
+  visitCount: number;
+  lastVisitedAt: string;
+  trips: Trip[];
 }
 
 /**
@@ -24,19 +24,18 @@ export interface VisitedLocation {
  * destinations vocabulary에 없는 자유 입력은 제외 (좌표를 알 수 없음).
  */
 export function deriveVisitedLocations(trips: Trip[]): VisitedLocation[] {
-  const aggregated = new Map<Location, VisitedLocation>()
+  const aggregated = new Map<Location, VisitedLocation>();
 
   for (const trip of trips) {
-    
     for (const dest of trip.destinations) {
-      if (!isLocation(dest)) continue
+      if (!isLocation(dest)) continue;
 
-      const existing = aggregated.get(dest)
+      const existing = aggregated.get(dest);
       if (existing) {
-        existing.visitCount += 1
-        existing.trips.push(trip)
+        existing.visitCount += 1;
+        existing.trips.push(trip);
         if (trip.endDate > existing.lastVisitedAt) {
-          existing.lastVisitedAt = trip.endDate
+          existing.lastVisitedAt = trip.endDate;
         }
       } else {
         aggregated.set(dest, {
@@ -47,43 +46,30 @@ export function deriveVisitedLocations(trips: Trip[]): VisitedLocation[] {
           visitCount: 1,
           lastVisitedAt: trip.endDate,
           trips: [trip],
-        })
+        });
       }
     }
   }
 
-  return [...aggregated.values()].toSorted((a, b) => b.visitCount - a.visitCount)
-}
-
-/**
- * 사용자 trip의 destinations 전체에서 unique 국가 수를 센다.
- */
-export function countUniqueCountries(trips: Trip[]): number {
-  const countries = new Set<Country>()
-  for (const trip of trips) {
-    for (const dest of trip.destinations) {
-      const country = getCountryByLocation(dest)
-      if (country) countries.add(country)
-    }
-  }
-  return countries.size
+  return [...aggregated.values()].toSorted(
+    (a, b) => b.visitCount - a.visitCount,
+  );
 }
 
 /**
  * 국가 단위 방문 trip 수 집계 (한 trip이 여러 국가를 방문하면 각 국가에 1씩).
  */
 export function deriveVisitedCountries(trips: Trip[]): Map<Country, number> {
-  const map = new Map<Country, number>()
+  const map = new Map<Country, number>();
   for (const trip of trips) {
-    const countries = new Set<Country>()
+    const countries = new Set<Country>();
     for (const dest of trip.destinations) {
-      const country = getCountryByLocation(dest)
-      if (country) countries.add(country)
+      const country = getCountryByLocation(dest);
+      if (country) countries.add(country);
     }
     countries.forEach((country) => {
-      map.set(country, (map.get(country) ?? 0) + 1)
-    })
+      map.set(country, (map.get(country) ?? 0) + 1);
+    });
   }
-  return map
+  return map;
 }
-

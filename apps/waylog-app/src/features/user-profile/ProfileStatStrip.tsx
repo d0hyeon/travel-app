@@ -2,26 +2,34 @@ import { StyleSheet } from 'react-native'
 import { useMemo } from 'react'
 import { Stack, Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../shared/config/tokens'
-import { countUniqueCountries } from './user-profile.utils'
-import { useUserPhotos } from './useUserPhotos'
 import { useUserTrips } from './useUserTrips'
+import { countUniqueCountries, countUniqueRegions } from '@waylog/domains/modules/trip'
 
 export function ProfileStatStrip({ userId }: { userId: string }) {
   const { data: trips } = useUserTrips(userId)
-  const { data: photos } = useUserPhotos(userId)
-  const countryCount = useMemo(() => countUniqueCountries(trips), [trips])
+
+  const [countryCount, regionCount] = useMemo(() => [
+    countUniqueCountries(trips),
+    countUniqueRegions(trips)
+  ], [trips])
+
 
   return (
     <Stack direction="row" gap={2} style={styles.statistics}>
       <StatCell value={trips.length} label="여행" />
-      <StatCell value={countryCount} label="나라" />
-      <StatCell value={photos.length.toLocaleString()} label="사진" />
+      <StatCell value={countryCount} label="국가" />
+      <StatCell value={regionCount.toLocaleString()} label="지역" />
     </Stack>
   )
 }
 
 function StatCell({ value, label }: { value: number | string; label: string }) {
-  return <Stack flex={1} alignItems="center" gap={2} style={styles.statistic}><Typography style={styles.count}>{value}</Typography><Typography variant="caption" color="text.secondary">{label}</Typography></Stack>
+  return (
+    <Stack flex={1} alignItems="center" gap={1} style={styles.statistic}>
+      <Typography style={styles.count}>{value}</Typography>
+      <Typography variant="caption" color="text.secondary">{label}</Typography>
+    </Stack>
+  )
 }
 
 const styles = StyleSheet.create({
