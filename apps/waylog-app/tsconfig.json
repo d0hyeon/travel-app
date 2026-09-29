@@ -3,9 +3,9 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
+      "~*": ["./src/*"],
       "~/shared/components/design-system": ["./src/shared/components/design-system/index.ts"],
       "~/shared/components/design-system/*": ["./src/shared/components/design-system/*"],
-      "~app/routes": ["./src/app/routes.ts"]
     }
   }
 }
