@@ -231,19 +231,18 @@ eslint.config.js                # 레포 전역 lint 설정 + 의존성
 | App ↔ WebView protocol·host·client | `@waylog/bridge` |
 | 컴포넌트, 라우팅, 애니메이션, raw 스토리지, 디바이스 권한 | 각 앱 |
 
-`@waylog/bridge`의 contract는 정적 capability space만 소유한다. Native feature는 자신의
-lifecycle에 맞춰 host handler를 등록하고 해제한다. 따라서 구버전 앱이 method를 모르면
-`supports()`는 false이며, 지원하는 앱에서도 현재 handler가 없으면 unavailable error가 된다.
-`useBridgeHandler`류 React 등록 훅은 패키지가 아니라 각 앱이 소유한다(`packages/bridge`는
-React에 의존하지 않는다) — 앱은 `apps/waylog-app/src/shared/bridge/useBridgeHandlers.ts`에서
-여러 handler를 한 effect로 등록·해제한다.
+`@waylog/bridge`의 contract는 정적 capability space만 소유한다. 앱은 WebView host를 만들 때
+resolver를 함께 등록하고, host는 실제 등록된 method만 capability로 알린다. `bridge-init`/`bridge-info`
+교환은 연결 상태가 아니라 웹 번들과 설치 앱의 bridge version 호환성을 확인하기 위한 것이다.
+`ready()`는 bridge-info를 10초 안에 받지 못하면 unavailable로 끝나므로 구버전 앱에서 설정 화면이
+영구 로딩되지 않는다. WebView 초기 메시지는 host 구독 전까지 큐잉한다.
 
 `getAuthTokens`·`notifyAuthSignedOut`은 설정 웹뷰가 앱의 Supabase 세션을 그대로 쓰기 위한
-capability다. 웹은 `bridgeClient.ready()`(네이티브 transport가 없으면 즉시 reject) 성공 시에만
-`getAuthTokens()`로 access/refresh token을 받아 `supabase.auth.setSession()`에 주입한다
-(`apps/waylog-web/src/shared/bridge/useWebviewSession.ts`). 일반 브라우저에서는 이 흐름이
-실패로 끝나고 기존 localStorage 세션을 그대로 쓴다 — 같은 SPA, 같은 Supabase client
-싱글턴이며 웹뷰 전용 client를 별도로 만들지 않는다. `AuthService`도 `readTokens()`를
+capability다. bridge client는 실제 `ReactNativeWebView` 환경에서만 생성되며, 웹은
+`bridgeClient.ready()` 성공 후 `getAuthTokens()`로 access/refresh token을 받아
+`supabase.auth.setSession()`에 주입한다 (`apps/waylog-web/src/shared/bridge/useWebviewSession.ts`).
+일반 브라우저에서는 bridge를 생성하지 않고 기존 localStorage 세션을 그대로 쓴다 — 같은 SPA,
+같은 Supabase client 싱글턴이며 웹뷰 전용 client를 별도로 만들지 않는다. `AuthService`도 `readTokens()`를
 추가로 노출하지만 `readSession()`(도메인 계층이 쓰는 `AuthUser`)과 분리되어 있어 토큰이
 도메인 계층으로 새지 않는다.
 
