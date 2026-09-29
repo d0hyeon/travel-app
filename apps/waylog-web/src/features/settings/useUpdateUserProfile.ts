@@ -1,6 +1,6 @@
 import { updateUserProfile, userProfileKey, type UserProfileUpdate } from '@waylog/domains/modules/user-profile'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { bridgeClient } from '~shared/bridge/bridgeClient'
+import { getWebViewBridge } from '~shared/bridge/bridgeClient'
 
 export function useUpdateUserProfile(userId: string) {
   const queryClient = useQueryClient()
@@ -8,9 +8,10 @@ export function useUpdateUserProfile(userId: string) {
   const mutation = useMutation({
     mutationFn: (patch: UserProfileUpdate) => updateUserProfile(userId, patch),
     onSuccess: async () => {
+      const { client } = getWebViewBridge()
       queryClient.invalidateQueries({ queryKey: [userProfileKey, userId] })
       queryClient.invalidateQueries({ queryKey: ['user', userId] })
-      await bridgeClient.refetchQueries({ queryKeys: [[userProfileKey, userId], ['user', userId]] }).catch(() => undefined)
+      await client?.refetchQueries({ queryKeys: [[userProfileKey, userId], ['user', userId]] }).catch(() => undefined)
     },
   })
 

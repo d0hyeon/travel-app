@@ -1,31 +1,27 @@
-import { supabase } from '@waylog/domains/clients'
-import { useEffect, useState } from 'react'
-import { bridgeClient } from './bridgeClient'
+import { supabase } from "@waylog/domains/clients";
+import { useAsyncEffect } from "@waylog/react";
+import { useState } from "react";
+import { getWebViewBridge } from "./bridgeClient";
 
-type WebviewSessionState = 'checking' | 'native' | 'browser'
+export function useSyncAppSession() {
+  const { isInWebView, client: bridgeClient } = getWebViewBridge();
+  const [isLoading, setIsLoading] = useState(bridgeClient != null);
 
-export function useWebviewSession(): WebviewSessionState {
-  const [state, setState] = useState<WebviewSessionState>('checking')
+  useAsyncEffect(async () => {
+    if (!isInWebView) return;
 
-  useEffect(() => {
-    let cancelled = false
-
-    bridgeClient
-      .ready()
-      .then(async () => {
-        const { accessToken, refreshToken } = await bridgeClient.getAuthTokens({})
-        const { error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
-        if (error) throw error
-        if (!cancelled) setState('native')
-      })
-      .catch(() => {
-        if (!cancelled) setState('browser')
-      })
-
-    return () => {
-      cancelled = true
+    try {
+      await bridgeClient.ready();
+      const { accessToken, refreshToken } = await bridgeClient.getAuthTokens();
+      const { error } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      });
+      if (error) throw error;
+    } finally {
+      setIsLoading(false);
     }
-  }, [])
+  }, []);
 
-  return state
+  return { isLoading };
 }

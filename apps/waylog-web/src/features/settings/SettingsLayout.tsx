@@ -1,11 +1,11 @@
 import { Box, CircularProgress } from '@mui/material'
 import { Outlet } from 'react-router'
-import { useWebviewSession } from '~shared/bridge/useWebviewSession'
+import { useSyncAppSession } from '~shared/bridge/useWebviewSession'
 
 export default function SettingsLayout() {
-  const sessionState = useWebviewSession()
+  const { isLoading } = useSyncAppSession()
 
-  if (sessionState === 'checking') {
+  if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
         <CircularProgress size={28} />
