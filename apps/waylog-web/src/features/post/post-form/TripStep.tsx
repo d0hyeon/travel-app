@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { BottomArea } from '~shared/components/BottomArea'
 import { useTrips } from '@waylog/domains/modules/trip'
 import type { Trip } from '@waylog/domains/modules/trip'
+import { LocationThumbnail } from '~features/location/LocationThumbnail'
 
 interface Props {
   defaultValue: string | null
@@ -110,19 +111,15 @@ function TripCard({ trip, selected, onSelect }: { trip: Trip; selected: boolean;
     <SelectableCard selected={selected} onSelect={onSelect}>
       <Box
         sx={{
-          width: 52,
-          height: 52,
           borderRadius: '10px',
-          background: gradientFor(trip.id),
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           flexShrink: 0,
+          overflow: 'hidden'
         }}
       >
-        <Typography sx={{ fontSize: 18, fontWeight: 700, color: 'rgba(255,255,255,0.95)' }}>
-          {trip.name?.[0] ?? '?'}
-        </Typography>
+        <LocationThumbnail location={trip.destinations} width={52} height={52} />
       </Box>
       <Stack flex={1} minWidth={0}>
         <Typography
@@ -243,14 +240,6 @@ function formatTripMeta(start: string, end: string): string {
   const days = Math.max(0, Math.round((endMs - startMs) / (1000 * 60 * 60 * 24)))
   const duration = days === 0 ? '당일' : `${days}박 ${days + 1}일`
   return `${compress(start)} – ${compress(end)} · ${duration}`
-}
-
-function gradientFor(id: string): string {
-  let h = 0
-  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0
-  const a = Math.abs(h) % 360
-  const b = (a + 40) % 360
-  return `linear-gradient(135deg, hsl(${a} 60% 65%), hsl(${b} 60% 50%))`
 }
 
 const BOTTOM_AREA_HEIGHT = 84
