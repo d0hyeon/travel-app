@@ -16,7 +16,7 @@ export const VARIANT_STYLE = StyleSheet.create({
   body1: { fontSize: 16, lineHeight: 20, fontWeight: '700', fontFamily: 'SUIT-Bold' },
   body2: { fontSize: 14, lineHeight: 18, fontWeight: '700', fontFamily: 'SUIT-Bold' },
 
-  caption: { fontSize: 11, lineHeight: 16, fontWeight: '700', fontFamily: 'SUIT-Bold' },
+  caption: { fontSize: 11, lineHeight: 14, fontWeight: '700', fontFamily: 'SUIT-Bold' },
 })
 
 // fontWeight prop 으로 넘어온 값을 로드된 SUIT family 이름으로 치환한다.

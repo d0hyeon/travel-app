@@ -46,7 +46,7 @@ export function TripTransportList({ tripId, onTransportPress }: Props) {
         <Typography variant="subtitle1" style={styles.emptyTitle}>
           탑승권을 등록해보세요
         </Typography>
-        <Typography color="text.secondary" textAlign="center" style={styles.emptyDescription}>
+        <Typography variant="body2" color="text.secondary" textAlign="center" style={styles.emptyDescription}>
           탑승 전, 여정 변동(지연, 결항, 탑승구 변경)등{`\n`}중요한 상황을 놓치지 않도록 알려드려요
         </Typography>
         <Button
