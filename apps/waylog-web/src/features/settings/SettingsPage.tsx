@@ -5,22 +5,15 @@ import { List, ListItemButton, ListItemIcon, ListItemText, Stack, Typography } f
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { signOut } from '@waylog/domains/clients'
-import { getWebViewBridge } from '~shared/bridge/bridgeClient'
 
 export default function SettingsPage() {
   const navigate = useNavigate()
-  const { client } = getWebViewBridge()
   const [isSigningOut, setIsSigningOut] = useState(false)
 
   const handleSignOut = async () => {
     setIsSigningOut(true)
     try {
       await signOut();
-      if (client) {
-        await client.notifyAuthSignedOut().catch(() => undefined)
-        await client.closeWebView().catch(() => undefined)
-        return
-      }
       navigate('/login', { replace: true })
     } finally {
       setIsSigningOut(false)
