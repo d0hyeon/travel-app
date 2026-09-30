@@ -17,6 +17,7 @@ import { CommonErrorBoundary } from '~shared/components/CommonErrorBoundary'
 import '~shared/index.css'
 import '~shared/reset.css'
 import { AppInitializer } from './AppInitializer'
+import { WebSignUpGate } from '~features/auth/WebSignUpGate'
 import { SplashScreen } from './SplashScreen'
 import { ToastRenderer } from './ToastRenderer'
 import { APP_ROOT_NODE_CLASS } from './constants'
@@ -74,7 +75,9 @@ export default function Root() {
               <SearchParamProvider>
                 <Suspense fallback={<SplashScreen />}>
                   <AuthErrorBoundary onSessionExpired={navigateToLogin}>
-                    <Outlet />
+                    <WebSignUpGate>
+                      <Outlet />
+                    </WebSignUpGate>
                   </AuthErrorBoundary>
                 </Suspense>
               </SearchParamProvider>
