@@ -1095,7 +1095,16 @@ CREATE POLICY "photos_delete" ON "public"."photos" FOR DELETE USING ("public"."c
 
 
 
-CREATE POLICY "photos_select" ON "public"."photos" FOR SELECT USING ((("is_public" = true) OR "public"."can_access_trip"("trip_id")));
+CREATE POLICY "photos_select" ON "public"."photos" FOR SELECT USING (
+  (
+    "is_public" = true
+    AND NOT EXISTS (
+      SELECT 1 FROM "public"."user_blocks" "b"
+      WHERE "b"."blocker_id" = "auth"."uid"() AND "b"."blocked_id" = "photos"."user_id"
+    )
+  )
+  OR "public"."can_access_trip"("trip_id")
+);
 
 
 
@@ -1663,12 +1672,17 @@ CREATE TABLE IF NOT EXISTS "public"."reports" (
     "detail" "text",
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     CONSTRAINT "reports_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "reports_detail_length" CHECK (("char_length"("detail") <= 500)),
     CONSTRAINT "reports_reporter_target_key" UNIQUE ("reporter_id", "target_type", "target_id"),
     CONSTRAINT "reports_reporter_id_fkey" FOREIGN KEY ("reporter_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE
 );
 
 ALTER TABLE "public"."reports" OWNER TO "postgres";
 ALTER TABLE "public"."reports" ENABLE ROW LEVEL SECURITY;
+
+CREATE INDEX "reports_target_idx" ON "public"."reports" USING "btree" ("target_type", "target_id");
+
+REVOKE ALL ON TABLE "public"."reports" FROM "anon", "authenticated";
 
 CREATE POLICY "reports_insert" ON "public"."reports" FOR INSERT TO "authenticated" WITH CHECK (("reporter_id" = "auth"."uid"()));
 
@@ -1687,6 +1701,10 @@ CREATE TABLE IF NOT EXISTS "public"."user_blocks" (
 
 ALTER TABLE "public"."user_blocks" OWNER TO "postgres";
 ALTER TABLE "public"."user_blocks" ENABLE ROW LEVEL SECURITY;
+
+CREATE INDEX "user_blocks_blocked_id_idx" ON "public"."user_blocks" USING "btree" ("blocked_id");
+
+REVOKE ALL ON TABLE "public"."user_blocks" FROM "anon", "authenticated";
 
 CREATE POLICY "user_blocks_select" ON "public"."user_blocks" FOR SELECT TO "authenticated" USING (("blocker_id" = "auth"."uid"()));
 CREATE POLICY "user_blocks_insert" ON "public"."user_blocks" FOR INSERT TO "authenticated" WITH CHECK (("blocker_id" = "auth"."uid"()));
