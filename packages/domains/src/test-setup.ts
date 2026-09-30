@@ -9,6 +9,7 @@ const authService: AuthService = {
   signIn: async () => {},
   signInWithProvider: async () => true,
   signOut: async () => {},
+  requestAppleAuthorizationCode: async () => undefined,
   onAuthStateChange: () => () => {},
 }
 

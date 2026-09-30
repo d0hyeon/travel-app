@@ -89,6 +89,14 @@ export function createAuthService(client: SupabaseClient<Database>): AuthService
       if (exchangeError) throw exchangeError
       return true
     },
+    async requestAppleAuthorizationCode() {
+      const { data, error } = await client.auth.getUser()
+      if (error) throw error
+      if (data.user.app_metadata.provider !== 'apple') return undefined
+
+      const credential = await AppleAuthentication.signInAsync({ requestedScopes: [] })
+      return credential.authorizationCode ?? undefined
+    },
     async signOut() {
       const { error } = await client.auth.signOut()
       if (error) throw error

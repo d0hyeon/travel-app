@@ -38,6 +38,9 @@ export function createAuthService(client: SupabaseClient<Database>): AuthService
       // 브라우저가 그대로 인증 페이지로 떠나므로 취소를 돌려받을 지점이 없다.
       return true
     },
+    async requestAppleAuthorizationCode() {
+      return undefined
+    },
     async signOut() {
       const { error } = await client.auth.signOut()
       if (error) throw error

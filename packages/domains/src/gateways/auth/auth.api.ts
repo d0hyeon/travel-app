@@ -19,3 +19,10 @@ export async function cancelSignUp() {
   if (error) throw error
   await getAuthService().signOut()
 }
+
+export async function deleteAccount() {
+  const appleAuthorizationCode = await getAuthService().requestAppleAuthorizationCode()
+  const { error } = await supabase.functions.invoke('delete-account', { body: { appleAuthorizationCode } })
+  if (error) throw error
+  await getAuthService().signOut()
+}

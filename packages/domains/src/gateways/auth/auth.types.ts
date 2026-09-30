@@ -13,5 +13,6 @@ export interface AuthService {
   /** 사용자가 인증 창을 닫으면 false. 세션이 생기면 true. */
   signInWithProvider(input: { provider: AuthProvider; redirectTo: string }): Promise<boolean>
   signOut(): Promise<void>
+  requestAppleAuthorizationCode(): Promise<string | undefined>
   onAuthStateChange(callback: (session: AuthSession | null) => void): () => void
 }
