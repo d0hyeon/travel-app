@@ -32,8 +32,7 @@ export function ProfileRecordsTab({ userId }: Props) {
   const [selected, selectLocation] = useState<VisitedLocation | null>(null)
 
   const { data: domesticPolygons = {} } = useLocationsCoordinates(
-    domestic.map(v => ({ id: v.location, location: v.location })),
-    'city',
+    domestic.map(v => v.location)
   )
 
   return (
