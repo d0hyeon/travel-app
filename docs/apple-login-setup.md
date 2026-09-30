@@ -48,3 +48,9 @@ supabase secrets set APPLE_TEAM_ID=<Team ID> APPLE_KEY_ID=<Key ID> APPLE_CLIENT_
 - 시크릿이 없으면 철회를 건너뛰고 삭제만 한다.
 - 웹 Apple 로그인은 인가 코드를 앱이 받지 못해 철회하지 않는다.
 - 이 경로는 실제 Apple 계정과 시크릿 없이는 검증하지 못했다. 배포 전에 실기기에서 로그인 → 거절 → Apple ID 설정의 "Apple로 로그인 사용 앱" 목록에서 사라지는지 확인한다.
+
+## 회원 탈퇴 시 Apple 인가 철회
+
+설정의 '회원 탈퇴'는 삭제 전에 앱이 Apple 로 재인증해 새 `authorizationCode` 를 받고, `delete-account` 함수가 이를 토큰으로 교환해 철회한다.
+가입 취소 때 쓰는 5분 제한 문제가 없다. 시크릿(`APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_CLIENT_ID`, `APPLE_PRIVATE_KEY`)은 `cancel-sign-up` 과 함께 쓴다.
+재인증 화면에서 사용자가 취소하면 탈퇴는 진행되지 않는다. 웹 Apple 로그인 사용자는 철회하지 않는다.
