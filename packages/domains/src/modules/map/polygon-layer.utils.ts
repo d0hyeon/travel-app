@@ -108,3 +108,5 @@ function resolveCoordinateLevel(
 
   return "city";
 }
+
+export { fetchWorldBoundaries, getCountryCoordinateGroups };

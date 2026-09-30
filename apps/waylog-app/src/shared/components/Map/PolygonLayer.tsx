@@ -6,14 +6,18 @@ import type {
   PolygonStyleProps,
 } from '@waylog/domains/modules/map'
 import {
-  getCountryPolygonCoordinateGroups,
   getRegionPolygonPaint,
+  fetchWorldBoundaries as loadWorldBoundaries,
   type RegionPolygonPaint,
+  getCountryCoordinateGroups,
 } from '@waylog/domains/modules/map'
 import type { Coordinate } from '@waylog/utility'
 import Mapbox from '@rnmapbox/maps'
 import { getLocationCoordinates } from './getLocationCoordinates'
 import { useMapContext } from './MapContext'
+import { CountryCode } from '@waylog/domains/modules/location'
+import { withPersistentCache } from '~shared/modules/persistent-cache/withPersistentCache'
+import { createFileStorage } from '~shared/modules/persistent-cache/createFileStorage'
 
 const PolygonLayerStyleContext = createContext<PolygonStyleProps | null>(null)
 
@@ -24,6 +28,7 @@ export function PolygonLayer({ children, color, opacity, strokeColor }: PolygonL
     </PolygonLayerStyleContext>
   )
 }
+
 
 export function Polygon(props: MapPolygonProps & { id?: string; paint?: RegionPolygonPaint }) {
   const defaults = use(PolygonLayerStyleContext)
@@ -141,4 +146,21 @@ function closePolygon(coordinates: Coordinate[]) {
   if (!first || !last) return coordinates
   if (first.lat === last.lat && first.lng === last.lng) return coordinates
   return [...coordinates, first]
+}
+
+const fetchWorldBoundaries = withPersistentCache(loadWorldBoundaries, {
+  storage: createFileStorage('world-boundaries'),
+  key: () => 'world-boundaries'
+})
+async function getCountryPolygonCoordinateGroups(
+  country: string,
+): Promise<Coordinate[][][]> {
+  if (!(country in CountryCode)) return [];
+  const world = await fetchWorldBoundaries();
+
+  return getCountryCoordinateGroups(
+    world,
+    country,
+    CountryCode[country as keyof typeof CountryCode],
+  );
 }
