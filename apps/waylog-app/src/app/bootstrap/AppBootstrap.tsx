@@ -64,9 +64,7 @@ function useAutoBundleUpdate() {
       }
     }
 
-    downloadOrApply()
-      .then(() => status.resolve())
-      .catch(() => status.reject())
+    downloadOrApply().finally(() => status.resolve())
   }, [])
 
   return useMemo(() => {
