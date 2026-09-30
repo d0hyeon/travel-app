@@ -10,3 +10,7 @@ WHERE "terms_version" IS NULL;
 ALTER TABLE "public"."user_profiles"
     ALTER COLUMN "terms_version" SET NOT NULL,
     ALTER COLUMN "terms_agreed_at" SET NOT NULL;
+
+ALTER TABLE "public"."user_profiles"
+    ALTER COLUMN "terms_version" SET DEFAULT 'legacy',
+    ALTER COLUMN "terms_agreed_at" SET DEFAULT now();

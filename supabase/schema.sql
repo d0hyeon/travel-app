@@ -713,8 +713,8 @@ CREATE TABLE IF NOT EXISTS "public"."user_profiles" (
     "name" "text" DEFAULT ''::"text" NOT NULL,
     "avatar_url" "text",
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "terms_version" "text" NOT NULL,
-    "terms_agreed_at" timestamp with time zone NOT NULL
+    "terms_version" "text" DEFAULT 'legacy'::"text" NOT NULL,
+    "terms_agreed_at" timestamp with time zone DEFAULT "now"() NOT NULL
 );
 
 

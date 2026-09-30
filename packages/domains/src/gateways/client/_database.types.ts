@@ -1093,8 +1093,8 @@ export type Database = {
           created_at?: string
           id: string
           name?: string
-          terms_agreed_at: string
-          terms_version: string
+          terms_agreed_at?: string
+          terms_version?: string
         }
         Update: {
           avatar_url?: string | null
