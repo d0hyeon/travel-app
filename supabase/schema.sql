@@ -95,7 +95,7 @@ ALTER FUNCTION "public"."has_blocked"("target_user" "uuid") OWNER TO "postgres";
 
 CREATE OR REPLACE FUNCTION "public"."can_view_post"("post_visibility" "public"."post_visibility", "post_author" "uuid", "post_trip" "uuid") RETURNS boolean
     LANGUAGE "sql" STABLE SECURITY DEFINER
-    SET "search_path" TO ''
+    SET "search_path" TO 'public'
     AS $$
   SELECT
     (
