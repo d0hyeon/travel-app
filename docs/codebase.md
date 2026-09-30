@@ -348,7 +348,7 @@ src/
 │   │   ├── useAuth.ts
 │   │   ├── useWebPushSubscription.ts
 │   │   ├── LoginPage.tsx          # 카카오·Apple 로그인 버튼
-│   │   ├── SignUpConsent.tsx      # 가입 대기 사용자의 약관 동의 화면 (AuthGuardLayout 의 SignUpGate fallback)
+│   │   ├── SignUpConsent.tsx      # 가입 대기 사용자의 약관 동의 화면 (루트 `WebSignUpGate`가 `/terms`·`/privacy` 외 전 라우트를 감싼다)
 │   │   ├── AuthNavigate.tsx
 │   │   └── AuthErrorBoundary.tsx  # 세션 만료(AuthError) 시 로그인 화면으로 리다이렉트
 │   │                              # 앱 대응: waylog-app/src/features/auth/AuthErrorBoundary.tsx
