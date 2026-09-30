@@ -5,6 +5,7 @@ import { getAuth } from "@waylog/domains/clients";
 import { assert } from "@waylog/utility";
 
 export const postKey = "posts";
+export const postDetailKey = "post-detail";
 export const postLikeKey = "post-likes";
 
 type PostRow = DataRaw<"posts">;

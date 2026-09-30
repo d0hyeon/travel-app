@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Trip } from '../trip.types'
-import { getTripProgress, groupTripsByStatus } from '../tripList.utils'
+import { getTripProgress, groupTripsByStatus } from '../trip.utils'
 
 afterEach(() => {
   vi.useRealTimers()

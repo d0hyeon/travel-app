@@ -1,5 +1,6 @@
 import { supabase, type CreateDataType } from '../../gateways/client'
 import type { UserProfile } from '../user-profile'
+import { TERMS_VERSION } from '../terms'
 
 export const userProfileKey = 'user-profile'
 
@@ -27,6 +28,16 @@ export async function getUserProfileById(id: string): Promise<UserProfile | null
   return toUserProfile(data)
 }
 
+export async function getUserProfilesByIds(ids: string[]): Promise<UserProfile[]> {
+  const { data, error } = await supabase
+    .from('user_profiles')
+    .select('id, name, avatar_url')
+    .in('id', ids)
+
+  if (error) throw error
+  return (data ?? []).map(toUserProfile)
+}
+
 export interface UserProfileUpdate {
   name?: string
   profileUrl?: string
@@ -48,20 +59,20 @@ export async function updateUserProfile(id: string, patch: UserProfileUpdate): P
   return toUserProfile(data)
 }
 
-interface CreateProfilePayload {
+interface SignUpPayload {
   id: string
   name?: string
   avatar?: string
 }
 
-const UNIQUE_VIOLATION = '23505'
+export async function signUp({ id, name, avatar }: SignUpPayload) {
+  const { error } = await supabase.from('user_profiles').insert({
+    id,
+    name: name ?? '',
+    avatar_url: avatar,
+    terms_version: TERMS_VERSION,
+    terms_agreed_at: new Date().toISOString(),
+  } satisfies CreateDataType<'user_profiles'>)
 
-// 로그인 이벤트는 신규 가입과 재로그인을 구분하지 못해 매 로그인마다 호출된다.
-// 이미 프로필이 있으면 사용자가 수정한 값을 덮어쓰지 않도록 삽입만 시도하고 중복은 넘긴다.
-export async function createProfileIfAbsent({ id, name, avatar }: CreateProfilePayload) {
-  const { error } = await supabase
-    .from('user_profiles')
-    .insert({ id, name: name ?? '', avatar_url: avatar } satisfies CreateDataType<'user_profiles'>)
-
-  if (error != null && error.code !== UNIQUE_VIOLATION) throw error
+  if (error) throw error
 }

@@ -59,7 +59,7 @@ function ResolvedPostDetail() {
           </Pressable>
           <Typography variant="subtitle1" style={styles.headerTitle}>포스트</Typography>
         </Stack>
-        <PostMenu postId={postId} onDelete={() => navigation.goBack()} />
+        <PostMenu postId={postId} onDelete={() => navigation.goBack()} onBlock={() => navigation.goBack()} />
       </Stack>
 
       <ScrollView

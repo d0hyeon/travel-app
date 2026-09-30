@@ -5,6 +5,7 @@ import { PostVisibility } from './post.types'
 import type { Post, PostPhoto, PostPlace } from './post.types'
 
 export const postKey = 'posts'
+export const postDetailKey = 'post-detail'
 export const postLikeKey = 'post-likes'
 
 type PostRow = DataRaw<'posts'>

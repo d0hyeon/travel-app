@@ -16,6 +16,7 @@ const config: ExpoConfig = {
   ios: {
     supportsTablet: true,
     bundleIdentifier: "me.waylog.app",
+    usesAppleSignIn: true,
     config: { googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY },
     /** 플랜 등록 후 주석 해제 */
     // associatedDomains: ["applinks:waylog.me", "applinks:www.waylog.me"],
@@ -38,6 +39,7 @@ const config: ExpoConfig = {
   scheme: "waylog",
   plugins: [
     "expo-web-browser",
+    "expo-apple-authentication",
     [
       "@rnmapbox/maps",
       {
@@ -53,6 +55,14 @@ const config: ExpoConfig = {
           "./assets/fonts/SUIT-Bold.ttf",
           "./assets/fonts/SUIT-Heavy.ttf",
         ],
+      },
+    ],
+    [
+      "expo-location",
+      {
+        locationWhenInUsePermission: "지도에 내 위치를 표시하고 가까운 장소를 찾기 위해 위치를 사용합니다.",
+        locationAlwaysAndWhenInUsePermission: "지도에 내 위치를 표시하고 가까운 장소를 찾기 위해 위치를 사용합니다.",
+        locationAlwaysPermission: "지도에 내 위치를 표시하고 가까운 장소를 찾기 위해 위치를 사용합니다.",
       },
     ],
     [

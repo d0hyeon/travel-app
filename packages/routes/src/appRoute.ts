@@ -16,10 +16,13 @@ export const AppRoute = {
   유저_프로필: "/u/:userId",
   설정: "/settings",
   계정_설정: "/settings/profile",
+  차단_목록: "/settings/blocks",
   포스트_생성: "/post/new",
   포스트_상세: "/post/:postId",
   어드민_여행_목록: "/admin/trips",
   장소_최다방문순: "/explorer/top-visited",
   장소_급상승: "/explorer/recent-hot",
   장소_저장순: "/explorer/most-saved",
+  이용약관: "/terms",
+  개인정보처리방침: "/privacy",
 } as const

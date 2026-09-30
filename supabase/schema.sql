@@ -52,6 +52,12 @@ CREATE TYPE "public"."post_visibility" AS ENUM (
 );
 
 
+CREATE TYPE "public"."report_reason" AS ENUM ('spam', 'inappropriate', 'harassment', 'other');
+
+
+CREATE TYPE "public"."report_target_type" AS ENUM ('post', 'user');
+
+
 ALTER TYPE "public"."post_visibility" OWNER TO "postgres";
 
 
@@ -75,13 +81,29 @@ $$;
 ALTER FUNCTION "public"."can_access_trip"("trip_id" "uuid") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."has_blocked"("target_user" "uuid") RETURNS boolean
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.user_blocks b
+    WHERE b.blocker_id = auth.uid() AND b.blocked_id = target_user
+  );
+$$;
+
+ALTER FUNCTION "public"."has_blocked"("target_user" "uuid") OWNER TO "postgres";
+
 CREATE OR REPLACE FUNCTION "public"."can_view_post"("post_visibility" "public"."post_visibility", "post_author" "uuid", "post_trip" "uuid") RETURNS boolean
-    LANGUAGE "sql" SECURITY DEFINER
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+    SET "search_path" TO 'public'
     AS $$
   SELECT
-    post_visibility = 'PUBLIC'
-    OR post_author = auth.uid()
-    OR (post_visibility = 'MEMBERS' AND post_trip IS NOT NULL AND can_access_trip(post_trip));
+    (
+      post_visibility = 'PUBLIC'
+      OR post_author = auth.uid()
+      OR (post_visibility = 'MEMBERS' AND post_trip IS NOT NULL AND public.can_access_trip(post_trip))
+    )
+    AND NOT public.has_blocked(post_author);
 $$;
 
 
@@ -690,7 +712,9 @@ CREATE TABLE IF NOT EXISTS "public"."user_profiles" (
     "id" "uuid" NOT NULL,
     "name" "text" DEFAULT ''::"text" NOT NULL,
     "avatar_url" "text",
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "terms_version" "text" DEFAULT 'legacy'::"text" NOT NULL,
+    "terms_agreed_at" timestamp with time zone DEFAULT "now"() NOT NULL
 );
 
 
@@ -923,12 +947,12 @@ ALTER TABLE ONLY "public"."photos"
 
 
 ALTER TABLE ONLY "public"."photos"
-    ADD CONSTRAINT "photos_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
+    ADD CONSTRAINT "photos_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
 
 
 
 ALTER TABLE ONLY "public"."post_comments"
-    ADD CONSTRAINT "post_comments_author_id_fkey" FOREIGN KEY ("author_id") REFERENCES "auth"."users"("id");
+    ADD CONSTRAINT "post_comments_author_id_fkey" FOREIGN KEY ("author_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
 
 
 
@@ -993,7 +1017,7 @@ ALTER TABLE ONLY "public"."trip_messages"
 
 
 ALTER TABLE ONLY "public"."trip_messages"
-    ADD CONSTRAINT "trip_messages_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id");
+    ADD CONSTRAINT "trip_messages_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
 
 
 
@@ -1045,11 +1069,11 @@ CREATE POLICY "Users can upsert own push subscriptions" ON "public"."push_subscr
 
 
 
-CREATE POLICY "authenticated users can insert messages" ON "public"."trip_messages" FOR INSERT WITH CHECK (("auth"."uid"() = "user_id"));
+CREATE POLICY "trip_messages_insert" ON "public"."trip_messages" FOR INSERT TO "authenticated" WITH CHECK ((("auth"."uid"() = "user_id") AND "public"."can_access_trip"("trip_id")));
 
 
 
-CREATE POLICY "authenticated users can read messages" ON "public"."trip_messages" FOR SELECT USING (("auth"."uid"() IS NOT NULL));
+CREATE POLICY "trip_messages_select" ON "public"."trip_messages" FOR SELECT TO "authenticated" USING ("public"."can_access_trip"("trip_id"));
 
 
 
@@ -1081,7 +1105,10 @@ CREATE POLICY "photos_delete" ON "public"."photos" FOR DELETE USING ("public"."c
 
 
 
-CREATE POLICY "photos_select" ON "public"."photos" FOR SELECT USING ((("is_public" = true) OR "public"."can_access_trip"("trip_id")));
+CREATE POLICY "photos_select" ON "public"."photos" FOR SELECT USING (
+  (("is_public" = true) OR "public"."can_access_trip"("trip_id"))
+  AND NOT "public"."has_blocked"("user_id")
+);
 
 
 
@@ -1449,6 +1476,12 @@ GRANT ALL ON FUNCTION "public"."can_view_post"("post_visibility" "public"."post_
 
 
 
+GRANT ALL ON FUNCTION "public"."has_blocked"("target_user" "uuid") TO "anon";
+GRANT ALL ON FUNCTION "public"."has_blocked"("target_user" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."has_blocked"("target_user" "uuid") TO "service_role";
+
+
+
 GRANT ALL ON FUNCTION "public"."get_explored_places"("since_date" "date") TO "anon";
 GRANT ALL ON FUNCTION "public"."get_explored_places"("since_date" "date") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."get_explored_places"("since_date" "date") TO "service_role";
@@ -1640,32 +1673,109 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TAB
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "service_role";
 
 
+CREATE TABLE IF NOT EXISTS "public"."reports" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "reporter_id" "uuid" NOT NULL,
+    "target_type" "public"."report_target_type" NOT NULL,
+    "target_id" "uuid" NOT NULL,
+    "reason" "public"."report_reason" NOT NULL,
+    "detail" "text",
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    CONSTRAINT "reports_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "reports_detail_length" CHECK (("char_length"("detail") <= 500)),
+    CONSTRAINT "reports_reporter_target_key" UNIQUE ("reporter_id", "target_type", "target_id"),
+    CONSTRAINT "reports_reporter_id_fkey" FOREIGN KEY ("reporter_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE
+);
+
+ALTER TABLE "public"."reports" OWNER TO "postgres";
+ALTER TABLE "public"."reports" ENABLE ROW LEVEL SECURITY;
+
+CREATE INDEX "reports_target_idx" ON "public"."reports" USING "btree" ("target_type", "target_id");
+
+CREATE POLICY "reports_insert" ON "public"."reports" FOR INSERT TO "authenticated" WITH CHECK (("reporter_id" = "auth"."uid"()));
+
+REVOKE ALL ON TABLE "public"."reports" FROM "anon", "authenticated";
+GRANT INSERT ON TABLE "public"."reports" TO "authenticated";
+GRANT ALL ON TABLE "public"."reports" TO "service_role";
+
+CREATE TABLE IF NOT EXISTS "public"."user_blocks" (
+    "blocker_id" "uuid" NOT NULL,
+    "blocked_id" "uuid" NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    CONSTRAINT "user_blocks_pkey" PRIMARY KEY ("blocker_id", "blocked_id"),
+    CONSTRAINT "user_blocks_not_self" CHECK (("blocker_id" <> "blocked_id")),
+    CONSTRAINT "user_blocks_blocker_id_fkey" FOREIGN KEY ("blocker_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE,
+    CONSTRAINT "user_blocks_blocked_id_fkey" FOREIGN KEY ("blocked_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE
+);
+
+ALTER TABLE "public"."user_blocks" OWNER TO "postgres";
+ALTER TABLE "public"."user_blocks" ENABLE ROW LEVEL SECURITY;
+
+CREATE INDEX "user_blocks_blocked_id_idx" ON "public"."user_blocks" USING "btree" ("blocked_id");
+
+CREATE POLICY "user_blocks_select" ON "public"."user_blocks" FOR SELECT TO "authenticated" USING (("blocker_id" = "auth"."uid"()));
+CREATE POLICY "user_blocks_insert" ON "public"."user_blocks" FOR INSERT TO "authenticated" WITH CHECK (("blocker_id" = "auth"."uid"()));
+CREATE POLICY "user_blocks_delete" ON "public"."user_blocks" FOR DELETE TO "authenticated" USING (("blocker_id" = "auth"."uid"()));
+
+REVOKE ALL ON TABLE "public"."user_blocks" FROM "anon", "authenticated";
+GRANT SELECT, INSERT, DELETE ON TABLE "public"."user_blocks" TO "authenticated";
+GRANT ALL ON TABLE "public"."user_blocks" TO "service_role";
 
 
+CREATE OR REPLACE FUNCTION "public"."prepare_account_deletion"("target_user" "uuid") RETURNS "text"[]
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+DECLARE
+  owned_trip record;
+  successor uuid;
+  storage_paths text[] := '{}';
+BEGIN
+  FOR owned_trip IN SELECT t.id FROM public.trips t WHERE t.user_id = target_user LOOP
+    SELECT m.user_id INTO successor
+    FROM public.trip_members m
+    WHERE m.trip_id = owned_trip.id AND m.user_id <> target_user
+    ORDER BY m.created_at
+    LIMIT 1;
 
+    IF successor IS NOT NULL THEN
+      UPDATE public.trips SET user_id = successor WHERE id = owned_trip.id;
+    ELSE
+      storage_paths := storage_paths
+        || ARRAY(SELECT p.storage_path FROM public.photos p WHERE p.trip_id = owned_trip.id)
+        || ARRAY(
+          SELECT regexp_replace(k.image, '^https?://[^/]+/', '')
+          FROM public.trip_transport_tickets k
+          JOIN public.trip_transports r ON r.id = k.transport_id
+          WHERE r.trip_id = owned_trip.id AND k.image IS NOT NULL
+        );
+      DELETE FROM public.trips WHERE id = owned_trip.id;
+    END IF;
+  END LOOP;
 
+  storage_paths := storage_paths
+    || ARRAY(SELECT p.storage_path FROM public.photos p WHERE p.user_id = target_user)
+    || ARRAY(
+      SELECT pp.storage_path
+      FROM public.post_photos pp
+      JOIN public.posts po ON po.id = pp.post_id
+      WHERE po.author_id = target_user
+    )
+    || ARRAY(
+      SELECT regexp_replace(k.image, '^https?://[^/]+/', '')
+      FROM public.trip_transport_tickets k
+      JOIN public.trip_members m ON m.id = k.member_id
+      WHERE m.user_id = target_user AND k.image IS NOT NULL
+    );
 
+  DELETE FROM public.trip_transport_tickets k
+  USING public.trip_members m
+  WHERE m.id = k.member_id AND m.user_id = target_user;
 
+  RETURN ARRAY(SELECT DISTINCT unnest(storage_paths));
+END;
+$$;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ALTER FUNCTION "public"."prepare_account_deletion"("target_user" "uuid") OWNER TO "postgres";
+REVOKE ALL ON FUNCTION "public"."prepare_account_deletion"("target_user" "uuid") FROM PUBLIC, "anon", "authenticated";
+GRANT EXECUTE ON FUNCTION "public"."prepare_account_deletion"("target_user" "uuid") TO "service_role";

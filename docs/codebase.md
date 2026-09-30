@@ -90,6 +90,8 @@ TicketViewer 내부의 `ConfirmDialog`와 `ActionSheet`다. 공용 `Button`도 T
 /post/:postId                  → PostDetailPage
 /admin/trips                   → (어드민 여행 목록)
 /login                         → LoginPage
+/terms                         → TermsOfServicePage (공개, 앱은 웹뷰로 연다)
+/privacy                       → PrivacyPolicyPage (공개, 앱은 웹뷰로 연다)
 *                              → NotFound
 ```
 
@@ -345,7 +347,8 @@ src/
 │   │   ├── auth.api.ts
 │   │   ├── useAuth.ts
 │   │   ├── useWebPushSubscription.ts
-│   │   ├── LoginPage.tsx
+│   │   ├── LoginPage.tsx          # 카카오·Apple 로그인 버튼
+│   │   ├── SignUpConsent.tsx      # 가입 대기 사용자의 약관 동의 화면 (루트 `WebSignUpGate`가 `/terms`·`/privacy` 외 전 라우트를 감싼다)
 │   │   ├── AuthNavigate.tsx
 │   │   └── AuthErrorBoundary.tsx  # 세션 만료(AuthError) 시 로그인 화면으로 리다이렉트
 │   │                              # 앱 대응: waylog-app/src/features/auth/AuthErrorBoundary.tsx
@@ -1315,8 +1318,13 @@ ref 로 붙잡아야 끌던 도중 스냅이 바뀌어도 제스처가 갈아끼
 | 계절 인기 지역       | `features/tourism-trend/`, `features/explorer/explorer-seasonal-regions/` |
 | 피드/포스트          | `features/post/FeedPage.tsx`, `features/post/post-form-funnel/`          |
 | 사용자 프로필        | `features/user-profile/UserProfilePage.tsx`                       |
-| 설정 (내정보 변경·로그아웃) | 웹 `features/settings/`(SettingsPage·SettingsProfilePage, 진입 라우트만 `@waylog/routes`의 `설정`, 하위 `/settings/profile`은 로컬 상수). 앱은 `features/settings/SettingsWebViewScreen.tsx`로 이 웹 라우트를 웹뷰로 띄우기만 한다 — 별도 네이티브 UI 없음 |
+| 설정 (내정보 변경·로그아웃) | 웹 `features/settings/`(SettingsPage·SettingsProfilePage, 진입 라우트만 `@waylog/routes`의 `설정`, 하위 `/settings/profile`은 로컬 상수). 앱은 네이티브 `features/settings/SettingsScreen.tsx`(내 정보 변경·차단한 사용자·로그아웃)이 진입점이고, 로그아웃은 `signOut` 뒤 `navigation.reset`으로 로그인 화면으로 초기화한다. `SettingsWebViewScreen.tsx`는 웹 설정 라우트를 웹뷰로 띄운다 |
+| 회원 탈퇴 | 설정의 '회원 탈퇴'(웹 `SettingsPage`, 앱 `SettingsScreen`)가 `deleteAccount()`를 호출한다. Edge Function `delete-account`가 DB 함수 `prepare_account_deletion`으로 소유한 여행을 정리하고(다른 멤버가 있으면 가장 먼저 참여한 멤버에게 소유권 이전, 없으면 삭제), 사용자의 티켓과 삭제 대상 파일 경로를 모은 뒤 `auth.users`를 지운다. 게시물·사진·댓글·채팅은 FK CASCADE 로 함께 삭제되고, 저장 파일(R2)은 계정 삭제 뒤 지운다(실패해도 탈퇴는 유지). Apple 계정은 앱에서 삭제 전에 재인증해 새 인가 코드로 철회한다(`requestAppleAuthorizationCode`). 웹은 철회하지 않는다 |
+| 신고·차단 | DB: `reports`(insert 전용, 조회는 service_role), `user_blocks`(본인 행만), `can_view_post`·`photos_select` 가 차단한 작성자를 제외. 도메인: `@waylog/domains/modules/report`(`submitReport`, `useSubmitReport`, `ReportTarget`)·`user-block`(`blockUser`·`unblockUser`·`useBlockedUsers`; 차단 변경 뒤 게시물 상세 외 쿼리를 모두 무효화). 웹: `features/report/`(ReportDialog·useReportDialog), `features/post/PostMenu.tsx`, `features/user-profile/UserProfileMenu.tsx`, `features/settings/BlockedUsersPage.tsx`(`/settings/blocks`). 앱: `features/report/`(ReportSheet·useReportSheet), `features/post/PostMenu.tsx`, `features/user-profile/UserProfileMenu.tsx`, `features/settings/BlockedUsersScreen.tsx`(`차단_목록`). 운영 절차는 `docs/moderation.md` |
 | 통계                 | `features/statistics/StatisticsPage.tsx`                          |
+| 약관·처리방침        | 웹 `features/legal/`(TermsOfServicePage·PrivacyPolicyPage·`legal.config.ts`의 운영자 정보). 시행일은 `@waylog/domains/modules/terms`의 `TERMS_VERSION`. 앱은 `features/auth/LegalDocumentModal.tsx`가 웹 라우트를 웹뷰로 띄운다 |
+| 가입·약관 동의       | 가입 완료 = `user_profiles` 행 존재(`terms_version`·`terms_agreed_at` 포함). 세션은 있으나 프로필이 없으면 `usePendingSignUp`이 사용자를 돌려주고 `SignUpGate`가 동의 화면(웹 `SignUpConsent`, 앱 `SignUpConsentScreen`)을 그린다. 동의는 `useSignUp()`이 `signUp`으로 프로필을 만든다. 거절은 `cancelSignUp()`이 Edge Function `cancel-sign-up`으로 방금 만들어진 `auth.users`를 지우고 로그아웃한다(프로필이 있으면 거부). 약관 버전이 바뀌면 재동의 흐름은 아직 없다 |
+| Apple 로그인         | `AuthProvider`에 `apple`. 웹은 Supabase OAuth, 앱은 `expo-apple-authentication`의 토큰을 `signInWithIdToken`으로 교환(`waylog-app/src/supabase-auth.ts`). 콘솔 설정은 `docs/apple-login-setup.md` |
 | 지도 (공통)          | `shared/components/Map/` (kakao / google 구현 분기)               |
 | 사진 업로드          | `shared/components/photo/PhotoUploader.tsx`                       |
 | 사진 상세 뷰어       | 웹 `shared/components/photo/PhotoBottomSheet.tsx`(모바일)·`PhotoDialog.tsx`(데스크탑), 앱 `shared/components/photo/PhotoBottomSheet.tsx`. 웹·앱 모두 여행 탭과 장소 탭이 같은 뷰어를 공유하며, `onDelete`·`onUpdate`·`places` 를 넘긴 만큼만 편집 UI 가 켜진다 |

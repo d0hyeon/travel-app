@@ -615,6 +615,36 @@ export type Database = {
         }
         Relationships: []
       }
+      reports: {
+        Row: {
+          created_at: string
+          detail: string | null
+          id: string
+          reason: Database["public"]["Enums"]["report_reason"]
+          reporter_id: string
+          target_id: string
+          target_type: Database["public"]["Enums"]["report_target_type"]
+        }
+        Insert: {
+          created_at?: string
+          detail?: string | null
+          id?: string
+          reason: Database["public"]["Enums"]["report_reason"]
+          reporter_id: string
+          target_id: string
+          target_type: Database["public"]["Enums"]["report_target_type"]
+        }
+        Update: {
+          created_at?: string
+          detail?: string | null
+          id?: string
+          reason?: Database["public"]["Enums"]["report_reason"]
+          reporter_id?: string
+          target_id?: string
+          target_type?: Database["public"]["Enums"]["report_target_type"]
+        }
+        Relationships: []
+      }
       routes: {
         Row: {
           created_at: string
@@ -1031,24 +1061,48 @@ export type Database = {
         }
         Relationships: []
       }
+      user_blocks: {
+        Row: {
+          blocked_id: string
+          blocker_id: string
+          created_at: string
+        }
+        Insert: {
+          blocked_id: string
+          blocker_id: string
+          created_at?: string
+        }
+        Update: {
+          blocked_id?: string
+          blocker_id?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
       user_profiles: {
         Row: {
           avatar_url: string | null
           created_at: string
           id: string
           name: string
+          terms_agreed_at: string
+          terms_version: string
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
           id: string
           name?: string
+          terms_agreed_at?: string
+          terms_version?: string
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
           id?: string
           name?: string
+          terms_agreed_at?: string
+          terms_version?: string
         }
         Relationships: []
       }
@@ -1228,6 +1282,8 @@ export type Database = {
     }
     Enums: {
       post_visibility: "PRIVATE" | "MEMBERS" | "PUBLIC"
+      report_reason: "spam" | "inappropriate" | "harassment" | "other"
+      report_target_type: "post" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1359,6 +1415,8 @@ export const Constants = {
   public: {
     Enums: {
       post_visibility: ["PRIVATE", "MEMBERS", "PUBLIC"],
+      report_reason: ["spam", "inappropriate", "harassment", "other"],
+      report_target_type: ["post", "user"],
     },
   },
 } as const

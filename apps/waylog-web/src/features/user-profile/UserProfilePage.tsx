@@ -12,6 +12,7 @@ import { ProfileStatStrip } from './ProfileStatStrip'
 import { useScrollContainer } from '~shared/hooks/interaction/useScrollRestore'
 import SettingsIcon from '@mui/icons-material/Settings';
 import { useAuth } from '@waylog/domains/clients'
+import { UserProfileMenu } from './UserProfileMenu'
 
 const TABS = ['feed', 'records'] as const
 type Tab = typeof TABS[number];
@@ -50,10 +51,12 @@ export default function UserProfilePage() {
       <Container maxWidth="md" sx={{ paddingX: '0px !important' }}>
         <Stack direction="row" alignItems="center" justifyContent="space-between" py={1}>
           <ProfileHeader userId={userId} />
-          {currentUserId === userId && (
+          {currentUserId === userId ? (
             <IconButton onClick={() => navigate('/settings')}>
               <SettingsIcon />
             </IconButton>
+          ) : (
+            <UserProfileMenu userId={userId} />
           )}
 
         </Stack>
