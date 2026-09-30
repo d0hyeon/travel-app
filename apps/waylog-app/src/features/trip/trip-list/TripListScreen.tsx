@@ -31,7 +31,7 @@ export function TripListScreen() {
         contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top, paddingBottom: insets.bottom + 120 }]}
         showsVerticalScrollIndicator={false}
       >
-        <Typography style={styles.pageTitle}>
+        <Typography variant="h5" style={styles.pageTitle}>
           내 여행
         </Typography>
 
@@ -141,7 +141,6 @@ const styles = StyleSheet.create({
   },
   pageTitle: {
     fontSize: 26,
-    fontWeight: '900',
     paddingVertical: 18,
   },
   tripSections: {

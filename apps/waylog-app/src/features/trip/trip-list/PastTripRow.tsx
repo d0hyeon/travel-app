@@ -76,7 +76,6 @@ const styles = StyleSheet.create({
   },
   tripNameInline: {
     fontSize: 14,
-    fontWeight: '900',
     flexShrink: 1,
   },
   tripName: {
