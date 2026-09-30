@@ -690,7 +690,9 @@ CREATE TABLE IF NOT EXISTS "public"."user_profiles" (
     "id" "uuid" NOT NULL,
     "name" "text" DEFAULT ''::"text" NOT NULL,
     "avatar_url" "text",
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "terms_version" "text" NOT NULL,
+    "terms_agreed_at" timestamp with time zone NOT NULL
 );
 
 
