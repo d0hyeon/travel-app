@@ -7,12 +7,12 @@ import type {
 } from '@waylog/domains/modules/map'
 import {
   getCountryPolygonCoordinateGroups,
-  getLocationCoordinates,
   getRegionPolygonPaint,
   type RegionPolygonPaint,
 } from '@waylog/domains/modules/map'
 import type { Coordinate } from '@waylog/utility'
 import Mapbox from '@rnmapbox/maps'
+import { getLocationCoordinates } from './getLocationCoordinates'
 import { useMapContext } from './MapContext'
 
 const PolygonLayerStyleContext = createContext<PolygonStyleProps | null>(null)

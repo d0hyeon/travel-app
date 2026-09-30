@@ -1,8 +1,8 @@
 import { useQueries } from "@tanstack/react-query";
 import { getCoordinateBounds, normalizeCoordsToCanvas, pointsToPath } from "@waylog/domains/modules/community-route";
 import { isLocation } from "@waylog/domains/modules/location";
-import { getLocationCoordinates } from "@waylog/domains/modules/map";
 import { Coordinate } from "@waylog/utility";
+import { getLocationCoordinates } from "~shared/components/Map/getLocationCoordinates";
 import { Fragment, ReactNode } from "react";
 import Svg, { Path, Rect } from "react-native-svg";
 
