@@ -18,7 +18,7 @@ function useRefreshAfterBlockChange() {
   const queryClient = useQueryClient()
 
   return async () => {
-    await queryClient.invalidateQueries({ predicate: (query) => !isPostDetailQuery(query) })
+    await queryClient.invalidateQueries({ predicate: (query) => !isPostDetailQuery(query), refetchType: 'all' })
     await queryClient.invalidateQueries({ predicate: isPostDetailQuery, refetchType: 'none' })
   }
 }
