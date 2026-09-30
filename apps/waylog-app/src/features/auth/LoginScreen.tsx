@@ -1,7 +1,8 @@
-import { signInWithEmail, signInWithKakao } from '@waylog/domains/clients'
+import { signInWithApple, signInWithEmail, signInWithKakao } from '@waylog/domains/clients'
+import * as AppleAuthentication from 'expo-apple-authentication'
 import * as Linking from 'expo-linking'
 import { useState } from 'react'
-import { ActivityIndicator, Image, StyleSheet, View } from 'react-native'
+import { ActivityIndicator, Image, Platform, StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Svg, { Path } from 'react-native-svg'
 import { Button, Divider, Stack, TextField, Typography } from '~/shared/components/design-system'
@@ -31,11 +32,11 @@ export function LoginScreen() {
   const [error, setError] = useState<string | null>(null)
   const [isPending, setIsPending] = useState(false)
 
-  async function handleKakaoLogin() {
+  async function handleSignIn(signIn: (input: { redirectTo: string }) => Promise<boolean>) {
     setError(null)
     setIsPending(true)
     try {
-      const isSignedIn = await signInWithKakao({ redirectTo: Linking.createURL('auth/callback') })
+      const isSignedIn = await signIn({ redirectTo: Linking.createURL('auth/callback') })
       // 성공하면 세션 변경이 이 화면을 곧바로 걷어낸다. 여기서 대기 상태를 풀면
       // 언마운트 직전에 버튼이 한 번 되살아난다. 취소는 화면이 그대로 남으므로 풀어준다.
       if (!isSignedIn) setIsPending(false)
@@ -66,12 +67,22 @@ export function LoginScreen() {
         size="large"
         disabled={isPending}
         startIcon={isPending ? <ActivityIndicator size="small" color={KAKAO_LABEL_COLOR} /> : <KakaoSymbol />}
-        onPress={() => void handleKakaoLogin()}
+        onPress={() => void handleSignIn(signInWithKakao)}
         style={styles.kakaoButton}
         textStyle={styles.kakaoLabel}
       >
         카카오로 로그인
       </Button>
+
+      {Platform.OS === 'ios' && (
+        <AppleAuthentication.AppleAuthenticationButton
+          buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+          buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+          cornerRadius={radius.md}
+          onPress={() => void handleSignIn(signInWithApple)}
+          style={styles.appleButton}
+        />
+      )}
 
       {error != null && (
         <Typography variant="body2" color="error" textAlign="center">
@@ -147,5 +158,6 @@ const styles = StyleSheet.create({
   // Button 의 fullWidth 는 flex:1 이라 세로 컨테이너에서는 높이까지 늘어난다. 가로만 채운다.
   kakaoButton: { alignSelf: 'stretch', backgroundColor: KAKAO_BRAND_COLOR },
   kakaoLabel: { color: KAKAO_LABEL_COLOR },
+  appleButton: { alignSelf: 'stretch', height: 48, marginTop: 12 },
   devSection: { alignSelf: 'stretch', marginTop: 24 },
 })
