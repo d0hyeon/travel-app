@@ -1,77 +1,168 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import * as ImagePicker from 'expo-image-picker'
-import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
-import { StyleSheet, Pressable, ScrollView, View, useWindowDimensions } from 'react-native'
+import { usePrevValue } from '@waylog/react'
+import { useEffect, useRef, useState } from 'react'
+import { LayoutChangeEvent, LayoutRectangle, NativeScrollEvent, NativeSyntheticEvent, ScrollView, StyleSheet, View } from 'react-native'
+import { Gesture, GestureDetector } from 'react-native-gesture-handler'
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
+import { scheduleOnRN } from 'react-native-worklets'
+import { Box, Button, Stack } from '~/shared/components/design-system'
 import { BottomArea } from '../../../../shared/components/BottomArea'
 import { LoadableImage } from '../../../../shared/components/LoadableImage'
-import { Button, Skeleton, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../../shared/config/tokens'
-import { useTripPhotos } from '../../../trip/trip-photo/useTripPhotos'
+import { LibraryPhoto } from '../../../../shared/modules/photo-library/usePhotoLibrary'
 import type { PostFormPhoto } from '../postFormFunnel.types'
+import { PhotoPicker } from './PhotoPicker'
+import { useScrollGesture } from './useScrollGesture'
 
-export function PhotoStep({ tripId, defaultValue, onNext }: { tripId: string | null; defaultValue: PostFormPhoto[]; onNext: (photos: PostFormPhoto[]) => void }) {
-  const [availablePhotos, setAvailablePhotos] = useState<PostFormPhoto[]>(defaultValue.filter((photo) => photo.savedPhotoId == null))
-  const [selectedIds, setSelectedIds] = useState(defaultValue.map((photo) => photo.id))
-  const selectedPhotos = availablePhotos.filter((photo) => selectedIds.includes(photo.id))
-  const addSavedPhotos = useCallback((photos: PostFormPhoto[]) => setAvailablePhotos((current) => mergePhotos(current, photos)), [])
+export function PhotoStep({ tripId, defaultValue, onNext }: { tripId?: string; defaultValue: PostFormPhoto[]; onNext: (photos: PostFormPhoto[]) => void }) {
+  const [selectedPhotos, setPhotos] = useState<LibraryPhoto[]>(defaultValue)
 
-  const addLocalPhotos = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsMultipleSelection: true, exif: true, quality: 1 })
-    if (result.canceled) return
-    const additions = result.assets.map((asset) => ({ id: asset.assetId ?? asset.uri, uri: asset.uri, placeId: null }))
-    setAvailablePhotos((current) => [...current, ...additions.filter((addition) => !current.some((photo) => photo.id === addition.id))])
-    setSelectedIds((current) => [...new Set([...current, ...additions.map((photo) => photo.id)])])
-  }
+  const collapsed = useSharedValue(false);
+  const scrollHandlers = useScrollGesture({
+    onScrollStart: () => collapsed.set(true),
+    onScrollOver: () => collapsed.set(false),
+  })
 
-  const toggle = (photo: PostFormPhoto) => setSelectedIds((current) => current.includes(photo.id) ? current.filter((id) => id !== photo.id) : [...current, photo.id])
+  const [previewSize, handleLayout] = useLayoutSize({ once: true })
+  const previewStyle = useAnimatedStyle(() => {
+    if (previewSize == null) return {}
+    return ({
+      height: withTiming(
+        collapsed.value
+          ? previewSize.width / 2
+          : previewSize.width,
+      ),
+    })
+  })
+
+  const handlePreviewPress = () => collapsed.set(false);
+  const tapGesture = Gesture.Tap().maxDistance(10)
+    .onEnd((_event, success) => {
+      if (success) {
+        scheduleOnRN(handlePreviewPress)
+      }
+    })
 
   return (
     <View style={styles.screen}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <SelectedPhotoPreview photos={selectedPhotos} />
-        <Pressable onPress={() => void addLocalPhotos()} style={styles.addPhotos}><Typography color="primary">+ 사진 추가</Typography></Pressable>
-        {tripId != null && <Suspense fallback={<PhotoGridSkeleton />}><SavedTripPhotos tripId={tripId} onLoad={addSavedPhotos} /></Suspense>}
-        <PhotoGrid photos={availablePhotos} selectedIds={selectedIds} onToggle={toggle} />
-      </ScrollView>
-      <BottomArea position="static" style={styles.actions}><Button variant="contained" size="large" fullWidth disabled={selectedPhotos.length === 0} onPress={() => onNext(selectedPhotos)}>다음 ({selectedPhotos.length}장)</Button></BottomArea>
+      <View style={styles.content}>
+        <Animated.View style={previewStyle} onLayout={handleLayout}>
+          <GestureDetector gesture={tapGesture}>
+            <View collapsable={false} style={{ flex: 1 }}>
+              <PhotoPreview photos={selectedPhotos} />
+            </View>
+          </GestureDetector>
+        </Animated.View>
+        <View style={{ flex: 1, height: '100%' }}>
+          <PhotoPicker tripId={tripId} onSelect={setPhotos} onScroll={scrollHandlers} />
+        </View>
+      </View>
+      <BottomArea position="static" style={styles.actions}>
+        <Button
+          variant="contained"
+          size="large"
+          fullWidth
+          disabled={selectedPhotos.length === 0}
+          onPress={() => onNext(selectedPhotos)}
+        >
+          다음 ({selectedPhotos.length}장)
+        </Button>
+      </BottomArea>
     </View>
   )
 }
 
-function SavedTripPhotos({ tripId, onLoad }: { tripId: string; onLoad: (photos: PostFormPhoto[]) => void }) {
-  const { data } = useTripPhotos(tripId)
-  const photos = useMemo(() => data.map((photo) => ({ id: photo.id, savedPhotoId: photo.id, uri: photo.url, placeId: photo.placeId })), [data])
-  useEffect(() => onLoad(photos), [onLoad, photos])
-  return null
+function useLayoutSize(options?: { once?: boolean }) {
+  const [layout, setLayout] = useState<LayoutRectangle | null>(null);
+  const handleLayout = (event: LayoutChangeEvent) => {
+    if (options?.once && layout != null) return;
+    setLayout(event.nativeEvent.layout)
+  }
+
+  return [layout, handleLayout] as const;
 }
 
-function SelectedPhotoPreview({ photos }: { photos: PostFormPhoto[] }) {
-  const [firstPhoto] = photos
-  if (firstPhoto == null) return <View style={styles.photoPlaceholder}><MaterialIcons name="photo-library" size={44} color={palette.textSecondary} /></View>
-  return <LoadableImage source={{ uri: firstPhoto.uri }} style={styles.photo} resizeMode="cover" />
+function PhotoPreview({ photos }: { photos: LibraryPhoto[] }) {
+  const [width, setWidth] = useState<number | null>(null);
+  const [pageIndex, setPageIndex] = useState(0);
+
+  const handleMomentumScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (width == null) return;
+    if (width <= 0) return
+    const nextIndex = Math.round(event.nativeEvent.contentOffset.x / width)
+    setPageIndex(nextIndex)
+  }
+
+  const ref = useRef<ScrollView>(null)
+  const prevLength = usePrevValue(photos.length);
+
+  useEffect(() => {
+    if (width == null) return;
+
+    if (prevLength < photos.length || pageIndex >= photos.length) {
+      const nextIndex = photos.length - 1;
+      ref.current?.scrollTo({ x: width * nextIndex, animated: true });
+      setPageIndex(nextIndex);
+    }
+  }, [photos.length]);
+
+
+  if (photos.length === 0) {
+    return (
+      <View style={[styles.photoPlaceholder, { height: '100%' }]}>
+        <MaterialIcons name="photo-library" size={44} color={palette.textSecondary} />
+      </View>
+    )
+  }
+
+  return (
+    <View style={styles.previewContainer}>
+      <ScrollView
+        ref={ref}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onMomentumScrollEnd={handleMomentumScrollEnd}
+        onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
+      >
+
+        {photos.map((photo) => (
+          <Stack key={`preview-${photo.uri}`} style={{ width, height: '100%', }}>
+            <LoadableImage source={{ uri: photo.uri }} style={{ height: '100%' }} resizeMode='contain' />
+          </Stack>
+        ))}
+
+      </ScrollView>
+      {photos.length > 1 && (
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="center"
+          style={styles.pagination}
+        >
+          {photos.map((photo, index) => (
+            <Box
+              key={`preview-pagenation-${photo.uri}=${index}`}
+              style={[styles.paginationDot, { width: index === pageIndex ? 6 : 5, height: index === pageIndex ? 6 : 5, backgroundColor: index === pageIndex ? palette.primary : 'rgba(255,255,255,0.5)' }]}
+            />
+          ))}
+        </Stack>
+      )}
+    </View>
+  )
 }
 
-function PhotoGrid({ photos, selectedIds, onToggle }: { photos: PostFormPhoto[]; selectedIds: string[]; onToggle: (photo: PostFormPhoto) => void }) {
-  const { width } = useWindowDimensions()
-  const size = (width - 36) / 3
-  return <View style={styles.photoGrid}>{photos.map((photo, index) => { const selected = selectedIds.includes(photo.id); return <Pressable key={photo.id} accessibilityRole="button" accessibilityLabel={`사진 ${index + 1}`} accessibilityState={{ selected }} onPress={() => onToggle(photo)}><LoadableImage source={{ uri: photo.uri }} style={{ width: size, height: size }} resizeMode="cover" />{selected && <View style={styles.selectedOverlay}><MaterialIcons name="check-circle" size={24} color="#fff" /></View>}</Pressable> })}</View>
-}
-
-function PhotoGridSkeleton() { return <View style={styles.previews}>{Array.from({ length: 3 }).map((_, index) => <Skeleton key={index} width="33%" height={112} />)}</View> }
-
-function mergePhotos(current: PostFormPhoto[], additions: PostFormPhoto[]) {
-  const newPhotos = additions.filter((addition) => !current.some((photo) => photo.id === addition.id))
-  return newPhotos.length === 0 ? current : [...current, ...newPhotos]
-}
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  content: { padding: 16, gap: 12, paddingBottom: 24 },
-  addPhotos: { height: 48, borderWidth: 1, borderStyle: 'dashed', borderColor: palette.divider, alignItems: 'center', justifyContent: 'center' },
+  content: { padding: 16, gap: 12, paddingBottom: 24, flex: 1 },
   actions: { borderTopWidth: 1, borderTopColor: palette.divider },
-  photoPlaceholder: { aspectRatio: 1, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderStyle: 'dashed', borderColor: palette.divider },
-  photo: { width: '100%', aspectRatio: 1 },
+  photoPlaceholder: { alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderStyle: 'dashed', borderColor: palette.divider, borderRadius: 16 },
+
   photoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 2 },
   selectedOverlay: { position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.35)', alignItems: 'flex-end', justifyContent: 'flex-end', padding: 8 },
   previews: { flexDirection: 'row', gap: 2 },
+  previewContainer: { position: 'relative', height: '100%', width: '100%', borderWidth: 1, borderStyle: 'solid', borderColor: palette.divider, borderRadius: 16 },
+  pagination: { position: 'absolute', bottom: 8, left: 0, right: 0, gap: 4 },
+  paginationDot: { borderRadius: 3, backgroundColor: palette.primary },
 })

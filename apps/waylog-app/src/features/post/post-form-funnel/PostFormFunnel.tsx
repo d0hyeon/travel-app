@@ -59,7 +59,7 @@ export function PostFormFunnel({ startStep = 'trip', defaultValue, onStepChange,
           {({ navigation }) => (
             <StepBoundary step="photo" onFocus={onStepChange}>
               <PhotoStep
-                tripId={values.tripId}
+                tripId={values.tripId ?? undefined}
                 defaultValue={values.photos}
                 onNext={(photos: PostFormPhoto[]) => {
                   update({ photos })

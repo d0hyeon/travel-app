@@ -3,10 +3,13 @@ import { PostVisibility, useCreatePost } from '@waylog/domains/modules/post'
 import { useEffect, useState } from 'react'
 import { useAppNavigation, useAppRoute } from '../../shared/hooks/useAppNavigation'
 import { AppRoute } from '../../app/AppRoute'
-import { uploadPostPhoto } from '../photo/photo.api'
+import { Photo, uploadPostPhoto } from '../photo/photo.api'
 import { PostFormFunnel } from './post-form-funnel/PostFormFunnel'
 import type { PostFormStep, PostFormValues } from './post-form-funnel/postFormFunnel.types'
 import { RequireAuthRedirect } from '../auth/auth-redirect'
+import { queryClient } from '~shared/query-client'
+import { useTripPhotos } from '~features/trip/trip-photo/useTripPhotos'
+import { resolvePhotoUri } from '~shared/modules/photo-library/usePhotoLibrary'
 
 export type PostNewParams = { tripId?: string }
 
@@ -38,15 +41,21 @@ function ResolvedPostCreationScreen() {
     navigation.setOptions({ gestureEnabled: step === startStep })
   }, [navigation, step, startStep])
 
-  const uploadPhotos = (values: PostFormValues) => {
+  const uploadPhotos = async (values: PostFormValues) => {
+    const tripPhotos = values.tripId != null
+      ? await getTripPhotos(values.tripId)
+      : [];
+
     return Promise.all(
       values.photos.map(async (photo) => {
-        const result = await uploadPostPhoto(values.tripId, photo.uri);
+        const fileURI = await resolvePhotoUri(photo.uri);
+        const result = await uploadPostPhoto(values.tripId, fileURI);
+        const savedPhoto = tripPhotos.find(tripPhoto => tripPhoto.id === photo.id);
 
         return {
           ...result,
-          placeId: photo.placeId,
-          savedPhotoId: photo.savedPhotoId,
+          placeId: savedPhoto?.placeId,
+          savedPhotoId: savedPhoto?.id,
           isPublic: values.visibility !== PostVisibility.PRIVATE,
         }
       })
@@ -71,4 +80,10 @@ function ResolvedPostCreationScreen() {
       onSubmit={handleSubmit}
     />
   )
+}
+
+function getTripPhotos(tripId: string) {
+  return queryClient.ensureQueryData<Photo[]>({
+    queryKey: useTripPhotos.key(tripId)
+  })
 }
