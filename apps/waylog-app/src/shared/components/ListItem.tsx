@@ -17,7 +17,7 @@ interface Props extends StackProps {
   children?: ReactNode
 }
 
-export function ListItem<As extends ElementType = typeof View>({
+export function ListItem<As extends ElementType>({
   leftAddon,
   rightAddon,
   children,
@@ -28,8 +28,6 @@ export function ListItem<As extends ElementType = typeof View>({
   ...props
 }: PropsWithAs<Props, As>) {
   return (
-    // 미해결 제네릭 As 에는 구체 props 를 대입할 수 없다(폴리모픽 컴포넌트의 알려진 제약).
-    // 내부에서만 캐스팅으로 끊고, 호출부 타입은 그대로 지킨다.
     <Stack
       as={as as ElementType}
       gap={gap ?? 0.5}
