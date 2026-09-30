@@ -1,5 +1,4 @@
 import { useBlockedUsers, useBlockUser, useUnblockUser } from '@waylog/domains/modules/user-block'
-import { toast } from 'sonner'
 import { useReportDialog } from '~features/report/useReportDialog'
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { PopMenu } from '~shared/components/PopMenu'
@@ -28,7 +27,6 @@ export function UserProfileMenu({ userId }: Props) {
             <PopMenu.Item
               onClick={async () => {
                 await unblockUser(userId)
-                toast.success('차단을 해제했어요')
               }}
             >
               차단 해제
@@ -37,9 +35,8 @@ export function UserProfileMenu({ userId }: Props) {
             <PopMenu.Item
               color="error"
               onClick={async () => {
-                if (await confirm('이 사용자를 차단할까요?\n이 사용자의 게시물이 더 이상 보이지 않아요.')) {
+                if (await confirm('이 사용자를 차단할까요?')) {
                   await blockUser(userId)
-                  toast.success('차단했어요')
                 }
               }}
             >

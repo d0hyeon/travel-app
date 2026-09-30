@@ -1,5 +1,4 @@
 import { useBlockedUsers, useBlockUser, useUnblockUser } from '@waylog/domains/modules/user-block'
-import { Alert } from 'react-native'
 import { useConfirmDialog } from '../../shared/components/confirm-dialog/useConfirmDialog'
 import { PopMenu } from '../../shared/components/PopMenu'
 import { useReportSheet } from '../report/useReportSheet'
@@ -23,7 +22,6 @@ export function UserProfileMenu({ userId }: { userId: string }) {
             <PopMenu.Item
               onPress={async () => {
                 await unblockUser(userId)
-                Alert.alert('차단을 해제했어요')
               }}
             >
               차단 해제
@@ -32,9 +30,8 @@ export function UserProfileMenu({ userId }: { userId: string }) {
             <PopMenu.Item
               color="error"
               onPress={async () => {
-                if (await confirm('이 사용자를 차단할까요?', { description: '이 사용자의 게시물이 더 이상 보이지 않아요.' })) {
+                if (await confirm('이 사용자를 차단할까요?')) {
                   await blockUser(userId)
-                  Alert.alert('차단했어요')
                 }
               }}
             >
