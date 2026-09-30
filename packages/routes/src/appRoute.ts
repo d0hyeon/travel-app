@@ -22,4 +22,6 @@ export const AppRoute = {
   장소_최다방문순: "/explorer/top-visited",
   장소_급상승: "/explorer/recent-hot",
   장소_저장순: "/explorer/most-saved",
+  이용약관: "/terms",
+  개인정보처리방침: "/privacy",
 } as const
