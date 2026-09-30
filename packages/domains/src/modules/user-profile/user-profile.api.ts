@@ -28,6 +28,16 @@ export async function getUserProfileById(id: string): Promise<UserProfile | null
   return toUserProfile(data)
 }
 
+export async function getUserProfilesByIds(ids: string[]): Promise<UserProfile[]> {
+  const { data, error } = await supabase
+    .from('user_profiles')
+    .select('id, name, avatar_url')
+    .in('id', ids)
+
+  if (error) throw error
+  return (data ?? []).map(toUserProfile)
+}
+
 export interface UserProfileUpdate {
   name?: string
   profileUrl?: string
