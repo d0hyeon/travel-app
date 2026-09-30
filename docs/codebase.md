@@ -126,10 +126,8 @@ apps/
 │   │   │   ├── RootNavigator.tsx # Provider 구성 + NavigationContainer + RootStack (linking 포함)
 │   │   │   ├── bootstrap/      # 부팅 준비 오케스트레이션
 │   │   │   │   ├── AppBootstrap.tsx # 네이티브 스플래시(expo-splash-screen) preventAutoHideAsync 소유.
-│   │   │   │   │                #   useAuth Suspense로 세션 확인이 끝나면 hideAsync, 그 전까지 AppSplashScreen을
-│   │   │   │   │                #   fallback으로 유지. 번들 자동 업데이트(useAutoBundleUpdate)는 부팅을 막지 않는
-│   │   │   │   │                #   백그라운드 정책이라 이 대기 흐름과 분리해 나란히 구동
-│   │   │   │   ├── AppSplashScreen.tsx # JS 스플래시 UI. 네이티브 스플래시(app.config.ts)와 배경색 통일해 전환 시 깜빡임 없앰
+│   │   │   │   │                #   번들 확인·세션 준비·폰트 로딩·최소 노출 시간이 끝나면 hideAsync, 그 전까지는
+│   │   │   │   │                #   화면을 렌더링하지 않고 네이티브 스플래시(app.config.ts, 흰 배경 + logo.png)를 유지
 │   │   │   │   └── useAppBundleManager.ts # 번들 컨트롤러(CodePush 도입 전 자리). checkForUpdate가 항상 null 고정,
 │   │   │   │                    #   applyOnNextRestart는 즉시 적용이 아니라 다음 재시작 적용 예약. 언제 확인·적용할지의
 │   │   │   │                    #   정책은 이 훅이 아니라 AppBootstrap의 useAutoBundleUpdate가 조립

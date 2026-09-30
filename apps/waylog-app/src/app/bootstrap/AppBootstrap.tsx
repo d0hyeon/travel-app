@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState, type PropsWithChildren } from 're
 import SuitBold from '../../../assets/fonts/SUIT-Bold.ttf'
 import SuitHeavy from '../../../assets/fonts/SUIT-Heavy.ttf'
 import SuitRegular from '../../../assets/fonts/SUIT-Regular.ttf'
-import { AppSplashScreen } from './AppSplashScreen'
 import { useAppBundleManager } from './useAppBundleManager'
 import { prepareSession } from '@waylog/domains/clients'
 
@@ -35,9 +34,13 @@ export function AppBootstrap({ children }: PropsWithChildren) {
       })
   }, [])
 
-  if (!isReady || !isFontsLoaded) {
-    return <AppSplashScreen />
-  }
+  const isAppReady = isReady && isFontsLoaded
+
+  useEffect(() => {
+    if (isAppReady) SplashScreen.hideAsync()
+  }, [isAppReady])
+
+  if (!isAppReady) return null
 
   return children;
 }
