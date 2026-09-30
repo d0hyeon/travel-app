@@ -2,15 +2,13 @@ import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
 import { LegalDocumentLayout, LegalSection } from './LegalDocumentLayout'
 import { LEGAL_OPERATOR } from './legal.config'
 
-const UNCONFIRMED = '확인 필요'
-
 const DELEGATES = [
-  { name: 'Supabase', purpose: '데이터베이스·인증', items: UNCONFIRMED, country: UNCONFIRMED },
-  { name: 'Cloudflare R2', purpose: '이미지 저장', items: UNCONFIRMED, country: UNCONFIRMED },
-  { name: 'Google (지도, Cloud Vision)', purpose: '지도 표시, 티켓 이미지 텍스트 추출', items: '티켓 이미지(Cloud Vision)', country: UNCONFIRMED },
-  { name: 'Kakao', purpose: '지도, 장소 검색', items: '장소 검색어, 현재 위치 좌표(장소 검색 시)', country: UNCONFIRMED },
-  { name: 'Vercel', purpose: '웹 호스팅', items: UNCONFIRMED, country: UNCONFIRMED },
-  { name: 'Apple APNs / Google FCM / Web Push', purpose: '푸시 알림 발송', items: '푸시 알림 토큰(구독 정보)', country: UNCONFIRMED },
+  { name: 'Supabase, Inc.', purpose: '데이터베이스·인증', items: '이용자 프로필, 서비스 이용 중 생성한 모든 데이터', country: '미국' },
+  { name: 'Cloudflare, Inc. (R2)', purpose: '이미지 저장', items: '업로드한 사진·이미지', country: '미국' },
+  { name: 'Google LLC (지도, Cloud Vision)', purpose: '지도 표시, 티켓 이미지 텍스트 추출', items: '티켓 이미지, 지도 이용 시 좌표·검색어', country: '미국' },
+  { name: 'Vercel Inc.', purpose: '웹 호스팅', items: '접속 IP 등 접속 기록', country: '미국' },
+  { name: 'Apple Inc. / Google LLC (푸시 알림)', purpose: '푸시 알림 발송', items: '푸시 알림 토큰, 알림 내용', country: '미국' },
+  { name: '주식회사 카카오', purpose: '지도, 장소 검색', items: '장소 검색어, 현재 위치 좌표(장소 검색 시)', country: '대한민국 (국외 이전 아님)' },
 ]
 
 export default function PrivacyPolicyPage() {
@@ -55,6 +53,10 @@ export default function PrivacyPolicyPage() {
           현재 위치 좌표는 이용자의 기기에서 지도 표시와 장소 검색 정확도 향상을 위해 사용됩니다. 장소를 검색할 때
           좌표가 카카오 장소 검색 API로 전달될 수 있으나, 운영자는 이 좌표를 서버에 저장하지 않습니다.
         </Typography>
+        <Typography variant="body2">
+          이용자가 여행에 등록한 장소의 좌표는 서비스에 저장됩니다. 사진에 포함된 위치정보(EXIF)는 사진과 가까운 장소를
+          찾는 데 사용되며, 업로드 시 이미지 크기 조정 과정에서 제거됩니다.
+        </Typography>
       </LegalSection>
 
       <LegalSection heading="5. 교통편 티켓 이미지(OCR) 처리">
@@ -66,8 +68,8 @@ export default function PrivacyPolicyPage() {
 
       <LegalSection heading="6. 개인정보 처리 위탁 및 국외 이전">
         <Typography variant="body2">
-          운영자는 서비스 제공을 위해 아래와 같이 개인정보 처리를 위탁하거나 이전합니다. 표에서 "{UNCONFIRMED}"로
-          표시된 항목은 확정되는 대로 이 방침에 반영합니다.
+          운영자는 서비스 제공을 위해 아래와 같이 개인정보 처리를 위탁하거나 이전합니다. 이전 국가는 수탁자의 소재국
+          기준이며, 데이터가 저장되는 서버 리전이 다른 국가여도 같습니다.
         </Typography>
         <Box component={TableContainer} sx={{ overflowX: 'auto' }}>
           <Table size="small" sx={{ minWidth: 560 }}>
