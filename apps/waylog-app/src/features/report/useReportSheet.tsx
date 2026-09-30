@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { useOverlay } from '~/shared/hooks/useOverlay'
-import { ReportSheet, type ReportTarget } from './ReportSheet'
+import type { ReportTarget } from '@waylog/domains/modules/report'
+import { ReportSheet } from './ReportSheet'
 
 export function useReportSheet() {
   const overlay = useOverlay()

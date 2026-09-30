@@ -1,7 +1,8 @@
 import { useCallback } from 'react';
 import { toast } from 'sonner';
 import { useOverlay } from '~shared/hooks/useOverlay';
-import { ReportDialog, type ReportTarget } from './ReportDialog';
+import type { ReportTarget } from '@waylog/domains/modules/report';
+import { ReportDialog } from './ReportDialog';
 
 export function useReportDialog() {
   const overlay = useOverlay();

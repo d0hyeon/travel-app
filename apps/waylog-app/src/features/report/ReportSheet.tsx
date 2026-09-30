@@ -1,12 +1,11 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { REPORT_REASON_LABELS, useSubmitReport, type ReportInput, type ReportReason } from '@waylog/domains/modules/report'
+import { REPORT_REASON_LABELS, useSubmitReport, type ReportReason, type ReportTarget } from '@waylog/domains/modules/report'
 import { useState } from 'react'
 import { Alert, Pressable, StyleSheet } from 'react-native'
 import { Button, Stack, TextField, Typography } from '~/shared/components/design-system'
 import { BottomSheet } from '~/shared/components/bottom-sheet/BottomSheet'
 import { palette } from '~/shared/config/tokens'
 
-export type ReportTarget = Pick<ReportInput, 'targetType' | 'targetId'>
 
 interface Props {
   isOpen: boolean

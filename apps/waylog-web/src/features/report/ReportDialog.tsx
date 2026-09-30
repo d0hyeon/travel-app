@@ -9,15 +9,15 @@ import {
   styled,
   TextField,
 } from '@mui/material';
-import { REPORT_REASON_LABELS, useSubmitReport, type ReportInput, type ReportReason } from '@waylog/domains/modules/report';
+import { REPORT_REASON_LABELS, useSubmitReport, type ReportReason, type ReportTarget } from '@waylog/domains/modules/report';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { DialogTitle } from '~shared/components/confirm-dialog/DialogTitle';
 
 const DETAIL_MAX_LENGTH = 500;
 
 const REPORT_REASONS = ['spam', 'inappropriate', 'harassment', 'other'] satisfies ReportReason[];
 
-export type ReportTarget = Pick<ReportInput, 'targetType' | 'targetId'>;
 
 interface ReportDialogProps {
   isOpen: boolean;
@@ -34,7 +34,12 @@ export function ReportDialog({ isOpen, target, onSubmitted, onCancel }: ReportDi
   const handleSubmit = async () => {
     if (reason == null) return;
 
-    await submitReport({ ...target, reason, detail: detail.trim() || undefined });
+    try {
+      await submitReport({ ...target, reason, detail: detail.trim() || undefined });
+    } catch {
+      toast.error('신고를 접수하지 못했어요. 잠시 후 다시 시도해 주세요');
+      return;
+    }
     onSubmitted();
   };
 
