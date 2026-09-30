@@ -6,17 +6,17 @@ import { palette } from '../../config/tokens'
 // breakpoints.down('md') 쪽 수치를 쓴다.
 // RN 커스텀 폰트는 fontWeight 를 무시하므로, weight 는 fontFamily 선택으로 표현한다.
 export const VARIANT_STYLE = StyleSheet.create({
-  h4: { fontSize: 24, lineHeight: 34, fontWeight: 900, fontFamily: 'SUIT-Heavy' },
+  h4: { fontSize: 24, lineHeight: 34, fontWeight: 700, fontFamily: 'SUIT-Bold' },
   h5: { fontSize: 20, lineHeight: 28, fontWeight: 700, fontFamily: 'SUIT-Bold' },
   h6: { fontSize: 16, lineHeight: 22, fontWeight: 700, fontFamily: 'SUIT-Bold' },
 
-  subtitle1: { fontSize: 14, lineHeight: 20, fontWeight: '700', fontFamily: 'SUIT-Bold' },
-  subtitle2: { fontSize: 13, lineHeight: 18, fontWeight: '700', fontFamily: 'SUIT-Bold' },
+  subtitle1: { fontSize: 14, lineHeight: 20, fontWeight: 600, fontFamily: 'SUIT-Bold' },
+  subtitle2: { fontSize: 13, lineHeight: 18, fontWeight: 600, fontFamily: 'SUIT-Bold' },
 
-  body1: { fontSize: 16, lineHeight: 20, fontWeight: '700', fontFamily: 'SUIT-Bold' },
-  body2: { fontSize: 14, lineHeight: 18, fontWeight: '700', fontFamily: 'SUIT-Bold' },
+  body1: { fontSize: 16, lineHeight: 20, fontWeight: 500, fontFamily: 'SUIT' },
+  body2: { fontSize: 14, lineHeight: 18, fontWeight: 500, fontFamily: 'SUIT' },
 
-  caption: { fontSize: 11, lineHeight: 14, fontWeight: '700', fontFamily: 'SUIT-Bold' },
+  caption: { fontSize: 11, lineHeight: 14, fontWeight: 500, fontFamily: 'SUIT' },
 })
 
 // fontWeight prop 으로 넘어온 값을 로드된 SUIT family 이름으로 치환한다.
@@ -27,7 +27,6 @@ function resolveFontFamily(fontWeight: TypographyProps['fontWeight']): string {
 
   const numeric = typeof fontWeight === 'number' ? fontWeight : Number(fontWeight)
   if (Number.isNaN(numeric)) return 'SUIT-Bold'
-  if (numeric >= 800) return 'SUIT-Heavy'
   if (numeric >= 600) return 'SUIT-Bold'
   return 'SUIT'
 }
