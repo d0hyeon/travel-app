@@ -1,11 +1,14 @@
 import { Outlet } from "react-router";
 import { AuthNavigate } from "~features/auth/AuthNavigate";
-import { AuthGuard } from "@waylog/domains/clients";
+import { SignUpConsent } from "~features/auth/SignUpConsent";
+import { AuthGuard, SignUpGate } from "@waylog/domains/clients";
 
 export default function AuthGuardLayout() {
   return (
-    <AuthGuard fallback={<AuthNavigate />}>
-      <Outlet />
-    </AuthGuard>
+    <SignUpGate fallback={<SignUpConsent />}>
+      <AuthGuard fallback={<AuthNavigate />}>
+        <Outlet />
+      </AuthGuard>
+    </SignUpGate>
   )
 }
