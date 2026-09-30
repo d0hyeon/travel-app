@@ -51,7 +51,7 @@ export default function TermsOfServicePage() {
           3. 이용자는 자신의 계정을 직접 관리해야 하며, 계정을 타인에게 양도하거나 대여할 수 없습니다.
         </Typography>
         <Typography variant="body2">
-          4. 이용자는 언제든지 문의처로 회원 탈퇴를 요청할 수 있으며, 탈퇴 시 개인정보는 개인정보처리방침에 따라 처리됩니다.
+          4. 이용자는 언제든지 설정의 회원 탈퇴 기능 또는 문의처를 통해 탈퇴할 수 있으며, 탈퇴 시 개인정보는 개인정보처리방침에 따라 처리됩니다.
         </Typography>
         <Typography variant="body2">
           5. 이용자의 이름과 프로필 사진은 다른 이용자와 로그인하지 않은 방문자에게도 공개될 수 있습니다.

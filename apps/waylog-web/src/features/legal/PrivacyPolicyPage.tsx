@@ -97,7 +97,12 @@ export default function PrivacyPolicyPage() {
 
       <LegalSection heading="7. 개인정보의 보유 및 파기">
         <Typography variant="body2">
-          1. 운영자는 회원 탈퇴 시 이용자의 개인정보를 지체 없이 파기합니다.
+          1. 운영자는 회원 탈퇴 시 이용자의 개인정보를 지체 없이 파기합니다. 이용자는 설정의 회원 탈퇴 기능으로 직접
+          탈퇴할 수 있습니다.
+        </Typography>
+        <Typography variant="body2">
+          탈퇴하면 이용자가 작성한 게시물, 사진, 댓글, 채팅 메시지와 교통편 티켓 이미지가 삭제됩니다. 이용자가 만든
+          여행에 다른 멤버가 있으면 가장 먼저 참여한 멤버에게 소유권이 이전되고, 다른 멤버가 없으면 여행이 삭제됩니다.
         </Typography>
         <Typography variant="body2">
           2. 관계 법령에 따라 보존해야 하는 정보는 해당 법령에서 정한 기간 동안 보관한 후 파기합니다.
