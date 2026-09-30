@@ -1,15 +1,16 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { AuthGuard, signOut } from '@waylog/domains/clients'
+import { AuthGuard, deleteAccount, signOut } from '@waylog/domains/clients'
 import { RequireAuthRedirect } from '../auth/auth-redirect'
 import { SettingsWebViewScreen } from './SettingsWebViewScreen'
 import { AppBar } from '~shared/components/design-system/AppBar'
 import { Stack, Typography } from '~shared/components/design-system'
 import { ListItem } from '~shared/components/ListItem'
 import { styled, View } from 'tamagui'
-import { Pressable, StyleSheet } from 'react-native'
+import { Alert, Pressable, StyleSheet } from 'react-native'
 import { palette } from '~shared/config/tokens'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { ReactNode, useState } from 'react'
+import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useAppNavigation } from '~shared/hooks/useAppNavigation'
 import { AppRoute } from '~app/AppRoute'
@@ -17,7 +18,9 @@ import { AppRoute } from '~app/AppRoute'
 export function SettingsScreen() {
   const navigation = useAppNavigation();
   const queryClient = useQueryClient()
+  const confirm = useConfirmDialog()
   const [isSigningOut, setIsSigningOut] = useState(false)
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false)
 
   async function handleSignOut() {
     setIsSigningOut(true)
@@ -27,6 +30,25 @@ export function SettingsScreen() {
       queryClient.clear()
     } finally {
       setIsSigningOut(false)
+    }
+  }
+
+  async function handleDeleteAccount() {
+    const isConfirmed = await confirm('회원 탈퇴', {
+      confirmText: '탈퇴',
+      description: '탈퇴하면 내 여행, 게시물, 사진, 채팅 등 모든 기록이 삭제되고 복구할 수 없어요.\n다른 멤버가 있는 여행은 그 멤버에게 소유권이 넘어가요.',
+    })
+    if (!isConfirmed) return
+
+    setIsDeletingAccount(true)
+    try {
+      await deleteAccount()
+      navigation.reset({ index: 0, routes: [{ name: AppRoute.로그인, params: {} }] })
+      queryClient.clear()
+    } catch {
+      Alert.alert('탈퇴하지 못했어요', '잠시 후 다시 시도해주세요')
+    } finally {
+      setIsDeletingAccount(false)
     }
   }
 
@@ -54,6 +76,12 @@ export function SettingsScreen() {
             <Stack direction="row" gap={2}>
               <MaterialIcons name="logout" size={20} color={palette.error} />
               <Typography variant="body1" color="error">로그아웃</Typography>
+            </Stack>
+          </StyledItem>
+          <StyledItem disabled={isDeletingAccount} onPress={() => void handleDeleteAccount()}>
+            <Stack direction="row" gap={2}>
+              <MaterialIcons name="person-remove" size={20} color={palette.error} />
+              <Typography variant="body1" color="error">회원 탈퇴</Typography>
             </Stack>
           </StyledItem>
         </Stack>
