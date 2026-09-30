@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { assert } from '@waylog/utility'
-import { createPost, deletePost, getPostById, postKey, type CreatePostInput } from './post.api'
+import { createPost, deletePost, getPostById, postDetailKey, postKey, type CreatePostInput } from './post.api'
 import type { Post } from './post.types'
 
 export function usePost(postId: string) {
@@ -23,7 +23,7 @@ export function usePost(postId: string) {
   return { data, remove, ...query }
 }
 
-usePost.key = (postId: string) => [postKey, 'detail', postId]
+usePost.key = (postId: string) => [postDetailKey, postId]
 
 export function useCreatePost() {
   const queryClient = useQueryClient()

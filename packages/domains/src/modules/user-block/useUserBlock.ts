@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient, useSuspenseQuery, type Query } from '@tanstack/react-query'
 import { useAuth } from '../../gateways/auth'
-import { postKey } from '../post'
+import { postDetailKey } from '../post'
 import { blockUser, getBlockedUsers, unblockUser, userBlockKey } from './userBlock.api'
 
 export function useBlockedUsers() {
@@ -12,7 +12,7 @@ export function useBlockedUsers() {
   })
 }
 
-const isPostDetailQuery = ({ queryKey }: Query) => queryKey[0] === postKey && queryKey[1] === 'detail'
+const isPostDetailQuery = ({ queryKey }: Query) => queryKey[0] === postDetailKey
 
 function useRefreshAfterBlockChange() {
   const queryClient = useQueryClient()
