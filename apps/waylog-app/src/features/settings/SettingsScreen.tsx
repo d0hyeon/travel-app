@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { AuthGuard, signOut } from '@waylog/domains/clients'
 import { RequireAuthRedirect } from '../auth/auth-redirect'
 import { SettingsWebViewScreen } from './SettingsWebViewScreen'
@@ -15,6 +16,7 @@ import { AppRoute } from '~app/AppRoute'
 
 export function SettingsScreen() {
   const navigation = useAppNavigation();
+  const queryClient = useQueryClient()
   const [isSigningOut, setIsSigningOut] = useState(false)
 
   async function handleSignOut() {
@@ -22,6 +24,7 @@ export function SettingsScreen() {
     try {
       await signOut()
       navigation.reset({ index: 0, routes: [{ name: AppRoute.로그인, params: {} }] })
+      queryClient.clear()
     } finally {
       setIsSigningOut(false)
     }
