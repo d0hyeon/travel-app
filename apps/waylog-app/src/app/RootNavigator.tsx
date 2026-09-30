@@ -46,6 +46,7 @@ import { AppBootstrap } from './bootstrap/AppBootstrap'
 import { registerLinkingScreens } from './registerLinkingScreens'
 import type { RootStackParamList } from './routes'
 import { AccountSettingScreen } from '../features/settings/AccountSettingScreen';
+import { BlockedUsersScreen } from '../features/settings/BlockedUsersScreen'
 
 setupApi()
 LogBox.ignoreLogs([ExceptionError.name])
@@ -127,6 +128,7 @@ export function RootNavigator() {
                         <RootStack.Screen name={AppRoute.유저_프로필} component={UserProfileDetailScreen} />
                         <RootStack.Screen name={AppRoute.설정} component={SettingsScreen} />
                         <RootStack.Screen name={AppRoute.계정_설정} component={AccountSettingScreen} />
+                        <RootStack.Screen name={AppRoute.차단_목록} component={BlockedUsersScreen} />
                         <RootStack.Screen name={AppRoute.여행_교통편_추가} component={TransportCreationScreen} />
                         <RootStack.Screen name={AppRoute.여행_교통편_상세} component={TransportDetailScreen} />
                       </RootStack.Navigator>

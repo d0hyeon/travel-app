@@ -30,6 +30,13 @@ export function SettingsScreen() {
             </Stack>
             <MaterialIcons name="keyboard-arrow-right" size={20} />
           </StyledItem>
+          <StyledItem onPress={() => navigation.navigate(AppRoute.차단_목록)}>
+            <Stack direction="row" gap={2}>
+              <MaterialIcons name="block" size={20} />
+              <Typography variant="body1">차단한 사용자</Typography>
+            </Stack>
+            <MaterialIcons name="keyboard-arrow-right" size={20} />
+          </StyledItem>
         </Stack>
       </SafeAreaView>
     </AuthGuard>
