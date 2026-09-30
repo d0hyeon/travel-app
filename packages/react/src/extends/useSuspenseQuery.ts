@@ -9,6 +9,7 @@ import {
 
 // 비활성 상태의 캐시를 실제 데이터와 분리하기 위한 키 접두사
 const DISABLED_QUERY_KEY = ["DISABLED"] as const;
+type PlaceholderData<T> = T | ((value: T | undefined) => T | undefined);
 
 export type BaseQueryOptions<
   QueryData = unknown,
@@ -27,7 +28,7 @@ export type UseSuspenseQueryOptions<
   // enabled: false 일 때 queryFn 이 돌려줄 대체 값. suspense 쿼리에는 원래 없는 옵션이라
   // 이 래퍼가 자체적으로 정의한다.
   // queryFn 의 반환값 자리에 들어가므로 select 이후 타입(Data)이 아닌 QueryData 다.
-  placeholderData?: QueryData;
+  placeholderData?: PlaceholderData<QueryData>;
 };
 
 export function useSuspenseQuery<
@@ -38,7 +39,7 @@ export function useSuspenseQuery<
 >(
   options: _UseSuspenseQueryOptions<QueryFnData, QueryError, Data, Key> & {
     enabled: false;
-    placeholderData: Data;
+    placeholderData: PlaceholderData<Data>;
   },
 ): UseSuspenseQueryResult<Data, QueryError>;
 
@@ -106,8 +107,17 @@ export function useSuspenseQuery<
     queryKey: resolvedQueryKey,
     queryFn: enabled
       ? queryFn
-      : () =>
-          Promise.resolve((placeholderData ?? null) as unknown as QueryFnData),
+      : () => {
+          const resolvedPlacehilder =
+            placeholderData instanceof Function
+              ? placeholderData(undefined)
+              : placeholderData;
+
+          return Promise.resolve(
+            (resolvedPlacehilder ?? null) as unknown as QueryFnData,
+          );
+        },
+
     ...options,
   });
 

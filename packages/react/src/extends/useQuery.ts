@@ -86,8 +86,24 @@ export function useQuery<
   },
 ): UseSuspenseQueryResult<Data | undefined, Error>;
 
-// suspense 를 런타임 값으로 넘기는 래퍼용. 어느 분기로 갈지 타입만으로 알 수 없어
-// 데이터 유무를 보장하지 않는다.
+// suspense: true 를 제외해, 위 오버로드에 맞지 않는 suspense 호출이
+// 조용히 이쪽으로 흘러내리지 않게 한다.
+// suspense 가 없거나 boolean(옵셔널 포함)인 호출은 여기서 먼저 잡혀야
+// enabled 함수 형태, queryFn 생략 등 useBaseQuery 의 원래 기능을 그대로 쓸 수 있다.
+export function useQuery<
+  T,
+  Error,
+  Data = T,
+  QueryKey extends readonly unknown[] = unknown[],
+>(
+  options: UseQueryOptions<T, Error, Data, QueryKey> & {
+    suspense?: boolean;
+  },
+): BaseUseQueryResult<Data, Error>;
+
+// suspense 를 런타임 값(boolean 타입, 리터럴도 옵셔널도 아님)으로 넘기는 래퍼용.
+// 어느 분기로 갈지 타입만으로 알 수 없어 데이터 유무를 보장하지 않는다.
+// useSuspenseQuery 로 실제 분기될 수 있으므로 그쪽 제약(queryFn 필수, enabled 함수 금지)을 강제한다.
 export function useQuery<
   Data,
   Error = DefaultError,
@@ -101,19 +117,6 @@ export function useQuery<
     queryFn: QueryFunction<Data, QueryKey>;
     // suspense 분기로 갈 수 있으므로 함수 형태는 허용하지 않는다.
     enabled?: boolean;
-  },
-): BaseUseQueryResult<Data, Error>;
-
-// suspense: true 를 제외해, 위 오버로드에 맞지 않는 suspense 호출이
-// 조용히 이쪽으로 흘러내리지 않게 한다.
-export function useQuery<
-  T,
-  Error,
-  Data = T,
-  QueryKey extends readonly unknown[] = unknown[],
->(
-  options: UseQueryOptions<T, Error, Data, QueryKey> & {
-    suspense?: false;
   },
 ): BaseUseQueryResult<Data, Error>;
 
