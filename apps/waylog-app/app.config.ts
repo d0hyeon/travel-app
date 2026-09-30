@@ -56,6 +56,12 @@ const config: ExpoConfig = {
       },
     ],
     [
+      "expo-media-library",
+      {
+        photosPermission: "게시물에 사진을 추가하기 위해 사진 보관함에 접근합니다.",
+      },
+    ],
+    [
       "expo-splash-screen",
       {
         image: "./assets/splash-icon.png",
