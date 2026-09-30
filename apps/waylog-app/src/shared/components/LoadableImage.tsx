@@ -13,10 +13,10 @@ import { palette } from '../config/tokens'
 
 export interface LoadableImageProps extends ImageProps {
   /** 로딩에 실패했을 때 스켈레톤 대신 보여 줄 내용. */
-  fallback?: ReactNode
+  fallback?: ReactNode;
 }
 
-export function LoadableImage({ style, fallback, onLoadStart, onLoadEnd, onError, ...props }: LoadableImageProps) {
+export function LoadableImage({ style, resizeMode = 'center', fallback, onLoadStart, onLoadEnd, onError, ...props }: LoadableImageProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
 
@@ -45,7 +45,7 @@ export function LoadableImage({ style, fallback, onLoadStart, onLoadEnd, onError
       <Image
         {...props}
         source={toSecureSource(props.source)}
-        style={StyleSheet.absoluteFill}
+        style={[StyleSheet.absoluteFill, { resizeMode }]}
         onLoadStart={onLoadStart}
         onLoadEnd={handleLoadEnd}
         onError={handleError}
