@@ -1,5 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { DeleteObjectsCommand, S3Client } from 'https://esm.sh/@aws-sdk/client-s3'
 import { revokeAppleAuthorization } from '../_shared/apple.ts'
 
 const corsHeaders = {
@@ -8,13 +9,32 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
-const RECENT_SIGN_UP_WINDOW_MS = 60 * 60 * 1000
+const MAX_KEYS_PER_DELETE = 1000
+
+const r2 = new S3Client({
+  region: 'auto',
+  endpoint: `https://${Deno.env.get('R2_ACCOUNT_ID')}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: Deno.env.get('R2_ACCESS_KEY_ID')!,
+    secretAccessKey: Deno.env.get('R2_SECRET_ACCESS_KEY')!,
+  },
+})
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   })
+}
+
+async function deleteStoredFiles(storagePaths: string[]) {
+  for (let start = 0; start < storagePaths.length; start += MAX_KEYS_PER_DELETE) {
+    const keys = storagePaths.slice(start, start + MAX_KEYS_PER_DELETE)
+    await r2.send(new DeleteObjectsCommand({
+      Bucket: Deno.env.get('R2_BUCKET_NAME')!,
+      Delete: { Objects: keys.map((Key) => ({ Key })) },
+    }))
+  }
 }
 
 serve(async (req) => {
@@ -32,24 +52,19 @@ serve(async (req) => {
   const { data: { user }, error: authError } = await admin.auth.getUser(accessToken)
   if (authError || !user) return json({ error: 'Unauthorized' }, 401)
 
-  const isRecentSignUp = Date.now() - new Date(user.created_at).getTime() < RECENT_SIGN_UP_WINDOW_MS
-  if (!isRecentSignUp) return json({ error: 'Forbidden' }, 403)
+  const { appleAuthorizationCode } = await req.json().catch(() => ({}))
 
-  const { data: profile, error: profileError } = await admin
-    .from('user_profiles')
-    .select('id')
-    .eq('id', user.id)
-    .maybeSingle()
-  if (profileError) return json({ error: 'Internal Server Error' }, 500)
-  if (profile != null) return json({ error: 'Conflict' }, 409)
+  const { data: storagePaths, error: prepareError } = await admin.rpc('prepare_account_deletion', { target_user: user.id })
+  if (prepareError) return json({ error: 'Internal Server Error' }, 500)
 
-  const appleAuthorizationCode = user.user_metadata?.apple_authorization_code
   if (typeof appleAuthorizationCode === 'string') {
     await revokeAppleAuthorization(appleAuthorizationCode).catch(() => false)
   }
 
   const { error: deleteError } = await admin.auth.admin.deleteUser(user.id)
   if (deleteError) return json({ error: 'Internal Server Error' }, 500)
+
+  await deleteStoredFiles(storagePaths ?? []).catch(() => undefined)
 
   return json({ success: true })
 })
