@@ -19,7 +19,7 @@ export function usePostOverlay() {
       <FullScreenPopup isOpen={isOpen} onClose={onClose}>
         <TopNavigation
           leftElement={<TopNavigation.BackButton onClick={close} />}
-          rightElement={<PostMenu postId={postId} onDelete={close} />}
+          rightElement={<PostMenu postId={postId} onDelete={close} onBlock={close} />}
           sx={{ position: 'sticky', borderBottom: 'none', bgcolor: 'transparent' }}
         />
         <Container maxWidth="sm" disableGutters sx={{ flex: 1 }}>

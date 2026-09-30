@@ -27,7 +27,7 @@ export default function PostDetailPage() {
           <TopNavigation.BackButton />
         }
         rightElement={
-          <PostMenu postId={postId} onDelete={() => navigate(-1)} />
+          <PostMenu postId={postId} onDelete={() => navigate(-1)} onBlock={() => navigate(-1)} />
         }
       />
 
