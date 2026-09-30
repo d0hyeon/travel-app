@@ -16,6 +16,7 @@ const config: ExpoConfig = {
   ios: {
     supportsTablet: true,
     bundleIdentifier: "me.waylog.app",
+    usesAppleSignIn: true,
     config: { googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY },
     /** 플랜 등록 후 주석 해제 */
     // associatedDomains: ["applinks:waylog.me", "applinks:www.waylog.me"],
@@ -38,6 +39,7 @@ const config: ExpoConfig = {
   scheme: "waylog",
   plugins: [
     "expo-web-browser",
+    "expo-apple-authentication",
     [
       "@rnmapbox/maps",
       {
