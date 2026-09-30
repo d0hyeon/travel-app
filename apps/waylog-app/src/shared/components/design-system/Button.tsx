@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import { StyleSheet, Pressable, Text, type StyleProp, type TextStyle, type ViewStyle } from 'react-native'
-import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated'
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { useTheme } from 'tamagui'
 import { radius } from '../../config/tokens'
 import { CircularProgress } from './CircularProgress'
@@ -52,58 +52,78 @@ export function Button({
     onPrimary: theme.onPrimary.val,
     onSurface: theme.onSurface.val,
   })
-  const isLoading = loading === true
+  const isLoading = loading === true;
+
   const loaderStyle = useAnimatedStyle(() => ({
     width: withTiming(isLoading ? LOADER_SIZE : 0),
     marginRight: withTiming(isLoading ? 4 : 0),
     opacity: withTiming(isLoading ? 1 : 0),
   }))
 
-  const fillOpacity = (() => {
+  const scale = useSharedValue(1);
+
+  const fillOpacityValue = (() => {
     if (disabled) return 0.4;
     if (isLoading) return 0.55;
     return 1;
   })()
 
+  const opacityStyle = useAnimatedStyle(() => ({
+    opacity: withTiming(fillOpacityValue),
+  }))
+  const transformStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }))
+
   return (
-    <Pressable
-      disabled={isInactive}
-      onPress={isInactive ? undefined : onPress}
-      style={({ pressed }) => [
-        styles.button,
-        {
-          height: dims.height,
-          borderRadius: dims.borderRadius,
-          paddingHorizontal: dims.paddingHorizontal,
-          backgroundColor: colors.backgroundColor,
-          borderColor: colors.borderColor,
-          borderWidth: colors.borderWidth,
-          opacity: pressed ? 0.72 : fillOpacity,
-          ...(fullWidth ? { flex: 1, width: '100%', alignSelf: 'center' } : { alignSelf: 'flex-start' }),
-        },
-        style,
-      ]}
+    <Animated.View
+      style={[styles.container, opacityStyle, transformStyle, fullWidth ? styles.fullWidth : styles.contentFit]}
     >
-      {startIcon != null && <Animated.View style={styles.startIcon}>{startIcon}</Animated.View>}
-      <Animated.View style={[styles.loader, loaderStyle]}>
-        <CircularProgress size={LOADER_SIZE} color={colors.textColor} />
-      </Animated.View>
-      <Text
+      <Pressable
+        disabled={isInactive}
+        onPressIn={() => scale.set(withTiming(0.95, { duration: 150 }))}
+        onPress={isInactive ? undefined : onPress}
+        onPressOut={() => scale.set(withTiming(1, { duration: 150 }))}
         style={[
-          styles.label,
-          { fontSize: dims.fontSize, color: colors.textColor },
-          textStyle,
+          styles.button,
+          {
+            height: dims.height,
+            borderRadius: dims.borderRadius,
+            paddingHorizontal: dims.paddingHorizontal,
+            backgroundColor: colors.backgroundColor,
+            borderColor: colors.borderColor,
+            borderWidth: colors.borderWidth,
+          },
+          style,
+          fullWidth ? styles.fullWidth : styles.contentFit
         ]}
       >
-        {children}
-      </Text>
-    </Pressable>
+        {startIcon != null && <Animated.View style={styles.startIcon}>{startIcon}</Animated.View>}
+        <Animated.View style={[styles.loader, loaderStyle]}>
+          <CircularProgress size={LOADER_SIZE} color={colors.textColor} />
+        </Animated.View>
+        <Text
+          style={[
+            styles.label,
+            { fontSize: dims.fontSize, color: colors.textColor },
+            textStyle,
+          ]}
+        >
+          {children}
+        </Text>
+      </Pressable>
+    </Animated.View>
   )
 }
 
 const styles = StyleSheet.create({
   label: {
     fontWeight: '900',
+  },
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   button: {
     flexDirection: 'row',
@@ -118,4 +138,12 @@ const styles = StyleSheet.create({
   startIcon: {
     marginRight: 4,
   },
+  fullWidth: {
+    flex: 1,
+    width: '100%',
+    alignSelf: 'center'
+  },
+  contentFit: {
+    alignSelf: 'flex-start'
+  }
 })
