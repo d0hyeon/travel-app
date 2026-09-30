@@ -90,6 +90,8 @@ TicketViewer 내부의 `ConfirmDialog`와 `ActionSheet`다. 공용 `Button`도 T
 /post/:postId                  → PostDetailPage
 /admin/trips                   → (어드민 여행 목록)
 /login                         → LoginPage
+/terms                         → TermsOfServicePage (공개, 앱은 웹뷰로 연다)
+/privacy                       → PrivacyPolicyPage (공개, 앱은 웹뷰로 연다)
 *                              → NotFound
 ```
 
@@ -345,7 +347,8 @@ src/
 │   │   ├── auth.api.ts
 │   │   ├── useAuth.ts
 │   │   ├── useWebPushSubscription.ts
-│   │   ├── LoginPage.tsx
+│   │   ├── LoginPage.tsx          # 카카오·Apple 로그인 버튼
+│   │   ├── SignUpConsent.tsx      # 가입 대기 사용자의 약관 동의 화면 (AuthGuardLayout 의 SignUpGate fallback)
 │   │   ├── AuthNavigate.tsx
 │   │   └── AuthErrorBoundary.tsx  # 세션 만료(AuthError) 시 로그인 화면으로 리다이렉트
 │   │                              # 앱 대응: waylog-app/src/features/auth/AuthErrorBoundary.tsx
@@ -1317,6 +1320,9 @@ ref 로 붙잡아야 끌던 도중 스냅이 바뀌어도 제스처가 갈아끼
 | 사용자 프로필        | `features/user-profile/UserProfilePage.tsx`                       |
 | 설정 (내정보 변경·로그아웃) | 웹 `features/settings/`(SettingsPage·SettingsProfilePage, 진입 라우트만 `@waylog/routes`의 `설정`, 하위 `/settings/profile`은 로컬 상수). 앱은 `features/settings/SettingsWebViewScreen.tsx`로 이 웹 라우트를 웹뷰로 띄우기만 한다 — 별도 네이티브 UI 없음 |
 | 통계                 | `features/statistics/StatisticsPage.tsx`                          |
+| 약관·처리방침        | 웹 `features/legal/`(TermsOfServicePage·PrivacyPolicyPage·`legal.config.ts`의 운영자 정보). 시행일은 `@waylog/domains/modules/terms`의 `TERMS_VERSION`. 앱은 `features/auth/LegalDocumentModal.tsx`가 웹 라우트를 웹뷰로 띄운다 |
+| 가입·약관 동의       | 가입 완료 = `user_profiles` 행 존재(`terms_version`·`terms_agreed_at` 포함). 세션은 있으나 프로필이 없으면 `usePendingSignUp`이 사용자를 돌려주고 `SignUpGate`가 동의 화면(웹 `SignUpConsent`, 앱 `SignUpConsentScreen`)을 그린다. 동의는 `useSignUp()`이 `signUp`으로 프로필을 만든다. 거절은 `cancelSignUp()`이 Edge Function `cancel-sign-up`으로 방금 만들어진 `auth.users`를 지우고 로그아웃한다(프로필이 있으면 거부). 약관 버전이 바뀌면 재동의 흐름은 아직 없다 |
+| Apple 로그인         | `AuthProvider`에 `apple`. 웹은 Supabase OAuth, 앱은 `expo-apple-authentication`의 토큰을 `signInWithIdToken`으로 교환(`waylog-app/src/supabase-auth.ts`). 콘솔 설정은 `docs/apple-login-setup.md` |
 | 지도 (공통)          | `shared/components/Map/` (kakao / google 구현 분기)               |
 | 사진 업로드          | `shared/components/photo/PhotoUploader.tsx`                       |
 | 사진 상세 뷰어       | 웹 `shared/components/photo/PhotoBottomSheet.tsx`(모바일)·`PhotoDialog.tsx`(데스크탑), 앱 `shared/components/photo/PhotoBottomSheet.tsx`. 웹·앱 모두 여행 탭과 장소 탭이 같은 뷰어를 공유하며, `onDelete`·`onUpdate`·`places` 를 넘긴 만큼만 편집 UI 가 켜진다 |
