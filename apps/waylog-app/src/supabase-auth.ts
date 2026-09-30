@@ -23,7 +23,6 @@ function isAppleRequestCanceled(error: unknown) {
   return typeof error === 'object' && error != null && 'code' in error && error.code === APPLE_REQUEST_CANCELED
 }
 
-// Apple 은 이름을 최초 로그인 응답에서만 준다. 세션에 남겨야 가입 시점에 프로필 이름으로 쓸 수 있다.
 async function signInWithAppleNative(client: SupabaseClient<Database>) {
   const credential = await AppleAuthentication.signInAsync({
     requestedScopes: [

@@ -33,6 +33,7 @@ export function LoginScreen() {
   const [isPending, setIsPending] = useState(false)
 
   async function handleSignIn(signIn: (input: { redirectTo: string }) => Promise<boolean>) {
+    if (isPending) return
     setError(null)
     setIsPending(true)
     try {
