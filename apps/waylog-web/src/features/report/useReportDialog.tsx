@@ -14,7 +14,7 @@ export function useReportDialog() {
           isOpen={isOpen}
           target={target}
           onSubmitted={() => {
-            toast.success('신고가 접수되었어요. 검토 후 조치할게요');
+            toast.success('신고가 접수되었습니다. 내용을 검토한 후 필요한 조치를 진행할 예정입니다');
             resolve();
             close();
           }}

@@ -30,12 +30,13 @@ export function ReportDialog({ isOpen, target, onSubmitted, onCancel }: ReportDi
   const submitReport = useSubmitReport();
   const [reason, setReason] = useState<ReportReason | null>(null);
   const [detail, setDetail] = useState('');
+  const isOtherReason = reason === 'other';
 
   const handleSubmit = async () => {
     if (reason == null) return;
 
     try {
-      await submitReport({ ...target, reason, detail: detail.trim() || undefined });
+      await submitReport({ ...target, reason, detail: isOtherReason ? detail.trim() || undefined : undefined });
     } catch {
       toast.error('신고를 접수하지 못했어요. 잠시 후 다시 시도해 주세요');
       return;
@@ -57,16 +58,18 @@ export function ReportDialog({ isOpen, target, onSubmitted, onCancel }: ReportDi
             />
           ))}
         </RadioGroup>
-        <TextField
-          value={detail}
-          onChange={(event) => setDetail(event.target.value)}
-          placeholder="상세 내용을 적어 주세요 (선택)"
-          multiline
-          minRows={3}
-          fullWidth
-          slotProps={{ htmlInput: { maxLength: DETAIL_MAX_LENGTH } }}
-          helperText={`${detail.length}/${DETAIL_MAX_LENGTH}`}
-        />
+        {isOtherReason && (
+          <TextField
+            value={detail}
+            onChange={(event) => setDetail(event.target.value)}
+            placeholder="기타 사유를 적어 주세요 (선택)"
+            multiline
+            minRows={3}
+            fullWidth
+            slotProps={{ htmlInput: { maxLength: DETAIL_MAX_LENGTH } }}
+            helperText={`${detail.length}/${DETAIL_MAX_LENGTH}`}
+          />
+        )}
       </DialogContent>
       <DialogActions>
         <Button variant="text" sx={{ color: '#3C3C43BA' }} disabled={submitReport.isPending} onClick={onCancel}>

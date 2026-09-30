@@ -21,17 +21,18 @@ export function ReportSheet({ isOpen, target, onCancel, onSubmitted }: Props) {
   const submitReport = useSubmitReport()
   const [reason, setReason] = useState<ReportReason | null>(null)
   const [detail, setDetail] = useState('')
+  const isOtherReason = reason === 'other'
 
   const handleSubmit = async () => {
     if (reason == null) return
 
     try {
-      await submitReport({ ...target, reason, detail: detail.trim() || undefined })
+      await submitReport({ ...target, reason, detail: isOtherReason ? detail.trim() || undefined : undefined })
     } catch {
       Alert.alert('신고를 접수하지 못했어요', '잠시 후 다시 시도해주세요')
       return
     }
-    Alert.alert('신고가 접수되었어요', '검토 후 조치할게요')
+    Alert.alert('신고가 접수되었습니다', '내용을 검토한 후 필요한 조치를 진행할 예정입니다')
     onSubmitted()
   }
 
@@ -51,15 +52,17 @@ export function ReportSheet({ isOpen, target, onCancel, onSubmitted }: Props) {
             </Pressable>
           ))}
         </Stack>
-        <TextField
-          fullWidth
-          multiline
-          minRows={4}
-          maxLength={MAX_DETAIL_LENGTH}
-          value={detail}
-          onChangeText={setDetail}
-          placeholder="상세 내용을 적어주세요 (선택)"
-        />
+        {isOtherReason && (
+          <TextField
+            fullWidth
+            multiline
+            minRows={4}
+            maxLength={MAX_DETAIL_LENGTH}
+            value={detail}
+            onChangeText={setDetail}
+            placeholder="기타 사유를 적어주세요 (선택)"
+          />
+        )}
       </BottomSheet.KeyboardAwareBody>
       <BottomSheet.BottomActions>
         <Button variant="outlined" fullWidth onPress={onCancel}>
