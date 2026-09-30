@@ -12,6 +12,7 @@ import { ProfileFeedTab } from './ProfileFeedTab'
 import { ProfileHeader } from './ProfileHeader'
 import { ProfileRecordsTab } from './ProfileRecordsTab'
 import { ProfileStatStrip } from './ProfileStatStrip'
+import { UserProfileMenu } from './UserProfileMenu'
 
 type ProfileTab = 'feed' | 'records'
 
@@ -66,10 +67,14 @@ export function UserProfileScreen({ userId, bottomContentInset = 0 }: Props) {
       >
         <View style={styles.header}>
           <ProfileHeader userId={userId} />
-          {auth.id === userId && (
+          {auth.id === userId ? (
             <Pressable onPress={() => navigation.navigate(AppRoute.설정)} style={styles.settingsButton}>
               <MaterialIcons name="settings" size={22} color={palette.textSecondary} />
             </Pressable>
+          ) : (
+            <View style={styles.menuButton}>
+              <UserProfileMenu userId={userId} />
+            </View>
           )}
         </View>
         <ProfileStatStrip userId={userId} />
@@ -112,5 +117,6 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   settingsButton: { padding: 16 },
+  menuButton: { padding: 16 },
   tabs: { backgroundColor: palette.background },
 })
