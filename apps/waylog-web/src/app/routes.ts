@@ -24,6 +24,7 @@ export default [
     layout("./AuthGuardLayout.tsx", { id: "SETTING_LAYOUT" }, [
       route(AppRoute.설정, "../features/settings/SettingsPage.tsx"),
       route(AppRoute.계정_설정, "../features/settings/SettingsProfilePage.tsx"),
+      route(AppRoute.차단_목록, "../features/settings/BlockedUsersPage.tsx"),
     ]),
   ]),
   layout("./AuthGuardLayout.tsx", [
