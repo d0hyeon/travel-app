@@ -66,7 +66,7 @@ const config: ExpoConfig = {
       {
         image: "./assets/splash-icon.png",
         imageWidth: 160,
-        backgroundColor: "#E6F4FE",
+        backgroundColor: "#ffffff",
       },
     ],
     // Xcode 27이 UIKit Scene lifecycle 미채택 앱을 크래시시킨다(EXC_BREAKPOINT).

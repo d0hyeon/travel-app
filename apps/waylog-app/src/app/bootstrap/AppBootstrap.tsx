@@ -32,7 +32,6 @@ export function AppBootstrap({ children }: PropsWithChildren) {
     Promise.all(initializationTasks)
       .then(async () => {
         setIsReady(true);
-        SplashScreen.hideAsync();
       })
   }, [])
 

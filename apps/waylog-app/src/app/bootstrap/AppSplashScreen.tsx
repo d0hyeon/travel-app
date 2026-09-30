@@ -1,3 +1,4 @@
+import * as SplashScreen from 'expo-splash-screen'
 import { Image, StyleSheet, View } from 'react-native'
 import { Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../shared/config/tokens'
@@ -8,7 +9,7 @@ const LOGO_SIZE = 72
 /** 네이티브 스플래시(app.config.ts 의 expo-splash-screen 설정)와 같은 배경색을 써서 전환 시 깜빡임을 없앤다. */
 export function AppSplashScreen() {
   return (
-    <View style={styles.container}>
+    <View style={styles.container} onLayout={() => SplashScreen.hideAsync()}>
       <View style={styles.logo}>
         <Image source={logoImage} style={styles.logoImage} />
       </View>
