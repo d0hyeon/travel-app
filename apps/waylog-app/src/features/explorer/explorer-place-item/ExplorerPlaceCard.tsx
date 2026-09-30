@@ -34,7 +34,7 @@ export function ExplorerPlaceCard({ place, onPress, width }: Props) {
           {place.thumbnailUrl == null ? (
             <MaterialIcons name="location-on" size={36} color={accentColor} />
           ) : (
-            <LoadableImage source={{ uri: place.thumbnailUrl }} style={styles.photo} resizeMode="cover" />
+            <LoadableImage source={{ uri: place.thumbnailUrl }} style={styles.photo} contentFit="cover" />
           )}
         </View>
         <View style={styles.details}>
@@ -69,7 +69,7 @@ export function ExplorerPlaceRow({ place, onPress }: Omit<Props, 'width'>) {
         {place.thumbnailUrl == null ? (
           <MaterialIcons name="location-on" size={24} color={accentColor} />
         ) : (
-          <LoadableImage source={{ uri: place.thumbnailUrl }} style={styles.photo} resizeMode="cover" />
+          <LoadableImage source={{ uri: place.thumbnailUrl }} style={styles.photo} contentFit="cover" />
         )}
       </View>
       <View style={styles.listDetails}>

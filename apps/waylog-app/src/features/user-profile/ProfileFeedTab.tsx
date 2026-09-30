@@ -17,7 +17,7 @@ export function ProfileFeedTab({ userId }: { userId: string }) {
     <View style={styles.photoGrid}>
       {posts.map((post) => (
         <Pressable key={post.postId} onPress={() => navigation.navigate(AppRoute.포스트_상세, { postId: post.postId })}>
-          <LoadableImage source={{ uri: post.url }} style={{ width: cellSize, height: cellSize }} resizeMode="cover" />
+          <LoadableImage source={{ uri: post.url }} style={{ width: cellSize, height: cellSize }} contentFit="cover" />
         </Pressable>
       ))}
     </View>

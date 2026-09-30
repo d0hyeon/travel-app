@@ -101,7 +101,7 @@ function PostPhotoList({ photos }: Pick<Post, 'photos'>) {
   return (
     <Stack style={styles.photoList}>
       {photos.map((photo) => (
-        <LoadableImage key={photo.url} source={{ uri: photo.url }} style={styles.photoItem} resizeMode="cover" />
+        <LoadableImage key={photo.url} source={{ uri: photo.url }} style={styles.photoItem} contentFit="cover" />
       ))}
     </Stack>
   )

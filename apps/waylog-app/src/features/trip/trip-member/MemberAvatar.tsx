@@ -20,7 +20,7 @@ export function MemberAvatar({ member, size = 28, style }: Props) {
       ]}
     >
       {member.profileUrl != null ? (
-        <LoadableImage source={{ uri: member.profileUrl }} style={{ width: size, height: size }} resizeMode="cover" />
+        <LoadableImage source={{ uri: member.profileUrl }} style={{ width: size, height: size }} contentFit="cover" />
       ) : (
         <Typography style={[styles.initials, { fontSize: size * 0.5 }]}>
           {member.name?.[0] ?? '?'}

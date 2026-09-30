@@ -26,7 +26,7 @@ export function PlacePhotoStrip({ photos, thumbnailWidth = 100 }: Props) {
           <LoadableImage
             source={{ uri: photo.url }}
             style={[styles.thumbnail, { width: thumbnailWidth }]}
-            resizeMode="cover"
+            contentFit="cover"
           />
         </Pressable>
       ))}

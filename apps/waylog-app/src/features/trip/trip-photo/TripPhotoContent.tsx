@@ -160,7 +160,7 @@ export function TripPhotoContent({ tripId }: Props) {
               onLongPress={() => setIsReadonly(false)}
               style={styles.photoItem}
             >
-              <LoadableImage source={{ uri: item.url }} style={[styles.photo, { width: size, height: size }]} resizeMode="cover" />
+              <LoadableImage source={{ uri: item.url }} style={[styles.photo, { width: size, height: size }]} contentFit="cover" />
 
               {!isReadonly && selectedPhotoIds.includes(item.id) && (
                 <Box

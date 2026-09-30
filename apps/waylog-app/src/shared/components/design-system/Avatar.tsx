@@ -37,7 +37,7 @@ export function Avatar({ src, children, style }: AvatarProps) {
         <LoadableImage
           source={{ uri: src }}
           style={{ width: size, height: size }}
-          resizeMode="cover"
+          contentFit="cover"
           fallback={initial}
         />
       ) : (

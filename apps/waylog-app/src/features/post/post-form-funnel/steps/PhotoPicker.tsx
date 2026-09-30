@@ -101,7 +101,7 @@ function Resolved({ tripId, onSelect, onScroll }: Props) {
               <LoadableImage
                 source={{ uri: photo.uri }}
                 style={{ width: photoSize, height: photoSize }}
-                resizeMode="cover"
+                contentFit="cover"
               />
 
               {isSelected && (

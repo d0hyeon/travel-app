@@ -65,7 +65,7 @@ function RecommendedPlaceCard({
             style={[styles.imagePlaceholder, { backgroundColor: accentColor ? `${accentColor}22` : 'rgba(0,0,0,0.06)' }]}
           >
             {place.photos[0] ? (
-              <LoadableImage source={{ uri: place.photos[0] }} style={styles.image} resizeMode="cover" />
+              <LoadableImage source={{ uri: place.photos[0] }} style={styles.image} contentFit="cover" />
             ) : (
               <MaterialIcons name="room" size={28} color={accentColor ?? palette.textSecondary} />
             )}

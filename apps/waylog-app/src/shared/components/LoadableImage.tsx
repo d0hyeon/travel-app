@@ -1,31 +1,26 @@
 import { MaterialIcons } from '@expo/vector-icons'
+import { Image, type ImageErrorEventData, type ImageProps } from 'expo-image'
 import { useState, type ReactNode } from 'react'
-import {
-  Image,
-  StyleSheet,
-  View,
-  type ImageProps,
-  type NativeSyntheticEvent,
-  type ImageErrorEventData,
-} from 'react-native'
+import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native'
 import { Skeleton } from '~/shared/components/design-system/Skeleton'
 import { palette } from '../config/tokens'
 
-export interface LoadableImageProps extends ImageProps {
+export interface LoadableImageProps extends Omit<ImageProps, 'style'> {
+  style?: StyleProp<ViewStyle>;
   /** 로딩에 실패했을 때 스켈레톤 대신 보여 줄 내용. */
   fallback?: ReactNode;
 }
 
-export function LoadableImage({ style, resizeMode = 'center', fallback, onLoadStart, onLoadEnd, onError, ...props }: LoadableImageProps) {
+export function LoadableImage({ style, source, cachePolicy = 'disk', fallback, onLoadEnd, onError, ...props }: LoadableImageProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
 
-  const handleLoadEnd: NonNullable<ImageProps['onLoadEnd']> = () => {
+  const handleLoadEnd = () => {
     setIsLoading(false)
     onLoadEnd?.()
   }
 
-  const handleError = (event: NativeSyntheticEvent<ImageErrorEventData>) => {
+  const handleError = (event: ImageErrorEventData) => {
     setHasError(true)
     setIsLoading(false)
     onError?.(event)
@@ -44,9 +39,9 @@ export function LoadableImage({ style, resizeMode = 'center', fallback, onLoadSt
       {isLoading && <Skeleton variant="rectangular" width="100%" height="100%" />}
       <Image
         {...props}
-        source={toSecureSource(props.source)}
-        style={[StyleSheet.absoluteFill, { resizeMode }]}
-        onLoadStart={onLoadStart}
+        source={toSecureSource(source)}
+        cachePolicy={cachePolicy}
+        style={StyleSheet.absoluteFill}
         onLoadEnd={handleLoadEnd}
         onError={handleError}
       />
@@ -59,11 +54,14 @@ export function LoadableImage({ style, resizeMode = 'center', fallback, onLoadSt
  * 웹에서만 보이는 차이가 생기므로, 원격 이미지는 https 로 올려 보낸다.
  */
 function toSecureSource(source: ImageProps['source']): ImageProps['source'] {
-  if (source == null || typeof source === 'number' || Array.isArray(source)) return source
-  const { uri } = source
-  if (uri == null || !uri.startsWith('http://')) return source
+  if (typeof source === 'string') return toSecureUri(source)
+  if (source == null || typeof source !== 'object' || !('uri' in source) || source.uri == null) return source
 
-  return { ...source, uri: `https://${uri.slice('http://'.length)}` }
+  return { ...source, uri: toSecureUri(source.uri) }
+}
+
+function toSecureUri(uri: string) {
+  return uri.startsWith('http://') ? `https://${uri.slice('http://'.length)}` : uri
 }
 
 const styles = StyleSheet.create({

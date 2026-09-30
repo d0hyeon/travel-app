@@ -20,7 +20,7 @@ export function UserTripPhotoList({ tripId }: { tripId: string }) {
 
   return (
     <View style={styles.photoGrid}>
-      {photos.map((photo, index) => <Pressable key={photo.id} onPress={() => overlay.open(({ isOpen, close }) => <PhotoPreviewSheet isOpen={isOpen} onClose={close} photos={photos} initialIndex={index} />)}><LoadableImage source={{ uri: photo.url }} style={[styles.thumbnail, { width: cellSize, height: cellSize }]} resizeMode="cover" /></Pressable>)}
+      {photos.map((photo, index) => <Pressable key={photo.id} onPress={() => overlay.open(({ isOpen, close }) => <PhotoPreviewSheet isOpen={isOpen} onClose={close} photos={photos} initialIndex={index} />)}><LoadableImage source={{ uri: photo.url }} style={[styles.thumbnail, { width: cellSize, height: cellSize }]} contentFit="cover" /></Pressable>)}
     </View>
   )
 }

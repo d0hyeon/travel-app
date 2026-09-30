@@ -107,7 +107,7 @@ function PostPhotoGallery({ post, width, minHeight }: { post: Post; width: numbe
         style={{ minHeight }}
       >
         {post.photos.map((photo) => (
-          <LoadableImage key={photo.url} source={{ uri: photo.url }} style={[styles.photo, { width: pageWidth, minHeight }]} resizeMode="cover" />
+          <LoadableImage key={photo.url} source={{ uri: photo.url }} style={[styles.photo, { width: pageWidth, minHeight }]} contentFit="cover" />
         ))}
       </ScrollView>
       {post.photos.length > 1 && (

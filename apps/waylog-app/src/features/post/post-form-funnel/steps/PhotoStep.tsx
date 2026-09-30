@@ -128,7 +128,7 @@ function PhotoPreview({ photos }: { photos: LibraryPhoto[] }) {
 
         {photos.map((photo) => (
           <Stack key={`preview-${photo.uri}`} style={{ width, height: '100%', }}>
-            <LoadableImage source={{ uri: photo.uri }} style={{ height: '100%' }} resizeMode='contain' />
+            <LoadableImage source={{ uri: photo.uri }} style={{ height: '100%' }} contentFit='contain' />
           </Stack>
         ))}
 

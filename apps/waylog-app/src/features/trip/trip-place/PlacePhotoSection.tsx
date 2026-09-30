@@ -63,7 +63,7 @@ export function PlacePhotoSection({ tripId, placeId, ...props }: PlacePhotoSecti
           </Pressable>
           {photos.map((photo, index) => (
             <Pressable key={photo.id} onPress={() => openPhotoViewer(index)}>
-              <LoadableImage source={{ uri: photo.url }} style={styles.photo} resizeMode="cover" />
+              <LoadableImage source={{ uri: photo.url }} style={styles.photo} contentFit="cover" />
             </Pressable>
           ))}
         </Stack>

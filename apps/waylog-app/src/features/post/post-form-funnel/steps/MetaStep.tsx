@@ -54,7 +54,7 @@ export function MetaStep({ tripId, photos, onNext }: { tripId: string | null; ph
   return (
     <View style={styles.screen}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
-        <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false}>{photos.map((photo) => <LoadableImage key={photo.id} source={{ uri: photo.uri }} style={[styles.photo, { width: photoWidth }]} resizeMode="cover" />)}</ScrollView>
+        <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false}>{photos.map((photo) => <LoadableImage key={photo.id} source={{ uri: photo.uri }} style={[styles.photo, { width: photoWidth }]} contentFit="cover" />)}</ScrollView>
         <PostDescriptionField value={description} onChange={setDescription} />
         <View style={styles.fields}>
           <OverlayField label="위치" value={placesLabel ?? '선택 안 함'} onPress={() => void editPlaces()} />
