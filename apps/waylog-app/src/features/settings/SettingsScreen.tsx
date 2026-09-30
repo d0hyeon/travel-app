@@ -1,4 +1,4 @@
-import { AuthGuard } from '@waylog/domains/clients'
+import { AuthGuard, signOut } from '@waylog/domains/clients'
 import { RequireAuthRedirect } from '../auth/auth-redirect'
 import { SettingsWebViewScreen } from './SettingsWebViewScreen'
 import { AppBar } from '~shared/components/design-system/AppBar'
@@ -8,14 +8,24 @@ import { styled, View } from 'tamagui'
 import { Pressable, StyleSheet } from 'react-native'
 import { palette } from '~shared/config/tokens'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { ReactNode } from 'react'
+import { ReactNode, useState } from 'react'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useAppNavigation } from '~shared/hooks/useAppNavigation'
 import { AppRoute } from '~app/AppRoute'
 
 export function SettingsScreen() {
   const navigation = useAppNavigation();
+  const [isSigningOut, setIsSigningOut] = useState(false)
 
+  async function handleSignOut() {
+    setIsSigningOut(true)
+    try {
+      await signOut()
+      navigation.reset({ index: 0, routes: [{ name: AppRoute.로그인, params: {} }] })
+    } finally {
+      setIsSigningOut(false)
+    }
+  }
 
   return (
     <AuthGuard fallback={<RequireAuthRedirect />}>
@@ -36,6 +46,12 @@ export function SettingsScreen() {
               <Typography variant="body1">차단한 사용자</Typography>
             </Stack>
             <MaterialIcons name="keyboard-arrow-right" size={20} />
+          </StyledItem>
+          <StyledItem disabled={isSigningOut} onPress={() => void handleSignOut()}>
+            <Stack direction="row" gap={2}>
+              <MaterialIcons name="logout" size={20} color={palette.error} />
+              <Typography variant="body1" color="error">로그아웃</Typography>
+            </Stack>
           </StyledItem>
         </Stack>
       </SafeAreaView>
