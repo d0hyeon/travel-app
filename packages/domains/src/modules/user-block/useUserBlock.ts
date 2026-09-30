@@ -12,7 +12,7 @@ export function useBlockedUsers() {
   })
 }
 
-const isPostDetailQuery = ({ queryKey }: Query) => queryKey[0] === postKey && queryKey.length === 2
+const isPostDetailQuery = ({ queryKey }: Query) => queryKey[0] === postKey && queryKey[1] === 'detail'
 
 function useRefreshAfterBlockChange() {
   const queryClient = useQueryClient()

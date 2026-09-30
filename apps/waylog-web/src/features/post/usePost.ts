@@ -29,7 +29,7 @@ export function usePost(postId: string) {
   return { data, remove, ...queries }
 }
 
-usePost.key = (postId: string) => [postKey, postId]
+usePost.key = (postId: string) => [postKey, 'detail', postId]
 usePost.prefetch = (postId: string) => {
   queryClient.prefetchQuery({
     queryKey: usePost.key(postId),

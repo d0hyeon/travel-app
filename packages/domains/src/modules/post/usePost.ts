@@ -23,7 +23,7 @@ export function usePost(postId: string) {
   return { data, remove, ...query }
 }
 
-usePost.key = (postId: string) => [postKey, postId]
+usePost.key = (postId: string) => [postKey, 'detail', postId]
 
 export function useCreatePost() {
   const queryClient = useQueryClient()
