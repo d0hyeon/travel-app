@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     padding: 20,
     gap: 16,
   },
-  content: { gap: 4 },
+  content: { gap: 8 },
   actions: { flexDirection: 'row', gap: 8, justifyContent: 'flex-end' },
   title: { fontSize: 16, fontWeight: '700' },
   description: { fontSize: 13 },
