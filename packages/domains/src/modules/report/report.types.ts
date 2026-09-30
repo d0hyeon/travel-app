@@ -9,6 +9,8 @@ export interface ReportInput {
   detail?: string
 }
 
+export type ReportTarget = Pick<ReportInput, 'targetType' | 'targetId'>
+
 export const REPORT_REASON_LABELS: Record<ReportReason, string> = {
   spam: '스팸·광고',
   inappropriate: '부적절한 콘텐츠',

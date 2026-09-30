@@ -1,8 +1,7 @@
 import { assert } from '@waylog/utility'
 import { getSession } from '../../gateways/auth'
 import { supabase } from '../../gateways/client'
-import type { UserProfile } from '../user-profile'
-import { getUserProfilesByIds } from '../user-profile/user-profile.api'
+import { getUserProfilesByIds, type UserProfile } from '../user-profile'
 
 export const userBlockKey = 'user-blocks'
 

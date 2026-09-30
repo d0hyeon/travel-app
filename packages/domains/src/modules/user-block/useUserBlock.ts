@@ -1,22 +1,25 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useSuspenseQuery, type Query } from '@tanstack/react-query'
+import { useAuth } from '../../gateways/auth'
 import { postKey } from '../post'
 import { blockUser, getBlockedUsers, unblockUser, userBlockKey } from './userBlock.api'
 
 export function useBlockedUsers() {
+  const { data: auth } = useAuth({ required: false })
+
   return useSuspenseQuery({
-    queryKey: [userBlockKey],
+    queryKey: [userBlockKey, auth?.id],
     queryFn: getBlockedUsers,
   })
 }
+
+const isPostDetailQuery = ({ queryKey }: Query) => queryKey[0] === postKey && queryKey.length === 2
 
 function useRefreshAfterBlockChange() {
   const queryClient = useQueryClient()
 
   return async () => {
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: [userBlockKey] }),
-      queryClient.invalidateQueries({ queryKey: [postKey] }),
-    ])
+    await queryClient.invalidateQueries({ predicate: (query) => !isPostDetailQuery(query) })
+    await queryClient.invalidateQueries({ predicate: isPostDetailQuery, refetchType: 'none' })
   }
 }
 
