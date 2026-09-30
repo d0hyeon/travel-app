@@ -1319,6 +1319,7 @@ ref 로 붙잡아야 끌던 도중 스냅이 바뀌어도 제스처가 갈아끼
 | 피드/포스트          | `features/post/FeedPage.tsx`, `features/post/post-form-funnel/`          |
 | 사용자 프로필        | `features/user-profile/UserProfilePage.tsx`                       |
 | 설정 (내정보 변경·로그아웃) | 웹 `features/settings/`(SettingsPage·SettingsProfilePage, 진입 라우트만 `@waylog/routes`의 `설정`, 하위 `/settings/profile`은 로컬 상수). 앱은 `features/settings/SettingsWebViewScreen.tsx`로 이 웹 라우트를 웹뷰로 띄우기만 한다 — 별도 네이티브 UI 없음 |
+| 신고·차단 (앱) | `features/report/`(ReportSheet·useReportSheet: 사유 선택+상세 500자 시트), `features/post/PostMenu.tsx`(비작성자 신고·작성자 차단), `features/user-profile/UserProfileMenu.tsx`(신고·차단·차단 해제), `features/settings/BlockedUsersScreen.tsx`(`차단_목록` 네이티브 화면, 설정의 '차단한 사용자'에서 진입). 도메인은 `@waylog/domains/modules/report`·`user-block` |
 | 통계                 | `features/statistics/StatisticsPage.tsx`                          |
 | 약관·처리방침        | 웹 `features/legal/`(TermsOfServicePage·PrivacyPolicyPage·`legal.config.ts`의 운영자 정보). 시행일은 `@waylog/domains/modules/terms`의 `TERMS_VERSION`. 앱은 `features/auth/LegalDocumentModal.tsx`가 웹 라우트를 웹뷰로 띄운다 |
 | 가입·약관 동의       | 가입 완료 = `user_profiles` 행 존재(`terms_version`·`terms_agreed_at` 포함). 세션은 있으나 프로필이 없으면 `usePendingSignUp`이 사용자를 돌려주고 `SignUpGate`가 동의 화면(웹 `SignUpConsent`, 앱 `SignUpConsentScreen`)을 그린다. 동의는 `useSignUp()`이 `signUp`으로 프로필을 만든다. 거절은 `cancelSignUp()`이 Edge Function `cancel-sign-up`으로 방금 만들어진 `auth.users`를 지우고 로그아웃한다(프로필이 있으면 거부). 약관 버전이 바뀌면 재동의 흐름은 아직 없다 |
