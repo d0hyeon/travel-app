@@ -1,17 +1,16 @@
 import { Button, Checkbox, Divider, FormControlLabel, Link, Stack, Typography } from '@mui/material'
 import { useState } from 'react'
 import { cancelSignUp, useSignUp } from '@waylog/domains/clients'
+import { REQUIRED_AGREEMENT_KEYS, type AgreementKey } from '@waylog/domains/modules/terms'
 import { AppRoute } from '@waylog/routes'
 import { IntroFullScreenBanner } from '~features/intro/IntroFullScreenBanner'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 
-const requiredAgreements = [
-  { key: 'terms', label: '(필수) 이용약관 동의', href: AppRoute.이용약관 },
-  { key: 'privacy', label: '(필수) 개인정보 수집·이용 동의', href: AppRoute.개인정보처리방침 },
-  { key: 'age', label: '(필수) 만 14세 이상입니다' },
-] as const
-
-type AgreementKey = (typeof requiredAgreements)[number]['key']
+const agreementLabels: Record<AgreementKey, { label: string; href?: string }> = {
+  terms: { label: '(필수) 이용약관 동의', href: AppRoute.이용약관 },
+  privacy: { label: '(필수) 개인정보 수집·이용 동의', href: AppRoute.개인정보처리방침 },
+  age: { label: '(필수) 만 14세 이상입니다' },
+}
 
 const noneAgreed: Record<AgreementKey, boolean> = { terms: false, privacy: false, age: false }
 
@@ -22,7 +21,7 @@ export function SignUpConsent() {
   const [isCancelling, setIsCancelling] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const isAllAgreed = requiredAgreements.every(({ key }) => agreed[key])
+  const isAllAgreed = REQUIRED_AGREEMENT_KEYS.every((key) => agreed[key])
   const isBusy = signUp.isPending || isCancelling
 
   function toggleAll(checked: boolean) {
@@ -43,8 +42,8 @@ export function SignUpConsent() {
     setIsCancelling(true)
     try {
       await cancelSignUp()
-    } catch (e) {
-      setError(e instanceof Error ? e.message : '가입 취소에 실패했습니다')
+    } catch {
+      setError('가입 취소에 실패했습니다. 잠시 후 다시 시도해주세요')
       setIsCancelling(false)
     }
   }
@@ -57,20 +56,20 @@ export function SignUpConsent() {
           control={<Checkbox checked={isAllAgreed} onChange={(e) => toggleAll(e.target.checked)} />}
         />
         <Divider />
-        {requiredAgreements.map((agreement) => (
-          <Stack key={agreement.key} direction="row" alignItems="center" justifyContent="space-between">
+        {REQUIRED_AGREEMENT_KEYS.map((key) => (
+          <Stack key={key} direction="row" alignItems="center" justifyContent="space-between">
             <FormControlLabel
-              label={<Typography variant="body2">{agreement.label}</Typography>}
+              label={<Typography variant="body2">{agreementLabels[key].label}</Typography>}
               control={
                 <Checkbox
                   size="small"
-                  checked={agreed[agreement.key]}
-                  onChange={(e) => setAgreed({ ...agreed, [agreement.key]: e.target.checked })}
+                  checked={agreed[key]}
+                  onChange={(e) => setAgreed({ ...agreed, [key]: e.target.checked })}
                 />
               }
             />
-            {'href' in agreement && (
-              <Link href={agreement.href} target="_blank" rel="noopener" variant="caption" color="text.secondary">
+            {agreementLabels[key].href != null && (
+              <Link href={agreementLabels[key].href} target="_blank" rel="noopener" variant="caption" color="text.secondary">
                 보기
               </Link>
             )}

@@ -6,7 +6,6 @@ import { Button, Stack } from '~shared/components/design-system'
 import { palette } from '~shared/config/tokens'
 
 interface Props {
-  /** 웹의 약관 문서 경로. null 이면 닫힌다. */
   path: string | null
   onClose: () => void
 }

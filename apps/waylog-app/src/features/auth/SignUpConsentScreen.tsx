@@ -1,4 +1,5 @@
 import { cancelSignUp, useSignUp } from '@waylog/domains/clients'
+import { REQUIRED_AGREEMENT_KEYS, type AgreementKey } from '@waylog/domains/modules/terms'
 import { AppRoute } from '@waylog/routes'
 import { useState } from 'react'
 import { Image, Pressable, StyleSheet, View } from 'react-native'
@@ -10,13 +11,11 @@ import { LegalDocumentModal } from './LegalDocumentModal'
 
 const LOGO_SIZE = 72
 
-const requiredAgreements = [
-  { key: 'terms', label: '(필수) 이용약관 동의', documentPath: AppRoute.이용약관 },
-  { key: 'privacy', label: '(필수) 개인정보 수집·이용 동의', documentPath: AppRoute.개인정보처리방침 },
-  { key: 'age', label: '(필수) 만 14세 이상입니다' },
-] as const
-
-type AgreementKey = (typeof requiredAgreements)[number]['key']
+const agreementLabels: Record<AgreementKey, { label: string; documentPath?: string }> = {
+  terms: { label: '(필수) 이용약관 동의', documentPath: AppRoute.이용약관 },
+  privacy: { label: '(필수) 개인정보 수집·이용 동의', documentPath: AppRoute.개인정보처리방침 },
+  age: { label: '(필수) 만 14세 이상입니다' },
+}
 
 const noneAgreed: Record<AgreementKey, boolean> = { terms: false, privacy: false, age: false }
 
@@ -28,7 +27,7 @@ export function SignUpConsentScreen() {
   const [isCancelling, setIsCancelling] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const isAllAgreed = requiredAgreements.every(({ key }) => agreed[key])
+  const isAllAgreed = REQUIRED_AGREEMENT_KEYS.every((key) => agreed[key])
   const isBusy = signUp.isPending || isCancelling
 
   function toggleAll() {
@@ -50,8 +49,8 @@ export function SignUpConsentScreen() {
     setIsCancelling(true)
     try {
       await cancelSignUp()
-    } catch (e) {
-      setError(e instanceof Error ? e.message : '가입 취소에 실패했습니다')
+    } catch {
+      setError('가입 취소에 실패했습니다. 잠시 후 다시 시도해주세요')
       setIsCancelling(false)
     }
   }
@@ -69,27 +68,20 @@ export function SignUpConsentScreen() {
 
       <Stack spacing={1.5} style={styles.form}>
         <Pressable style={styles.row} onPress={toggleAll}>
-          <Checkbox checked={isAllAgreed} onChange={toggleAll} />
+          <Checkbox checked={isAllAgreed} />
           <Typography variant="body1" fontWeight="bold">
             약관에 모두 동의합니다
           </Typography>
         </Pressable>
         <Divider />
-        {requiredAgreements.map((agreement) => (
-          <View key={agreement.key} style={styles.agreementRow}>
-            <Pressable
-              style={styles.row}
-              onPress={() => setAgreed({ ...agreed, [agreement.key]: !agreed[agreement.key] })}
-            >
-              <Checkbox
-                size="small"
-                checked={agreed[agreement.key]}
-                onChange={() => setAgreed({ ...agreed, [agreement.key]: !agreed[agreement.key] })}
-              />
-              <Typography variant="body2">{agreement.label}</Typography>
+        {REQUIRED_AGREEMENT_KEYS.map((key) => (
+          <View key={key} style={styles.agreementRow}>
+            <Pressable style={styles.row} onPress={() => setAgreed({ ...agreed, [key]: !agreed[key] })}>
+              <Checkbox size="small" checked={agreed[key]} />
+              <Typography variant="body2">{agreementLabels[key].label}</Typography>
             </Pressable>
-            {'documentPath' in agreement && (
-              <Pressable onPress={() => setOpenedDocumentPath(agreement.documentPath)}>
+            {agreementLabels[key].documentPath != null && (
+              <Pressable onPress={() => setOpenedDocumentPath(agreementLabels[key].documentPath ?? null)}>
                 <Typography variant="caption" color="text.secondary">
                   보기
                 </Typography>
