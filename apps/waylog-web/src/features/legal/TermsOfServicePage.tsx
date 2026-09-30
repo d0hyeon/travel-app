@@ -44,7 +44,7 @@ export default function TermsOfServicePage() {
 
       <LegalSection heading="제4조 (계정)">
         <Typography variant="body2">
-          1. 이용자는 카카오 계정을 이용한 소셜 로그인으로 가입할 수 있습니다.
+          1. 이용자는 카카오 또는 Apple 계정을 이용한 소셜 로그인으로 가입할 수 있습니다.
         </Typography>
         <Typography variant="body2">2. 만 14세 미만은 가입할 수 없습니다.</Typography>
         <Typography variant="body2">

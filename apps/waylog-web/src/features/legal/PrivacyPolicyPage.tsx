@@ -27,7 +27,7 @@ export default function PrivacyPolicyPage() {
       </LegalSection>
 
       <LegalSection heading="2. 수집하는 개인정보 항목">
-        <Typography variant="body2">1. 소셜 로그인 프로필: 이름, 프로필 이미지 (현재 카카오 로그인 지원)</Typography>
+        <Typography variant="body2">1. 소셜 로그인 정보: 이름, 프로필 이미지, 이메일(Apple 로그인 시 제공되며, 이메일 가리기를 선택하면 Apple 릴레이 주소) — 카카오, Apple 로그인 지원</Typography>
         <Typography variant="body2">
           2. 서비스 이용 중 이용자가 생성하는 콘텐츠: 여행, 일정, 장소, 경비, 메모, 체크리스트, 사진, 게시물, 댓글,
           채팅 메시지, 등록한 교통편 티켓 정보
