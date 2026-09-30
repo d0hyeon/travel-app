@@ -7,6 +7,8 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
+const RECENT_SIGN_UP_WINDOW_MS = 60 * 60 * 1000
+
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -16,33 +18,32 @@ function json(body: unknown, status = 200) {
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
+  if (req.method !== 'POST') return json({ error: 'Method Not Allowed' }, 405)
 
-  const authorization = req.headers.get('Authorization')
-  if (authorization == null) return json({ error: 'Unauthorized' }, 401)
-
-  const userClient = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_ANON_KEY')!,
-    { global: { headers: { Authorization: authorization } } },
-  )
-  const { data: { user }, error: authError } = await userClient.auth.getUser()
-  if (authError || !user) return json({ error: 'Unauthorized' }, 401)
+  const accessToken = req.headers.get('Authorization')?.replace(/^Bearer /, '')
+  if (accessToken == null) return json({ error: 'Unauthorized' }, 401)
 
   const admin = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
   )
 
+  const { data: { user }, error: authError } = await admin.auth.getUser(accessToken)
+  if (authError || !user) return json({ error: 'Unauthorized' }, 401)
+
+  const isRecentSignUp = Date.now() - new Date(user.created_at).getTime() < RECENT_SIGN_UP_WINDOW_MS
+  if (!isRecentSignUp) return json({ error: 'Forbidden' }, 403)
+
   const { data: profile, error: profileError } = await admin
     .from('user_profiles')
     .select('id')
     .eq('id', user.id)
     .maybeSingle()
-  if (profileError) return json({ error: profileError.message }, 500)
-  if (profile != null) return json({ error: '가입이 완료된 계정은 삭제할 수 없습니다' }, 409)
+  if (profileError) return json({ error: 'Internal Server Error' }, 500)
+  if (profile != null) return json({ error: 'Conflict' }, 409)
 
   const { error: deleteError } = await admin.auth.admin.deleteUser(user.id)
-  if (deleteError) return json({ error: deleteError.message }, 500)
+  if (deleteError) return json({ error: 'Internal Server Error' }, 500)
 
   return json({ success: true })
 })

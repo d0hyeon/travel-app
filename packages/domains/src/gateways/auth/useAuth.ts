@@ -42,7 +42,6 @@ function sessionProfileQuery(session: AuthSession | null) {
   };
 }
 
-/** 세션은 있으나 프로필이 없는, 아직 가입을 마치지 않은 사용자. */
 export function usePendingSignUp(): AuthUser | null {
   const session = useStoreValue(sessionStore);
   const { data: profile } = useSuspenseQuery(sessionProfileQuery(session));
