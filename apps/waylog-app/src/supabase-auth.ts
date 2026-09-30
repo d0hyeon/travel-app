@@ -41,9 +41,13 @@ async function signInWithAppleNative(client: SupabaseClient<Database>) {
 
   const { givenName, familyName } = credential.fullName ?? {}
   const fullName = [familyName, givenName].filter(Boolean).join('')
-  if (fullName === '') return true
 
-  const { error: updateError } = await client.auth.updateUser({ data: { full_name: fullName } })
+  const { error: updateError } = await client.auth.updateUser({
+    data: {
+      ...(fullName === '' ? {} : { full_name: fullName }),
+      apple_authorization_code: credential.authorizationCode,
+    },
+  })
   if (updateError) throw updateError
   return true
 }

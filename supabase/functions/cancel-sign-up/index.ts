@@ -1,5 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { revokeAppleAuthorization } from './apple.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -41,6 +42,11 @@ serve(async (req) => {
     .maybeSingle()
   if (profileError) return json({ error: 'Internal Server Error' }, 500)
   if (profile != null) return json({ error: 'Conflict' }, 409)
+
+  const appleAuthorizationCode = user.user_metadata?.apple_authorization_code
+  if (typeof appleAuthorizationCode === 'string') {
+    await revokeAppleAuthorization(appleAuthorizationCode).catch(() => false)
+  }
 
   const { error: deleteError } = await admin.auth.admin.deleteUser(user.id)
   if (deleteError) return json({ error: 'Internal Server Error' }, 500)

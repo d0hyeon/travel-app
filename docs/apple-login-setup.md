@@ -31,3 +31,20 @@ Personal Team 서명으로는 Sign in with Apple capability 를 쓸 수 없다.
 - 웹 Apple OAuth 가 이름을 `user_metadata` 에 넣는지는 실제 로그인으로 확인해야 한다. 안 들어오면 웹 Apple 가입자의 이름은 빈 문자열이다.
 - 가입 취소(약관 거절) 후 같은 Apple 계정으로 다시 로그인하면 Apple 이 이름을 다시 주지 않는다.
 - 이메일 가리기를 선택한 사용자는 릴레이 주소를 받는다.
+
+## 가입 취소 시 Apple 토큰 철회
+
+앱에서 Apple 로 로그인한 뒤 약관을 거절하면 `cancel-sign-up` 이 계정을 지우기 전에 Apple 인가를 철회한다(Guideline 5.1.1(v)).
+앱이 받은 `authorizationCode` 를 세션 메타데이터(`apple_authorization_code`)에 남기고, 함수가 이를 토큰으로 교환해 철회한다.
+
+Edge Function 시크릿:
+
+```
+supabase secrets set APPLE_TEAM_ID=<Team ID> APPLE_KEY_ID=<Key ID> APPLE_CLIENT_ID=me.waylog.app APPLE_PRIVATE_KEY="$(cat AuthKey_<Key ID>.p8)"
+```
+
+한계:
+- `authorizationCode` 는 Apple 이 5분만 유효하게 준다. 로그인 후 5분이 지나 거절하면 철회는 실패하고 계정 삭제만 진행된다(철회 실패는 삭제를 막지 않는다).
+- 시크릿이 없으면 철회를 건너뛰고 삭제만 한다.
+- 웹 Apple 로그인은 인가 코드를 앱이 받지 못해 철회하지 않는다.
+- 이 경로는 실제 Apple 계정과 시크릿 없이는 검증하지 못했다. 배포 전에 실기기에서 로그인 → 거절 → Apple ID 설정의 "Apple로 로그인 사용 앱" 목록에서 사라지는지 확인한다.
