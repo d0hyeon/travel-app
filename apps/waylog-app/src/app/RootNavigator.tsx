@@ -4,7 +4,7 @@ import '../shared/polyfills'
 import { NavigationContainer, type LinkingOptions } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { QueryClientProvider } from '@tanstack/react-query'
-import { AuthErrorBoundary, AuthStateSync } from '@waylog/domains/clients'
+import { AuthErrorBoundary, AuthStateSync, SignUpGate } from '@waylog/domains/clients'
 import { getActivedChatTripId } from '@waylog/domains/modules/trip-chat'
 import { isTripChatPushData } from '@waylog/domains/modules/trip-chat/tripChatPush'
 import { AppRoute as BaseAppRoute } from '@waylog/routes'
@@ -19,6 +19,7 @@ import { TamaguiProvider } from 'tamagui'
 import { tamaguiConfig } from '../../tamagui.config'
 import { setupApi } from '../api-config'
 import { LoginRoute } from '../features/auth/LoginRoute'
+import { SignUpConsentScreen } from '../features/auth/SignUpConsentScreen'
 import { useLoginRedirect, type ReturnTo } from '../features/auth/auth-redirect'
 import { PlaceDetailScreen } from '../features/explorer/PlaceDetailScreen'
 import { TopVisitedScreen } from '../features/explorer/explorer-ranking/TopVisitedScreen'
@@ -103,6 +104,7 @@ export function RootNavigator() {
                 <Suspense fallback={<Loading />}>
                   <NavigationContainer linking={linking}>
                     <NotificationGateway />
+                    <SignUpGate fallback={<SignUpConsentScreen />}>
                     <AuthGuard>
                       <RootStack.Navigator screenOptions={{ headerShown: false }}>
                         <RootStack.Screen name={AppRoute.메인} component={HomeTabs} options={{ animation: 'none' }} />
@@ -129,6 +131,7 @@ export function RootNavigator() {
                         <RootStack.Screen name={AppRoute.여행_교통편_상세} component={TransportDetailScreen} />
                       </RootStack.Navigator>
                     </AuthGuard>
+                    </SignUpGate>
                   </NavigationContainer>
                 </Suspense>
               </OverlayProvider>
