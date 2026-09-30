@@ -1,11 +1,16 @@
 import type { SupabaseClient, User } from '@supabase/supabase-js'
 import type { Database } from '@waylog/domains/clients'
-import type { AuthService, AuthUser } from '@waylog/domains/clients'
+import type { AuthProvider, AuthService, AuthUser } from '@waylog/domains/clients'
+
+const supabaseProviderNames = {
+  kakao: 'custom:kakao',
+  apple: 'apple',
+} as const satisfies Record<AuthProvider, string>
 
 function toAuthUser(user: User): AuthUser {
   return {
     id: user.id,
-    name: user.user_metadata?.name,
+    name: user.user_metadata?.name ?? user.user_metadata?.full_name,
     avatar: user.user_metadata?.picture,
   }
 }
@@ -28,7 +33,7 @@ export function createAuthService(client: SupabaseClient<Database>): AuthService
       if (error) throw error
     },
     async signInWithProvider({ provider, redirectTo }) {
-      const { error } = await client.auth.signInWithOAuth({ provider: `custom:${provider}` as never, options: { redirectTo } })
+      const { error } = await client.auth.signInWithOAuth({ provider: supabaseProviderNames[provider] as never, options: { redirectTo } })
       if (error) throw error
       // 브라우저가 그대로 인증 페이지로 떠나므로 취소를 돌려받을 지점이 없다.
       return true

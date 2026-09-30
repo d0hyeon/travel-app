@@ -5,7 +5,7 @@ export interface AuthUser {
 }
 export interface AuthSession { user: AuthUser }
 export interface AuthTokens { accessToken: string; refreshToken: string }
-export type AuthProvider = 'kakao'
+export type AuthProvider = 'kakao' | 'apple'
 export interface AuthService {
   readSession(): Promise<AuthSession | null>
   readTokens(): Promise<AuthTokens | null>

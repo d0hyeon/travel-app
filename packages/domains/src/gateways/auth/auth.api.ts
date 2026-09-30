@@ -4,6 +4,9 @@ import { getAuthService } from './auth.service'
 export async function signInWithKakao({ redirectTo }: { redirectTo: string }) {
   return getAuthService().signInWithProvider({ provider: 'kakao', redirectTo })
 }
+export async function signInWithApple({ redirectTo }: { redirectTo: string }) {
+  return getAuthService().signInWithProvider({ provider: 'apple', redirectTo })
+}
 export async function signInWithEmail(email: string, password: string) {
   await getAuthService().signIn({ email, password })
 }
