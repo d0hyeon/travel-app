@@ -172,5 +172,5 @@ PlaceFormSheetContent.Skeleton = (props: Omit<SheetProps, 'tripId' | 'placeId'>)
 
 const styles = StyleSheet.create({
   sheetBody: { paddingHorizontal: 16 },
-  header: { marginBottom: 16 },
+  header: { marginBottom: 16, marginTop: 8 },
 })

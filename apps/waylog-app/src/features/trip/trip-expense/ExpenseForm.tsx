@@ -112,7 +112,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
 
   return (
     <Stack gap={2}>
-      {currencies.length > 1 && (
+      {currencies.length > 1 && trip.isOverseas && (
         <Stack gap={1}>
           <Typography variant="caption" color="text.secondary">
             통화
@@ -134,7 +134,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
 
       <Stack gap={0.5}>
         <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Typography variant="subtitle2" style={styles.sectionTitle}>결제 금액</Typography>
+          <Typography variant="subtitle2" >결제 금액</Typography>
           <Button size="small" onPress={addPayer} disabled={paymentFields.length >= members.length}>추가</Button>
         </Stack>
         {paymentFields.map((field, index) => (
@@ -168,32 +168,41 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
                 <Stack style={styles.amountField}>
                   <TextField
                     placeholder="0"
-                    style={styles.amountInput}
+                    style={[styles.amountInput, { paddingRight: trip.isOverseas ? 72 : 24, }]}
                     variant="standard"
                     keyboardType="number-pad"
                     value={value > 0 ? value.toLocaleString() : ''}
                     onChangeText={(text) => onChange(Number(text.replace(/\D/g, '')) || 0)}
                   />
                   {/* 통화는 지출 전체에 하나뿐이라 첫 행에서만 바꾼다. */}
-                  {index === 0 && (
+                  {trip.isOverseas ? (
+                    <>
+                      {index === 0 && (
+                        <Stack style={styles.currencyMenuAnchor}>
+                          <PopMenu
+                            trigger={(
+                              <Stack direction="row" alignItems="center" gap={0.5}>
+                                <Typography color="primary">{CurrencyCodeLabel[currency] ?? currency}</Typography>
+                                <MaterialIcons name="swap-horiz" size={22} color="#4C84FF" />
+                              </Stack>
+                            )}
+                            items={Object.values(CurrencyCodeMap).map((code) => (
+                              <PopMenu.Item key={code} onPress={() => setValue('currency', code)}>
+                                <Typography style={currency === code ? styles.currencyItemActive : styles.currencyItemInactive}>
+                                  {CurrencyCodeLabel[code]}
+                                </Typography>
+                              </PopMenu.Item>
+                            ))}
+                          />
+                        </Stack>
+                      )}
+                    </>
+                  ) : (
                     <Stack style={styles.currencyMenuAnchor}>
-                      <PopMenu
-                        trigger={(
-                          <Stack direction="row" alignItems="center" gap={0.5}>
-                            <Typography color="primary">{CurrencyCodeLabel[currency] ?? currency}</Typography>
-                            <MaterialIcons name="swap-horiz" size={22} color="#4C84FF" />
-                          </Stack>
-                        )}
-                        items={Object.values(CurrencyCodeMap).map((code) => (
-                          <PopMenu.Item key={code} onPress={() => setValue('currency', code)}>
-                            <Typography style={currency === code ? styles.currencyItemActive : styles.currencyItemInactive}>
-                              {CurrencyCodeLabel[code]}
-                            </Typography>
-                          </PopMenu.Item>
-                        ))}
-                      />
+                      <Typography color="primary">{CurrencyCodeLabel[currency] ?? currency}</Typography>
                     </Stack>
                   )}
+
                 </Stack>
               )}
             />
@@ -207,7 +216,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
       </Stack>
 
       <Stack gap={0.5}>
-        <Typography variant="subtitle2" style={styles.sectionTitle}>내용</Typography>
+        <Typography variant="subtitle2" >내용</Typography>
         <Controller
           control={control}
           name="description"
@@ -224,7 +233,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
       </Stack>
 
       <Stack gap={0.5}>
-        <Typography variant="subtitle2" style={styles.sectionTitle}>날짜</Typography>
+        <Typography variant="subtitle2">날짜</Typography>
         <Controller
           control={control}
           name="date"
@@ -257,11 +266,11 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
             }
             items={places.map((place) => (
               <PopMenu.Item
-                key={place.placeId}
-                onPress={() => setValue('placeId', place.placeId)}
-                icon={place.placeId === placeId ? <MaterialIcons name="check" size={18} color="#4C84FF" /> : undefined}
+                key={place.id}
+                onPress={() => setValue('placeId', place.id)}
+                icon={place.id === placeId ? <MaterialIcons name="check" size={18} color="#4C84FF" /> : undefined}
               >
-                <Typography style={place.placeId === placeId ? styles.placeItemActive : styles.placeItemInactive}>
+                <Typography variant="body2" style={place.id === placeId ? styles.placeItemActive : styles.placeItemInactive}>
                   {place.name}
                 </Typography>
               </PopMenu.Item>
@@ -284,7 +293,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
           render={({ field: { value, onChange: setValue } }) => (
             <Stack gap={1}>
               <Stack direction="row" justifyContent="space-between" alignItems="center">
-                <Typography variant="subtitle2" style={styles.sectionTitle}>누구와 나눌까요?</Typography>
+                <Typography variant="subtitle2">누구와 나눌까요?</Typography>
                 <Button
                   size="small"
                   variant="text"
@@ -332,9 +341,6 @@ const styles = StyleSheet.create({
   wrapRow: {
     flexWrap: 'wrap',
   },
-  sectionTitle: {
-    fontWeight: '800',
-  },
   payerField: {
     flex: 3,
   },
@@ -360,12 +366,12 @@ const styles = StyleSheet.create({
   },
   amountInput: {
     textAlign: 'right',
-    paddingRight: 72,
+
   },
   currencyMenuAnchor: {
     position: 'absolute',
     right: 0,
-    bottom: 7,
+    bottom: 11,
   },
   currencyItemActive: {
     color: '#4C84FF',

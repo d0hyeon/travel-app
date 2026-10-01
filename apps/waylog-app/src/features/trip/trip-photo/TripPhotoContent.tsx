@@ -3,9 +3,8 @@ import * as ImagePicker from 'expo-image-picker'
 import type { Photo } from '@waylog/domains/modules/photo'
 import { useTripPlaces } from '@waylog/domains/modules/trip'
 import { useEffect, useMemo, useState } from 'react'
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, useWindowDimensions } from 'react-native'
-import { Box, Button, Stack, Typography } from '~/shared/components/design-system'
-import { BottomArea } from '../../../shared/components/BottomArea'
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native'
+import { Box, Fab, GlassSurface, Stack, Typography } from '~/shared/components/design-system'
 import { useConfirmDialog } from '../../../shared/components/confirm-dialog/useConfirmDialog'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { palette } from '../../../shared/config/tokens'
@@ -18,6 +17,10 @@ import { FLOATING_TAB_BAR_RESERVE } from '../../../shared/components'
 const COLUMNS = 3
 const GAP = 2
 const LIST_PADDING = 16
+const TOOLBAR_HEIGHT = 58
+const DELETE_BAR_HEIGHT = 44
+const DELETE_BAR_BOTTOM = FLOATING_TAB_BAR_RESERVE + 12
+const GLASS_TINT = 'rgba(251,251,253,0.55)'
 
 interface Props {
   tripId: string
@@ -114,6 +117,7 @@ export function TripPhotoContent({ tripId }: Props) {
         {placeOptions.length > 0 && (
           <MultiSelectDropdown
             placeholder="장소"
+            variant="glass"
             options={placeOptions.map((place) => ({
               value: place.placeId,
               label: place.name,
@@ -123,14 +127,15 @@ export function TripPhotoContent({ tripId }: Props) {
           />
         )}
         <Stack direction="row" gap={0.5} alignItems="center">
-          <Button
-            size="small"
-            variant="contained"
-            onPress={() => setIsReadonly((curr) => !curr)}
-            style={styles.selectionButton}
-          >
-            {isReadonly ? '선택' : '완료'}
-          </Button>
+          <View style={styles.selectionShadow}>
+            <GlassSurface fallbackBlurIntensity={40} tintColor={GLASS_TINT} style={styles.selectionGlass}>
+              <Pressable accessibilityRole="button" onPress={() => setIsReadonly((curr) => !curr)} style={styles.selectionButton}>
+                <Typography variant="body2" >
+                  {isReadonly ? '선택' : '완료'}
+                </Typography>
+              </Pressable>
+            </GlassSurface>
+          </View>
         </Stack>
       </Stack>
 
@@ -139,7 +144,7 @@ export function TripPhotoContent({ tripId }: Props) {
         keyExtractor={(item) => item.id}
         numColumns={COLUMNS}
         columnWrapperStyle={styles.photoRow}
-        contentContainerStyle={styles.photoList}
+        contentContainerStyle={[styles.photoList, !isReadonly && styles.photoListWithDeleteBar]}
         renderItem={({ item }) => (
           'kind' in item ? (
             <Pressable
@@ -197,33 +202,36 @@ export function TripPhotoContent({ tripId }: Props) {
       {/* 웹과 같이 선택 모드에서는 하단 고정 삭제 버튼만 둔다.
           공개 전환은 사진을 열었을 때 뷰어 안에서 한다. */}
       {!isReadonly && (
-        <BottomArea position="static" bottom={16 + FLOATING_TAB_BAR_RESERVE}>
-          <Button
-            size="large"
-            color="error"
-            variant="contained"
-            fullWidth
-            textStyle={styles.buttonLabel}
-            disabled={selectedPhotoIds.length === 0}
-            loading={isDeleting}
-            onPress={async () => {
-              if (!(await confirm('정말 삭제하시겠어요?'))) return
+        <Fab
+          accessibilityLabel="사진 삭제"
+          onPress={
+            selectedPhotoIds.length === 0 || isDeleting
+              ? undefined
+              : async () => {
+                  if (!(await confirm('정말 삭제하시겠어요?'))) return
 
-              setIsDeleting(true)
-              try {
-                for (const photoId of selectedPhotoIds) {
-                  const photo = photos.find((x) => x.id === photoId)
-                  if (photo != null) await remove(photo)
+                  setIsDeleting(true)
+                  try {
+                    for (const photoId of selectedPhotoIds) {
+                      const photo = photos.find((x) => x.id === photoId)
+                      if (photo != null) await remove(photo)
+                    }
+                    setSelectedPhotoIds([])
+                  } finally {
+                    setIsDeleting(false)
+                  }
                 }
-                setSelectedPhotoIds([])
-              } finally {
-                setIsDeleting(false)
-              }
-            }}
-          >
-            삭제 ({selectedPhotoIds.length}/{filteredPhotos.length})
-          </Button>
-        </BottomArea>
+          }
+          style={[styles.deleteFab, (selectedPhotoIds.length === 0 || isDeleting) && styles.deleteFabDisabled]}
+        >
+          {isDeleting ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Typography variant="body2" style={styles.deleteFabLabel}>
+              삭제 ({selectedPhotoIds.length}/{filteredPhotos.length})
+            </Typography>
+          )}
+        </Fab>
       )}
     </Box>
   )
@@ -231,14 +239,20 @@ export function TripPhotoContent({ tripId }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: palette.background },
-  toolbar: { paddingHorizontal: 16, paddingVertical: 12 },
-  selectionButton: { borderRadius: 24, backgroundColor: 'rgba(0, 0, 0, 0.3)' },
+  toolbar: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1, paddingHorizontal: 16, paddingVertical: 12 },
+  selectionShadow: { borderRadius: 999, shadowColor: '#000', shadowOpacity: 0.15, shadowOffset: { width: 0, height: 4 }, shadowRadius: 16, elevation: 8 },
+  selectionGlass: { borderRadius: 999, overflow: 'hidden' },
+  selectionButton: { height: 34, paddingHorizontal: 18, alignItems: 'center', justifyContent: 'center' },
+
   photoRow: { gap: GAP },
-  photoList: { gap: GAP, paddingHorizontal: LIST_PADDING, paddingBottom: 16 + FLOATING_TAB_BAR_RESERVE },
+  photoList: { gap: GAP, paddingTop: TOOLBAR_HEIGHT, paddingHorizontal: LIST_PADDING, paddingBottom: 16 + FLOATING_TAB_BAR_RESERVE },
   uploadButton: { alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderStyle: 'dashed', borderColor: '#d5d5d5', borderRadius: 8 },
+  photoListWithDeleteBar: { paddingBottom: DELETE_BAR_BOTTOM + DELETE_BAR_HEIGHT },
+  deleteFab: { position: 'absolute', right: 20, bottom: DELETE_BAR_BOTTOM, width: 'auto', height: 44, borderRadius: 22, paddingHorizontal: 20, backgroundColor: palette.error },
+  deleteFabDisabled: { opacity: 0.4 },
+  deleteFabLabel: { color: '#fff', fontWeight: '700' },
   photoItem: { position: 'relative' },
   photo: { borderRadius: 8 },
   visibilityBadge: { position: 'absolute', top: 4, left: 4 },
   selectionBadge: { position: 'absolute', top: 4, right: 4 },
-  buttonLabel: { fontWeight: '600' },
 })

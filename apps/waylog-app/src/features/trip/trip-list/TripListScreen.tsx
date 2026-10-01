@@ -140,8 +140,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
   },
   pageTitle: {
-    fontSize: 26,
     paddingVertical: 18,
+    marginBottom: 8
   },
   tripSections: {
     gap: 24,

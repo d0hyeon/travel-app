@@ -47,7 +47,7 @@ export function TripBasicInfoContent({ tripId }: Props) {
               <TripDDay tripId={tripId} style={styles.dDay} />
             </Suspense>
 
-            <Stack gap={3} >
+            <Stack gap={4}>
               <ErrorBoundary>
                 <Suspense fallback={<TripPostCreateCard.Skeleton />}>
                   <TripPostCreateCard tripId={tripId} />
@@ -73,21 +73,18 @@ export function TripBasicInfoContent({ tripId }: Props) {
 
               <TripPinnedMemos tripId={tripId} hideOnEmpty />
 
-              <Stack gap={1} style={styles.fullWidth}>
-                <RecommendedPlaceListSection
-                  tripId={tripId}
-                  header={
-                    <Typography variant="subtitle2" color="text.secondary">
-                      사람들이 많이 찾는 곳이에요
-                    </Typography>
-                  }
-                />
-              </Stack>
+              <RecommendedPlaceListSection
+                tripId={tripId}
+                header={
+                  <Typography variant="subtitle2" >
+                    사람들이 많이 찾는 곳이에요
+                  </Typography>
+                }
+              />
 
               <ErrorBoundary>
                 <CommunityRoutesSection tripId={tripId} />
               </ErrorBoundary>
-
               <TripMemberSection tripId={tripId} />
 
               <TripLeaveButton tripId={tripId} fullWidth variant="outlined" style={styles.leaveButton} />

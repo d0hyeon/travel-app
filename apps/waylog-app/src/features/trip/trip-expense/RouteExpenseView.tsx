@@ -14,6 +14,7 @@ import { useRoadRoutes } from '../../route/road-route/useRoadRoute'
 import { ExpenseFormDeletationActions } from './ExpenseFormDeletationActions'
 import { ExpenseFormOverlayActions, useExpenseFormBottomSheet } from './useExpenseFormOverlay'
 import { getRouteColor } from './routeExpenseView.utils'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 interface Props {
   tripId: string
@@ -99,6 +100,7 @@ export function RouteExpenseView({ tripId }: Props) {
     if (values == null) return
     update({ expenseId, data: values })
   }
+  const inset = useSafeAreaInsets();
 
   return (
     <Stack style={styles.container} gap={4}>
@@ -144,7 +146,7 @@ export function RouteExpenseView({ tripId }: Props) {
       <BottomSheet.ScrollView
         onScroll={syncActiveDay}
         scrollEventThrottle={16}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: inset.bottom }]}
       >
         {tripDates.map((date, dayIndex) => {
           const dayPlaces = placesByDay[dayIndex] ?? []
@@ -186,12 +188,12 @@ export function RouteExpenseView({ tripId }: Props) {
                             <Box
                               style={[styles.orderBadge, { backgroundColor: getRouteColor(dayIndex) }]}
                             >
-                              <Typography style={styles.orderLabel}>
+                              <Typography variant="caption" style={styles.orderLabel}>
                                 {place.orderInRoute + 1}
                               </Typography>
                             </Box>
-                            <Typography style={styles.placeName}>{place.name}</Typography>
-                            <Typography color="primary">{amount > 0 ? formatCurrency(amount) : '-'}</Typography>
+                            <Typography variant="body2" style={styles.placeName}>{place.name}</Typography>
+                            <Typography color="primary">{amount > 0 ? formatCurrency(amount) : '0원'}</Typography>
                             <IconButton size="small" onPress={() => addExpense(place)}>
                               <MaterialIcons name="playlist-add" size={22} color={palette.primary} />
                             </IconButton>
@@ -206,7 +208,7 @@ export function RouteExpenseView({ tripId }: Props) {
                                     gap={1}
                                     style={styles.expenseRow}
                                   >
-                                    <Typography variant="body2" style={styles.expenseDescription}>
+                                    <Typography variant="caption" style={styles.expenseDescription}>
                                       {expense.description}
                                     </Typography>
                                     <Typography variant="caption" color="text.secondary" style={styles.expenseAmount}>
@@ -245,11 +247,11 @@ const styles = StyleSheet.create({
   dayUnfocused: { opacity: 0.5 },
   dayTitle: { fontWeight: '800' },
   placeCard: { borderWidth: 1, borderColor: '#dddddd', borderRadius: 16, padding: 16 },
-  orderBadge: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  orderBadge: { width: 20, height: 20, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   orderLabel: { color: '#fff', fontWeight: '800' },
   placeName: { flex: 1, fontWeight: '700' },
   expenseList: { marginLeft: 24, marginRight: 12, paddingTop: 12 },
-  expenseRow: { minHeight: 48, backgroundColor: '#f5f5f5', borderWidth: 1, borderColor: '#e0e0e0', borderRadius: 24, paddingHorizontal: 12, paddingVertical: 6 },
+  expenseRow: { minHeight: 38, backgroundColor: '#f5f5f5', borderWidth: 1, borderColor: '#e0e0e0', borderRadius: 24, paddingHorizontal: 12, paddingVertical: 6 },
   expenseDescription: { flex: 1 },
   expenseAmount: { flexShrink: 0 },
 })

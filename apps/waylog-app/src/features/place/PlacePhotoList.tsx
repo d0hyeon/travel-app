@@ -14,3 +14,5 @@ export function PlacePhotoList({ placeId }: Props) {
 
   return <PlacePhotoStrip photos={photos} />
 }
+
+PlacePhotoList.Skeleton = PlacePhotoStrip.Skeleton

@@ -1,7 +1,7 @@
 import { createTripPlace, usePlace } from '@waylog/domains/modules/place'
 import { Suspense } from 'react'
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native'
-import { Button, Stack, Typography } from '~/shared/components/design-system'
+import { Box, Button, Skeleton, Stack, Typography } from '~/shared/components/design-system'
 import { Map } from '../../../shared/components/Map'
 import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
 import { AppRoute } from '../../../app/AppRoute'
@@ -46,11 +46,11 @@ export function PlaceDetailSheet({ placeId, isOpen, onClose }: Props) {
         {/* 시트 안쪽 탭이 배경으로 전달되지 않도록 막는다 */}
         <Pressable onPress={(event) => event.stopPropagation()}>
           <View style={styles.sheet}>
-            <Suspense fallback={<ActivityIndicator />}>
+            <Suspense fallback={<PlaceDetailBody.Skeleton />}>
               <ScrollView showsVerticalScrollIndicator={false}>
                 <PlaceDetailBody placeId={placeId} />
-                <MoreDetailButton placeId={placeId} onNavigate={onClose} />
               </ScrollView>
+              <MoreDetailButton placeId={placeId} onNavigate={onClose} />
               <AddTripButton placeId={placeId} onDone={onClose} />
             </Suspense>
           </View>
@@ -110,7 +110,7 @@ export function PlaceDetailBody({ placeId }: { placeId: string }) {
   const { data: place } = usePlace(placeId)
 
   return (
-    <Stack gap={1.25}>
+    <Stack gap={1.25} >
 
       <View style={styles.mapArea}>
         <Map defaultCenter={{ lat: place.lat, lng: place.lng }}>
@@ -124,9 +124,20 @@ export function PlaceDetailBody({ placeId }: { placeId: string }) {
         </Typography>
       )}
 
-      <Suspense>
+      <Suspense fallback={<PlacePhotoList.Skeleton />}>
         <PlacePhotoList placeId={place.id} />
       </Suspense>
+    </Stack>
+  )
+}
+PlaceDetailBody.Skeleton = () => {
+  return (
+    <Stack gap={1.25} >
+      <View style={styles.mapArea}>
+        <Skeleton width="100%" height="100%" />
+      </View>
+      <Skeleton width={80} height={20} variant="text" />
+      <PlacePhotoList.Skeleton />
     </Stack>
   )
 }

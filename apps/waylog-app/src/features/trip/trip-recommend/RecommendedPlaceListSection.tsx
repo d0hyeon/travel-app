@@ -29,10 +29,12 @@ function RecommendedPlacesSectionContent({ tripId, header }: Props) {
   if (places.length === 0) return null
 
   return (
-    <Stack gap={1}>
-      {header}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <Stack direction="row" gap={1.5}>
+    <Stack gap={1} style={{ marginHorizontal: -16, }}>
+      <Box style={{ paddingHorizontal: 16 }}>
+        {header}
+      </Box>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingLeft: 16 }}>
+        <Stack direction="row" gap={1.5} mr={1}>
           {places.map((place) => (
             <RecommendedPlaceCard
               key={place.id}

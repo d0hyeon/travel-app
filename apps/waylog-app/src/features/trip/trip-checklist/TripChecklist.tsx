@@ -267,7 +267,7 @@ function TripChecklistMenu({ id, tripId }: CheckMenuProps) {
 }
 
 const styles = StyleSheet.create({
-  emptyMessage: { paddingVertical: 24 },
+  emptyMessage: { paddingVertical: 36, textAlign: 'center' },
   checklistItem: { paddingVertical: 16 },
   checkbox: { padding: 0 },
   completedTitle: { opacity: 0.5 },

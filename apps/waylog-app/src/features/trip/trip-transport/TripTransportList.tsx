@@ -43,7 +43,7 @@ export function TripTransportList({ tripId, onTransportPress }: Props) {
         <Box style={styles.emptyIcon}>
           <MaterialIcons name="flight-takeoff" size={26} color={palette.primary} />
         </Box>
-        <Typography variant="subtitle1" style={styles.emptyTitle}>
+        <Typography variant="subtitle1" >
           탑승권을 등록해보세요
         </Typography>
         <Typography variant="body2" color="text.secondary" textAlign="center" style={styles.emptyDescription}>
@@ -142,7 +142,6 @@ const styles = StyleSheet.create({
   list: { gap: 18 },
   empty: { alignItems: 'center', padding: 24, gap: 12, borderRadius: 16, borderWidth: 1, borderColor: palette.divider, backgroundColor: palette.primaryContainer },
   emptyIcon: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', backgroundColor: palette.background },
-  emptyTitle: { fontWeight: '900' },
   emptyDescription: { lineHeight: 21 },
   supportedAirport: { gap: 6, borderRadius: 20, alignSelf: 'flex-end', marginTop: 8, marginBottom: -12 },
   supportedAirportLabel: { fontSize: 12 },

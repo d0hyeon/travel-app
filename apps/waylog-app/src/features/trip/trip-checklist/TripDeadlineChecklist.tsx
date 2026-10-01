@@ -28,19 +28,19 @@ function Resolved({ tripId, hideOnEmpty, ...props }: Props) {
 
   return (
     <Stack gap={1} style={styles.container}>
-      <Typography variant="subtitle2" color="text.secondary">
+      <Typography variant="subtitle2" >
         해야할 일
       </Typography>
       <Stack {...props}>
-      {deadlines.length > 0 ? (
-        deadlines.map(x => (
-          <TripChecklist.ReadonlyItem
-            key={x.id}
-            id={x.id}
-            tripId={tripId}
-          />
-        ))
-      ) : <Typography variant="body2" color="text.secondary" style={styles.emptyMessage}>모든 사항을 점검했어요</Typography>}
+        {deadlines.length > 0 ? (
+          deadlines.map(x => (
+            <TripChecklist.ReadonlyItem
+              key={x.id}
+              id={x.id}
+              tripId={tripId}
+            />
+          ))
+        ) : <Typography variant="body2" style={styles.emptyMessage}>모든 사항을 점검했어요</Typography>}
       </Stack>
     </Stack>
   )

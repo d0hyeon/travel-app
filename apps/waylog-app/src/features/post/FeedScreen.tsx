@@ -22,7 +22,8 @@ export function FeedScreen() {
         contentContainerStyle={[styles.content, { paddingTop: insets.top, paddingBottom: insets.bottom + 96 }]}
         showsVerticalScrollIndicator={false}
       >
-        <Typography style={styles.title}>
+
+        <Typography variant="h5" style={styles.title}>
           피드
         </Typography>
         <Suspense
@@ -71,7 +72,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#F5F6F8' },
   createButton: { position: 'absolute', right: 20, bottom: 20 },
   content: { paddingHorizontal: 16 },
-  title: { color: palette.text, fontSize: 20, fontWeight: '900', paddingVertical: 18 },
+  title: { color: palette.text, paddingVertical: 18 },
   emptyState: { alignItems: 'center', paddingVertical: 80 },
   emptyMessage: { color: palette.textSecondary, fontSize: 14 },
   posts: { gap: 16 },

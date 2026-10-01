@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet } from 'react-native'
 import { LoadableImage } from '../../shared/components/LoadableImage'
 import { PhotoBottomSheet } from '../../shared/components/photo/PhotoBottomSheet'
 import { useOverlay } from '../../shared/hooks/useOverlay'
+import { Box, Skeleton } from '~shared/components/design-system'
 
 interface Props {
   photos: Photo[]
@@ -34,6 +35,22 @@ export function PlacePhotoStrip({ photos, thumbnailWidth = 100 }: Props) {
   )
 }
 
+
+PlacePhotoStrip.Skeleton = ({ thumbnailWidth = 100 }: Omit<Props, 'photos'>) => {
+  return (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.photoStrip}>
+      <Box style={[styles.thumbnail, { width: thumbnailWidth }]}>
+        <Skeleton width="100%" height="100%" />
+      </Box>
+      <Box style={[styles.thumbnail, { width: thumbnailWidth }]}>
+        <Skeleton width="100%" height="100%" />
+      </Box>
+      <Box style={[styles.thumbnail, { width: thumbnailWidth }]}>
+        <Skeleton width="100%" height="100%" />
+      </Box>
+    </ScrollView>
+  )
+}
 const styles = StyleSheet.create({
   photoStrip: { gap: 8 },
   thumbnail: { height: 80, borderRadius: 8 },

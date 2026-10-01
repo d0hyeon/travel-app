@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   fullWidth: {
-    flex: 1,
+    flexShrink: 1,
     width: '100%',
     alignSelf: 'center'
   },

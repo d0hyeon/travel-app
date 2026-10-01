@@ -25,7 +25,7 @@ export function TripPinnedMemos(props: Props) {
 function Pending({ tripId: _tripId, hideOnEmpty: _hideOnEmpty, ...props }: Props) {
   return (
     <Stack gap={1} style={styles.fullWidth} {...props}>
-      <Typography variant="subtitle2" color="text.secondary">
+      <Typography variant="subtitle2" >
         고정된 메모
       </Typography>
       <ListItem style={styles.fullWidth}>
@@ -43,7 +43,7 @@ function Resolved({ tripId, hideOnEmpty, ...props }: Props) {
 
   return (
     <Stack gap={1} style={styles.fullWidth} {...props}>
-      <Typography variant="subtitle2" color="text.secondary">
+      <Typography variant="subtitle2" >
         고정된 메모
       </Typography>
       {pinnedMemos.length === 0 ? (

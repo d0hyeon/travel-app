@@ -76,7 +76,7 @@ export function DateField(props: DateFieldProps) {
       <MaterialIcons name="calendar-today" size={18} color={palette.textSecondary} />
       <View style={styles.valueArea}>
         <Typography
-          variant="body1"
+          variant="body2"
           color={displayText == null ? 'text.secondary' : 'text.primary'}
         >
           {displayText ?? placeholder ?? '날짜 선택'}

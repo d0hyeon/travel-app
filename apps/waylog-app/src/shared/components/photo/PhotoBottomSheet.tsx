@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons'
 import type { Photo } from '@waylog/domains/modules/photo'
 import { useState } from 'react'
 import * as Linking from 'expo-linking'
-import { Image, Pressable, StyleSheet, useWindowDimensions } from 'react-native'
+import { Image, Pressable, ScrollView, StyleSheet, useWindowDimensions } from 'react-native'
 import { Box, Button, Stack, Typography } from '~/shared/components/design-system'
 import { BottomSheet } from '../bottom-sheet/BottomSheet'
 import { useOverlay } from '../../hooks/useOverlay'
@@ -118,26 +118,28 @@ export function PhotoBottomSheet({
           if (height > 0) setImagePagerHeight(height)
         }}
       >
-        <BottomSheet.ScrollView
-          horizontal
-          pagingEnabled
-          scrollEnabled={!isZooming}
-          nestedScrollEnabled
-          directionalLockEnabled
-          showsHorizontalScrollIndicator={false}
-          contentOffset={{ x: initialIndex * width, y: 0 }}
-          onMomentumScrollEnd={(event) => setCurrentIndex(Math.round(event.nativeEvent.contentOffset.x / width))}
-          style={[styles.imagePager, { height: imagePagerHeight }]}
-          contentContainerStyle={{ height: imagePagerHeight }}
-        >
-          {viewerPhotos.map((item) => (
-            <Box key={item.id} style={[styles.imagePage, { width, height: imagePagerHeight }]}>
-              <ZoomArea width={width} height={imagePagerHeight} onZoomStart={() => setIsZooming(true)} onZoomEnd={() => setIsZooming(false)}>
-                <Image source={{ uri: item.url }} resizeMode="contain" style={{ width, height: imagePagerHeight }} />
-              </ZoomArea>
-            </Box>
-          ))}
-        </BottomSheet.ScrollView>
+        <BottomSheet.GestureArea>
+          <ScrollView
+            horizontal
+            pagingEnabled
+            scrollEnabled={!isZooming}
+            nestedScrollEnabled
+            directionalLockEnabled
+            showsHorizontalScrollIndicator={false}
+            contentOffset={{ x: initialIndex * width, y: 0 }}
+            onMomentumScrollEnd={(event) => setCurrentIndex(Math.round(event.nativeEvent.contentOffset.x / width))}
+            style={[styles.imagePager, { height: imagePagerHeight }]}
+            contentContainerStyle={{ height: imagePagerHeight }}
+          >
+            {viewerPhotos.map((item) => (
+              <Box key={item.id} style={[styles.imagePage, { width, height: imagePagerHeight }]}>
+                <ZoomArea width={width} height={imagePagerHeight} onZoomStart={() => setIsZooming(true)} onZoomEnd={() => setIsZooming(false)}>
+                  <Image source={{ uri: item.url }} resizeMode="contain" style={{ width, height: imagePagerHeight }} />
+                </ZoomArea>
+              </Box>
+            ))}
+          </ScrollView>
+        </BottomSheet.GestureArea>
       </BottomSheet.Body>
       {canSelectPlace && (
         <Stack alignItems="center" style={styles.placeSelector}>
@@ -152,9 +154,9 @@ export function PhotoBottomSheet({
       )}
       <BottomSheet.BottomActions style={styles.viewerBackground}>
         {onDelete && (
-          <Button variant="outlined" color="error" onPress={() => void onDelete(currentPhoto)}>삭제</Button>
+          <Button variant="outlined" size="large" color="error" onPress={() => void onDelete(currentPhoto)}>삭제</Button>
         )}
-        <Button variant="contained" fullWidth onPress={onClose}>닫기</Button>
+        <Button variant="contained" size="large" fullWidth onPress={onClose}>닫기</Button>
       </BottomSheet.BottomActions>
     </BottomSheet>
   )

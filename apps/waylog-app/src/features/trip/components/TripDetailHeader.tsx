@@ -43,7 +43,6 @@ function Resolved() {
         <EditableText
           value={trip.name}
           variant="subtitle2"
-          style={styles.title}
           endIcon={<MaterialIcons name="edit" size={15} color={palette.grey} />}
           onSubmit={async (name) => {
             await update({ name: name.trim() })
@@ -61,5 +60,4 @@ const styles = StyleSheet.create({
   titleArea: { flex: 1, paddingHorizontal: 8, paddingVertical: 4 },
   titlePlaceholder: { width: '50%' },
   backButton: { padding: 4 },
-  title: { fontWeight: '900' },
 })

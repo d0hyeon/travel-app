@@ -35,12 +35,12 @@ function CommunityRoutesSectionContent({ tripId }: Props) {
   if (trips.length === 0) return null
 
   return (
-    <Stack gap={1}>
-      <Typography variant="subtitle2" color="text.secondary">
+    <Stack gap={1} style={{ marginHorizontal: -16 }}>
+      <Typography variant="subtitle2" style={{ paddingHorizontal: 16 }}>
         이 여행지를 다녀온 사람들
       </Typography>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <Stack direction="row" gap={1.5}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingLeft: 16 }}>
+        <Stack direction="row" gap={1.5} mr={1}>
           {trips.map((trip) => (
             <CommunityTripCard
               key={trip.id}

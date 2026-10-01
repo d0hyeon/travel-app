@@ -82,6 +82,7 @@ export const PlaceForm = forwardRef<PlaceFormRef, Props>(function PlaceForm(
               variant="outlined"
               value={category == null ? '선택 안함' : PlaceCategoryTypeLabel[category]}
               editable={false}
+
             />
           )}
           items={(
@@ -91,7 +92,7 @@ export const PlaceForm = forwardRef<PlaceFormRef, Props>(function PlaceForm(
                 <PopMenu.Item key={type} onPress={() => setValue('category', type)}>
                   <Stack direction="row" gap={1} alignItems="center">
                     <Box style={[styles.categoryDot, { backgroundColor: PlaceCategoryColorCode[type] }]} />
-                    <Typography>{PlaceCategoryTypeLabel[type]}</Typography>
+                    <Typography variant="body2">{PlaceCategoryTypeLabel[type]}</Typography>
                   </Stack>
                 </PopMenu.Item>
               ))}

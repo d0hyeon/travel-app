@@ -16,7 +16,7 @@ export function PlaceTitleButton({ name, onPress, variant = 'h6' }: PlaceTitleBu
   return (
     <Pressable onPress={onPress}>
       <Stack direction="row" gap={0.5} alignItems="center">
-        <Typography variant={variant} noWrap style={styles.title}>
+        <Typography variant={variant} noWrap >
           {name}
         </Typography>
         <MaterialIcons name="chevron-right" size={28} color="#666" />
@@ -33,6 +33,3 @@ PlaceTitleButton.Skeleton = ({ variant = 'h6' }: Pick<PlaceTitleButtonProps, 'va
   )
 }
 
-const styles = StyleSheet.create({
-  title: { fontWeight: '800' },
-})

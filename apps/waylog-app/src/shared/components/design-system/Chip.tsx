@@ -30,17 +30,19 @@ export function Chip({
     <Pressable onPress={onPress}>
       <Box
         style={[
-          [styles.box, { paddingHorizontal: size === 'small' ? 8 : 12, paddingVertical: size === 'small' ? 3 : 6, borderWidth: filled ? 0 : 1, borderColor: isPrimary ? palette.primary : palette.divider, backgroundColor: filled
+          [styles.box, {
+            paddingHorizontal: size === 'small' ? 8 : 12, paddingVertical: size === 'small' ? 3 : 6, borderWidth: filled ? 0 : 1, borderColor: isPrimary ? palette.primary : palette.divider, backgroundColor: filled
               ? isPrimary
                 ? palette.primary
                 : 'rgba(0,0,0,0.08)'
-              : 'transparent' }],
+              : 'transparent'
+          }],
           style,
         ]}
       >
         <Typography
+          variant={size === 'small' ? 'caption' : 'body2'}
           style={{
-            fontSize: size === 'small' ? 11 : 13,
             color: filled && isPrimary ? '#fff' : palette.text,
           }}
         >

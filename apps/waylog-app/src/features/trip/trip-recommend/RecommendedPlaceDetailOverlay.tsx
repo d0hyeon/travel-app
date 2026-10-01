@@ -47,7 +47,7 @@ function RecommendedPlaceDetailSheet({ place, tripId, isOpen, onClose }: Props) 
         <Typography variant="h6">{place.name}</Typography>
       </BottomSheet.Header>
       <BottomSheet.Body style={styles.recommendedPlaceDetailSheetBody}>
-        <Suspense fallback={<ActivityIndicator />}>
+        <Suspense fallback={<PlaceDetailBody.Skeleton />}>
           <PlaceDetailBody placeId={place.id} />
         </Suspense>
       </BottomSheet.Body>

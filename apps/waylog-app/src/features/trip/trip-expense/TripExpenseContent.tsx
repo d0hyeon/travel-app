@@ -2,7 +2,7 @@ import { useExpenses } from '@waylog/domains/modules/expense'
 import { useTripMembers } from '@waylog/domains/modules/trip-member'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Suspense, useState } from 'react'
-import { StyleSheet, ScrollView } from 'react-native'
+import { StyleSheet, ScrollView, Alert } from 'react-native'
 import { Box, MenuFab, Tab, Tabs, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../shared/config/tokens'
 import { ExpenseHeader } from './ExpenseHeader'
@@ -13,6 +13,7 @@ import { useExpenseFormBottomSheet } from './useExpenseFormOverlay'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { FLOATING_TAB_BAR_RESERVE } from '../../../shared/components'
+import { toast } from 'sonner-native'
 
 interface Props {
   tripId: string
@@ -30,7 +31,17 @@ export default function TripExpenseContent({ tripId }: Props) {
 
   const handleAddExpense = async () => {
     const data = await formBottomSheet.open()
-    if (data) create(data)
+    console.log(data)
+    if (data) {
+      try {
+        await create(data);
+        toast.success('지출내역이 등록됐어요.')
+      } catch (error) {
+        if (error instanceof Error) {
+          toast.error(`${error?.message}`)
+        }
+      }
+    }
   }
 
   const handleOpenRouteExpense = () => {

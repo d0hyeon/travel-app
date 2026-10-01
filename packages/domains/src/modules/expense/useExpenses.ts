@@ -1,14 +1,18 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query"
-import { tripKey } from "../trip/trip.api"
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
+import { tripKey } from "../trip/trip.api";
 import {
   createExpense,
   deleteExpense,
   expenseKey,
   getExpensesByTripId,
-  updateExpense
-} from "./expense.api"
-import type { Expense } from "./expense.types"
-import { useTripPlaces } from '../trip';
+  updateExpense,
+} from "./expense.api";
+import type { Expense } from "./expense.types";
+import { useTripPlaces } from "../trip";
 
 export function useExpenses(tripId: string) {
   const queryClient = useQueryClient();
@@ -17,59 +21,71 @@ export function useExpenses(tripId: string) {
     queryKey: useExpenses.key(tripId),
     queryFn: () => getExpensesByTripId(tripId),
     select: (expenses) => {
-      return expenses.map(x => ({
+      return expenses.map((x) => ({
         ...x,
-        place: x.placeId ? places.find(place => place.id === x.placeId) : undefined,
-      }))
-    }
-  })
+        place: x.placeId
+          ? places.find((place) => place.id === x.placeId)
+          : undefined,
+      }));
+    },
+  });
 
-  const { mutate: create } = useMutation({
-    mutationFn: async (payload: Omit<Expense, 'id' | 'tripId' | 'createdAt' | 'totalAmount'>) =>
+  const create = useMutation({
+    mutationFn: async (
+      payload: Omit<Expense, "id" | "tripId" | "createdAt" | "totalAmount">,
+    ) =>
       createExpense({
         tripId,
         totalAmount: payload.payments.reduce((acc, x) => acc + x.amount, 0),
         ...payload,
       }),
-    onSuccess: (newExpense) => {
-      queryClient.setQueryData<Expense[]>(useExpenses.key(tripId), (curr) => {
-        if (curr == null) return [newExpense];
-        return [newExpense, ...curr];
-      })
-    }
-  })
+    onSuccess: () => refetch(),
+  });
 
-  const { mutate: update } = useMutation({
-    mutationFn: async ({ expenseId, data }: {
-      expenseId: string
-      data: Partial<Omit<Expense, 'id' | 'tripId' | 'createdAt' | 'totalAmount'>>
-    }) => { 
+  const updation = useMutation({
+    mutationFn: async ({
+      expenseId,
+      data,
+    }: {
+      expenseId: string;
+      data: Partial<
+        Omit<Expense, "id" | "tripId" | "createdAt" | "totalAmount">
+      >;
+    }) => {
       return updateExpense(expenseId, {
         ...data,
         totalAmount: data.payments
           ? data.payments.reduce((acc, x) => acc + x.amount, 0)
-          : undefined
-      })
+          : undefined,
+      });
     },
-    onSuccess: () => refetch()
-  })
+    onSuccess: () => refetch(),
+  });
 
-  const { mutate: remove } = useMutation({
+  const remove = useMutation({
     mutationFn: deleteExpense,
     onSuccess: (_, id) => {
       queryClient.setQueryData<Expense[]>(useExpenses.key(tripId), (curr) => {
         if (curr == null) return;
-        return curr.filter(x => x.id !== id);
-      })
-    }
-  })
+        return curr.filter((x) => x.id !== id);
+      });
+    },
+  });
 
-  return { data, create, update, remove, refetch, ...queries }
+  return {
+    data,
+    create: Object.assign(create.mutateAsync, create),
+    // @ts-ignore
+    update: Object.apply(updation.mutateAsync, updation),
+    remove: Object.assign(remove.mutateAsync, remove),
+    refetch,
+    ...queries,
+  };
 }
 
-useExpenses.key = (tripId: string) => [tripKey, expenseKey, tripId]
+useExpenses.key = (tripId: string) => [tripKey, expenseKey, tripId];
 // 소비처가 자기 QueryClient 로 prefetch 한다.
 useExpenses.query = (tripId: string) => ({
   queryKey: useExpenses.key(tripId),
   queryFn: () => getExpensesByTripId(tripId),
-})
+});

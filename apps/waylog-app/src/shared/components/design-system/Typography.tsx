@@ -13,8 +13,8 @@ export const VARIANT_STYLE = StyleSheet.create({
   subtitle1: { fontSize: 14, lineHeight: 20, fontWeight: 600, fontFamily: 'SUIT-Bold' },
   subtitle2: { fontSize: 13, lineHeight: 18, fontWeight: 600, fontFamily: 'SUIT-Bold' },
 
-  body1: { fontSize: 16, lineHeight: 20, fontWeight: 500, fontFamily: 'SUIT' },
-  body2: { fontSize: 14, lineHeight: 18, fontWeight: 500, fontFamily: 'SUIT' },
+  body1: { fontSize: 15, lineHeight: 20, fontWeight: 500, fontFamily: 'SUIT' },
+  body2: { fontSize: 13, lineHeight: 18, fontWeight: 500, fontFamily: 'SUIT' },
 
   caption: { fontSize: 11, lineHeight: 14, fontWeight: 500, fontFamily: 'SUIT' },
 })
