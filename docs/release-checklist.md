@@ -165,7 +165,7 @@ Personal Team으로는 Sign in with Apple, Push Notifications, Associated Domain
 ### 아직 자동화하지 않은 것
 
 - [ ] 스토어 제출(`eas submit`)은 워크플로에 없다. 자동화하려면 `eas.json`에 `submit.production`(iOS `ascAppId`, Android 서비스 계정 키)이 필요하다. 첫 출시는 수동 제출로 하고 이후 자동화할지 정한다.
-- [ ] 필수 업데이트가 필요하면 Actions에서 `App CD`를 수동 실행하고 `is_mandatory`를 켠다. 일반 main 푸시는 항상 비필수로 게시된다.
+- [ ] GitHub에 `mandatory` 라벨을 만든다. 필수 업데이트가 필요한 PR에 이 라벨을 붙이고 병합하면 main 배포가 필수로 게시된다. 라벨은 병합 전에 붙여야 한다. 병합 후에 필요해지면 Actions에서 `App CD`를 수동 실행하고 `is_mandatory`를 켠다.
 
 ## 7. 결정할 것과 후속 작업
 

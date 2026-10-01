@@ -51,8 +51,9 @@ jobs:
     name: EAS Update (production)
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
-    env:
-      BUNDLE_IS_MANDATORY: ${{ inputs.is_mandatory == true && 'true' || 'false' }}
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
@@ -60,8 +61,22 @@ jobs:
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
+      - name: Read mandatory label
+        id: mandatory
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          LABELS=$(gh api repos/${{ github.repository }}/commits/${{ github.sha }}/pulls --jq '.[].labels[].name')
+          if echo "$LABELS" | grep -qx mandatory; then
+            echo "value=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=false" >> "$GITHUB_OUTPUT"
+          fi
       - run: pnpm test
       - run: eas update --branch production --environment production --message "${{ github.sha }}" --non-interactive
+        env:
+          BUNDLE_IS_MANDATORY: ${{ inputs.is_mandatory == true && 'true' || steps.mandatory.outputs.value || 'false' }}
 
   build:
     name: EAS Build (iOS)

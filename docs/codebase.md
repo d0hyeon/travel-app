@@ -75,7 +75,7 @@ TicketViewer 내부의 `ConfirmDialog`와 `ActionSheet`다. 공용 `Button`도 T
 
 앱 CD가 쓰는 시크릿은 GitHub의 `EXPO_TOKEN` 하나다. `EXPO_PUBLIC_*` 값은 expo.dev의 환경변수
 (`eas.json` 프로필의 `environment`: development·preview·production)에서 불러온다.
-수동 실행의 `is_mandatory`는 `BUNDLE_IS_MANDATORY`로 넘어가 필수 업데이트 여부가 된다.
+병합된 PR에 `mandatory` 라벨이 있으면 main 푸시 배포가 `BUNDLE_IS_MANDATORY=true`로 나가 필수 업데이트가 된다. 수동 실행의 `is_mandatory`도 같은 값으로 넘어간다.
 
 `ts-check`는 각 워크스페이스가 `tsc` 스크립트를 가지며 루트에서 `pnpm -r --if-present`로 모두 돈다.
 
