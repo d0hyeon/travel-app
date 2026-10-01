@@ -27,8 +27,13 @@ function KakaoSymbol() {
   )
 }
 
-export function LoginScreen() {
+interface LoginScreenProps {
+  bottomContentInset?: number
+}
+
+export function LoginScreen({ bottomContentInset }: LoginScreenProps) {
   const insets = useSafeAreaInsets()
+  const bottomInset = bottomContentInset ?? insets.bottom
   const [error, setError] = useState<string | null>(null)
   const [isPending, setIsPending] = useState(false)
 
@@ -48,7 +53,7 @@ export function LoginScreen() {
   }
 
   return (
-    <View style={[styles.container, { paddingBottom: insets.bottom + 24 }]}>
+    <View style={[styles.container, { paddingBottom: bottomInset + 24 }]}>
       <View style={styles.banner}>
         <View style={styles.logo}>
           <Image source={logoImage} style={styles.logoImage} />

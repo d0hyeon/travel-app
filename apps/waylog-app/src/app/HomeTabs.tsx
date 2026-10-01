@@ -1,86 +1,131 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import { StyleSheet } from 'react-native'
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
+import { PropsWithChildren, Suspense } from 'react'
+import { ActivityIndicator, StyleSheet, View } from 'react-native'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { AuthGuard, useAuth } from '@waylog/domains/clients'
-import { palette } from '../shared/config/tokens'
-import { RequireAuthRedirect } from '../features/auth/auth-redirect'
+import { LoginScreen } from '../features/auth/LoginScreen'
 import { TripListScreen } from '../features/trip/trip-list/TripListScreen'
+import { GuestTripsScreen } from '../features/trip/trip-list/GuestTripsScreen'
 import { FeedScreen } from '../features/post/FeedScreen'
 import { ExplorerCatalogScreen } from '../features/explorer/ExplorerCatalogScreen'
 import { UserProfileScreen } from '../features/user-profile/UserProfileScreen'
-import { RouterTabNavigation, TRANSPARENT_SCENE_STYLE, FLOATING_TAB_BAR_RESERVE } from '../shared/components'
+import { RouterTabNavigation, TRANSPARENT_SCENE_STYLE, FLOATING_TAB_BAR_RESERVE, TabNavigation } from '../shared/components'
 import type { HomeTabParamList } from './routes'
-import { AppRoute } from './AppRoute'
+import { palette } from '~shared/config/tokens'
 
-const Tab = createBottomTabNavigator<HomeTabParamList>()
+const Tab = createMaterialTopTabNavigator<HomeTabParamList>()
 
 export function HomeTabs() {
+  const { data: auth } = useAuth({ required: false })
+  const isSignedIn = auth != null
+
   return (
     <Tab.Navigator
       backBehavior="history"
+      tabBarPosition="bottom"
       tabBar={(props) => (
         <RouterTabNavigation
           {...props}
-
           visibleNames={['MyTrips', 'Feed', 'Explorer', 'Profile']}
           style={styles.floatingTabBar}
         />
       )}
       screenOptions={{
-        headerShown: false,
+        lazy: true,
         sceneStyle: TRANSPARENT_SCENE_STYLE,
-        tabBarActiveTintColor: palette.primary,
-        tabBarInactiveTintColor: palette.textSecondary,
       }}
     >
       <Tab.Screen
         name="MyTrips"
-        options={{ title: '내 여행', tabBarIcon: ({ color, size }) => <MaterialIcons name="luggage" color={color} size={size} /> }}
+        options={{ title: '내 여행', tabBarIcon: ({ color }) => <MaterialIcons name="luggage" color={color} size={22} /> }}
       >
         {() => (
-          <AuthGuard fallback={<RequireAuthRedirect returnTo={{ screen: AppRoute.메인 }} />}>
-            <TripListScreen />
-          </AuthGuard>
+          <ScreenLayout>
+            <TabSuspense>
+              <AuthGuard fallback={<GuestTripsScreen />}>
+                <TripListScreen />
+              </AuthGuard>
+            </TabSuspense>
+          </ScreenLayout>
         )}
       </Tab.Screen>
       <Tab.Screen
         name="Feed"
-        component={FeedScreen}
-        options={{ title: '피드', tabBarIcon: ({ color, size }) => <MaterialIcons name="dynamic-feed" color={color} size={size} /> }}
+        component={() => (
+          <ScreenLayout>
+            <FeedScreen />
+          </ScreenLayout>
+        )}
+        options={{ title: '피드', tabBarIcon: ({ color }) => <MaterialIcons name="dynamic-feed" color={color} size={22} /> }}
       />
       <Tab.Screen
         name="Explorer"
-        options={{ title: '탐색', tabBarIcon: ({ color, size }) => <MaterialIcons name="explore" color={color} size={size} /> }}
+        options={{ title: '탐색', tabBarIcon: ({ color }) => <MaterialIcons name="explore" color={color} size={22} /> }}
       >
-        {() => <ExplorerTab />}
+        {() => (
+          <ScreenLayout>
+            <TabSuspense>
+              <ExplorerTab />
+            </TabSuspense>
+          </ScreenLayout>
+        )}
       </Tab.Screen>
       <Tab.Screen
         name="Profile"
-        options={{ title: '프로필', tabBarIcon: ({ color, size }) => <MaterialIcons name="person-outline" color={color} size={size} /> }}
+        options={{
+          title: isSignedIn ? '프로필' : '로그인',
+          tabBarIcon: ({ color }) => <MaterialIcons name={isSignedIn ? 'person-outline' : 'login'} color={color} size={22} />,
+        }}
       >
         {() => (
-          <AuthGuard fallback={<RequireAuthRedirect returnTo={{ screen: AppRoute.메인 }} />}>
-            <ProfileTab />
-          </AuthGuard>
+          <ScreenLayout>
+            <TabSuspense>
+              <AuthGuard fallback={<LoginScreen bottomContentInset={0} />}>
+                <ProfileTab />
+              </AuthGuard>
+            </TabSuspense>
+          </ScreenLayout>
         )}
       </Tab.Screen>
     </Tab.Navigator>
   )
 }
 
-// 기존 app/(tabs)/explorer.tsx 가 하던 것 그대로 — 탭바 높이를 콘텐츠 바닥 여백으로 넘긴다.
-function ExplorerTab() {
-  return <ExplorerCatalogScreen bottomContentInset={FLOATING_TAB_BAR_RESERVE} />
+function TabSuspense({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense
+      fallback={
+        <View style={styles.loading}>
+          <ActivityIndicator />
+        </View>
+      }
+    >
+      {children}
+    </Suspense>
+  )
 }
 
-// 기존 app/(tabs)/profile.tsx 가 하던 것 그대로.
+function ScreenLayout({ children }: PropsWithChildren) {
+  return (
+    <SafeAreaView edges={['bottom']} style={styles.container}>
+      {children}
+    </SafeAreaView>
+  )
+}
+
+function ExplorerTab() {
+  return <ExplorerCatalogScreen />
+}
+
 function ProfileTab() {
-  const { data: auth } = useAuth()
-  return <UserProfileScreen userId={auth.id} bottomContentInset={FLOATING_TAB_BAR_RESERVE} />
+  const { data: auth } = useAuth({ required: true })
+  return <UserProfileScreen userId={auth.id} />
 }
 
 const styles = StyleSheet.create({
-  // 탭바가 scene 위에 얹혀야 콘텐츠가 바닥까지 이어진다. 가려지는 높이는
-  // 각 화면이 FLOATING_TAB_BAR_RESERVE 로 비운다.
+  container: { flex: 1, paddingBottom: TabNavigation.HEIGHT.default, backgroundColor: palette.background },
   floatingTabBar: { position: 'absolute', left: 0, right: 0, bottom: 0 },
+  loading: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 })
+
