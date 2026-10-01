@@ -197,7 +197,7 @@ packages/
 │           ├── photo/           # 사진 조회·삭제·수정
 │           ├── community-route/ # 커뮤니티 경로
 │           ├── open-graph/      # 링크 미리보기
-│           ├── place/           # 장소 조회·검색·추가
+│           ├── place/           # 장소 조회·검색·추가, 제공자 카테고리 → PlaceCategoryType 변환(placeCategory.utils)
 │           ├── post/            # 커뮤니티 포스트
 │           ├── route/           # 경로
 │           ├── storage/         # 스토리지
@@ -1086,6 +1086,20 @@ src/
 - 단계별 전략: `docs/strategies/plan-tab-concurrency.md`
 
 계획 탭 쓰기 경로를 수정할 때는 위 문서를 먼저 읽는다.
+
+### 장소 카테고리 (`places.category`)
+
+`places.category`(nullable text, check 제약 없음)는 장소 자체의 속성이고, `trip_places.category`는 여행별로 사용자가 바꿀 수 있는 값이다.
+
+- **원본 전달** — edge function `place-search`는 변환하지 않고 제공자 원본만 내린다. 카카오는 `category_name`(`음식점 > 카페 > 커피전문점` 같은 " > " 계층 문자열), 구글은 `primaryType`·`types`다. 카카오 `category_group_code`는 중요한 장소에서도 비어 있어(서울숲·백화점·공항 등) 쓰지 않는다.
+- **변환** — `searchPlaces()`가 `placeCategory.utils.ts`의 `toPlaceCategory`로 변환해 `PlaceResult.category`로 노출한다. 원본 필드(`categoryName`·`primaryType`·`types`)는 소비자에게 새지 않는다. 변환 규칙은 순서가 의미를 갖는다 — 카카오는 `술 → 카페 → 음식점 → … → 관광지` 순으로 경로 접두어를 비교하고, 구글은 정확 일치가 접미사(`*_restaurant`, `*_store`) 규칙보다 먼저다(`japanese_izakaya_restaurant`는 술). `*_station`은 주유소·충전소가 걸리므로 접미사 규칙을 쓰지 않고 대중교통 타입을 열거한다.
+- **구글 폴백** — `primaryType`이 없거나 범용(`point_of_interest` 등 Table B)이면 `types`를 순서대로 훑는다. 구체적인 `primaryType`은 매핑이 없어도 `types`로 폴백하지 않고 `기타`로 둔다. `store`도 범용 값으로 취급해 어느 경로에서든 단독으로는 쇼핑으로 끌려가지 않는다(`car_repair`의 `types`에 `store`가 섞여 있어도 쇼핑이 아니다).
+- **없음과 기타** — 제공자가 카테고리를 주지 않으면 `undefined`, 주었으나 규칙에 걸리지 않으면 `기타`다. 주거시설(카카오 `부동산 > 주거시설`, 구글 `apartment_*`)도 `기타`다. 탐색이 `기타`를 제외하므로 집을 경로 출발지로 담아도 탐색에 뜨지 않는다.
+- **저장** — `upsertPlace`가 신규 장소에 저장한다. `ignoreDuplicates`라 기존 행은 갱신되지 않으므로, 기존 행의 category가 null이고 넘어온 값이 있을 때만 `is('category', null)` 조건으로 patch한다. 이미 있는 값은 덮어쓰지 않는다. patch가 동시 요청에 져서 0행이면 다시 조회해 최신 값을 돌려준다.
+- **추천 장소 경로** — `useAddTripPlace`의 입력은 `{ placeId }`(이미 `places`에 있는 장소) 또는 `PlaceDraft`(검색 결과처럼 `places`에 아직 없을 수 있는 장소) 중 하나다. `PlaceDraft.category`는 제공자에서 변환된 `places.category`용이다. 추천 장소(`RecommendedPlace`)의 category는 다른 사용자가 여행별로 바꾼 `trip_places.category`에서 집계된 값이라 전역 `places.category`로 새면 안 된다. `RecommendedPlace.id`가 이미 전역 `places.id`이므로 추천 오버레이(웹 2곳·앱 1곳)는 `create({ placeId: place.id })`로 부르고, `createTripPlace`가 마스터 `place.category`를 상속한다. `RecommendedPlace`는 구조상 `PlaceDraft`로도 컴파일되므로 `create(place)`로 넘기면 안 된다. 추천 카드의 category는 색상 표시(accent)에만 쓴다.
+- **상속** — `createTripPlace`가 `params.category ?? place.category ?? null`로 저장한다. 명시한 값이 우선이고, 상속은 등록 시점의 초기값일 뿐 이후 연동되지 않는다. `trip_places`에 insert하는 경로는 `createTripPlace` 하나뿐이라 DB 트리거 대신 이곳에서 완결한다.
+- **탐색에서 카테고리 없는 장소·기타 제외** — `get_explored_places`와 `get_most_saved_places`는 어느 `trip_places`에도 `기타`가 아닌 카테고리가 없는 장소를 집계에서 뺀다(`20261001130000_explorer_exclude_etc_and_uncategorized_places.sql`). 웹·앱 `EXPLORER_CATEGORY_TYPES`도 `기타`·`대중교통` 칩을 뺀다. 집이 모든 여행의 출발지로 담겨 방문 수 1위가 되고, 그 최댓값이 다른 장소의 점수 정규화를 눌러 버리는 문제를 막는다. 방문·저장 수를 세기 전에 거르므로 정규화에도 제외된 장소가 섞이지 않는다. 한 여행에서라도 `기타` 외 카테고리가 있으면 포함된다. 새로 상속된 값이 `transit`이면 탐색 순위에서 제외되는 기존 규칙은 그대로다. 카테고리 할당률이 낮은 데이터에서는 목록이 크게 줄 수 있다.
+- 도시 공원·한강공원은 `공원`(`park`), 국립공원·자연휴양림·수목원 같은 자연 지형은 `숲`(`forest`)이다.
 
 ### 부분 업데이트 patch — undefined와 null의 구분
 
