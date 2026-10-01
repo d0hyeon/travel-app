@@ -1,19 +1,19 @@
-import { useTrips } from '@waylog/domains/modules/trip'
 import { MaterialIcons } from '@expo/vector-icons'
-import { useEffect, useState } from 'react'
+import { createNativeStackNavigator, type NativeStackHeaderProps } from '@react-navigation/native-stack'
+import { useFocusEffect } from '@react-navigation/native'
+import { useTrips } from '@waylog/domains/modules/trip'
+import { useCallback, useEffect, useState } from 'react'
 import { StyleSheet, Alert, Pressable } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Box, LinearProgress, Stack, Typography } from '~/shared/components/design-system'
-import { SwitchCase } from '../../../shared/components/SwitchCase'
 import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
 import { AppRoute } from '../../../app/AppRoute'
-import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
 import { palette } from '../../../shared/config/tokens'
 import { DateStep } from './DateStep'
 import { DestinationStep, type Destination } from './DestinationStep'
 import { InfoStep } from './InfoStep'
 
-export type TripCreateParams = { step?: string }
+export type TripCreateParams = Record<string, never>
 
 declare module '~app/routes' {
   interface RouteParamsRegistry {
@@ -30,36 +30,24 @@ const STEP_LABELS: Record<Step, string> = {
   info: '여행 이름을 입력해주세요',
 }
 
+// 퍼널을 자체 스택으로 세운다. 부모 스택에서 이 화면은 엔트리 하나이므로
+// 생성 후 replace 한 번만 해도 스텝 전체가 함께 걷힌다.
+const Funnel = createNativeStackNavigator()
+
 export function TripCreateScreen() {
   const navigation = useAppNavigation()
   const { create } = useTrips()
   const insets = useSafeAreaInsets()
 
-  const [step, setStep] = useQueryParamState<Step>('step', { defaultValue: 'destination' })
-  const currentIndex = STEPS.indexOf(step)
-
+  const [step, setStep] = useState<Step>('destination')
   const [destinations, setDestinations] = useState<Destination[]>([])
   const [dateRange, setDateRange] = useState<[string, string] | null>(null)
 
-  // 이전 스텝 상태 없이 직접 접근하면 처음으로 돌려보냄
+  // 두 스택에 제스처를 함께 열어두면 같은 스와이프를 다투어 스텝 백과 퍼널 이탈이 번갈아 일어난다.
+  // 첫 스텝에서만 부모가 받는다.
   useEffect(() => {
-    if (step === 'date' && destinations.length === 0) {
-      setStep('destination')
-    }
-    if (step === 'info' && (destinations.length === 0 || dateRange === null)) {
-      setStep(destinations.length === 0 ? 'destination' : 'date')
-    }
-  }, [step])
-
-  const handleDestinationNext = (nextDestinations: Destination[]) => {
-    setDestinations(nextDestinations)
-    setStep('date')
-  }
-
-  const handleDateNext = (start: string, end: string) => {
-    setDateRange([start, end])
-    setStep('info')
-  }
+    navigation.setOptions({ gestureEnabled: step === 'destination' })
+  }, [navigation, step])
 
   const handleInfoNext = async (name: string) => {
     if (destinations.length === 0 || !dateRange) return
@@ -88,6 +76,75 @@ export function TripCreateScreen() {
 
   return (
     <Box style={[styles.screen, { paddingTop: insets.top }]}>
+      <Funnel.Navigator
+        initialRouteName="destination"
+        screenOptions={{
+          header: (props) => <TripCreateHeader {...props} />,
+          contentStyle: { backgroundColor: palette.background },
+        }}
+      >
+        <Funnel.Screen name="destination">
+          {({ navigation: funnel }) => (
+            <StepBoundary step="destination" onFocus={setStep}>
+              <DestinationStep
+                defaultValue={destinations}
+                onNext={(next) => {
+                  setDestinations(next)
+                  funnel.navigate('date')
+                }}
+              />
+            </StepBoundary>
+          )}
+        </Funnel.Screen>
+        <Funnel.Screen name="date">
+          {({ navigation: funnel }) => (
+            <StepBoundary step="date" onFocus={setStep}>
+              <DateStep
+                defaultValue={dateRange}
+                onNext={(start, end) => {
+                  setDateRange([start, end])
+                  funnel.navigate('info')
+                }}
+              />
+            </StepBoundary>
+          )}
+        </Funnel.Screen>
+        <Funnel.Screen name="info">
+          {() => (
+            <StepBoundary step="info" onFocus={setStep}>
+              {destinations.length > 0 && (
+                <InfoStep
+                  destination={destinations.map((d) => d.name).join(', ')}
+                  onNext={handleInfoNext}
+                />
+              )}
+            </StepBoundary>
+          )}
+        </Funnel.Screen>
+      </Funnel.Navigator>
+    </Box>
+  )
+}
+
+// Navigator 바깥에서는 현재 스텝을 읽을 수 없어 스텝이 스스로 알린다.
+function StepBoundary({
+  step,
+  onFocus,
+  children,
+}: {
+  step: Step
+  onFocus: (step: Step) => void
+  children: React.ReactNode
+}) {
+  useFocusEffect(useCallback(() => onFocus(step), [step, onFocus]))
+  return <>{children}</>
+}
+
+function TripCreateHeader({ navigation, route }: NativeStackHeaderProps) {
+  const currentIndex = STEPS.findIndex((step) => step === route.name)
+
+  return (
+    <Box>
       <Stack direction="row" alignItems="center" style={styles.header}>
         <Pressable
           accessibilityLabel="뒤로가기"
@@ -101,25 +158,9 @@ export function TripCreateScreen() {
         </Typography>
       </Stack>
       <LinearProgress value={((currentIndex + 1) / STEPS.length) * 100} />
-
       <Box style={styles.actions}>
-        <Typography variant="h6">{STEP_LABELS[step]}</Typography>
+        <Typography variant="h6">{STEP_LABELS[STEPS[currentIndex]]}</Typography>
       </Box>
-
-      <SwitchCase
-        value={step}
-        cases={{
-          destination: () => <DestinationStep defaultValue={destinations} onNext={handleDestinationNext} />,
-          date: () => <DateStep defaultValue={dateRange} onNext={handleDateNext} />,
-          info: () =>
-            destinations.length > 0 && (
-              <InfoStep
-                destination={destinations.map((d) => d.name).join(', ')}
-                onNext={handleInfoNext}
-              />
-            ),
-        }}
-      />
     </Box>
   )
 }

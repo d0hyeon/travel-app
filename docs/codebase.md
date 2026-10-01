@@ -531,7 +531,7 @@ src/
 │       │   ├── communityRoute.types.ts
 │       │   ├── useCommunityRoutes.ts
 │       │   └── useCommunityRouteDetail.ts
-│       ├── trip-create/                   # 여행 생성 마법사 (3단계)
+│       ├── trip-create/                   # 여행 생성 마법사 (3단계). 앱은 탑승권·포스트 퍼널처럼 자체 네이티브 스택으로 스텝을 쌓아 뒤로가기가 한 스텝씩 돌아간다
 │       │   ├── TripCreatePage.tsx
 │       │   ├── DestinationStep.tsx
 │       │   ├── DateStep.tsx
