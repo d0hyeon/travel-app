@@ -1,6 +1,6 @@
+import { MaterialIcons } from '@expo/vector-icons'
 import { StyleSheet, Pressable, type StyleProp, type ViewStyle } from 'react-native'
 import { palette } from '../../config/tokens'
-import { Typography } from './Typography'
 
 export interface CheckboxProps {
   checked?: boolean
@@ -19,11 +19,7 @@ export function Checkbox({ checked = false, size = 'medium', onChange, style }: 
         style,
       ]}
     >
-      {checked && (
-        <Typography style={[styles.typography, { fontSize: size === 'small' ? 11 : 13 }]}>
-          ✓
-      </Typography>
-      )}
+      {checked && <MaterialIcons name="check" size={size === 'small' ? 12 : 16} color="#fff" />}
     </Pressable>
   )
 }
@@ -34,9 +30,5 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  typography: {
-    color: '#fff',
-    fontWeight: '900',
   },
 })
