@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { ActivityIndicator, Image, Platform, StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Svg, { Path } from 'react-native-svg'
+import { toast } from 'sonner-native'
 import { Button, Divider, Stack, TextField, Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../shared/config/tokens'
 import logoImage from '../../../assets/logo.png'
@@ -34,20 +35,18 @@ interface LoginScreenProps {
 export function LoginScreen({ bottomContentInset }: LoginScreenProps) {
   const insets = useSafeAreaInsets()
   const bottomInset = bottomContentInset ?? insets.bottom
-  const [error, setError] = useState<string | null>(null)
   const [isPending, setIsPending] = useState(false)
 
   async function handleSignIn(signIn: (input: { redirectTo: string }) => Promise<boolean>) {
     if (isPending) return
-    setError(null)
     setIsPending(true)
     try {
       const isSignedIn = await signIn({ redirectTo: Linking.createURL('auth/callback') })
       // 성공하면 세션 변경이 이 화면을 곧바로 걷어낸다. 여기서 대기 상태를 풀면
       // 언마운트 직전에 버튼이 한 번 되살아난다. 취소는 화면이 그대로 남으므로 풀어준다.
       if (!isSignedIn) setIsPending(false)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : '로그인에 실패했습니다')
+    } catch {
+      toast.error('로그인에 실패했어요. 잠시 후 다시 시도해 주세요')
       setIsPending(false)
     }
   }
@@ -94,11 +93,6 @@ export function LoginScreen({ bottomContentInset }: LoginScreenProps) {
         )}
       </Stack>
 
-      {error != null && (
-        <Typography variant="body2" color="error" textAlign="center">
-          {error}
-        </Typography>
-      )}
       {__DEV__ && <DevEmailLogin />}
     </View>
   )
