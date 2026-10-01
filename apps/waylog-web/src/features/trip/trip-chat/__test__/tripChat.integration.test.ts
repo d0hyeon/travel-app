@@ -10,7 +10,6 @@ import { getUnreadCount, markAsRead, getLastReadAt } from '@waylog/domains/modul
 import { MOCK_MESSAGES } from '../tripChat.mock'
 import { MOCK_TRIP_ID } from '~features/trip/trip.mock'
 import { MOCK_SESSION } from '~features/auth/auth.mock'
-import { queryClient as appQueryClient } from '~app/query-client'
 import { supabase } from '@waylog/domains/clients'
 
 // ────────────────────────────────────────────────────────────
@@ -34,9 +33,10 @@ vi.mock('@waylog/domains/clients', async (importOriginal) => {
 const server = setupServer(...handlers)
 beforeAll(() => {
   server.listen()
-  appQueryClient.setQueryData(['auth'], MOCK_SESSION.user)
-  // sendChatMessage 는 supabase.auth.getUser() 로 사용자를 조회한다.
-  // 세션이 없으면 supabase-js 가 요청을 보내지 않아 MSW handler 에 닿지 않는다.
+  vi.spyOn(supabase.auth, 'getSession').mockResolvedValue({
+    data: { session: MOCK_SESSION },
+    error: null,
+  } as unknown as Awaited<ReturnType<typeof supabase.auth.getSession>>)
   vi.spyOn(supabase.auth, 'getUser').mockResolvedValue({
     data: { user: MOCK_SESSION.user },
     error: null,
