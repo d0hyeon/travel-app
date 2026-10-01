@@ -34,7 +34,7 @@ export function RecentHotPlacesSection({ location, category }: Props) {
             <ExplorerPlaceCard
               key={place.placeId}
               width={160}
-              place={{ ...place, countLabel: `${place.visitorCount.toLocaleString()}번 방문` }}
+              place={place}
               onPress={() => navigation.navigate(AppRoute.장소_상세, { placeId: place.placeId })}
             />
           ))}

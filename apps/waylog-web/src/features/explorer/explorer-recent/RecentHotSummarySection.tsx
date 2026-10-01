@@ -1,18 +1,17 @@
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { Box, Button, Skeleton, Stack, Typography, type ButtonProps } from '@mui/material'
-import { useMemo, useState } from 'react'
-import { generatePath, Link } from 'react-router'
 import { AppRoute } from '@waylog/routes'
+import { useMemo } from 'react'
+import { generatePath, Link } from 'react-router'
 import { PlaceFullScreenModal } from '~features/place/place-detail/PlaceFullScreenModal'
 import { PlaceSidePanel } from '~features/place/place-detail/PlaceSidePanel'
+import { Scrollable } from '~shared/components/Scrollable'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useRouteOverlay } from '~shared/hooks/extends/route-overlay/useRouteOverlay'
-import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
 import { PlaceCard } from '../explorer-place-item/PlaceCard'
 import { buildExplorerDetailUrl } from '../explorer.utils'
 import { useRecentHotPlaces } from './useRecentHotPlaces'
-import { Scrollable } from '~shared/components/Scrollable'
 
 const SECTION_LIMIT = 10
 
@@ -54,7 +53,7 @@ export function RecentHotSummarySection() {
           {topHotPlaces.map((place) => (
             <Box key={place.placeId} sx={{ width: isMobile ? 140 : 200, flexShrink: 0 }}>
               <PlaceOverlayLink key={place.placeId} data={place.placeId}>
-                <PlaceCard place={{ ...place, countLabel: `${place.visitorCount}번 방문` }} />
+                <PlaceCard place={place} />
               </PlaceOverlayLink>
             </Box>
           ))}

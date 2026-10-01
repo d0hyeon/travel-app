@@ -126,7 +126,7 @@ function RecentHotGrid({
       {places.map((place) => (
         <Grid key={place.placeId} size={1}>
           <Trigger key={place.placeId} placeId={place.placeId}>
-            <PlaceCard place={{ ...place, countLabel: `${place.visitorCount}번 방문` }} />
+            <PlaceCard place={place} />
           </Trigger>
         </Grid>
       ))}

@@ -10,7 +10,6 @@ interface PlaceCardPlace {
   destinations: string[]
   categories: PlaceCategoryType[]
   thumbnailUrl?: string
-  countLabel: string
 }
 
 export function PlaceCard({ place, onClick }: { place: PlaceCardPlace; onClick?: () => void }) {
@@ -46,12 +45,6 @@ export function PlaceCard({ place, onClick }: { place: PlaceCardPlace; onClick?:
           <Typography variant="caption" color="textSecondary">
             {place.destinations.join(', ')}
           </Typography>
-          <Stack direction="row" alignItems="center" gap={0.5} mt={0.5}>
-            <PeopleIcon sx={{ fontSize: 11, color: 'primary.main' }} />
-            <Typography variant="caption" color="primary" fontWeight={700}>
-              {place.countLabel}
-            </Typography>
-          </Stack>
         </Box>
       </CardActionArea>
     </Card>

@@ -59,7 +59,7 @@ function MostSavedContent({
     return <ExplorerMap places={places} location={location} />
   }
 
-  return <ExplorerRankingGrid places={places} countLabel={(place) => ('saveCount' in place ? `${place.saveCount.toLocaleString()}번 저장됨` : '')} onScroll={onScroll} contentTopInset={contentTopInset} />
+  return <ExplorerRankingGrid places={places} onScroll={onScroll} contentTopInset={contentTopInset} />
 }
 
 /** top은 오버레이 헤더가 직접 처리한다. */

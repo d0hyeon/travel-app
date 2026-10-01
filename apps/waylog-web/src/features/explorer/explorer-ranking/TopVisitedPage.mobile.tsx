@@ -107,7 +107,7 @@ function TopVisitedGrid({
     <Grid container spacing={1.5} columns={2}>
       {sorted.map((place) => (
         <Grid key={place.placeId} size={1}>
-          <PlaceCard place={{ ...place, countLabel: `${place.visitorCount}번 방문` }} onClick={() => openDetail(place)} />
+          <PlaceCard place={place} onClick={() => openDetail(place)} />
         </Grid>
       ))}
     </Grid>

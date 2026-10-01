@@ -94,7 +94,7 @@ function MostSavedGrid({
       {places.map((place) => (
         <Grid key={place.placeId} size={1}>
           <Trigger key={place.placeId} placeId={place.placeId}>
-            <PlaceCard place={{ ...place, countLabel: `${place.saveCount}번 저장됨` }} />
+            <PlaceCard place={place} />
           </Trigger>
         </Grid>
       ))}

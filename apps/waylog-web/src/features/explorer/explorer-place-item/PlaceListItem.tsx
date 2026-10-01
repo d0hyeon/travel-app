@@ -10,7 +10,6 @@ interface Place {
   address: string
   categories: PlaceCategoryType[]
   thumbnailUrl?: string
-  countLabel: string
 }
 
 interface Props extends BoxProps<'button'> {
@@ -48,12 +47,7 @@ export function PlaceListItem({ place, size = 'small', ...props }: Props) {
             {subText}
           </Typography>
         )}
-        <Stack direction="row" alignItems="center" gap={0.5} mt={0.5}>
-          <PeopleIcon sx={{ fontSize: 11, color: 'primary.main' }} />
-          <Typography variant="caption" color="primary" fontWeight={700}>
-            {place.countLabel}
-          </Typography>
-        </Stack>
+
       </Box>
     </BaseItem>
   )

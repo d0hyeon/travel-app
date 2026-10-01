@@ -78,7 +78,7 @@ function TopVisiteList({
         <Trigger key={place.placeId} placeId={place.placeId}>
           <PlaceListItem
             id={place.placeId}
-            place={{ ...place, countLabel: `${place.visitorCount}번 저장됨` }}
+            place={place}
             size="large"
           />
         </Trigger>

@@ -8,13 +8,12 @@ import type { ExplorerPlace } from '../useAttentionPlaces'
 
 interface Props {
   places: ExplorerPlace[]
-  countLabel: (place: ExplorerPlace) => string
   onScroll: ReturnType<typeof useScrollStatus>['onScroll']
   contentTopInset: number
 }
 
 /** 순위 화면(top-visited/recent-hot/most-saved) 공통 2열 그리드 목록. */
-export function ExplorerRankingGrid({ places, countLabel, onScroll, contentTopInset }: Props) {
+export function ExplorerRankingGrid({ places, onScroll, contentTopInset }: Props) {
   const { width } = useWindowDimensions()
   const navigation = useAppNavigation()
 
@@ -30,7 +29,7 @@ export function ExplorerRankingGrid({ places, countLabel, onScroll, contentTopIn
           <ExplorerPlaceCard
             key={place.placeId}
             width={(width - 44) / 2}
-            place={{ ...place, countLabel: countLabel(place) }}
+            place={place}
             onPress={() => navigation.navigate(AppRoute.장소_상세, { placeId: place.placeId })}
           />
         ))}

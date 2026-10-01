@@ -59,7 +59,12 @@ function TopVisitedContent({
     return <ExplorerMap places={places} location={location} />
   }
 
-  return <ExplorerRankingGrid places={places} countLabel={(place) => ('visitorCount' in place ? `${place.visitorCount.toLocaleString()}번 방문` : '')} onScroll={onScroll} contentTopInset={contentTopInset} />
+  return (
+    <ExplorerRankingGrid
+      places={places}
+      onScroll={onScroll} contentTopInset={contentTopInset}
+    />
+  )
 }
 
 /** top은 오버레이 헤더가 직접 처리한다. */

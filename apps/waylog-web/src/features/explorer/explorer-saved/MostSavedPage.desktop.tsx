@@ -76,7 +76,7 @@ function MostSavedList({
         <Trigger key={place.placeId} placeId={place.placeId}>
           <PlaceListItem
             id={place.placeId}
-            place={{ ...place, countLabel: `${place.saveCount}번 저장됨` }}
+            place={place}
             size="large"
           />
         </Trigger>

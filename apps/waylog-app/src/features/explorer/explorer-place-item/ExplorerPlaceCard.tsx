@@ -12,7 +12,6 @@ interface PlaceCardData {
   address?: string
   categories: PlaceCategoryType[]
   thumbnailUrl?: string
-  countLabel: string
 }
 
 interface Props {
@@ -46,9 +45,6 @@ export function ExplorerPlaceCard({ place, onPress, width }: Props) {
               {subtitle}
             </Typography>
           )}
-          <Typography variant="caption" color="primary" fontWeight="bold">
-            {place.countLabel}
-          </Typography>
         </View>
       </View>
     </Pressable>
@@ -78,9 +74,6 @@ export function ExplorerPlaceRow({ place, onPress }: Omit<Props, 'width'>) {
         </Typography>
         <Typography variant="caption" color="text.secondary" numberOfLines={1}>
           {[categoryLabel, place.address].filter(Boolean).join(' · ')}
-        </Typography>
-        <Typography variant="caption" color="primary" fontWeight="bold">
-          {place.countLabel}
         </Typography>
       </View>
     </Pressable>
