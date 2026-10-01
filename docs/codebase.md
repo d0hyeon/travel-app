@@ -142,7 +142,10 @@ apps/
 │   │   │   │   │                #   최소 버전을 앱에 구우면 이미 배포된 옛 앱을 막을 수 없어 서버가 소유한다. anon 읽기 전용, 수정은 대시보드
 │   │   │   │   ├── appUpdateRequirement.utils.ts # isVersionBelow — 숫자 비교, 해석 불가면 false(막지 않음)
 │   │   │   │   └── ForcedUpdateScreen.tsx # 닫을 수 없는 업데이트 요구 화면. AppBootstrap이 준비 완료 후 children 대신 렌더
-│   │   │   └── HomeTabs.tsx    # 홈 4탭(내 여행/피드/탐색/프로필)
+│   │   │   └── HomeTabs.tsx    # 홈 4탭(내 여행/피드/탐색/프로필). material-top-tabs(하단 배치, react-native-pager-view)로 좌우 스와이프 전환·lazy 마운트.
+│   │   │                        #   탐색 탭의 지도 모드는 지도 패닝과 겹쳐 useTabSwipeLock 으로 그 동안만 스와이프를 잠근다. 내 여행·프로필은 AuthGuard(fallback)로 감싸
+│   │   │                        #   세션이 없으면 탭바는 둔 채 그 자리에 게스트 화면(GuestTripsScreen / LoginScreen)을 그린다.
+│   │   │                        #   프로필 탭은 비로그인이면 라벨·아이콘이 '로그인'으로 바뀐다. 탭마다 자체 Suspense
 │   │   ├── features/           # 웹 features 구조를 미러링. trip/TripDetailStack.tsx·TripDetailTabs.tsx 가
 │   │   │   │                    #   여행 상세 스택+탭 중첩을 구성
 │   │   └── shared/
@@ -155,7 +158,7 @@ apps/
 │   │       │   ├── bottom-sheet/ # 자체 구현 (Reanimated) — 웹과 같은 공개 API. Body 레이아웃·ScrollView 제스처
 │   │       │   ├── action-sheet/ # 하단 액션 시트 (Modal + 슬라이드업). PopMenu 가 트리거를 얹어 쓴다
 │   │       │   ├── tab-navigation/ # 하단 탭바. variant default(라운드+그림자)·apple(블러) 전환.
-│   │       │   │                #   RouterTabNavigation 이 react-navigation bottom-tabs 어댑터
+│   │       │   │                #   RouterTabNavigation 이 react-navigation 탭 어댑터(bottom-tabs·material-top-tabs 공용, state·descriptors·navigation 구조만 요구)
 │   │       │   ├── date-picker/ # 날짜·기간·시각 선택 (바텀시트 + 스와이프 달력)
 │   │       │   ├── photo/      # PhotoBottomSheet(여행·장소 공용 상세 뷰어), usePhotoViewerState,
 │   │       │   │                #   ZoomArea, PhotoVisibilityBadge
@@ -278,6 +281,10 @@ capability다. bridge client는 실제 `ReactNativeWebView` 환경에서만 생�
   세션 만료 감지는 `useLoginRedirect()`, 복귀는 `login.tsx`의 `useReturnTo()`가 읽는다.
   로그인 성공 후 별도 이동 코드는 없다 — 세션이 갱신되면 `login.tsx`의 `useAuth`가
   재평가되어 `<Redirect href={returnTo} />`가 스스로 동작한다.
+  앱의 설정 계열 화면(설정·계정 설정·차단 목록)은 로그인 화면 대신 `SignedOutRedirect`로 홈(`메인`)에 돌려보낸다.
+  읽기 위주의 공개 화면(포스트 상세·장소 상세·장소 순위 3종·타 유저 프로필)은 `AuthGuard` 없이 게스트에게도 열린다.
+  로그인이 필요한 쓰기 동작(신고·차단 등)은 실행 시점에 세션을 확인한다.
+  로그아웃·탈퇴 직후 이동 목적지도 홈이라, 비로그인 상태의 홈 탭(게스트 화면)에서 앱을 다시 둘러본다.
   OAuth의 `redirectTo`(`waylog://auth/callback`)와는 다른 개념이다. 웹은 둘이 같은 URL
   이지만 앱은 콜백이 딥링크 스킴이어야 해 분리된다. 외부에서 심어진 절대 URL로 튕기지
   않도록 `returnTo`는 앱 내부 경로만 받는다
@@ -360,7 +367,7 @@ src/
 │   │   ├── SignUpConsent.tsx      # 가입 대기 사용자의 약관 동의 화면 (루트 `WebSignUpGate`가 `/terms`·`/privacy` 외 전 라우트를 감싼다)
 │   │   ├── AuthNavigate.tsx
 │   │   └── AuthErrorBoundary.tsx  # 세션 만료(AuthError) 시 로그인 화면으로 리다이렉트
-│   │                              # 앱 대응: waylog-app/src/features/auth/AuthErrorBoundary.tsx
+│   │                              # 실제 구현은 packages/domains/src/gateways/auth/AuthErrorBoundary.tsx 하나를 웹·앱이 공유한다
 │   │
 │   ├── expense/                # 지출 도메인
 │   │   ├── expense.api.ts
@@ -572,7 +579,8 @@ src/
 │       │   ├── UpcomingCard.tsx
 │       │   ├── PastTripRow.tsx
 │       │   ├── CreateTripCardButton.tsx
-│       │   └── trip-list.utils.ts
+│       │   ├── trip-list.utils.ts
+│       │   └── (앱) GuestTripsScreen.tsx — 비로그인 내 여행 탭: 제목·아이콘 타일·안내 문구·하단 "로그인하고 시작하기" 버튼
 │       ├── trip-member/                   # 멤버 관리
 │       │   ├── tripMember.api.ts
 │       │   ├── tripMember.types.ts
