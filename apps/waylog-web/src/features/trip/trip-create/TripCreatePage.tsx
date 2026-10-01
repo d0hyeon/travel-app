@@ -1,12 +1,13 @@
 import { Box, CircularProgress, Container, LinearProgress, Typography } from '@mui/material'
 import { Suspense, useEffect, useState } from 'react'
-import { PrefetchPageLinks, useNavigate } from 'react-router'
+import { PrefetchPageLinks, useBlocker, useNavigate } from 'react-router'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState'
 import { lazy } from '~shared/utils/react'
 import { useTrips } from '@waylog/domains/modules/trip'
 import type { Destination } from './DestinationStep'
+import { toast } from 'sonner'
 
 const DestinationStep = lazy(async () => {
   const { DestinationStep } = await import('./DestinationStep')
@@ -52,14 +53,24 @@ export default function TripCreatePage() {
     }
   }, [step])
 
+  const isStepBackable = currentIndex > 0
+  const blocker = useBlocker(({ historyAction }) => isStepBackable && historyAction === 'POP')
+
+  useEffect(() => {
+    if (blocker.state !== 'blocked') return
+    const previousStep = STEPS[currentIndex - 1]
+    window.addEventListener('popstate', () => setStep(previousStep), { once: true })
+    blocker.reset()
+  }, [blocker.state])
+
   const handleDestinationNext = (dests: Destination[]) => {
     setDestinations(dests)
-    setStep('date', { replace: false })
+    setStep('date')
   }
 
   const handleDateNext = (start: string, end: string) => {
     setDateRange([start, end])
-    setStep('info', { replace: false })
+    setStep('info')
   }
 
   const handleInfoNext = async (name: string) => {
@@ -76,10 +87,10 @@ export default function TripCreatePage() {
         exchangeRate: null,
         exchangeRates: null,
       })
-      navigate(`/trip/${trip.id}`)
+      navigate(`/trip/${trip.id}`, { replace: true })
     } catch (e) {
       console.error('여행 생성 실패:', e)
-      alert('여행 생성에 실패했어요: ' + (e instanceof Error ? e.message : String(e)))
+      toast.error('여행 생성에 실패했어요: ' + (e instanceof Error ? e.message : String(e)))
     }
   }
 
