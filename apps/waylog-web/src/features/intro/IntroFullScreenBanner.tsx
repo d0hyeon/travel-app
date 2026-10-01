@@ -12,7 +12,6 @@ export function IntroFullScreenBanner({ children }: PropsWithChildren) {
         flexDirection: 'column',
         alignItems: 'center',
         bgcolor: 'background.default',
-        px: 3,
         pt: 6,
         pb: `calc(24px + env(safe-area-inset-bottom))`,
       }}

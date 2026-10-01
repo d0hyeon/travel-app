@@ -6,6 +6,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useEffect, useEffectEvent, type ReactNode } from 'react';
+import { useIsMobile } from '~shared/hooks/env/useIsMobile';
 
 export type ConfirmDialogProps = {
   title: string;
@@ -27,6 +28,8 @@ export function ConfirmDialog({ title, description, isOpen, confirmLabel = 'í™•ì
     }
   })
 
+  const isMobile = useIsMobile();
+
   useEffect(() => {
     document.addEventListener('keyup', handleKeyInput);
     return () => document.removeEventListener('keyup', handleKeyInput)
@@ -39,7 +42,7 @@ export function ConfirmDialog({ title, description, isOpen, confirmLabel = 'í™•ì
       aria-labelledby="custom-dialog-title"
       aria-describedby="custom-dialog-description"
     >
-      <DialogTitle id="custom-dialog-title" sx={{ whiteSpace: 'pre-wrap', fontSize: 14 }}>
+      <DialogTitle id="custom-dialog-title" sx={{ whiteSpace: 'pre-wrap', fontSize: isMobile ? 14 : 16 }}>
         {title}
       </DialogTitle>
       {description && (
@@ -84,6 +87,7 @@ const CustomDialog = styled(Dialog)({
     borderRadius: '24px',
     padding: '4px 2px',
     maxWidth: '500px',
+    minWidth: 360
   },
 });
 
