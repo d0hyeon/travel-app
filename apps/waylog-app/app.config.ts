@@ -37,8 +37,15 @@ const config: ExpoConfig = {
   },
   web: { favicon: "./assets/logo.png" },
   scheme: "waylog",
+  runtimeVersion: { policy: "appVersion" },
+  updates: {
+    url: `https://u.expo.dev/${process.env.EXPO_PUBLIC_EAS_PROJECT_ID}`,
+    checkAutomatically: "NEVER",
+    fallbackToCacheTimeout: 0,
+  },
   plugins: [
     "expo-web-browser",
+    "expo-updates",
     "expo-apple-authentication",
     [
       "@rnmapbox/maps",
@@ -94,6 +101,8 @@ const config: ExpoConfig = {
     // Expo 가 앱을 식별하는 값이다. 없으면 getExpoPushTokenAsync 가
     // 토큰을 만들지 못해 푸시 구독이 통째로 꺼진다(`eas init` 로 얻는다).
     eas: { projectId: process.env.EXPO_PUBLIC_EAS_PROJECT_ID },
+    // eas update 를 게시할 때 BUNDLE_IS_MANDATORY=true 를 주면 받은 직후 재시작한다.
+    isMandatory: process.env.BUNDLE_IS_MANDATORY === "true",
   },
 };
 
