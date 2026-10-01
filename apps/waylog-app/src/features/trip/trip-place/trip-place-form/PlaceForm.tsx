@@ -9,6 +9,7 @@ import { forwardRef, useCallback, useImperativeHandle, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Box, Chip, Stack, TextField, Typography } from '~/shared/components/design-system'
 import { PopMenu } from '../../../../shared/components/PopMenu'
+import { usePreservedCallback } from '@waylog/react'
 
 export interface PlaceFormValues {
   name: string
@@ -31,7 +32,7 @@ interface Props {
 
 // 웹 PlaceForm 과 같은 값 모양을 유지한다.
 export const PlaceForm = forwardRef<PlaceFormRef, Props>(function PlaceForm(
-  { defaultValues, readonly = false, onSubmit },
+  { defaultValues, readonly = false, ...props },
   ref,
 ) {
   const {
@@ -54,8 +55,10 @@ export const PlaceForm = forwardRef<PlaceFormRef, Props>(function PlaceForm(
   const category = watch('category')
   const tags = watch('tags');
 
+  const preservedOnSubmit = usePreservedCallback((data) => props.onSubmit?.(data));
+
   const submit = useCallback(
-    handleSubmit((data) => onSubmit?.(data)),
+    handleSubmit((data) => preservedOnSubmit(data)),
     [handleSubmit]
   )
 
