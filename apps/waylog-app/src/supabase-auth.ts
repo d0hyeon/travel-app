@@ -17,7 +17,14 @@ function readAuthCode(callbackUrl: string) {
   return searchParams.get('code')
 }
 
-const APPLE_REQUEST_CANCELED = 'ERR_REQUEST_CANCELED'
+const BRANDED_AUTHORIZE_URL = 'https://auth.waylog.me/auth/authorize'
+
+function toBrandedAuthorizeUrl(supabaseAuthorizeUrl: string) {
+  const { search } = new URL(supabaseAuthorizeUrl)
+  return `${BRANDED_AUTHORIZE_URL}${search}`
+}
+
+const APPLE_REQUEST_CANCELED ='ERR_REQUEST_CANCELED'
 
 function isAppleRequestCanceled(error: unknown) {
   return typeof error === 'object' && error != null && 'code' in error && error.code === APPLE_REQUEST_CANCELED
@@ -79,7 +86,7 @@ export function createAuthService(client: SupabaseClient<Database>): AuthService
       })
       if (error) throw error
 
-      const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo)
+      const result = await WebBrowser.openAuthSessionAsync(toBrandedAuthorizeUrl(data.url), redirectTo)
       if (result.type !== 'success') return false
 
       const authCode = readAuthCode(result.url)

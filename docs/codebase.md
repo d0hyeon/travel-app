@@ -282,6 +282,10 @@ capability다. bridge client는 실제 `ReactNativeWebView` 환경에서만 생�
   브라우저를 그대로 리다이렉트시키지만, 네이티브에는 리다이렉트할 브라우저 문맥이 없어
   `skipBrowserRedirect`로 URL만 받아 `expo-web-browser`로 띄우고
   `waylog://auth/callback` 딥링크로 돌아온 `code`를 `exchangeCodeForSession`으로 교환한다.
+  iOS 인증 세션 알럿은 처음 여는 URL의 호스트를 보여주므로, 앱은 Supabase 인증 URL의 쿼리를
+  `https://auth.waylog.me/auth/authorize`에 붙여 연다(`toBrandedAuthorizeUrl`). 이 서브도메인(`auth.waylog.me`)은
+  Cloudflare DNS(프록시 켬)에 두고 Redirect Rule이 `/auth/authorize`를 쿼리 보존 채 Supabase `/auth/v1/authorize`로 302 넘긴다.
+  카카오 콜백은 그대로 Supabase 도메인이다.
   앱 client만 `flowType: 'pkce'`인 이유다 — 기본값 `implicit`은 토큰을 URL 조각(`#`)에
   실어 보내 딥링크로 받기 어렵다. 콜백 주소는 Supabase Auth의 Redirect URLs에 등록해야 한다.
   로그인 화면은 웹 `IntroFullScreenBanner`와 같은 구성(로고 타일·태그라인이 가운데,
