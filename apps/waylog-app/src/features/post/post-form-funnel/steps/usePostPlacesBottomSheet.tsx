@@ -84,6 +84,7 @@ function PostPlacesSheet({
       address: result.address,
       lat: result.lat,
       lng: result.lng,
+      category: result.category,
     })
     setPlaces((current) =>
       current.some((candidate) => candidate.placeId === place.id)

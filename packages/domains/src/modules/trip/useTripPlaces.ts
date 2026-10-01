@@ -94,14 +94,17 @@ export function useTripPlaces(tripId: string, options?: QueryOptions) {
   };
 }
 
-export interface AddTripPlacePayload {
+export interface PlaceDraft {
   provider: string;
   externalId: string;
   name: string;
   address: string;
   lat: number;
   lng: number;
+  category?: PlaceCategoryType;
 }
+
+export type AddTripPlacePayload = { placeId: string } | PlaceDraft;
 
 export function useAddTripPlace(
   tripId: string,
@@ -113,19 +116,18 @@ export function useAddTripPlace(
   return useMutation({
     ...options,
     mutationFn: async (payload: AddTripPlacePayload) => {
+      if ("placeId" in payload) {
+        return createTripPlace({ tripId, placeId: payload.placeId });
+      }
+
       const place = await upsertPlace(payload.provider, payload.externalId, {
         name: payload.name,
         address: payload.address,
         lat: payload.lat,
         lng: payload.lng,
+        category: payload.category,
       });
-      return createTripPlace({
-        tripId,
-        placeId: place.id,
-        status: "wished" as PlaceStatus,
-        memo: "",
-        tags: [],
-      });
+      return createTripPlace({ tripId, placeId: place.id });
     },
   });
 }

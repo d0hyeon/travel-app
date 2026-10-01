@@ -62,7 +62,7 @@ function RecommendedPlaceDetailSheet({ place, tripId, isOpen, onClose }: Props) 
           loading={isPending}
           onPress={() => {
             startTransition(async () => {
-              await create(place);
+              await create({ placeId: place.id });
               await queryClient.invalidateQueries({
                 queryKey: useTripPlaces.key(tripId)
               })

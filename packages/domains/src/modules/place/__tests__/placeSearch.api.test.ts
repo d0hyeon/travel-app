@@ -106,3 +106,48 @@ describe('searchPlaces — google', () => {
     expect(result).toEqual({ results: googleResults, isEnd: false, nextPageToken: 'tok2' })
   })
 })
+
+describe('searchPlaces — category', () => {
+  it('카카오 categoryName을 category로 변환해 반환한다', async () => {
+    mockOk({
+      results: [{ ...kakaoResults[0], categoryName: '음식점 > 카페 > 커피전문점 > 스타벅스' }],
+      isEnd: true,
+    })
+
+    const { results } = await searchPlaces({ keyword: '스타벅스', provider: 'kakao', page: 1 })
+
+    expect(results[0].category).toBe('cafe')
+  })
+
+  it('구글 primaryType·types를 category로 변환해 반환한다', async () => {
+    mockOk({
+      results: [{ ...googleResults[0], primaryType: 'beach', types: ['beach', 'natural_feature'] }],
+      isEnd: true,
+    })
+
+    const { results } = await searchPlaces({ keyword: 'beach', provider: 'google', page: 1 })
+
+    expect(results[0].category).toBe('see')
+  })
+
+  it('제공자 원본 카테고리 필드를 결과에 노출하지 않는다', async () => {
+    mockOk({
+      results: [{ ...googleResults[0], primaryType: 'beach', types: ['beach'] }],
+      isEnd: true,
+    })
+
+    const { results } = await searchPlaces({ keyword: 'beach', provider: 'google', page: 1 })
+
+    expect(results[0]).not.toHaveProperty('primaryType')
+    expect(results[0]).not.toHaveProperty('types')
+    expect(results[0]).not.toHaveProperty('categoryName')
+  })
+
+  it('원본 카테고리가 없으면 category는 undefined다', async () => {
+    mockOk({ results: kakaoResults, isEnd: true })
+
+    const { results } = await searchPlaces({ keyword: '스타벅스', provider: 'kakao', page: 1 })
+
+    expect(results[0].category).toBeUndefined()
+  })
+})

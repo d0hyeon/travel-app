@@ -53,6 +53,7 @@ export function PostPlacesField({ tripId, defaultValue, onChange }: Props) {
       address: result.address,
       lat: result.lat,
       lng: result.lng,
+      category: result.category,
     })
     setSelected((prev) =>
       prev.some((p) => p.placeId === place.id)

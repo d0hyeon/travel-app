@@ -1,10 +1,11 @@
 import { supabase } from "../../gateways/client";
 import type { UpdateDataType } from "../../gateways/client";
-import type {
-  Place,
-  PlaceCategoryType,
-  PlaceStatus,
-  TripPlace,
+import {
+  PlaceCategoryTypes,
+  type Place,
+  type PlaceCategoryType,
+  type PlaceStatus,
+  type TripPlace,
 } from "./place.types";
 import { toTripPlacePatch, type TripPlacePatchInput } from "./place.utils";
 
@@ -22,6 +23,7 @@ function toPlace(row: {
   lng: number;
   provider: string;
   external_id: string;
+  category: string | null;
   created_at: string;
 }): Place {
   return {
@@ -32,6 +34,7 @@ function toPlace(row: {
     lng: row.lng,
     provider: row.provider,
     externalId: row.external_id,
+    category: PlaceCategoryTypes.find((type) => type === row.category),
     createdAt: row.created_at,
   };
 }
@@ -80,7 +83,13 @@ const TRIP_PLACE_SELECT = `
 export async function upsertPlace(
   provider: string,
   externalId: string,
-  data: { name: string; address: string; lat: number; lng: number },
+  data: {
+    name: string;
+    address: string;
+    lat: number;
+    lng: number;
+    category?: PlaceCategoryType;
+  },
 ): Promise<Place> {
   const { data: inserted, error } = await supabase
     .from("places")
@@ -92,6 +101,7 @@ export async function upsertPlace(
         address: data.address || null,
         lat: data.lat,
         lng: data.lng,
+        category: data.category ?? null,
       },
       { onConflict: "provider,external_id", ignoreDuplicates: true },
     )
@@ -100,15 +110,36 @@ export async function upsertPlace(
   if (error) throw error;
   if (inserted && inserted.length > 0) return toPlace(inserted[0]);
 
-  const { data: existing, error: selectError } = await supabase
+  const existing = await selectPlaceByExternalId(provider, externalId);
+
+  const isMissingCategory = existing.category === undefined;
+  if (!isMissingCategory || data.category === undefined) return existing;
+
+  const { data: patched, error: patchError } = await supabase
+    .from("places")
+    .update({ category: data.category })
+    .eq("id", existing.id)
+    .is("category", null)
+    .select();
+
+  if (patchError) throw patchError;
+  if (patched.length > 0) return toPlace(patched[0]);
+  return selectPlaceByExternalId(provider, externalId);
+}
+
+async function selectPlaceByExternalId(
+  provider: string,
+  externalId: string,
+): Promise<Place> {
+  const { data, error } = await supabase
     .from("places")
     .select("*")
     .eq("provider", provider)
     .eq("external_id", externalId)
     .single();
 
-  if (selectError) throw selectError;
-  return toPlace(existing);
+  if (error) throw error;
+  return toPlace(data);
 }
 
 export async function getAllPlaces(): Promise<Place[]> {
@@ -182,6 +213,8 @@ export async function createTripPlace(params: {
   category?: PlaceCategoryType;
   tags?: string[];
 }): Promise<TripPlace> {
+  const place = await getPlaceById(params.placeId);
+
   const { data: inserted, error } = await supabase
     .from("trip_places")
     .upsert(
@@ -190,7 +223,7 @@ export async function createTripPlace(params: {
         place_id: params.placeId,
         status: params.status ?? "wished",
         memo: params.memo || null,
-        category: params.category || null,
+        category: params.category ?? place.category ?? null,
         tags: params.tags ?? [],
       },
       { onConflict: "trip_id,place_id", ignoreDuplicates: true },

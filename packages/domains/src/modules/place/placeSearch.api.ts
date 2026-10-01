@@ -1,5 +1,7 @@
 import { supabase } from '../../gateways/client'
 import type { Coordinate } from '../../utils'
+import type { PlaceCategoryType } from './place.types'
+import { toPlaceCategory } from './placeCategory.utils'
 
 export interface PlaceResult {
   externalId: string
@@ -8,6 +10,19 @@ export interface PlaceResult {
   address: string
   lat: number
   lng: number
+  category?: PlaceCategoryType
+}
+
+interface RawPlaceResult extends Omit<PlaceResult, 'category'> {
+  categoryName?: string
+  primaryType?: string
+  types?: string[]
+}
+
+interface RawSearchResponse {
+  results: RawPlaceResult[]
+  isEnd: boolean
+  nextPageToken?: string
 }
 
 interface SearchResponse {
@@ -24,7 +39,7 @@ interface SearchParams {
   pageToken?: string
 }
 
-function isSearchResponse(v: unknown): v is SearchResponse {
+function isSearchResponse(v: unknown): v is RawSearchResponse {
   return (
     v != null &&
     typeof v === 'object' &&
@@ -65,5 +80,14 @@ export async function searchPlaces(params: SearchParams): Promise<SearchResponse
     throw new Error('장소 검색 응답 형식 오류')
   }
 
-  return data
+  return { ...data, results: data.results.map(toPlaceResult) }
+}
+
+function toPlaceResult({ categoryName, primaryType, types, ...place }: RawPlaceResult): PlaceResult {
+  const category =
+    place.provider === 'google'
+      ? toPlaceCategory({ provider: 'google', primaryType, types })
+      : toPlaceCategory({ provider: 'kakao', categoryName })
+
+  return { ...place, category }
 }

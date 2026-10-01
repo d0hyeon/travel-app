@@ -66,7 +66,7 @@ function RecommendedPlaceDetailSheet({ place, tripId, isOpen, onClose }: Props) 
         <Button variant="outlined" size="large" onClick={onClose} fullWidth>
           닫기
         </Button>
-        <AddPlaceButton loading={isAdding} onClick={() => create(place)} fullWidth size="large" />
+        <AddPlaceButton loading={isAdding} onClick={() => create({ placeId: place.id })} fullWidth size="large" />
       </BottomSheet.BottomActions>
     </BottomSheet>
   )
@@ -85,7 +85,7 @@ function RecommendedPlaceDetailDialog({ place, tripId, isOpen, onClose }: Props)
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>닫기</Button>
-        <AddPlaceButton loading={isAdding} onClick={() => create(place)} />
+        <AddPlaceButton loading={isAdding} onClick={() => create({ placeId: place.id })} />
       </DialogActions>
     </Dialog>
   )
