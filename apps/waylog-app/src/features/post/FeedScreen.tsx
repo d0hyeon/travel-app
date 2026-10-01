@@ -5,7 +5,6 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { Suspense } from 'react'
 import { StyleSheet, ScrollView } from 'react-native'
 import { Box, Fab, Stack, Typography } from '~/shared/components/design-system'
-import { FLOATING_TAB_BAR_RESERVE } from '../../shared/components'
 import { useAppNavigation } from '../../shared/hooks/useAppNavigation'
 import { AppRoute } from '../../app/AppRoute'
 import { palette } from '../../shared/config/tokens'
@@ -70,7 +69,7 @@ function Contents() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#F5F6F8' },
-  createButton: { position: 'absolute', right: 20, bottom: 20 + FLOATING_TAB_BAR_RESERVE },
+  createButton: { position: 'absolute', right: 20, bottom: 20 },
   content: { paddingHorizontal: 16 },
   title: { color: palette.text, fontSize: 20, fontWeight: '900', paddingVertical: 18 },
   emptyState: { alignItems: 'center', paddingVertical: 80 },

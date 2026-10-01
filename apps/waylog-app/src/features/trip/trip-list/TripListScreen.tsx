@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 20,
-    bottom: 20 + FLOATING_TAB_BAR_RESERVE,
+    bottom: 20,
   },
   fabLabel: {
     color: '#fff',
