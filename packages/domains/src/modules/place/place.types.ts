@@ -7,6 +7,7 @@ export const PlaceCategoryType = {
   음식점: 'food',
   카페: 'cafe',
   숲: 'forest',
+  공원: 'park',
   산: 'mountain',
   바다: 'see',
   액티비티: 'activity',
@@ -25,6 +26,7 @@ export const PlaceCategoryColorCode = {
   [PlaceCategoryType.음식점]: '#EB5757', // 차분한 로즈 레드
   [PlaceCategoryType.카페]: '#A1887F',   // 부드러운 코코아 브라운
   [PlaceCategoryType.숲]: '#66BB6A',     // 싱그러운 리프 그린
+  [PlaceCategoryType.공원]: '#26A69A',   // 맑은 틸 그린
   [PlaceCategoryType.산]: '#1f5933',     // 싱그러운 리프 그린
   [PlaceCategoryType.바다]: '#5DADE2',   // 깊이감 있는 스카이 블루
   [PlaceCategoryType.쇼핑]: '#BA68C8',   // 세련된 오키드 퍼플
@@ -52,6 +54,7 @@ export interface Place {
   lng: number
   provider: string
   externalId: string
+  category?: PlaceCategoryType
   createdAt: string
 }
 
