@@ -1,20 +1,19 @@
+import ProfileIcon from '@mui/icons-material/AccountCircle'
 import DynamicFeedIcon from '@mui/icons-material/DynamicFeed'
 import LogoutIcon from '@mui/icons-material/Logout'
 import LuggageIcon from '@mui/icons-material/Luggage'
 import MapIcon from '@mui/icons-material/Map'
-import ProfileIcon from '@mui/icons-material/AccountCircle'
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
 import { Box, IconButton, Stack, Tooltip, Typography } from '@mui/material'
-import { useRef, useState } from 'react'
-import { generatePath, Link, Outlet, PrefetchPageLinks, useLocation, useNavigate } from 'react-router'
+import { signOut, useAuth } from '@waylog/domains/clients'
 import { AppRoute } from '@waylog/routes'
-import { signOut } from '@waylog/domains/clients'
+import { useState } from 'react'
+import { generatePath, Link, Outlet, PrefetchPageLinks, useLocation, useNavigate } from 'react-router'
 import { BottomNavigation } from '~shared/components/BottomNavigation'
+import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useActivationSignal } from '~shared/hooks/interaction/useActivationSignal'
 import { ScrollContainerProvider } from '~shared/hooks/interaction/useScrollRestore'
-import { isDev } from './env'
-import { useAuth } from '@waylog/domains/clients'
 
 
 const TABS = [
@@ -32,6 +31,7 @@ export default function HomeLayout() {
 
   const { data: auth } = useAuth({ required: false });
   const mypagePath = auth != null ? generatePath(AppRoute.유저_프로필, { userId: auth.id }) : null
+  const confirm = useConfirmDialog();
 
   if (isMobile) {
     return (
@@ -119,14 +119,50 @@ export default function HomeLayout() {
                 </Tooltip>
               )
             })}
+            {mypagePath != null && (
+              <Tooltip title="내 프로필" placement="right">
+                <Link to={mypagePath} viewTransition>
+                  <Stack
+                    component="button"
+                    alignItems="center"
+                    justifyContent="center"
+                    gap={0.5}
+                    sx={{
+                      width: 52,
+                      py: 1.25,
+                      borderRadius: 2,
+                      border: 'none',
+                      cursor: 'pointer',
+                      bgcolor: location.pathname === mypagePath ? 'primary.main' : 'transparent',
+                      color: location.pathname === mypagePath ? 'primary.contrastText' : 'text.secondary',
+                      transition: 'background-color 0.15s',
+                      '&:hover': {
+                        bgcolor: location.pathname === mypagePath ? 'primary.dark' : 'action.hover',
+                      },
+                    }}
+                  >
+                    <ProfileIcon fontSize="small" sx={{ color: 'inherit' }} />
+                    <Typography variant="caption" fontSize={10} fontWeight={location.pathname === mypagePath ? 700 : 400} sx={{ color: 'inherit' }}>
+                      내 프로필
+                    </Typography>
+                  </Stack>
+                </Link>
+              </Tooltip>
+            )}
           </Stack>
-          {isDev && (
-            <Tooltip title="로그아웃" placement="right">
-              <IconButton onClick={signOut} size="small" sx={{ color: 'text.secondary' }}>
-                <LogoutIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          )}
+          <Tooltip title="로그아웃" placement="right">
+            <IconButton
+              onClick={async () => {
+                if (await confirm('로그아웃 하시겠어요?')) {
+                  signOut();
+                }
+              }}
+              size="small"
+              sx={{ color: 'text.secondary' }}
+            >
+              <LogoutIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
         </Stack>
 
         {/* 콘텐츠 */}
