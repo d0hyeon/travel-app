@@ -20,7 +20,11 @@ jobs:
             web:
               - 'apps/waylog-web/**'
               - 'packages/**'
+              - 'package.json'
               - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - '.npmrc'
+              - 'tsconfig.json'
               - '.github/**'
 
   ts-check:
