@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { AuthGuard, deleteAccount, signOut } from '@waylog/domains/clients'
-import { RequireAuthRedirect } from '../auth/auth-redirect'
+import { SignedOutRedirect } from '../auth/auth-redirect'
 import { SettingsWebViewScreen } from './SettingsWebViewScreen'
 import { AppBar } from '~shared/components/design-system/AppBar'
 import { Stack, Typography } from '~shared/components/design-system'
@@ -26,7 +26,7 @@ export function SettingsScreen() {
     setIsSigningOut(true)
     try {
       await signOut()
-      navigation.reset({ index: 0, routes: [{ name: AppRoute.로그인, params: {} }] })
+      navigation.reset({ index: 0, routes: [{ name: AppRoute.메인 }] })
       queryClient.clear()
     } finally {
       setIsSigningOut(false)
@@ -43,7 +43,7 @@ export function SettingsScreen() {
     setIsDeletingAccount(true)
     try {
       await deleteAccount()
-      navigation.reset({ index: 0, routes: [{ name: AppRoute.로그인, params: {} }] })
+      navigation.reset({ index: 0, routes: [{ name: AppRoute.메인 }] })
       queryClient.clear()
     } catch {
       Alert.alert('탈퇴하지 못했어요', '잠시 후 다시 시도해주세요')
@@ -53,7 +53,7 @@ export function SettingsScreen() {
   }
 
   return (
-    <AuthGuard fallback={<RequireAuthRedirect />}>
+    <AuthGuard fallback={<SignedOutRedirect />}>
       <SafeAreaView style={styles.root}>
         <AppBar title="설정" />
 

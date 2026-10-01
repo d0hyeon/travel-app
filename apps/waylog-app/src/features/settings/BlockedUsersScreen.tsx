@@ -3,7 +3,7 @@ import { useBlockedUsers, useUnblockUser } from '@waylog/domains/modules/user-bl
 import { FlatList, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { AppRoute } from '~app/AppRoute'
-import { RequireAuthRedirect } from '~features/auth/auth-redirect'
+import { SignedOutRedirect } from '~features/auth/auth-redirect'
 import { Typography } from '~shared/components/design-system'
 import { AppBar } from '~shared/components/design-system/AppBar'
 import { palette } from '~shared/config/tokens'
@@ -11,7 +11,7 @@ import { BlockedUserListItem } from './BlockedUserListItem'
 
 export function BlockedUsersScreen() {
   return (
-    <AuthGuard fallback={<RequireAuthRedirect />}>
+    <AuthGuard fallback={<SignedOutRedirect />}>
       <SafeAreaView style={styles.root}>
         <AppBar title="차단한 사용자" />
         <BlockedUserList />

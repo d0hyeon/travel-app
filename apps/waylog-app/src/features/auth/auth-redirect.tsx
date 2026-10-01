@@ -32,6 +32,17 @@ export function RequireAuthRedirect({ returnTo }: { returnTo?: ReturnTo }) {
   return null
 }
 
+/** 로그인이 필요한 화면에서 세션이 없어지면 로그인 대신 홈으로 돌려보낸다. */
+export function SignedOutRedirect() {
+  const navigation = useAppNavigation()
+
+  useEffect(() => {
+    navigation.reset({ index: 0, routes: [{ name: AppRoute.메인 }] })
+  }, [navigation])
+
+  return null
+}
+
 /**
  * 세션 만료를 감지한 쪽이 명령형으로 호출한다. 네비게이터 트리 최상단(스크린이 아닌
  * 위치)에서도 동작해야 하므로 useAppRoute(=useRoute) 대신 현재 활성 라우트를
