@@ -98,74 +98,72 @@ function TripChecklistItem({ tripId, id, ...props }: ItemProps) {
   }))
 
   return (
-    <ListItem
-      style={[
-        [styles.checklistItem, { borderColor: value.isCompleted ? 'rgba(76,132,255,0.4)' : 'rgba(221,221,221,0.4)', borderWidth: value.isCompleted ? 2 : 1 }],
-        animatedStyle,
-      ]}
-      as={Animated.View}
-      leftAddon={(
-        <Checkbox
-          checked={value.isCompleted}
-          size="small"
-          onChange={() => {
-            update({ id: value.id, isCompleted: !value.isCompleted })
-            // 매번 0 에서 다시 시작해야 두 번째 이후에도 회전한다.
-            rotation.set(
-              withTiming(360, { duration: 300 }, () => rotation.set(0)),
-            )
-          }}
-          style={styles.checkbox}
-        />
-      )}
-      rightAddon={<TripChecklistMenu tripId={tripId} id={value.id} />}
-      {...props}
-    >
-      <Stack gap={0.5}>
-        <Stack direction="row" gap={0.5} alignItems="center">
-          {!value.isCompleted && (
-            <SwitchCase
-              value={status}
-              cases={{
-                error: <MaterialIcons name="error" size={16} color="#d32f2f" />,
-                warning: <MaterialIcons name="alarm-on" size={16} color="#d68d06" />
-              }}
-              defaultComponent={() => <MaterialIcons name="access-time" size={16} color="#787c7e" />}
-            />
-          )}
-          <ListItem.Title style={value.isCompleted ? styles.completedTitle : {}}>
-            {value.title}
-          </ListItem.Title>
-        </Stack>
-
-
-        {(!!startTimeText || !!endTimeText) && (
-          <ListItem.Text
-            color={!value.isCompleted ? status : undefined}
-            style={value.isCompleted ? styles.completedTitle : {}}
-          >
-            {startTimeText} ~ {endTimeText}{remainTimeText ? ` (${remainTimeText})` : ''}
-          </ListItem.Text>
+    <Animated.View style={animatedStyle}>
+      <ListItem
+        style={[styles.checklistItem, { borderColor: value.isCompleted ? 'rgba(76,132,255,0.4)' : 'rgba(221,221,221,0.4)', borderWidth: value.isCompleted ? 2 : 1 }]}
+        leftAddon={(
+          <Checkbox
+            checked={value.isCompleted}
+            size="small"
+            onChange={() => {
+              update({ id: value.id, isCompleted: !value.isCompleted })
+              // 매번 0 에서 다시 시작해야 두 번째 이후에도 회전한다.
+              rotation.set(
+                withTiming(360, { duration: 300 }, () => rotation.set(0)),
+              )
+            }}
+            style={styles.checkbox}
+          />
         )}
-        <Stack direction="row" justifyContent="space-between" alignItems="center" gap={0.5}>
-          {!!value.content && value.content.trim() !== '' && (
-            <ListItem.Text style={value.isCompleted ? styles.completedTitle : {}}>
-              {value.content}
+        rightAddon={<TripChecklistMenu tripId={tripId} id={value.id} />}
+        {...props}
+      >
+        <Stack gap={0.5}>
+          <Stack direction="row" gap={0.5} alignItems="center">
+            {!value.isCompleted && (
+              <SwitchCase
+                value={status}
+                cases={{
+                  error: <MaterialIcons name="error" size={16} color="#d32f2f" />,
+                  warning: <MaterialIcons name="alarm-on" size={16} color="#d68d06" />
+                }}
+                defaultComponent={() => <MaterialIcons name="access-time" size={16} color="#787c7e" />}
+              />
+            )}
+            <ListItem.Title style={value.isCompleted ? styles.completedTitle : {}}>
+              {value.title}
+            </ListItem.Title>
+          </Stack>
+
+
+          {(!!startTimeText || !!endTimeText) && (
+            <ListItem.Text
+              color={!value.isCompleted ? status : undefined}
+              style={value.isCompleted ? styles.completedTitle : {}}
+            >
+              {startTimeText} ~ {endTimeText}{remainTimeText ? ` (${remainTimeText})` : ''}
             </ListItem.Text>
           )}
-          {담당자 && (
-            <Box style={styles.actions}>
-              <Chip
-                size="small"
-                label={`${담당자.name}`}
-                style={{ opacity: value.isCompleted ? 0.5 : 1 }}
-              />
-            </Box>
-          )}
-        </Stack>
+          <Stack direction="row" justifyContent="space-between" alignItems="center" gap={0.5}>
+            {!!value.content && value.content.trim() !== '' && (
+              <ListItem.Text style={value.isCompleted ? styles.completedTitle : {}}>
+                {value.content}
+              </ListItem.Text>
+            )}
+            {담당자 && (
+              <Box style={styles.actions}>
+                <Chip
+                  size="small"
+                  label={`${담당자.name}`}
+                  style={{ opacity: value.isCompleted ? 0.5 : 1 }}
+                />
+              </Box>
+            )}
+          </Stack>
 
-      </Stack>
-    </ListItem>
+        </Stack>
+      </ListItem>
+    </Animated.View>
   )
 }
 
