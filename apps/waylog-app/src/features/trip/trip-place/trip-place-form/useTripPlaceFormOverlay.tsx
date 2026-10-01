@@ -54,7 +54,7 @@ export function useTripPlaceFormOverlay() {
                   isOpen={isOpen}
                   onClose={() => {
                     resolve()
-                    close()
+                    return close()
                   }}
                 />
               </AsyncBoundary>
