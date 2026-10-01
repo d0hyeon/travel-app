@@ -1,5 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import type { BottomTabBarProps } from '@react-navigation/bottom-tabs'
+import type { ParamListBase, TabNavigationState } from '@react-navigation/native'
+import type { ReactNode } from 'react'
 import type { StyleProp, ViewStyle } from 'react-native'
 import { TabNavigation } from './TabNavigation'
 import type { TabNavigationVariant } from './TabNavigation.types'
@@ -11,7 +12,22 @@ const ICON_SIZE = 22
 // 회색 판으로 보인다. Tabs 의 sceneStyle 로 넘겨 걷어낸다.
 export const TRANSPARENT_SCENE_STYLE = { backgroundColor: 'transparent' } as const
 
-interface RouterTabNavigationProps extends BottomTabBarProps {
+interface TabBarIconProps {
+  color: string
+  focused: boolean
+  size: number
+}
+
+interface RouterTabBarProps {
+  state: TabNavigationState<ParamListBase>
+  descriptors: Record<string, { options: { title?: string; tabBarIcon?: (props: TabBarIconProps) => ReactNode } }>
+  navigation: {
+    emit: (event: { type: 'tabPress'; target: string; canPreventDefault: true }) => { defaultPrevented: boolean }
+    navigate: (name: string, params?: object) => void
+  }
+}
+
+interface RouterTabNavigationProps extends RouterTabBarProps {
   variant?: TabNavigationVariant
   /** 탭바가 놓일 자리. 떠 있는 배치는 소비자가 정한다 */
   style?: StyleProp<ViewStyle>
