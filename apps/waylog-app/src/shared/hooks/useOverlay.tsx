@@ -45,9 +45,12 @@ export function useOverlay() {
 
       const handleClose = () => {
         // 이미 다음 오버레이가 열렸다면 그 오버레이를 언마운트하지 않는다.
-        if (openedAt !== openCountRef.current) return
+        if (openedAt !== openCountRef.current) return Promise.resolve();
         unmount(id)
-        ref.current = null
+        ref.current = null;
+        return new Promise<void>(resolve => {
+          requestAnimationFrame(() => resolve())
+        })
       }
 
       // key 에 openedAt 을 실어 재오픈이 새 마운트가 되게 한다. id 만으로 키를 잡으면
@@ -78,14 +81,14 @@ interface OverlayRendererRef {
 
 interface OverlayRendererProps {
   element: OverlayElement
-  onClose: () => void
+  onClose: () => Promise<void>;
   ref?: Ref<OverlayRendererRef>
 }
 
 export interface OverlayRenderProps {
   isOpen: boolean
   close: () => Promise<void>
-  onClose: () => void
+  onClose: () => Promise<void>;
 }
 
 type OverlayElement = (controller: OverlayRenderProps) => ReactNode
