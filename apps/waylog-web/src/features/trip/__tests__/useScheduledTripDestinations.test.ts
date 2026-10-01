@@ -1,4 +1,5 @@
 import { renderHook, waitFor } from '@testing-library/react'
+import { format } from 'date-fns'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useScheduledTripDestinations } from '../useScheduledTripDestinations'
 import * as tripApi from '@waylog/domains/modules/trip'
@@ -28,7 +29,7 @@ function makeTrip(overrides: Partial<Trip>): Trip {
 function today(offsetDays = 0): string {
   const d = new Date()
   d.setDate(d.getDate() + offsetDays)
-  return d.toISOString().slice(0, 10)
+  return format(d, 'yyyy-MM-dd')
 }
 
 describe('useScheduledTripDestinations', () => {
