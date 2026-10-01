@@ -66,16 +66,19 @@
     "@types/react": "~19.2.17",
     "babel-preset-expo": "~57.0.13",
     "dotenv": "^17.4.2",
+    "eas-cli": "^24.8.0",
     "typescript": "~6.0.3",
     "vitest": "^3.2.6"
   },
   "scripts": {
     "dev": "expo start",
-    "start": "expo start",
-    "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web",
-    "prebuild:ios": "expo prebuild --platform ios",
+    "prebuild": "expo prebuild --platform ios",
+    "update-package": "pnpm eas-cli update --branch production --environment production",
+    "update-package:preview": "pnpm eas-cli update --branch preview --environment preview",
+    "upload-package": "pnpm eas-cli build --platform ios --profile production",
+    "upload-package:preview": "pnpm eas-cli build --platform ios --profile preview",
+    "submit-package": "pnpm eas-cli submit --platform ios --profile production",
     "test": "vitest run",
     "ts-check": "tsc --noEmit"
   },
