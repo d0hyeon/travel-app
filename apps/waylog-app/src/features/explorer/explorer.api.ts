@@ -94,8 +94,13 @@ function isPlaceCategory(value: Json): value is PlaceCategoryValue {
   return typeof value === 'string' && PlaceCategoryTypes.some((category) => category === value)
 }
 
+const NON_EXPLORABLE_CATEGORIES: readonly PlaceCategoryValue[] = [
+  PlaceCategoryType.대중교통,
+  PlaceCategoryType.기타,
+]
+
 export const EXPLORER_CATEGORY_TYPES = Object.values(PlaceCategoryType).filter(
-  (category) => category !== PlaceCategoryType.대중교통,
+  (category) => !NON_EXPLORABLE_CATEGORIES.includes(category),
 )
 
 export async function getPlaceFeed(placeId: string): Promise<Post[]> {

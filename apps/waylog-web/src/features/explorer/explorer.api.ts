@@ -3,8 +3,13 @@ import { PlaceCategoryType, type PlaceCategoryType as PlaceCategoryTypeValue } f
 
 export const explorerKey = 'explorer'
 
+const NON_EXPLORABLE_CATEGORIES: readonly PlaceCategoryTypeValue[] = [
+  PlaceCategoryType.대중교통,
+  PlaceCategoryType.기타,
+]
+
 export const EXPLORER_CATEGORY_TYPES = Object.values(PlaceCategoryType).filter(
-  (c) => c !== PlaceCategoryType.대중교통,
+  (c) => !NON_EXPLORABLE_CATEGORIES.includes(c),
 )
 
 export interface ExploredPlace {
