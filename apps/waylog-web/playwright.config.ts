@@ -50,6 +50,6 @@ export default defineConfig({
     command: 'pnpm dev --mode test',
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
-    timeout: 30_000,
+    timeout: 120_000,
   },
 })

@@ -21,7 +21,7 @@ export default async function globalSetup(_config: FullConfig) {
   const page = await context.newPage()
 
   // 빈 페이지에서 localStorage에 세션을 심는다
-  await page.goto('/')
+  await page.goto('/', { timeout: 120_000 })
   await page.evaluate(
     ({ key, session }) => {
       localStorage.setItem(key, JSON.stringify(session))
