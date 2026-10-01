@@ -405,6 +405,7 @@ export type Database = {
       places: {
         Row: {
           address: string | null
+          category: string | null
           created_at: string
           external_id: string
           id: string
@@ -415,6 +416,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          category?: string | null
           created_at?: string
           external_id?: string
           id?: string
@@ -425,6 +427,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          category?: string | null
           created_at?: string
           external_id?: string
           id?: string

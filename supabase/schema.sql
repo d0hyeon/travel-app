@@ -571,7 +571,8 @@ CREATE TABLE IF NOT EXISTS "public"."places" (
     "lng" double precision NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "provider" "text" DEFAULT 'legacy'::"text" NOT NULL,
-    "external_id" "text" DEFAULT ''::"text" NOT NULL
+    "external_id" "text" DEFAULT ''::"text" NOT NULL,
+    "category" "text"
 );
 
 
