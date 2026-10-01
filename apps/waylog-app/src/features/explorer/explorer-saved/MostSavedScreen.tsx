@@ -1,5 +1,4 @@
 import { StyleSheet } from 'react-native'
-import { AuthGuard } from '@waylog/domains/clients'
 import { Suspense } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { AppRoute } from '../../../app/AppRoute'
@@ -13,7 +12,6 @@ import { ExplorerRankingGrid } from '../explorer-view/ExplorerRankingGrid'
 import { ExplorerScreenHeader } from '../explorer-view/ExplorerScreenHeader'
 import { useExplorerViewMode } from '../explorer-view/useExplorerViewMode'
 import { useMostSavedPlaces } from './useMostSavedPlaces'
-import { RequireAuthRedirect } from '../../auth/auth-redirect'
 
 declare module '~app/routes' {
   interface RouteParamsRegistry {
@@ -22,14 +20,6 @@ declare module '~app/routes' {
 }
 
 export function MostSavedScreen() {
-  return (
-    <AuthGuard fallback={<RequireAuthRedirect />}>
-      <ResolvedMostSavedScreen />
-    </AuthGuard>
-  )
-}
-
-function ResolvedMostSavedScreen() {
   const { location, category } = useExplorerFilterParams()
   const [viewMode, setViewMode] = useExplorerViewMode()
   const { isScrollDown, onScroll } = useScrollStatus()

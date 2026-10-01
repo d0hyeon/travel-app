@@ -1,5 +1,4 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { AuthGuard } from '@waylog/domains/clients'
 import { usePlace } from '@waylog/domains/modules/place'
 import { usePlacePhotos } from '../place/usePlacePhotos'
 import { PlacePhotoStrip } from '../place/PlacePhotoStrip'
@@ -17,7 +16,6 @@ import { AppRoute } from '../../app/AppRoute'
 import { useQueryParamState } from '../../shared/hooks/useQueryParamState'
 import { useExplorerPlaceFeed } from './useExplorerPlaceFeed'
 import { LoadableImage } from '../../shared/components/LoadableImage'
-import { RequireAuthRedirect } from '../auth/auth-redirect'
 
 type PlaceDetailTab = 'info' | 'feed'
 
@@ -30,14 +28,6 @@ declare module '~app/routes' {
 }
 
 export function PlaceDetailScreen() {
-  return (
-    <AuthGuard fallback={<RequireAuthRedirect />}>
-      <ResolvedPlaceDetailScreen />
-    </AuthGuard>
-  )
-}
-
-function ResolvedPlaceDetailScreen() {
   const { params } = useAppRoute<typeof AppRoute.장소_상세>()
   const { placeId } = params
   const insets = useSafeAreaInsets()

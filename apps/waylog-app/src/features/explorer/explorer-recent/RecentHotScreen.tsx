@@ -1,5 +1,4 @@
 import { StyleSheet } from 'react-native'
-import { AuthGuard } from '@waylog/domains/clients'
 import { Suspense, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { AppRoute } from '../../../app/AppRoute'
@@ -15,7 +14,6 @@ import { useExplorerViewMode } from '../explorer-view/useExplorerViewMode'
 import { PeriodFilterChip } from './PeriodFilterChip'
 import type { RecentHotPeriodMonths } from './recentHotPeriod.constants'
 import { useRecentHotPlaces } from './useRecentHotPlaces'
-import { RequireAuthRedirect } from '../../auth/auth-redirect'
 
 declare module '~app/routes' {
   interface RouteParamsRegistry {
@@ -24,14 +22,6 @@ declare module '~app/routes' {
 }
 
 export function RecentHotScreen() {
-  return (
-    <AuthGuard fallback={<RequireAuthRedirect />}>
-      <ResolvedRecentHotScreen />
-    </AuthGuard>
-  )
-}
-
-function ResolvedRecentHotScreen() {
   const { location, category } = useExplorerFilterParams()
   const [viewMode, setViewMode] = useExplorerViewMode()
   const [months, setMonths] = useState<RecentHotPeriodMonths>(3)

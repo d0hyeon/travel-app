@@ -22,7 +22,9 @@ interface Props {
 }
 
 export function UserProfileScreen({ userId, bottomContentInset = 0 }: Props) {
-  const { data: auth } = useAuth()
+  const { data: auth } = useAuth({ required: false })
+  const isSignedIn = auth != null
+  const isMyProfile = auth?.id === userId
   const navigation = useAppNavigation()
   const [currentTab, selectTab] = useQueryParamState<ProfileTab>('tab', { defaultValue: 'feed', parse: parseProfileTab })
   // 지도를 만지는 동안 세로 스크롤을 멈춘다. 두 제스처가 겹치면 지도가 끊긴다.
@@ -67,14 +69,16 @@ export function UserProfileScreen({ userId, bottomContentInset = 0 }: Props) {
       >
         <View style={styles.header}>
           <ProfileHeader userId={userId} />
-          {auth.id === userId ? (
+          {isMyProfile ? (
             <Pressable onPress={() => navigation.navigate(AppRoute.설정)} style={styles.settingsButton}>
               <MaterialIcons name="settings" size={22} color={palette.textSecondary} />
             </Pressable>
           ) : (
-            <View style={styles.menuButton}>
-              <UserProfileMenu userId={userId} />
-            </View>
+            isSignedIn && (
+              <View style={styles.menuButton}>
+                <UserProfileMenu userId={userId} />
+              </View>
+            )
           )}
         </View>
         <ProfileStatStrip userId={userId} />
