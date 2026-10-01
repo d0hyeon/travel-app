@@ -6,6 +6,23 @@ on:
       - main
 
 jobs:
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      web: ${{ steps.filter.outputs.web }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            web:
+              - 'apps/waylog-web/**'
+              - 'packages/**'
+              - 'pnpm-lock.yaml'
+              - '.github/**'
+
   ts-check:
     name: TypeScript Check
     runs-on: ubuntu-latest
@@ -55,6 +72,8 @@ jobs:
 
   e2e-test:
     name: End to End Tests
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
     runs-on: ubuntu-latest
 
     env:
