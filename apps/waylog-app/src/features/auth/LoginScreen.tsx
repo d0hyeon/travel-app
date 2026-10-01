@@ -63,34 +63,37 @@ export function LoginScreen() {
         </View>
       </View>
 
-      <Button
-        variant="contained"
-        size="large"
-        disabled={isPending}
-        startIcon={isPending ? <ActivityIndicator size="small" color={KAKAO_LABEL_COLOR} /> : <KakaoSymbol />}
-        onPress={() => void handleSignIn(signInWithKakao)}
-        style={styles.kakaoButton}
-        textStyle={styles.kakaoLabel}
-      >
-        카카오로 로그인
-      </Button>
+      <Stack gap={3} direction="column">
+        <Button
+          variant="contained"
+          size="large"
+          disabled={isPending}
+          startIcon={isPending ? <ActivityIndicator size="small" color={KAKAO_LABEL_COLOR} /> : <KakaoSymbol />}
+          onPress={() => void handleSignIn(signInWithKakao)}
+          style={styles.kakaoButton}
+          textStyle={styles.kakaoLabel}
+          fullWidth
+        >
+          카카오 로그인
+        </Button>
 
-      {Platform.OS === 'ios' && (
-        <AppleAuthentication.AppleAuthenticationButton
-          buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
-          buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-          cornerRadius={radius.md}
-          onPress={() => void handleSignIn(signInWithApple)}
-          style={styles.appleButton}
-        />
-      )}
+        {Platform.OS === 'ios' && (
+          <AppleAuthentication.AppleAuthenticationButton
+            buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+            buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+            cornerRadius={radius.md}
+            onPress={() => void handleSignIn(signInWithApple)}
+            style={styles.appleButton}
+          />
+
+        )}
+      </Stack>
 
       {error != null && (
         <Typography variant="body2" color="error" textAlign="center">
           {error}
         </Typography>
       )}
-
       {__DEV__ && <DevEmailLogin />}
     </View>
   )
@@ -140,7 +143,7 @@ function DevEmailLogin() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
+    // alignItems: 'center',
     backgroundColor: palette.background,
     paddingHorizontal: 24,
     paddingTop: 48,
@@ -157,8 +160,8 @@ const styles = StyleSheet.create({
   logoImage: { width: '100%', height: '100%' },
   brand: { alignItems: 'center' },
   // Button 의 fullWidth 는 flex:1 이라 세로 컨테이너에서는 높이까지 늘어난다. 가로만 채운다.
-  kakaoButton: { alignSelf: 'stretch', backgroundColor: KAKAO_BRAND_COLOR },
-  kakaoLabel: { color: KAKAO_LABEL_COLOR },
+  kakaoButton: { alignSelf: 'stretch', backgroundColor: KAKAO_BRAND_COLOR, height: 48, borderRadius: 8 },
+  kakaoLabel: { color: KAKAO_LABEL_COLOR, fontSize: 16 },
   appleButton: { alignSelf: 'stretch', height: 48, marginTop: 12 },
   devSection: { alignSelf: 'stretch', marginTop: 24 },
 })

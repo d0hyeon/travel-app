@@ -1,10 +1,13 @@
-import { Button, Divider, Stack, TextField } from '@mui/material'
+import { Button, Container, Divider, Stack, TextField } from '@mui/material'
 import { useState } from 'react'
 import { isDev } from '~app/env'
 import { IntroFullScreenBanner } from '~features/intro/IntroFullScreenBanner'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { signInWithApple, signInWithEmail, signInWithKakao } from '@waylog/domains/clients'
 import { useAuthRedirection } from './AuthNavigate'
+
+const KAKAO_BRAND_COLOR = '#FEE500'
+const KAKAO_LABEL_COLOR = '#3C1E1E'
 
 function KakaoSymbol() {
   return (
@@ -14,7 +17,7 @@ function KakaoSymbol() {
         clipRule="evenodd"
         d="M9 0C4.029 0 0 3.074 0 6.868c0 2.442 1.617 4.588 4.071 5.808l-1.04 3.78a.35.35 0 0 0 .518.385L8.42 14.02c.191.014.383.02.58.02 4.971 0 9-3.074 9-6.868S13.971 0 9 0z"
         // fill="#3C1E1E"
-        fill="#fff"
+        fill={KAKAO_LABEL_COLOR}
       />
     </svg>
   )
@@ -34,34 +37,39 @@ export default function LoginPage() {
 
   return (
     <IntroFullScreenBanner>
-      <Button
-        onClick={() => signInWithKakao({ redirectTo: redirection })}
-        startIcon={<KakaoSymbol />}
-        variant="contained"
-        color="info"
-        fullWidth={isMobile}
-        size="large"
-        sx={{ minWidth: 300 }}
-      >
-        카카오로 로그인
-      </Button>
-      <Button
-        onClick={() => signInWithApple({ redirectTo: redirection })}
-        startIcon={<AppleSymbol />}
-        variant="contained"
-        fullWidth={isMobile}
-        size="large"
-        sx={{ minWidth: 300, bgcolor: '#000', color: '#fff', '&:hover': { bgcolor: '#000' } }}
-      >
-        Apple로 로그인
-      </Button>
+      <Container maxWidth="sm">
+        <Stack gap={1} width="100%">
+          <Button
+            onClick={() => signInWithKakao({ redirectTo: redirection })}
+            startIcon={<KakaoSymbol />}
+            variant="contained"
+            color="info"
 
-      {isDev && (
-        <>
-          <Divider sx={{ width: 300, color: 'text.disabled', fontSize: 12 }}>dev only</Divider>
-          <DevEmailLogin />
-        </>
-      )}
+            size="large"
+            sx={{ minWidth: 300, backgroundColor: KAKAO_BRAND_COLOR, color: KAKAO_LABEL_COLOR }}
+          >
+            카카오로 로그인
+          </Button>
+          <Button
+            onClick={() => signInWithApple({ redirectTo: redirection })}
+            startIcon={<AppleSymbol />}
+            variant="contained"
+
+            size="large"
+            sx={{ minWidth: 300, bgcolor: '#000', color: '#fff', '&:hover': { bgcolor: '#000' } }}
+          >
+            Apple로 로그인
+          </Button>
+        </Stack>
+
+
+        {isDev && (
+          <>
+            <Divider sx={{ width: 300, color: 'text.disabled', fontSize: 12 }}>dev only</Divider>
+            <DevEmailLogin />
+          </>
+        )}
+      </Container>
     </IntroFullScreenBanner>
   )
 }
