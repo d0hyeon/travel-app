@@ -8,6 +8,7 @@ import { Button, Checkbox, Divider, Stack, Typography } from '~/shared/component
 import { palette, radius } from '../../shared/config/tokens'
 import logoImage from '../../../assets/logo.png'
 import { LegalDocumentModal } from './LegalDocumentModal'
+import { BottomArea } from '~shared/components/BottomArea'
 
 const LOGO_SIZE = 72
 
@@ -56,60 +57,63 @@ export function SignUpConsentScreen() {
   }
 
   return (
-    <View style={[styles.container, { paddingBottom: insets.bottom + 24 }]}>
-      <View style={styles.banner}>
-        <View style={styles.logo}>
-          <Image source={logoImage} style={styles.logoImage} />
-        </View>
-        <Typography variant="h5" fontWeight="bold">
-          WayLog
-        </Typography>
-      </View>
-
-      <Stack spacing={1.5} style={styles.form}>
-        <Pressable style={styles.row} onPress={toggleAll}>
-          <Checkbox checked={isAllAgreed} />
-          <Typography variant="body1" fontWeight="bold">
-            약관에 모두 동의합니다
-          </Typography>
-        </Pressable>
-        <Divider />
-        {REQUIRED_AGREEMENT_KEYS.map((key) => (
-          <View key={key} style={styles.agreementRow}>
-            <Pressable style={styles.row} onPress={() => setAgreed({ ...agreed, [key]: !agreed[key] })}>
-              <Checkbox size="small" checked={agreed[key]} />
-              <Typography variant="body2">{agreementLabels[key].label}</Typography>
-            </Pressable>
-            {agreementLabels[key].documentPath != null && (
-              <Pressable onPress={() => setOpenedDocumentPath(agreementLabels[key].documentPath ?? null)}>
-                <Typography variant="caption" color="text.secondary">
-                  보기
-                </Typography>
-              </Pressable>
-            )}
+    <View style={[styles.container]}>
+      <View style={styles.body}>
+        <View style={styles.banner}>
+          <View style={styles.logo}>
+            <Image source={logoImage} style={styles.logoImage} />
           </View>
-        ))}
-
-        {error != null && (
-          <Typography variant="body2" color="error" textAlign="center">
-            {error}
+          <Typography variant="h5" fontWeight="bold">
+            WayLog
           </Typography>
-        )}
+        </View>
 
+        <Stack spacing={1.5} style={styles.form}>
+          <Pressable style={styles.row} onPress={toggleAll}>
+            <Checkbox checked={isAllAgreed} />
+            <Typography variant="body1" fontWeight="bold">
+              약관에 모두 동의합니다
+            </Typography>
+          </Pressable>
+          <Divider />
+          {REQUIRED_AGREEMENT_KEYS.map((key) => (
+            <View key={key} style={styles.agreementRow}>
+              <Pressable style={styles.row} onPress={() => setAgreed({ ...agreed, [key]: !agreed[key] })}>
+                <Checkbox size="small" checked={agreed[key]} />
+                <Typography variant="body2">{agreementLabels[key].label}</Typography>
+              </Pressable>
+              {agreementLabels[key].documentPath != null && (
+                <Pressable onPress={() => setOpenedDocumentPath(agreementLabels[key].documentPath ?? null)}>
+                  <Typography variant="caption" color="text.secondary">
+                    보기
+                  </Typography>
+                </Pressable>
+              )}
+            </View>
+          ))}
+
+          {error != null && (
+            <Typography variant="body2" color="error" textAlign="center">
+              {error}
+            </Typography>
+          )}
+        </Stack>
+      </View>
+      <BottomArea style={styles.footer}>
+        <Button variant="outlined" size="large" disabled={isBusy} onPress={() => void handleDecline()} style={styles.stretch}>
+          동의하지 않음
+        </Button>
         <Button
           variant="contained"
           size="large"
           disabled={!isAllAgreed || isBusy}
           onPress={() => void handleAgree()}
           style={styles.stretch}
+          fullWidth
         >
           동의하고 시작하기
         </Button>
-        <Button variant="text" disabled={isBusy} onPress={() => void handleDecline()} style={styles.stretch}>
-          동의하지 않음
-        </Button>
-      </Stack>
-
+      </BottomArea>
       <LegalDocumentModal path={openedDocumentPath} onClose={() => setOpenedDocumentPath(null)} />
     </View>
   )
@@ -120,9 +124,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     backgroundColor: palette.background,
-    paddingHorizontal: 24,
+
     paddingTop: 48,
   },
+  body: { flex: 1, width: '100%', paddingHorizontal: 24 },
   banner: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 16 },
   logo: {
     width: LOGO_SIZE,
@@ -132,8 +137,12 @@ const styles = StyleSheet.create({
     backgroundColor: palette.primary,
   },
   logoImage: { width: '100%', height: '100%' },
-  form: { alignSelf: 'stretch' },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  form: { alignSelf: 'stretch', justifyContent: 'flex-start', marginBottom: 50, width: '100%' },
+  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', gap: 8 },
   agreementRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   stretch: { alignSelf: 'stretch' },
+  footer: {
+    borderTopWidth: 1,
+    borderTopColor: palette.divider,
+  }
 })
