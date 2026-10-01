@@ -27,7 +27,7 @@ export function ExploredPlacesRankingSection({ location, category }: Props) {
         places.map((place) => (
           <ExplorerPlaceRow
             key={place.placeId}
-            place={{ ...place, countLabel: `${place.visitorCount.toLocaleString()}명 다녀옴` }}
+            place={place}
             onPress={() => navigation.navigate(AppRoute.장소_상세, { placeId: place.placeId })}
           />
         ))
