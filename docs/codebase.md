@@ -130,9 +130,10 @@ apps/
 │   │   │   │   ├── AppBootstrap.tsx # 네이티브 스플래시(expo-splash-screen) preventAutoHideAsync 소유.
 │   │   │   │   │                #   번들 확인·세션 준비·폰트 로딩·최소 노출 시간이 끝나면 hideAsync, 그 전까지는
 │   │   │   │   │                #   화면을 렌더링하지 않고 네이티브 스플래시(app.config.ts, 흰 배경 + logo.png)를 유지
-│   │   │   │   └── useAppBundleManager.ts # 번들 컨트롤러(CodePush 도입 전 자리). checkForUpdate가 항상 null 고정,
-│   │   │   │                    #   applyOnNextRestart는 즉시 적용이 아니라 다음 재시작 적용 예약. 언제 확인·적용할지의
-│   │   │   │                    #   정책은 이 훅이 아니라 AppBootstrap의 useAutoBundleUpdate가 조립
+│   │   │   │   └── appBundleManager.ts # 번들 관리자(expo-updates 도입 전 자리). checkForUpdate가 항상 null 고정,
+│   │   │   │                    #   install은 비필수면 받아두기만(다음 실행 때 네이티브가 적용), 필수면 받은 뒤 재시작해
+│   │   │   │                    #   반환하지 않는다. 대기·실행 중 번들은 네이티브가 소유하고 이 모듈은 상태를 들고 있지 않는다.
+│   │   │   │                    #   AppBootstrap의 useAutoBundleUpdate는 확인→install만 호출
 │   │   │   └── HomeTabs.tsx    # 홈 4탭(내 여행/피드/탐색/프로필)
 │   │   ├── features/           # 웹 features 구조를 미러링. trip/TripDetailStack.tsx·TripDetailTabs.tsx 가
 │   │   │   │                    #   여행 상세 스택+탭 중첩을 구성

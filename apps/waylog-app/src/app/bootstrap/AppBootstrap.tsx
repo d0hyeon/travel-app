@@ -1,10 +1,10 @@
 import { useFonts } from 'expo-font'
 import * as SplashScreen from 'expo-splash-screen'
-import { useEffect, useMemo, useRef, useState, type PropsWithChildren } from 'react'
+import { useEffect, useMemo, useState, type PropsWithChildren } from 'react'
 import SuitBold from '../../../assets/fonts/SUIT-Bold.ttf'
 import SuitHeavy from '../../../assets/fonts/SUIT-Heavy.ttf'
 import SuitRegular from '../../../assets/fonts/SUIT-Regular.ttf'
-import { useAppBundleManager } from './useAppBundleManager'
+import { appBundleManager } from './appBundleManager'
 import { prepareSession } from '@waylog/domains/clients'
 
 void SplashScreen.preventAutoHideAsync()
@@ -46,32 +46,26 @@ export function AppBootstrap({ children }: PropsWithChildren) {
 }
 
 /**
- * 이전 부팅에서 받아둔 비필수 번들이 있으면 이번엔 그것부터 적용하고,
- * 없으면 새로 확인해 받아둔 뒤 필수 업데이트일 때만 바로 적용한다.
+ * 새 번들이 있으면 받아둔다. 비필수는 다음 실행 때 적용되고,
+ * 필수는 받은 뒤 재시작하므로 이 흐름은 이어지지 않고 새 번들이 처음부터 다시 부팅한다.
  */
 function useAutoBundleUpdate() {
-  const { hasUpdatedBundle, checkForUpdate, applyBundle } = useAppBundleManager()
-  const status = useRef(Promise.withResolvers<void>()).current;
+  const [status] = useState(() => Promise.withResolvers<void>())
 
   useEffect(() => {
-    async function downloadOrApply() {
-      const update = await checkForUpdate()
-      if (update != null) {
-        await update.download();
-      }
-      if (hasUpdatedBundle || update?.isMandatory) {
-        await applyBundle();
-      }
+    async function installAvailableUpdate() {
+      const update = await appBundleManager.checkForUpdate()
+      await update?.install()
     }
 
-    downloadOrApply().finally(() => status.resolve())
-  }, [])
+    installAvailableUpdate().finally(() => status.resolve())
+  }, [status])
 
   return useMemo(() => {
     return {
       waitForReady: () => status.promise
     }
-  }, [])
+  }, [status])
 }
 
 function delay(ms: number) {
