@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { View, type LayoutChangeEvent, type StyleProp, type ViewStyle } from 'react-native'
 import {
   Easing,
+  type AnimatedStyle,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -31,7 +32,7 @@ interface ExtrudeOptions {
 
 interface ExtrudeNodeBinding {
   ref: (node: View | null) => void
-  style: StyleProp<ViewStyle>
+  style: AnimatedStyle<StyleProp<ViewStyle>>
 }
 
 interface ExtrudeBinding {
@@ -42,7 +43,7 @@ interface ExtrudeBinding {
   target: ExtrudeNodeBinding
 
   /** source가 원래 차지하던 자리. 접힘 애니메이션이 걸린다. */
-  placeholderStyle: StyleProp<ViewStyle>
+  placeholderStyle: AnimatedStyle<StyleProp<ViewStyle>>
 }
 
 /**
