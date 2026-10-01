@@ -130,10 +130,18 @@ apps/
 │   │   │   │   ├── AppBootstrap.tsx # 네이티브 스플래시(expo-splash-screen) preventAutoHideAsync 소유.
 │   │   │   │   │                #   번들 확인·세션 준비·폰트 로딩·최소 노출 시간이 끝나면 hideAsync, 그 전까지는
 │   │   │   │   │                #   화면을 렌더링하지 않고 네이티브 스플래시(app.config.ts, 흰 배경 + logo.png)를 유지
-│   │   │   │   └── appBundleManager.ts # 번들 관리자(expo-updates 도입 전 자리). checkForUpdate가 항상 null 고정,
-│   │   │   │                    #   install은 비필수면 받아두기만(다음 실행 때 네이티브가 적용), 필수면 받은 뒤 재시작해
-│   │   │   │                    #   반환하지 않는다. 대기·실행 중 번들은 네이티브가 소유하고 이 모듈은 상태를 들고 있지 않는다.
-│   │   │   │                    #   AppBootstrap의 useAutoBundleUpdate는 확인→install만 호출
+│   │   │   │   ├── appBundleManager.ts # 번들 관리자(expo-updates, EAS Update). checkForUpdate는 Updates.isEnabled가 꺼진
+│   │   │   │   │                #   개발 빌드면 null, 아니면 checkForUpdateAsync 결과를 돌려준다. 필수 여부는 manifest.extra.isMandatory
+│   │   │   │   │                #   (app.config.ts가 게시 시점 BUNDLE_IS_MANDATORY=true 로 채운다).
+│   │   │   │   │                #   install은 비필수면 받아두기만(다음 실행 때 네이티브가 적용), 필수면 받은 뒤 재시작해
+│   │   │   │   │                #   반환하지 않는다. 대기·실행 중 번들은 네이티브가 소유하고 이 모듈은 상태를 들고 있지 않는다.
+│   │   │   │   │                #   runtimeVersion 은 appVersion 정책, 채널은 eas.json 빌드 프로필(development/preview/production)
+│   │   │   │   │                #   AppBootstrap의 useAutoBundleUpdate는 확인→install만 호출
+│   │   │   │   ├── appUpdateRequirement.ts # 강제 업데이트(스토어) 확인. Supabase `app_version_policies`(platform별 minimum_version·store_url)보다
+│   │   │   │   │                #   설치 버전이 낮으면 { storeUrl }, 아니면 null. 조회 실패·타임아웃(3초)·행 없음은 막지 않고 null.
+│   │   │   │   │                #   최소 버전을 앱에 구우면 이미 배포된 옛 앱을 막을 수 없어 서버가 소유한다. anon 읽기 전용, 수정은 대시보드
+│   │   │   │   ├── appUpdateRequirement.utils.ts # isVersionBelow — 숫자 비교, 해석 불가면 false(막지 않음)
+│   │   │   │   └── ForcedUpdateScreen.tsx # 닫을 수 없는 업데이트 요구 화면. AppBootstrap이 준비 완료 후 children 대신 렌더
 │   │   │   └── HomeTabs.tsx    # 홈 4탭(내 여행/피드/탐색/프로필)
 │   │   ├── features/           # 웹 features 구조를 미러링. trip/TripDetailStack.tsx·TripDetailTabs.tsx 가
 │   │   │   │                    #   여행 상세 스택+탭 중첩을 구성
