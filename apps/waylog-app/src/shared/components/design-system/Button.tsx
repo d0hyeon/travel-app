@@ -13,12 +13,13 @@ const SIZE = {
   small: { height: 24, borderRadius: radius.sm, fontSize: 11, paddingHorizontal: 8 },
   medium: { height: 32, borderRadius: radius.md, fontSize: 13, paddingHorizontal: 12 },
   large: { height: 40, borderRadius: radius.lg, fontSize: 14, paddingHorizontal: 16 },
+  xlarge: { height: 52, borderRadius: radius.xl, fontSize: 16, paddingHorizontal: 18 },
 } as const
 
 export interface ButtonProps {
   children?: ReactNode
   variant?: ButtonVariant
-  size?: 'small' | 'medium' | 'large'
+  size?: keyof typeof SIZE;
   color?: ButtonColor
   disabled?: boolean
   loading?: boolean
