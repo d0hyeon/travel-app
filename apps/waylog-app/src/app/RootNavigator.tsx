@@ -38,6 +38,7 @@ import { TransportCreationScreen } from '../features/trip/trip-transport/Transpo
 import { useFlightStatusNotificationResponse } from '../features/trip/trip-transport/notification/useFlightStatusNotification'
 import { TransportDetailScreen } from '../features/trip/trip-transport/transport-detail/TransportDetailScreen'
 import { UserProfileDetailScreen } from '../features/user-profile/UserProfileDetailScreen'
+import { ToastRenderer } from '../shared/components/toast/ToastRenderer'
 import { OverlayProvider } from '../shared/hooks/useOverlay.context'
 import { queryClient } from '../shared/query-client'
 import { AppRoute } from './AppRoute'
@@ -137,6 +138,7 @@ export function RootNavigator() {
                   </NavigationContainer>
                 </Suspense>
               </OverlayProvider>
+              <ToastRenderer />
               <StatusBar style="auto" />
             </QueryClientProvider>
           </AppBootstrap>

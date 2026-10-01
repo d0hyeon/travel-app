@@ -125,7 +125,7 @@ apps/
 │   │   │   ├── routes.ts       # RouteParamsRegistry(화면별 declare module 병합 대상) + 매핑 타입으로 합성되는 RootStackParamList·HomeTabParamList·TripDetailTabParamList
 │   │   │   ├── AppRoute.ts     # @waylog/routes(콜론 경로)를 언더스코어로 치환한 내부 AppRoute + toScreenName
 │   │   │   ├── registerLinkingScreens.ts # linking.config.screens를 내부 AppRoute 키로 생성
-│   │   │   ├── RootNavigator.tsx # Provider 구성 + NavigationContainer + RootStack (linking 포함)
+│   │   │   ├── RootNavigator.tsx # Provider 구성 + NavigationContainer + RootStack (linking 포함). 전역 토스트(`shared/components/toast/ToastRenderer`, sonner-native)를 QueryClientProvider 안에 마운트하고, 호출은 웹과 같은 `toast.*` API를 쓴다
 │   │   │   ├── bootstrap/      # 부팅 준비 오케스트레이션
 │   │   │   │   ├── AppBootstrap.tsx # 네이티브 스플래시(expo-splash-screen) preventAutoHideAsync 소유.
 │   │   │   │   │                #   번들 확인·세션 준비·폰트 로딩·최소 노출 시간이 끝나면 hideAsync, 그 전까지는
