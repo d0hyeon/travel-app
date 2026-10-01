@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import type { CurrencyCode } from '../currency'
 import type { Expense } from '../expense.types'
 import { groupByPlace, sumAmountByPlace } from '../expensesByPlace.utils'
 
@@ -6,7 +7,7 @@ function expense(
   id: string,
   placeId: string | undefined,
   totalAmount: number,
-  currency = 'KRW',
+  currency: CurrencyCode = 'KRW',
 ): Expense {
   return {
     id,
