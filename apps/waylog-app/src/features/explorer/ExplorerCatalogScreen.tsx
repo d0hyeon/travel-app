@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { ErrorBoundary } from '@waylog/react'
 import { palette } from '../../shared/config/tokens'
 import { useScrollStatus } from '../../shared/hooks/interaction/useScrollStatus'
+import { useTabSwipeLock } from '../../shared/hooks/useTabSwipeLock'
 import { useExplorerFilterParams } from './explorer-filters/useExplorerFilterParams'
 import { ExploredPlacesRankingSection } from './explorer-ranking/ExploredPlacesRankingSection'
 import { RecentHotPlacesSection } from './explorer-recent/RecentHotPlacesSection'
@@ -25,6 +26,7 @@ export function ExplorerCatalogScreen({ bottomContentInset = 0 }: Props) {
   const { location, category } = useExplorerFilterParams()
   const [viewMode, setViewMode] = useExplorerViewMode()
   const { isScrollDown, onScroll } = useScrollStatus()
+  useTabSwipeLock(viewMode === 'map')
 
   return (
     <SafeAreaView edges={SCREEN_SAFE_AREA_EDGES} style={styles.screen}>
