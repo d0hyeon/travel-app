@@ -7,7 +7,7 @@ import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterPa
 import { PlaceListItem } from '../explorer-place-item/PlaceListItem'
 import { buildExplorerDetailUrl } from '../explorer.utils'
 import { useExplorerPlaceSidePannel } from '../useExplorerPlaceOverlay'
-import { DESKTOP_SKELETON_CARDS, formatVisitorCount, SECTION_LIMIT } from './topVisitedSection.constants'
+import { DESKTOP_SKELETON_CARDS, SECTION_LIMIT } from './topVisitedSection.constants'
 import { useExploredPlaces } from './useExploredPlaces'
 
 export function TopVisitedSummarySection() {
@@ -49,7 +49,7 @@ export function TopVisitedSummarySection() {
         {mostVisitedPlaces.map((place) => (
           <Trigger key={place.placeId} placeId={place.placeId}>
             <PlaceListItem
-              place={{ ...place, countLabel: formatVisitorCount(place.visitorCount) }}
+              place={place}
             />
           </Trigger>
         ))}

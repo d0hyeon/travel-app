@@ -54,9 +54,7 @@ export function MostSavedSummarySection() {
           {topSaved.map((place) => (
             <Box key={place.placeId} sx={{ width: isMobile ? 140 : 200, flexShrink: 0 }}>
               <PlaceOverlayLink key={place.placeId} data={place.placeId}>
-                <PlaceCard
-                  place={{ ...place, countLabel: `${place.saveCount}번 저장됨` }}
-                />
+                <PlaceCard place={place} />
               </PlaceOverlayLink>
             </Box>
           ))}
