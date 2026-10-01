@@ -52,6 +52,12 @@ Apple 가이드라인 1.2는 신고를 24시간 안에 처리하라고 요구한
 - [ ] 매일 Supabase에서 `reports`, `user_blocks`를 조회하고 조치한다. 쿼리와 조치 방법은 [`moderation.md`](./moderation.md).
 - [ ] 필요해지면 Database Webhook으로 신고·차단 INSERT를 메일이나 Slack에 연결한다.
 
+### 강제 업데이트 정책
+
+- [ ] 마이그레이션 `20261001100000_app_version_policies.sql`을 운영 DB에 적용하고 `pnpm gen-types`로 타입을 다시 만든다. 테이블이 없으면 앱은 정책을 읽지 못하고 강제 업데이트가 조용히 꺼진다.
+- [ ] 앱 레코드를 만든 뒤 Supabase 대시보드의 `app_version_policies`에서 iOS `store_url`의 `APP_STORE_ID` 플레이스홀더를 실제 App Store ID로 바꾼다. 최소 버전이 `1.0.0`인 동안은 아무도 막히지 않지만, 바꾸지 않은 채 최소 버전을 올리면 업데이트 버튼이 잘못된 주소로 간다.
+- [ ] 첫 출시 빌드에 이 기능이 들어 있어야 한다. 이미 배포된 앱에는 이 로직이 없어서 나중에 넣어도 옛 버전을 막을 수 없다.
+
 ### 처리방침 최종 확인
 
 - [ ] 시행일(`packages/domains`의 `TERMS_VERSION`, 현재 `2026-10-01`)이 실제 출시일과 맞는지 확인한다. 바꾸면 약관 페이지에 표시되는 날짜도 함께 바뀐다.
@@ -68,7 +74,7 @@ Apple 가이드라인 1.2는 신고를 24시간 안에 처리하라고 요구한
 | Google Cloud | 지도(웹 JS·iOS·Android), Places, Directions, Vision | 클라이언트 `VITE_GOOGLE_MAPS_API_KEY`, `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY` / 서버 `GOOGLE_PLACES_API_KEY`, `GOOGLE_DIRECTIONS_API_KEY`, `GOOGLE_VISION_API_KEY` | 결제 계정 연결. 클라이언트 키는 웹 HTTP 리퍼러와 iOS·Android 앱 식별자로 제한하고, 서버 키는 사용할 API로만 제한한다. 사용량 예산 알림 설정. |
 | Kakao Developers | 웹 지도 SDK, 장소 검색, 길찾기, 카카오 로그인 | `VITE_KAKAO_MAP_KEY`, `KAKAO_REST_KEY` | 플랫폼에 운영 웹 도메인 등록. 카카오모빌리티 길찾기(`apis-navi.kakaomobility.com`)는 별도 권한이 필요한지 확인. 1장 카카오 항목과 함께 처리. |
 | Mapbox | 앱 지도 | `EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN` | 출시용 토큰을 따로 발급하고 URL 제한이 필요한지 확인. 앱 지도만 Mapbox를 쓰므로 Maps SDK for Mobile MAU 과금이 적용된다. 25,000 MAU까지 무료, 이후 1,000명당 $4.00(125,000까지)·$3.20(250,000까지)·$2.40. 개발 기기도 MAU에 잡히니 개발·출시 토큰을 분리해 사용량을 따로 본다. |
-| Expo(EAS) | 앱 빌드, 푸시 토큰 | `EXPO_PUBLIC_EAS_PROJECT_ID` | `eas.json`이 아직 없다. `eas build:configure`로 만들고 `production` 프로필을 정의한다. 푸시 인증서는 5장 참고. |
+| Expo(EAS) | 앱 빌드, 푸시 토큰, 번들 업데이트(EAS Update) | `EXPO_PUBLIC_EAS_PROJECT_ID` | `eas.json`의 `development`·`preview`·`production` 프로필이 각각 같은 이름의 채널에 연결돼 있다. 빌드 번호(`buildNumber`·`versionCode`)는 EAS 서버가 관리하고 `production` 빌드마다 자동으로 올라간다(`appVersionSource: remote`). 이미 스토어에 올린 빌드가 있으면 `eas build:version:set`으로 그보다 큰 번호에서 시작하게 맞춘다. `EXPO_PUBLIC_EAS_PROJECT_ID`가 비면 `app.config.ts`의 `updates.url`이 깨져 업데이트가 통째로 꺼지므로 EAS 빌드 환경(`eas env`)에도 등록한다. 푸시 인증서는 5장 참고. |
 | 웹 푸시(VAPID) | 웹 채팅 알림 | `VITE_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | 운영에도 같은 키쌍을 쓸지 정한다. 바꾸면 기존 구독이 모두 무효가 된다. `VAPID_SUBJECT`는 실제 연락처로. |
 | Open-Meteo | 해외 날씨 예보 | 없음 | 무료 API는 비상업 이용 조건이다. 수익화 계획이 있으면 유료 구독으로 옮기거나 다른 공급자를 검토한다. 약관 확인 필요. |
 
@@ -123,6 +129,7 @@ Personal Team으로는 Sign in with Apple, Push Notifications, Associated Domain
 ### 5-4. 빌드와 심사
 
 - [ ] `eas build --platform ios --profile production`으로 릴리스 빌드를 만들고 TestFlight에 올려 실기기 확인.
+- [ ] 번들 업데이트를 실기기에서 확인한다. `production` 빌드를 설치한 뒤 `eas update --channel production`으로 게시하고, 앱을 완전히 종료했다 다시 켠 다음 한 번 더 켰을 때 새 번들이 적용되는지 본다(비필수는 받아만 두고 다음 실행에 적용된다). 필수 업데이트는 `BUNDLE_IS_MANDATORY=true`로 게시해 받은 직후 재시작되는지 본다. 개발 빌드는 `Updates.isEnabled`가 꺼져 있어 확인되지 않는다.
 - [ ] Sign in with Apple 로그인과 가입 취소 시 Apple 철회를 실기기에서 확인(`apple-login-setup.md` 마지막 절차).
 - [ ] 초대 링크(`https://waylog.me/trip/invite/...`)를 메모 앱 등에서 눌러 앱이 열리는지 확인.
 - [ ] App Store Connect에 앱 레코드를 만들고 스크린샷, 카테고리, 연령 등급, 수출 규정 준수 답변을 입력한다.
@@ -130,6 +137,8 @@ Personal Team으로는 Sign in with Apple, Push Notifications, Associated Domain
 - [ ] 개인정보 라벨, Support URL, 심사 노트는 2장 App Store Connect 항목을 따른다.
 
 ## 6. 결정할 것과 후속 작업
+
+- **`runtimeVersion` 정책**: 지금은 `appVersion`이라 `version`을 올릴 때만 런타임이 바뀐다. 네이티브 모듈을 추가·변경하고 버전을 안 올리면 호환되지 않는 JS가 설치된 앱에 내려가 크래시할 수 있다. 네이티브 변경 때마다 버전을 올리는 규칙으로 갈지, 자동으로 계산하는 `fingerprint` 정책으로 바꿀지 출시 전에 정한다.
 
 - **법률 검토**: 코드베이스에 임의로 넣은 조항(약관 변경 공지 기간, 서비스 종료 공지, 외부 정보 면책, 관할 법원)과 기존 유저 일괄 동의 백필의 유효성을 검토할지 정한다.
 - **카카오 연결 끊기**: 탈퇴 시 카카오 서비스 연결(unlink)은 호출하지 않는다. 필요하면 카카오 Admin Key로 호출을 추가한다.
