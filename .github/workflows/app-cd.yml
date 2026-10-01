@@ -64,13 +64,9 @@ jobs:
       - run: eas update --branch production --environment production --message "${{ github.sha }}" --non-interactive
 
   build:
-    name: EAS Build (${{ matrix.platform }})
+    name: EAS Build (iOS)
     if: startsWith(github.ref, 'refs/tags/app-v')
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [ios, android]
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
@@ -78,4 +74,4 @@ jobs:
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
-      - run: eas build --platform ${{ matrix.platform }} --profile production --non-interactive --no-wait
+      - run: eas build --platform ios --profile production --non-interactive --no-wait

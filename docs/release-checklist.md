@@ -159,7 +159,7 @@ Personal Team으로는 Sign in with Apple, Push Notifications, Associated Domain
 
 - [ ] 먼저 `preview` 프로필로 빌드한 앱을 기기에 설치하고, PR을 열어 `pr-<번호>` 브랜치 업데이트가 올라가는지 본다. preview 빌드가 받는 채널(`preview`)은 PR 브랜치와 자동으로 이어지지 않는다. `eas channel:edit preview --branch pr-<번호>`로 연결해야 해당 PR 번들이 적용된다.
 - [ ] main에 병합한 뒤 `production` 브랜치에 업데이트가 게시됐는지 expo.dev에서 확인한다. `production` 채널이 `production` 브랜치를 가리키는지도 함께 본다(`eas channel:view production`).
-- [ ] 첫 `app-v*` 태그(예: `app-v1.0.0`)를 푸시해 iOS·Android 빌드가 시작되는지 본다. 빌드는 `--no-wait`라 GitHub에서는 성공으로 끝나고, 실제 결과는 expo.dev에서 확인해야 한다.
+- [ ] 첫 `app-v*` 태그(예: `app-v1.0.0`)를 푸시해 iOS 빌드가 시작되는지 본다. 빌드는 `--no-wait`라 GitHub에서는 성공으로 끝나고, 실제 결과는 expo.dev에서 확인해야 한다.
 - [ ] 태그를 만들기 전 `app.config.ts`의 `version`을 올렸는지 확인한다. 7장의 `runtimeVersion` 정책 때문에 네이티브 변경이 있었다면 버전이 같으면 안 된다.
 
 ### 아직 자동화하지 않은 것

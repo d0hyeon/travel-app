@@ -71,7 +71,7 @@ TicketViewer 내부의 `ConfirmDialog`와 `ActionSheet`다. 공용 `Button`도 T
 | 워크플로 | 트리거 | 하는 일 |
 | -------- | ------ | ------- |
 | `.github/workflows/ci.yml` | PR → main | `pnpm ts-check`(웹·앱·패키지 전체), 변경 파일 ESLint, `pnpm test`, e2e. e2e는 `dorny/paths-filter`로 `apps/waylog-web`·`packages`·lock·`.github` 변경 시에만 돈다 |
-| `.github/workflows/app-cd.yml` | main push, PR, `app-v*` 태그, 수동 | PR은 EAS Update `pr-<번호>` 브랜치(preview 환경), main push·수동은 `production` 브랜치 OTA, `app-v*` 태그는 EAS Build(ios·android, production 프로필, `--no-wait`) |
+| `.github/workflows/app-cd.yml` | main push, PR, `app-v*` 태그, 수동 | PR은 EAS Update `pr-<번호>` 브랜치(preview 환경), main push·수동은 `production` 브랜치 OTA, `app-v*` 태그는 EAS Build(iOS, production 프로필, `--no-wait`) |
 
 앱 CD가 쓰는 시크릿은 GitHub의 `EXPO_TOKEN` 하나다. `EXPO_PUBLIC_*` 값은 expo.dev의 환경변수
 (`eas.json` 프로필의 `environment`: development·preview·production)에서 불러온다.
