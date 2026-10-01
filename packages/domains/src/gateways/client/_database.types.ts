@@ -200,6 +200,27 @@ export type Database = {
         }
         Relationships: []
       }
+      app_version_policies: {
+        Row: {
+          minimum_version: string
+          platform: string
+          store_url: string
+          updated_at: string
+        }
+        Insert: {
+          minimum_version: string
+          platform: string
+          store_url: string
+          updated_at?: string
+        }
+        Update: {
+          minimum_version?: string
+          platform?: string
+          store_url?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       checklist: {
         Row: {
           content: string | null
@@ -1274,6 +1295,11 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      has_blocked: { Args: { target_user: string }; Returns: boolean }
+      prepare_account_deletion: {
+        Args: { target_user: string }
+        Returns: string[]
       }
       sync_airport_arrival_guidance_job: {
         Args: { p_transport_id: string }
