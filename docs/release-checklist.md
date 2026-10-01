@@ -3,7 +3,7 @@
 약관 동의·Apple 로그인·신고·차단·회원 탈퇴 작업 이후 사람이 직접 해야 하는 일을 모은 문서다. 코드와 DB 마이그레이션, Edge Function 배포는 끝났다.
 배포 순서·실기기 확인 같은 개발 절차는 여기 두지 않는다.
 
-1~2장은 약관·Apple 로그인·신고 작업의 잔여 작업, 3~5장은 출시 시점에 운영 환경으로 옮길 외부 서비스·정부 API·Apple 가입 후 작업, 6장은 결정 사항이다.
+1~2장은 약관·Apple 로그인·신고 작업의 잔여 작업, 3~5장은 출시 시점에 운영 환경으로 옮길 외부 서비스·정부 API·Apple 가입 후 작업, 6장은 CI/CD 워크플로를 쓰기 위한 설정, 7장은 결정 사항이다.
 
 ## 1. 콘솔에서 직접 할 것
 
@@ -136,7 +136,38 @@ Personal Team으로는 Sign in with Apple, Push Notifications, Associated Domain
 - [ ] 심사용 계정을 준비한다. 로그인이 카카오·Apple뿐이라 심사자가 로그인할 방법이 없다. 심사 노트에 데모 계정 또는 로그인 방법을 적는다.
 - [ ] 개인정보 라벨, Support URL, 심사 노트는 2장 App Store Connect 항목을 따른다.
 
-## 6. 결정할 것과 후속 작업
+## 6. CI/CD 설정
+
+`.github/workflows/app-cd.yml`을 실제로 돌리기 위해 사람이 해야 하는 일이다. 워크플로 구성은 `docs/codebase.md`의 CI/CD 절에 있다.
+
+### GitHub
+
+- [ ] Expo 액세스 토큰을 발급해 저장소 시크릿 `EXPO_TOKEN`으로 등록한다(expo.dev → Account settings → Access tokens).
+- [ ] PR을 열어 `Detect Changes` 잡이 의도대로 걸러내는지 확인한다. 웹 파일만 바꾼 PR은 e2e가 돌고, 앱 파일만 바꾼 PR은 e2e가 건너뛰어져야 한다.
+- [ ] 브랜치 보호의 필수 체크에 `TypeScript Check`, `ESLint Check`, `Unit Tests`를 등록한다. e2e는 건너뛰어질 수 있으니 필수에 넣어도 건너뛴 경우 통과로 처리되는지 확인한다.
+
+### Expo(EAS) 환경변수
+
+`eas.json`의 프로필이 `environment`(development·preview·production)로 값을 읽는다. 세 환경 모두에 등록한다(`eas env:create` 또는 expo.dev). 비어 있으면 업데이트와 빌드에 빈 값이 구워진다.
+
+- [ ] `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`. production은 운영 프로젝트 값.
+- [ ] `EXPO_PUBLIC_EAS_PROJECT_ID`. 없으면 `updates.url`이 깨져 업데이트가 통째로 꺼진다.
+- [ ] `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY`, `EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN`, `EXPO_PUBLIC_DATA_GO_SERVICE_KEY`, `EXPO_PUBLIC_WEB_BASE_URL`. 개발·출시 키는 3장 기준으로 분리한다.
+- [ ] `eas env:list production`으로 위 7개가 모두 있는지 대조한다.
+
+### 첫 배포 확인
+
+- [ ] 먼저 `preview` 프로필로 빌드한 앱을 기기에 설치하고, PR을 열어 `pr-<번호>` 브랜치 업데이트가 올라가는지 본다. preview 빌드가 받는 채널(`preview`)은 PR 브랜치와 자동으로 이어지지 않는다. `eas channel:edit preview --branch pr-<번호>`로 연결해야 해당 PR 번들이 적용된다.
+- [ ] main에 병합한 뒤 `production` 브랜치에 업데이트가 게시됐는지 expo.dev에서 확인한다. `production` 채널이 `production` 브랜치를 가리키는지도 함께 본다(`eas channel:view production`).
+- [ ] 첫 `app-v*` 태그(예: `app-v1.0.0`)를 푸시해 iOS·Android 빌드가 시작되는지 본다. 빌드는 `--no-wait`라 GitHub에서는 성공으로 끝나고, 실제 결과는 expo.dev에서 확인해야 한다.
+- [ ] 태그를 만들기 전 `app.config.ts`의 `version`을 올렸는지 확인한다. 7장의 `runtimeVersion` 정책 때문에 네이티브 변경이 있었다면 버전이 같으면 안 된다.
+
+### 아직 자동화하지 않은 것
+
+- [ ] 스토어 제출(`eas submit`)은 워크플로에 없다. 자동화하려면 `eas.json`에 `submit.production`(iOS `ascAppId`, Android 서비스 계정 키)이 필요하다. 첫 출시는 수동 제출로 하고 이후 자동화할지 정한다.
+- [ ] 필수 업데이트가 필요하면 Actions에서 `App CD`를 수동 실행하고 `is_mandatory`를 켠다. 일반 main 푸시는 항상 비필수로 게시된다.
+
+## 7. 결정할 것과 후속 작업
 
 - **`runtimeVersion` 정책**: 지금은 `appVersion`이라 `version`을 올릴 때만 런타임이 바뀐다. 네이티브 모듈을 추가·변경하고 버전을 안 올리면 호환되지 않는 JS가 설치된 앱에 내려가 크래시할 수 있다. 네이티브 변경 때마다 버전을 올리는 규칙으로 갈지, 자동으로 계산하는 `fingerprint` 정책으로 바꿀지 출시 전에 정한다.
 
