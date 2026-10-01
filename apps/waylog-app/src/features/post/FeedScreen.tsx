@@ -1,3 +1,4 @@
+import { useAuth } from '@waylog/domains/clients'
 import { useFeed } from '@waylog/domains/modules/post'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { MaterialIcons } from '@expo/vector-icons'
@@ -13,6 +14,8 @@ import { PostCard } from './PostCard'
 export function FeedScreen() {
   const navigation = useAppNavigation()
   const insets = useSafeAreaInsets()
+  const { data: auth } = useAuth({ required: false })
+  const isSignedIn = auth != null
 
   return (
     <Box style={styles.screen}>
@@ -35,7 +38,9 @@ export function FeedScreen() {
           <Contents />
         </Suspense>
       </ScrollView>
-      <Fab onPress={() => navigation.navigate(AppRoute.포스트_생성, {})} style={styles.createButton}><MaterialIcons name="add" size={30} color="#fff" /></Fab>
+      {isSignedIn && (
+        <Fab onPress={() => navigation.navigate(AppRoute.포스트_생성, {})} style={styles.createButton}><MaterialIcons name="add" size={30} color="#fff" /></Fab>
+      )}
     </Box>
   )
 }
