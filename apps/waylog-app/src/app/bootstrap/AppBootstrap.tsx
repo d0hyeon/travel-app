@@ -5,6 +5,8 @@ import SuitBold from '../../../assets/fonts/SUIT-Bold.ttf'
 import SuitHeavy from '../../../assets/fonts/SUIT-Heavy.ttf'
 import SuitRegular from '../../../assets/fonts/SUIT-Regular.ttf'
 import { appBundleManager } from './appBundleManager'
+import { checkRequiredAppUpdate, type RequiredAppUpdate } from './appUpdateRequirement'
+import { ForcedUpdateScreen } from './ForcedUpdateScreen'
 import { prepareSession } from '@waylog/domains/clients'
 
 void SplashScreen.preventAutoHideAsync()
@@ -13,6 +15,7 @@ const MIN_SPLASH_TIME = 1000;
 
 export function AppBootstrap({ children }: PropsWithChildren) {
   const [isReady, setIsReady] = useState(false);
+  const [requiredUpdate, setRequiredUpdate] = useState<RequiredAppUpdate | null>(null);
   const { waitForReady: waitForResolveBundle } = useAutoBundleUpdate();
 
   const [isFontsLoaded] = useFonts({
@@ -25,6 +28,7 @@ export function AppBootstrap({ children }: PropsWithChildren) {
     const initializationTasks = [
       waitForResolveBundle(),
       prepareSession(),
+      checkRequiredAppUpdate().then(setRequiredUpdate),
       delay(MIN_SPLASH_TIME)
     ];
 
@@ -41,6 +45,7 @@ export function AppBootstrap({ children }: PropsWithChildren) {
   }, [isAppReady])
 
   if (!isAppReady) return null
+  if (requiredUpdate != null) return <ForcedUpdateScreen {...requiredUpdate} />
 
   return children;
 }
