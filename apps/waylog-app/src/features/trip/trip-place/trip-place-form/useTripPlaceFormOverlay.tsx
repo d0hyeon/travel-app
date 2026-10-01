@@ -1,6 +1,5 @@
 import { useTripPlaces } from '@waylog/domains/modules/trip'
 import { AsyncBoundary } from '@waylog/react'
-import { assert } from '@waylog/utility'
 import { useCallback, useRef } from 'react'
 import { Linking, StyleSheet } from 'react-native'
 import { Button, Chip, Stack } from '~/shared/components/design-system'
@@ -13,6 +12,8 @@ import { usePlaceDetailOverlay } from '../../../place/place-detail/usePlaceDetai
 import { PlacePhotoSection } from '../PlacePhotoSection'
 import { PlaceForm, type PlaceFormRef } from './PlaceForm'
 import { PlaceTitleButton } from './PlaceTitleButton'
+import { toast } from 'sonner-native'
+import { assert } from '~shared/utils/assert'
 
 interface OpenParams {
   tripId: string
@@ -70,7 +71,7 @@ export function useTripPlaceFormOverlay() {
 
 interface SheetProps extends OpenParams {
   isOpen: boolean
-  onClose: () => void
+  onClose: () => Promise<void>;
 }
 
 function PlaceFormSheetContent({ tripId, placeId, isOpen, onClose }: SheetProps) {
@@ -93,9 +94,10 @@ function PlaceFormSheetContent({ tripId, placeId, isOpen, onClose }: SheetProps)
           color="error"
           size="small"
           onPress={async () => {
-            if (await confirm('삭제하시겠습니까?')) {
-              await remove(place.id)
-              onClose()
+            if (await confirm('장소를 삭제 하시겠어요?')) {
+              await onClose();
+              await remove(place.id);
+              toast.success('장소가 삭제됐어요')
             }
           }}
         >
@@ -111,8 +113,9 @@ function PlaceFormSheetContent({ tripId, placeId, isOpen, onClose }: SheetProps)
         <PlaceForm
           ref={formRef}
           defaultValues={place}
-          onSubmit={(data) => {
-            void update({ ...data, id: place.id })
+          onSubmit={async (data) => {
+            await update({ ...data, id: place.id })
+            toast.success('장소가 수정되었어요');
             onClose()
           }}
         />
