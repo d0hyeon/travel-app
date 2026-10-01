@@ -76,7 +76,8 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "prebuild:ios": "expo prebuild --platform ios",
-    "test": "vitest run"
+    "test": "vitest run",
+    "ts-check": "tsc --noEmit"
   },
   "private": true
 }
