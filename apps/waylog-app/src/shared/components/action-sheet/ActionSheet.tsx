@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 14,
   },
-  groupedItem: { paddingVertical: 6 },
+  groupedItem: { paddingVertical: 8 },
   groupLabel: { paddingHorizontal: 20, paddingTop: 10, paddingBottom: 8, fontSize: 12, fontWeight: '700' },
   itemContent: { flexDirection: 'row', gap: 8, alignItems: 'center' },
   itemText: { fontSize: 14, fontWeight: '700' },
