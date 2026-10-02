@@ -74,15 +74,16 @@ function PostCardSkeleton() {
 }
 
 function PostPhotoGallery({ post, width, minHeight }: { post: Post; width: number; minHeight: number }) {
-  const pageWidth = width > 0 ? width : '100%'
   const [pageIndex, setPageIndex] = React.useState(0)
 
   if (post.photos.length === 0) {
     return <Box style={[styles.photoPlaceholder, { minHeight }]}><MaterialIcons name="image" size={40} color={palette.textSecondary} /></Box>
   }
 
+  const isWidthMeasured = width > 0
+  if (!isWidthMeasured) return <Box style={[styles.photoPlaceholder, { minHeight }]} />
+
   const handleMomentumScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (width <= 0) return
     const nextIndex = Math.round(event.nativeEvent.contentOffset.x / width)
     setPageIndex(nextIndex)
   }
@@ -97,7 +98,7 @@ function PostPhotoGallery({ post, width, minHeight }: { post: Post; width: numbe
         style={{ minHeight }}
       >
         {post.photos.map((photo) => (
-          <LoadableImage key={photo.url} source={{ uri: photo.url }} style={[styles.photo, { width: pageWidth, minHeight }]} contentFit="cover" />
+          <LoadableImage key={photo.url} source={{ uri: photo.url }} style={[styles.photo, { width, minHeight }]} contentFit="cover" />
         ))}
       </ScrollView>
       {post.photos.length > 1 && (
