@@ -881,8 +881,9 @@ src/
   **`flight-status`가 주는 터미널·게이트와 다른 것이다** — 탑승권은 발권
   시점의 예정, API 는 지금 이 순간이다. 두 값을 섞지 않으며 API 응답으로
   이 컬럼을 덮지 않는다.
-  인천 API 의 터미널 코드(`P01`·`P03`)는 provider 어댑터가 `toTerminalLabel`로
-  `1터미널`·`2터미널`로 바꿔 내보낸다. 모르는 코드(`P02` 등)는 원문 그대로다.
+  인천 API 의 터미널 코드(`P01`·`P02`·`P03`)는 `IncheonAirportTerminalId`
+  (`incheonAirportTerminal.ts`)가 어휘를 소유하고, 표시용 라벨은
+  `toTerminalLabel`이 `1터미널`·`1터미널(탑승동)`·`2터미널`로 바꾼다. 모르는 코드는 `undefined`다.
 - **세 값 모두 OCR 로 뽑는다.** 탑승권 16종의 Vision 결과로 규칙을 맞췄다.
   라벨과 값이 붙어 있지 않다는 것이 이 데이터의 핵심이다 -- ANA 는 라벨 넷을
   먼저 묶어 내놓고(`FLIGHT GATE BOARDING SEAT`) 값을 뒤에 몰아 놓는다.
@@ -961,8 +962,15 @@ src/
   승계해 공항 코드로 provider 를 고르고, provider 가 `getIsAvailability` 로
   자기 기간 제약(인천 D+0~D+6)을 답한다. 김포·김해는 provider 를 더한다.
   조회 가능한 편이 하나도 없으면(기차·버스뿐인 화면 등) 운항 목록 자체를
-  받지 않는다 — 목록 API 가 공항 하루치를 통째로 주므로 받을 이유가 없을
-  때 건너뛰는 것이 비용을 아낀다.
+  읽지 않는다.
+- **클라이언트는 인천 API 를 직접 부르지 않는다.** `useFlightStatuses`는
+  `trip_transport_flight_status` 행을 `transportId`로 읽는다(`tripFlightStatus.api`).
+  목록 API 는 공항 하루치를 통째로 줘서 클라이언트마다 받으면 느렸다. 그 호출은
+  `flight-status-watch` 한 곳으로 모였다. 값은 최대 5분 늦고, 새로 등록한 편은
+  첫 감시 전까지 비어 있으며, 출발 6시간 뒤에는 서버 갱신이 멈춘다(화면에 보이는 기간은
+  provider 의 조회 가능 기간, 즉 당일 자정부터 D+6 이 정한다).
+  `FlightStatus.label`(API 원문 remark)은 저장하지 않아 더 이상 채워지지 않는다.
+  provider(`incheonFlightStatus.provider.ts`)는 지원 공항과 조회 가능 기간만 답한다.
 - 인천공항 API 는 편명을 **제로패딩**(`KE011`)하고 일부에 **접미 문자**(`KE647Y`)를
   붙이며, 코드셰어로 같은 편이 여러 행에 걸친다(Slave 가 절반이다).
   문자열 비교로는 매칭되지 않아 편번호를 수로 비교한다.
@@ -988,11 +996,18 @@ src/
   종료하면 멈추고, 교통편은 출발 직전에만 중요해져 OS 가 가장 홀대하는
   조건에 해당한다.
 - cron 은 **하나만** 돈다. 사용자마다 job 을 만들지 않는다 — 교통편을
-  등록하면 감시 창(출발 24시간 전)에 들어오고 출발이 지나면 빠진다.
+  등록하면 관측 범위(D+6 ~ 출발 6시간 뒤)에 들어온다. 관측값은 이 범위 전체를
+  저장하고, 알림 판단은 출발 24시간 이내 편에만 한다(`watchWindow.ts`).
+  범위를 D+6 까지 넓혀도 API 호출은 대상이 있으면 5분에 방향당 1회로 같다.
 - `trip_transport_flight_status` 가 직전 상태와 발송 이력을 든다.
   직전 상태가 없으면 "변동"을 판단할 수 없고, 발송 이력이 없으면 지연이
   풀릴 때까지 5분마다 같은 알림이 간다. 원본 스케줄은 덮어쓰지 않는다.
   `gate`·`last_notified_gate` 도 같은 이유로 같은 행에 든다.
+  이 행은 두 역할을 겸한다 — **외부 관측값**(`kind`·`scheduled_at`·`estimated_at`·`gate`·`terminal`,
+  안내 Edge 와 클라이언트가 읽는다)과 **푸시 이력**(`last_notified_*`·`prev_gate`).
+  책임이 과해 보이며 푸시 컬럼 분리 작업의 후보다. `terminal`은 인천 API 원본 코드
+  (`P01`·`P02`·`P03`)다. 인천 도착편 감시는 후속 작업에서 제거할 예정이라 도착편 행의
+  `terminal`은 도착 터미널이고, 안내는 읽지 않는다.
 - **탑승구 변경은 `kind` 와 독립으로 판단한다**(`getIsGateChanged`).
   예정·지연 상태에서만 의미가 있다 — 결항·회항·출발·도착 이후엔 탑승구가
   남아 있어도 이미 지난 일이라 알리지 않는다. 지연 알림과 겹치면 한
@@ -1012,6 +1027,14 @@ src/
   `get-guidance`만 호출한다. 화면은 정책·혼잡 스냅샷을 직접 읽지 않으며, Edge가
   여행 멤버 권한, `trips.is_overseas`, 터미널, 운항 상태, 정책과 혼잡 데이터를
   함께 판단해 표시 결과만 반환한다.
+  **터미널의 출처는 해외와 국내가 다르다.** 해외는 인천 출발편만 안내하며 터미널을
+  `trip_transport_flight_status.terminal`(인천 API)에서 읽고 `P01`·`P02` → T1, `P03` → T2
+  로 혼잡도를 조회한다(`incheonTerminal.ts`). 탑승권 터미널은 쓰지 않는다. 국내는 기존대로
+  탑승권 터미널을 쓴다. 응답의 `terminal`은 해외에서 인천 원본 코드이고
+  `toGuidanceTerminalLabel`이 화면 라벨로 바꾼다. 푸시 예약 자격(`sync_airport_arrival_guidance_job`)도
+  탑승권 터미널 조건 없이 해외 + 인천 출발 + 결항 아님이다. 승객예고 API 는 `selectdate` 0·1 만
+  유효하고 그 이상은 오늘 데이터를 조용히 돌려준다. 설계 이력은
+  `docs/superpowers/specs/2026-10-03-airport-arrival-guidance-api-terminal-design.md`.
 - `trips.is_overseas`가 해외 여부의 단일 기준이다. 생성·목적지 변경 시
   `trip.api.ts`가 `destinations`로 저장값을 갱신하고, 예약 트리거와 Edge Function은
   그 저장값만 읽는다. 국내편은 화면 안내만 만들고 푸시를 예약하지 않는다.
