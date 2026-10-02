@@ -99,6 +99,7 @@ function NativeMapInner({
         style={[StyleSheet.absoluteFill, style]}
         styleJSON={JSON.stringify(pastelMapboxStyle)}
         rotateEnabled={false}
+        scaleBarEnabled={false}
         onCameraChanged={(state) => {
           const nextZoom = Math.round(state.properties.zoom)
           setZoom((current) => (nextZoom === current ? current : nextZoom))
