@@ -28,8 +28,9 @@ interface PlaceContentProps {
   tripId: string
 }
 
-const BOTTOM_SHEET_RATIOS = [0.25, 0.5, 0.65, 0.8, 1] as const;
-const DEFAULT_BOTTOM_SHEET_RATIO = 0.65 satisfies typeof BOTTOM_SHEET_RATIOS[number];
+const BOTTOM_SHEET_RATIOS = [0.4, 0.55, 0.7, 0.85] as const;
+const DEFAULT_BOTTOM_SHEET_RATIO = 0.55 satisfies typeof BOTTOM_SHEET_RATIOS[number];
+const MAX_BOTTOM_SHEET_RATIO = 0.85 satisfies typeof BOTTOM_SHEET_RATIOS[number];
 
 export default function TripPlaceContent({ tripId }: PlaceContentProps) {
   const { data: trip } = useTrip(tripId)
@@ -150,11 +151,14 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
           </BottomSheet.Body>
         </BottomSheet>
 
-        <Box pointerEvents="box-none" style={[styles.fabArea, { bottom: `${sheetRatio * 100}%` }]}>
-          <Fab accessibilityLabel="장소 추가" onPress={handleAddPlace} style={styles.addPlaceButton}>
-            <MaterialIcons name="add" size={26} color={palette.background} />
-          </Fab>
-        </Box>
+        {sheetRatio < MAX_BOTTOM_SHEET_RATIO && (
+          <Box pointerEvents="box-none" style={[styles.fabArea, { bottom: `${sheetRatio * 100}%` }]}>
+            <Fab accessibilityLabel="장소 추가" onPress={handleAddPlace} style={styles.addPlaceButton}>
+              <MaterialIcons name="add" size={26} color={palette.background} />
+            </Fab>
+          </Box>
+        )}
+
       </Box>
     </>
   )
