@@ -1,4 +1,5 @@
 import type { Coordinate } from "@waylog/domains/modules/map";
+import type { PanToOptions } from "./NativeMap.types";
 
 // 웹은 level(1~14, 작을수록 확대), RN 은 delta(작을수록 확대)로 배율을 다룬다.
 export const DEFAULT_DELTA = 0.02;
@@ -53,4 +54,9 @@ function widenToMinSpan(min: number, max: number): [number, number] {
 
   const center = (min + max) / 2;
   return [center - MIN_FIT_SPAN / 2, center + MIN_FIT_SPAN / 2];
+}
+
+export function resolvePanToOptions(zoomOrOptions?: number | PanToOptions): PanToOptions {
+  if (typeof zoomOrOptions === 'number') return { zoom: zoomOrOptions }
+  return zoomOrOptions ?? {}
 }

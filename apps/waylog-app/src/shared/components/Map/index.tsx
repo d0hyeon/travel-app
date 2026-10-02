@@ -22,7 +22,6 @@ export type {
   MapBounds,
   MapPolygonProps,
   MapProps,
-  MapRef,
   MapRegionProps,
   MarkerProps,
   PathProps,
@@ -30,3 +29,4 @@ export type {
   PolylineLineProps,
   PolylineProps,
 } from '@waylog/domains/modules/map'
+export type { NativeMapRef as MapRef, PanToOptions } from './NativeMap.types'

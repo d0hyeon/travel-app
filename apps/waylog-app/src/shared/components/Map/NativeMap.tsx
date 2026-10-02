@@ -1,13 +1,12 @@
 import {
   DEFAULT_MAP_CENTER,
   pastelMapboxStyle,
-  type MapProps,
-  type MapRef,
 } from '@waylog/domains/modules/map'
 import { useEffect, useImperativeHandle, useMemo, useRef, useState, type ReactNode } from 'react'
-import { StyleSheet, useWindowDimensions, type StyleProp, type ViewStyle } from 'react-native'
+import { StyleSheet, useWindowDimensions } from 'react-native'
 import Mapbox from '@rnmapbox/maps'
 import { MapContext } from './MapContext'
+import type { NativeMapProps, NativeMapRef } from './NativeMap.types'
 import { NativeMapCluster } from './NativeMapCluster'
 import { useBatchedCallback } from '../../hooks/useBatchedCallback'
 import { MapMarkerRegistryProvider, useRegisteredMapMarkers } from './useMapMarkerRegistry'
@@ -26,7 +25,7 @@ const CLUSTER_TAP_DURATION = 500
 const DEFAULT_ZOOM = 14 // 웹 KakaoMap 기본값(defaultZoom=14, 카카오 level 8 상당)과 동일한 확대 정도
 
 
-export function NativeMap(props: MapProps & { style?: StyleProp<ViewStyle> }) {
+export function NativeMap(props: NativeMapProps) {
   return (
     <MapMarkerRegistryProvider>
       <NativeMapInner {...props} />
@@ -45,7 +44,7 @@ function NativeMapInner({
   clusterGridSize = 50,
   onBoundsChange,
   style,
-}: MapProps & { style?: StyleProp<ViewStyle> }) {
+}: NativeMapProps) {
   const [zoom, setZoom] = useState(defaultZoom)
   const { width: screenWidth } = useWindowDimensions()
 
@@ -54,10 +53,10 @@ function NativeMapInner({
     onApply: onBoundsChange,
   })
 
-  useImperativeHandle<MapRef, MapRef>(
+  useImperativeHandle<NativeMapRef, NativeMapRef>(
     ref as never,
     () => ({
-      panTo: (lat, lng, zoom) => panTo({ lat, lng }, zoom),
+      panTo: (lat, lng, zoomOrOptions) => panTo({ lat, lng }, zoomOrOptions),
       relayout: () => { },
       focus: () => { },
     }),

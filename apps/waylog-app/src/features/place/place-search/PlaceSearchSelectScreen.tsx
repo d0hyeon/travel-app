@@ -1,6 +1,7 @@
 import { calcDistance } from '@waylog/utility'
 import { usePlaceSearch, type PlaceResult } from '@waylog/domains/modules/place'
-import type { Coordinate, MapBounds, MapProvider, MapRef } from '@waylog/domains/modules/map'
+import type { Coordinate, MapBounds, MapProvider } from '@waylog/domains/modules/map'
+import type { MapRef } from '~/shared/components/Map'
 import { DependencyList, EffectCallback, useEffect, useRef, useState, useTransition } from 'react'
 import { StyleSheet, ActivityIndicator, FlatList, View } from 'react-native'
 import { Map } from '../../../shared/components/Map'

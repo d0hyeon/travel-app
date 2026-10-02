@@ -4,6 +4,7 @@ import {
   MIN_FIT_SPAN,
   deltaToZoom,
   levelToDelta,
+  resolvePanToOptions,
   toFitBounds,
   toViewportBounds,
 } from '../NativeMap.utils'
@@ -100,5 +101,20 @@ describe('toViewportBounds', () => {
     expect(bounds).not.toBeNull()
     expect(bounds!.ne[0] - bounds!.sw[0]).toBeCloseTo(1.0)
     expect(bounds!.ne[1] - bounds!.sw[1]).toBeCloseTo(MIN_FIT_SPAN)
+  })
+})
+
+describe('resolvePanToOptions', () => {
+  it('숫자는 zoom 으로 해석한다', () => {
+    expect(resolvePanToOptions(12)).toEqual({ zoom: 12 })
+  })
+
+  it('옵션 객체는 그대로 돌려준다', () => {
+    const options = { zoom: 12, paddingTop: 80 }
+    expect(resolvePanToOptions(options)).toEqual(options)
+  })
+
+  it('생략하면 빈 옵션이다', () => {
+    expect(resolvePanToOptions()).toEqual({})
   })
 })

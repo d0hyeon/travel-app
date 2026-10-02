@@ -1428,6 +1428,7 @@ zoom 이 같으면 지도를 이동해도 픽셀 거리가 보존되어 그룹�
 앱 지도의 카메라는 `useMapCamera`가 다룬다. `useDeferredCamera`는 제스처가 이어지는 동안
 반영을 미루고 손을 뗀 순간 확정하며(네이티브 `onMapIdle`은 타일 로딩까지 기다려 늦다),
 `useCameraControl`은 이동 명령과 애니메이션 시간을 맡는다. `NativeMap`은 둘을 조립만 한다.
+앱 `Map`의 `MapRef.panTo` 세 번째 인자는 `zoom` 숫자 또는 `{ zoom?, paddingTop?, paddingBottom?, paddingLeft?, paddingRight? }`다(`NativeMap.types.ts`, 해석은 `resolvePanToOptions`). 웹과 공유하는 `@waylog/domains` 의 `MapRef` 는 `zoom` 숫자만 받으며 앱 전용 확장으로 계약을 넓히지 않는다. `padding*`은 Mapbox 카메라 padding으로 적용해 블러 헤더 같은 가려진 영역을 뺀 가시 영역의 중앙으로 이동하고, 생략한 호출은 0으로 되돌린다.
 이동 중에 새 이동을 걸면 이전 대기 값을 버린다 — 남겨두면 낡은 값으로 한 번 더 반영해
 클러스터가 두 번 갈라진다. 타이머는 `useTimer`가 다루고, 상태는 `useVariation`으로 잡는다.
 클러스터링 중에는 카메라를 알기 전까지 마커를 그리지 않는다 — 개별 마커가 먼저 보였다가
