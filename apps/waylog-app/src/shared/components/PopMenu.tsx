@@ -16,7 +16,7 @@ interface MenuProps {
 // 시트가 닫히는 동안 트리거를 다시 누르면 곧바로 재개된다. 그 사이를 막는다.
 const REOPEN_BLOCK_DURATION = 250
 
-export function PopMenu({ children, items, trigger, variant = 'actionSheet' }: MenuProps) {
+export function PopMenu({ children, items, trigger, variant = 'menu' }: MenuProps) {
   const theme = useTheme()
   const [isOpen, setIsOpen] = useState(false)
   const [triggerRect, setTriggerRect] = useState<Rect | null>(null)
