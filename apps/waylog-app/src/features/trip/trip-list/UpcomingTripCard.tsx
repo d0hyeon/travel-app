@@ -33,7 +33,7 @@ export function UpcomingTripCard({ trip, onPress }: Props) {
             {trip.destinations.length === 1 ? (
               <Stack direction="row" alignItems="center" style={styles.singleDestinationRow}>
                 <DestinationChip label={trip.destinations[0]} />
-                <Typography style={styles.tripNameInline} numberOfLines={1}>
+                <Typography variant='body1' style={styles.tripNameInline} numberOfLines={1}>
                   {trip.name}
                 </Typography>
               </Stack>
@@ -101,8 +101,6 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   tripNameInline: {
-    fontSize: 15,
-    fontWeight: '900',
     flexShrink: 1,
   },
   tripName: {
