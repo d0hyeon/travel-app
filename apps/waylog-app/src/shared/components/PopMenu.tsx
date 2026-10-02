@@ -65,6 +65,7 @@ export function PopMenu({ children, items, trigger, variant = 'menu' }: MenuProp
 }
 
 PopMenu.Item = ActionSheet.Item
+PopMenu.Group = ActionSheet.Group
 
 const styles = StyleSheet.create({
   iconButton: {

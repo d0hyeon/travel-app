@@ -60,6 +60,7 @@ export function ActionSheet({ isOpen, onClose, children }: ActionSheetProps) {
 }
 
 export const ActionSheetCloseContext = createContext<() => void>(() => { })
+const ActionSheetGroupContext = createContext(false)
 
 interface ActionSheetItemProps {
   onPress?: () => void
@@ -70,6 +71,7 @@ interface ActionSheetItemProps {
 
 ActionSheet.Item = function ActionSheetItem({ onPress, icon, children, color = 'text' }: ActionSheetItemProps) {
   const close = useContext(ActionSheetCloseContext)
+  const isGrouped = useContext(ActionSheetGroupContext)
   const theme = useTheme()
   const textColor = color === 'error' ? theme.danger.val : theme.onSurface.val
 
@@ -79,7 +81,7 @@ ActionSheet.Item = function ActionSheetItem({ onPress, icon, children, color = '
         close()
         requestAnimationFrame(() => onPress?.())
       }}
-      style={styles.item}
+      style={[styles.item, isGrouped && styles.groupedItem]}
     >
       <View style={styles.itemContent}>
         {icon}
@@ -88,6 +90,22 @@ ActionSheet.Item = function ActionSheetItem({ onPress, icon, children, color = '
         </Text>
       </View>
     </Pressable>
+  )
+}
+
+interface ActionSheetGroupProps {
+  label: string
+  children: ReactNode
+}
+
+ActionSheet.Group = function ActionSheetGroup({ label, children }: ActionSheetGroupProps) {
+  const theme = useTheme()
+
+  return (
+    <View>
+      <Text style={[styles.groupLabel, { color: theme.onSurfaceMuted.val }]}>{label}</Text>
+      <ActionSheetGroupContext.Provider value>{children}</ActionSheetGroupContext.Provider>
+    </View>
   )
 }
 
@@ -119,6 +137,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 14,
   },
+  groupedItem: { paddingVertical: 6 },
+  groupLabel: { paddingHorizontal: 20, paddingTop: 10, paddingBottom: 8, fontSize: 12, fontWeight: '700' },
   itemContent: { flexDirection: 'row', gap: 8, alignItems: 'center' },
   itemText: { fontSize: 14, fontWeight: '700' },
 })
