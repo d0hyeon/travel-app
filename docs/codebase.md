@@ -168,6 +168,7 @@ apps/
 │   │       │   ├── design-system/ # 자체 디자인 시스템 — 웹 theme 어휘 + RN 표준 인터페이스
 │   │       │   │   ├── GlassSurface.tsx # 유리 재질. iOS 26 Liquid Glass, 그 아래는 블러로 대체
 │   │       │   │   ├── PressableScale.tsx # 누르는 동안 easing 으로 커지고 떼면 오버슈트하며 복귀하는 Pressable (style 은 커지는 바깥 컨테이너에 적용)
+│   │       │   │   ├── BlurSwap.tsx # transitionKey 가 바뀌면 children 을 흐려 지운 뒤 갈아 끼우고 다시 선명하게 한다. 블러는 RN 0.86 `filter: blur` 라 iOS 에서 `enableSwiftUIBasedFilters` 플래그(기본 꺼짐)가 켜져야 그려지고, 꺼져 있으면 투명도 변화만 보인다
 │   │       │   │   └── menu-fab/ # 탭 기본 동작·롱프레스 보조 메뉴, 순수 모션 계산 분리
 │   │       │   ├── Map/        # @rnmapbox/maps 구현. 클러스터 외형은 NativeMapCluster.utils.ts,
 │   │       │   │                #   카메라는 useMapCamera, 클러스터 전이는 useClusterTransition
