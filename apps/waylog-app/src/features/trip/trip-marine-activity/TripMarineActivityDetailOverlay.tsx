@@ -9,9 +9,11 @@ import { StyleSheet, useWindowDimensions } from 'react-native'
 import type Animated from 'react-native-reanimated'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { isPageWithinRenderWindow } from '../../../shared/components/pagerWindow'
-import { Box, Stack, Tab, Tabs, Typography } from '~/shared/components/design-system'
+import { Box, Skeleton, Stack, Tab, Tabs, Typography } from '~/shared/components/design-system'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { palette } from '../../../shared/config/tokens'
+
+const METRIC_ROW_COUNT = 6
 
 interface TripMarineActivityDetailOverlayProps {
   trip: Trip
@@ -107,7 +109,7 @@ function TripMarineActivityDetailSheet({
             <Box key={date} style={{ width }}>
               {/* 화면에서 먼 날짜는 그리지 않아 예보를 요청하지 않는다. */}
               {isPageWithinRenderWindow(index, activeIndex) && (
-                <Suspense>
+                <Suspense fallback={<TripMarineActivityDetailSkeleton />}>
                   <TripMarineActivityDetailContent date={date} {...detailParams} />
                 </Suspense>
               )}
@@ -149,6 +151,27 @@ function TripMarineActivityDetailContent({
           </Typography>
         </Stack>
       )}
+    </Box>
+  )
+}
+
+function TripMarineActivityDetailSkeleton() {
+  return (
+    <Box style={styles.content}>
+      <Stack gap={2}>
+        <Stack direction="row" justifyContent="space-between" alignItems="center" gap={2}>
+          <Skeleton width={72} height={20} />
+          <Skeleton width={48} height={28} />
+        </Stack>
+        <Stack gap={1.25}>
+          {Array.from({ length: METRIC_ROW_COUNT }, (_, rowIndex) => (
+            <Stack key={rowIndex} direction="row" justifyContent="space-between" gap={2}>
+              <Skeleton width={40} height={20} />
+              <Skeleton width={64} height={20} />
+            </Stack>
+          ))}
+        </Stack>
+      </Stack>
     </Box>
   )
 }
