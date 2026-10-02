@@ -3,6 +3,7 @@ import type { Photo } from '@waylog/domains/modules/photo'
 import { useState } from 'react'
 import * as Linking from 'expo-linking'
 import { Image, Pressable, ScrollView, StyleSheet, useWindowDimensions } from 'react-native'
+import { Theme } from 'tamagui'
 import { Box, Button, Stack, Typography } from '~/shared/components/design-system'
 import { BottomSheet } from '../bottom-sheet/BottomSheet'
 import { useOverlay } from '../../hooks/useOverlay'
@@ -80,27 +81,30 @@ export function PhotoBottomSheet({
 
   const openPlacePicker = () =>
     overlay.open(({ isOpen: pickerOpen, close: closePicker }) => (
-      <BottomSheet isOpen={pickerOpen} onDismiss={closePicker} snapPoints={[0.5]} defaultSnapIndex={0} safeArea>
-        <BottomSheet.Body style={styles.menuBody}>
+      <Theme name="dark">
+        <BottomSheet isOpen={pickerOpen} onDismiss={closePicker} snapPoints={[0.5]} defaultSnapIndex={0} safeArea style={styles.pickerBackground}>
+          <BottomSheet.Body style={[styles.menuBody, styles.pickerBackground]}>
           <BottomSheet.ScrollView>
             {[{ id: 'none', label: '장소 미지정' }, ...(places ?? []).map((place) => ({ id: place.placeId, label: place.name }))].map((option) => {
               const isUnassigned = option.id === 'none'
               const isSelected = isUnassigned ? currentPhoto.placeId == null : currentPhoto.placeId === option.id
               return (
-                <Pressable key={option.id} onPress={async () => { await updateCurrentPhoto({ placeId: isUnassigned ? null : option.id }); closePicker() }} style={[styles.menuItem, { backgroundColor: isSelected ? '#eef4ff' : '#fff' }]}>
+                <Pressable key={option.id} onPress={async () => { await updateCurrentPhoto({ placeId: isUnassigned ? null : option.id }); closePicker() }} style={[styles.menuItem, { backgroundColor: isSelected ? '#3a4560' : '#2b2b2b' }]}>
                   <Stack direction="row" justifyContent="space-between" alignItems="center">
-                    <Typography style={[styles.menuItemLabel, { color: isUnassigned ? '#888' : '#222' }]}>{option.label}</Typography>
+                    <Typography style={[styles.menuItemLabel, { color: isUnassigned ? '#aaa' : '#fff' }]}>{option.label}</Typography>
                     {isSelected && <MaterialIcons name="check" size={24} color="#4c84ff" />}
                   </Stack>
                 </Pressable>
               )
             })}
           </BottomSheet.ScrollView>
-        </BottomSheet.Body>
-      </BottomSheet>
+          </BottomSheet.Body>
+        </BottomSheet>
+      </Theme>
     ))
 
   return (
+    <Theme name="dark">
     <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.95]} defaultSnapIndex={0} safeArea style={styles.viewerBackground}>
       <BottomSheet.Header alignItems="center" justifyContent="center" style={styles.viewerBackground}>
         {currentPhoto.isPublic && <PhotoVisibilityBadge style={styles.headerVisibilityBadge} />}
@@ -159,6 +163,7 @@ export function PhotoBottomSheet({
         <Button variant="contained" size="large" fullWidth onPress={onClose}>닫기</Button>
       </BottomSheet.BottomActions>
     </BottomSheet>
+    </Theme>
   )
 }
 
@@ -175,6 +180,7 @@ const styles = StyleSheet.create({
   menuIcon: { color: '#fff', fontSize: 24 },
   imagePager: { flex: 0 },
   imagePage: { alignItems: 'center', justifyContent: 'center' },
+  pickerBackground: { backgroundColor: '#2b2b2b' },
   placeSelector: { flexGrow: 0, paddingVertical: 8, backgroundColor: '#010101' },
   placeTrigger: { paddingHorizontal: 12, paddingVertical: 8 },
   placeLabel: { color: '#fff' },
