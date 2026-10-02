@@ -73,6 +73,7 @@ function TripMarineActivityDetailSheet({
     const index = tripDates.indexOf(initialDate)
     return index < 0 ? 0 : index
   })
+  const [initialPageIndex] = useState(activeIndex)
   const selectedDate = tripDates[activeIndex] ?? initialDate
 
   const scrollToDate = (date: string) => {
@@ -83,7 +84,7 @@ function TripMarineActivityDetailSheet({
   }
 
   return (
-    <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.9]} defaultSnapIndex={0}>
+    <BottomSheet isOpen={isOpen} onDismiss={onClose} >
       <BottomSheet.Header direction="row" justifyContent="space-between">
         <Typography variant="subtitle1">{placeName}</Typography>
       </BottomSheet.Header>
@@ -99,7 +100,7 @@ function TripMarineActivityDetailSheet({
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
-          contentOffset={{ x: activeIndex * width, y: 0 }}
+          contentOffset={{ x: initialPageIndex * width, y: 0 }}
           onMomentumScrollEnd={(event) => {
             const index = Math.round(event.nativeEvent.contentOffset.x / width)
             if (index !== activeIndex) setActiveIndex(index)
@@ -233,7 +234,7 @@ function getGradeColor(grade: MarineActivityIndex['grade']) {
 }
 
 const styles = StyleSheet.create({
-  sheetBody: { paddingHorizontal: 0 },
+  sheetBody: { paddingHorizontal: 0, paddingBottom: 60 },
   content: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16 },
   emptyState: { paddingVertical: 48 },
 })
