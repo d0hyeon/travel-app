@@ -1,4 +1,4 @@
-import { useMemo, type ReactNode, type Ref } from 'react'
+import { useMemo, type ComponentType, type ReactNode, type Ref } from 'react'
 import { StyleSheet, Text as RNText, type TextProps as RNTextProps } from 'react-native'
 import { palette } from '../../config/tokens'
 
@@ -50,6 +50,8 @@ const COLOR_MAP = {
 
 export interface TypographyProps extends RNTextProps {
   ref?: Ref<RNText>
+  /** 텍스트를 그리는 컴포넌트. 애니메이션처럼 기본 Text 로 할 수 없는 표현이 필요할 때 바꾼다 */
+  as?: ComponentType<RNTextProps>
   variant?: TypographyVariant
   color?: keyof typeof COLOR_MAP;
   fontWeight?: 'bold' | 'medium' | number | string
@@ -67,6 +69,7 @@ export interface TypographyProps extends RNTextProps {
 }
 
 export function Typography({
+  as: TextComponent = RNText,
   variant = 'body1',
   color,
   fontWeight,
@@ -83,7 +86,7 @@ export function Typography({
   ...rest
 }: TypographyProps) {
   return (
-    <RNText
+    <TextComponent
       style={[
         VARIANT_STYLE[variant],
         { color: color != null ? (COLOR_MAP[color] ?? color) : palette.text },
