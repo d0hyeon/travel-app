@@ -889,6 +889,7 @@ export type Database = {
           last_notified_kind: string | null
           prev_gate: string | null
           scheduled_at: string | null
+          terminal: string | null
           transport_id: string
         }
         Insert: {
@@ -901,6 +902,7 @@ export type Database = {
           last_notified_kind?: string | null
           prev_gate?: string | null
           scheduled_at?: string | null
+          terminal?: string | null
           transport_id: string
         }
         Update: {
@@ -913,6 +915,7 @@ export type Database = {
           last_notified_kind?: string | null
           prev_gate?: string | null
           scheduled_at?: string | null
+          terminal?: string | null
           transport_id?: string
         }
         Relationships: [
