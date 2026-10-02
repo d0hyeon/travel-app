@@ -62,19 +62,9 @@ export function PostCard({ post, onPress }: Props) {
 }
 PostCard.Skeleton = PostCardSkeleton;
 function PostCardSkeleton() {
-  const [cardWidth, setCardWidth] = React.useState(0)
-  // 카드 폭을 재기 전에는 정사각형 높이를 알 수 없어 레이아웃이 순간 시프트한다.
-  // 화면 폭 근사치를 최소 높이로 먼저 잡아 자리를 비워 둔다.
-
-  const handleCardLayout = (event: LayoutChangeEvent) => {
-    const nextWidth = event?.nativeEvent?.layout?.width
-    if (typeof nextWidth !== 'number' || nextWidth <= 0) return
-    setCardWidth((currentWidth) => currentWidth === nextWidth ? currentWidth : nextWidth)
-  }
-
   return (
-    <Box onLayout={handleCardLayout} style={styles.card}>
-      <Skeleton width={cardWidth} height={cardWidth} />
+    <Box style={styles.card}>
+      <Skeleton height="auto" style={styles.photoSquare} />
       <Stack style={styles.content}>
         <Skeleton height={30} width={100} />
         <Skeleton height={20} width={50} />
@@ -139,6 +129,7 @@ const styles = StyleSheet.create({
   photoPlaceholder: { aspectRatio: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.06)' },
   photos: { position: 'relative' },
   photo: { aspectRatio: 1 },
+  photoSquare: { aspectRatio: 1 },
   pagination: { position: 'absolute', bottom: 8, left: 0, right: 0, gap: 4 },
   paginationDot: { borderRadius: 3 },
 })
