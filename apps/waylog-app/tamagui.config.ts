@@ -36,6 +36,7 @@ export const appThemes = {
     primary: palette.primary,
     onPrimary: '#fff',
     danger: palette.error,
+    glass: 'rgba(255,255,255,0.3)',
   },
   dark: {
     ...defaultConfig.themes.dark,
@@ -47,7 +48,8 @@ export const appThemes = {
     onSurfaceMuted: '#c4c4c4',
     primary: palette.primary,
     onPrimary: '#fff',
-    danger: palette.error,
+    danger: '#ff8a8a',
+    glass: 'rgba(66,66,66,0.85)',
   },
 }
 
