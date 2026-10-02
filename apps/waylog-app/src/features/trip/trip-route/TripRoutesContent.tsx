@@ -87,7 +87,8 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
   const [sheetRatio, setSheetRatio] = useState(DEFAULT_BOTTOM_SHEET_RATIO)
   const [containerHeight, setContainerHeight] = useState(0)
   const [isRouteToolbarOpen, setIsRouteToolbarOpen] = useState(false)
-  const canShowRouteMenu = containerHeight * (1 - sheetRatio) >= MIN_MAP_MENU_HEIGHT
+  const visibleMapHeight = containerHeight * (1 - sheetRatio) - headerInset
+  const canShowRouteMenu = visibleMapHeight >= MIN_MAP_MENU_HEIGHT
 
   const { open: selectPlaces } = usePlaceSelectSheet(tripId);
 
