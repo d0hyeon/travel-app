@@ -9,6 +9,7 @@ import {
   getRecommendedDepartureGate,
   type AirportArrivalGuidance,
 } from './guidance.ts'
+import { getGuidanceTerminal } from './incheonTerminal.ts'
 import { markScheduledNotificationJobFailed } from './jobState.ts'
 import { toAirportArrivalPushMessage } from './push.ts'
 import type {
@@ -45,6 +46,7 @@ interface TransportRow {
 interface FlightStatusRow {
   kind: string | null
   estimated_at: string | null
+  terminal: string | null
 }
 
 interface TicketRow {
@@ -96,7 +98,7 @@ async function getGuidanceForTransport(input: {
   const [{ data: flightStatus }, { data: tickets }, { data: trip }, policy] = await Promise.all([
     supabase
       .from('trip_transport_flight_status')
-      .select('kind, estimated_at')
+      .select('kind, estimated_at, terminal')
       .eq('transport_id', typedTransport.id)
       .maybeSingle(),
     supabase.from('trip_transport_tickets').select('terminal').eq('transport_id', typedTransport.id),
@@ -104,14 +106,20 @@ async function getGuidanceForTransport(input: {
     getActivePolicy(),
   ])
 
-  const terminal = getConsistentDepartureTerminal((tickets ?? []) as TicketRow[])
   const typedFlightStatus = flightStatus as FlightStatusRow | null
   const typedTrip = trip as TripRow | null
   const isOverseas = typedTrip?.is_overseas ?? false
   const isCancelled = typedFlightStatus?.kind === 'cancelled'
   const appliedDepartureAt = typedFlightStatus?.estimated_at ?? typedTransport.departure_at
 
-  if (terminal == null || isCancelled) return null
+  const guidanceTerminal = getGuidanceTerminal({
+    isOverseas,
+    departureAirportCode: typedTransport.departure_airport_code,
+    flightStatusTerminal: typedFlightStatus?.terminal ?? null,
+    ticketTerminal: getConsistentDepartureTerminal((tickets ?? []) as TicketRow[]),
+  })
+
+  if (guidanceTerminal == null || isCancelled) return null
 
   const forecastDate = isOverseas ? getForecastDateOffset(appliedDepartureAt, input.now) : undefined
   if (isOverseas && forecastDate == null) return null
@@ -122,7 +130,7 @@ async function getGuidanceForTransport(input: {
   const { snapshotId } = await getFreshCongestionSnapshot(supabase, serviceKey, {
     sourceKind: isOverseas ? 'forecast' : 'domestic',
     airportCode: typedTransport.departure_airport_code,
-    terminal,
+    terminal: guidanceTerminal.snapshotTerminal,
     forecastDate: forecastDate ?? undefined,
   })
   const snapshot = await getCongestionSnapshotData(supabase, snapshotId)
@@ -132,7 +140,7 @@ async function getGuidanceForTransport(input: {
     estimatedDepartureAt: typedFlightStatus?.estimated_at ?? undefined,
     isCancelled,
     isOverseas,
-    departureTerminal: terminal,
+    departureTerminal: guidanceTerminal.responseTerminal,
     now: input.now.toISOString(),
     policy,
     snapshot,
@@ -142,7 +150,7 @@ async function getGuidanceForTransport(input: {
   const { snapshotId: realtimeSnapshotId } = await getFreshCongestionSnapshot(supabase, serviceKey, {
     sourceKind: 'realtime',
     airportCode: typedTransport.departure_airport_code,
-    terminal,
+    terminal: guidanceTerminal.snapshotTerminal,
   })
   const realtimeSnapshot = await getCongestionSnapshotData(supabase, realtimeSnapshotId)
 
