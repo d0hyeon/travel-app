@@ -6,13 +6,14 @@ import {
   formatDepartureTime,
   useTripTransportTickets,
 } from '@waylog/domains/modules/trip-transport'
-import { format } from 'date-fns'
+import { format, isSameDay } from 'date-fns'
 import { StyleSheet, View, ViewProps } from 'react-native'
-import { Skeleton, Typography } from '~/shared/components/design-system'
+import { Skeleton, Stack, Typography } from '~/shared/components/design-system'
 import { palette } from '../../../shared/config/tokens'
 import { TransportTypeIcon } from '../../transport/TransportTypeIcon'
 import { toCarrierLabel } from './transportLabel'
 import { TransportDetailSectionError } from './transport-detail/TransportDetailSectionError'
+import { MaterialIcons } from '@expo/vector-icons'
 
 const EMPTY_VALUE = '-'
 
@@ -45,6 +46,7 @@ function Resolved({ tripId, transportId, style, ...props }: Props & ViewProps) {
 
   // 운항 정보가 시각을 답하면 그것이 사실이다. 사용자가 적은 값보다 앞선다.
   const departureAt = status?.estimatedAt ?? status?.scheduledAt ?? transport.departureAt
+
   const scheduled = { ...transport, departureAt }
 
   return (
@@ -53,22 +55,34 @@ function Resolved({ tripId, transportId, style, ...props }: Props & ViewProps) {
         <TransportTypeIcon type={transport.type} size={15} color={palette.textSecondary} />
         <Typography style={styles.typeLabel}>{TransportTypeLabel[transport.type]}</Typography>
       </View>
-      <Typography color="text.secondary">
-        {format(new Date(departureAt), 'M월 d일')}
-      </Typography>
+
       <View style={styles.times}>
-        <Typography style={styles.time}>{formatDepartureTime(scheduled) || EMPTY_VALUE}</Typography>
-        <Typography style={styles.arrow}>→</Typography>
-        <Typography style={styles.time}>{formatArrivalTime(transport) ?? EMPTY_VALUE}</Typography>
+        <Stack gap={0.5} alignItems="flex-start" justifyContent="flex-start">
+          <Typography>{format(departureAt, 'M월 d일')}</Typography>
+          <Typography style={styles.time}>{formatDepartureTime(scheduled) || EMPTY_VALUE}</Typography>
+          <Typography variant="body1" >
+            {transport.departureName || EMPTY_VALUE}
+          </Typography>
+        </Stack>
+        <MaterialIcons name="arrow-right-alt" size={30} />
+        <Stack gap={0.5} alignItems="flex-end" justifyContent="flex-start">
+          {transport.arrivalAt != null && !isSameDay(transport.arrivalAt, departureAt) && (
+            <Typography>{format(transport.arrivalAt, 'M월 d일')}</Typography>
+          )}
+          <Typography style={styles.time}>{formatArrivalTime(transport) ?? EMPTY_VALUE}</Typography>
+          <Typography variant="body1" >
+            {transport.arrivalName || EMPTY_VALUE}
+          </Typography>
+        </Stack>
       </View>
-      <Typography style={styles.route}>
-        {transport.departureName || EMPTY_VALUE} → {transport.arrivalName || EMPTY_VALUE}
-      </Typography>
+
       {carrierLabel != null && (
-        <Typography >
+        <Typography style={styles.carrier} >
           {carrierLabel}
         </Typography>
       )}
+
+
 
     </View>
   )
@@ -100,11 +114,11 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 16,
     backgroundColor: 'rgba(0,0,0,0.04)',
+    marginBottom: 16
   },
   typeLabel: { fontSize: 12, fontWeight: '700' },
-  times: { flexDirection: 'row', alignItems: 'center', gap: 12, },
+  times: { flexDirection: 'row', alignItems: 'center', justifyContent: "space-between", gap: 24 },
   time: { fontSize: 30, lineHeight: 38, fontWeight: '700' },
   arrow: { fontSize: 22, lineHeight: 38, color: palette.textSecondary },
-  route: { fontSize: 15, color: palette.textSecondary },
-  carrier: { fontSize: 13, color: palette.textSecondary, marginTop: 8 },
+  carrier: { marginTop: 8 },
 })

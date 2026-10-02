@@ -42,7 +42,7 @@ export function TransportDetailScreen() {
           <PushNotificationCard />
         </Suspense>
         <Stack gap={3} style={styles.wrapper}>
-          <TransportSummarySection tripId={tripId} transportId={transportId} style={{ marginBottom: 10 }} />
+          <TransportSummarySection tripId={tripId} transportId={transportId} style={{ marginBottom: 16 }} />
           <TransportRealtimeInfoSection tripId={tripId} transportId={transportId} />
           <AirportArrivalGuidanceSection tripId={tripId} transportId={transportId} />
           <TransportOperationalInfoSection tripId={tripId} transportId={transportId} />
@@ -56,6 +56,6 @@ export function TransportDetailScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: palette.background },
-  content: { paddingVertical: 20 },
+  content: { paddingTop: 8, paddingBottom: 40 },
   wrapper: { paddingHorizontal: 20 }
 })

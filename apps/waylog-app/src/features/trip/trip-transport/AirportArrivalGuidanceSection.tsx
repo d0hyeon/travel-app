@@ -52,7 +52,7 @@ function Resolved({ tripId, transportId }: Props) {
           </Typography>
           까지 공항 도착을 권장해요
         </Typography>
-        <Typography style={styles.detail}>
+        <Typography variant="body2" color="text.secondary">
           {[carrierLabel, toGuidanceTerminalLabel(guidance), `${format(new Date(guidance.appliedDepartureAt), 'HH:mm')} 출발`]
             .filter((value): value is string => value != null)
             .join(' · ')}
@@ -70,7 +70,7 @@ function Resolved({ tripId, transportId }: Props) {
         </View>
       ) : (
         <View style={styles.congestionRow}>
-          <Typography style={styles.congestionLabel}>공항 예상 혼잡도</Typography>
+          <Typography variant="body2"  >공항 예상 혼잡도</Typography>
           <CongestionChip tier={guidance.congestionTier} />
         </View>
       )}
@@ -113,11 +113,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#EEF3FF',
   },
-  title: { fontSize: 12, fontWeight: '700', color: '#4C84FF' },
+  title: { fontSize: 14, fontWeight: '700', color: '#4C84FF' },
   headline: { gap: 4 },
   arrivalTime: { fontSize: 17, lineHeight: 23 },
   arrivalTimeAccent: { color: '#4C84FF' },
-  detail: { fontSize: 12.5 },
+  detail: { fontSize: 13 },
   realtimeRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
   realtimeText: { flex: 1, fontSize: 12, fontWeight: '700' },
   realtimeTime: { fontSize: 11, color: 'rgba(0,0,0,0.38)' },
   congestionRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  congestionLabel: { fontSize: 11.5, color: '#1a1a1a' },
+
   congestionChip: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: 999 },
   congestionChipText: { fontSize: 11, fontWeight: '900' },
 })
