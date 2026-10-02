@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { PlaceCategoryColorCode, PlaceCategoryTypeLabel, type PlaceCategoryType } from '@waylog/domains/modules/place'
+import { PlaceCategoryColorCode, type PlaceCategoryType } from '@waylog/domains/modules/place'
 import { StyleSheet, Pressable, View } from 'react-native'
 import { palette, radius } from '../../../shared/config/tokens'
 import { Typography } from '~/shared/components/design-system'
@@ -54,7 +54,7 @@ export function ExplorerPlaceCard({ place, onPress, width }: Props) {
 export function ExplorerPlaceRow({ place, onPress }: Omit<Props, 'width'>) {
   const [primaryCategory] = place.categories
   const accentColor = primaryCategory == null ? palette.textSecondary : PlaceCategoryColorCode[primaryCategory]
-  const categoryLabel = primaryCategory == null ? undefined : PlaceCategoryTypeLabel[primaryCategory]
+  const subtitle = place.destinations?.join(', ') ?? ''
 
   return (
     <Pressable
@@ -72,9 +72,11 @@ export function ExplorerPlaceRow({ place, onPress }: Omit<Props, 'width'>) {
         <Typography variant="body2" fontWeight="bold" numberOfLines={1}>
           {place.name}
         </Typography>
-        <Typography variant="caption" color="text.secondary" numberOfLines={1}>
-          {[categoryLabel, place.address].filter(Boolean).join(' · ')}
-        </Typography>
+        {subtitle !== '' && (
+          <Typography variant="caption" color="text.secondary" numberOfLines={1}>
+            {subtitle}
+          </Typography>
+        )}
       </View>
     </Pressable>
   )
