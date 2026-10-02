@@ -7,7 +7,7 @@ import Animated, { useAnimatedStyle, type SharedValue } from 'react-native-reani
 const SHADE_COLORS = [
   'rgba(0,0,0,0.1)',
   'rgba(0, 0, 0, 0.08)',
-  'rgba(0, 0, 0, 0.03)',
+  'rgba(0, 0, 0, 0.02)',
   'rgba(0,0,0,0)',
 ] as const
 const SHADE_LOCATIONS = [0, 0.5, 0.8, 1] as const
@@ -15,7 +15,7 @@ const SHADE_LOCATIONS = [0, 0.5, 0.8, 1] as const
 const BLUR_MASK_COLORS = [
   'rgba(0,0,0,0.9)',
   'rgba(0,0,0,0.5)',
-  'rgba(0,0,0,0.2)',
+  'rgba(0,0,0,0.1)',
   'rgba(0,0,0,0)',
 ] as const
 const BLUR_MASK_LOCATIONS = [0, 0.5, 0.9, 1] as const
