@@ -1,6 +1,6 @@
 import { eachDayOfInterval, getHours, isToday as getIsToday } from 'date-fns'
 import { useMemo, useRef, useState } from 'react'
-import { StyleSheet, useWindowDimensions } from 'react-native'
+import { ScrollView, StyleSheet, useWindowDimensions } from 'react-native'
 import type Animated from 'react-native-reanimated'
 import { useCurrentTime } from '@waylog/react'
 import type { Coordinate } from '@waylog/utility'
@@ -134,24 +134,26 @@ function Resolved({ tripId, initialDate }: Pick<Props, 'tripId' | 'initialDate'>
             }}
           >
             {pages.map((page, index) => (
-              <Stack
-                key={`${page.date}:${page.dayPart}`}
-                gap={1}
-                style={[styles.forecastPages, { width }]}
-              >
+              <Stack key={`${page.date}:${page.dayPart}`} style={[styles.forecastPages, { width }]}>
                 {/* 화면에서 먼 페이지는 그리지 않는다. 그 날짜 예보도 요청되지 않는다. */}
                 {isPageWithinRenderWindow(index, activeIndex) && (
-                  <AsyncBoundary
-                    resetKeys={[page.date, page.dayPart]}
-                    rejectedFallback={() => <ForecastUnavailable />}
-                    pendingFallback={<ForecastPageSkeleton date={page.date} dayPart={page.dayPart} />}
+                  <ScrollView
+                    nestedScrollEnabled
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.forecastPageContent}
                   >
-                    <ForecastPageContent
-                      coordinate={{ lat: trip.lat, lng: trip.lng }}
-                      date={page.date}
-                      dayPart={page.dayPart}
-                    />
-                  </AsyncBoundary>
+                    <AsyncBoundary
+                      resetKeys={[page.date, page.dayPart]}
+                      rejectedFallback={() => <ForecastUnavailable />}
+                      pendingFallback={<ForecastPageSkeleton date={page.date} dayPart={page.dayPart} />}
+                    >
+                      <ForecastPageContent
+                        coordinate={{ lat: trip.lat, lng: trip.lng }}
+                        date={page.date}
+                        dayPart={page.dayPart}
+                      />
+                    </AsyncBoundary>
+                  </ScrollView>
                 )}
               </Stack>
             ))}
@@ -221,6 +223,7 @@ const styles = StyleSheet.create({
   content: { flex: 1, minHeight: 0 },
   viewToggle: { alignSelf: 'flex-end', marginTop: 12, marginRight: 12 },
   forecastPages: { paddingHorizontal: 12 },
+  forecastPageContent: { gap: 8, paddingBottom: 16 },
   forecastTitle: { paddingVertical: 4, paddingHorizontal: 16, marginTop: 8 },
   unavailableState: { paddingVertical: 48 },
 })
