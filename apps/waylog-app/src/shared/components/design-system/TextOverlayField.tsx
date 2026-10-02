@@ -20,8 +20,9 @@ export function TextOverlayField({ isOpen, onClose, slotProps, style, ...textFie
 
   return (
     <Modal transparent visible={isOpen} animationType="fade" onDismiss={onClose}>
-      <KeyboardAvoidingView behavior="padding" style={styles.container}>
-        <TextOverlayBackdrop onPress={onClose}>
+      <View style={styles.container}>
+        <TextOverlayBackdrop onPress={onClose} />
+        <KeyboardAvoidingView behavior="padding" pointerEvents="box-none" style={styles.content}>
           <Body style={[styles.body, bodyStyle]} {...bodyProps}>
             <TextField
               fullWidth
@@ -32,13 +33,13 @@ export function TextOverlayField({ isOpen, onClose, slotProps, style, ...textFie
               style={[styles.input, style]}
             />
           </Body>
-        </TextOverlayBackdrop>
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      </View>
     </Modal>
   )
 }
 
-function TextOverlayBackdrop({ onPress, children }: { onPress: () => void; children: ReactNode }) {
+function TextOverlayBackdrop({ onPress }: { onPress: () => void }) {
   const progress = useSharedValue(0)
 
   useEffect(() => {
@@ -50,13 +51,13 @@ function TextOverlayBackdrop({ onPress, children }: { onPress: () => void; child
   return (
     <Animated.View style={[styles.backdrop, animatedStyle]}>
       <Pressable onPress={onPress} style={styles.backdropPressable} />
-      {children}
     </Animated.View>
   )
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  content: { flex: 1, justifyContent: 'center', padding: 24 },
   body: { padding: 16 },
   input: {
     backgroundColor: 'transparent',
@@ -64,10 +65,8 @@ const styles = StyleSheet.create({
     borderBottomColor: '#fff',
   },
   backdrop: {
-    flex: 1,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(0, 0, 0, 0.88)',
-    justifyContent: 'center',
-    padding: 24,
   },
   backdropPressable: { position: 'absolute', inset: 0 },
 })
