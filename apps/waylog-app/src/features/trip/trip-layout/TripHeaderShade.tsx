@@ -1,10 +1,8 @@
 import MaskedView from '@react-native-masked-view/masked-view'
 import { BlurView } from 'expo-blur'
 import { LinearGradient } from 'expo-linear-gradient'
-import { useState } from 'react'
 import { StyleSheet } from 'react-native'
-import Animated, { useAnimatedReaction, useAnimatedStyle, type SharedValue } from 'react-native-reanimated'
-import { scheduleOnRN } from 'react-native-worklets'
+import Animated, { useAnimatedStyle, type SharedValue } from 'react-native-reanimated'
 
 const SHADE_COLORS = [
   'rgba(0,0,0,0.1)',
@@ -32,38 +30,26 @@ interface Props {
 /** 화면 최상단부터 제목 아래까지 깔리는 그라데이션 그림자와, 아래로 갈수록 옅어지는 블러. */
 export function TripHeaderShade({ progress }: Props) {
   const shadeStyle = useAnimatedStyle(() => ({ opacity: progress.get() }))
-  // 정보 탭 복귀 시 블러 띠가 간헐적으로 남는 현상 대응. 원인은 미확정이며, 네이티브 BlurView 가
-  // 부모 opacity 0 을 따르지 않는다는 가설로 진행도가 0 이면 아예 마운트하지 않는다.
-  const [isBlurMounted, setIsBlurMounted] = useState(false)
-
-  useAnimatedReaction(
-    () => progress.get() > 0,
-    (visible, previous) => {
-      if (visible !== previous) scheduleOnRN(setIsBlurMounted, visible)
-    },
-  )
 
   return (
     <Animated.View pointerEvents="none" style={[styles.shade, shadeStyle]}>
-      {isBlurMounted && (
-        <MaskedView
-          style={StyleSheet.absoluteFill}
-          maskElement={
-            <LinearGradient
-              colors={BLUR_MASK_COLORS}
-              locations={BLUR_MASK_LOCATIONS}
-              style={StyleSheet.absoluteFill}
-            />
-          }
-        >
-          <BlurView
-            intensity={BLUR_INTENSITY}
-            tint="dark"
-            experimentalBlurMethod="dimezisBlurView"
+      <MaskedView
+        style={StyleSheet.absoluteFill}
+        maskElement={
+          <LinearGradient
+            colors={BLUR_MASK_COLORS}
+            locations={BLUR_MASK_LOCATIONS}
             style={StyleSheet.absoluteFill}
           />
-        </MaskedView>
-      )}
+        }
+      >
+        <BlurView
+          intensity={BLUR_INTENSITY}
+          tint="dark"
+          experimentalBlurMethod="dimezisBlurView"
+          style={StyleSheet.absoluteFill}
+        />
+      </MaskedView>
       <LinearGradient colors={SHADE_COLORS} locations={SHADE_LOCATIONS} style={StyleSheet.absoluteFill} />
     </Animated.View>
   )
