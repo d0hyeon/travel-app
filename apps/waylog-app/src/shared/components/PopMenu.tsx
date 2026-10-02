@@ -1,27 +1,40 @@
 import { Entypo } from '@expo/vector-icons'
 import { useRef, useState, type ReactNode } from 'react'
-import { Pressable, StyleSheet } from 'react-native'
-import { palette } from '../config/tokens'
+import { Pressable, StyleSheet, type View } from 'react-native'
+import { useTheme } from 'tamagui'
 import { ActionSheet } from './action-sheet/ActionSheet'
+import { AnchoredMenu } from './AnchoredMenu'
+import type { Rect } from './anchoredMenu.utils'
 
-// 웹 PopMenu 와 같은 사용법을 유지한다.
-// 네이티브에는 앵커 기준 팝오버가 없어 ActionSheet 로 띄운다.
 interface MenuProps {
   children?: ReactNode
   items: ReactNode
   trigger?: ReactNode
+  variant?: 'actionSheet' | 'menu'
 }
 
 // 시트가 닫히는 동안 트리거를 다시 누르면 곧바로 재개된다. 그 사이를 막는다.
 const REOPEN_BLOCK_DURATION = 250
 
-export function PopMenu({ children, items, trigger }: MenuProps) {
+export function PopMenu({ children, items, trigger, variant = 'actionSheet' }: MenuProps) {
+  const theme = useTheme()
   const [isOpen, setIsOpen] = useState(false)
+  const [triggerRect, setTriggerRect] = useState<Rect | null>(null)
+  const triggerRef = useRef<View>(null)
   const suppressTriggerRef = useRef(false)
 
   const openMenu = () => {
     if (suppressTriggerRef.current) return
-    setIsOpen(true)
+
+    if (variant === 'actionSheet') {
+      setIsOpen(true)
+      return
+    }
+
+    triggerRef.current?.measureInWindow((x, y, width, height) => {
+      setTriggerRect({ x, y, width, height })
+      setIsOpen(true)
+    })
   }
 
   const closeMenu = () => {
@@ -34,15 +47,19 @@ export function PopMenu({ children, items, trigger }: MenuProps) {
 
   return (
     <>
-      {trigger != null ? <Pressable onPress={openMenu}>{trigger}</Pressable> : (
-        <Pressable onPress={openMenu} style={styles.iconButton}>
-          {children ?? <Entypo name="dots-three-vertical" size={14} color={palette.textSecondary} />}
-        </Pressable>
-      )}
+      <Pressable ref={triggerRef} onPress={openMenu} style={trigger != null ? undefined : styles.iconButton}>
+        {trigger ?? children ?? <Entypo name="dots-three-vertical" size={14} color={theme.onSurfaceMuted.val} />}
+      </Pressable>
 
-      <ActionSheet isOpen={isOpen} onClose={closeMenu}>
-        {items}
-      </ActionSheet>
+      {variant === 'actionSheet' ? (
+        <ActionSheet isOpen={isOpen} onClose={closeMenu}>
+          {items}
+        </ActionSheet>
+      ) : (
+        <AnchoredMenu isOpen={isOpen} onClose={closeMenu} anchor={triggerRect}>
+          {items}
+        </AnchoredMenu>
+      )}
     </>
   )
 }

@@ -177,6 +177,10 @@ apps/
 │   │       │   │                #   카메라는 useMapCamera, 클러스터 전이는 useClusterTransition
 │   │       │   ├── bottom-sheet/ # 자체 구현 (Reanimated) — 웹과 같은 공개 API. Body 레이아웃·ScrollView 제스처
 │   │       │   ├── action-sheet/ # 하단 액션 시트 (Modal + 슬라이드업). PopMenu 가 트리거를 얹어 쓴다
+│   │       │   ├── PopMenu.tsx # 트리거를 누르면 메뉴를 띄운다. variant 'actionSheet'(기본, 하단 시트) | 'menu'(트리거 옆 팝오버)
+│   │       │   ├── AnchoredMenu.tsx # variant 'menu' 렌더러. 투명하게 먼저 그려 크기를 재고(onLayout), 배치가 정해지면 페이드인. 유리는 `GlassSurface` 가 아니라 `BlurView` + `$glass` 토큰 틴트로 직접 그린다(투명 Modal 안에서 iOS 26 `GlassView` 가 그려지지 않음). 블러 tint 는 `useThemeName` 으로 light/dark 를 따른다. ActionSheet·메뉴의 색은 `$surface`·`$onSurface`·`$danger`·`$glass` 토큰으로 `<Theme name="dark">` 에 반응한다
+│   │       │   ├── anchoredMenu.utils.ts # resolveMenuPlacement — 메뉴 좌상단을 트리거 우상단에 붙여 우측 하단이 기본.
+│   │       │   │                #   가로(우→좌)·세로(하→상)를 독립 판정하고, 옆에 붙을 자리가 없으면(전체 폭 트리거 등) 가로는 영역 안으로 정렬하고 세로는 트리거 아래(모자라면 위)에 두며, 그것도 안 되면 겹치더라도 영역 안에 전체가 보이게 두고, 영역보다 크면 maxWidth·maxHeight 로 제한
 │   │       │   ├── tab-navigation/ # 하단 탭바. variant default(라운드+그림자)·apple(블러) 전환.
 │   │       │   │                #   RouterTabNavigation 이 react-navigation 탭 어댑터(bottom-tabs·material-top-tabs 공용, state·descriptors·navigation 구조만 요구)
 │   │       │   ├── date-picker/ # 날짜·기간·시각 선택 (바텀시트 + 스와이프 달력)

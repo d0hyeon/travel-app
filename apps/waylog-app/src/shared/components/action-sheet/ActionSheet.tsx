@@ -44,9 +44,7 @@ export function ActionSheet({ isOpen, onClose, children }: ActionSheetProps) {
           <Pressable onPress={onClose} style={styles.backdropTarget} />
         </Animated.View>
         <Animated.View style={{ transform: [{ translateY: sheetTranslateY }] }}>
-          <View
-            style={[styles.sheet, { backgroundColor: theme.surface.val }]}
-          >
+          <View style={[styles.sheet, { backgroundColor: theme.surface.val }]}>
             <ScrollView style={styles.scrollArea} bounces={false}>
               <ActionSheetCloseContext.Provider value={onClose}>
                 <View style={{ paddingBottom: insets.bottom }}>
@@ -61,7 +59,7 @@ export function ActionSheet({ isOpen, onClose, children }: ActionSheetProps) {
   )
 }
 
-const ActionSheetCloseContext = createContext<() => void>(() => { })
+export const ActionSheetCloseContext = createContext<() => void>(() => { })
 
 interface ActionSheetItemProps {
   onPress?: () => void
@@ -85,9 +83,7 @@ ActionSheet.Item = function ActionSheetItem({ onPress, icon, children, color = '
     >
       <View style={styles.itemContent}>
         {icon}
-        <Text
-          style={[styles.itemText, { color: textColor }]}
-        >
+        <Text style={[styles.itemText, { color: textColor }]}>
           {children}
         </Text>
       </View>
