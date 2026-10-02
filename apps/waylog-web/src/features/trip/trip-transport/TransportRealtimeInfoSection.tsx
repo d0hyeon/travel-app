@@ -43,6 +43,7 @@ function Resolved({ tripId, transportId }: Props) {
     data: { transport },
   } = useTripTransportTickets({ tripId, transportId })
   const { status, isSupported } = useFlightStatus({
+    transportId,
     airlineCode: transport.type === 'flight' ? transport.airlineCode : undefined,
     flightNumber: transport.type === 'flight' ? transport.flightNumber : undefined,
     departureAirportCode: transport.departureAirportCode,

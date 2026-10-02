@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { getIsQueryable } from '../useFlightStatuses'
 
 const 인천출발 = {
+  transportId: 'transport-1',
   airlineCode: 'KE',
   flightNumber: '721',
   departureAirportCode: 'ICN',
@@ -22,6 +23,10 @@ describe('getIsQueryable', () => {
     expect(
       getIsQueryable({ ...인천출발, departureAirportCode: 'GMP', arrivalAirportCode: 'CJU' }),
     ).toBe(false)
+  })
+
+  it('교통편 id 가 없으면 상태 행을 찾을 수 없어 조회하지 않는다', () => {
+    expect(getIsQueryable({ ...인천출발, transportId: undefined })).toBe(false)
   })
 
   it('편번호가 없으면 편을 특정할 수 없어 조회하지 않는다', () => {

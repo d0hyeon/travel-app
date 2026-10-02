@@ -39,7 +39,7 @@ function Resolved({ tripId, transportId }: Props) {
     update: updateTicket,
   } = useTripTransportTickets({ tripId, transportId })
 
-  const { status } = useFlightStatus(transport, {
+  const { status } = useFlightStatus({ ...transport, transportId: transport.id }, {
     enabled: transport.type === TransportType.항공
   })
 

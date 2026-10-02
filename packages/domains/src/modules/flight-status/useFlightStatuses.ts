@@ -1,5 +1,6 @@
 import { useSuspenseQuery } from "@waylog/react";
 import { getFlightStatusProviders } from "./flightStatus.utils";
+import { getTripFlightStatuses } from "./tripFlightStatus.api";
 import type {
   FlightStatus,
   FlightStatusProvider,
@@ -24,6 +25,7 @@ function findProvider(query: FlightQuery) {
 
 function getIsComplete(query: FlightQuery): query is GetFlightStatusParams {
   return (
+    query.transportId != null &&
     query.airlineCode != null &&
     query.flightNumber != null &&
     query.departureAirportCode != null &&
@@ -50,26 +52,21 @@ export interface FlightStatusResult {
 /**
  * 여러 편의 운항 상태를 한 번에 조회한다.
  *
- * 목록 API 가 공항 하루치를 통째로 주므로 편마다 조회하면 같은 응답을
- * 편 수만큼 받는다. 목록은 한 번만 받고 편은 그 위에서 고른다.
+ * 운항 상태는 서버가 인천공항 API 를 감시하며 저장한 값이다. 편마다
+ * 조회하지 않고 조회 가능한 교통편의 행을 한 번에 읽는다.
  *
  * 결과는 물어본 순서 그대로다.
  */
 export function useFlightStatuses(
   queries: readonly FlightQuery[],
 ): FlightStatusResult[] {
-  const [listProvider] = getFlightStatusProviders();
+  const transportIds = queries.filter(getIsQueryable).map(({ transportId }) => transportId);
 
-  // 목록은 편마다 따로 받지 않고 하루치를 통째로 받는다. 그래서 "받을지
-  // 말지"는 배열 전체에 하나 -- 한 편이라도 조회 가능하면 받는다.
-  // "이 편이 그 목록에서 실제로 나오는지"는 아래 map 에서 편별로 다시 본다.
-  const isEnabled = queries.some(getIsQueryable);
-
-  const { data: schedules } = useSuspenseQuery({
-    queryKey: useFlightStatuses.key(),
-    enabled: isEnabled,
+  const { data: statuses } = useSuspenseQuery({
+    queryKey: [...useFlightStatuses.key(), transportIds.toSorted()],
+    enabled: transportIds.length > 0,
     refetchInterval: REFETCH_INTERVAL,
-    queryFn: () => listProvider.getFlightSchedules(),
+    queryFn: () => getTripFlightStatuses(transportIds),
   });
 
   return queries.map((query) => {
@@ -81,8 +78,8 @@ export function useFlightStatuses(
 
     return {
       status:
-        isAvailable && schedules != null
-          ? provider.findFlightStatus(schedules, query)
+        isAvailable && isComplete && statuses != null
+          ? (statuses.get(query.transportId) ?? null)
           : null,
       provider: provider?.provider,
       isSupported,
@@ -91,7 +88,7 @@ export function useFlightStatuses(
   });
 }
 
-useFlightStatuses.key = () => ["flight-schedules"];
+useFlightStatuses.key = () => ["flight-status"];
 
 export interface UseFlightStatusOptions {
   /**

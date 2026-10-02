@@ -41,7 +41,7 @@ function Resolved({ tripId, transportId, style, ...props }: Props & ViewProps) {
   } = useTripTransportTickets({ tripId, transportId })
   const carrierLabel = toCarrierLabel(transport)
 
-  const { status } = useFlightStatus(transport, { enabled: transport.type === TransportType.항공 })
+  const { status } = useFlightStatus({ ...transport, transportId: transport.id }, { enabled: transport.type === TransportType.항공 })
 
   // 운항 정보가 시각을 답하면 그것이 사실이다. 사용자가 적은 값보다 앞선다.
   const departureAt = status?.estimatedAt ?? status?.scheduledAt ?? transport.departureAt

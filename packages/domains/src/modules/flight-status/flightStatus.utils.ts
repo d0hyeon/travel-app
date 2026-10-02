@@ -1,5 +1,5 @@
 import type { AirportCode } from '../airport'
-import { incheonFlightStatusProvider } from './incheonFlightStatus.api'
+import { incheonFlightStatusProvider } from './incheonFlightStatus.provider'
 import type { FlightStatusProvider } from './flightStatus.types'
 
 const FLIGHT_STATUS_PROVIDERS: readonly FlightStatusProvider[] = [incheonFlightStatusProvider]

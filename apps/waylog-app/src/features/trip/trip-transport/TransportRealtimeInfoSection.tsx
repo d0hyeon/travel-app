@@ -43,6 +43,7 @@ function Resolved({ tripId, transportId }: Props) {
   assert(transport.type === TransportType.항공, '항공 서비스만 지원됩니다.');
 
   const { status, isSupported } = useFlightStatus({
+    transportId,
     airlineCode: transport.airlineCode,
     flightNumber: transport.flightNumber,
     departureAirportCode: transport.departureAirportCode,

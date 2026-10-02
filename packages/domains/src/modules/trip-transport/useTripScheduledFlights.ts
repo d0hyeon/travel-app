@@ -20,6 +20,7 @@ export function useTripScheduledFlights(tripId: string) {
     transports.map((transport: TripTransport) =>
       transport.type === TransportType.항공
         ? {
+            transportId: transport.id,
             airlineCode: transport.airlineCode,
             flightNumber: transport.flightNumber,
             departureAirportCode: transport.departureAirportCode,

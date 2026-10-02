@@ -41,7 +41,7 @@ function Resolved({ tripId, transportId }: Props) {
   const {
     status: flightStatus,
     isAvailable: isAvailableFlightStatus
-  } = useFlightStatus(transport, {
+  } = useFlightStatus({ ...transport, transportId: transport.id }, {
     enabled: transport.type === TransportType.항공
   })
 
