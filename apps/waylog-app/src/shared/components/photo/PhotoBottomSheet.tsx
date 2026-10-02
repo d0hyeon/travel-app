@@ -2,11 +2,13 @@ import { MaterialIcons } from '@expo/vector-icons'
 import type { Photo } from '@waylog/domains/modules/photo'
 import { useState } from 'react'
 import * as Linking from 'expo-linking'
-import { Image, Pressable, ScrollView, StyleSheet, useWindowDimensions } from 'react-native'
+import { Image, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native'
 import { Theme } from 'tamagui'
 import { Box, Button, Stack, Typography } from '~/shared/components/design-system'
 import { BottomSheet } from '../bottom-sheet/BottomSheet'
 import { useOverlay } from '../../hooks/useOverlay'
+import { useConfirmDialog } from '../confirm-dialog/useConfirmDialog'
+import { PopMenu } from '../PopMenu'
 import { PhotoVisibilityBadge } from './PhotoVisibilityBadge'
 import { ZoomArea } from './ZoomArea'
 import { usePhotoViewerState } from './usePhotoViewerState'
@@ -40,6 +42,7 @@ export function PhotoBottomSheet({
 }: Props) {
   const { width } = useWindowDimensions()
   const overlay = useOverlay()
+  const confirm = useConfirmDialog()
   // 웹은 ZoomArea 에 height="100%" 를 주어 시트 Body 를 그대로 채운다.
   // 앱은 고정 픽셀로 재는 대신 실제 렌더된 Body 높이를 측정해 맞춘다.
   // 첫 렌더는 onLayout 이전이라 0으로 잡히면 사진이 통째로 안 보이므로,
@@ -49,35 +52,9 @@ export function PhotoBottomSheet({
   const { viewerPhotos, currentIndex, currentPhoto, setCurrentIndex, updateCurrentPhoto } =
     usePhotoViewerState({ photos, initialIndex, onUpdate })
 
+  const hasMenu = onUpdate != null || onDelete != null
   const canSelectPlace = places != null && onUpdate != null
   const currentPlace = places?.find((place) => place.placeId === currentPhoto.placeId)
-
-  const openVisibilityMenu = () =>
-    overlay.open(({ isOpen: menuOpen, close: closeMenu }) => (
-      <BottomSheet isOpen={menuOpen} onDismiss={closeMenu} snapPoints={[0.4]} defaultSnapIndex={0} safeArea>
-        <BottomSheet.Body style={styles.menuBody}>
-          <Pressable onPress={() => { void Linking.openURL(currentPhoto.url); closeMenu() }} style={styles.menuItem}>
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
-              <Typography style={styles.menuItemLabel}>다운로드</Typography>
-              <MaterialIcons name="download-for-offline" size={26} color="#222" />
-            </Stack>
-          </Pressable>
-          <Typography style={styles.menuHeading}>공개 설정</Typography>
-          <Pressable onPress={async () => { await updateCurrentPhoto({ isPublic: true }); closeMenu() }} style={styles.visibilityMenuItem}>
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
-              <Typography style={[styles.menuItemLabel, { color: currentPhoto.isPublic ? '#4c84ff' : '#222' }]}>공개</Typography>
-              {currentPhoto.isPublic && <MaterialIcons name="check" size={26} color="#222" />}
-            </Stack>
-          </Pressable>
-          <Pressable onPress={async () => { await updateCurrentPhoto({ isPublic: false }); closeMenu() }} style={styles.visibilityMenuItem}>
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
-              <Typography style={[styles.menuItemLabel, { color: !currentPhoto.isPublic ? '#4c84ff' : '#222' }]}>비공개</Typography>
-              {!currentPhoto.isPublic && <MaterialIcons name="check" size={26} color="#222" />}
-            </Stack>
-          </Pressable>
-        </BottomSheet.Body>
-      </BottomSheet>
-    ))
 
   const openPlacePicker = () =>
     overlay.open(({ isOpen: pickerOpen, close: closePicker }) => (
@@ -109,10 +86,52 @@ export function PhotoBottomSheet({
       <BottomSheet.Header alignItems="center" justifyContent="center" style={styles.viewerBackground}>
         {currentPhoto.isPublic && <PhotoVisibilityBadge style={styles.headerVisibilityBadge} />}
         <Typography variant="body2" style={styles.photoCounter}>{currentIndex + 1} / {viewerPhotos.length}</Typography>
-        {onUpdate && (
-          <Pressable accessibilityLabel="사진 메뉴" onPress={openVisibilityMenu} style={styles.menuTrigger}>
-            <Typography style={styles.menuIcon}>⋮</Typography>
-          </Pressable>
+        {hasMenu && (
+          <View style={styles.menuTrigger}>
+            <PopMenu
+              items={
+                <>
+                  {onUpdate && (
+                    <>
+                      <PopMenu.Item
+                        icon={<MaterialIcons name="download-for-offline" size={18} color="#fff" />}
+                        onPress={() => void Linking.openURL(currentPhoto.url)}
+                      >
+                        다운로드
+                      </PopMenu.Item>
+                      <PopMenu.Group label="공개 설정">
+                        <PopMenu.Item
+                          icon={<VisibilityCheck isSelected={currentPhoto.isPublic} />}
+                          onPress={() => void updateCurrentPhoto({ isPublic: true })}
+                        >
+                          공개
+                        </PopMenu.Item>
+                        <PopMenu.Item
+                          icon={<VisibilityCheck isSelected={!currentPhoto.isPublic} />}
+                          onPress={() => void updateCurrentPhoto({ isPublic: false })}
+                        >
+                          비공개
+                        </PopMenu.Item>
+                      </PopMenu.Group>
+                    </>
+                  )}
+                  {onDelete && (
+                    <PopMenu.Item
+                      color="error"
+                      icon={<MaterialIcons name="delete" size={18} color="#ff8a8a" />}
+                      onPress={async () => {
+                        if (await confirm('사진을 삭제하시겠어요?')) await onDelete(currentPhoto)
+                      }}
+                    >
+                      삭제
+                    </PopMenu.Item>
+                  )}
+                </>
+              }
+            >
+              <MaterialIcons name="more-vert" size={24} color="#fff" />
+            </PopMenu>
+          </View>
         )}
       </BottomSheet.Header>
       <BottomSheet.Body
@@ -157,14 +176,15 @@ export function PhotoBottomSheet({
         </Stack>
       )}
       <BottomSheet.BottomActions style={styles.viewerBackground}>
-        {onDelete && (
-          <Button variant="outlined" size="large" color="error" onPress={() => void onDelete(currentPhoto)}>삭제</Button>
-        )}
         <Button variant="contained" size="large" fullWidth onPress={onClose}>닫기</Button>
       </BottomSheet.BottomActions>
     </BottomSheet>
     </Theme>
   )
+}
+
+function VisibilityCheck({ isSelected }: { isSelected: boolean }) {
+  return <MaterialIcons name="check" size={18} color="#fff" style={isSelected ? undefined : styles.hiddenIcon} />
 }
 
 const styles = StyleSheet.create({
@@ -174,13 +194,11 @@ const styles = StyleSheet.create({
   menuBody: { paddingHorizontal: 0, paddingVertical: 8 },
   menuItem: { paddingHorizontal: 20, paddingVertical: 16 },
   menuItemLabel: { fontSize: 16 },
-  menuHeading: { paddingHorizontal: 20, paddingVertical: 12, color: '#777', fontWeight: '700' },
-  visibilityMenuItem: { paddingLeft: 36, paddingRight: 20, paddingVertical: 16 },
   menuTrigger: { position: 'absolute', right: 12, padding: 8 },
-  menuIcon: { color: '#fff', fontSize: 24 },
+  hiddenIcon: { opacity: 0 },
+  pickerBackground: { backgroundColor: '#2b2b2b' },
   imagePager: { flex: 0 },
   imagePage: { alignItems: 'center', justifyContent: 'center' },
-  pickerBackground: { backgroundColor: '#2b2b2b' },
   placeSelector: { flexGrow: 0, paddingVertical: 8, backgroundColor: '#010101' },
   placeTrigger: { paddingHorizontal: 12, paddingVertical: 8 },
   placeLabel: { color: '#fff' },
