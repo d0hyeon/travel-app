@@ -56,7 +56,6 @@ export function TripLayout({ header, children }: Props) {
   }, [variant, glassProgress])
 
   const headerBackgroundStyle = useAnimatedStyle(() => ({ opacity: 1 - glassProgress.get() }))
-  const contentInsetTop = variant === 'glass' ? 0 : headerHeight
   const layout = useMemo(
     () => ({ requestLayout, glassProgress, headerHeight, actions }),
     [requestLayout, glassProgress, headerHeight, actions],
@@ -65,7 +64,7 @@ export function TripLayout({ header, children }: Props) {
   return (
     <TripLayoutContext.Provider value={layout}>
       <View style={styles.screen}>
-        <View style={[styles.content, { paddingTop: contentInsetTop }]}>{children}</View>
+        <View style={styles.content}>{children}</View>
         <View
           pointerEvents="box-none"
           style={[styles.header, { paddingTop: insets.top }]}

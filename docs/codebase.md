@@ -165,7 +165,7 @@ apps/
 │   │   │   │                    #   여행 상세 스택+탭 중첩을 구성
 │   │   │   │                    #   trip/trip-layout/ — 여행 상세 레이아웃(헤더 배치·모양)의 소유자 TripLayout 과 요청 훅 useTripLayoutSetting({ variant, actions }).
 │   │   │   │                    #   장소·계획 탭이 'glass' 를 요청하면 헤더가 지도 위에 얹히고(불투명 배경 페이드아웃, 버튼은 GlassSurface, 최상단~제목 아래는 TripHeaderShade 의 그라데이션 그림자+마스크 블러, 제목은 흰색) 220ms 모션으로 전환한다.
-│   │   │   │                    #   요청은 useFocusEffect 로 포커스된 동안만 유효(탭은 마운트가 유지됨). 탭이 actions(ReactNode)를 함께 요청하면 헤더 우측 글라스 알약에서 채팅 버튼 옆에 구분선과 함께 렌더링된다(없으면 채팅 버튼만). actions 는 헤더 트리에서 렌더링되므로 상태·훅을 스스로 가진 자기완결 컴포넌트(TripPlaceMapSettingsButton·TripRouteMapSettingsButton)여야 한다. 훅이 돌려주는 headerInset 만큼 지도 위 컨트롤을 내린다
+│   │   │   │                    #   요청은 useIsFocused + useLayoutEffect 로 포커스된 동안만 유효(탭은 마운트가 유지되며, 그리기 전에 갱신한다). 탭이 actions(ReactNode)를 함께 요청하면 헤더 우측 글라스 알약에서 채팅 버튼 옆에 구분선과 함께 렌더링된다(없으면 채팅 버튼만). actions 는 헤더 트리에서 렌더링되므로 상태·훅을 스스로 가진 자기완결 컴포넌트(TripPlaceMapSettingsButton·TripRouteMapSettingsButton)여야 한다. 훅이 돌려주는 headerInset 만큼 지도 위 컨트롤을 내린다. TripLayout 은 자식에 상단 패딩을 주지 않으므로, 헤더 아래에서 시작하는 default 탭(정보·정산·사진)은 훅이 돌려주는 contentInsetTop 을 스스로 paddingTop 으로 적용한다
 │   │   └── shared/
 │   │       ├── components/
 │   │       │   ├── design-system/ # 자체 디자인 시스템 — 웹 theme 어휘 + RN 표준 인터페이스
