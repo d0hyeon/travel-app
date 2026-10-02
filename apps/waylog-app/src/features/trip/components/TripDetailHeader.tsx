@@ -1,8 +1,15 @@
 import { useTrip } from '@waylog/domains/modules/trip'
 import { useAppNavigation, useAppRoute } from '../../../shared/hooks/useAppNavigation'
 import { AppRoute } from '../../../app/AppRoute'
-import { StyleSheet, Pressable, type TextProps } from 'react-native'
-import Animated, { interpolate, interpolateColor, useAnimatedStyle } from 'react-native-reanimated'
+import { StyleSheet, Pressable, type StyleProp, type TextProps, type ViewStyle } from 'react-native'
+import Animated, {
+  interpolate,
+  interpolateColor,
+  LinearTransition,
+  ZoomIn,
+  ZoomOut,
+  useAnimatedStyle,
+} from 'react-native-reanimated'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Suspense, type ReactNode } from 'react'
 import { Box, GlassSurface, Skeleton, Stack } from '~/shared/components/design-system'
@@ -18,6 +25,9 @@ const GLASS_BUTTON_BLUR_INTENSITY = 20
 const GLASS_BUTTON_TINT = 'rgba(255,255,255,0.3)'
 const GLASS_BUTTON_SIZE = 44
 const GLASS_BUTTON_HIDDEN_SCALE = 0.6
+const GLASS_BUTTON_PADDING_X = 4
+const GLASS_BUTTON_PADDING_X_WITH_ACTIONS = 10
+const ACTIONS_MOTION_DURATION = 220
 const TITLE_SHADOW_COLOR = 'rgba(0,0,0,0.5)'
 const TITLE_SHADOW_HIDDEN = 'rgba(0,0,0,0)'
 const TITLE_FONT_SIZE = 15
@@ -51,7 +61,7 @@ function Resolved() {
   const { tripId } = params
   const navigation = useAppNavigation()
   const { data: trip, update } = useTrip(tripId)
-  const { glassProgress } = useTripLayout()
+  const { glassProgress, actions } = useTripLayout()
   const editIconColorStyle = useAnimatedStyle(() => ({
     color: interpolateColor(glassProgress.get(), [0, 1], [palette.grey, '#000']),
   }))
@@ -76,8 +86,18 @@ function Resolved() {
           />
         </TitlePlate>
       </Stack>
-      <GlassButtonSlot>
+      <GlassButtonSlot style={actions != null ? styles.buttonSlotWithActions : undefined}>
         <ChatIconButton tripId={tripId} />
+        {actions != null && (
+          <Animated.View
+            entering={ZoomIn.duration(ACTIONS_MOTION_DURATION)}
+            exiting={ZoomOut.duration(ACTIONS_MOTION_DURATION)}
+            style={styles.actions}
+          >
+            <Box style={styles.actionDivider} />
+            {actions}
+          </Animated.View>
+        )}
       </GlassButtonSlot>
     </Stack>
   )
@@ -118,7 +138,7 @@ function ShadeAwareText(props: TextProps) {
   return <Animated.Text {...props} style={[props.style, fontStyle]} />
 }
 
-function GlassButtonSlot({ children }: { children: ReactNode }) {
+function GlassButtonSlot({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
   const { glassProgress } = useTripLayout()
   const glassStyle = useAnimatedStyle(() => ({
     opacity: glassProgress.get(),
@@ -126,7 +146,7 @@ function GlassButtonSlot({ children }: { children: ReactNode }) {
   }))
 
   return (
-    <Box style={styles.buttonSlot}>
+    <Animated.View layout={LinearTransition.duration(ACTIONS_MOTION_DURATION)} style={[styles.buttonSlot, style]}>
       <AnimatedGlassSurface
         style={[styles.buttonGlass, glassStyle]}
         fallbackBlurIntensity={GLASS_BUTTON_BLUR_INTENSITY}
@@ -135,7 +155,7 @@ function GlassButtonSlot({ children }: { children: ReactNode }) {
         pointerEvents="none"
       />
       {children}
-    </Box>
+    </Animated.View>
   )
 }
 
@@ -148,6 +168,9 @@ const styles = StyleSheet.create({
   titlePlate: { height: GLASS_BUTTON_SIZE, flexShrink: 1, justifyContent: 'center', borderRadius: GLASS_BUTTON_SIZE / 2, overflow: 'hidden' },
   titleGlass: { ...StyleSheet.absoluteFill },
   titleShadow: { textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 4 },
-  buttonSlot: { width: GLASS_BUTTON_SIZE, height: GLASS_BUTTON_SIZE, alignItems: 'center', justifyContent: 'center' },
+  buttonSlot: { minWidth: GLASS_BUTTON_SIZE, height: GLASS_BUTTON_SIZE, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: GLASS_BUTTON_PADDING_X },
+  buttonSlotWithActions: { paddingLeft: GLASS_BUTTON_PADDING_X_WITH_ACTIONS },
+  actions: { flexDirection: 'row', alignItems: 'center', gap: 6, marginLeft: 6, paddingRight: 4 },
+  actionDivider: { width: StyleSheet.hairlineWidth, height: 20, backgroundColor: palette.grey },
   buttonGlass: { ...StyleSheet.absoluteFill, borderRadius: GLASS_BUTTON_SIZE / 2, overflow: 'hidden' },
 })

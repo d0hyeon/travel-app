@@ -12,13 +12,15 @@ const GLASS_TRANSITION_DURATION = 220
 
 interface TripLayoutContextValue {
   /** 모양을 요청하고, 요청을 거두는 함수를 돌려준다 */
-  requestVariant: (variant: TripLayoutVariant) => () => void
+  requestLayout: (request: TripLayoutRequest) => () => void
   glassProgress: SharedValue<number>
   headerHeight: number
+  actions: ReactNode
 }
 
-interface VariantRequest {
+export interface TripLayoutRequest {
   variant: TripLayoutVariant
+  actions?: ReactNode
 }
 
 const TripLayoutContext = createContext<TripLayoutContextValue | null>(null)
@@ -37,13 +39,14 @@ interface Props {
 
 export function TripLayout({ header, children }: Props) {
   const insets = useSafeAreaInsets()
-  const [requests, setRequests] = useState<VariantRequest[]>([])
+  const [requests, setRequests] = useState<TripLayoutRequest[]>([])
   const variant = requests.at(-1)?.variant ?? 'default'
+  const actions = requests.at(-1)?.actions
   const [headerHeight, setHeaderHeight] = useState(0)
   const glassProgress = useSharedValue(0)
 
-  const requestVariant = useCallback((requested: TripLayoutVariant) => {
-    const request = { variant: requested }
+  const requestLayout = useCallback((requested: TripLayoutRequest) => {
+    const request = { ...requested }
     setRequests((current) => [...current, request])
     return () => setRequests((current) => current.filter((item) => item !== request))
   }, [])
@@ -55,8 +58,8 @@ export function TripLayout({ header, children }: Props) {
   const headerBackgroundStyle = useAnimatedStyle(() => ({ opacity: 1 - glassProgress.get() }))
   const contentInsetTop = variant === 'glass' ? 0 : headerHeight
   const layout = useMemo(
-    () => ({ requestVariant, glassProgress, headerHeight }),
-    [glassProgress, headerHeight],
+    () => ({ requestLayout, glassProgress, headerHeight, actions }),
+    [requestLayout, glassProgress, headerHeight, actions],
   )
 
   return (
