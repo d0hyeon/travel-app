@@ -4,7 +4,7 @@ import type { Photo } from '@waylog/domains/modules/photo'
 import { useTripPlaces } from '@waylog/domains/modules/trip'
 import { useEffect, useMemo, useState } from 'react'
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native'
-import { Box, Fab, GlassSurface, Stack, Typography } from '~/shared/components/design-system'
+import { BlurSwap, Box, Fab, GlassSurface, PressableScale, Stack, Typography } from '~/shared/components/design-system'
 import { useConfirmDialog } from '../../../shared/components/confirm-dialog/useConfirmDialog'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { palette } from '../../../shared/config/tokens'
@@ -127,15 +127,19 @@ export function TripPhotoContent({ tripId }: Props) {
           />
         )}
         <Stack direction="row" gap={0.5} alignItems="center">
-          <View style={styles.selectionShadow}>
+          <PressableScale
+            accessibilityRole="button"
+            onPress={() => setIsReadonly((curr) => !curr)}
+            style={styles.selectionShadow}
+          >
             <GlassSurface fallbackBlurIntensity={40} tintColor={GLASS_TINT} style={styles.selectionGlass}>
-              <Pressable accessibilityRole="button" onPress={() => setIsReadonly((curr) => !curr)} style={styles.selectionButton}>
-                <Typography variant="body2" >
-                  {isReadonly ? '선택' : '완료'}
-                </Typography>
-              </Pressable>
+              <View style={styles.selectionButton}>
+                <BlurSwap transitionKey={isReadonly ? 'select' : 'done'}>
+                  <Typography variant="body2">{isReadonly ? '선택' : '완료'}</Typography>
+                </BlurSwap>
+              </View>
             </GlassSurface>
-          </View>
+          </PressableScale>
         </Stack>
       </Stack>
 
