@@ -3,12 +3,13 @@ import { useFeed } from '@waylog/domains/modules/post'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Suspense } from 'react'
-import { StyleSheet, ScrollView } from 'react-native'
+import { StyleSheet, ScrollView, FlatList } from 'react-native'
 import { Box, Fab, Stack, Typography } from '~/shared/components/design-system'
 import { useAppNavigation } from '../../shared/hooks/useAppNavigation'
 import { AppRoute } from '../../app/AppRoute'
 import { palette } from '../../shared/config/tokens'
 import { PostCard } from './PostCard'
+import { View } from 'tamagui'
 
 export function FeedScreen() {
   const navigation = useAppNavigation()
@@ -18,11 +19,7 @@ export function FeedScreen() {
 
   return (
     <Box style={styles.screen}>
-      <ScrollView
-        contentContainerStyle={[styles.content, { paddingTop: insets.top, paddingBottom: insets.bottom + 96 }]}
-        showsVerticalScrollIndicator={false}
-      >
-
+      <View style={[styles.content, { paddingTop: insets.top }]}>
         <Typography variant="h5" style={styles.title}>
           피드
         </Typography>
@@ -37,7 +34,7 @@ export function FeedScreen() {
         >
           <Contents />
         </Suspense>
-      </ScrollView>
+      </View>
       {isSignedIn && (
         <Fab onPress={() => navigation.navigate(AppRoute.포스트_생성, {})} style={styles.createButton}><MaterialIcons name="add" size={30} color="#fff" /></Fab>
       )}
@@ -52,7 +49,7 @@ function Contents() {
   const openPost = (postId: string) => {
     navigation.navigate(AppRoute.포스트_상세, { postId })
   }
-
+  const insets = useSafeAreaInsets()
   if (posts.length === 0) {
     return (
       <Box style={styles.emptyState}>
@@ -62,18 +59,26 @@ function Contents() {
   }
 
   return (
-    <Stack style={styles.posts}>
-      {posts.map((post) => <PostCard key={post.id} post={post} onPress={() => openPost(post.id)} />)}
-    </Stack>
+    <FlatList
+      contentContainerStyle={[styles.posts, { paddingBottom: insets.bottom + 96 }]}
+      data={posts}
+      keyExtractor={post => post.id}
+      showsVerticalScrollIndicator={false}
+      renderItem={({ item }) => (
+        <PostCard key={item.id} post={item} onPress={() => openPost(item.id)} />
+      )}
+    />
   )
+
+
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#F5F6F8' },
   createButton: { position: 'absolute', right: 20, bottom: 20 },
-  content: { paddingHorizontal: 16 },
+  content: { paddingHorizontal: 16, flex: 1 },
   title: { color: palette.text, paddingVertical: 18 },
   emptyState: { alignItems: 'center', paddingVertical: 80 },
   emptyMessage: { color: palette.textSecondary, fontSize: 14 },
-  posts: { gap: 16 },
+  posts: { gap: 16, },
 })
