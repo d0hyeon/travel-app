@@ -9,7 +9,7 @@ import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from 'react-native'
-import React from 'react'
+import React, { Suspense } from 'react'
 import { Box, Skeleton, Stack, Typography } from '~/shared/components/design-system'
 import { palette } from '../../shared/config/tokens'
 import { PostAuthor } from './PostAuthor'
@@ -48,7 +48,9 @@ export function PostCard({ post, onPress }: Props) {
               additionalPlaceCount={Math.max(0, post.places.length - 1)}
               onPress={onPress}
             />
-            <PostLikeButton postId={post.id} />
+            <Suspense fallback={<PostLikeButton.Skeleton />}>
+              <PostLikeButton postId={post.id} />
+            </Suspense>
           </Stack>
           {post.description && <Typography style={styles.description}>{post.description}</Typography>}
           {post.visibility !== PostVisibility.PUBLIC && (

@@ -1,6 +1,6 @@
 import { assert } from '@waylog/utility'
 import { StyleSheet, type TextStyle, type ViewStyle } from 'react-native'
-import { Avatar, Stack, Typography, type StackProps } from '~/shared/components/design-system'
+import { Avatar, Skeleton, Stack, Typography, type StackProps } from '~/shared/components/design-system'
 import { useUserProfile } from './useUserProfile'
 
 export const UserProfileSize = {
@@ -37,6 +37,16 @@ export function UserProfile({ id, size = UserProfileSize.medium, ...props }: Pro
   )
 }
 
+UserProfile.Skeleton = function UserProfileSkeleton({ size = UserProfileSize.medium, ...props }: Omit<Props, 'id'>) {
+  const style = stylesBySize[size]
+
+  return (
+    <Stack direction="row" alignItems="center" gap={1} {...props}>
+      <Skeleton variant="circular" width={style.avatar.width} height={style.avatar.height} />
+      <Skeleton width={style.avatar.width * 2} height={style.text.fontSize} />
+    </Stack>
+  )
+}
 
 const stylesBySize = {
   [UserProfileSize.small]: StyleSheet.create({

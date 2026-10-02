@@ -1,5 +1,6 @@
 import { Box, Stack, Typography } from '~/shared/components/design-system'
 import { MaterialIcons } from '@expo/vector-icons'
+import { Suspense } from 'react'
 import { StyleSheet, Pressable, type GestureResponderEvent } from 'react-native'
 import { palette } from '../../shared/config/tokens'
 import { UserProfile } from '../user-profile/UserProfile'
@@ -26,7 +27,9 @@ export function PostAuthor({ authorId, place, additionalPlaceCount = 0, onPress 
       style={styles.author}
     >
       <Stack direction="row" alignItems="center" style={styles.authorRow}>
-        <UserProfile id={authorId} style={styles.profile} />
+        <Suspense fallback={<UserProfile.Skeleton style={styles.profile} />}>
+          <UserProfile id={authorId} style={styles.profile} />
+        </Suspense>
         {place && (
           <>
             <Box style={styles.separator} />
