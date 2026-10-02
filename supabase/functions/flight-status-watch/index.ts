@@ -16,12 +16,17 @@ import {
   toNotificationText,
   type WatchedStatus,
 } from './statusChange.ts'
+import {
+  getIsWithinNotifyWindow,
+  getObserveRange,
+  NOTIFY_BEFORE_DEPARTURE_HOURS,
+} from './watchWindow.ts'
 
 // pg_cron 이 5분마다 부른다. 사용자마다 job 을 만들지 않는다 --
-// 교통편을 등록하면 감시 창에 들어오고 출발이 지나면 빠진다.
+// 교통편을 등록하면 관측 범위에 들어오고 출발 6시간 뒤에 빠진다.
+// 관측값은 범위 전체를 저장하고, 알림은 출발 24시간 안의 편에만 판단한다.
 
 const INCHEON = 'ICN'
-const WATCH_WINDOW_HOURS = 24
 
 // 인천공항이 D+6 까지 주므로 테스트 모드는 그 끝까지 본다.
 const TEST_WINDOW_HOURS = 24 * 7
@@ -60,6 +65,7 @@ interface StatusRow {
 function findFlight(
   transport: TransportRow,
   flights: { departures: IncheonFlightItem[]; arrivals: IncheonFlightItem[] },
+  { allowAnyDay }: { allowAnyDay: boolean },
 ) {
   const items =
     transport.departure_airport_code === INCHEON ? flights.departures : flights.arrivals
@@ -73,8 +79,9 @@ function findFlight(
 
   if (matched.length === 0) return null
 
-  // 같은 편명이 D+0~D+6 에 걸쳐 온다. 등록한 날짜의 편을 고르되, 없으면
-  // 아무거나 집는다 -- 발송 경로를 확인하는 동안만 이렇게 둔다.
+  // 같은 편명이 D+0~D+6 에 걸쳐 온다. 등록한 날짜의 편을 고른다. 없으면
+  // 인천 출발편은 비워 둔다 -- 다른 날 편의 상태가 저장되면 안 된다.
+  // 도착편(제거 예정)과 알림 테스트 모드만 아무거나 집는다.
   const sameDay = matched.find((item) => {
     const scheduledAt = toIsoFromApiDateTime(item.scheduleDateTime)
     if (scheduledAt == null) return false
@@ -82,7 +89,9 @@ function findFlight(
     return getIsSameKstDate(transport.departure_at, scheduledAt)
   })
 
-  return sameDay ?? matched[0]
+  if (sameDay != null) return sameDay
+
+  return allowAnyDay ? matched[0] : null
 }
 
 async function notify(transport: TransportRow, status: WatchedStatus, isGateChanged: boolean) {
@@ -159,14 +168,14 @@ Deno.serve(async () => {
   }
 
   // 발송 경로를 실기기로 확인하는 동안만 켠다. 상태가 안 바뀌어도 매번
-  // 보내고, 감시 창도 D+6 까지 넓혀 24시간 안에 뜨는 편이 없어도 걸린다.
+  // 보내고, 알림 창도 D+6 까지 넓혀 24시간 안에 뜨는 편이 없어도 걸린다.
   const notifyAlways = Deno.env.get('FLIGHT_STATUS_NOTIFY_ALWAYS') === 'true'
 
   const now = new Date()
-  const windowHours = notifyAlways ? TEST_WINDOW_HOURS : WATCH_WINDOW_HOURS
-  const until = new Date(now.getTime() + windowHours * 60 * 60 * 1000)
+  const notifyWindowHours = notifyAlways ? TEST_WINDOW_HOURS : NOTIFY_BEFORE_DEPARTURE_HOURS
+  const { from, until } = getObserveRange(now)
 
-  // 감시 창: 출발이 24시간 안이고 아직 지나지 않은 항공편.
+  // 관측 범위: 출발 후 6시간 이내인 편부터 7일 뒤까지의 항공편.
   // 코드가 없는 행은 매칭할 수 없어 애초에 제외한다.
   const { data: transports, error } = await supabase
     .from('trip_transports')
@@ -176,7 +185,7 @@ Deno.serve(async () => {
     .eq('type', 'flight')
     .not('airline_code', 'is', null)
     .not('flight_number', 'is', null)
-    .gte('departure_at', now.toISOString())
+    .gte('departure_at', from.toISOString())
     .lte('departure_at', until.toISOString())
 
   if (error) {
@@ -210,7 +219,9 @@ Deno.serve(async () => {
   let matched = 0
 
   for (const transport of watched as TransportRow[]) {
-    const flight = findFlight(transport, flights)
+    const flight = findFlight(transport, flights, {
+      allowAnyDay: notifyAlways || transport.departure_airport_code !== INCHEON,
+    })
     if (flight == null) continue
 
     matched += 1
@@ -227,7 +238,9 @@ Deno.serve(async () => {
       lastNotifiedEstimatedAt: previous?.last_notified_estimated_at ?? null,
       lastNotifiedGate: previous?.last_notified_gate ?? null,
     }
-    const shouldNotify = getShouldNotify(status, notifiedStatus, { notifyAlways })
+    const isWithinNotifyWindow = getIsWithinNotifyWindow(transport.departure_at, now, notifyWindowHours)
+    const shouldNotify =
+      isWithinNotifyWindow && getShouldNotify(status, notifiedStatus, { notifyAlways })
     const isGateChanged = getIsGateChanged(status, notifiedStatus)
 
     if (shouldNotify) {
@@ -248,6 +261,7 @@ Deno.serve(async () => {
       scheduled_at: toIsoFromApiDateTime(flight.scheduleDateTime),
       estimated_at: status.estimatedAt,
       gate: status.gate,
+      terminal: flight.terminalid,
       prev_gate: prevGate,
       // 보내지 못했으면 직전 값을 지킨다. 지우면 다음 턴에 다시 보낸다.
       last_notified_kind: shouldNotify ? status.kind : (previous?.last_notified_kind ?? null),
