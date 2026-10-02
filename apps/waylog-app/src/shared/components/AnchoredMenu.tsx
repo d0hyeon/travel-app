@@ -18,6 +18,7 @@ const ANCHOR_GAP = 0
 const SCREEN_EDGE_MARGIN = 8
 const FADE_DURATION = 120
 const MENU_BLUR_INTENSITY = 40
+const MENU_MAX_HEIGHT = 320
 
 export function AnchoredMenu({ isOpen, onClose, anchor, children }: AnchoredMenuProps) {
   return (
@@ -71,8 +72,8 @@ function MenuSurface({ anchor, onClose, children }: MenuSurfaceProps) {
         styles.menu,
         { opacity },
         placement != null
-          ? { left: placement.x, top: placement.y, maxWidth: placement.maxWidth, maxHeight: placement.maxHeight }
-          : { left: 0, top: 0, maxWidth: bounds.width, maxHeight: bounds.height },
+          ? { left: placement.x, top: placement.y, maxWidth: placement.maxWidth, maxHeight: Math.min(placement.maxHeight, MENU_MAX_HEIGHT) }
+          : { left: 0, top: 0, maxWidth: bounds.width, maxHeight: Math.min(bounds.height, MENU_MAX_HEIGHT) },
       ]}
     >
       <View style={[styles.clip, { backgroundColor: theme.glass.val, borderColor: theme.borderColor.val }]}>
