@@ -113,13 +113,19 @@ export function PhotoBottomSheet({
                         <PopMenu.Group label="공개 설정">
                           <PopMenu.Item
                             icon={<VisibilityCheck isSelected={currentPhoto.isPublic} />}
-                            onPress={() => void updateCurrentPhoto({ isPublic: true })}
+                            onPress={async () => {
+                              await updateCurrentPhoto({ isPublic: true });
+                              toast.success('공개 설정이 변경됐어요')
+                            }}
                           >
                             공개
                           </PopMenu.Item>
                           <PopMenu.Item
                             icon={<VisibilityCheck isSelected={!currentPhoto.isPublic} />}
-                            onPress={() => void updateCurrentPhoto({ isPublic: false })}
+                            onPress={async () => {
+                              await updateCurrentPhoto({ isPublic: false })
+                              toast.success('공개 설정이 변경됐어요')
+                            }}
                           >
                             비공개
                           </PopMenu.Item>
