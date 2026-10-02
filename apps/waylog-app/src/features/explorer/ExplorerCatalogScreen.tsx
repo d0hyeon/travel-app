@@ -86,5 +86,5 @@ const SCREEN_SAFE_AREA_EDGES = ['left', 'right'] as const
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: palette.background },
   scroll: { flex: 1 },
-  content: { gap: 24 },
+  content: { gap: 48 },
 })
