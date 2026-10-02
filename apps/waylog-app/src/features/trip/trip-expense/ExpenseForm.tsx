@@ -112,26 +112,6 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
 
   return (
     <Stack gap={2}>
-      {currencies.length > 1 && trip.isOverseas && (
-        <Stack gap={1}>
-          <Typography variant="caption" color="text.secondary">
-            통화
-          </Typography>
-          <Stack direction="row" gap={0.5} style={styles.wrapRow}>
-            {currencies.map((item) => (
-              <Chip
-                key={item.code}
-                label={item.code}
-                size="small"
-                variant={currency === item.code ? 'filled' : 'outlined'}
-                color={currency === item.code ? 'primary' : 'default'}
-                onPress={() => setValue('currency', item.code)}
-              />
-            ))}
-          </Stack>
-        </Stack>
-      )}
-
       <Stack gap={0.5}>
         <Stack direction="row" justifyContent="space-between" alignItems="center">
           <Typography variant="subtitle2" >결제 금액</Typography>
