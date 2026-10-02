@@ -9,7 +9,7 @@ import type { ExplorerFilterParams } from '../explorerFilterParams'
 import { ExplorerMap } from '../explorer-view/ExplorerMap'
 import { ExplorerGridSkeleton, ExplorerMapSkeleton } from '../explorer-view/ExplorerSkeletons'
 import { ExplorerRankingGrid } from '../explorer-view/ExplorerRankingGrid'
-import { ExplorerScreenHeader } from '../explorer-view/ExplorerScreenHeader'
+import { ExplorerScreenHeader, useExplorerScreenHeaderHeight } from '../explorer-view/ExplorerScreenHeader'
 import { useExplorerViewMode } from '../explorer-view/useExplorerViewMode'
 import { useMostSavedPlaces } from './useMostSavedPlaces'
 
@@ -23,6 +23,7 @@ export function MostSavedScreen() {
   const { location, category } = useExplorerFilterParams()
   const [viewMode, setViewMode] = useExplorerViewMode()
   const { isScrollDown, onScroll } = useScrollStatus()
+  const headerHeight = useExplorerScreenHeaderHeight()
 
   return (
     <SafeAreaView edges={SCREEN_SAFE_AREA_EDGES} style={styles.screen}>
@@ -34,7 +35,7 @@ export function MostSavedScreen() {
         onChangeViewMode={setViewMode}
       />
       <Suspense fallback={viewMode === 'map' ? <ExplorerMapSkeleton /> : <ExplorerGridSkeleton />}>
-        <MostSavedContent location={location} category={category} viewMode={viewMode} onScroll={onScroll} contentTopInset={ExplorerScreenHeader.HEIGHT} />
+        <MostSavedContent location={location} category={category} viewMode={viewMode} onScroll={onScroll} contentTopInset={headerHeight} />
       </Suspense>
     </SafeAreaView>
   )

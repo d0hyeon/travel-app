@@ -77,8 +77,13 @@ export function ExplorerScreenHeader({
     </View>
   )
 }
-/** 오버레이라 흐름에서 빠져 있다. 가려지는 만큼 스크롤 콘텐츠를 밀어낼 때 쓴다. */
-ExplorerScreenHeader.HEIGHT = 84
+const HEADER_BODY_HEIGHT = 84
+
+/** 오버레이라 흐름에서 빠져 있다. 상단 안전영역을 포함해 가려지는 만큼 스크롤 콘텐츠를 밀어낼 때 쓴다. */
+export function useExplorerScreenHeaderHeight() {
+  const insets = useSafeAreaInsets()
+  return insets.top + HEADER_BODY_HEIGHT
+}
 
 const styles = StyleSheet.create({
   overlay: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 20, backgroundColor: palette.background },

@@ -9,7 +9,7 @@ import type { ExplorerFilterParams } from '../explorerFilterParams'
 import { ExplorerMap } from '../explorer-view/ExplorerMap'
 import { ExplorerGridSkeleton, ExplorerMapSkeleton } from '../explorer-view/ExplorerSkeletons'
 import { ExplorerRankingGrid } from '../explorer-view/ExplorerRankingGrid'
-import { ExplorerScreenHeader } from '../explorer-view/ExplorerScreenHeader'
+import { ExplorerScreenHeader, useExplorerScreenHeaderHeight } from '../explorer-view/ExplorerScreenHeader'
 import { useExplorerViewMode } from '../explorer-view/useExplorerViewMode'
 import { PeriodFilterChip } from './PeriodFilterChip'
 import type { RecentHotPeriodMonths } from './recentHotPeriod.constants'
@@ -26,6 +26,7 @@ export function RecentHotScreen() {
   const [viewMode, setViewMode] = useExplorerViewMode()
   const [months, setMonths] = useState<RecentHotPeriodMonths>(3)
   const { isScrollDown, onScroll } = useScrollStatus()
+  const headerHeight = useExplorerScreenHeaderHeight()
 
   return (
     <SafeAreaView edges={SCREEN_SAFE_AREA_EDGES} style={styles.screen}>
@@ -38,7 +39,7 @@ export function RecentHotScreen() {
         filterExtras={<PeriodFilterChip months={months} onChange={setMonths} />}
       />
       <Suspense fallback={viewMode === 'map' ? <ExplorerMapSkeleton /> : <ExplorerGridSkeleton />}>
-        <RecentHotContent location={location} category={category} months={months} viewMode={viewMode} onScroll={onScroll} contentTopInset={ExplorerScreenHeader.HEIGHT} />
+        <RecentHotContent location={location} category={category} months={months} viewMode={viewMode} onScroll={onScroll} contentTopInset={headerHeight} />
       </Suspense>
     </SafeAreaView>
   )

@@ -14,7 +14,7 @@ import { MostSavedPlacesSection } from './explorer-saved/MostSavedPlacesSection'
 import { SeasonalRegionsSummarySection, SeasonalRegionsSummarySectionSkeleton } from './explorer-seasonal-regions/SeasonalRegionsSummarySection'
 import { ExplorerMap } from './explorer-view/ExplorerMap'
 import { ExplorerMapSkeleton, ExplorerPlaceCardSectionSkeleton, ExplorerPlaceListSectionSkeleton } from './explorer-view/ExplorerSkeletons'
-import { ExplorerScreenHeader } from './explorer-view/ExplorerScreenHeader'
+import { ExplorerScreenHeader, useExplorerScreenHeaderHeight } from './explorer-view/ExplorerScreenHeader'
 import { useExplorerViewMode } from './explorer-view/useExplorerViewMode'
 import { useAttentionPlaces } from './useAttentionPlaces'
 
@@ -26,6 +26,7 @@ export function ExplorerCatalogScreen({ bottomContentInset = 0 }: Props) {
   const { location, category } = useExplorerFilterParams()
   const [viewMode, setViewMode] = useExplorerViewMode()
   const { isScrollDown, onScroll } = useScrollStatus()
+  const headerHeight = useExplorerScreenHeaderHeight()
   useTabSwipeLock(viewMode === 'map')
 
   return (
@@ -47,7 +48,7 @@ export function ExplorerCatalogScreen({ bottomContentInset = 0 }: Props) {
           style={styles.scroll}
           onScroll={onScroll}
           scrollEventThrottle={16}
-          contentContainerStyle={[styles.content, { paddingTop: ExplorerScreenHeader.HEIGHT + 16, paddingBottom: bottomContentInset + 24 }]}
+          contentContainerStyle={[styles.content, { paddingTop: headerHeight + 16, paddingBottom: bottomContentInset + 24 }]}
         >
           <ErrorBoundary
             fallback={() => null}
@@ -79,7 +80,8 @@ function ExplorerCatalogMap({ location, category }: { location?: Location; categ
   return <ExplorerMap places={attentionPlaces} location={location} />
 }
 
-const SCREEN_SAFE_AREA_EDGES = ['top', 'left', 'right'] as const
+/** top은 오버레이 헤더가 직접 처리한다. */
+const SCREEN_SAFE_AREA_EDGES = ['left', 'right'] as const
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: palette.background },
