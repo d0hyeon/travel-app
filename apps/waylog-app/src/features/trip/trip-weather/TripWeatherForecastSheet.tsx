@@ -144,7 +144,7 @@ function Resolved({ tripId, initialDate }: Pick<Props, 'tripId' | 'initialDate'>
                   <AsyncBoundary
                     resetKeys={[page.date, page.dayPart]}
                     rejectedFallback={() => <ForecastUnavailable />}
-                    pendingFallback={null}
+                    pendingFallback={<ForecastPageSkeleton date={page.date} dayPart={page.dayPart} />}
                   >
                     <ForecastPageContent
                       coordinate={{ lat: trip.lat, lng: trip.lng }}
@@ -192,6 +192,15 @@ function ForecastPageContent({
       >
         출처 : {weatherForecast.provider}
       </Typography>
+    </>
+  )
+}
+
+function ForecastPageSkeleton({ date, dayPart }: { date: string; dayPart: DayPart }) {
+  return (
+    <>
+      <DailyWeatherInfoBox.Skeleton />
+      <HourlyForecastList.Skeleton date={date} dayPart={dayPart} />
     </>
   )
 }
