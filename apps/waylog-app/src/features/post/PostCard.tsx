@@ -16,6 +16,8 @@ import { PostAuthor } from './PostAuthor'
 import { PostLikeButton } from './PostLikeButton'
 import { LoadableImage } from '../../shared/components/LoadableImage'
 
+const RENDERED_PAGE_RADIUS = 1
+
 interface Props {
   post: Post
   onPress: () => void
@@ -97,9 +99,12 @@ function PostPhotoGallery({ post, width, minHeight }: { post: Post; width: numbe
         onMomentumScrollEnd={handleMomentumScrollEnd}
         style={{ minHeight }}
       >
-        {post.photos.map((photo) => (
-          <LoadableImage key={photo.url} source={{ uri: photo.url }} style={[styles.photo, { width, minHeight }]} contentFit="cover" />
-        ))}
+        {post.photos.map((photo, index) => {
+          const pageStyle = [styles.photo, { width, minHeight }]
+          const isRendered = Math.abs(index - pageIndex) <= RENDERED_PAGE_RADIUS
+          if (!isRendered) return <Box key={photo.url} style={pageStyle} />
+          return <LoadableImage key={photo.url} source={{ uri: photo.url }} style={pageStyle} contentFit="cover" />
+        })}
       </ScrollView>
       {post.photos.length > 1 && (
         <Stack
