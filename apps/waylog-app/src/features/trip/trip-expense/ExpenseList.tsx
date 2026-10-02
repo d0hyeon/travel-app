@@ -24,7 +24,7 @@ export function ExpenseList({ tripId }: Props) {
   const formBottomSheet = useExpenseFormBottomSheet(tripId)
 
   const handleEditExpense = async (expense: Expense) => {
-    const data = await formBottomSheet.open({ defaultValues: expense, mode: 'edit' })
+    const data = await formBottomSheet.open({ defaultValues: expense })
     if (data) update({ expenseId: expense.id, data })
   }
 

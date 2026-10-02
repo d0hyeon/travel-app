@@ -13,7 +13,6 @@ export interface RenderProps {
 
 type OpenParams = {
   defaultValues?: Partial<ExpenseFormValues>
-  mode?: 'create' | 'edit'
   renderActions?: (props: RenderProps) => ReactNode
 } & Omit<ComponentProps<typeof BottomSheet>, 'isOpen' | 'onDismiss' | 'onClose' | 'children'>
 
@@ -24,13 +23,12 @@ export function useExpenseFormBottomSheet(tripId: string) {
   const overlay = useOverlay()
 
   const open = useCallback(
-    ({ defaultValues, mode = 'create', renderActions, ...sheetProps }: OpenParams = {}) => {
+    ({ defaultValues, renderActions, ...sheetProps }: OpenParams = {}) => {
       return new Promise<ExpenseFormValues | null>((resolve) => {
         overlay.open(({ isOpen, close }) => (
           <ExpenseFormSheet
             tripId={tripId}
             defaultValues={defaultValues}
-            mode={mode}
             renderActions={renderActions}
             sheetProps={sheetProps}
             isOpen={isOpen}
@@ -55,7 +53,6 @@ export function useExpenseFormBottomSheet(tripId: string) {
 interface SheetProps {
   tripId: string
   defaultValues?: Partial<ExpenseFormValues>
-  mode: 'create' | 'edit'
   renderActions?: (props: RenderProps) => ReactNode
   sheetProps: Omit<ComponentProps<typeof BottomSheet>, 'isOpen' | 'onDismiss' | 'onClose' | 'children'>
   isOpen: boolean
@@ -63,7 +60,7 @@ interface SheetProps {
   onCancel: () => void
 }
 
-function ExpenseFormSheet({ tripId, defaultValues, mode, renderActions, sheetProps, isOpen, onSubmit, onCancel }: SheetProps) {
+function ExpenseFormSheet({ tripId, defaultValues, renderActions, sheetProps, isOpen, onSubmit, onCancel }: SheetProps) {
   const formRef = useRef<ExpenseFormRef>(null)
   const submit = () => formRef.current?.submit()
 
@@ -77,7 +74,7 @@ function ExpenseFormSheet({ tripId, defaultValues, mode, renderActions, sheetPro
       {...sheetProps}
     >
       <BottomSheet.Header>
-        {mode === 'edit' ? '결제 금액 수정' : '결제 금액'}
+        지출 내역
       </BottomSheet.Header>
       <BottomSheet.KeyboardAwareBody style={styles.expenseFormSheetKeyboardAwareBody}>
         <ExpenseForm ref={formRef} tripId={tripId} defaultValues={defaultValues} onSubmit={onSubmit} />

@@ -91,7 +91,6 @@ export function RouteExpenseView({ tripId }: Props) {
     if (expense == null) return
 
     const values = await expenseForm.open({
-      mode: 'edit',
       defaultValues: expense,
       renderActions: ({ close, submit }) => (
         <ExpenseFormDeletationActions tripId={tripId} expenseId={expenseId} onClose={close} onSubmit={submit} />
