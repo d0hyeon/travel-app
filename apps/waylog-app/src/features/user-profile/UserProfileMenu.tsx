@@ -2,6 +2,7 @@ import { useBlockedUsers, useBlockUser, useUnblockUser } from '@waylog/domains/m
 import { useConfirmDialog } from '../../shared/components/confirm-dialog/useConfirmDialog'
 import { PopMenu } from '../../shared/components/PopMenu'
 import { useReportSheet } from '../report/useReportSheet'
+import { toast } from 'sonner-native'
 
 export function UserProfileMenu({ userId }: { userId: string }) {
   const { data: blockedUsers } = useBlockedUsers()
@@ -31,7 +32,8 @@ export function UserProfileMenu({ userId }: { userId: string }) {
               color="error"
               onPress={async () => {
                 if (await confirm('이 사용자를 차단할까요?')) {
-                  await blockUser(userId)
+                  await blockUser(userId);
+                  toast.success('사용자를 차단했어요')
                 }
               }}
             >

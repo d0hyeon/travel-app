@@ -8,6 +8,7 @@ import { Typography } from '~shared/components/design-system'
 import { AppBar } from '~shared/components/design-system/AppBar'
 import { palette } from '~shared/config/tokens'
 import { BlockedUserListItem } from './BlockedUserListItem'
+import { toast } from 'sonner-native'
 
 export function BlockedUsersScreen() {
   return (
@@ -22,14 +23,13 @@ export function BlockedUsersScreen() {
 
 function BlockedUserList() {
   const { data: blockedUsers } = useBlockedUsers()
-  const unblockUser = useUnblockUser()
 
   return (
     <FlatList
       data={blockedUsers}
       keyExtractor={(user) => user.id}
       contentContainerStyle={styles.list}
-      renderItem={({ item }) => <BlockedUserListItem user={item} onUnblock={() => unblockUser(item.id)} />}
+      renderItem={({ item }) => <BlockedUserListItem user={item} />}
       ListEmptyComponent={<Typography color="text.secondary" style={styles.empty}>차단한 사용자가 없어요</Typography>}
     />
   )

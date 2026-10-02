@@ -5,6 +5,7 @@ import { assert } from '@waylog/utility'
 import { PostMenu } from './PostMenu'
 import { PostScreen } from './PostScreen'
 import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
+import { toast } from 'sonner'
 
 export const meta = () => [
   { title: '포스트 — WayLog' },
@@ -27,7 +28,14 @@ export default function PostDetailPage() {
           <TopNavigation.BackButton />
         }
         rightElement={
-          <PostMenu postId={postId} onDelete={() => navigate(-1)} onBlock={() => navigate(-1)} />
+          <PostMenu
+            postId={postId}
+            onDelete={() => {
+              navigate(-1)
+              toast.success('사용자를 차단했어요')
+            }}
+            onBlock={() => navigate(-1)}
+          />
         }
       />
 

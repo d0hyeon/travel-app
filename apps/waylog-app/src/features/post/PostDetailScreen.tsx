@@ -13,6 +13,7 @@ import { PostAuthor } from './PostAuthor'
 import { PostLikeButton } from './PostLikeButton'
 import { PostMenu } from './PostMenu'
 import { LoadableImage } from '../../shared/components/LoadableImage'
+import { toast } from 'sonner-native'
 
 export type PostDetailParams = { postId: string }
 
@@ -55,7 +56,14 @@ function ResolvedPostDetail() {
           </Pressable>
           <Typography variant="subtitle1" style={styles.headerTitle}>포스트</Typography>
         </Stack>
-        <PostMenu postId={postId} onDelete={() => navigation.goBack()} onBlock={() => navigation.goBack()} />
+        <PostMenu
+          postId={postId}
+          onDelete={() => navigation.goBack()}
+          onBlock={() => {
+            navigation.goBack()
+            toast.success('사용자를 차단했어요');
+          }}
+        />
       </Stack>
 
       <ScrollView
