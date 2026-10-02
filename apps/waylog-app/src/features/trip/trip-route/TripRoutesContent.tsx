@@ -69,7 +69,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
     enabled: isOngoingTrip,
     onChange: (coordinate) => {
       if (getIsInitialzed()) return;
-      mapRef.current?.panTo(coordinate.lat, coordinate.lng)
+      mapRef.current?.panTo(coordinate.lat, coordinate.lng, { paddingTop: headerInset })
       if (selectedDate === today) {
         const nearestPlace = findNearestPlace(coordinate, currentRoute?.places ?? [])
         if (nearestPlace != null) setFocusedId(nearestPlace.id)
@@ -135,7 +135,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
         {currentCoordinate != null && (
           <FloatingControl corner="bottom-left" zIndex={8} style={{ bottom: `${sheetRatio * 100}%` }}>
             <CurrenntLocationIconButton
-              onPress={() => mapRef.current?.panTo(currentCoordinate.lat, currentCoordinate.lng)}
+              onPress={() => mapRef.current?.panTo(currentCoordinate.lat, currentCoordinate.lng, { paddingTop: headerInset })}
               style={styles.mapControl}
             />
           </FloatingControl>
@@ -191,7 +191,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                   onPress={() => {
                     if (isInCurrentRoute) {
                       setFocusedId(place.id)
-                      mapRef.current?.panTo(place.lat, place.lng)
+                      mapRef.current?.panTo(place.lat, place.lng, { paddingTop: headerInset })
                     }
                     overlay.open(({ isOpen, close }) => (
                       <ActionSheet isOpen={isOpen} onClose={close}>
@@ -281,7 +281,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                             focused={focusedId === place.id}
                             onPress={() => {
                               setFocusedId(place.id)
-                              mapRef.current?.panTo(place.lat, place.lng)
+                              mapRef.current?.panTo(place.lat, place.lng, { paddingTop: headerInset })
                             }}
                             leftAddon={(
                               <SortableItem.Handle id={place.id}>

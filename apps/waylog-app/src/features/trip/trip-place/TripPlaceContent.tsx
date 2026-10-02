@@ -41,7 +41,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
   const mapRef = useRef<MapRef>(null);
   const { openBottomSheet } = useRecommendedPlaceDetailOverlay()
   const handlePlaceClick = (place: TripPlace) => {
-    mapRef.current?.panTo(place.lat, place.lng)
+    mapRef.current?.panTo(place.lat, place.lng, { paddingTop: headerInset })
   }
 
   const plannedPlaceIds = useMemo(() => new Set(routes.flatMap(route => route.placeIds)), [routes])
@@ -59,7 +59,7 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
     if (added == null) return
 
     setFocusedId(added.id)
-    mapRef.current?.panTo(added.lat, added.lng, FOCUS_ZOOM)
+    mapRef.current?.panTo(added.lat, added.lng, { zoom: FOCUS_ZOOM, paddingTop: headerInset })
   }
 
   return (
