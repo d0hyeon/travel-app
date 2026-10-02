@@ -12,6 +12,7 @@ import {
   isSameFlight,
   toFlightStatusKind,
   toIsoFromApiDateTime,
+  toTerminalLabel,
 } from './incheonFlightStatus.utils'
 
 const INCHEON_AIRPORT_CODE = 'ICN'
@@ -65,7 +66,7 @@ function toFlightStatus(item: IncheonFlightItem): FlightStatus {
     scheduledAt: scheduledAt ?? item.scheduleDateTime,
     estimatedAt: estimatedAt === scheduledAt ? undefined : estimatedAt,
     gate: item.gatenumber ?? undefined,
-    terminal: item.terminalid ?? undefined,
+    terminal: toTerminalLabel(item.terminalid ?? undefined),
   }
 }
 

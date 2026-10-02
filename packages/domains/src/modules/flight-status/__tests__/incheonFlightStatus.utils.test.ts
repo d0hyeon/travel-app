@@ -4,6 +4,7 @@ import {
   isSameFlight,
   toFlightStatusKind,
   toIsoFromApiDateTime,
+  toTerminalLabel,
 } from '../incheonFlightStatus.utils'
 import { getSupportedFlightStatusAirportCodes } from '../flightStatus.utils'
 describe('getSupportedFlightStatusAirportCodes', () => {
@@ -132,5 +133,23 @@ describe('getIsSameKstDate', () => {
 
   it('시각을 읽을 수 없으면 거짓이다', () => {
     expect(getIsSameKstDate('언제인지 모름', '2026-09-20T08:00:00+09:00')).toBe(false)
+  })
+})
+
+describe('toTerminalLabel', () => {
+  it('P01 은 1터미널이다', () => {
+    expect(toTerminalLabel('P01')).toBe('1터미널')
+  })
+
+  it('P03 은 2터미널이다', () => {
+    expect(toTerminalLabel('P03')).toBe('2터미널')
+  })
+
+  it('모르는 코드는 원문을 그대로 돌려준다', () => {
+    expect(toTerminalLabel('P02')).toBe('P02')
+  })
+
+  it('값이 없으면 없다고 답한다', () => {
+    expect(toTerminalLabel(undefined)).toBeUndefined()
   })
 })
