@@ -6,7 +6,7 @@ import { formatDisplayDate } from '@waylog/utility'
 import { forwardRef, useCallback, useImperativeHandle } from 'react'
 import { Controller, createFormControl, useFieldArray, useForm, useWatch } from 'react-hook-form'
 import { Button, Chip, IconButton, Stack, TextField, Typography } from '~/shared/components/design-system'
-import { Pressable, StyleSheet } from 'react-native'
+import { Pressable, StyleSheet, View } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
 import { useOverlay } from '../../../shared/hooks/useOverlay'
@@ -145,44 +145,40 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
               control={control}
               name={`payments.${index}.amount`}
               render={({ field: { value, onChange } }) => (
-                <Stack style={styles.amountField}>
-                  <TextField
-                    placeholder="0"
-                    style={[styles.amountInput, { paddingRight: trip.isOverseas ? 72 : 24, }]}
-                    variant="standard"
-                    keyboardType="number-pad"
-                    value={value > 0 ? value.toLocaleString() : ''}
-                    onChangeText={(text) => onChange(Number(text.replace(/\D/g, '')) || 0)}
-                  />
-                  {/* 통화는 지출 전체에 하나뿐이라 첫 행에서만 바꾼다. */}
-                  {trip.isOverseas ? (
-                    <>
-                      {index === 0 && (
-                        <Stack style={styles.currencyMenuAnchor}>
-                          <PopMenu
-                            trigger={(
-                              <Stack direction="row" alignItems="center" gap={0.5}>
-                                <Typography color="primary">{CurrencyCodeLabel[currency] ?? currency}</Typography>
-                                <MaterialIcons name="swap-horiz" size={22} color="#4C84FF" />
-                              </Stack>
-                            )}
-                            items={Object.values(CurrencyCodeMap).map((code) => (
-                              <PopMenu.Item key={code} onPress={() => setValue('currency', code)}>
-                                <Typography style={currency === code ? styles.currencyItemActive : styles.currencyItemInactive}>
-                                  {CurrencyCodeLabel[code]}
-                                </Typography>
-                              </PopMenu.Item>
-                            ))}
-                          />
+                <Stack direction="row" alignItems="center" gap={1} style={styles.amountField}>
+                  <View style={styles.amountInputContainer}>
+                    <TextField
+                      placeholder="0"
+                      style={styles.amountInput}
+                      variant="standard"
+                      fullWidth
+                      keyboardType="number-pad"
+                      value={value > 0 ? value.toLocaleString() : ''}
+                      onChangeText={(text) => onChange(Number(text.replace(/\D/g, '')) || 0)}
+                    />
+                  </View>
+                  {trip.isOverseas && index === 0 ? (
+                    <PopMenu
+                      trigger={(
+                        <Stack direction="row" alignItems="center" gap={0.5}>
+                          <Typography color="primary">{CurrencyCodeLabel[currency] ?? currency}</Typography>
+                          <MaterialIcons name="swap-horiz" size={22} color="#4C84FF" />
                         </Stack>
                       )}
-                    </>
+                      items={Object.values(CurrencyCodeMap).map((code) => (
+                        <PopMenu.Item key={code} onPress={() => setValue('currency', code)}>
+                          <Typography style={currency === code ? styles.currencyItemActive : styles.currencyItemInactive}>
+                            {CurrencyCodeLabel[code]}
+                          </Typography>
+                        </PopMenu.Item>
+                      ))}
+                    />
                   ) : (
-                    <Stack style={styles.currencyMenuAnchor}>
+                    <Stack direction="row" alignItems="center" gap={0.5}>
                       <Typography color="primary">{CurrencyCodeLabel[currency] ?? currency}</Typography>
+                      {trip.isOverseas && <View style={styles.currencyIconSpacer} />}
                     </Stack>
                   )}
-
                 </Stack>
               )}
             />
@@ -342,16 +338,18 @@ const styles = StyleSheet.create({
   },
   amountField: {
     flex: 7,
-    position: 'relative',
+    borderBottomWidth: 1,
+    borderColor: palette.divider,
   },
   amountInput: {
     textAlign: 'right',
-
+    borderBottomWidth: 0,
   },
-  currencyMenuAnchor: {
-    position: 'absolute',
-    right: 0,
-    bottom: 11,
+  amountInputContainer: {
+    flex: 1,
+  },
+  currencyIconSpacer: {
+    width: 22,
   },
   currencyItemActive: {
     color: '#4C84FF',
