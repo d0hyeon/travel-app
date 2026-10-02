@@ -1,10 +1,11 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import type { Photo } from '@waylog/domains/modules/photo'
 import { useState } from 'react'
-import * as Linking from 'expo-linking'
 import { Image, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native'
+import { toast } from 'sonner-native'
 import { Theme } from 'tamagui'
 import { Box, Button, Stack, Typography } from '~/shared/components/design-system'
+import { savePhotoToLibrary } from '~shared/modules/photo-library/savePhotoToLibrary'
 import { BottomSheet } from '../bottom-sheet/BottomSheet'
 import { useOverlay } from '../../hooks/useOverlay'
 import { useConfirmDialog } from '../confirm-dialog/useConfirmDialog'
@@ -56,6 +57,16 @@ export function PhotoBottomSheet({
   const canSelectPlace = places != null && onUpdate != null
   const currentPlace = places?.find((place) => place.placeId === currentPhoto.placeId)
 
+  const downloadPhoto = async (photo: Photo) => {
+    try {
+      const result = await savePhotoToLibrary(photo.url)
+      if (result === 'saved') toast.success('사진을 저장했어요')
+      else toast.error('사진 보관함 접근 권한이 필요해요')
+    } catch {
+      toast.error('사진을 저장하지 못했어요')
+    }
+  }
+
   const openPlacePicker = () =>
     overlay.open(({ isOpen: pickerOpen, close: closePicker }) => (
       <Theme name="dark">
@@ -95,7 +106,7 @@ export function PhotoBottomSheet({
                     <>
                       <PopMenu.Item
                         icon={<MaterialIcons name="download-for-offline" size={18} color="#fff" />}
-                        onPress={() => void Linking.openURL(currentPhoto.url)}
+                        onPress={() => void downloadPhoto(currentPhoto)}
                       >
                         다운로드
                       </PopMenu.Item>
