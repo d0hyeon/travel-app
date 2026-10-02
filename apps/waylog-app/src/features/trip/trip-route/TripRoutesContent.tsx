@@ -30,6 +30,7 @@ import { PlaceSelectSheet } from './trip-route-place/PlaceSelectSheet'
 import { usePlaceSelectSheet } from './trip-route-place/usePlaceSelectSheet'
 import { useActiveTripDay } from './trip-route-configuration/useActiveTripDay'
 import { useTripRoutePlaces } from './useTripRoutePlaces'
+import { useTripLayoutSetting } from '../trip-layout/useTripLayoutSetting'
 import { useVariation } from '@waylog/react'
 import { CurrenntLocationIconButton } from './components/CurrentLocationIconButton'
 import { View } from 'tamagui'
@@ -53,6 +54,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
     update,
   } = useTripRoutePlaces({ tripId, date: selectedDate })
 
+  const { headerInset } = useTripLayoutSetting({ variant: 'glass' })
   const viewConfig = useTripViewConfigValue()
   const mapRef = useRef<MapRef>(null)
   const overlay = useOverlay()
@@ -106,28 +108,30 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
   return (
     <>
       <Box style={styles.container} onLayout={({ nativeEvent }) => setContainerHeight(nativeEvent.layout.height)}>
-        {isRouteToolbarOpen && (
-          <TripRouteConfigToolbar
-            tripId={tripId}
-            date={selectedDate}
-            value={currentRoute.id}
-            onSelect={setRouteId}
-            onAdd={(route) => setRouteId(route.id)}
-            onDelete={(id) => {
-              if (currentRoute.id === id) {
-                const index = routes.findIndex(x => x.id === id);
-                setRouteId(routes[index - 1].id);
+        <Box pointerEvents="box-none" style={[styles.topOverlay, { top: headerInset }]}>
+          {isRouteToolbarOpen && (
+            <TripRouteConfigToolbar
+              tripId={tripId}
+              date={selectedDate}
+              value={currentRoute.id}
+              onSelect={setRouteId}
+              onAdd={(route) => setRouteId(route.id)}
+              onDelete={(id) => {
+                if (currentRoute.id === id) {
+                  const index = routes.findIndex(x => x.id === id);
+                  setRouteId(routes[index - 1].id);
+                }
+              }}
+              rightAddon={
+                <TripRouteConfigToolbar.CloseButton onPress={() => setIsRouteToolbarOpen(false)} />
               }
-            }}
-            rightAddon={
-              <TripRouteConfigToolbar.CloseButton onPress={() => setIsRouteToolbarOpen(false)} />
-            }
-          />
-        )}
-        <FloatingControl corner="top-left" zIndex={8}>
-          <TripWeatherIconButton tripId={tripId} />
-        </FloatingControl>
-        <TripRouteMapFloatingControls />
+            />
+          )}
+          <FloatingControl corner="top-left" zIndex={8}>
+            <TripWeatherIconButton tripId={tripId} />
+          </FloatingControl>
+          <TripRouteMapFloatingControls />
+        </Box>
         {currentCoordinate != null && (
           <FloatingControl corner="bottom-left" zIndex={8} style={{ bottom: `${sheetRatio * 100}%` }}>
             <CurrenntLocationIconButton
@@ -335,6 +339,7 @@ function Dot({ children }: { children?: string | number }) {
 const styles = StyleSheet.create({
   container: { flex: 1, position: 'relative', overflow: 'hidden' },
   mapControl: { backgroundColor: 'rgba(255, 255, 255, 0.8)' },
+  topOverlay: { position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 8 },
   mapArea: { position: 'absolute', top: 0, left: 0, right: 0 },
   sheetContent: { flex: 1, minHeight: 1 },
   routeHeader: { marginTop: 8 },
