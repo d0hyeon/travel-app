@@ -7,9 +7,9 @@ import {
   type CurrencyCode,
 } from '@waylog/domains/modules/expense'
 import { useTrip } from '@waylog/domains/modules/trip'
-import { useState } from 'react'
-import { StyleSheet, Pressable } from 'react-native'
-import { Stack, TextField, Typography } from '~/shared/components/design-system'
+import { StyleSheet } from 'react-native'
+import { Stack, Typography } from '~/shared/components/design-system'
+import { EditableText } from '../../../shared/components'
 import { palette } from '../../../shared/config/tokens'
 import { useExpenseSummary } from './useExpenseSummary'
 import { TripExchangeRateSettingButton } from './TripExchangeRateSettingButton'
@@ -68,36 +68,18 @@ interface FieldProps {
 }
 
 function ExchangeRateField({ code, value, onSubmit }: FieldProps) {
-  const [isEditing, setIsEditing] = useState(false)
-  const [draft, setDraft] = useState(String(value))
-
-  if (isEditing) {
-    return (
-      <TextField
-        autoFocus
-        variant="standard"
-        keyboardType="number-pad"
-        value={draft}
-        onChangeText={setDraft}
-        style={styles.exchangeRateInput}
-        onBlur={() => {
-          const rate = Number(draft.replace(/[^0-9.]/g, ''))
-          if (rate > 0) onSubmit(rate)
-          setIsEditing(false)
-        }}
-      />
-    )
-  }
-
   return (
-    <Pressable onPress={() => setIsEditing(true)}>
-      <Typography
-        variant="caption"
-        style={styles.exchangeRateLink}
-      >
-        {code} {value.toLocaleString()}원
-      </Typography>
-    </Pressable>
+    <EditableText
+      value={value.toString()}
+      onSubmit={(rate) => {
+        const parsed = Number(rate.replace(/[^0-9.]/g, ''))
+        if (parsed > 0) onSubmit(parsed)
+      }}
+      slotProps={{ field: { keyboardType: 'number-pad' } }}
+      format={(rate) => `${code} ${Number(rate).toLocaleString()}원`}
+      variant="caption"
+      style={styles.exchangeRateLink}
+    />
   )
 }
 
@@ -105,6 +87,5 @@ const styles = StyleSheet.create({
   header: { paddingHorizontal: 16, paddingVertical: 12, backgroundColor: palette.primary },
   summary: { flex: 1 },
   title: { color: '#fff' },
-  exchangeRateInput: { minWidth: 90, color: '#fff', fontSize: 11, textAlign: 'right' },
   exchangeRateLink: { color: '#fff', fontSize: 11, textDecorationLine: 'underline' },
 })
