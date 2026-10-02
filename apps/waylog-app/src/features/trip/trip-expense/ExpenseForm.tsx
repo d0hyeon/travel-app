@@ -1,11 +1,11 @@
 import { useAuth } from '@waylog/domains/clients'
-import { CurrencyCode as CurrencyCodeMap, CurrencyCodeLabel, getCurrenciesByDestinations, type CurrencyCode } from '@waylog/domains/modules/expense'
+import { CurrencyCode as CurrencyCodeMap, CurrencyCodeLabel, getCurrenciesByDestinations, getUsedCurrencies, useExpenses, type CurrencyCode } from '@waylog/domains/modules/expense'
 import { useTrip, useTripPlaces } from '@waylog/domains/modules/trip'
 import { useTripMembers } from '@waylog/domains/modules/trip-member'
 import { formatDisplayDate } from '@waylog/utility'
 import { forwardRef, useCallback, useImperativeHandle } from 'react'
 import { Controller, createFormControl, useFieldArray, useForm, useWatch } from 'react-hook-form'
-import { Button, Chip, IconButton, Stack, TextField, Typography } from '~/shared/components/design-system'
+import { Button, Chip, Divider, IconButton, Stack, TextField, Typography } from '~/shared/components/design-system'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
@@ -57,7 +57,16 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
   const { data: places } = useTripPlaces(tripId)
   const { data: auth } = useAuth({ required: false })
 
+  const { data: expenses } = useExpenses(tripId)
+
   const currencies = getCurrenciesByDestinations(trip.destinations)
+  const usedCurrencies = getUsedCurrencies(expenses)
+  const destinationCurrencyCodes = currencies.map((item) => item.code)
+  const sortedDestinationCurrencyCodes = [
+    ...destinationCurrencyCodes.filter((code) => usedCurrencies.includes(code)),
+    ...destinationCurrencyCodes.filter((code) => !usedCurrencies.includes(code)),
+  ]
+  const otherCurrencyCodes = (Object.values(CurrencyCodeMap) as CurrencyCode[]).filter((code) => !destinationCurrencyCodes.includes(code))
   const myMemberId = members.find((member) => member.userId === auth?.id)?.id
 
   const { control, handleSubmit, setValue } = useForm<ExpenseFormValues>({
@@ -165,13 +174,31 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
                           <MaterialIcons name="swap-horiz" size={22} color="#4C84FF" />
                         </Stack>
                       )}
-                      items={Object.values(CurrencyCodeMap).map((code) => (
-                        <PopMenu.Item key={code} onPress={() => setValue('currency', code)}>
-                          <Typography style={currency === code ? styles.currencyItemActive : styles.currencyItemInactive}>
-                            {CurrencyCodeLabel[code]}
-                          </Typography>
-                        </PopMenu.Item>
-                      ))}
+                      items={(
+                        <>
+                          {sortedDestinationCurrencyCodes.map((code) => (
+                            <PopMenu.Item key={code} onPress={() => setValue('currency', code)}>
+                              <Stack direction="row" alignItems="center" gap={1}>
+                                <Typography style={currency === code ? styles.currencyItemActive : styles.currencyItemInactive}>
+                                  {CurrencyCodeLabel[code]}
+                                </Typography>
+                                {usedCurrencies.includes(code) && <Chip size="small" label="사용됨" />}
+                              </Stack>
+                            </PopMenu.Item>
+                          ))}
+                          <Divider />
+                          {otherCurrencyCodes.map((code) => (
+                            <PopMenu.Item key={code} onPress={() => setValue('currency', code)}>
+                              <Stack direction="row" alignItems="center" gap={1}>
+                                <Typography style={currency === code ? styles.currencyItemActive : styles.currencyItemInactive}>
+                                  {CurrencyCodeLabel[code]}
+                                </Typography>
+                                {usedCurrencies.includes(code) && <Chip size="small" label="사용됨" />}
+                              </Stack>
+                            </PopMenu.Item>
+                          ))}
+                        </>
+                      )}
                     />
                   ) : (
                     <Stack direction="row" alignItems="center" gap={0.5}>
