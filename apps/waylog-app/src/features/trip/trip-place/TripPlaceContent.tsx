@@ -14,7 +14,7 @@ import { useTripPlaceAddition } from './useTripPlaceAddition';
 import { RecommendedMarkers } from '../trip-recommend/RecommendedMarkers';
 import { useRecommendedPlaceDetailOverlay } from '../trip-recommend/RecommendedPlaceDetailOverlay';
 import { TripPlaceItemButton } from './TripPlaceItemButton';
-import { TripPlaceMapFloatingControls } from './TripPlaceMapFloatingControls';
+import { TripPlaceMapSettingsButton } from './TripPlaceMapSettingsButton';
 import { useTripPlaces } from '@waylog/domains/modules/trip';
 import { FLOATING_TAB_BAR_RESERVE } from '../../../shared/components'
 import { useTripLayoutSetting } from '../trip-layout/useTripLayoutSetting'
@@ -37,7 +37,10 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
   const { data: places } = useTripPlaces(tripId)
   const { data: { routes } } = useTripRoutes(tripId)
   const { addPlace } = useTripPlaceAddition(tripId)
-  const { headerInset } = useTripLayoutSetting({ variant: 'glass' })
+  const { headerInset } = useTripLayoutSetting({
+    variant: 'glass',
+    actions: <TripPlaceMapSettingsButton />
+  })
 
   const mapRef = useRef<MapRef>(null);
   const { openBottomSheet } = useRecommendedPlaceDetailOverlay()
@@ -66,9 +69,6 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
   return (
     <>
       <Box style={styles.container}>
-        <Box pointerEvents="box-none" style={[styles.topOverlay, { top: headerInset }]}>
-          <TripPlaceMapFloatingControls />
-        </Box>
         {/* Map (전체) */}
         {/* 웹은 calc(%-10px) 를 쓰지만 RN 은 계산식을 못 읽는다. 비율만 남긴다. */}
         <Box
@@ -166,7 +166,6 @@ export default function TripPlaceContent({ tripId }: PlaceContentProps) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, position: 'relative', overflow: 'hidden' },
-  topOverlay: { position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 8 },
   mapArea: { position: 'absolute', top: 0, left: 0, right: 0 },
   fabArea: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: zLayer.mapFab },
   addPlaceButton: { position: 'absolute', bottom: 16, right: 16, width: 52, height: 52, borderRadius: 26 },

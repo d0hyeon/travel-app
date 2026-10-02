@@ -24,7 +24,7 @@ import { TripMarineActivityMapMarkers } from '../trip-marine-activity/TripMarine
 import { useTripPlaceFormOverlay } from '../trip-place/trip-place-form/useTripPlaceFormOverlay'
 import { TripWeatherIconButton } from '../trip-weather/TripWeatherIconButton'
 import { CurrenntLocationIconButton } from './components/CurrentLocationIconButton'
-import { TripRouteMapFloatingControls } from './components/TripRouteMapFloatingControls'
+import { TripRouteMapSettingsButton } from './components/TripRouteMapSettingsButton'
 import { TripRoutePlaceListItem } from './components/TripRoutePlaceListItem'
 import { TripRouteConfigToolbar } from './trip-route-configuration/TripRouteConfigToolbar'
 import { useActiveTripDay } from './trip-route-configuration/useActiveTripDay'
@@ -52,10 +52,10 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
     update,
   } = useTripRoutePlaces({ tripId, date: selectedDate })
 
-  const { headerInset } = useTripLayoutSetting({ variant: 'glass' })
   const viewConfig = useTripViewConfigValue()
   const mapRef = useRef<MapRef>(null)
   const overlay = useOverlay()
+  const { headerInset } = useTripLayoutSetting({ variant: 'glass', actions: <TripRouteMapSettingsButton /> })
 
 
   // 여행 중이면 현재 위치로 이동하고 가장 가까운 장소를 잡아준다.
@@ -129,7 +129,6 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
           <FloatingControl corner="top-left" zIndex={8}>
             <TripWeatherIconButton tripId={tripId} />
           </FloatingControl>
-          <TripRouteMapFloatingControls />
         </Box>
         {currentCoordinate != null && (
           <FloatingControl corner="bottom-left" zIndex={8} style={{ bottom: `${sheetRatio * 100}%` }}>

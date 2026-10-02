@@ -163,9 +163,9 @@ apps/
 │   │   │                        #   프로필 탭은 비로그인이면 라벨·아이콘이 '로그인'으로 바뀐다. 탭마다 자체 Suspense
 │   │   ├── features/           # 웹 features 구조를 미러링. trip/TripDetailStack.tsx·TripDetailTabs.tsx 가
 │   │   │   │                    #   여행 상세 스택+탭 중첩을 구성
-│   │   │   │                    #   trip/trip-layout/ — 여행 상세 레이아웃(헤더 배치·모양)의 소유자 TripLayout 과 요청 훅 useTripLayoutSetting({ variant }).
+│   │   │   │                    #   trip/trip-layout/ — 여행 상세 레이아웃(헤더 배치·모양)의 소유자 TripLayout 과 요청 훅 useTripLayoutSetting({ variant, actions }).
 │   │   │   │                    #   장소·계획 탭이 'glass' 를 요청하면 헤더가 지도 위에 얹히고(불투명 배경 페이드아웃, 버튼은 GlassSurface, 최상단~제목 아래는 TripHeaderShade 의 그라데이션 그림자+마스크 블러, 제목은 흰색) 220ms 모션으로 전환한다.
-│   │   │   │                    #   요청은 useFocusEffect 로 포커스된 동안만 유효(탭은 마운트가 유지됨). 훅이 돌려주는 headerInset 만큼 지도 위 컨트롤을 내린다
+│   │   │   │                    #   요청은 useFocusEffect 로 포커스된 동안만 유효(탭은 마운트가 유지됨). 탭이 actions(ReactNode)를 함께 요청하면 헤더 우측 글라스 알약에서 채팅 버튼 옆에 구분선과 함께 렌더링된다(없으면 채팅 버튼만). actions 는 헤더 트리에서 렌더링되므로 상태·훅을 스스로 가진 자기완결 컴포넌트(TripPlaceMapSettingsButton·TripRouteMapSettingsButton)여야 한다. 훅이 돌려주는 headerInset 만큼 지도 위 컨트롤을 내린다
 │   │   └── shared/
 │   │       ├── components/
 │   │       │   ├── design-system/ # 자체 디자인 시스템 — 웹 theme 어휘 + RN 표준 인터페이스
@@ -641,7 +641,7 @@ src/
 │       │   ├── TripPlaceContent.desktop.tsx
 │       │   ├── TripPlaceAdditionButton.tsx
 │       │   ├── TripPlaceItemButton.tsx
-│       │   ├── TripPlaceMapFloatingControls.tsx
+│       │   ├── TripPlaceMapSettingsButton.tsx
 │       │   ├── PlacePhotoSection.tsx
 │       │   └── trip-place-form/           # 장소 추가/수정 폼 & 오버레이
 │       ├── trip-recommend/                # 추천 장소

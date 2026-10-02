@@ -1,11 +1,9 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { IconButton } from '~/shared/components/design-system/IconButton'
-import { palette } from '../../../../shared/config/tokens'
 import { useOverlay } from '../../../../shared/hooks/useOverlay'
-import { FloatingControl } from '../../components/FloatingControl'
 import { TripRouteMapConfigDialog } from '../trip-route-configuration/TripRouteMapConfigDialog'
 
-export function TripRouteMapFloatingControls() {
+export function TripRouteMapSettingsButton() {
   const overlay = useOverlay()
 
   const openSettingDialog = () => {
@@ -15,11 +13,8 @@ export function TripRouteMapFloatingControls() {
   }
 
   return (
-    <FloatingControl corner="top-right" zIndex={8}>
-      <IconButton onPress={openSettingDialog}>
-        <MaterialIcons name="settings" size={22} color={palette.info} />
-      </IconButton>
-    </FloatingControl>
+    <IconButton accessibilityLabel="지도 설정" onPress={openSettingDialog}>
+      <MaterialIcons name="settings" size={20} />
+    </IconButton>
   )
 }
-
