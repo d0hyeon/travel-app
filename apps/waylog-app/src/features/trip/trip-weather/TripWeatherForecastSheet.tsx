@@ -76,6 +76,7 @@ function Resolved({ tripId, initialDate }: Pick<Props, 'tripId' | 'initialDate'>
   const [activeIndex, setActiveIndex] = useState(() =>
     toPageIndex(tripDates, initialDate, DAY_PARTS[getInitialDayPartIndex(initialDate, now)].dayPart),
   )
+  const [initialPageIndex] = useState(activeIndex)
   const activePage = pages[activeIndex] ?? pages[0]
 
   const scrollToPage = (index: number) => {
@@ -126,7 +127,7 @@ function Resolved({ tripId, initialDate }: Pick<Props, 'tripId' | 'initialDate'>
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
-            contentOffset={{ x: activeIndex * width, y: 0 }}
+            contentOffset={{ x: initialPageIndex * width, y: 0 }}
             onMomentumScrollEnd={(event) => {
               const index = Math.round(event.nativeEvent.contentOffset.x / width)
               if (index !== activeIndex) setActiveIndex(index)
