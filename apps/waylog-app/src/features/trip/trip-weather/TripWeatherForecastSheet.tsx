@@ -15,6 +15,7 @@ import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet
 import { ErrorBoundary } from '@waylog/react'
 import { AsyncBoundary } from '@waylog/react'
 import {
+  Button,
   Stack,
   Tab,
   Tabs,
@@ -53,15 +54,19 @@ interface Props {
 
 export function TripWeatherForecastSheet({ tripId, initialDate, ...props }: Props) {
   return (
-    <BottomSheet snapPoints={[0.95]} defaultSnapIndex={0} {...props}>
+    <BottomSheet snapPoints={[0.95]} defaultSnapIndex={0} safeArea {...props}>
       <AsyncBoundary pendingFallback={null}>
-        <Resolved tripId={tripId} initialDate={initialDate} />
+        <Resolved tripId={tripId} initialDate={initialDate} onDismiss={props.onDismiss} />
       </AsyncBoundary>
     </BottomSheet>
   )
 }
 
-function Resolved({ tripId, initialDate }: Pick<Props, 'tripId' | 'initialDate'>) {
+function Resolved({
+  tripId,
+  initialDate,
+  onDismiss,
+}: Pick<Props, 'tripId' | 'initialDate' | 'onDismiss'>) {
   const { data: trip } = useTrip(tripId)
   const { width } = useWindowDimensions()
   const scrollRef = useRef<Animated.ScrollView>(null)
@@ -160,6 +165,11 @@ function Resolved({ tripId, initialDate }: Pick<Props, 'tripId' | 'initialDate'>
           </BottomSheet.ScrollView>
         </Stack>
       </BottomSheet.Body>
+      <BottomSheet.BottomActions>
+        <Button variant="contained" size="large" fullWidth onPress={onDismiss}>
+          확인
+        </Button>
+      </BottomSheet.BottomActions>
     </>
   )
 }
