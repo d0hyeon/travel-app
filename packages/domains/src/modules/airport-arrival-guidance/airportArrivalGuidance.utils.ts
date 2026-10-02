@@ -9,6 +9,7 @@ import {
   type DepartureTerminalTicket,
   type RecommendedDepartureGateInput,
 } from "./airportArrivalGuidance.types";
+import { toTerminalLabel } from "../flight-status";
 
 export function getConsistentDepartureTerminal(
   tickets: readonly DepartureTerminalTicket[],
@@ -172,4 +173,12 @@ export function getRecommendedDepartureGate(
 
 export function toDepartureGateLabel(gateId: string): string {
   return GateIdLabel[gateId as keyof typeof GateIdLabel] ?? gateId;
+}
+
+export function toGuidanceTerminalLabel(
+  guidance: Pick<AirportArrivalGuidance, "sourceKind" | "terminal">,
+): string {
+  if (guidance.sourceKind === "domestic") return `${guidance.terminal} 터미널`;
+
+  return toTerminalLabel(guidance.terminal) ?? guidance.terminal;
 }

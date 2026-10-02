@@ -1,6 +1,7 @@
 import { Box, Skeleton, Stack, Typography } from '@mui/material'
 import {
   toDepartureGateLabel,
+  toGuidanceTerminalLabel,
   useAirportArrivalGuidance,
   type AirportCongestionTier,
 } from '@waylog/domains/modules/airport-arrival-guidance'
@@ -54,7 +55,7 @@ function Resolved({ tripId, transportId }: Props) {
           까지 공항 도착을 권장해요
         </Typography>
         <Typography fontSize={12.5} color="text.secondary">
-          {[carrierLabel, `${guidance.terminal} 터미널`, `${format(new Date(guidance.appliedDepartureAt), 'M/d HH:mm')} 출발`]
+          {[carrierLabel, toGuidanceTerminalLabel(guidance), `${format(new Date(guidance.appliedDepartureAt), 'M/d HH:mm')} 출발`]
             .filter((value): value is string => value != null)
             .join(' · ')}
         </Typography>

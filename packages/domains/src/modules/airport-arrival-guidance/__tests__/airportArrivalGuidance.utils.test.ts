@@ -4,6 +4,7 @@ import {
   getCongestionTier,
   getConsistentDepartureTerminal,
   getRecommendedDepartureGate,
+  toGuidanceTerminalLabel,
 } from '../airportArrivalGuidance.utils'
 import type {
   AirportArrivalGuidanceInput,
@@ -294,5 +295,27 @@ describe('airport arrival guidance', () => {
     })
 
     expect(gate).toBeUndefined()
+  })
+})
+
+describe('toGuidanceTerminalLabel', () => {
+  it('해외 안내는 P01 을 1터미널로 표시한다', () => {
+    expect(toGuidanceTerminalLabel({ sourceKind: 'forecast', terminal: 'P01' })).toBe('1터미널')
+  })
+
+  it('해외 안내는 P02 를 1터미널(탑승동)으로 표시한다', () => {
+    expect(toGuidanceTerminalLabel({ sourceKind: 'forecast', terminal: 'P02' })).toBe('1터미널(탑승동)')
+  })
+
+  it('해외 안내는 P03 을 2터미널로 표시한다', () => {
+    expect(toGuidanceTerminalLabel({ sourceKind: 'forecast', terminal: 'P03' })).toBe('2터미널')
+  })
+
+  it('해외 안내에서 모르는 코드는 원문을 그대로 표시한다', () => {
+    expect(toGuidanceTerminalLabel({ sourceKind: 'forecast', terminal: 'P09' })).toBe('P09')
+  })
+
+  it('국내 안내는 탑승권 터미널 뒤에 터미널을 붙여 표시한다', () => {
+    expect(toGuidanceTerminalLabel({ sourceKind: 'domestic', terminal: '1' })).toBe('1 터미널')
   })
 })

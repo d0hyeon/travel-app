@@ -1,5 +1,6 @@
 import {
   toDepartureGateLabel,
+  toGuidanceTerminalLabel,
   useAirportArrivalGuidance,
   type AirportCongestionTier,
 } from '@waylog/domains/modules/airport-arrival-guidance'
@@ -52,7 +53,7 @@ function Resolved({ tripId, transportId }: Props) {
           까지 공항 도착을 권장해요
         </Typography>
         <Typography style={styles.detail}>
-          {[carrierLabel, `${guidance.terminal} 터미널`, `${format(new Date(guidance.appliedDepartureAt), 'M/d HH:mm')} 출발`]
+          {[carrierLabel, toGuidanceTerminalLabel(guidance), `${format(new Date(guidance.appliedDepartureAt), 'HH:mm')} 출발`]
             .filter((value): value is string => value != null)
             .join(' · ')}
         </Typography>
@@ -69,11 +70,8 @@ function Resolved({ tripId, transportId }: Props) {
         </View>
       ) : (
         <View style={styles.congestionRow}>
-          <Typography style={styles.congestionLabel}>공항 예측 혼잡도</Typography>
+          <Typography style={styles.congestionLabel}>공항 예상 혼잡도</Typography>
           <CongestionChip tier={guidance.congestionTier} />
-          <Typography style={styles.detail}>
-            · {format(new Date(guidance.observedAt), 'M/d HH:mm')} 기준
-          </Typography>
         </View>
       )}
     </View>
@@ -117,9 +115,9 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: 12, fontWeight: '700', color: '#4C84FF' },
   headline: { gap: 4 },
-  arrivalTime: { fontSize: 17, fontWeight: '900', lineHeight: 23 },
+  arrivalTime: { fontSize: 17, lineHeight: 23 },
   arrivalTimeAccent: { color: '#4C84FF' },
-  detail: { fontSize: 12.5, color: '#787c7e' },
+  detail: { fontSize: 12.5 },
   realtimeRow: {
     flexDirection: 'row',
     alignItems: 'center',
