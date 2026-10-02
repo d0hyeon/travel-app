@@ -5,28 +5,25 @@ import { StyleSheet } from 'react-native'
 import Animated, { useAnimatedStyle, type SharedValue } from 'react-native-reanimated'
 
 const SHADE_COLORS = [
-  'rgba(0,0,0,0.55)',
-  'rgba(0,0,0,0.4)',
-  'rgba(0, 0, 0, 0.25)',
-  'rgba(0, 0, 0, 0.13)', // 컨텐츠 하단 시작 
-  'rgba(0,0,0,0.01)',
+  'rgba(0,0,0,0.3)',
+  'rgba(0,0,0,0.2)',
+  'rgba(0, 0, 0, 0.13)',
+  'rgba(0, 0, 0, 0.1)', // 컨텐츠 하단 시작 
   'rgba(0,0,0,0)',
 ] as const
 const SHADE_LOCATIONS = [0, 0.3, 0.55, 0.75, 0.9, 1] as const
 
 const BLUR_MASK_COLORS = [
   'rgba(0,0,0,0.9)',
-  'rgba(0,0,0,0.75)',
+  'rgba(0,0,0,0.8)',
   'rgba(0,0,0,0.6)',
-  'rgba(0,0,0,0.4)',
   'rgba(0,0,0,0.3)',
-  'rgba(0,0,0,0.01)',
-  'rgba(0,0,0,0)',
+  'rgba(0,0,0,0.1)',
 ] as const
 const BLUR_MASK_LOCATIONS = [0, 0.3, 0.55, 0.75, 0.9, 1] as const
 const BLUR_INTENSITY = 30
 
-const SHADE_OVERHANG = 40
+const SHADE_OVERHANG = 20
 
 interface Props {
   progress: SharedValue<number>

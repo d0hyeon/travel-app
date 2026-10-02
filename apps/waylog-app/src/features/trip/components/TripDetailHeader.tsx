@@ -18,7 +18,7 @@ const GLASS_BUTTON_BLUR_INTENSITY = 20
 const GLASS_BUTTON_TINT = 'rgba(255,255,255,0.3)'
 const GLASS_BUTTON_SIZE = 44
 const GLASS_BUTTON_HIDDEN_SCALE = 0.6
-const TITLE_SHADOW_COLOR = 'rgba(0,0,0,0.7)'
+const TITLE_SHADOW_COLOR = 'rgba(0,0,0, 0.5)'
 const TITLE_SHADOW_HIDDEN = 'rgba(0,0,0,0)'
 
 export function TripDetailHeader() {
@@ -61,7 +61,7 @@ function Resolved() {
       <Stack style={styles.titleSlot}>
         <EditableText
           value={trip.name}
-          variant="subtitle2"
+          variant="body1"
           as={ShadeAwareText}
           endIcon={<AnimatedMaterialIcons name="edit" size={15} style={editIconColorStyle} />}
           onSubmit={async (name) => {
