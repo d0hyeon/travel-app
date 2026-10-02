@@ -169,3 +169,12 @@ export function findMyTicket(
 export function hasOnlySharedTickets(tickets: TripTransportTicket[]): boolean {
   return tickets.length > 0 && tickets.every((x) => x.memberId == null);
 }
+
+const TICKET_STORAGE_PREFIX = "trip-transport-tickets/";
+
+export function getTicketStoragePath(imageUrl: string): string | undefined {
+  const prefixIndex = imageUrl.indexOf(TICKET_STORAGE_PREFIX);
+  if (prefixIndex === -1) return undefined;
+
+  return imageUrl.slice(prefixIndex).split("?")[0];
+}

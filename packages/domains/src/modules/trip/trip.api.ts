@@ -10,6 +10,7 @@ import {
   type ExchangeRateEntry,
 } from "../expense/currency";
 import { deletePhotosByTripId } from "../photo";
+import { getTripTicketImages, removeTicketImages } from "../trip-transport";
 import type { Trip } from "../trip";
 import { isIncludeOverseas } from "./trip.utils";
 
@@ -182,10 +183,13 @@ export async function updateTrip(
 }
 
 export async function deleteTrip(id: string): Promise<boolean> {
+  const ticketImages = await getTripTicketImages(id);
   await deletePhotosByTripId(id);
 
   const { error } = await supabase.from("trips").delete().eq("id", id);
 
   if (error) throw error;
+
+  await removeTicketImages(ticketImages);
   return true;
 }

@@ -7,6 +7,7 @@ import type {
   TripTransportCarrier,
   TripTransportTicket,
 } from './tripTransport.types'
+import { getTicketStoragePath } from './tripTransport.utils'
 
 type RawTicket = {
   id: string
@@ -202,10 +203,39 @@ export async function updateTripTransport({ id, carrier, ...data }: UpdateTripTr
   return toData(updated!)
 }
 
+export async function removeTicketImages(images: (string | null)[]) {
+  const storagePaths = images.flatMap((image) => {
+    const storagePath = image == null ? undefined : getTicketStoragePath(image)
+    return storagePath == null ? [] : [storagePath]
+  })
+  if (storagePaths.length === 0) return
+
+  await supabase.functions.invoke('storage-delete', { body: { storagePaths } })
+}
+
+export async function getTripTicketImages(tripId: string): Promise<(string | null)[]> {
+  const { data, error } = await supabase
+    .from('trip_transport_tickets')
+    .select('image, trip_transports!inner(trip_id)')
+    .eq('trip_transports.trip_id', tripId)
+
+  if (error) throw error
+  return data.map((ticket) => ticket.image)
+}
+
 export async function removeTripTransport(id: string) {
+  const { data: tickets, error: ticketsError } = await supabase
+    .from('trip_transport_tickets')
+    .select('image')
+    .eq('transport_id', id)
+
+  if (ticketsError) throw ticketsError
+
   const { error } = await supabase.from('trip_transports').delete().eq('id', id)
 
   if (error) throw error
+
+  await removeTicketImages(tickets.map((ticket) => ticket.image))
 }
 
 export type CreateTripTransportTicket = {
@@ -260,7 +290,17 @@ export async function updateTripTransportTicket({ id, ...info }: UpdateTripTrans
 }
 
 export async function removeTripTransportTicket(id: string) {
+  const { data: ticket, error: ticketError } = await supabase
+    .from('trip_transport_tickets')
+    .select('image')
+    .eq('id', id)
+    .maybeSingle()
+
+  if (ticketError) throw ticketError
+
   const { error } = await supabase.from('trip_transport_tickets').delete().eq('id', id)
 
   if (error) throw error
+
+  await removeTicketImages([ticket?.image ?? null])
 }

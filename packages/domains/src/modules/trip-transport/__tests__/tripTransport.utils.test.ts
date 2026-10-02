@@ -3,6 +3,7 @@ import {
   findMyTicket,
   getCarrierInfo,
   getOperationalFields,
+  getTicketStoragePath,
   isOvernightArrival,
   groupByDepartureDate,
   splitByDeparture,
@@ -207,5 +208,29 @@ describe('isOvernightArrival', () => {
     }
 
     expect(isOvernightArrival(시차도착)).toBe(true)
+  })
+})
+
+describe('getTicketStoragePath', () => {
+  it('공개 URL 에서 R2 키를 뽑는다', () => {
+    expect(
+      getTicketStoragePath('https://cdn.waylog.me/trip-transport-tickets/t1/abc.webp'),
+    ).toBe('trip-transport-tickets/t1/abc.webp')
+  })
+
+  it('공개 URL 에 경로 접두가 있어도 티켓 키부터 뽑는다', () => {
+    expect(
+      getTicketStoragePath('https://example.r2.dev/waylog/trip-transport-tickets/t1/abc.jpg'),
+    ).toBe('trip-transport-tickets/t1/abc.jpg')
+  })
+
+  it('쿼리스트링은 키에 포함하지 않는다', () => {
+    expect(
+      getTicketStoragePath('https://cdn.waylog.me/trip-transport-tickets/t1/abc.webp?v=1'),
+    ).toBe('trip-transport-tickets/t1/abc.webp')
+  })
+
+  it('티켓 경로가 아니면 undefined 를 돌려 다른 파일을 지우지 않는다', () => {
+    expect(getTicketStoragePath('https://cdn.waylog.me/user-avatars/u1/abc.webp')).toBeUndefined()
   })
 })

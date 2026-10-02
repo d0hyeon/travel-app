@@ -871,6 +871,10 @@ src/
   (`is_public`·place 연결·커뮤니티 노출을 물고 있다).
   웹·앱의 `uploadTransportTicketImage`가 기존 스토리지 경로만 타고,
   저장 경로는 `trip-transport-tickets/{transportId}/{uuid}`다.
+  교통편·티켓·여행을 지우면 DB 행이 먼저 지워지고(교통편은 `ON DELETE CASCADE`),
+  그 뒤 `getTicketStoragePath`로 `image` URL 에서 뽑은 키를 `storage-delete`에 넘겨
+  R2 파일도 지운다. 파일 삭제 실패는 삭제를 막지 않는다 — 고아 파일만 남는다.
+  계정 삭제는 `prepare_account_deletion`이 티켓 이미지 키를 모아 `delete-account`가 지운다.
 - **터미널·게이트·좌석은 티켓 행의 컬럼**(`terminal`·`gate`·`seat`)이다.
   탑승권에 인쇄된 값이라 근거인 이미지와 같은 행에 둔다. 교통편에 두면
   일행이 한 값을 공유해 서로 덮어쓴다.
