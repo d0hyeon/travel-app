@@ -145,11 +145,15 @@ describe('toTerminalLabel', () => {
     expect(toTerminalLabel('P03')).toBe('2터미널')
   })
 
-  it('모르는 코드는 원문을 그대로 돌려준다', () => {
-    expect(toTerminalLabel('P02')).toBe('P02')
+  it('P02 는 1터미널(탑승동)이다', () => {
+    expect(toTerminalLabel('P02')).toBe('1터미널(탑승동)')
   })
 
-  it('값이 없으면 없다고 답한다', () => {
+  it('모르는 코드는 undefined 다', () => {
+    expect(toTerminalLabel('P09')).toBeUndefined()
+  })
+
+  it('값이 없으면 undefined 다', () => {
     expect(toTerminalLabel(undefined)).toBeUndefined()
   })
 })

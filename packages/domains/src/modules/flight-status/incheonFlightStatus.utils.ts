@@ -1,4 +1,6 @@
+import { arrayIncludes, reverseKeyValue } from "@waylog/utility";
 import { FlightStatusKind } from "./flightStatus.types";
+import { IncheonAirportTerminalId } from "./incheonAirportTerminal";
 
 const FLIGHT_ID_PATTERN = /^([A-Z0-9]{2})(\d+)[A-Z]*$/;
 
@@ -78,15 +80,13 @@ export function getIsSameKstDate(left: string, right: string) {
   return leftDate === toKstDate(right);
 }
 
-const TERMINAL_LABEL_BY_ID: Record<string, string> = {
-  P01: "1터미널",
-  P03: "2터미널",
-};
+const TerminalLabel = reverseKeyValue(IncheonAirportTerminalId);
+const TerminalIds = Object.values(IncheonAirportTerminalId);
 
 export function toTerminalLabel(
   terminalId: string | undefined,
 ): string | undefined {
-  if (terminalId == null) return undefined;
-
-  return TERMINAL_LABEL_BY_ID[terminalId] ?? terminalId;
+  if (arrayIncludes(TerminalIds, terminalId)) {
+    return TerminalLabel[terminalId];
+  }
 }
