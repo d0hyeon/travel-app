@@ -306,22 +306,27 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
             </BottomSheet.GestureArea>
           </BottomSheet.Body>
         </BottomSheet>
-        {canShowRouteMenu && (
-          <MenuFab onPress={addPlaces} style={{ bottom: `${sheetRatio * 100}%` }}>
-            <MenuFab.Item
-              icon={<MaterialIcons name="add-location-alt" size={18} color={palette.primary} />}
-              onPress={addPlaces}
-            >
-              장소 추가
-            </MenuFab.Item>
-            <MenuFab.Item
-              icon={<MaterialIcons name="route" size={18} color={palette.primary} />}
-              onPress={() => setIsRouteToolbarOpen(true)}
-            >
-              경로 추가
-            </MenuFab.Item>
-          </MenuFab>
-        )}
+        {/**
+         * @NOTE
+         * 공간이 모자랄 때 조건부 렌더링이나 display: 'none' 으로 숨기면, 
+         * 메뉴의 유리(GlassView) 항목이 투명하게 그려진다. 
+         *  - 추론(미검증): 네이티브 뷰가 화면에서 떼였다 붙으면 Liquid Glass 가 배경 샘플링을 다시 잡지 못하는걸로 추측
+         *  - 임시 조치 : 언마운트하지 않고 바텀시트(zIndex 가 더 높다) 뒤로 내려 숨긴다.
+         * */}
+        <MenuFab onPress={addPlaces} style={{ bottom: canShowRouteMenu ? `${sheetRatio * 100}%` : 0 }}>
+          <MenuFab.Item
+            icon={<MaterialIcons name="add-location-alt" size={18} color={palette.primary} />}
+            onPress={addPlaces}
+          >
+            장소 추가
+          </MenuFab.Item>
+          <MenuFab.Item
+            icon={<MaterialIcons name="route" size={18} color={palette.primary} />}
+            onPress={() => setIsRouteToolbarOpen(true)}
+          >
+            경로 추가
+          </MenuFab.Item>
+        </MenuFab>
       </Box>
     </>
   )
