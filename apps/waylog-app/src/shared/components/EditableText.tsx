@@ -128,6 +128,8 @@ const TRANSITION_CONFIG = {
 };
 const OVERLAY_SCALE = 2;
 
+let hasPlayedTransition = false;
+
 
 
 interface FieldProps extends ComponentProps<typeof TextOverlayField> {
@@ -159,9 +161,15 @@ function Field(props: FieldProps) {
   useEffect(() => {
     if (!isActivedKeyboard || !props.isOpen) return;
 
-    play({ from: textRef.current, to: overlayInputRef.current, ...TRANSITION_CONFIG });
     opacity.set(withTiming(1, { duration: 200 }));
-    scale.set(withTiming(OVERLAY_SCALE, TRANSITION_CONFIG));
+
+    if (hasPlayedTransition) {
+      play({ from: textRef.current, to: overlayInputRef.current, ...TRANSITION_CONFIG });
+      scale.set(withTiming(OVERLAY_SCALE, TRANSITION_CONFIG));
+    } else {
+      scale.set(OVERLAY_SCALE);
+    }
+    hasPlayedTransition = true;
   }, [props.isOpen, isActivedKeyboard]);
 
   return (
