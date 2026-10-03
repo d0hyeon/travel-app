@@ -8,6 +8,14 @@ export interface FlightGateChange {
 
 type Row = { gate: string | null; prev_gate: string | null }
 
+function toNullIfBlank(value: string | null) {
+  return value?.trim() || null
+}
+
+export function toFlightGateChange(row: Row): FlightGateChange {
+  return { gate: toNullIfBlank(row.gate), prevGate: toNullIfBlank(row.prev_gate) }
+}
+
 async function getFlightGateChange(transportId: string): Promise<FlightGateChange | null> {
   const { data, error } = await supabase
     .from('trip_transport_flight_status')
@@ -18,7 +26,7 @@ async function getFlightGateChange(transportId: string): Promise<FlightGateChang
   if (error) throw error
   if (data == null) return null
 
-  return { gate: data.gate, prevGate: data.prev_gate }
+  return toFlightGateChange(data)
 }
 
 export function useFlightGateChange(transportId: string | undefined): FlightGateChange | null {

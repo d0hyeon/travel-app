@@ -35,7 +35,7 @@ const GATE_WATCHABLE = ['scheduled', 'delayed']
 // 결항·회항·출발·도착 이후엔 알려도 늦거나 무의미하다.
 export function getIsGateChanged(current: WatchedStatus, notified: NotifiedStatus) {
   if (!GATE_WATCHABLE.includes(current.kind)) return false
-  if (current.gate == null) return false
+  if (current.gate == null || current.gate === '') return false
 
   return current.gate !== notified.lastNotifiedGate
 }

@@ -37,7 +37,7 @@ export function toFlightStatusFromRow(
     kind: toFlightStatusKindFromRow(row.kind),
     scheduledAt: row.scheduled_at,
     estimatedAt: hasChangedEstimate ? (row.estimated_at ?? undefined) : undefined,
-    gate: row.gate ?? undefined,
+    gate: row.gate?.trim() || undefined,
     terminal: toTerminalLabel(row.terminal ?? undefined),
   };
 }

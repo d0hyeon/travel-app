@@ -118,6 +118,24 @@ describe("getShouldNotify — 탑승구 변경", () => {
     ).toBe(true);
   });
 
+  it("탑승구가 빈 문자열이면 아직 배정 전이라 보내지 않는다", () => {
+    expect(
+      getShouldNotify(
+        { kind: FlightStatusKind.예정, estimatedAt: null, gate: "" },
+        없음,
+      ),
+    ).toBe(false);
+  });
+
+  it("탑승구가 빈 문자열이면 아직 배정 전이라 보내지 않는다", () => {
+    expect(
+      getShouldNotify(
+        { kind: FlightStatusKind.예정, estimatedAt: null, gate: "" },
+        없음,
+      ),
+    ).toBe(false);
+  });
+
   it("탑승구가 바뀌면 보낸다", () => {
     expect(
       getShouldNotify(

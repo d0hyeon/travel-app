@@ -61,14 +61,18 @@ function toDurationText(minutes: number) {
   return rest === 0 ? `${hours}시간` : `${hours}시간 ${rest}분`
 }
 
+function getIsFilled(gate: string | null): gate is string {
+  return gate != null && gate !== ''
+}
+
 function getIsGateChanged(gateChange: FlightGateChange | null): gateChange is FlightGateChange & {
   gate: string
   prevGate: string
 } {
   return (
     gateChange != null &&
-    gateChange.gate != null &&
-    gateChange.prevGate != null &&
+    getIsFilled(gateChange.gate) &&
+    getIsFilled(gateChange.prevGate) &&
     gateChange.gate !== gateChange.prevGate
   )
 }

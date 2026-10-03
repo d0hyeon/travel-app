@@ -36,6 +36,14 @@ describe('toFlightStatusFromRow', () => {
     expect(toFlightStatusFromRow({ ...row, terminal: 'P09' })?.terminal).toBeUndefined()
   })
 
+  it('게이트가 빈 문자열이면 비운다', () => {
+    expect(toFlightStatusFromRow({ ...row, gate: '' })?.gate).toBeUndefined()
+  })
+
+  it('게이트가 빈 문자열이면 비운다', () => {
+    expect(toFlightStatusFromRow({ ...row, gate: '' })?.gate).toBeUndefined()
+  })
+
   it('터미널과 게이트가 없으면 비운다', () => {
     const status = toFlightStatusFromRow({ ...row, terminal: null, gate: null })
 

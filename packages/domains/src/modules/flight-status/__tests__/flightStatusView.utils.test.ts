@@ -68,6 +68,42 @@ describe('toFlightStatusView', () => {
     expect(toFlightStatusView({ kind: FlightStatusKind.예정, scheduledAt, gate: '41' })).toBeNull()
   })
 
+  it('이전 탑승구가 빈 문자열이면 대조할 수 없어 카드를 만들지 않는다', () => {
+    expect(
+      toFlightStatusView(
+        { kind: FlightStatusKind.예정, scheduledAt, gate: '241' },
+        { gate: '241', prevGate: '' },
+      ),
+    ).toBeNull()
+  })
+
+  it('탑승구가 빈 문자열이면 대조할 수 없어 카드를 만들지 않는다', () => {
+    expect(
+      toFlightStatusView(
+        { kind: FlightStatusKind.예정, scheduledAt },
+        { gate: '', prevGate: '23' },
+      ),
+    ).toBeNull()
+  })
+
+  it('이전 탑승구가 빈 문자열이면 대조할 수 없어 카드를 만들지 않는다', () => {
+    expect(
+      toFlightStatusView(
+        { kind: FlightStatusKind.예정, scheduledAt, gate: '241' },
+        { gate: '241', prevGate: '' },
+      ),
+    ).toBeNull()
+  })
+
+  it('탑승구가 빈 문자열이면 대조할 수 없어 카드를 만들지 않는다', () => {
+    expect(
+      toFlightStatusView(
+        { kind: FlightStatusKind.예정, scheduledAt },
+        { gate: '', prevGate: '23' },
+      ),
+    ).toBeNull()
+  })
+
   it('출발·도착은 알릴 변경이 없어 카드를 만들지 않는다', () => {
     expect(toFlightStatusView({ kind: FlightStatusKind.출발, scheduledAt })).toBeNull()
     expect(toFlightStatusView({ kind: FlightStatusKind.도착, scheduledAt })).toBeNull()

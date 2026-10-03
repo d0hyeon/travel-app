@@ -222,14 +222,14 @@ Deno.serve(async () => {
     const status: WatchedStatus = {
       kind: toFlightStatusKind(flight.remark),
       estimatedAt: toIsoFromApiDateTime(flight.estimatedDateTime),
-      gate: flight.gatenumber,
+      gate: flight.gatenumber?.trim() || null,
     }
 
     const previous = previousById.get(transport.id)
     const notifiedStatus = {
       lastNotifiedKind: previous?.last_notified_kind ?? null,
       lastNotifiedEstimatedAt: previous?.last_notified_estimated_at ?? null,
-      lastNotifiedGate: previous?.last_notified_gate ?? null,
+      lastNotifiedGate: previous?.last_notified_gate || null,
     }
     const isWithinNotifyWindow = getIsWithinNotifyWindow(transport.departure_at, now, notifyWindowHours)
     const shouldNotify =
@@ -244,9 +244,10 @@ Deno.serve(async () => {
     // 알림 발송 여부와 무관하게, 실제 gate 가 바뀐 순간의 직전 값을 그대로
     // 남긴다. 안 바뀌었으면 이미 저장된 이전 값을 지키고, 저장된 적이
     // 없으면(첫 조회) 비교 대상이 없어 비워둔다.
+    const previousGate = previous?.gate || null
     const isRealGateChanged =
-      previous != null && previous.gate != null && status.gate != null && previous.gate !== status.gate
-    const prevGate = isRealGateChanged ? previous.gate : (previous?.prev_gate ?? null)
+      previousGate != null && status.gate != null && previousGate !== status.gate
+    const prevGate = isRealGateChanged ? previousGate : (previous?.prev_gate || null)
 
     await supabase.from('trip_transport_flight_status').upsert({
       transport_id: transport.id,
@@ -254,14 +255,14 @@ Deno.serve(async () => {
       scheduled_at: toIsoFromApiDateTime(flight.scheduleDateTime),
       estimated_at: status.estimatedAt,
       gate: status.gate,
-      terminal: flight.terminalid,
+      terminal: flight.terminalid?.trim() || null,
       prev_gate: prevGate,
       // 보내지 못했으면 직전 값을 지킨다. 지우면 다음 턴에 다시 보낸다.
       last_notified_kind: shouldNotify ? status.kind : (previous?.last_notified_kind ?? null),
       last_notified_estimated_at: shouldNotify
         ? status.estimatedAt
         : (previous?.last_notified_estimated_at ?? null),
-      last_notified_gate: shouldNotify ? status.gate : (previous?.last_notified_gate ?? null),
+      last_notified_gate: shouldNotify ? status.gate : (previous?.last_notified_gate || null),
       checked_at: new Date().toISOString(),
     })
   }
