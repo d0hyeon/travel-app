@@ -53,6 +53,20 @@ export function SupportedNotificationSheet({
             </Group>
           </Section>
 
+          <Section title="탑승 안내" caption="탑승 준비 시간을 놓치지 않도록 알려드려요">
+            <Group label="항공">
+              <Item label="대상" description="모든 항공편" />
+              <Item
+                label="푸시 알림"
+                description="출발 30분 전에 알려드려요. 탑승은 보통 출발 20분 전부터 시작해요"
+              />
+            </Group>
+            <Group label="버스/기차">
+              <Item label="대상" description="모든 버스·기차" />
+              <Item label="푸시 알림" description="출발 10분 전에 알려드려요" />
+            </Group>
+          </Section>
+
           <Stack direction="row" alignItems="flex-start" gap={0.5}>
             <MaterialIcons name="info-outline" size={14} color={palette.textDisabled} style={styles.noticeIcon} />
             <Typography variant="caption" color="text.disabled" style={styles.notice}>
