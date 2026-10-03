@@ -921,9 +921,6 @@ export type Database = {
           estimated_at: string | null
           gate: string | null
           kind: string
-          last_notified_estimated_at: string | null
-          last_notified_gate: string | null
-          last_notified_kind: string | null
           prev_gate: string | null
           scheduled_at: string | null
           terminal: string | null
@@ -936,9 +933,6 @@ export type Database = {
           estimated_at?: string | null
           gate?: string | null
           kind: string
-          last_notified_estimated_at?: string | null
-          last_notified_gate?: string | null
-          last_notified_kind?: string | null
           prev_gate?: string | null
           scheduled_at?: string | null
           terminal?: string | null
@@ -951,9 +945,6 @@ export type Database = {
           estimated_at?: string | null
           gate?: string | null
           kind?: string
-          last_notified_estimated_at?: string | null
-          last_notified_gate?: string | null
-          last_notified_kind?: string | null
           prev_gate?: string | null
           scheduled_at?: string | null
           terminal?: string | null
