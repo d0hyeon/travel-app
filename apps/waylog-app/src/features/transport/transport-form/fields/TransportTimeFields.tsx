@@ -30,6 +30,7 @@ export function TransportTimeFields({ control }: Props) {
               value={field.value ? new Date(field.value) : undefined}
               onChange={(date) => field.onChange(date.toISOString())}
               format={(date) => formatDate(date, 'M/d HH:mm')}
+              defaultHours={12}
             />
           </TimeSlot>
         )}
@@ -51,6 +52,7 @@ export function TransportTimeFields({ control }: Props) {
               value={field.value ? new Date(field.value) : undefined}
               onChange={(date) => field.onChange(date.toISOString())}
               format={(date) => formatDate(date, 'M/d HH:mm')}
+              defaultHours={12}
             />
           </TimeSlot>
         )}
