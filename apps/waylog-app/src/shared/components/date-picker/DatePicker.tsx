@@ -1,4 +1,4 @@
-import { set as setTimes, startOfDay } from 'date-fns'
+import { endOfDay, set as setTimes, startOfDay } from 'date-fns'
 import { useRef, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 
@@ -103,7 +103,8 @@ export function DatePicker(props: DatePickerProps) {
 
   const handleSelectDay = (day: Date) => {
     if (props.type === 'range') {
-      changeRange(toggleRangeSelection(selection, day))
+      const [nextStart, nextEnd] = toggleRangeSelection(selection, day)
+      changeRange([nextStart, nextEnd != null ? endOfDay(nextEnd) : null])
       return
     }
 

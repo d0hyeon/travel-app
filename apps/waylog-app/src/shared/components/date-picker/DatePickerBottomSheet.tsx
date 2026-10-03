@@ -4,6 +4,7 @@ import { Button } from '~/shared/components/design-system'
 import { DatePicker } from './DatePicker'
 import { DEFAULT_MINUTE_STEP } from './datePicker.model'
 import type { DateBounds, DatePickerStep, DateRange, DateSelection, DateTimeSetter } from './datePicker.model'
+import { endOfDay } from 'date-fns'
 
 /** 확정된 값의 모양도 타입이 정한다. 시트를 여는 쪽은 무엇을 고를지 이미 안다. */
 type DatePickerBottomSheetValueProps =
@@ -50,8 +51,8 @@ export function DatePickerBottomSheet(props: DatePickerBottomSheetProps) {
   const handlePressPrimary = () => {
     if (props.type === 'range') {
       if (start == null) return
-      // 하루만 고른 기간은 양끝을 같은 날로 채워 내보낸다. 소비자는 빈 칸을 보지 않는다.
-      props.onConfirm([start, end ?? start])
+      // 하루만 고른 기간은 양끝을 같은 날로 채운다. 소비자는 빈 칸을 보지 않는다.
+      props.onConfirm([start, end ?? endOfDay(start)])
       return
     }
 

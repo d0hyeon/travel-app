@@ -771,8 +771,9 @@ src/
   하단 버튼과 스냅 포인트가 시트 소유라 단계 상태도 여기 둔다.
   `dateTime` 은 날짜를 누르는 즉시 시각 단계로 넘어간다. 되돌아갈 때는 "이전" 이다.
   `dateTime` 의 날짜 단계에서는 버튼이 "다음" 이고 시각 단계로 넘긴다. 그 외에는 "확인" 이다.
-  `range` 에 `allowSingleDay` 를 주면 하루만 골라도 `[day, day]` 로 채워 내보내므로
+  `range` 에 `allowSingleDay` 를 주면 하루만 골라도 같은 날로 채워 내보내므로
   소비자는 빈 칸을 보지 않는다.
+  종료일의 시각은 `DatePicker` 가 정한다. 하루만 채우는 `allowSingleDay` 는 시트가 같은 규칙으로 채운다.
 - `DatePicker` — 보여줄 달(커서)과 고르는 중인 날짜를 쥔다. 확정은 위가 맡는다.
   `value`/`onChange` 는 `type` 으로 갈리는 판별 유니온이다.
   `date`·`dateTime` 은 `Date`, `range` 는 `DateSelection` 을 주고받는다.
@@ -809,6 +810,8 @@ src/
 - `defaultHours`/`defaultMinutes` 는 `DateTimeSetter` 로 `DateField` 부터 `DatePicker` 까지 내려간다.
   날짜를 고를 때 직전 값이 있으면 그 시각을 이어받고, 없을 때만 기본 시각을 쓴다.
   `range` 는 날짜 단위라 `defaultHours` 를 쓰지 않는다.
+  `DatePicker` 가 내보내는 `range` 는 시작일이 00:00, 종료일이 그날의 끝(23:59:59.999)이다.
+  종료가 시점으로 읽혀도 마지막 날이 기간에 든다.
 - 격자 계산과 기간 선택 규칙은 `calendar.utils.ts` 의 순수 함수로 분리해 두었다.
   웹 `shared/components/date-range/` 의 선택 규칙을 승계했다.
   소비처가 이 디렉토리뿐이라 공유 패키지로 올리지 않는다.

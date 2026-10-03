@@ -29,7 +29,7 @@ export type DateBounds = {
 /**
  * 기본 시간 설정
  * 날짜를 고를 때 직전 값이 없으면 이 시각을 얹는다.
- * range 는 날짜 단위라 쓰지 않는다.
+ * range 는 날짜 단위라 쓰지 않는다. 시작일은 00:00, 종료일은 그날의 끝이다.
  */
 export type DateTimeSetter = {
   defaultHours?: number
