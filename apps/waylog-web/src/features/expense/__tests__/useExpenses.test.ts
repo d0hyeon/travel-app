@@ -95,13 +95,12 @@ describe('useExpenses', () => {
   })
 
   // ──────────────────────────────────────────────────────────
-  // 케이스 3: create 후 캐시 prepend
+  // 케이스 3: create 후 목록 재조회
   //
-  // create 성공 시 onSuccess에서 queryClient.setQueryData로
-  // 새 항목을 목록 맨 앞에 추가한다.
-  // refetch 없이 즉시 UI가 갱신되는 낙관적 업데이트 패턴이다.
+  // create 성공 시 onSuccess에서 목록을 다시 조회하고,
+  // 서버가 돌려준 순서(새 항목이 맨 앞)대로 목록이 갱신된다.
   // ──────────────────────────────────────────────────────────
-  it('create 성공 후 새 지출이 목록 맨 앞에 추가된다', async () => {
+  it('create 성공 후 목록을 다시 조회해 새 지출이 맨 앞에 보인다', async () => {
     setupMocks([MOCK_EXPENSE])
 
     const newExpense: Expense = {
@@ -111,7 +110,10 @@ describe('useExpenses', () => {
       totalAmount: 30_000,
       createdAt: '2025-07-02T12:00:00Z',
     }
-    vi.spyOn(expenseApi, 'createExpense').mockResolvedValue(newExpense)
+    vi.spyOn(expenseApi, 'createExpense').mockImplementation(async () => {
+      vi.spyOn(expenseApi, 'getExpensesByTripId').mockResolvedValue([newExpense, MOCK_EXPENSE])
+      return newExpense
+    })
 
     const { result } = renderHook(() => useExpenses(TRIP_ID), {
       wrapper: createWrapper(),
