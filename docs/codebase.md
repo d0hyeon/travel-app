@@ -1013,10 +1013,11 @@ src/
   직전 상태가 없으면 "변동"을 판단할 수 없고, 발송 이력이 없으면 지연이
   풀릴 때까지 5분마다 같은 알림이 간다. 원본 스케줄은 덮어쓰지 않는다.
   `gate`·`last_notified_gate` 도 같은 이유로 같은 행에 든다.
-  이 행은 두 역할을 겸한다 — **외부 관측값**(`kind`·`scheduled_at`·`estimated_at`·`gate`·`terminal`,
-  안내 Edge 와 클라이언트가 읽는다)과 **푸시 이력**(`last_notified_*`·`prev_gate`).
-  책임이 과해 보이며 푸시 컬럼 분리 작업의 후보다. `terminal`은 인천 API 원본 코드
-  (`P01`·`P02`·`P03`)다.
+  이 테이블은 **외부 관측값**(`kind`·`scheduled_at`·`estimated_at`·`gate`·`terminal`·도착 시각, 안내 Edge 와
+  클라이언트가 읽는다)과 표시용 이력 `prev_gate`를 든다. **푸시 이력**(이미 알린 상태)은 별도 테이블
+  `trip_transport_flight_notices`(교통편당 1행, service_role 전용)로 분리했다 — 감시 함수가 알림을 판단할 때
+  이 테이블을 읽고, 알림을 판단한 때만 쓴다. 구 컬럼(`last_notified_*`)은 새 함수가 배포되어 안정될 때까지
+  이 테이블에 남겨 두고 별도 마이그레이션으로 지운다. `terminal`은 인천 API 원본 코드(`P01`·`P02`·`P03`)다.
 - **운항 상태 감시 대상은 인천과 한국공항공사 소관 공항에서 출발하는 편이다.** 인천 도착편(해외→인천) 감시는 제거했다 —
   도착 목록의 시각은 인천 도착 시각이라 `departure_at`과 날짜가 갈렸고, 같은 컬럼에 출발·도착
   의미가 섞였다. 인천 API 는 출발·도착 목록이 별개 엔드포인트이며 한 편은 한쪽에만 나오고
@@ -1025,7 +1026,7 @@ src/
   복사한 오류이며 실제로는 출발 시각이다(`출발` 상태 편의 시각이 모두 과거임을 실측 확인).
 - **인천 API 는 값이 없을 때 `null`이 아니라 빈 문자열 `""`을 준다**(`gatenumber`가 출발 8,437건 중
   6,000건). 감시 함수는 `gate`·`terminal`을 저장하기 전에 `trim() || null`로 바꾸고, 이전 값
-  (`gate`·`prev_gate`·`last_notified_gate`)도 같은 규칙으로 읽어 이미 저장된 `""`를 다음 주기에
+  (`gate`·`prev_gate`와 푸시 이력의 게이트)도 같은 규칙으로 읽어 이미 저장된 `""`를 다음 주기에
   `null`로 정리한다. 알림 판단(`getIsGateChanged`)과 화면(`toFlightGateChange`, `toFlightStatusView`)도
   `""`를 값 없음으로 본다. 게이트가 배정 전(`""`)인 예정편에 "탑승구 변경" 푸시가 나가던 것을 막는다.
   `prev_gate`는 API 값이 아니라 감시가 직전에 관측해 쌓은 게이트라, 배정 후 처음 관측한 편은 `null`이다.
@@ -1082,6 +1083,29 @@ src/
   탑승권 터미널 조건 없이 해외 + 인천 출발 + 결항 아님이다. 승객예고 API 는 `selectdate` 0·1 만
   유효하고 그 이상은 오늘 데이터를 조용히 돌려준다. 설계 이력은
   `docs/superpowers/specs/2026-10-03-airport-arrival-guidance-api-terminal-design.md`.
+- **푸시는 두 경로다.** 변동 알림(지연·결항·탑승구 변경)은 `flight-status-watch`가 5분마다 감시하다
+  **변동을 감지하는 즉시** 보낸다(`trip_transport_flight_notices`의 마지막으로 알린 상태로 중복을 막는다).
+  예약 알림(공항 도착 권장시간, 탑승 전)은 **정해진 시각에** 보낸다 — 아래 스케줄러가 맡는다.
+  시각을 미리 아는 알림과 상태가 바뀌어야 알 수 있는 알림이라 필요한 장치가 달라 합치지 않았다.
+- **예약 알림 스케줄러.** 테이블 `scheduled_notifications`는 범용이다: `type`(알림 종류), `subject_id`
+  (알림의 대상 식별자, 의미는 `type`의 핸들러가 안다), `trip_id`(수신자 범위인 여행 멤버), `status`,
+  `scheduled_for`, 재시도 상태. **행에는 제목·본문을 담지 않는다** — 때와 대상만 담고, 내용과 발송 직전
+  확인(이미 출발, 결항)은 핸들러가 발송 때 최신 데이터로 한다. 크론 `dispatch-notifications`(매분)가 Edge
+  함수 `dispatch-notifications`를 깨우면 디스패처(`dispatch.ts`)가 때가 된 행을 점유하고 `type`에 맞는 핸들러
+  (`handlers/airportArrivalGuidance.ts`, `handlers/boardingReminder.ts`)를 부른다. 핸들러는
+  `(알림 행, 현재 시각) → 'sent' | 'skipped' | 'cancelled'`이고 실패는 예외로 던지면 5·15·30분 뒤 재시도한다.
+  종류가 늘면 핸들러 하나와 행을 만드는 DB 트리거만 더한다. 푸시 발송 공통 코드는 `sendPush.ts`다.
+  `subject_id`에는 FK가 없어서 교통편 삭제 트리거(`delete_scheduled_notifications_of_transport`)가 대상이 같은
+  행을 지우고, 여행을 지우면 `trip_id`의 연쇄 삭제가 지운다. `airport-arrival-guidance` 함수는 화면용 안내
+  계산(`get-guidance`)만 하고 예약 테이블과 푸시를 모른다(`guidanceForTransport.ts`를 디스패처 핸들러가 가져다 쓴다).
+  설계: `docs/superpowers/specs/2026-10-03-scheduled-notifications-design.md`.
+- **탑승 전 알림**은 항공 출발 30분 전, 기차·버스 출발 10분 전에 여행 멤버에게 푸시한다
+  (항공은 보통 출발 20분 전부터 탑승을 시작하므로 30분 전은 탑승 시작 10분 전이다).
+  `scheduled_notifications`의 `type = 'boarding_reminder'`로 예약하고, 교통편·운항 상태
+  (`kind`·`estimated_at`·`scheduled_at`) 트리거가 `sync_boarding_reminder_job`을 다시 돌려 지연되면 새 시각으로
+  다시 예약하고 결항이면 취소한다. 예약 시각이 이미 지났으면 예약하지 않는다. 발송 시점에 이미 출발했거나
+  결항이면 보내지 않는다. 문구는 `boardingReminderMessage.ts`가 만든다. 기차·버스는 입력한 출발 시각을 그대로 쓴다.
+  설계: `docs/superpowers/specs/2026-10-03-boarding-reminder-design.md`.
 - `trips.is_overseas`가 해외 여부의 단일 기준이다. 생성·목적지 변경 시
   `trip.api.ts`가 `destinations`로 저장값을 갱신하고, 예약 트리거와 Edge Function은
   그 저장값만 읽는다. 국내편은 화면 안내만 만들고 푸시를 예약하지 않는다.
