@@ -3,7 +3,7 @@ import {
   formatArrivalTime,
   formatDepartureTime,
   isOvernightArrival,
-  type TripTransport,
+  type ScheduledTripTransport,
 } from '@waylog/domains/modules/trip-transport'
 import type { AirportArrivalGuidance } from '@waylog/domains/modules/airport-arrival-guidance'
 import { format as formatDate, isSameDay, isSameYear } from 'date-fns'
@@ -16,7 +16,7 @@ import { toCarrierLabel } from './transportLabel'
 const EMPTY_TIME = '—'
 
 interface Props {
-  transport: TripTransport
+  transport: ScheduledTripTransport
   airportArrivalGuidance?: AirportArrivalGuidance
   onPress?: () => void
 }
@@ -59,6 +59,9 @@ export function TransportCard({ transport, airportArrivalGuidance, onPress }: Pr
           <View style={styles.arrivalTimeRow}>
             <Typography variant="h4" style={styles.time}>{arrivalTime ?? EMPTY_TIME}</Typography>
           </View>
+          {transport.arrivalDelayMinutes != null && (
+            <Typography color="warning" style={styles.arrivalEstimate}>지연 반영</Typography>
+          )}
           <Typography style={styles.placeName} numberOfLines={1}>
             {transport.arrivalName}
           </Typography>
@@ -105,6 +108,7 @@ const styles = StyleSheet.create({
   },
   arrivalColumn: { alignItems: 'flex-end' },
   arrivalTimeRow: { flexDirection: 'row', alignItems: 'baseline', gap: 4 },
+  arrivalEstimate: { fontSize: 11, fontWeight: '600' },
   arrivalDate: { fontSize: 11, fontWeight: '600', color: palette.textSecondary },
   carrier: { fontSize: 12, color: palette.textSecondary, marginTop: 10 },
   arrivalGuidance: { fontSize: 12, color: palette.primary, marginTop: 10 },

@@ -3,6 +3,7 @@ import { useFlightStatus } from '@waylog/domains/modules/flight-status'
 import { TransportType, TransportTypeLabel } from '@waylog/domains/modules/transport'
 import {
   formatArrivalTime,
+  applyFlightStatus,
   formatDepartureTime,
   useTripTransportTickets,
 } from '@waylog/domains/modules/trip-transport'
@@ -44,10 +45,8 @@ function Resolved({ tripId, transportId, style, ...props }: Props & ViewProps) {
 
   const { status } = useFlightStatus({ ...transport, transportId: transport.id }, { enabled: transport.type === TransportType.항공 })
 
-  // 운항 정보가 시각을 답하면 그것이 사실이다. 사용자가 적은 값보다 앞선다.
-  const departureAt = status?.estimatedAt ?? status?.scheduledAt ?? transport.departureAt
-
-  const scheduled = { ...transport, departureAt }
+  const scheduled = applyFlightStatus(transport, status)
+  const { departureAt } = scheduled
 
   return (
     <View style={[styles.section, style]} {...props}>
@@ -66,15 +65,21 @@ function Resolved({ tripId, transportId, style, ...props }: Props & ViewProps) {
         </Stack>
         <MaterialIcons name="arrow-right-alt" size={30} />
         <Stack gap={0.5} alignItems="flex-end" justifyContent="flex-start">
-          {transport.arrivalAt != null && !isSameDay(transport.arrivalAt, departureAt) && (
-            <Typography>{format(transport.arrivalAt, 'M월 d일')}</Typography>
+          {scheduled.arrivalAt != null && !isSameDay(scheduled.arrivalAt, departureAt) && (
+            <Typography>{format(scheduled.arrivalAt, 'M월 d일')}</Typography>
           )}
-          <Typography style={styles.time}>{formatArrivalTime(transport) ?? EMPTY_VALUE}</Typography>
+          <Typography style={styles.time}>{formatArrivalTime(scheduled) ?? EMPTY_VALUE}</Typography>
           <Typography variant="body1" >
             {transport.arrivalName || EMPTY_VALUE}
           </Typography>
         </Stack>
       </View>
+
+      {scheduled.arrivalDelayMinutes != null && (
+        <Typography color="warning" style={styles.arrivalEstimate}>
+          도착 시각은 출발 지연({scheduled.arrivalDelayMinutes}분)을 반영한 예상이에요
+        </Typography>
+      )}
 
       {carrierLabel != null && (
         <Typography style={styles.carrier} >
@@ -120,5 +125,6 @@ const styles = StyleSheet.create({
   times: { flexDirection: 'row', alignItems: 'center', justifyContent: "space-between", gap: 24 },
   time: { fontSize: 30, lineHeight: 38, fontWeight: '700' },
   arrow: { fontSize: 22, lineHeight: 38, color: palette.textSecondary },
+  arrivalEstimate: { fontSize: 13 },
   carrier: { marginTop: 8 },
 })

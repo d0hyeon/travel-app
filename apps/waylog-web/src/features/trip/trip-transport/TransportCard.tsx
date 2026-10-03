@@ -3,7 +3,7 @@ import { TransportTypeLabel } from '@waylog/domains/modules/transport'
 import {
   formatArrivalTime,
   formatDepartureTime,
-  type TripTransport,
+  type ScheduledTripTransport,
 } from '@waylog/domains/modules/trip-transport'
 import type { AirportArrivalGuidance } from '@waylog/domains/modules/airport-arrival-guidance'
 import { format, formatDate, isSameDay } from 'date-fns'
@@ -13,7 +13,7 @@ import { toCarrierLabel } from './transportLabel'
 const EMPTY_TIME = '—'
 
 interface Props {
-  transport: TripTransport
+  transport: ScheduledTripTransport
   airportArrivalGuidance?: AirportArrivalGuidance
   onClick?: () => void
 }
@@ -71,6 +71,11 @@ export function TransportCard({ transport, airportArrivalGuidance, onClick }: Pr
           <Typography fontSize={22} fontWeight={700}>
             {arrivalTime ?? EMPTY_TIME}
           </Typography>
+          {transport.arrivalDelayMinutes != null && (
+            <Typography variant="caption" color="warning.main">
+              지연 반영
+            </Typography>
+          )}
           <Typography variant="caption" color="text.secondary" noWrap>
             {transport.arrivalName}
           </Typography>

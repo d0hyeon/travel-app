@@ -5,6 +5,7 @@ import {
   formatDepartureTime,
   useTripTransportTickets,
   useTripScheduledFlights,
+  type ScheduledTripTransport,
 } from '@waylog/domains/modules/trip-transport'
 import { AsyncBoundary } from '@waylog/react'
 import { format } from 'date-fns'
@@ -38,7 +39,8 @@ function Resolved({ tripId, transportId }: Props) {
     data: { transport: detailTransport },
   } = useTripTransportTickets({ tripId, transportId })
   const { data: transports } = useTripScheduledFlights(tripId)
-  const transport = transports.find(({ id }) => id === detailTransport.id) ?? detailTransport
+  const transport: ScheduledTripTransport =
+    transports.find(({ id }) => id === detailTransport.id) ?? detailTransport
 
   const carrierLabel = toCarrierLabel(transport) ?? EMPTY_VALUE
 
@@ -66,6 +68,12 @@ function Resolved({ tripId, transportId }: Props) {
       <Typography fontSize={15} color="text.secondary">
         {transport.departureName || EMPTY_VALUE} → {transport.arrivalName || EMPTY_VALUE}
       </Typography>
+
+      {transport.arrivalDelayMinutes != null && (
+        <Typography fontSize={13} color="warning.main">
+          도착 시각은 출발 지연({transport.arrivalDelayMinutes}분)을 반영한 예상이에요
+        </Typography>
+      )}
 
       <Typography fontSize={13} color="text.secondary" mb={1.25}>
         {carrierLabel} · {format(new Date(transport.departureAt), 'M월 d일')}
