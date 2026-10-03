@@ -17,3 +17,21 @@ export function getIsWithinNotifyWindow(departureAt: string, now: Date, windowHo
 
   return departure >= now.getTime() && departure <= windowEnd
 }
+
+const NEAR_DEPARTURE_HOURS = 3
+
+export function getObserveIntervalMinutes(departureAt: string, now: Date): 5 | 15 | 180 {
+  const hoursUntilDeparture = (new Date(departureAt).getTime() - now.getTime()) / HOUR_MS
+
+  if (hoursUntilDeparture < 0) return 15
+  if (hoursUntilDeparture <= NEAR_DEPARTURE_HOURS) return 5
+  if (hoursUntilDeparture <= NOTIFY_BEFORE_DEPARTURE_HOURS) return 15
+
+  return 180
+}
+
+export function getIsObserveDue(departureAt: string, now: Date) {
+  const minutesOfDay = now.getUTCHours() * 60 + now.getUTCMinutes()
+
+  return minutesOfDay % getObserveIntervalMinutes(departureAt, now) < 5
+}

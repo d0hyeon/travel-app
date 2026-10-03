@@ -1,3 +1,5 @@
+import type { FlightObservation } from './flightObservation.ts'
+
 const BASE_URL = 'https://apis.data.go.kr/B551177/StatusOfPassengerFlightsDSOdp'
 const PAGE_SIZE = 9999
 
@@ -112,4 +114,16 @@ export function getIsSameKstDate(left: string, right: string) {
   if (leftDate == null) return false
 
   return leftDate === toKstDate(right)
+}
+
+export function toIncheonObservation(flight: IncheonFlightItem): FlightObservation {
+  return {
+    kind: toFlightStatusKind(flight.remark),
+    scheduledAt: toIsoFromApiDateTime(flight.scheduleDateTime),
+    estimatedAt: toIsoFromApiDateTime(flight.estimatedDateTime),
+    gate: flight.gatenumber?.trim() || null,
+    terminal: flight.terminalid?.trim() || null,
+    arrivalScheduledAt: null,
+    arrivalEstimatedAt: null,
+  }
 }

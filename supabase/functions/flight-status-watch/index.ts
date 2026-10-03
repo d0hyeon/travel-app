@@ -2,14 +2,16 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 import webpush from 'npm:web-push'
 import { getAirportCityName } from '../airport-arrival-guidance/airports.ts'
 import { isExpoPushToken, sendExpoPush } from '../chat-web-push/expoPush.ts'
+import type { FlightObservation } from './flightObservation.ts'
 import {
   getIncheonDepartures,
   getIsSameKstDate,
   isSameFlight,
-  toFlightStatusKind,
+  toIncheonObservation,
   toIsoFromApiDateTime,
   type IncheonFlightItem,
 } from './incheonFlights.ts'
+import { KOREA_AIRPORT_CODES, getIsKoreaAirport, observeKoreaAirportsFlights } from './koreaAirports.ts'
 import {
   getIsGateChanged,
   getShouldNotify,
@@ -17,6 +19,7 @@ import {
   type WatchedStatus,
 } from './statusChange.ts'
 import {
+  getIsObserveDue,
   getIsWithinNotifyWindow,
   getObserveRange,
   NOTIFY_BEFORE_DEPARTURE_HOURS,
@@ -89,6 +92,39 @@ function findFlight(
   if (sameDay != null) return sameDay
 
   return allowAnyDay ? matched[0] : null
+}
+
+async function observeFlights(
+  serviceKey: string,
+  transports: TransportRow[],
+  notifyAlways: boolean,
+  now: Date,
+): Promise<Map<string, FlightObservation>> {
+  const observations = new Map<string, FlightObservation>()
+
+  const incheonTransports = transports.filter((t) => t.departure_airport_code === INCHEON)
+  if (incheonTransports.length > 0) {
+    const departures = await getIncheonDepartures(serviceKey)
+
+    for (const transport of incheonTransports) {
+      const flight = findFlight(transport, departures, { allowAnyDay: notifyAlways })
+      if (flight != null) observations.set(transport.id, toIncheonObservation(flight))
+    }
+  }
+
+  const koreaTransports = transports.filter(
+    (t) => getIsKoreaAirport(t.departure_airport_code) && getIsObserveDue(t.departure_at, now),
+  )
+  if (koreaTransports.length > 0) {
+    try {
+      const koreaObservations = await observeKoreaAirportsFlights(serviceKey, koreaTransports, now)
+      koreaObservations.forEach((observation, id) => observations.set(id, observation))
+    } catch (error) {
+      console.error('한국공항공사 운항 상태 조회 실패', error)
+    }
+  }
+
+  return observations
 }
 
 async function notify(transport: TransportRow, status: WatchedStatus, isGateChanged: boolean) {
@@ -180,7 +216,7 @@ Deno.serve(async () => {
       'id, trip_id, airline, airline_code, flight_number, departure_airport_code, arrival_airport_code, departure_at',
     )
     .eq('type', 'flight')
-    .eq('departure_airport_code', INCHEON)
+    .in('departure_airport_code', [INCHEON, ...KOREA_AIRPORT_CODES])
     .not('airline_code', 'is', null)
     .not('flight_number', 'is', null)
     .gte('departure_at', from.toISOString())
@@ -196,7 +232,7 @@ Deno.serve(async () => {
     return Response.json({ watched: 0, notified: 0, matched: 0, notifyAlways })
   }
 
-  const departures = await getIncheonDepartures(serviceKey)
+  const observations = await observeFlights(serviceKey, watched, notifyAlways, now)
 
   const { data: previousRows } = await supabase
     .from('trip_transport_flight_status')
@@ -214,15 +250,15 @@ Deno.serve(async () => {
   let matched = 0
 
   for (const transport of watched) {
-    const flight = findFlight(transport, departures, { allowAnyDay: notifyAlways })
-    if (flight == null) continue
+    const observation = observations.get(transport.id)
+    if (observation == null) continue
 
     matched += 1
 
     const status: WatchedStatus = {
-      kind: toFlightStatusKind(flight.remark),
-      estimatedAt: toIsoFromApiDateTime(flight.estimatedDateTime),
-      gate: flight.gatenumber?.trim() || null,
+      kind: observation.kind,
+      estimatedAt: observation.estimatedAt,
+      gate: observation.gate,
     }
 
     const previous = previousById.get(transport.id)
@@ -252,10 +288,12 @@ Deno.serve(async () => {
     await supabase.from('trip_transport_flight_status').upsert({
       transport_id: transport.id,
       kind: status.kind,
-      scheduled_at: toIsoFromApiDateTime(flight.scheduleDateTime),
+      scheduled_at: observation.scheduledAt,
       estimated_at: status.estimatedAt,
       gate: status.gate,
-      terminal: flight.terminalid?.trim() || null,
+      terminal: observation.terminal,
+      arrival_scheduled_at: observation.arrivalScheduledAt,
+      arrival_estimated_at: observation.arrivalEstimatedAt,
       prev_gate: prevGate,
       // 보내지 못했으면 직전 값을 지킨다. 지우면 다음 턴에 다시 보낸다.
       last_notified_kind: shouldNotify ? status.kind : (previous?.last_notified_kind ?? null),
