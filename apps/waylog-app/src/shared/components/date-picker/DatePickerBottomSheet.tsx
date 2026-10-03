@@ -55,6 +55,10 @@ export function DatePickerBottomSheet(props: DatePickerBottomSheetProps) {
       return
     }
 
+    if (props.type === 'dateTime' && step === 'date') {
+      return setStep('time')
+    }
+
     if (day == null) return
     props.onConfirm(day)
   }
@@ -104,7 +108,7 @@ export function DatePickerBottomSheet(props: DatePickerBottomSheetProps) {
           disabled={!isConfirmable}
           onPress={handlePressPrimary}
         >
-          확인
+          {props.type === 'dateTime' && step === 'date' ? '다음' : '확인'}
         </Button>
       </BottomSheet.BottomActions>
     </BottomSheet>
