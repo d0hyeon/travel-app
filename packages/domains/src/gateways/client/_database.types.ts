@@ -880,6 +880,8 @@ export type Database = {
       }
       trip_transport_flight_status: {
         Row: {
+          arrival_estimated_at: string | null
+          arrival_scheduled_at: string | null
           checked_at: string
           estimated_at: string | null
           gate: string | null
@@ -893,6 +895,8 @@ export type Database = {
           transport_id: string
         }
         Insert: {
+          arrival_estimated_at?: string | null
+          arrival_scheduled_at?: string | null
           checked_at?: string
           estimated_at?: string | null
           gate?: string | null
@@ -906,6 +910,8 @@ export type Database = {
           transport_id: string
         }
         Update: {
+          arrival_estimated_at?: string | null
+          arrival_scheduled_at?: string | null
           checked_at?: string
           estimated_at?: string | null
           gate?: string | null
