@@ -1,8 +1,10 @@
 export type AirportCongestionSourceKind = 'forecast' | 'realtime' | 'domestic'
 
-export type AirportArrivalGuidanceFunctionRequest =
-  | { action: 'get-guidance'; tripId: string; transportId: string }
-  | { action: 'deliver-due-jobs'; now: string }
+export interface AirportArrivalGuidanceFunctionRequest {
+  action: 'get-guidance'
+  tripId: string
+  transportId: string
+}
 
 export interface AirportCongestionSnapshotResponse {
   sourceKind: AirportCongestionSourceKind
@@ -24,6 +26,7 @@ export interface AirportArrivalGuidanceResponse {
   recommendedDepartureGate?: { gate: string; observedAt: string }
 }
 
-export type AirportArrivalGuidanceFunctionResponse =
-  | { action: 'get-guidance'; guidance: AirportArrivalGuidanceResponse | null }
-  | { action: 'deliver-due-jobs'; claimedJobCount: number; deliveredJobCount: number }
+export interface AirportArrivalGuidanceFunctionResponse {
+  action: 'get-guidance'
+  guidance: AirportArrivalGuidanceResponse | null
+}

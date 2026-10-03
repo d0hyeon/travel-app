@@ -713,7 +713,7 @@ export type Database = {
           },
         ]
       }
-      scheduled_notification_jobs: {
+      scheduled_notifications: {
         Row: {
           attempt_count: number
           cancelled_at: string | null
@@ -724,7 +724,8 @@ export type Database = {
           locked_at: string | null
           scheduled_for: string
           status: string
-          trip_transport_id: string
+          subject_id: string
+          trip_id: string
           type: string
           updated_at: string
         }
@@ -738,7 +739,8 @@ export type Database = {
           locked_at?: string | null
           scheduled_for: string
           status: string
-          trip_transport_id: string
+          subject_id: string
+          trip_id: string
           type: string
           updated_at?: string
         }
@@ -752,16 +754,17 @@ export type Database = {
           locked_at?: string | null
           scheduled_for?: string
           status?: string
-          trip_transport_id?: string
+          subject_id?: string
+          trip_id?: string
           type?: string
           updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "scheduled_notification_jobs_trip_transport_id_fkey"
-            columns: ["trip_transport_id"]
+            foreignKeyName: "scheduled_notifications_trip_id_fkey"
+            columns: ["trip_id"]
             isOneToOne: false
-            referencedRelation: "trip_transports"
+            referencedRelation: "trips"
             referencedColumns: ["id"]
           },
         ]
@@ -874,6 +877,38 @@ export type Database = {
             columns: ["trip_id"]
             isOneToOne: false
             referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trip_transport_flight_notices: {
+        Row: {
+          last_notified_estimated_at: string | null
+          last_notified_gate: string | null
+          last_notified_kind: string | null
+          transport_id: string
+          updated_at: string
+        }
+        Insert: {
+          last_notified_estimated_at?: string | null
+          last_notified_gate?: string | null
+          last_notified_kind?: string | null
+          transport_id: string
+          updated_at?: string
+        }
+        Update: {
+          last_notified_estimated_at?: string | null
+          last_notified_gate?: string | null
+          last_notified_kind?: string | null
+          transport_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_transport_flight_notices_transport_id_fkey"
+            columns: ["transport_id"]
+            isOneToOne: true
+            referencedRelation: "trip_transports"
             referencedColumns: ["id"]
           },
         ]
@@ -1314,6 +1349,10 @@ export type Database = {
         Returns: string[]
       }
       sync_airport_arrival_guidance_job: {
+        Args: { p_transport_id: string }
+        Returns: undefined
+      }
+      sync_boarding_reminder_job: {
         Args: { p_transport_id: string }
         Returns: undefined
       }

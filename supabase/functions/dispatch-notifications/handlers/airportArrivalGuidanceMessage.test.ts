@@ -1,5 +1,5 @@
 import { assertEquals } from 'jsr:@std/assert@1'
-import { toAirportArrivalPushMessage } from './push.ts'
+import { toAirportArrivalPushMessage } from './airportArrivalGuidanceMessage.ts'
 
 const RECOMMENDED_ARRIVAL_AT = new Date('2026-09-24T07:30:00+09:00').toISOString()
 const ROUTE = { departureCityName: '서울', arrivalCityName: '파리' }
