@@ -959,7 +959,7 @@ src/
   않으므로 폼에서 뺐다. `provider`·`service_number` DB 컬럼은 남아 있지만
   더 이상 쓰지 않는다.
 - **실시간 운항 상태는 provider 로 가른다**(`flight-status`). 날씨의 축 분리를
-  승계해 공항 코드로 provider 를 고르고, provider 가 `getIsAvailability` 로
+  승계해 **출발 공항** 코드로 provider 를 고르고, provider 가 `getIsAvailability` 로
   자기 기간 제약(인천 D+0~D+6)을 답한다. 김포·김해는 provider 를 더한다.
   조회 가능한 편이 하나도 없으면(기차·버스뿐인 화면 등) 운항 목록 자체를
   읽지 않는다.
@@ -976,7 +976,7 @@ src/
   문자열 비교로는 매칭되지 않아 편번호를 수로 비교한다.
 - 응답의 92% 는 `remark` 가 비어 온다 — 미래편은 상태가 없다.
   시각은 `YYYYMMDDHHMM` 이고 타임존이 없어 KST 로 읽는다.
-- 코드 없이 등록된 교통편과 인천을 지나지 않는 노선은
+- 코드 없이 등록된 교통편과 인천에서 출발하지 않는 노선은
   `TransportRealtimeInfoSection`을 숨긴다.
   빈 카드를 남기면 데이터를 기다리는 것처럼 보인다.
 - `TransportOperationalInfoSection`은 **다른 규칙으로 숨는다** — 값이 탑승권에서
@@ -1006,8 +1006,24 @@ src/
   이 행은 두 역할을 겸한다 — **외부 관측값**(`kind`·`scheduled_at`·`estimated_at`·`gate`·`terminal`,
   안내 Edge 와 클라이언트가 읽는다)과 **푸시 이력**(`last_notified_*`·`prev_gate`).
   책임이 과해 보이며 푸시 컬럼 분리 작업의 후보다. `terminal`은 인천 API 원본 코드
-  (`P01`·`P02`·`P03`)다. 인천 도착편 감시는 후속 작업에서 제거할 예정이라 도착편 행의
-  `terminal`은 도착 터미널이고, 안내는 읽지 않는다.
+  (`P01`·`P02`·`P03`)다.
+- **운항 상태 감시는 인천 출발편만 대상이다.** 인천 도착편(해외→인천) 감시는 제거했다 —
+  도착 목록의 시각은 인천 도착 시각이라 `departure_at`과 날짜가 갈렸고, 같은 컬럼에 출발·도착
+  의미가 섞였다. 인천 API 는 출발·도착 목록이 별개 엔드포인트이며 한 편은 한쪽에만 나오고
+  **인천 쪽 시각·터미널·게이트만** 준다. 도착지 도착 시각은 어디에도 없다. 감시는 출발 목록만
+  받는다(호출 1회). 출발 목록 명세서의 `scheduleDateTime` "도착예정시간" 설명은 도착 목록 명세를
+  복사한 오류이며 실제로는 출발 시각이다(`출발` 상태 편의 시각이 모두 과거임을 실측 확인).
+- **인천 API 는 값이 없을 때 `null`이 아니라 빈 문자열 `""`을 준다**(`gatenumber`가 출발 8,437건 중
+  6,000건). 감시 함수는 `gate`·`terminal`을 저장하기 전에 `trim() || null`로 바꾸고, 이전 값
+  (`gate`·`prev_gate`·`last_notified_gate`)도 같은 규칙으로 읽어 이미 저장된 `""`를 다음 주기에
+  `null`로 정리한다. 알림 판단(`getIsGateChanged`)과 화면(`toFlightGateChange`, `toFlightStatusView`)도
+  `""`를 값 없음으로 본다. 게이트가 배정 전(`""`)인 예정편에 "탑승구 변경" 푸시가 나가던 것을 막는다.
+  `prev_gate`는 API 값이 아니라 감시가 직전에 관측해 쌓은 게이트라, 배정 후 처음 관측한 편은 `null`이다.
+- **도착 시각은 사용자가 입력한 값에 출발 지연 분을 더한 추정이다**(`applyFlightStatus`).
+  지연 분은 API 변경 시각 − API 예정 시각(`toDelayMinutes`)이라 사용자의 출발 시각 오입력과
+  무관하다. 지연일 때만 적용하고 일찍 출발해도 당기지 않으며, 결항·회항이면 바꾸지 않는다.
+  `ScheduledTripTransport.arrivalDelayMinutes`가 추정값임을 화면에 알린다("지연 반영").
+  비행 중 만회나 추가 지연은 반영하지 못한다. `useTripScheduledFlights`와 앱 요약이 쓴다.
 - **탑승구 변경은 `kind` 와 독립으로 판단한다**(`getIsGateChanged`).
   예정·지연 상태에서만 의미가 있다 — 결항·회항·출발·도착 이후엔 탑승구가
   남아 있어도 이미 지난 일이라 알리지 않는다. 지연 알림과 겹치면 한
