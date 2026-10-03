@@ -14,21 +14,20 @@ export function toIncheonTerminalCode(terminalId: string | null): IncheonTermina
   return CODE_BY_TERMINAL_ID.get(terminalId) ?? null
 }
 
+const WHOLE_AIRPORT_TERMINAL = 'ALL'
+
 export interface GuidanceTerminal {
   snapshotTerminal: string
-  responseTerminal: string
+  responseTerminal: string | null
 }
 
 export function getGuidanceTerminal(input: {
   isOverseas: boolean
   departureAirportCode: string
   flightStatusTerminal: string | null
-  ticketTerminal: string | null
 }): GuidanceTerminal | null {
   if (!input.isOverseas) {
-    if (input.ticketTerminal == null) return null
-
-    return { snapshotTerminal: input.ticketTerminal, responseTerminal: input.ticketTerminal }
+    return { snapshotTerminal: WHOLE_AIRPORT_TERMINAL, responseTerminal: null }
   }
 
   if (input.departureAirportCode !== INCHEON_AIRPORT_CODE) return null

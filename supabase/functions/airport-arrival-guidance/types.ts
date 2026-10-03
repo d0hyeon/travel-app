@@ -15,7 +15,7 @@ export interface AirportCongestionSnapshotResponse {
 export interface AirportArrivalGuidanceResponse {
   recommendedArrivalAt: string
   appliedDepartureAt: string
-  terminal: string
+  terminal: string | null
   baseBufferMinutes: number
   congestionBufferMinutes: number
   congestionTier: 'calm' | 'normal' | 'crowded' | 'veryCrowded'

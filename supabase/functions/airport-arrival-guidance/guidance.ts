@@ -46,7 +46,7 @@ export interface AirportArrivalGuidanceInput {
 export interface AirportArrivalGuidance {
   recommendedArrivalAt: string
   appliedDepartureAt: string
-  terminal: string
+  terminal: string | null
   baseBufferMinutes: number
   congestionBufferMinutes: number
   congestionTier: AirportCongestionTier
@@ -105,7 +105,6 @@ export function getAirportArrivalGuidance(
   input: AirportArrivalGuidanceInput,
 ): AirportArrivalGuidance | null {
   if (input.isCancelled) return null
-  if (input.departureTerminal == null) return null
   if (input.snapshot == null) return null
 
   const appliedDepartureAt = input.estimatedDepartureAt ?? input.departureAt
@@ -142,21 +141,6 @@ export function getAirportArrivalGuidance(
     sourceKind: isDomestic ? 'domestic' : 'forecast',
     observedAt: input.snapshot.observedAt,
   }
-}
-
-export function getConsistentDepartureTerminal(
-  tickets: readonly { terminal?: string | null }[],
-): string | null {
-  if (tickets.length === 0) return null
-
-  const terminals = tickets.map((ticket) => ticket.terminal?.trim())
-  if (terminals.some((terminal) => terminal == null || terminal === '')) return null
-
-  const uniqueTerminals = new Set(terminals)
-  if (uniqueTerminals.size !== 1) return null
-
-  const [terminal] = uniqueTerminals
-  return terminal as string
 }
 
 export function getRecommendedDepartureGate(input: {

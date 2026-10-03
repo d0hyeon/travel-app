@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 import {
   getAirportArrivalGuidance,
   getCongestionTier,
-  getConsistentDepartureTerminal,
   getRecommendedDepartureGate,
   toGuidanceTerminalLabel,
 } from '../airportArrivalGuidance.utils'
@@ -137,18 +136,6 @@ describe('airport arrival guidance', () => {
     expect(guidance?.appliedDepartureAt).toBe('2026-09-24T12:00:00+09:00')
   })
 
-  it('탑승권에 터미널이 없으면 안내와 예약 대상에서 제외한다', () => {
-    expect(getConsistentDepartureTerminal([{ terminal: undefined }])).toBeNull()
-  })
-
-  it('탑승권 터미널 값이 서로 다르면 안내와 예약 대상에서 제외한다', () => {
-    expect(getConsistentDepartureTerminal([{ terminal: 'T1' }, { terminal: 'T2' }])).toBeNull()
-  })
-
-  it('탑승권 터미널이 모두 같으면 그 값을 반환한다', () => {
-    expect(getConsistentDepartureTerminal([{ terminal: 'T1' }, { terminal: 'T1' }])).toBe('T1')
-  })
-
   it('결항이면 안내를 만들지 않는다', () => {
     const input: AirportArrivalGuidanceInput = {
       departureAt: '2026-09-24T10:00:00+09:00',
@@ -203,24 +190,27 @@ describe('airport arrival guidance', () => {
     expect(getAirportArrivalGuidance(input)).toBeNull()
   })
 
-  it('터미널이 없으면 안내를 만들지 않는다', () => {
+  it('터미널이 없어도 안내를 만든다 -- 국내 공항은 터미널을 알려주지 않는다', () => {
     const input: AirportArrivalGuidanceInput = {
       departureAt: '2026-09-24T10:00:00+09:00',
       isCancelled: false,
-      isOverseas: true,
+      isOverseas: false,
       departureTerminal: null,
       now: '2026-09-23T00:00:00+09:00',
       policy: POLICY,
       snapshot: {
-        sourceKind: 'forecast',
-        airportCode: 'ICN',
-        terminal: 'T1',
+        sourceKind: 'domestic',
+        airportCode: 'GMP',
+        terminal: 'ALL',
         observedAt: '2026-09-23T00:00:00+09:00',
-        departureGates: [{ gate: 't1dg1', passengerCount: 500, referencePassengerCount: 1000 }],
+        departureGates: [{ gate: 'GMP', passengerCount: 2, referencePassengerCount: 2 }],
       },
     }
 
-    expect(getAirportArrivalGuidance(input)).toBeNull()
+    const guidance = getAirportArrivalGuidance(input)
+
+    expect(guidance?.terminal).toBeNull()
+    expect(guidance?.sourceKind).toBe('domestic')
   })
 
   it.todo('여행 목적지 좌표가 해외인 항공편만 D-1 18:00 Asia/Seoul 작업을 예약한다')
@@ -300,22 +290,22 @@ describe('airport arrival guidance', () => {
 
 describe('toGuidanceTerminalLabel', () => {
   it('해외 안내는 P01 을 1터미널로 표시한다', () => {
-    expect(toGuidanceTerminalLabel({ sourceKind: 'forecast', terminal: 'P01' })).toBe('1터미널')
+    expect(toGuidanceTerminalLabel({ terminal: 'P01' })).toBe('1터미널')
   })
 
   it('해외 안내는 P02 를 1터미널(탑승동)으로 표시한다', () => {
-    expect(toGuidanceTerminalLabel({ sourceKind: 'forecast', terminal: 'P02' })).toBe('1터미널(탑승동)')
+    expect(toGuidanceTerminalLabel({ terminal: 'P02' })).toBe('1터미널(탑승동)')
   })
 
   it('해외 안내는 P03 을 2터미널로 표시한다', () => {
-    expect(toGuidanceTerminalLabel({ sourceKind: 'forecast', terminal: 'P03' })).toBe('2터미널')
+    expect(toGuidanceTerminalLabel({ terminal: 'P03' })).toBe('2터미널')
   })
 
   it('해외 안내에서 모르는 코드는 원문을 그대로 표시한다', () => {
-    expect(toGuidanceTerminalLabel({ sourceKind: 'forecast', terminal: 'P09' })).toBe('P09')
+    expect(toGuidanceTerminalLabel({ terminal: 'P09' })).toBe('P09')
   })
 
-  it('국내 안내는 탑승권 터미널 뒤에 터미널을 붙여 표시한다', () => {
-    expect(toGuidanceTerminalLabel({ sourceKind: 'domestic', terminal: '1' })).toBe('1 터미널')
+  it('터미널이 없으면 표시하지 않는다', () => {
+    expect(toGuidanceTerminalLabel({ terminal: null })).toBeNull()
   })
 })

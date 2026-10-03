@@ -1,5 +1,4 @@
 import { reverseKeyValue } from "@waylog/utility";
-import type { TripTransportTicket } from "../trip-transport";
 
 // 공공데이터포털 인천공항 실시간 출국장 혼잡도 API 문서의 gateId 안내를 그대로 옮긴다.
 // T1 은 출국장 1~6 을 동/서로, T2 는 출국장 1~2 를 A~D 구역으로 나눈다.
@@ -87,7 +86,7 @@ export interface AirportArrivalGuidanceInput {
 export interface AirportArrivalGuidance {
   recommendedArrivalAt: string;
   appliedDepartureAt: string;
-  terminal: string;
+  terminal: string | null;
   baseBufferMinutes: number;
   congestionBufferMinutes: number;
   congestionTier: AirportCongestionTier;
@@ -123,4 +122,3 @@ export interface AirportArrivalGuidanceItem {
   guidance: AirportArrivalGuidance;
 }
 
-export type DepartureTerminalTicket = Pick<TripTransportTicket, "terminal">;

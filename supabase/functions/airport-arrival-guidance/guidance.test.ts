@@ -1,7 +1,6 @@
 import { assertEquals } from 'jsr:@std/assert@1'
 import {
   getAirportArrivalGuidance,
-  getConsistentDepartureTerminal,
   getRecommendedDepartureGate,
   type AirportArrivalGuidancePolicy,
 } from './guidance.ts'
@@ -63,9 +62,25 @@ Deno.test('국내선은 API 혼잡 레벨을 그대로 등급으로 사용한다
   assertEquals(guidance?.congestionTier, 'veryCrowded')
 })
 
-Deno.test('터미널이 하나라도 비어 있거나 서로 다르면 안내 대상에서 제외한다', () => {
-  assertEquals(getConsistentDepartureTerminal([{ terminal: 'T1' }, { terminal: null }]), null)
-  assertEquals(getConsistentDepartureTerminal([{ terminal: 'T1' }, { terminal: 'T2' }]), null)
+Deno.test('터미널이 없어도 국내선 안내를 만든다', () => {
+  const guidance = getAirportArrivalGuidance({
+    departureAt: '2026-09-24T10:00:00+09:00',
+    isCancelled: false,
+    isOverseas: false,
+    departureTerminal: null,
+    now: '2026-09-23T00:00:00+09:00',
+    policy,
+    snapshot: {
+      sourceKind: 'domestic',
+      airportCode: 'GMP',
+      terminal: 'ALL',
+      observedAt: '2026-09-23T00:00:00+09:00',
+      departureGates: [{ gate: 'GMP', passengerCount: 2, referencePassengerCount: 2 }],
+    },
+  })
+
+  assertEquals(guidance?.terminal, null)
+  assertEquals(guidance?.sourceKind, 'domestic')
 })
 
 Deno.test('권장 도착 시각이 가까워진 해외편에만 가장 여유로운 출국장을 추천한다', () => {

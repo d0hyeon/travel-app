@@ -6,28 +6,9 @@ import {
   type AirportCongestionDepartureGate,
   type AirportCongestionTier,
   type CongestionTierInput,
-  type DepartureTerminalTicket,
   type RecommendedDepartureGateInput,
 } from "./airportArrivalGuidance.types";
 import { toTerminalLabel } from "../flight-status";
-
-export function getConsistentDepartureTerminal(
-  tickets: readonly DepartureTerminalTicket[],
-): string | null {
-  if (tickets.length === 0) return null;
-
-  const terminals = tickets.map((ticket) => ticket.terminal?.trim());
-  // 하나라도 터미널이 비어 있으면 전체를 제외한다. 일부만 입력된 상태를
-  // "입력된 값만 보고 하나로 일치"로 착각하면 실제로는 미입력 탑승자가 있다.
-  if (terminals.some((terminal) => terminal == null || terminal === ""))
-    return null;
-
-  const uniqueTerminals = new Set(terminals);
-  if (uniqueTerminals.size !== 1) return null;
-
-  const [terminal] = uniqueTerminals;
-  return terminal as string;
-}
 
 export function getCongestionTier(
   input: CongestionTierInput,
@@ -88,7 +69,6 @@ export function getAirportArrivalGuidance(
   input: AirportArrivalGuidanceInput,
 ): AirportArrivalGuidance | null {
   if (input.isCancelled) return null;
-  if (input.departureTerminal == null) return null;
   if (input.snapshot == null) return null;
 
   const appliedDepartureAt = input.estimatedDepartureAt ?? input.departureAt;
@@ -176,9 +156,9 @@ export function toDepartureGateLabel(gateId: string): string {
 }
 
 export function toGuidanceTerminalLabel(
-  guidance: Pick<AirportArrivalGuidance, "sourceKind" | "terminal">,
-): string {
-  if (guidance.sourceKind === "domestic") return `${guidance.terminal} 터미널`;
+  guidance: Pick<AirportArrivalGuidance, "terminal">,
+): string | null {
+  if (guidance.terminal == null) return null;
 
   return toTerminalLabel(guidance.terminal) ?? guidance.terminal;
 }

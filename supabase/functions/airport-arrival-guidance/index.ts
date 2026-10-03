@@ -5,7 +5,6 @@ import { getAirportCityName } from './airports.ts'
 import { getCongestionSnapshotData, getFreshCongestionSnapshot } from './congestion.ts'
 import {
   getAirportArrivalGuidance,
-  getConsistentDepartureTerminal,
   getRecommendedDepartureGate,
   type AirportArrivalGuidance,
 } from './guidance.ts'
@@ -46,10 +45,6 @@ interface TransportRow {
 interface FlightStatusRow {
   kind: string | null
   estimated_at: string | null
-  terminal: string | null
-}
-
-interface TicketRow {
   terminal: string | null
 }
 
@@ -95,13 +90,12 @@ async function getGuidanceForTransport(input: {
   const typedTransport = transport as TransportRow
   if (typedTransport.type !== 'flight' || typedTransport.departure_airport_code == null) return null
 
-  const [{ data: flightStatus }, { data: tickets }, { data: trip }, policy] = await Promise.all([
+  const [{ data: flightStatus }, { data: trip }, policy] = await Promise.all([
     supabase
       .from('trip_transport_flight_status')
       .select('kind, estimated_at, terminal')
       .eq('transport_id', typedTransport.id)
       .maybeSingle(),
-    supabase.from('trip_transport_tickets').select('terminal').eq('transport_id', typedTransport.id),
     supabase.from('trips').select('is_overseas').eq('id', input.tripId).maybeSingle(),
     getActivePolicy(),
   ])
@@ -116,7 +110,6 @@ async function getGuidanceForTransport(input: {
     isOverseas,
     departureAirportCode: typedTransport.departure_airport_code,
     flightStatusTerminal: typedFlightStatus?.terminal ?? null,
-    ticketTerminal: getConsistentDepartureTerminal((tickets ?? []) as TicketRow[]),
   })
 
   if (guidanceTerminal == null || isCancelled) return null
