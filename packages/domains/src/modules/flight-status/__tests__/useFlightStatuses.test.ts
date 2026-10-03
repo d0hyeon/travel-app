@@ -6,12 +6,11 @@ const 인천출발 = {
   airlineCode: 'KE',
   flightNumber: '721',
   departureAirportCode: 'ICN',
-  arrivalAirportCode: 'KIX',
   departureAt: '2026-03-01T09:10:00Z',
 }
 
 describe('getIsQueryable', () => {
-  it('인천을 지나고 값이 다 찬 쿼리는 조회할 수 있다', () => {
+  it('인천에서 출발하고 값이 다 찬 쿼리는 조회할 수 있다', () => {
     expect(getIsQueryable(인천출발)).toBe(true)
   })
 
@@ -21,7 +20,13 @@ describe('getIsQueryable', () => {
 
   it('인천을 지나지 않으면 조회할 곳이 없다', () => {
     expect(
-      getIsQueryable({ ...인천출발, departureAirportCode: 'GMP', arrivalAirportCode: 'CJU' }),
+      getIsQueryable({ ...인천출발, departureAirportCode: 'GMP' }),
+    ).toBe(false)
+  })
+
+  it('인천 도착편은 조회할 수 없다', () => {
+    expect(
+      getIsQueryable({ ...인천출발, departureAirportCode: 'KIX' }),
     ).toBe(false)
   })
 

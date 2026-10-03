@@ -15,11 +15,7 @@ export type FlightQuery = Partial<GetFlightStatusParams>;
 // provider 가 자기 기간 제약을 답한다. 날씨의 분리를 그대로 승계한다.
 function findProvider(query: FlightQuery) {
   return getFlightStatusProviders().find(({ supportedAirportCodes }) =>
-    supportedAirportCodes.some(
-      (code) =>
-        code === query.departureAirportCode ||
-        code === query.arrivalAirportCode,
-    ),
+    supportedAirportCodes.some((code) => code === query.departureAirportCode),
   );
 }
 
@@ -29,7 +25,6 @@ function getIsComplete(query: FlightQuery): query is GetFlightStatusParams {
     query.airlineCode != null &&
     query.flightNumber != null &&
     query.departureAirportCode != null &&
-    query.arrivalAirportCode != null &&
     query.departureAt != null
   );
 }

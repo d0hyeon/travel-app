@@ -24,7 +24,6 @@ export function useTripScheduledFlights(tripId: string) {
             airlineCode: transport.airlineCode,
             flightNumber: transport.flightNumber,
             departureAirportCode: transport.departureAirportCode,
-            arrivalAirportCode: transport.arrivalAirportCode,
             departureAt: transport.departureAt,
           }
         : {},

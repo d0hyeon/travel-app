@@ -18,7 +18,6 @@ export interface GetFlightStatusParams {
   airlineCode: string
   flightNumber: string
   departureAirportCode: string
-  arrivalAirportCode: string
   departureAt: string
 }
 

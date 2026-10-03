@@ -47,13 +47,12 @@ function Resolved({ tripId, transportId }: Props) {
     airlineCode: transport.type === 'flight' ? transport.airlineCode : undefined,
     flightNumber: transport.type === 'flight' ? transport.flightNumber : undefined,
     departureAirportCode: transport.departureAirportCode,
-    arrivalAirportCode: transport.arrivalAirportCode,
     departureAt: transport.departureAt,
   })
 
   const gateChange = useFlightGateChange(transport.type === 'flight' ? transportId : undefined)
 
-  // 코드 없이 등록된 교통편과 인천을 지나지 않는 노선은 조회할 곳이 없다.
+  // 코드 없이 등록된 교통편과 인천에서 출발하지 않는 노선은 조회할 곳이 없다.
   // 빈 카드를 남기면 데이터를 기다리는 것처럼 보인다.
   if (!isSupported) return null
 
