@@ -1,6 +1,6 @@
-# 운항 상태 푸시 컬럼 분리 Implementation Plan (계획만, 미구현)
+# 운항 상태 푸시 컬럼 분리 Implementation Plan (Task 1·2 구현, Task 3 대기)
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans. **이 플랜은 작성만 했고 실행하지 않았다.** 실행 전에 스펙 검토와 사용자 확인이 필요하다.
+> **진행 상태:** Task 1(새 테이블·복사, `20261004040000`)과 Task 2(감시 함수 전환, `noticeState.ts`)를 구현했다. **Task 3(구 컬럼 제거)은 새 함수가 배포되어 한 주기 이상 중복 알림이 없음을 확인한 뒤 별도로 한다** — 같은 푸시에 넣으면 배포 중인 구 함수가 사라진 컬럼을 읽어 알림 이력을 잃고 같은 알림을 다시 보낼 수 있다.
 
 **Goal:** `trip_transport_flight_status`의 푸시 이력 컬럼(`last_notified_*`)을 별도 테이블로 옮겨 관측값과 푸시 이력의 책임을 나눈다.
 
@@ -96,7 +96,7 @@ ON CONFLICT ("transport_id") DO NOTHING;
 - [ ] **Step 2:** `notifiedStatus`를 새 테이블 값으로 만든다.
 - [ ] **Step 3:** 루프 끝의 upsert를 둘로 나눈다. 먼저 `trip_transport_flight_notices`(shouldNotify면 새 상태, 아니면 직전 값 유지), 그다음 관측 테이블(`last_notified_*` 제외).
 - [ ] **Step 4:** Edge 테스트(어댑터)·문법 검사 통과, 로컬/스테이징에서 감시 1회 실행해 두 테이블이 모두 갱신되는지 확인한다.
-- [ ] **Step 5:** 함수를 배포한 **직후** 복사 이후 구 함수가 구 컬럼에 쓴 차이분을 다시 복사한다: `INSERT INTO trip_transport_flight_notices (...) SELECT ... FROM trip_transport_flight_status ON CONFLICT (transport_id) DO UPDATE SET last_notified_kind = EXCLUDED.last_notified_kind, last_notified_estimated_at = EXCLUDED.last_notified_estimated_at, last_notified_gate = EXCLUDED.last_notified_gate, updated_at = now();` 또는 배포하는 동안 감시 크론을 멈춘다.
+- [ ] **Step 5:** 배포하는 동안 `flight-status-watch` 크론을 멈춘다(`cron.unschedule`이 아니라 `cron.alter_job(<jobid>, active := false)`). 순서는 크론 중지 → 마이그레이션(1단계 복사) → 함수 배포 → 크론 재개다. 크론이 멈춘 동안 구 컬럼에 쓰는 주체가 없으므로 복사 이후 차이분이 생기지 않아 재복사가 필요 없다. 재복사(`ON CONFLICT DO UPDATE`)는 함수 배포 이후 새 함수가 쓴 최신 이력을 구 컬럼의 오래된 값으로 덮어쓰므로 하지 않는다.
 - [ ] **Step 6:** 한 주기 동안 중복 알림이 없는지 확인한다.
 
 ---

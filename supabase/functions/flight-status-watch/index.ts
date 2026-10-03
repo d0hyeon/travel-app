@@ -11,6 +11,7 @@ import {
   toIsoFromApiDateTime,
   type IncheonFlightItem,
 } from './incheonFlights.ts'
+import { nextNoticeState, toNotifiedStatus, type NoticeRow } from './noticeState.ts'
 import { KOREA_AIRPORT_CODES, getIsKoreaAirport, observeKoreaAirportsFlights } from './koreaAirports.ts'
 import {
   getIsGateChanged,
@@ -60,9 +61,6 @@ interface StatusRow {
   transport_id: string
   gate: string | null
   prev_gate: string | null
-  last_notified_kind: string | null
-  last_notified_estimated_at: string | null
-  last_notified_gate: string | null
 }
 
 function findFlight(
@@ -234,16 +232,30 @@ Deno.serve(async () => {
 
   const observations = await observeFlights(serviceKey, watched, notifyAlways, now)
 
-  const { data: previousRows } = await supabase
-    .from('trip_transport_flight_status')
-    .select('transport_id, gate, prev_gate, last_notified_kind, last_notified_estimated_at, last_notified_gate')
-    .in(
-      'transport_id',
-      watched.map((t) => t.id),
-    )
+  const watchedIds = watched.map((t) => t.id)
+  const [
+    { data: previousRows, error: previousError },
+    { data: noticeRows, error: noticeError },
+  ] = await Promise.all([
+    supabase
+      .from('trip_transport_flight_status')
+      .select('transport_id, gate, prev_gate')
+      .in('transport_id', watchedIds),
+    supabase
+      .from('trip_transport_flight_notices')
+      .select('transport_id, last_notified_kind, last_notified_estimated_at, last_notified_gate')
+      .in('transport_id', watchedIds),
+  ])
 
-  const previousById = new Map(
-    (previousRows ?? []).map((row: StatusRow) => [row.transport_id, row]),
+  if (previousError != null || noticeError != null) {
+    return Response.json({ error: (previousError ?? noticeError)?.message }, { status: 500 })
+  }
+
+  const previousById = new Map<string, StatusRow>(
+    (previousRows ?? []).map((row: StatusRow): [string, StatusRow] => [row.transport_id, row]),
+  )
+  const noticeById = new Map<string, NoticeRow>(
+    (noticeRows ?? []).map((row: NoticeRow): [string, NoticeRow] => [row.transport_id, row]),
   )
 
   let notified = 0
@@ -262,11 +274,7 @@ Deno.serve(async () => {
     }
 
     const previous = previousById.get(transport.id)
-    const notifiedStatus = {
-      lastNotifiedKind: previous?.last_notified_kind ?? null,
-      lastNotifiedEstimatedAt: previous?.last_notified_estimated_at ?? null,
-      lastNotifiedGate: previous?.last_notified_gate || null,
-    }
+    const notifiedStatus = toNotifiedStatus(noticeById.get(transport.id))
     const isWithinNotifyWindow = getIsWithinNotifyWindow(transport.departure_at, now, notifyWindowHours)
     const shouldNotify =
       isWithinNotifyWindow && getShouldNotify(status, notifiedStatus, { notifyAlways })
@@ -285,6 +293,19 @@ Deno.serve(async () => {
       previousGate != null && status.gate != null && previousGate !== status.gate
     const prevGate = isRealGateChanged ? previousGate : (previous?.prev_gate || null)
 
+    if (shouldNotify) {
+      const notice = nextNoticeState(status)
+
+      const { error: noticeWriteError } = await supabase.from('trip_transport_flight_notices').upsert({
+        transport_id: transport.id,
+        last_notified_kind: notice.lastNotifiedKind,
+        last_notified_estimated_at: notice.lastNotifiedEstimatedAt,
+        last_notified_gate: notice.lastNotifiedGate,
+        updated_at: new Date().toISOString(),
+      })
+      if (noticeWriteError != null) console.error('푸시 이력 저장 실패', transport.id, noticeWriteError)
+    }
+
     await supabase.from('trip_transport_flight_status').upsert({
       transport_id: transport.id,
       kind: status.kind,
@@ -295,12 +316,6 @@ Deno.serve(async () => {
       arrival_scheduled_at: observation.arrivalScheduledAt,
       arrival_estimated_at: observation.arrivalEstimatedAt,
       prev_gate: prevGate,
-      // 보내지 못했으면 직전 값을 지킨다. 지우면 다음 턴에 다시 보낸다.
-      last_notified_kind: shouldNotify ? status.kind : (previous?.last_notified_kind ?? null),
-      last_notified_estimated_at: shouldNotify
-        ? status.estimatedAt
-        : (previous?.last_notified_estimated_at ?? null),
-      last_notified_gate: shouldNotify ? status.gate : (previous?.last_notified_gate || null),
       checked_at: new Date().toISOString(),
     })
   }
