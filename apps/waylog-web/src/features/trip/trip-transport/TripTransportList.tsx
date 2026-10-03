@@ -45,6 +45,7 @@ export function TripTransportList({ tripId, onTransportClick, ...props }: Props)
   const supportedAirportNames = getSupportedFlightStatusAirportCodes()
     .map((airportCode) => airports.find((airport) => airport.code === airportCode)?.nameKo)
     .filter((airportName): airportName is string => airportName != null)
+    .join(', ')
 
   if (transports.length === 0) {
     return (

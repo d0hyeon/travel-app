@@ -27,6 +27,8 @@ export const GateId = {
 export type GateId = (typeof GateId)[keyof typeof GateId];
 export const GateIdLabel = reverseKeyValue(GateId);
 
+export const DOMESTIC_CONGESTION_AIRPORT_CODES = ["GMP", "PUS", "TAE", "CJJ", "CJU"] as const;
+
 export type AirportCongestionSourceKind = "forecast" | "realtime" | "domestic";
 export type AirportCongestionTier =
   | "calm"

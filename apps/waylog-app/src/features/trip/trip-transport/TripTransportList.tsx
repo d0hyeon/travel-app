@@ -3,18 +3,25 @@ import {
   splitByDeparture,
   useTripScheduledFlights,
 } from '@waylog/domains/modules/trip-transport'
-import { useAirportArrivalGuidances } from '@waylog/domains/modules/airport-arrival-guidance'
+import {
+  DOMESTIC_CONGESTION_AIRPORT_CODES,
+  useAirportArrivalGuidances,
+} from '@waylog/domains/modules/airport-arrival-guidance'
 import { getSupportedFlightStatusAirportCodes } from '@waylog/domains/modules/flight-status'
 import { useAirports } from '@waylog/domains/modules/airport'
-import { MaterialIcons } from '@expo/vector-icons'
+import { Ionicons, MaterialIcons } from '@expo/vector-icons'
 import { format as formatDate } from 'date-fns'
 import { useMemo } from 'react'
-import { StyleSheet, View } from 'react-native'
-import { Accordion, Box, Button, Skeleton, Stack, Typography } from '~/shared/components/design-system'
+import { Pressable, StyleSheet, View } from 'react-native'
+import { Accordion, Box, Button, Divider, Skeleton, Stack, Typography } from '~/shared/components/design-system'
 import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
+import { useOverlay } from '../../../shared/hooks/useOverlay'
 import { AppRoute } from '../../../app/AppRoute'
-import { palette, radius } from '../../../shared/config/tokens'
+import { SupportedNotificationSheet } from './SupportedNotificationSheet'
 import { TransportCard } from './TransportCard'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { palette, radius } from '~/shared/config/tokens';
+import { useTheme } from 'tamagui'
 
 interface Props {
   tripId: string
@@ -27,45 +34,13 @@ export function TripTransportList({ tripId, onTransportPress }: Props) {
     tripId,
     transportIds: transports.map((transport) => transport.id),
   })
-  const navigation = useAppNavigation()
 
   // 렌더마다 기준 시각이 달라지면 목록이 흔들린다. 조회 결과가 바뀔 때만 다시 가른다.
   const { past, upcoming } = useMemo(() => splitByDeparture(transports, new Date()), [transports])
   const upcomingGroups = useMemo(() => groupByDepartureDate(upcoming), [upcoming])
-  const { data: airports } = useAirports()
-  const supportedAirportNames = getSupportedFlightStatusAirportCodes()
-    .map((airportCode) => airports.find((airport) => airport.code === airportCode)?.nameKo)
-    .filter((airportName): airportName is string => airportName != null)
 
   if (transports.length === 0) {
-    return (
-      <View style={styles.empty}>
-        <Box style={styles.emptyIcon}>
-          <MaterialIcons name="flight-takeoff" size={26} color={palette.primary} />
-        </Box>
-        <Typography variant="subtitle1" >
-          탑승권을 등록해보세요
-        </Typography>
-        <Typography variant="body2" color="text.secondary" textAlign="center" style={styles.emptyDescription}>
-          탑승 전, 여정 변동(지연, 결항, 탑승구 변경)등{`\n`}중요한 상황을 놓치지 않도록 알려드려요
-        </Typography>
-        <Button
-          fullWidth
-          size="large"
-          variant="contained"
-          startIcon={<MaterialIcons name="add" size={18} color={palette.onPrimary} />}
-          onPress={() => navigation.navigate(AppRoute.여행_교통편_추가, { tripId })}
-        >
-          탑승권 등록
-        </Button>
-        <Stack direction="row" alignItems="center" style={styles.supportedAirport}>
-
-          <Typography color="text.secondary" style={styles.supportedAirportLabel}>
-            * 여정 변동 알림은 {supportedAirportNames} 출발 항공편에 한해 지원돼요.
-          </Typography>
-        </Stack>
-      </View>
-    )
+    return <TransportEmptyCard tripId={tripId} />
   }
 
   return (
@@ -119,6 +94,104 @@ TripTransportList.Skeleton = function TripTransportListSkeleton() {
   )
 }
 
+interface TransportEmptyCardProps {
+  tripId: string;
+}
+
+function TransportEmptyCard({ tripId }: TransportEmptyCardProps) {
+  const navigation = useAppNavigation()
+
+  return (
+    <View style={styles.empty}>
+      <Box style={styles.emptyIcon}>
+        <MaterialIcons name="flight-takeoff" size={26} color={palette.primary} />
+      </Box>
+      <Stack alignItems="center" gap={0.5} mb={1}>
+        <Typography variant="h6">탑승권을 등록해보세요</Typography>
+        <Typography variant="body2" color="text.secondary" textAlign="center" >
+          중요한 상황을 놓치지 않도록 알려드려요
+        </Typography>
+        <Stack style={styles.details} gap={1}>
+          <Stack direction="row" alignItems="center" gap={1}>
+            <Box style={[styles.symbol, { backgroundColor: palette.errorContainer }]}>
+              <MaterialCommunityIcons name="exclamation-thick" size={14} color={palette.error} />
+            </Box>
+            <Stack gap={0.25}>
+              <Typography variant="subtitle2">여정 변동 안내</Typography>
+              <Typography variant="caption" color="text.disabled">지연, 결항, 탑승구 변경</Typography>
+            </Stack>
+          </Stack>
+          <Divider style={{ backgroundColor: '#eee' }} />
+          <Stack direction="row" alignItems="center" gap={1} style={styles.detailRow}>
+            <Box style={[styles.symbol, { backgroundColor: palette.primaryContainer }]}>
+              <Ionicons name="time-outline" size={14} color={palette.primary} />
+            </Box>
+            <Stack gap={0.25}>
+              <Typography variant="subtitle2">공항 도착 권장시간 안내</Typography>
+            </Stack>
+          </Stack>
+          <Divider style={{ backgroundColor: '#eee' }} />
+          <Stack direction="row" alignItems="center" gap={1} style={styles.detailRow}>
+            <Box style={[styles.symbol, { backgroundColor: '#E5F8EF' }]}>
+              <MaterialIcons name="check" size={14} color={palette.success} />
+            </Box>
+            <Stack gap={0.25}>
+              <Typography variant="subtitle2">탑승 안내</Typography>
+            </Stack>
+          </Stack>
+        </Stack>
+      </Stack>
+      <Button
+        fullWidth
+        size="large"
+        variant="contained"
+        startIcon={<MaterialIcons name="add" size={18} color={palette.onPrimary} />}
+        onPress={() => navigation.navigate(AppRoute.여행_교통편_추가, { tripId })}
+      >
+        탑승권 등록
+      </Button>
+      <SupportedNotificationButton />
+    </View>
+  )
+}
+
+function SupportedNotificationButton() {
+  const overlay = useOverlay()
+  const { data: airports } = useAirports()
+
+  const toAirportNames = (airportCodes: readonly string[]) =>
+    airportCodes
+      .map((airportCode) => airports.find((airport) => airport.code === airportCode)?.nameKo)
+      .filter((airportName): airportName is string => airportName != null)
+      .map((airportName) => airportName.replace(/(국제)?공항$/, ''))
+
+  const openSupportedNotification = () => {
+    overlay.open(({ isOpen, close }) => (
+      <SupportedNotificationSheet
+        isOpen={isOpen}
+        onDismiss={close}
+        flightStatusAirportNames={toAirportNames(getSupportedFlightStatusAirportCodes())}
+        guidanceAirportNames={toAirportNames(DOMESTIC_CONGESTION_AIRPORT_CODES)}
+      />
+    ))
+  }
+
+  return (
+    <Stack
+      direction="row"
+      alignItems="center"
+      as={Pressable}
+      onPress={openSupportedNotification}
+      style={{ alignSelf: 'flex-end', marginBottom: -8 }}
+    >
+      <Typography variant="caption" color="text.disabled">
+        자세히 보기
+      </Typography>
+      <MaterialIcons name="arrow-right" color={palette.textDisabled} size={24} />
+    </Stack >
+  )
+}
+
 function TransportCardSkeleton() {
   return (
     <View style={styles.skeletonCard}>
@@ -142,7 +215,6 @@ const styles = StyleSheet.create({
   list: { gap: 18 },
   empty: { alignItems: 'center', padding: 24, gap: 12, borderRadius: 16, borderWidth: 1, borderColor: palette.divider, backgroundColor: palette.primaryContainer },
   emptyIcon: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', backgroundColor: palette.background },
-  emptyDescription: { lineHeight: 21 },
   supportedAirport: { gap: 6, borderRadius: 20, alignSelf: 'flex-end', marginTop: 8, marginBottom: -12 },
   supportedAirportLabel: { fontSize: 12 },
   group: { gap: 8 },
@@ -156,4 +228,7 @@ const styles = StyleSheet.create({
   },
   skeletonTypeRow: { marginBottom: 8 },
   skeletonTimes: { marginTop: 16 },
+  details: { minWidth: '100%', marginTop: 12, backgroundColor: palette.background, padding: 12, borderRadius: 16, },
+  detailRow: { minHeight: 36 },
+  symbol: { alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: 8 }
 })
