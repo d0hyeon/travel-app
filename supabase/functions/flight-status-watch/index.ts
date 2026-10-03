@@ -3,7 +3,7 @@ import webpush from 'npm:web-push'
 import { getAirportCityName } from '../airport-arrival-guidance/airports.ts'
 import { isExpoPushToken, sendExpoPush } from '../chat-web-push/expoPush.ts'
 import {
-  getIncheonFlights,
+  getIncheonDepartures,
   getIsSameKstDate,
   isSameFlight,
   toFlightStatusKind,
@@ -64,13 +64,10 @@ interface StatusRow {
 
 function findFlight(
   transport: TransportRow,
-  flights: { departures: IncheonFlightItem[]; arrivals: IncheonFlightItem[] },
+  departures: IncheonFlightItem[],
   { allowAnyDay }: { allowAnyDay: boolean },
 ) {
-  const items =
-    transport.departure_airport_code === INCHEON ? flights.departures : flights.arrivals
-
-  const matched = items.filter((item) =>
+  const matched = departures.filter((item) =>
     isSameFlight(item.flightId, {
       airlineCode: transport.airline_code,
       flightNumber: transport.flight_number ?? '',
@@ -80,8 +77,8 @@ function findFlight(
   if (matched.length === 0) return null
 
   // 같은 편명이 D+0~D+6 에 걸쳐 온다. 등록한 날짜의 편을 고른다. 없으면
-  // 인천 출발편은 비워 둔다 -- 다른 날 편의 상태가 저장되면 안 된다.
-  // 도착편(제거 예정)과 알림 테스트 모드만 아무거나 집는다.
+  // 비워 둔다 -- 다른 날 편의 상태가 저장되면 안 된다.
+  // 알림 테스트 모드만 아무거나 집는다.
   const sameDay = matched.find((item) => {
     const scheduledAt = toIsoFromApiDateTime(item.scheduleDateTime)
     if (scheduledAt == null) return false
@@ -183,6 +180,7 @@ Deno.serve(async () => {
       'id, trip_id, airline, airline_code, flight_number, departure_airport_code, arrival_airport_code, departure_at',
     )
     .eq('type', 'flight')
+    .eq('departure_airport_code', INCHEON)
     .not('airline_code', 'is', null)
     .not('flight_number', 'is', null)
     .gte('departure_at', from.toISOString())
@@ -192,23 +190,20 @@ Deno.serve(async () => {
     return Response.json({ error: error.message }, { status: 500 })
   }
 
-  const watched = (transports ?? []).filter(
-    (t: TransportRow) =>
-      t.departure_airport_code === INCHEON || t.arrival_airport_code === INCHEON,
-  )
+  const watched = (transports ?? []) as TransportRow[]
 
   if (watched.length === 0) {
     return Response.json({ watched: 0, notified: 0, matched: 0, notifyAlways })
   }
 
-  const flights = await getIncheonFlights(serviceKey)
+  const departures = await getIncheonDepartures(serviceKey)
 
   const { data: previousRows } = await supabase
     .from('trip_transport_flight_status')
     .select('transport_id, gate, prev_gate, last_notified_kind, last_notified_estimated_at, last_notified_gate')
     .in(
       'transport_id',
-      watched.map((t: TransportRow) => t.id),
+      watched.map((t) => t.id),
     )
 
   const previousById = new Map(
@@ -218,10 +213,8 @@ Deno.serve(async () => {
   let notified = 0
   let matched = 0
 
-  for (const transport of watched as TransportRow[]) {
-    const flight = findFlight(transport, flights, {
-      allowAnyDay: notifyAlways || transport.departure_airport_code !== INCHEON,
-    })
+  for (const transport of watched) {
+    const flight = findFlight(transport, departures, { allowAnyDay: notifyAlways })
     if (flight == null) continue
 
     matched += 1

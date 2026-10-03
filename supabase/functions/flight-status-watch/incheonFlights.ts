@@ -64,14 +64,14 @@ export function toIsoFromApiDateTime(value: string | null): string | null {
   return `${year}-${month}-${day}T${hour}:${minute}:00+09:00`
 }
 
-async function fetchFlights(
-  direction: 'departure' | 'arrival',
-  serviceKey: string,
-): Promise<IncheonFlightItem[]> {
-  const operation =
-    direction === 'departure' ? 'getPassengerDeparturesDSOdp' : 'getPassengerArrivalsDSOdp'
-
-  const url = new URL(`${BASE_URL}/${operation}`)
+/**
+ * 하루치를 통째로 받는다.
+ *
+ * flight_id 파라미터는 서버가 무시하므로(필터해도 전량이 온다) 감시 대상이
+ * 몇 편이든 호출은 1회다.
+ */
+export async function getIncheonDepartures(serviceKey: string): Promise<IncheonFlightItem[]> {
+  const url = new URL(`${BASE_URL}/getPassengerDeparturesDSOdp`)
   url.searchParams.set('serviceKey', serviceKey)
   url.searchParams.set('type', 'json')
   url.searchParams.set('numOfRows', String(PAGE_SIZE))
@@ -88,21 +88,6 @@ async function fetchFlights(
   }
 
   return body.body?.items ?? []
-}
-
-/**
- * 하루치를 통째로 받는다.
- *
- * flight_id 파라미터는 서버가 무시하므로(필터해도 전량이 온다) 감시 대상이
- * 몇 편이든 호출은 방향당 1회다.
- */
-export async function getIncheonFlights(serviceKey: string) {
-  const [departures, arrivals] = await Promise.all([
-    fetchFlights('departure', serviceKey),
-    fetchFlights('arrival', serviceKey),
-  ])
-
-  return { departures, arrivals }
 }
 
 const KST_DATE_FORMAT = new Intl.DateTimeFormat('en-CA', {
