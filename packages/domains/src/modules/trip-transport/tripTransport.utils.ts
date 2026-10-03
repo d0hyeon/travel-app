@@ -1,4 +1,10 @@
+import {
+  FlightStatusKind,
+  toDelayMinutes,
+  type FlightStatus,
+} from "../flight-status";
 import type {
+  ScheduledTripTransport,
   TripTransport,
   TripTransportTicket,
   TripTransportType,
@@ -105,16 +111,16 @@ function toDateKey(isoString: string, timezone: string | undefined): string {
   }).format(new Date(isoString));
 }
 
-export interface TripTransportDateGroup {
+export interface TripTransportDateGroup<T extends TripTransport = TripTransport> {
   date: string;
-  transports: TripTransport[];
+  transports: T[];
 }
 
-export function groupByDepartureDate(
-  transports: TripTransport[],
+export function groupByDepartureDate<T extends TripTransport>(
+  transports: T[],
   timezone?: string,
-): TripTransportDateGroup[] {
-  const groups: TripTransportDateGroup[] = [];
+): TripTransportDateGroup<T>[] {
+  const groups: TripTransportDateGroup<T>[] = [];
 
   for (const transport of transports) {
     const date = toDateKey(
@@ -134,11 +140,11 @@ export function groupByDepartureDate(
   return groups;
 }
 
-export function splitByDeparture(
-  transports: TripTransport[],
+export function splitByDeparture<T extends TripTransport>(
+  transports: T[],
   now: Date,
-): { past: TripTransport[]; upcoming: TripTransport[] } {
-  const departedAt = (transport: TripTransport) =>
+): { past: T[]; upcoming: T[] } {
+  const departedAt = (transport: T) =>
     new Date(transport.departureAt).getTime();
   const boundary = now.getTime();
 
@@ -177,4 +183,44 @@ export function getTicketStoragePath(imageUrl: string): string | undefined {
   if (prefixIndex === -1) return undefined;
 
   return imageUrl.slice(prefixIndex).split("?")[0];
+}
+
+const KINDS_WITHOUT_ARRIVAL_ESTIMATE: readonly FlightStatusKind[] = [
+  FlightStatusKind.결항,
+  FlightStatusKind.회항,
+];
+
+function getArrivalDelayMinutes(
+  arrivalAt: string | undefined,
+  status: FlightStatus,
+): number | null {
+  if (arrivalAt == null) return null;
+  if (KINDS_WITHOUT_ARRIVAL_ESTIMATE.includes(status.kind)) return null;
+
+  return toDelayMinutes(status);
+}
+
+export function applyFlightStatus(
+  transport: TripTransport,
+  status: FlightStatus | null,
+): ScheduledTripTransport {
+  if (status == null) return transport;
+
+  const departureAt =
+    status.estimatedAt ?? status.scheduledAt ?? transport.departureAt;
+  const arrivalDelayMinutes = getArrivalDelayMinutes(transport.arrivalAt, status);
+  if (arrivalDelayMinutes == null || transport.arrivalAt == null) {
+    return { ...transport, departureAt };
+  }
+
+  const delayedArrivalAt = new Date(
+    new Date(transport.arrivalAt).getTime() + arrivalDelayMinutes * 60_000,
+  ).toISOString();
+
+  return {
+    ...transport,
+    departureAt,
+    arrivalAt: delayedArrivalAt,
+    arrivalDelayMinutes,
+  };
 }

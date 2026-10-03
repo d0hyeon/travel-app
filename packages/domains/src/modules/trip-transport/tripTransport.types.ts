@@ -43,3 +43,5 @@ export type TripTransportCarrier =
   | { type: Extract<TripTransportType, 'train' | 'bus'> }
 
 export type TripTransport = TripTransportBase & TripTransportCarrier
+
+export type ScheduledTripTransport = TripTransport & { arrivalDelayMinutes?: number }

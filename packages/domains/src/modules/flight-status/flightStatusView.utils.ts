@@ -42,7 +42,7 @@ function toClock(value: string) {
   }).format(date)
 }
 
-function toDelayMinutes(status: FlightStatus) {
+export function toDelayMinutes(status: FlightStatus) {
   if (status.estimatedAt == null) return null
 
   const scheduled = new Date(status.scheduledAt).getTime()
