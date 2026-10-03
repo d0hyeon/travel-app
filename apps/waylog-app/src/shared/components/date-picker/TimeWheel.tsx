@@ -7,8 +7,8 @@ import {
 } from 'react-native'
 
 import { Typography } from '~/shared/components/design-system'
-import { buildMinuteOptions } from './calendar.utils'
-import type { TimeOfDay } from './datePicker.model'
+import { buildMinuteOptions, getTimesRange } from './calendar.utils'
+import type { DateBounds, TimeOfDay } from './datePicker.model'
 import { palette, radius } from '../../config/tokens'
 
 const ITEM_HEIGHT = 40
@@ -21,15 +21,30 @@ const CENTER_OFFSET = ITEM_HEIGHT * ((VISIBLE_COUNT - 1) / 2)
 
 const HOUR_OPTIONS = Array.from({ length: 24 }, (_, hour) => hour)
 
-interface TimeWheelProps {
+interface TimeWheelProps extends DateBounds {
+  /** 시각을 고르는 날. 경계일인지 가리는 데 쓴다. */
+  day: Date
   hours: number
   minutes: number
   minuteStep: number
   onChange: (time: TimeOfDay) => void
 }
 
-export function TimeWheel({ hours, minutes, minuteStep, onChange }: TimeWheelProps) {
-  const minuteOptions = buildMinuteOptions(minuteStep)
+export function TimeWheel({
+  day,
+  minDate,
+  maxDate,
+  hours,
+  minutes,
+  minuteStep,
+  onChange,
+}: TimeWheelProps) {
+  const { minHours, maxHours, minMinutes, maxMinutes } = getTimesRange(day, { minDate, maxDate })
+
+  const hourOptions = HOUR_OPTIONS.filter((hour) => hour >= minHours && hour <= maxHours)
+  const minuteOptions = buildMinuteOptions(minuteStep).filter(
+    (minute) => minute >= minMinutes && minute <= maxMinutes,
+  )
 
   return (
     <View style={styles.wheels}>
@@ -37,7 +52,7 @@ export function TimeWheel({ hours, minutes, minuteStep, onChange }: TimeWheelPro
       <View style={styles.selectionBand} pointerEvents="none" />
 
       <WheelColumn
-        options={HOUR_OPTIONS}
+        options={hourOptions}
         value={hours}
         suffix="시"
         onChange={(nextHours) => onChange({ hours: nextHours, minutes })}

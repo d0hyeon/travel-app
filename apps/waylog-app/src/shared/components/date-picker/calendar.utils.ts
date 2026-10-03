@@ -1,5 +1,6 @@
-import { addDays, endOfMonth, isBefore, isSameDay, startOfMonth, startOfWeek } from 'date-fns'
-import type { DateBounds, DateSelection } from './datePicker.model'
+import { addDays, endOfMonth, isBefore, isSameDay, set, startOfMonth, startOfWeek } from 'date-fns'
+import type { AllowedTimes, DateBounds, DateSelection, DateTimeSetter } from './datePicker.model'
+import { NotImplementedError, 날짜_입력_제한_기능_제공_정책 } from './datePicker.policy'
 
 /**
  * 고를 수 있는 날인가. 경계일 당일은 고를 수 있다.
@@ -58,10 +59,7 @@ export function isWithinRange(day: Date, range: DateSelection): boolean {
  * 이미 찍힌 끝을 다시 누르면 그 끝이 풀리고,
  * 남은 끝을 넘어서 누르면 기간을 뒤집는 대신 그 끝이 눌린 쪽으로 옮겨간다.
  */
-export function toggleRangeSelection(
-  selection: DateSelection,
-  day: Date,
-): DateSelection {
+export function toggleRangeSelection(selection: DateSelection, day: Date): DateSelection {
   const [start, end] = selection
 
   // 이미 찍힌 끝을 다시 누르면 그 끝만 푼다. 나머지 끝은 남는다.
@@ -81,4 +79,54 @@ export function toggleRangeSelection(
 /** 분 선택지. 60 을 넘지 않는 눈금만 낸다. */
 export function buildMinuteOptions(step: number): number[] {
   return Array.from({ length: Math.ceil(60 / step) }, (_, index) => index * step)
+}
+
+/**
+ * 그날 고를 수 있는 시와 분. 경계일에서만 경계의 시로 좁혀진다.
+ * 분은 경계로 좁히지 않는다. 정책 플래그를 켜면 구현이 필요하다고 알려준다.
+ */
+export function getTimesRange(day: Date, { minDate, maxDate }: DateBounds): AllowedTimes {
+  const minHours = minDate != null && isSameDay(day, minDate) ? minDate.getHours() : 0
+  const maxHours = maxDate != null && isSameDay(day, maxDate) ? maxDate.getHours() : 23
+
+  if (날짜_입력_제한_기능_제공_정책.Minutes) {
+    throw new NotImplementedError({
+      features: '날짜 입력 제한',
+      details: 'Minutes',
+    })
+  }
+
+  return { minHours, maxHours, minMinutes: 0, maxMinutes: 59 }
+}
+
+type InputtedDateTimeOptions = DateBounds &
+  DateTimeSetter & {
+    /** 새 날짜가 이어받을 시각을 가진, 직전에 고른 값. */
+    previousValue?: Date | null
+  }
+
+/**
+ * 고른 날에 시각을 얹는다.
+ * 직전 값이 있으면 그 시각을 이어받고, 없을 때만 기본 시각을 쓴다.
+ * 경계일이면 시를 그날 고를 수 있는 범위 안으로 맞춘다.
+ */
+export function resolveInputtedDateTime(
+  date: Date,
+  { previousValue, defaultHours, defaultMinutes, minDate, maxDate }: InputtedDateTimeOptions,
+): Date {
+  const hours = previousValue?.getHours() ?? defaultHours ?? 0
+  const minutes = previousValue?.getMinutes() ?? defaultMinutes ?? 0
+
+  const { minHours, maxHours, minMinutes, maxMinutes } = getTimesRange(date, {
+    minDate,
+    maxDate,
+  })
+  return set(date, {
+    hours: mathRange(hours, minHours, maxHours),
+    minutes: mathRange(minutes, minMinutes, maxMinutes),
+  })
+}
+
+function mathRange(number: number, min: number, max: number) {
+  return Math.max(Math.min(number, max), min)
 }

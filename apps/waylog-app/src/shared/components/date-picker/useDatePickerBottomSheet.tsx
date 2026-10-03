@@ -1,9 +1,9 @@
 import { useCallback } from 'react'
 import { useOverlay } from '../../hooks/useOverlay'
 import { DatePickerBottomSheet } from './DatePickerBottomSheet'
-import type { DateBounds, DateRange, DateSelection } from './datePicker.model'
+import type { DateBounds, DateRange, DateSelection, DateTimeSetter } from './datePicker.model'
 
-interface OpenDayParams extends DateBounds {
+interface OpenDayParams extends DateBounds, DateTimeSetter {
   type?: 'date' | 'dateTime'
   defaultValue?: Date | null
   minuteStep?: number
@@ -25,7 +25,9 @@ export function useDatePickerBottomSheet() {
   const overlay = useOverlay()
 
   const openDay = useCallback(
-    ({ type = 'date', defaultValue = null, minuteStep, minDate, maxDate }: OpenDayParams = {}) =>
+    ({ type = 'date', defaultValue = null, minuteStep, ...params }: OpenDayParams = {}) =>
+
+
       new Promise<Date | null>((resolve) => {
         overlay.open(({ isOpen, close, onClose }) => {
           const settle = (value: Date | null) => {
@@ -39,11 +41,10 @@ export function useDatePickerBottomSheet() {
               type={type}
               defaultValue={defaultValue}
               minuteStep={minuteStep}
-              minDate={minDate}
-              maxDate={maxDate}
               onConfirm={settle}
               onDismiss={() => settle(null)}
               onClose={onClose}
+              {...params}
             />
           )
         })

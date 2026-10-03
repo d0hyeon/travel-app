@@ -19,14 +19,32 @@ export type DatePickerStep = 'date' | 'time'
 
 /**
  * 고를 수 있는 날짜의 양 끝. 양 끝도 고를 수 있다.
- * 하루 단위로만 본다. 경계일 당일의 시각은 자르지 않는다.
+ * 날짜는 하루 단위로 본다. 시각은 경계일에서만 시(hour) 단위로 자른다.
  */
 export type DateBounds = {
   minDate?: Date
   maxDate?: Date
 }
 
+/**
+ * 기본 시간 설정
+ * 날짜를 고를 때 직전 값이 없으면 이 시각을 얹는다.
+ * range 는 날짜 단위라 쓰지 않는다.
+ */
+export type DateTimeSetter = {
+  defaultHours?: number
+  defaultMinutes?: number
+}
+
 export const DEFAULT_MINUTE_STEP = 5
 
 /** 시각 휠이 주고받는 값. */
 export type TimeOfDay = { hours: number; minutes: number }
+
+/** 어느 날 고를 수 있는 시와 분의 양 끝. 양 끝도 고를 수 있다. */
+export type AllowedTimes = {
+  minHours: number
+  maxHours: number
+  minMinutes: number
+  maxMinutes: number
+}

@@ -3,12 +3,13 @@ import { format as formatDate } from 'date-fns'
 import { Keyboard, Pressable, StyleSheet, View } from 'react-native'
 import { Typography } from '~/shared/components/design-system'
 import { palette, radius } from '../../config/tokens'
-import type { DateBounds, DateRange } from './datePicker.model'
+import type { DateBounds, DateRange, DateTimeSetter } from './datePicker.model'
 import { useDatePickerBottomSheet } from './useDatePickerBottomSheet'
 
 type DateFieldTypeProps =
-  | { type?: 'date'; value?: Date; onChange?: (value: Date) => void }
-  | { type: 'dateTime'; value?: Date; minuteStep?: number; onChange?: (value: Date) => void }
+  | ({ type?: 'date'; value?: Date; onChange?: (value: Date) => void } & DateTimeSetter)
+  | ({ type: 'dateTime'; value?: Date; minuteStep?: number; onChange?: (value: Date) => void } &
+      DateTimeSetter)
   | {
     type: 'range'
     value?: DateRange
@@ -55,13 +56,14 @@ export function DateField(props: DateFieldProps) {
       props.onChange?.(range)
       return
     }
-
     const day = await datePickerBottomSheet.openDay({
       type: props.type,
       defaultValue: props.value ?? null,
       minuteStep: props.type === 'dateTime' ? props.minuteStep : undefined,
       minDate,
       maxDate,
+      defaultHours: props.defaultHours,
+      defaultMinutes: props.defaultMinutes,
     })
     if (day == null) return
 

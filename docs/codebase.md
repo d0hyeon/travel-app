@@ -796,12 +796,19 @@ src/
 - `minDate`/`maxDate` 는 `DateBounds` 로 묶여 `DateField` 부터 `CalendarDay` 까지 그대로 내려간다.
   이름은 웹의 MUI `maxDate` 를 승계한다.
   경계는 **하루 단위**다. 경계일에 붙은 시각이 당일을 잘라내지 않는다.
-  `dateTime` 의 시각 휠은 제약하지 않는다. 지금 소비처가 모두 날짜 단위 제약이다.
+  시각은 경계일에서만 **시(hour) 단위**로 제약한다. 분 단위는 구현하지 않는다.
+  `datePicker.policy.ts` 의 플래그를 켜면 미구현 지점이 `NotImplementedError` 로 알려준다.
+  그날 고를 수 있는 시·분은 `getTimesRange` 가 한 곳에서 정하고, 분 제한을 켜면 여기서 `NotImplementedError` 를 던진다.
+  `resolveInputtedDateTime` 이 날짜를 고르는 순간 시를 그 범위 안으로 맞춰 휠 값이 늘 옵션 안에 있게 하고,
+  `TimeWheel` 도 `getTimesRange` 를 직접 불러 같은 범위로 옵션을 거른다.
   경계 밖의 날은 `CalendarDay` 가 회색으로 남기고 `Pressable` 자체를 내지 않아
   `toggleRangeSelection` 은 제약을 몰라도 된다.
   기간 배경도 입히지 않는다. 칠하면 고른 것으로 읽혀 눌리지 않는 이유를 설명하지 못한다.
   값이 없을 때 `DatePicker` 의 초기 커서는 `clampToDateBounds` 로 경계 안에 넣는다.
   그러지 않으면 전부 회색인 달이 펼쳐진다.
+- `defaultHours`/`defaultMinutes` 는 `DateTimeSetter` 로 `DateField` 부터 `DatePicker` 까지 내려간다.
+  날짜를 고를 때 직전 값이 있으면 그 시각을 이어받고, 없을 때만 기본 시각을 쓴다.
+  `range` 는 날짜 단위라 `defaultHours` 를 쓰지 않는다.
 - 격자 계산과 기간 선택 규칙은 `calendar.utils.ts` 의 순수 함수로 분리해 두었다.
   웹 `shared/components/date-range/` 의 선택 규칙을 승계했다.
   소비처가 이 디렉토리뿐이라 공유 패키지로 올리지 않는다.

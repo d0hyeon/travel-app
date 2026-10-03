@@ -1,18 +1,19 @@
-import { setHours, setMinutes, startOfDay } from 'date-fns'
+import { set as setTimes, startOfDay } from 'date-fns'
 import { useRef, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import { Calendar, CALENDAR_GRID_HEIGHT, type CalendarRef } from './Calendar'
-import { CalendarHeader, CALENDAR_HEADER_HEIGHT } from './CalendarHeader'
+import { CALENDAR_HEADER_HEIGHT, CalendarHeader } from './CalendarHeader'
 import { TimeStepHeader } from './TimeStepHeader'
 import { TimeWheel } from './TimeWheel'
-import { clampToDateBounds, toggleRangeSelection } from './calendar.utils'
-import type { DateBounds, DatePickerStep, DateSelection, TimeOfDay } from './datePicker.model'
+import {
+  clampToDateBounds,
+  resolveInputtedDateTime,
+  toggleRangeSelection,
+} from './calendar.utils'
+import type { DateBounds, DatePickerStep, DateSelection, DateTimeSetter, TimeOfDay } from './datePicker.model'
 import { DEFAULT_MINUTE_STEP } from './datePicker.model'
 
-import { MaterialIcons } from '@expo/vector-icons'
-import { palette } from '../../config/tokens'
-import { Stack, Typography } from '~/shared/components/design-system'
 
 const EMPTY_RANGE: DateSelection = [null, null]
 
@@ -21,17 +22,18 @@ const EMPTY_RANGE: DateSelection = [null, null]
  * date·dateTime 은 하루뿐이라 빈 둘째 칸을 들고 다니지 않는다.
  */
 type DatePickerValueProps =
-  | {
+  | ({
     type?: 'date' | 'dateTime'
     /** 아직 안 골랐으면 옵셔널이다. */
     value?: Date
     onChange?: (value: Date) => void
-  }
+  } & DateTimeSetter)
   | {
     type: 'range'
     value?: DateSelection
     onChange?: (value: DateSelection) => void
   }
+
 
 type DatePickerProps = DatePickerValueProps &
   DateBounds & {
@@ -105,10 +107,15 @@ export function DatePicker(props: DatePickerProps) {
       return
     }
 
-    // 하루만 고르는 타입에서는 이미 고른 시각을 잃지 않게 날짜만 갈아끼운다.
-    const time = start ?? startOfDay(day)
-    changeDay(setMinutes(setHours(day, time.getHours()), time.getMinutes()))
-
+    changeDay(
+      resolveInputtedDateTime(day, {
+        previousValue: start,
+        defaultHours: props.defaultHours,
+        defaultMinutes: props.defaultMinutes,
+        minDate,
+        maxDate,
+      }),
+    )
     // 날짜를 고르면 곧바로 시각을 묻는다. 누를 버튼을 하나 줄인다.
     if (type === 'dateTime') goToStep('time')
   }
@@ -119,7 +126,7 @@ export function DatePicker(props: DatePickerProps) {
 
     // 날짜를 아직 안 골랐으면 오늘에 시각을 얹는다. 휠이 헛돌지 않게 한다.
     const base = start ?? startOfDay(new Date())
-    changeDay(setMinutes(setHours(base, hours), minutes))
+    changeDay(setTimes(base, { hours, minutes }))
   }
 
   if (currentStep === 'time') {
@@ -143,6 +150,9 @@ export function DatePicker(props: DatePickerProps) {
             minutes={pickedTime.getMinutes()}
             minuteStep={minuteStep}
             onChange={handleChangeTime}
+            day={pickedTime}
+            minDate={minDate}
+            maxDate={maxDate}
           />
         </View>
       </View>

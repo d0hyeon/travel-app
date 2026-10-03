@@ -3,17 +3,17 @@ import { BottomSheet } from '../bottom-sheet/BottomSheet'
 import { Button } from '~/shared/components/design-system'
 import { DatePicker } from './DatePicker'
 import { DEFAULT_MINUTE_STEP } from './datePicker.model'
-import type { DateBounds, DatePickerStep, DateRange, DateSelection } from './datePicker.model'
+import type { DateBounds, DatePickerStep, DateRange, DateSelection, DateTimeSetter } from './datePicker.model'
 
 /** 확정된 값의 모양도 타입이 정한다. 시트를 여는 쪽은 무엇을 고를지 이미 안다. */
 type DatePickerBottomSheetValueProps =
-  | {
+  | ({
     type?: 'date' | 'dateTime'
     /** 시트를 열 때의 값. 확정 전까지 밖으로 새어 나가지 않는다. */
     defaultValue: Date | null
     minuteStep?: number
     onConfirm: (value: Date) => void
-  }
+  } & DateTimeSetter)
   | {
     type: 'range'
     defaultValue: DateSelection
@@ -84,6 +84,8 @@ export function DatePickerBottomSheet(props: DatePickerBottomSheetProps) {
               minuteStep={props.minuteStep ?? DEFAULT_MINUTE_STEP}
               minDate={minDate}
               maxDate={maxDate}
+              defaultHours={props.defaultHours}
+              defaultMinutes={props.defaultMinutes}
               onChange={setDay}
               onStepChange={setStep}
             />
