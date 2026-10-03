@@ -10,6 +10,8 @@ export interface TripFlightStatusRow {
   estimated_at: string | null;
   gate: string | null;
   terminal: string | null;
+  arrival_scheduled_at: string | null;
+  arrival_estimated_at: string | null;
 }
 
 const FLIGHT_STATUS_KINDS = Object.values(FlightStatusKind);
@@ -39,6 +41,8 @@ export function toFlightStatusFromRow(
     estimatedAt: hasChangedEstimate ? (row.estimated_at ?? undefined) : undefined,
     gate: row.gate?.trim() || undefined,
     terminal: toTerminalLabel(row.terminal ?? undefined),
+    arrivalScheduledAt: row.arrival_scheduled_at ?? undefined,
+    arrivalEstimatedAt: row.arrival_estimated_at ?? undefined,
   };
 }
 
@@ -49,7 +53,9 @@ export async function getTripFlightStatuses(
 
   const { data, error } = await supabase
     .from("trip_transport_flight_status")
-    .select("transport_id, kind, scheduled_at, estimated_at, gate, terminal")
+    .select(
+      "transport_id, kind, scheduled_at, estimated_at, gate, terminal, arrival_scheduled_at, arrival_estimated_at",
+    )
     .in("transport_id", [...transportIds]);
 
   if (error) throw error;

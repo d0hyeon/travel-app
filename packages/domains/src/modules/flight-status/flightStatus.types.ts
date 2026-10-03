@@ -11,6 +11,8 @@ export interface FlightStatus {
   estimatedAt?: string
   gate?: string
   terminal?: string
+  arrivalScheduledAt?: string
+  arrivalEstimatedAt?: string
 }
 
 export interface GetFlightStatusParams {

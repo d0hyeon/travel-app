@@ -71,9 +71,9 @@ export function TransportCard({ transport, airportArrivalGuidance, onClick }: Pr
           <Typography fontSize={22} fontWeight={700}>
             {arrivalTime ?? EMPTY_TIME}
           </Typography>
-          {transport.arrivalDelayMinutes != null && (
+          {transport.departureDelayMinutes != null && (
             <Typography variant="caption" color="warning.main">
-              지연 반영
+              도착 지연 가능
             </Typography>
           )}
           <Typography variant="caption" color="text.secondary" noWrap>

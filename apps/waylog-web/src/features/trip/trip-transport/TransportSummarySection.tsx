@@ -69,9 +69,9 @@ function Resolved({ tripId, transportId }: Props) {
         {transport.departureName || EMPTY_VALUE} → {transport.arrivalName || EMPTY_VALUE}
       </Typography>
 
-      {transport.arrivalDelayMinutes != null && (
+      {transport.departureDelayMinutes != null && (
         <Typography fontSize={13} color="warning.main">
-          도착 시각은 출발 지연({transport.arrivalDelayMinutes}분)을 반영한 예상이에요
+          출발이 {transport.departureDelayMinutes}분 지연돼 도착이 늦어질 수 있어요
         </Typography>
       )}
 

@@ -44,4 +44,4 @@ export type TripTransportCarrier =
 
 export type TripTransport = TripTransportBase & TripTransportCarrier
 
-export type ScheduledTripTransport = TripTransport & { arrivalDelayMinutes?: number }
+export type ScheduledTripTransport = TripTransport & { departureDelayMinutes?: number }

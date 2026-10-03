@@ -59,8 +59,8 @@ export function TransportCard({ transport, airportArrivalGuidance, onPress }: Pr
           <View style={styles.arrivalTimeRow}>
             <Typography variant="h4" style={styles.time}>{arrivalTime ?? EMPTY_TIME}</Typography>
           </View>
-          {transport.arrivalDelayMinutes != null && (
-            <Typography color="warning" style={styles.arrivalEstimate}>지연 반영</Typography>
+          {transport.departureDelayMinutes != null && (
+            <Typography color="warning" style={styles.arrivalEstimate}>도착 지연 가능</Typography>
           )}
           <Typography style={styles.placeName} numberOfLines={1}>
             {transport.arrivalName}

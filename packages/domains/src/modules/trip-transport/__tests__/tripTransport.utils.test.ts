@@ -263,43 +263,63 @@ describe('applyFlightStatus', () => {
     expect(applyFlightStatus(transport, status).departureAt).toBe('2026-10-05T10:05:00+09:00')
   })
 
-  it('지연되면 도착 시각을 지연 분만큼 늦추고 지연 분을 함께 돌려준다', () => {
+  it('API 도착 변경 시각이 있으면 도착 시각으로 쓴다', () => {
+    const status: FlightStatus = {
+      ...delayedStatus,
+      arrivalScheduledAt: '2026-10-05T11:15:00+09:00',
+      arrivalEstimatedAt: '2026-10-05T11:30:00+09:00',
+    }
+
+    expect(applyFlightStatus(transport, status).arrivalAt).toBe('2026-10-05T11:30:00+09:00')
+  })
+
+  it('API 도착 변경 시각이 없으면 예정 도착 시각을 쓴다', () => {
+    const status: FlightStatus = { ...delayedStatus, arrivalScheduledAt: '2026-10-05T11:15:00+09:00' }
+
+    expect(applyFlightStatus(transport, status).arrivalAt).toBe('2026-10-05T11:15:00+09:00')
+  })
+
+  it('API 도착 시각이 있으면 지연 분을 알리지 않는다', () => {
+    const status: FlightStatus = { ...delayedStatus, arrivalEstimatedAt: '2026-10-05T11:30:00+09:00' }
+
+    expect(applyFlightStatus(transport, status).departureDelayMinutes).toBeUndefined()
+  })
+
+  it('API 도착 시각이 없고 출발이 지연이면 도착 시각은 그대로 두고 지연 분을 알린다', () => {
     const scheduled = applyFlightStatus(transport, delayedStatus)
 
-    expect(scheduled.arrivalAt).toBe('2026-10-05T04:40:00.000Z')
-    expect(scheduled.arrivalDelayMinutes).toBe(40)
+    expect(scheduled.arrivalAt).toBe(transport.arrivalAt)
+    expect(scheduled.departureDelayMinutes).toBe(40)
   })
 
-  it('도착 시각이 없으면 도착 시각을 만들지 않는다', () => {
-    const withoutArrival = createTransport('transport-2', '2026-10-05T10:00:00+09:00')
-    const scheduled = applyFlightStatus(withoutArrival, delayedStatus)
-
-    expect(scheduled.arrivalAt).toBeUndefined()
-    expect(scheduled.arrivalDelayMinutes).toBeUndefined()
-  })
-
-  it('일찍 출발해도 도착 시각을 당기지 않는다', () => {
+  it('일찍 출발해도 지연 분을 알리지 않는다', () => {
     const status: FlightStatus = {
       kind: FlightStatusKind.출발,
       scheduledAt: '2026-10-05T10:00:00+09:00',
       estimatedAt: '2026-10-05T09:50:00+09:00',
     }
-    const scheduled = applyFlightStatus(transport, status)
 
-    expect(scheduled.arrivalAt).toBe(transport.arrivalAt)
-    expect(scheduled.arrivalDelayMinutes).toBeUndefined()
+    expect(applyFlightStatus(transport, status).departureDelayMinutes).toBeUndefined()
   })
 
-  it('결항이면 도착 시각을 바꾸지 않는다', () => {
+  it('결항이면 지연 분을 알리지 않는다', () => {
     const status: FlightStatus = { ...delayedStatus, kind: FlightStatusKind.결항 }
 
-    expect(applyFlightStatus(transport, status).arrivalAt).toBe(transport.arrivalAt)
+    expect(applyFlightStatus(transport, status).departureDelayMinutes).toBeUndefined()
   })
 
-  it('회항이면 도착 시각을 바꾸지 않는다', () => {
+  it('회항이면 지연 분을 알리지 않는다', () => {
     const status: FlightStatus = { ...delayedStatus, kind: FlightStatusKind.회항 }
 
-    expect(applyFlightStatus(transport, status).arrivalAt).toBe(transport.arrivalAt)
+    expect(applyFlightStatus(transport, status).departureDelayMinutes).toBeUndefined()
+  })
+
+  it('도착 시각이 없는 교통편은 도착 시각을 만들지 않는다', () => {
+    const withoutArrival = createTransport('transport-2', '2026-10-05T10:00:00+09:00')
+    const scheduled = applyFlightStatus(withoutArrival, delayedStatus)
+
+    expect(scheduled.arrivalAt).toBeUndefined()
+    expect(scheduled.departureDelayMinutes).toBeUndefined()
   })
 
   it('입력 교통편을 수정하지 않는다', () => {

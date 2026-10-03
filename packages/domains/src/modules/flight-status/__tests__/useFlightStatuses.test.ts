@@ -18,10 +18,12 @@ describe('getIsQueryable', () => {
     expect(getIsQueryable({})).toBe(false)
   })
 
-  it('인천을 지나지 않으면 조회할 곳이 없다', () => {
-    expect(
-      getIsQueryable({ ...인천출발, departureAirportCode: 'GMP' }),
-    ).toBe(false)
+  it('한국공항공사 소관 공항에서 출발해도 조회할 수 있다', () => {
+    expect(getIsQueryable({ ...인천출발, departureAirportCode: 'GMP' })).toBe(true)
+  })
+
+  it('지원하지 않는 공항에서 출발하면 조회할 곳이 없다', () => {
+    expect(getIsQueryable({ ...인천출발, departureAirportCode: 'NRT' })).toBe(false)
   })
 
   it('인천 도착편은 조회할 수 없다', () => {

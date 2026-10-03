@@ -9,7 +9,11 @@ import {
 import { getSupportedFlightStatusAirportCodes } from '../flightStatus.utils'
 describe('getSupportedFlightStatusAirportCodes', () => {
   it('스케줄 변경 알림을 지원하는 공항 코드를 제공한다', () => {
-    expect(getSupportedFlightStatusAirportCodes()).toEqual(['ICN'])
+    const codes = getSupportedFlightStatusAirportCodes()
+
+    expect(codes).toContain('ICN')
+    expect(codes).toContain('GMP')
+    expect(codes).toContain('CJU')
   })
 })
 

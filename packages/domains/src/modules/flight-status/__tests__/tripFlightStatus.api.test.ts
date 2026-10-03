@@ -9,6 +9,8 @@ const row: TripFlightStatusRow = {
   estimated_at: '2026-10-05T01:40:00+00:00',
   gate: '23',
   terminal: 'P03',
+  arrival_scheduled_at: null,
+  arrival_estimated_at: null,
 }
 
 describe('toFlightStatusFromRow', () => {
@@ -34,6 +36,24 @@ describe('toFlightStatusFromRow', () => {
 
   it('모르는 터미널 코드는 비운다', () => {
     expect(toFlightStatusFromRow({ ...row, terminal: 'P09' })?.terminal).toBeUndefined()
+  })
+
+  it('행의 도착 예정·변경 시각을 운항 상태로 옮긴다', () => {
+    const status = toFlightStatusFromRow({
+      ...row,
+      arrival_scheduled_at: '2026-10-05T02:15:00+00:00',
+      arrival_estimated_at: '2026-10-05T02:30:00+00:00',
+    })
+
+    expect(status?.arrivalScheduledAt).toBe('2026-10-05T02:15:00+00:00')
+    expect(status?.arrivalEstimatedAt).toBe('2026-10-05T02:30:00+00:00')
+  })
+
+  it('도착 시각이 없으면 비운다', () => {
+    const status = toFlightStatusFromRow(row)
+
+    expect(status?.arrivalScheduledAt).toBeUndefined()
+    expect(status?.arrivalEstimatedAt).toBeUndefined()
   })
 
   it('게이트가 빈 문자열이면 비운다', () => {

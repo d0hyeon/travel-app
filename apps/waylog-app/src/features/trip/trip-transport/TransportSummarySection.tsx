@@ -75,9 +75,9 @@ function Resolved({ tripId, transportId, style, ...props }: Props & ViewProps) {
         </Stack>
       </View>
 
-      {scheduled.arrivalDelayMinutes != null && (
+      {scheduled.departureDelayMinutes != null && (
         <Typography color="warning" style={styles.arrivalEstimate}>
-          도착 시각은 출발 지연({scheduled.arrivalDelayMinutes}분)을 반영한 예상이에요
+          출발이 {scheduled.departureDelayMinutes}분 지연돼 도착이 늦어질 수 있어요
         </Typography>
       )}
 

@@ -185,17 +185,13 @@ export function getTicketStoragePath(imageUrl: string): string | undefined {
   return imageUrl.slice(prefixIndex).split("?")[0];
 }
 
-const KINDS_WITHOUT_ARRIVAL_ESTIMATE: readonly FlightStatusKind[] = [
+const KINDS_WITHOUT_DELAY_NOTICE: readonly FlightStatusKind[] = [
   FlightStatusKind.결항,
   FlightStatusKind.회항,
 ];
 
-function getArrivalDelayMinutes(
-  arrivalAt: string | undefined,
-  status: FlightStatus,
-): number | null {
-  if (arrivalAt == null) return null;
-  if (KINDS_WITHOUT_ARRIVAL_ESTIMATE.includes(status.kind)) return null;
+function getDepartureDelayMinutes(status: FlightStatus): number | null {
+  if (KINDS_WITHOUT_DELAY_NOTICE.includes(status.kind)) return null;
 
   return toDelayMinutes(status);
 }
@@ -208,19 +204,15 @@ export function applyFlightStatus(
 
   const departureAt =
     status.estimatedAt ?? status.scheduledAt ?? transport.departureAt;
-  const arrivalDelayMinutes = getArrivalDelayMinutes(transport.arrivalAt, status);
-  if (arrivalDelayMinutes == null || transport.arrivalAt == null) {
+  const apiArrivalAt = status.arrivalEstimatedAt ?? status.arrivalScheduledAt;
+  if (apiArrivalAt != null) {
+    return { ...transport, departureAt, arrivalAt: apiArrivalAt };
+  }
+
+  const departureDelayMinutes = getDepartureDelayMinutes(status);
+  if (transport.arrivalAt == null || departureDelayMinutes == null) {
     return { ...transport, departureAt };
   }
 
-  const delayedArrivalAt = new Date(
-    new Date(transport.arrivalAt).getTime() + arrivalDelayMinutes * 60_000,
-  ).toISOString();
-
-  return {
-    ...transport,
-    departureAt,
-    arrivalAt: delayedArrivalAt,
-    arrivalDelayMinutes,
-  };
+  return { ...transport, departureAt, departureDelayMinutes };
 }

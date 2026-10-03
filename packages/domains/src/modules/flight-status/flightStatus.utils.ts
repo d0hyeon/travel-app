@@ -1,8 +1,12 @@
 import type { AirportCode } from '../airport'
 import { incheonFlightStatusProvider } from './incheonFlightStatus.provider'
+import { koreaAirportsFlightStatusProvider } from './koreaAirportsFlightStatus.provider'
 import type { FlightStatusProvider } from './flightStatus.types'
 
-const FLIGHT_STATUS_PROVIDERS: readonly FlightStatusProvider[] = [incheonFlightStatusProvider]
+const FLIGHT_STATUS_PROVIDERS: readonly FlightStatusProvider[] = [
+  incheonFlightStatusProvider,
+  koreaAirportsFlightStatusProvider,
+]
 
 export function getFlightStatusProviders(): readonly FlightStatusProvider[] {
   return FLIGHT_STATUS_PROVIDERS
