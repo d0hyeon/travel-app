@@ -25,6 +25,7 @@ export default [
       route(AppRoute.설정, "../features/settings/SettingsPage.tsx"),
       route(AppRoute.계정_설정, "../features/settings/SettingsProfilePage.tsx"),
       route(AppRoute.차단_목록, "../features/settings/BlockedUsersPage.tsx"),
+      route(AppRoute.저장된_장소, "../features/place/BookmarkedPlacesPage.tsx"),
     ]),
   ]),
   layout("./AuthGuardLayout.tsx", [

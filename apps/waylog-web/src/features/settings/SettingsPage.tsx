@@ -1,3 +1,4 @@
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import LogoutIcon from '@mui/icons-material/Logout'
 import BlockIcon from '@mui/icons-material/Block'
@@ -52,6 +53,11 @@ export default function SettingsPage() {
         <ListItemButton onClick={() => navigate('/settings/profile')}>
           <ListItemIcon><PersonIcon /></ListItemIcon>
           <ListItemText primary="내 정보 변경" />
+          <ChevronRightIcon color="disabled" />
+        </ListItemButton>
+        <ListItemButton onClick={() => navigate(AppRoute.저장된_장소)}>
+          <ListItemIcon><BookmarkBorderIcon /></ListItemIcon>
+          <ListItemText primary="저장된 장소" />
           <ChevronRightIcon color="disabled" />
         </ListItemButton>
         <ListItemButton onClick={() => navigate(AppRoute.차단_목록)}>
