@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import { useState, type ReactNode, useImperativeHandle, type Ref } from "react";
-import { useAnimation, type AnimationSpec } from "~shared/hooks/animation/useAnimation";
+import { Easing, useAnimation, type AnimationSpec } from "~shared/hooks/animation/useAnimation";
 import { useAsyncEffect } from "@waylog/react";
 import { useVariation } from "@waylog/react";
 
@@ -14,16 +14,23 @@ export interface FullScreenPopupProps {
   onClose?: () => void;
   children?: ReactNode;
   transition?: Partial<AnimationSpec>;
+  enterFrom?: 'bottom' | 'right';
 }
 
-export function FullScreenPopup({ isOpen, onClose, transition, children }: FullScreenPopupProps) {
+const EnterMotion = {
+  bottom: { offset: 'translateY(20%)', duration: 250, easing: Easing.Linear },
+  right: { offset: 'translateX(100%)', duration: 320, easing: Easing.Decelerate },
+} as const;
+
+export function FullScreenPopup({ isOpen, onClose, transition, enterFrom = 'bottom', children }: FullScreenPopupProps) {
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const animation = useAnimation({
     frames: [
-      { transform: 'translateY(20%)', opacity: 0 },
-      { transform: 'translateY(0)', opacity: 1 }
+      { transform: EnterMotion[enterFrom].offset, opacity: 0 },
+      { transform: 'translate(0)', opacity: 1 }
     ],
-    duration: 250,
+    duration: EnterMotion[enterFrom].duration,
+    easing: EnterMotion[enterFrom].easing,
     ...transition,
   }, container);
   const [getCurrent, setCurrent] = useVariation('closed');
