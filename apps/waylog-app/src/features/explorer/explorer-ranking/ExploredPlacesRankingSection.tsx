@@ -20,7 +20,7 @@ export function ExploredPlacesRankingSection({ location, category }: Props) {
 
   return (
     <View>
-      <SectionHeader title="가장 많이 방문하는 곳이에요" onMore={() => navigation.navigate(AppRoute.장소_최다방문순, {})} />
+      <SectionHeader title="가장 많이 방문하는 곳이에요" onMore={() => navigation.navigate(AppRoute.장소_최다방문순, { category, location })} />
       {places.length === 0 ? (
         <ExplorerEmptyState />
       ) : (

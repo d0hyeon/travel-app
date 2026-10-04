@@ -20,7 +20,7 @@ export function MostSavedPlacesSection({ location, category }: Props) {
 
   return (
     <View>
-      <SectionHeader title="많이 저장된 곳이에요" onMore={() => navigation.navigate(AppRoute.장소_저장순, {})} />
+      <SectionHeader title="많이 저장된 곳이에요" onMore={() => navigation.navigate(AppRoute.장소_저장순, { category, location })} />
       {places.length === 0 ? (
         <ExplorerEmptyState />
       ) : (
