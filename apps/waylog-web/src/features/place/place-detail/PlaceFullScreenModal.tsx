@@ -1,9 +1,10 @@
-import CloseIcon from '@mui/icons-material/Close'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { Box, IconButton, Skeleton, Stack, Tab, Tabs, Typography } from '@mui/material'
 import { Suspense, useEffect, useState } from 'react'
 import { FullScreenPopup, type FullScreenPopupProps } from '~shared/components/FullScreenPopup'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { usePlace } from '@waylog/domains/modules/place'
+import { PlaceBookmarkButton } from '../PlaceBookmarkButton'
 import { PlaceDetailContent } from './PlaceDetailContent'
 
 
@@ -19,7 +20,7 @@ export function PlaceFullScreenModal({ isOpen: _isOpen = false, placeId, ...prop
   useEffect(() => setIsOpen(_isOpen), [_isOpen])
 
   return (
-    <FullScreenPopup isOpen={isOpen} {...props}>
+    <FullScreenPopup isOpen={isOpen} enterFrom="right" {...props}>
       <Suspense fallback={<Header.Pending onClose={() => setIsOpen(false)} />}>
         <Header placeId={placeId} onClose={() => setIsOpen(false)} />
       </Suspense>
@@ -65,13 +66,13 @@ function Header({ placeId, onClose }: { placeId: string; onClose: () => void }) 
       justifyContent="space-between"
       sx={{ px: 1, height: 50, borderBottom: 1, borderColor: 'divider', flexShrink: 0 }}
     >
-      <Box width={40} />
+      <IconButton size="small" onClick={onClose}>
+        <ArrowBackIcon />
+      </IconButton>
       <Typography variant="subtitle1" fontWeight={700} noWrap>
         {name}
       </Typography>
-      <IconButton size="small" onClick={onClose}>
-        <CloseIcon />
-      </IconButton>
+      <PlaceBookmarkButton placeId={placeId} />
     </Stack>
   )
 }
@@ -83,10 +84,10 @@ Header.Pending = ({ onClose }: { onClose: () => void }) => (
     justifyContent="space-between"
     sx={{ px: 1, height: 50, borderBottom: 1, borderColor: 'divider', flexShrink: 0 }}
   >
-    <Box width={40} />
-    <Skeleton variant="text" width={120} />
     <IconButton size="small" onClick={onClose}>
-      <CloseIcon />
+      <ArrowBackIcon />
     </IconButton>
+    <Skeleton variant="text" width={120} />
+    <Box width={40} />
   </Stack>
 )

@@ -4,6 +4,7 @@ import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState'
 import { usePlace } from '@waylog/domains/modules/place'
+import { PlaceBookmarkButton } from '../PlaceBookmarkButton'
 import { PlaceDetailContent } from './PlaceDetailContent'
 import { usePlaceId } from './usePlaceId'
 
@@ -61,7 +62,7 @@ function PlaceHeader({ placeId }: { placeId: string }) {
   const { data: { name } } = usePlace(placeId)
 
   return (
-    <TopNavigation position="sticky">
+    <TopNavigation position="sticky" rightElement={<PlaceBookmarkButton placeId={placeId} />}>
       {name}
     </TopNavigation>
   )

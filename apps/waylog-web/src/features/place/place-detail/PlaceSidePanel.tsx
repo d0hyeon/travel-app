@@ -13,6 +13,7 @@ import {
 import { Suspense, useEffect, useState } from 'react'
 import { usePlace } from '@waylog/domains/modules/place'
 import { SwitchCase } from '~shared/components/SwitchCase'
+import { PlaceBookmarkButton } from '../PlaceBookmarkButton'
 import { PlaceDetailContent } from './PlaceDetailContent'
 import { APP_ROOT_NODE_CLASS } from '~app/constants'
 
@@ -61,11 +62,12 @@ export function PlaceSidePanel({ placeId, isOpen: _isOpen = true, onClose, zInde
         justifyContent="space-between"
         sx={{ px: 2, py: 1.5, borderBottom: 1, borderColor: 'divider', flexShrink: 0 }}
       >
-        <Suspense fallback={<Skeleton variant="text" />}>
+        <Suspense fallback={<Skeleton variant="text" sx={{ flex: 1 }} />}>
           <Typography variant="subtitle1" fontWeight={700} noWrap flex={1}>
             <PlaceName placeId={placeId} />
           </Typography>
         </Suspense>
+        <PlaceBookmarkButton placeId={placeId} />
         <IconButton size="small" onClick={close} sx={{ ml: 1 }}>
           <CloseIcon fontSize="small" />
         </IconButton>
