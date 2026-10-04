@@ -4,7 +4,7 @@ import '~shared/polyfills'
 import { NavigationContainer, type LinkingOptions } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { QueryClientProvider } from '@tanstack/react-query'
-import { AuthErrorBoundary, AuthStateSync, SignUpGate } from '@waylog/domains/clients'
+import { AuthError, AuthErrorBoundary, AuthStateSync, SignUpGate } from '@waylog/domains/clients'
 import { getActivedChatTripId } from '@waylog/domains/modules/trip-chat'
 import { isTripChatPushData } from '@waylog/domains/modules/trip-chat/tripChatPush'
 import { AppRoute as BaseAppRoute } from '@waylog/routes'
@@ -49,6 +49,8 @@ import type { RootStackParamList } from './routes'
 import { AccountSettingScreen } from '~features/settings/AccountSettingScreen';
 import { BlockedUsersScreen } from '~features/settings/BlockedUsersScreen'
 import { BookmarkedPlacesScreen } from '~features/place/BookmarkedPlacesScreen'
+import { ErrorBoundary } from '@waylog/react'
+import { CommonErrorAlert } from '~shared/components/CommonErrorAlert'
 
 setupApi()
 LogBox.ignoreLogs([ExceptionError.name])
@@ -108,34 +110,46 @@ export function RootNavigator() {
                   <NavigationContainer linking={linking}>
                     <NotificationGateway />
                     <SignUpGate fallback={<SignUpConsentScreen />}>
-                    <AuthGuard>
-                      <RootStack.Navigator screenOptions={{ headerShown: false }}>
-                        <RootStack.Screen name={AppRoute.메인} component={HomeTabs} options={{ animation: 'none' }} />
-                        <RootStack.Screen name={AppRoute.로그인} component={LoginRoute} />
-                        <RootStack.Screen
-                          name={AppRoute.여행_상세}
-                          component={TripDetailScreen}
-                          getId={({ params }) => params.tripId}
-                        />
-                        <RootStack.Screen name={AppRoute.여행_메모_상세} component={TripMemoDetailScreen} />
-                        <RootStack.Screen name={AppRoute.여행_메모_편집} component={TripMemoEditScreen} />
-                        <RootStack.Screen name={AppRoute.여행_생성} component={TripCreateScreen} />
-                        <RootStack.Screen name={AppRoute.여행_초대} component={TripInviteScreen} />
-                        <RootStack.Screen name={AppRoute.장소_상세} component={PlaceDetailScreen} />
-                        <RootStack.Screen name={AppRoute.장소_최다방문순} component={TopVisitedScreen} />
-                        <RootStack.Screen name={AppRoute.장소_급상승} component={RecentHotScreen} />
-                        <RootStack.Screen name={AppRoute.장소_저장순} component={MostSavedScreen} />
-                        <RootStack.Screen name={AppRoute.포스트_생성} component={PostCreationScreen} />
-                        <RootStack.Screen name={AppRoute.포스트_상세} component={PostDetailScreen} />
-                        <RootStack.Screen name={AppRoute.유저_프로필} component={UserProfileDetailScreen} />
-                        <RootStack.Screen name={AppRoute.설정} component={SettingsScreen} />
-                        <RootStack.Screen name={AppRoute.계정_설정} component={AccountSettingScreen} />
-                        <RootStack.Screen name={AppRoute.차단_목록} component={BlockedUsersScreen} />
-                        <RootStack.Screen name={AppRoute.저장된_장소} component={BookmarkedPlacesScreen} />
-                        <RootStack.Screen name={AppRoute.여행_교통편_추가} component={TransportCreationScreen} />
-                        <RootStack.Screen name={AppRoute.여행_교통편_상세} component={TransportDetailScreen} />
-                      </RootStack.Navigator>
-                    </AuthGuard>
+                      <AuthGuard>
+                        <RootStack.Navigator
+                          layout={({ children }) => (
+                            <ErrorBoundary
+                              ignoreError={AuthError.isAuthError}
+                              fallback={({ error, resetError }) => (
+                                <CommonErrorAlert message={error.message} action={<CommonErrorAlert.RetryButton onPress={resetError} />} />
+                              )}
+                            >
+                              {children}
+                            </ErrorBoundary>
+                          )}
+                          screenOptions={{ headerShown: false }}
+                        >
+                          <RootStack.Screen name={AppRoute.메인} component={HomeTabs} options={{ animation: 'none' }} />
+                          <RootStack.Screen name={AppRoute.로그인} component={LoginRoute} />
+                          <RootStack.Screen
+                            name={AppRoute.여행_상세}
+                            component={TripDetailScreen}
+                            getId={({ params }) => params.tripId}
+                          />
+                          <RootStack.Screen name={AppRoute.여행_메모_상세} component={TripMemoDetailScreen} />
+                          <RootStack.Screen name={AppRoute.여행_메모_편집} component={TripMemoEditScreen} />
+                          <RootStack.Screen name={AppRoute.여행_생성} component={TripCreateScreen} />
+                          <RootStack.Screen name={AppRoute.여행_초대} component={TripInviteScreen} />
+                          <RootStack.Screen name={AppRoute.장소_상세} component={PlaceDetailScreen} />
+                          <RootStack.Screen name={AppRoute.장소_최다방문순} component={TopVisitedScreen} />
+                          <RootStack.Screen name={AppRoute.장소_급상승} component={RecentHotScreen} />
+                          <RootStack.Screen name={AppRoute.장소_저장순} component={MostSavedScreen} />
+                          <RootStack.Screen name={AppRoute.포스트_생성} component={PostCreationScreen} />
+                          <RootStack.Screen name={AppRoute.포스트_상세} component={PostDetailScreen} />
+                          <RootStack.Screen name={AppRoute.유저_프로필} component={UserProfileDetailScreen} />
+                          <RootStack.Screen name={AppRoute.설정} component={SettingsScreen} />
+                          <RootStack.Screen name={AppRoute.계정_설정} component={AccountSettingScreen} />
+                          <RootStack.Screen name={AppRoute.차단_목록} component={BlockedUsersScreen} />
+                          <RootStack.Screen name={AppRoute.저장된_장소} component={BookmarkedPlacesScreen} />
+                          <RootStack.Screen name={AppRoute.여행_교통편_추가} component={TransportCreationScreen} />
+                          <RootStack.Screen name={AppRoute.여행_교통편_상세} component={TransportDetailScreen} />
+                        </RootStack.Navigator>
+                      </AuthGuard>
                     </SignUpGate>
                   </NavigationContainer>
                 </Suspense>
