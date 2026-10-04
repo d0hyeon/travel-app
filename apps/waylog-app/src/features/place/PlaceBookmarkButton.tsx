@@ -6,6 +6,8 @@ import { Pressable, StyleSheet, View } from 'react-native'
 import { toast } from 'sonner-native'
 import { useLoginRedirect } from '~features/auth/auth-redirect'
 import { palette } from '~shared/config/tokens'
+import { impactAsync as haptic, ImpactFeedbackStyle } from 'expo-haptics'
+
 
 interface Props {
   placeId: string
@@ -21,11 +23,14 @@ export function PlaceBookmarkButton({ placeId }: Props) {
 
 function Resolved({ placeId }: Props) {
   const { data: auth } = useAuth({ required: false })
+
   const { isBookmarked, toggle } = usePlaceBookmark(placeId)
   const redirectToLogin = useLoginRedirect()
 
   const handlePress = async () => {
-    if (auth == null) return redirectToLogin()
+    if (auth == null) return redirectToLogin();
+    haptic(ImpactFeedbackStyle.Light).catch(() => { });
+
 
     await toggle()
     toast.success(isBookmarked ? '저장을 해제했어요' : '장소를 저장했어요', { position: 'bottom-center' })
