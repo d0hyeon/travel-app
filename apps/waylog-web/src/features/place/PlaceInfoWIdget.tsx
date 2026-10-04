@@ -53,7 +53,7 @@ function Resolved({ placeId, ...props }: Props) {
       </Stack>
       <PlacePhotoList direction="row" placeId={place.id} sx={{ overflowX: 'auto', paddingX: 1.5 }} />
       {scheduledTrips.length > 0 && (
-        <BottomArea position="absolute" left={0}>
+        <BottomArea position="absolute" left={0} right={0} marginX="auto">
           <AddTripButton placeId={place.id} variant="contained" size="large" fullWidth>
             내 여행에 담기
           </AddTripButton>

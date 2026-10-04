@@ -6,12 +6,17 @@ import { useUpdateUserProfile } from './useUpdateUserProfile'
 import { BottomActions } from '~shared/components/bottom-sheet/compounds'
 import { getWebViewBridge } from '~shared/bridge/bridgeClient'
 import { toast } from 'sonner'
-import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
+import { ContentContainer } from '~shared/components/layout/ContentContainer'
+import { TopNavigation as DesktopNavigation } from '~shared/components/layout/TopNavigation.desktop'
+import { TopNavigation as MobileNavigation } from '~shared/components/layout/TopNavigation.mobile'
+import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useNavigate } from 'react-router'
 
 const { isInWebView, client: bridgeClient } = getWebViewBridge()
 
 export default function SettingsProfilePage() {
+  const isMobile = useIsMobile()
+  const TopNavigation = isMobile ? MobileNavigation : DesktopNavigation
   const { data: auth } = useAuth()
   const updateUserProfile = useUpdateUserProfile(auth.id);
 
@@ -51,35 +56,39 @@ export default function SettingsProfilePage() {
       <TopNavigation
         position="sticky"
         leftElement={<TopNavigation.BackButton onClick={navigateBack} />}
-        sx={{ borderBottomWidth: 0 }}
+        sx={isMobile ? { borderBottomWidth: 0 } : undefined}
       >
         내 정보 변경
       </TopNavigation>
 
-      <Stack px={2} py={2} spacing={3}>
-        <Stack direction="row" alignItems="center" spacing={2}>
-          <FileSelector onChange={handleUpload}>
-            <Box position="relative">
-              <Avatar
-                src={avatarPreviewUrl?.replace('http', 'https') ?? undefined}
-                sx={{ width: 72, height: 72, cursor: 'pointer', opacity: isPending ? 0.5 : 1 }}
-              >
+      <ContentContainer>
+        <Stack px={2} py={2} spacing={3}>
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <FileSelector onChange={handleUpload}>
+              <Box position="relative">
+                <Avatar
+                  src={avatarPreviewUrl?.replace('http', 'https') ?? undefined}
+                  sx={{ width: 72, height: 72, cursor: 'pointer', opacity: isPending ? 0.5 : 1 }}
+                >
 
-              </Avatar>
-            </Box>
-          </FileSelector>
-          <TextField
-            fullWidth
-            label="이름"
-            value={nameInput}
-            onChange={(event) => setNameInput(event.target.value)}
-          />
+                </Avatar>
+              </Box>
+            </FileSelector>
+            <TextField
+              fullWidth
+              label="이름"
+              value={nameInput}
+              onChange={(event) => setNameInput(event.target.value)}
+            />
+          </Stack>
         </Stack>
-      </Stack>
-      <BottomActions position="fixed" bottom={0}>
-        <Button type="submit" variant="contained" color="primary" size="large" disabled={isInvalid} loading={isPending} fullWidth>
-          저장
-        </Button>
+      </ContentContainer>
+      <BottomActions position="fixed" bottom={0} justifyContent="center">
+        <ContentContainer>
+          <Button type="submit" variant="contained" color="primary" size="large" disabled={isInvalid} loading={isPending} fullWidth>
+            저장
+          </Button>
+        </ContentContainer>
       </BottomActions>
     </Box>
   )
