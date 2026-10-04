@@ -28,7 +28,7 @@ function Resolved({ placeId }: Props) {
     if (auth == null) return redirectToLogin()
 
     await toggle()
-    toast.success(isBookmarked ? '저장을 해제했어요' : '장소를 저장했어요')
+    toast.success(isBookmarked ? '저장을 해제했어요' : '장소를 저장했어요', { position: 'bottom-center' })
   }
 
   return (
