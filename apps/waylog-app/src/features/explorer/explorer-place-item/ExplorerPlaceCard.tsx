@@ -54,7 +54,7 @@ export function ExplorerPlaceCard({ place, onPress, width }: Props) {
 export function ExplorerPlaceRow({ place, onPress }: Omit<Props, 'width'>) {
   const [primaryCategory] = place.categories
   const accentColor = primaryCategory == null ? palette.textSecondary : PlaceCategoryColorCode[primaryCategory]
-  const subtitle = place.destinations?.join(', ') ?? ''
+  const subtitle = place.destinations?.join(', ') ?? place.address ?? ''
 
   return (
     <Pressable
