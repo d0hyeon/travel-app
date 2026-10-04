@@ -122,9 +122,7 @@ export function TripBasicInfoContent({ tripId }: Props) {
 
               {/* 인원 관리 */}
               <TripMemberSection tripId={tripId} />
-              <TripLeaveButton fullWidth variant="outlined" tripId={tripId} sx={{ marginTop: 6 }}>
-                여행에서 나가기
-              </TripLeaveButton>
+              <TripLeaveButton fullWidth variant="outlined" tripId={tripId} sx={{ marginTop: 6 }} />
             </Stack>
           </>
         )}
