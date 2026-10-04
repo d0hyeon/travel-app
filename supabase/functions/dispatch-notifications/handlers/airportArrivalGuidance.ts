@@ -6,6 +6,7 @@ import { toAirportArrivalPushMessage } from './airportArrivalGuidanceMessage.ts'
 
 interface TransportRow {
   id: string
+  trip_id: string
   departure_airport_code: string | null
   arrival_airport_code: string | null
 }
@@ -13,7 +14,7 @@ interface TransportRow {
 export const handleAirportArrivalGuidance: NotificationHandler = async (notification, { supabase, now }) => {
   const { data: transport } = await supabase
     .from('trip_transports')
-    .select('id, departure_airport_code, arrival_airport_code')
+    .select('id, trip_id, departure_airport_code, arrival_airport_code')
     .eq('id', notification.subject_id)
     .maybeSingle()
 
@@ -21,7 +22,7 @@ export const handleAirportArrivalGuidance: NotificationHandler = async (notifica
   const typedTransport = transport as TransportRow
 
   const guidance = await getGuidanceForTransport(supabase, {
-    tripId: notification.trip_id,
+    tripId: typedTransport.trip_id,
     transportId: typedTransport.id,
     now,
   })
@@ -36,8 +37,8 @@ export const handleAirportArrivalGuidance: NotificationHandler = async (notifica
     departureCityName: departureCityName ?? '출발지',
     arrivalCityName: arrivalCityName ?? '도착지',
   })
-  const result = await sendPushToRecipients(supabase, notification.trip_id, message, {
-    tripId: notification.trip_id,
+  const result = await sendPushToRecipients(supabase, typedTransport.trip_id, message, {
+    tripId: typedTransport.trip_id,
     transportId: typedTransport.id,
   })
 

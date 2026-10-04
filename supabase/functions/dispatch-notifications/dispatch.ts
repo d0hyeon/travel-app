@@ -7,7 +7,6 @@ const STALE_LOCK_MS = 30 * 60 * 1000
 export interface DueNotification {
   id: string
   type: string
-  trip_id: string
   subject_id: string
   attempt_count: number
 }
@@ -84,7 +83,7 @@ export async function dispatchDueNotifications(
 
   const { data: dueNotifications } = await supabase
     .from(TABLE)
-    .select('id, type, trip_id, subject_id, attempt_count')
+    .select('id, type, subject_id, attempt_count')
     .eq('status', 'pending')
     .in('type', Object.keys(handlers))
     .lte('scheduled_for', now.toISOString())

@@ -725,7 +725,6 @@ export type Database = {
           scheduled_for: string
           status: string
           subject_id: string
-          trip_id: string
           type: string
           updated_at: string
         }
@@ -740,7 +739,6 @@ export type Database = {
           scheduled_for: string
           status: string
           subject_id: string
-          trip_id: string
           type: string
           updated_at?: string
         }
@@ -755,18 +753,10 @@ export type Database = {
           scheduled_for?: string
           status?: string
           subject_id?: string
-          trip_id?: string
           type?: string
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "scheduled_notifications_trip_id_fkey"
-            columns: ["trip_id"]
-            isOneToOne: false
-            referencedRelation: "trips"
-            referencedColumns: ["id"]
-          },
         ]
       }
       trip_members: {

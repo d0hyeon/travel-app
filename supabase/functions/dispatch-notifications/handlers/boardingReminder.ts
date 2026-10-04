@@ -11,6 +11,7 @@ interface FlightStatusRow {
 
 interface TransportRow {
   id: string
+  trip_id: string
   type: string
   airline: string | null
   flight_number: string | null
@@ -23,7 +24,7 @@ interface TransportRow {
 export const handleBoardingReminder: NotificationHandler = async (notification, { supabase, now }) => {
   const { data: transport } = await supabase
     .from('trip_transports')
-    .select('id, type, airline, flight_number, departure_name, arrival_name, departure_at, arrival_airport_code')
+    .select('id, trip_id, type, airline, flight_number, departure_name, arrival_name, departure_at, arrival_airport_code')
     .eq('id', notification.subject_id)
     .maybeSingle()
 
@@ -56,8 +57,8 @@ export const handleBoardingReminder: NotificationHandler = async (notification, 
     departureName: typedTransport.departure_name,
     arrivalName: typedTransport.arrival_name,
   })
-  const result = await sendPushToRecipients(supabase, notification.trip_id, message, {
-    tripId: notification.trip_id,
+  const result = await sendPushToRecipients(supabase, typedTransport.trip_id, message, {
+    tripId: typedTransport.trip_id,
     transportId: typedTransport.id,
   })
 

@@ -7,7 +7,6 @@ const NOW = new Date('2026-10-03T12:00:00Z')
 const notification: DueNotification = {
   id: 'n1',
   type: 'boarding_reminder',
-  trip_id: 'trip-1',
   subject_id: 'transport-1',
   attempt_count: 0,
 }

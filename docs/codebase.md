@@ -1086,15 +1086,15 @@ src/
   예약 알림(공항 도착 권장시간, 탑승 전)은 **정해진 시각에** 보낸다 — 아래 스케줄러가 맡는다.
   시각을 미리 아는 알림과 상태가 바뀌어야 알 수 있는 알림이라 필요한 장치가 달라 합치지 않았다.
 - **예약 알림 스케줄러.** 테이블 `scheduled_notifications`는 범용이다: `type`(알림 종류), `subject_id`
-  (알림의 대상 식별자, 의미는 `type`의 핸들러가 안다), `trip_id`(수신자 범위인 여행 멤버), `status`,
-  `scheduled_for`, 재시도 상태. **행에는 제목·본문을 담지 않는다** — 때와 대상만 담고, 내용과 발송 직전
+  (알림의 대상 식별자, 의미는 `type`의 핸들러가 안다), `status`, `scheduled_for`, 재시도 상태. **행에는 제목·본문을 담지 않는다** — 때와 대상만 담고, 내용과 발송 직전
   확인(이미 출발, 결항)은 핸들러가 발송 때 최신 데이터로 한다. 크론 `dispatch-notifications`(매분)가 Edge
   함수 `dispatch-notifications`를 깨우면 디스패처(`dispatch.ts`)가 때가 된 행을 점유하고 `type`에 맞는 핸들러
   (`handlers/airportArrivalGuidance.ts`, `handlers/boardingReminder.ts`)를 부른다. 핸들러는
   `(알림 행, 현재 시각) → 'sent' | 'skipped' | 'cancelled'`이고 실패는 예외로 던지면 5·15·30분 뒤 재시도한다.
+  수신자(여행 멤버)는 행이 아니라 핸들러가 `subject_id`의 교통편에서 `trip_id`를 읽어 정한다 — 테이블은 trip 도메인을 모른다.
   종류가 늘면 핸들러 하나와 행을 만드는 DB 트리거만 더한다. 푸시 발송 공통 코드는 `sendPush.ts`다.
   `subject_id`에는 FK가 없어서 교통편 삭제 트리거(`delete_scheduled_notifications_of_transport`)가 대상이 같은
-  행을 지우고, 여행을 지우면 `trip_id`의 연쇄 삭제가 지운다. `airport-arrival-guidance` 함수는 화면용 안내
+  행을 지운다. 여행을 지우면 교통편이 연쇄 삭제되므로 같은 트리거가 정리한다. `airport-arrival-guidance` 함수는 화면용 안내
   계산(`get-guidance`)만 하고 예약 테이블과 푸시를 모른다(`guidanceForTransport.ts`를 디스패처 핸들러가 가져다 쓴다).
   설계: `docs/superpowers/specs/2026-10-03-scheduled-notifications-design.md`.
 - **탑승 전 알림**은 항공 출발 30분 전, 기차·버스 출발 10분 전에 여행 멤버에게 푸시한다
