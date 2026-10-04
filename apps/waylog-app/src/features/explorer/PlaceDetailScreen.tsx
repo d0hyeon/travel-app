@@ -2,6 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { usePlace } from '@waylog/domains/modules/place'
 import { useScheduledTrips } from '~features/trip/useScheduledTrips'
 import { AddTripButton } from '~features/place/AddTripButton'
+import { PlaceAddress } from '~features/place/PlaceAddress'
 import { usePlacePhotos } from '~features/place/usePlacePhotos'
 import { PlacePhotoStrip } from '~features/place/PlacePhotoStrip'
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native'
@@ -87,7 +88,7 @@ function PlaceInfoContent({ placeId }: { placeId: string }) {
         </View>
         <View style={styles.infoText}>
           <Typography variant="subtitle1">{place.name}</Typography>
-          {place.address !== '' && <Typography variant="body2" color="text.secondary">{place.address}</Typography>}
+          {place.address !== '' && <PlaceAddress address={place.address} />}
         </View>
         {photos.length > 0 && <PlacePhotoStrip photos={photos} thumbnailWidth={photoWidth} />}
       </ScrollView>

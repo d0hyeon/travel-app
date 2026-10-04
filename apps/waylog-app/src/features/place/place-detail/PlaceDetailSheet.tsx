@@ -8,6 +8,7 @@ import { AppRoute } from '~app/AppRoute'
 import { palette, radius } from '~shared/config/tokens'
 import { useScheduledTrips } from '~features/trip/useScheduledTrips'
 import { AddTripButton } from '~features/place/AddTripButton'
+import { PlaceAddress } from '~features/place/PlaceAddress'
 import { PlacePhotoList } from '~features/place/PlacePhotoList'
 
 const styles = StyleSheet.create({
@@ -98,11 +99,7 @@ export function PlaceDetailBody({ placeId }: { placeId: string }) {
         </Map>
       </View>
 
-      {place.address != null && place.address !== '' && (
-        <Typography variant="body2" color="text.secondary">
-          {place.address}
-        </Typography>
-      )}
+      {place.address !== '' && <PlaceAddress address={place.address} />}
 
       <Suspense fallback={<PlacePhotoList.Skeleton />}>
         <PlacePhotoList placeId={place.id} />
