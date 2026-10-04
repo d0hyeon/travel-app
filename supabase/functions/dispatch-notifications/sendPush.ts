@@ -14,7 +14,7 @@ export async function sendPushToRecipients(
   message: { title: string; body: string },
   data: Record<string, unknown>,
 ): Promise<PushDeliveryResult> {
-  const { data: members } = await supabase.from('trip_members').select('user_id').eq('trip_id', tripId)
+  const { data: members } = await supabase.from('active_trip_members').select('user_id').eq('trip_id', tripId)
   const recipientIds = (members ?? []).map((m: { user_id: string }) => m.user_id)
   if (recipientIds.length === 0) return { attempted: 0, sent: 0, errors: [] }
 

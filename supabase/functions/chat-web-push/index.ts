@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
 
   // 여행 멤버 중 발신자를 제외한 user_id 목록
   const { data: members, error: memberError } = await supabase
-    .from('trip_members')
+    .from('active_trip_members')
     .select('user_id')
     .eq('trip_id', tripId)
     .neq('user_id', senderId)

@@ -24,7 +24,7 @@ async function handleAirportArrivalGuidance(
 
 async function canReadTripGuidance(userId: string, tripId: string): Promise<boolean> {
   const { data } = await supabase
-    .from('trip_members')
+    .from('active_trip_members')
     .select('trip_id')
     .eq('trip_id', tripId)
     .eq('user_id', userId)
