@@ -13,7 +13,7 @@ const flight = {
 Deno.test('항공은 탑승 시작 10분 전이라고 알린다', () => {
   assertEquals(
     toBoardingReminderMessage(flight).body,
-    '탑승 시작 10분 전이에요. 탑승 준비를 마쳐주세요',
+    '탑승 시작 10분 전이에요. 탑승 준비를 해주세요',
   )
 })
 
@@ -31,7 +31,7 @@ Deno.test('편명이 없으면 편명 부분을 뺀다', () => {
 Deno.test('기차는 출발 10분 전이라고 알린다', () => {
   const message = toBoardingReminderMessage({ ...flight, type: 'train' })
 
-  assertEquals(message.body, '출발 10분 전이에요. 탑승 준비를 마쳐주세요')
+  assertEquals(message.body, '출발 10분 전이에요. 탑승 준비를 해주세요')
 })
 
 Deno.test('기차·버스 제목은 출발지 → 도착지다', () => {

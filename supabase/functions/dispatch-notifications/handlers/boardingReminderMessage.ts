@@ -18,12 +18,12 @@ export function toBoardingReminderMessage(subject: BoardingReminderSubject): Boa
 
     return {
       title: `${subject.airline ?? ''} ${subject.arrivalCityName}행${flightNumber} 탑승 안내`.trim(),
-      body: '탑승 시작 10분 전이에요. 탑승 준비를 마쳐주세요',
+      body: '탑승 시작 10분 전이에요. 탑승 준비를 해주세요',
     }
   }
 
   return {
     title: `${subject.departureName} → ${subject.arrivalName} 탑승 안내`,
-    body: '출발 10분 전이에요. 탑승 준비를 마쳐주세요',
+    body: '출발 10분 전이에요. 탑승 준비를 해주세요',
   }
 }
