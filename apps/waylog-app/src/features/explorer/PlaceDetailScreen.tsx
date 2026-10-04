@@ -51,7 +51,7 @@ export function PlaceDetailScreen() {
         <Typography variant="subtitle1" numberOfLines={1} style={styles.headerTitle}>{place.name}</Typography>
         <PlaceBookmarkButton placeId={placeId} />
       </View>
-      <Tabs value={currentTab} onChange={(_, next) => selectTab(parsePlaceDetailTab(next))}>
+      <Tabs style={styles.tabs} value={currentTab} onChange={(_, next) => selectTab(parsePlaceDetailTab(next))}>
         <Tab value="info" label="기본정보" />
         <Tab value="feed" label="피드" />
       </Tabs>
@@ -123,7 +123,8 @@ function parsePlaceDetailTab(value: string): PlaceDetailTab {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: palette.background },
-  header: { height: 52, paddingHorizontal: 8, flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: palette.divider },
+  header: { height: 52, paddingHorizontal: 8, flexDirection: 'row', alignItems: 'center', zIndex: 1, backgroundColor: palette.background },
+  tabs: { marginTop: -8 },
   backButton: { padding: 8 },
   headerTitle: { flex: 1, textAlign: 'center' },
   tabContentLoading: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 80 },

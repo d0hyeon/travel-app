@@ -24,7 +24,7 @@ export function PlaceFullScreenModal({ isOpen: _isOpen = false, placeId, ...prop
       <Suspense fallback={<Header.Pending onClose={() => setIsOpen(false)} />}>
         <Header placeId={placeId} onClose={() => setIsOpen(false)} />
       </Suspense>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', flexShrink: 0 }}>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', flexShrink: 0, mt: -1 }}>
         <Tabs
           value={currentTab}
           onChange={(_, value) => setCurrentTab(value)}
@@ -64,7 +64,7 @@ function Header({ placeId, onClose }: { placeId: string; onClose: () => void }) 
       direction="row"
       alignItems="center"
       justifyContent="space-between"
-      sx={{ px: 1, height: 50, borderBottom: 1, borderColor: 'divider', flexShrink: 0 }}
+      sx={{ px: 1, height: 50, flexShrink: 0, position: 'relative', zIndex: 1, bgcolor: 'background.paper' }}
     >
       <IconButton size="small" onClick={onClose}>
         <ArrowBackIcon />
@@ -82,7 +82,7 @@ Header.Pending = ({ onClose }: { onClose: () => void }) => (
     direction="row"
     alignItems="center"
     justifyContent="space-between"
-    sx={{ px: 1, height: 50, borderBottom: 1, borderColor: 'divider', flexShrink: 0 }}
+    sx={{ px: 1, height: 50, flexShrink: 0, position: 'relative', zIndex: 1, bgcolor: 'background.paper' }}
   >
     <IconButton size="small" onClick={onClose}>
       <ArrowBackIcon />
