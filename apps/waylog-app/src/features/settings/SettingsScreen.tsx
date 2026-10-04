@@ -65,6 +65,13 @@ export function SettingsScreen() {
             </Stack>
             <MaterialIcons name="keyboard-arrow-right" size={20} />
           </StyledItem>
+          <StyledItem onPress={() => navigation.navigate(AppRoute.저장된_장소)}>
+            <Stack direction="row" gap={2}>
+              <MaterialIcons name="bookmark-border" size={20} />
+              <Typography variant="body1">저장된 장소</Typography>
+            </Stack>
+            <MaterialIcons name="keyboard-arrow-right" size={20} />
+          </StyledItem>
           <StyledItem onPress={() => navigation.navigate(AppRoute.차단_목록)}>
             <Stack direction="row" gap={2}>
               <MaterialIcons name="block" size={20} />
