@@ -4,15 +4,24 @@ import LogoutIcon from '@mui/icons-material/Logout'
 import BlockIcon from '@mui/icons-material/Block'
 import PersonIcon from '@mui/icons-material/Person'
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove'
-import { List, ListItemButton, ListItemIcon, ListItemText, Stack, Typography } from '@mui/material'
+import { List, ListItemButton, ListItemIcon, ListItemText, Stack } from '@mui/material'
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { deleteAccount, signOut } from '@waylog/domains/clients'
 import { AppRoute } from '@waylog/routes'
+import { getWebViewBridge } from '~shared/bridge/bridgeClient'
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
+import { ContentContainer } from '~shared/components/layout/ContentContainer'
+import { TopNavigation as DesktopNavigation } from '~shared/components/layout/TopNavigation.desktop'
+import { TopNavigation as MobileNavigation } from '~shared/components/layout/TopNavigation.mobile'
+import { useIsMobile } from '~shared/hooks/env/useIsMobile'
+
+const { isInWebView, client: bridgeClient } = getWebViewBridge()
 
 export default function SettingsPage() {
+  const isMobile = useIsMobile()
+  const TopNavigation = isMobile ? MobileNavigation : DesktopNavigation
   const navigate = useNavigate()
   const confirm = useConfirmDialog()
   const [isSigningOut, setIsSigningOut] = useState(false)
@@ -48,32 +57,40 @@ export default function SettingsPage() {
 
   return (
     <Stack>
-      <Typography variant="h6" px={2} py={2}>설정</Typography>
-      <List disablePadding>
-        <ListItemButton onClick={() => navigate('/settings/profile')}>
-          <ListItemIcon><PersonIcon /></ListItemIcon>
-          <ListItemText primary="내 정보 변경" />
-          <ChevronRightIcon color="disabled" />
-        </ListItemButton>
-        <ListItemButton onClick={() => navigate(AppRoute.저장된_장소)}>
-          <ListItemIcon><BookmarkBorderIcon /></ListItemIcon>
-          <ListItemText primary="저장된 장소" />
-          <ChevronRightIcon color="disabled" />
-        </ListItemButton>
-        <ListItemButton onClick={() => navigate(AppRoute.차단_목록)}>
-          <ListItemIcon><BlockIcon /></ListItemIcon>
-          <ListItemText primary="차단한 사용자" />
-          <ChevronRightIcon color="disabled" />
-        </ListItemButton>
-        <ListItemButton disabled={isSigningOut} onClick={handleSignOut}>
-          <ListItemIcon><LogoutIcon color="error" /></ListItemIcon>
-          <ListItemText primary="로그아웃" slotProps={{ primary: { color: 'error' } }} />
-        </ListItemButton>
-        <ListItemButton disabled={isDeletingAccount} onClick={handleDeleteAccount}>
-          <ListItemIcon><PersonRemoveIcon color="error" /></ListItemIcon>
-          <ListItemText primary="회원 탈퇴" slotProps={{ primary: { color: 'error' } }} />
-        </ListItemButton>
-      </List>
+      <TopNavigation
+        position="sticky"
+        leftElement={isInWebView ? <TopNavigation.BackButton onClick={() => bridgeClient.closeWebView()} /> : undefined}
+        sx={isMobile ? { borderBottomWidth: 0 } : undefined}
+      >
+        설정
+      </TopNavigation>
+      <ContentContainer paddingY={isMobile ? 0 : 2}>
+        <List disablePadding>
+          <ListItemButton onClick={() => navigate('/settings/profile')}>
+            <ListItemIcon><PersonIcon /></ListItemIcon>
+            <ListItemText primary="내 정보 변경" />
+            <ChevronRightIcon color="disabled" />
+          </ListItemButton>
+          <ListItemButton onClick={() => navigate(AppRoute.저장된_장소)}>
+            <ListItemIcon><BookmarkBorderIcon /></ListItemIcon>
+            <ListItemText primary="저장된 장소" />
+            <ChevronRightIcon color="disabled" />
+          </ListItemButton>
+          <ListItemButton onClick={() => navigate(AppRoute.차단_목록)}>
+            <ListItemIcon><BlockIcon /></ListItemIcon>
+            <ListItemText primary="차단한 사용자" />
+            <ChevronRightIcon color="disabled" />
+          </ListItemButton>
+          <ListItemButton disabled={isSigningOut} onClick={handleSignOut}>
+            <ListItemIcon><LogoutIcon color="error" /></ListItemIcon>
+            <ListItemText primary="로그아웃" slotProps={{ primary: { color: 'error' } }} />
+          </ListItemButton>
+          <ListItemButton disabled={isDeletingAccount} onClick={handleDeleteAccount}>
+            <ListItemIcon><PersonRemoveIcon color="error" /></ListItemIcon>
+            <ListItemText primary="회원 탈퇴" slotProps={{ primary: { color: 'error' } }} />
+          </ListItemButton>
+        </List>
+      </ContentContainer>
     </Stack>
   )
 }
