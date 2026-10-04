@@ -163,6 +163,16 @@ export async function getPlaceById(id: string): Promise<Place> {
   return toPlace(data);
 }
 
+export async function getPlacesByIds(ids: string[]): Promise<Place[]> {
+  const { data, error } = await supabase
+    .from("places")
+    .select("*")
+    .in("id", ids);
+
+  if (error) throw error;
+  return (data ?? []).map(toPlace);
+}
+
 // ─────────────────────────────────────────
 // TripPlace 조작 (trip_places JOIN places)
 // ─────────────────────────────────────────
