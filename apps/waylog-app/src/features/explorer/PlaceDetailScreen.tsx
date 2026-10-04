@@ -1,5 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { usePlace } from '@waylog/domains/modules/place'
+import { useScheduledTrips } from '~features/trip/useScheduledTrips'
+import { AddTripButton } from '~features/place/AddTripButton'
 import { usePlacePhotos } from '~features/place/usePlacePhotos'
 import { PlacePhotoStrip } from '~features/place/PlacePhotoStrip'
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native'
@@ -71,21 +73,30 @@ function PlaceInfoContent({ placeId }: { placeId: string }) {
   const { width } = useWindowDimensions()
   const { data: place } = usePlace(placeId)
   const { data: photos } = usePlacePhotos(placeId)
+  const { data: scheduledTrips } = useScheduledTrips()
+  const insets = useSafeAreaInsets()
   const photoWidth = Math.min(120, Math.max(96, width * 0.28))
 
   return (
-    <ScrollView style={styles.flex1} contentContainerStyle={styles.infoContent} showsVerticalScrollIndicator={false}>
-      <View style={styles.mapContainer}>
-        <Map defaultCenter={{ lat: place.lat, lng: place.lng }}>
-          <Map.Marker id={place.id} lat={place.lat} lng={place.lng} label={place.name} />
-        </Map>
-      </View>
-      <View style={styles.infoText}>
-        <Typography variant="subtitle1">{place.name}</Typography>
-        {place.address !== '' && <Typography variant="body2" color="text.secondary">{place.address}</Typography>}
-      </View>
-      {photos.length > 0 && <PlacePhotoStrip photos={photos} thumbnailWidth={photoWidth} />}
-    </ScrollView>
+    <>
+      <ScrollView style={styles.flex1} contentContainerStyle={styles.infoContent} showsVerticalScrollIndicator={false}>
+        <View style={styles.mapContainer}>
+          <Map defaultCenter={{ lat: place.lat, lng: place.lng }}>
+            <Map.Marker id={place.id} lat={place.lat} lng={place.lng} label={place.name} />
+          </Map>
+        </View>
+        <View style={styles.infoText}>
+          <Typography variant="subtitle1">{place.name}</Typography>
+          {place.address !== '' && <Typography variant="body2" color="text.secondary">{place.address}</Typography>}
+        </View>
+        {photos.length > 0 && <PlacePhotoStrip photos={photos} thumbnailWidth={photoWidth} />}
+      </ScrollView>
+      {scheduledTrips.length > 0 && (
+        <View style={[styles.addTripArea, { paddingBottom: insets.bottom }]}>
+          <AddTripButton placeId={place.id} />
+        </View>
+      )}
+    </>
   )
 }
 
@@ -119,6 +130,7 @@ const styles = StyleSheet.create({
   infoContent: { padding: 16, gap: 16, paddingBottom: 32 },
   mapContainer: { height: 220, borderRadius: radius.lg, overflow: 'hidden' },
   infoText: { gap: 8 },
+  addTripArea: { paddingHorizontal: 16 },
   emptyFeed: { alignItems: 'center', paddingVertical: 80 },
   feed: { flex: 1 },
   feedContent: { gap: 16, padding: 16, paddingBottom: 32 },

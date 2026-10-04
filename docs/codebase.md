@@ -1486,6 +1486,7 @@ ref 로 붙잡아야 끌던 도중 스냅이 바뀌어도 제스처가 갈아끼
 | 사진 업로드          | `shared/components/photo/PhotoUploader.tsx`                       |
 | 사진 상세 뷰어       | 웹 `shared/components/photo/PhotoBottomSheet.tsx`(모바일)·`PhotoDialog.tsx`(데스크탑), 앱 `shared/components/photo/PhotoBottomSheet.tsx`. 웹·앱 모두 여행 탭과 장소 탭이 같은 뷰어를 공유하며, `onDelete`·`onUpdate`·`places` 를 넘긴 만큼만 편집 UI 가 켜진다 |
 | 장소 사진 스트립     | 앱 `features/place/PlacePhotoStrip.tsx` — 썸네일 가로 목록과 뷰어 연결을 모은다. 탐색 장소 상세(`explorer/PlaceDetailScreen`)와 장소 상세 시트(`place/PlacePhotoList`)가 읽기 전용으로 쓰고, 여행 장소 탭(`trip/trip-place/PlacePhotoSection`)은 자체 목록에서 편집 가능하게 뷰어를 연다 |
+| 장소 담기 버튼       | 앱 `features/place/AddTripButton.tsx` — 예정 여행 선택(`useTripSelectSheet`)·`createTripPlace`·성공 토스트("{여행명}에 추가되었어요")를 완결한다. 예정 여행이 없으면 호출할 수 없는 모듈이라(`assert`) 호출자가 `useScheduledTrips().data.length > 0` 로 렌더 여부를 정한다. 탐색 장소 상세(`explorer/PlaceDetailScreen` 기본정보 탭 하단)와 장소 상세 시트(`place/place-detail/PlaceDetailSheet`)가 쓰며, 담은 뒤에도 화면·시트를 닫지 않고 토스트로 알린다. 웹 `PlaceInfoWidget` 의 "내 여행에 담기"와 같은 기능이다 |
 | 환율 설정            | 웹 데스크탑 `features/trip/trip-expense/TripExchangeRateSettingButton.tsx`, 앱 동명 파일. 앱은 지출 등록 전에도 정할 수 있도록 `getUsedCurrencies`(지출 기준) 대신 `getCurrenciesByDestinations`(목적지 기준)로 통화를 뽑는다. `trip.isOverseas` 는 저장값이 아니라 목적지가 `LocationCountry` 의 키일 때만 참이다 |
 | 사진 공개 뱃지/장소 변경 | `shared/components/photo/PhotoVisibilityBadge.tsx`, `PhotoPlaceSelect.tsx` |
 | 여행 사진 탭         | `features/trip/trip-photo/TripPhotoContent.*.tsx`                 |

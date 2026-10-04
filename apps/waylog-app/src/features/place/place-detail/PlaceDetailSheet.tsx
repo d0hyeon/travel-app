@@ -1,14 +1,14 @@
-import { createTripPlace, usePlace } from '@waylog/domains/modules/place'
+import { usePlace } from '@waylog/domains/modules/place'
 import { Suspense } from 'react'
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native'
-import { Box, Button, Skeleton, Stack, Typography } from '~shared/components/design-system'
+import { Box, Skeleton, Stack, Typography } from '~shared/components/design-system'
 import { Map } from '~shared/components/Map'
 import { useAppNavigation } from '~shared/hooks/useAppNavigation'
 import { AppRoute } from '~app/AppRoute'
 import { palette, radius } from '~shared/config/tokens'
 import { useScheduledTrips } from '~features/trip/useScheduledTrips'
+import { AddTripButton } from '~features/place/AddTripButton'
 import { PlacePhotoList } from '~features/place/PlacePhotoList'
-import { useTripSelectSheet } from '~features/place/useTripSelectSheet'
 
 const styles = StyleSheet.create({
   backdrop: {
@@ -51,13 +51,21 @@ export function PlaceDetailSheet({ placeId, isOpen, onClose }: Props) {
                 <PlaceDetailBody placeId={placeId} />
               </ScrollView>
               <MoreDetailButton placeId={placeId} onNavigate={onClose} />
-              <AddTripButton placeId={placeId} onDone={onClose} />
+              <ScheduledAddTripButton placeId={placeId} />
             </Suspense>
           </View>
         </Pressable>
       </Pressable>
     </Modal>
   )
+}
+
+function ScheduledAddTripButton({ placeId }: { placeId: string }) {
+  const { data: scheduledTrips } = useScheduledTrips()
+
+  if (scheduledTrips.length === 0) return null
+
+  return <AddTripButton placeId={placeId} />
 }
 
 function MoreDetailButton({ placeId, onNavigate }: { placeId: string; onNavigate: () => void }) {
@@ -74,34 +82,6 @@ function MoreDetailButton({ placeId, onNavigate }: { placeId: string; onNavigate
         더 보기
       </Typography>
     </Pressable>
-  )
-}
-
-function AddTripButton({ placeId, onDone }: { placeId: string; onDone: () => void }) {
-  const { data: scheduledTrips } = useScheduledTrips()
-  const selectTrip = useTripSelectSheet(scheduledTrips)
-
-  if (scheduledTrips.length === 0) return null
-
-  const getTargetTrip = () => {
-    if (scheduledTrips.length === 1) return Promise.resolve(scheduledTrips.at(0) ?? null)
-    return selectTrip()
-  }
-
-  return (
-    <Button
-      variant="contained"
-      size="large"
-      fullWidth
-      onPress={async () => {
-        const targetTrip = await getTargetTrip()
-        if (targetTrip == null) return
-        await createTripPlace({ placeId, tripId: targetTrip.id })
-        onDone()
-      }}
-    >
-      내 여행에 담기
-    </Button>
   )
 }
 

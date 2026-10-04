@@ -5,7 +5,7 @@ import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
 import { Chip, Stack, Typography } from '~shared/components/design-system'
 import { useOverlay } from '~shared/hooks/useOverlay'
 
-/** @package { place-detail/PlaceDetailSheet.tsx } */
+/** @package { AddTripButton.tsx } */
 export function useTripSelectSheet(options: Trip[]) {
   const overlay = useOverlay()
 
