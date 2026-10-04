@@ -1,4 +1,4 @@
-export const DATE_INPUT_MIN_MAX_LIMIT_UNIT = {
+export const DATE_INPUT_MIN_MAX_LIMIT_SUPPORT = {
   Months: true,
   Days: true,
   Hours: true,
@@ -7,23 +7,23 @@ export const DATE_INPUT_MIN_MAX_LIMIT_UNIT = {
    * 단 추후 기능이 필요할때 놓치지 않도록, 구현이 필요한 모듈에 throw NotImplementedError를 걸어둔다.
    */
   Minutes: false,
-} as const
-export const 날짜_입력_제한_기능_제공_정책 = DATE_INPUT_MIN_MAX_LIMIT_UNIT
+} as const;
+export const 날짜_입력_제한_기능_제공_여부 = DATE_INPUT_MIN_MAX_LIMIT_SUPPORT;
 
 interface NotImplementedErrorOptions {
-  features: string
-  details?: string
+  features: string;
+  details?: string;
 }
 export class NotImplementedError extends Error {
-  features: string
-  details?: string
+  features: string;
+  details?: string;
 
   constructor({ features, details }: NotImplementedErrorOptions) {
-    const label = details != null ? `${features}의 ${details}` : features
-    const message = `${label} 기능이 구현되지 않았습니다. 기능을 구현해주세요`
+    const label = details != null ? `${features}의 ${details}` : features;
+    const message = `${label} 기능이 구현되지 않았습니다. 기능을 구현해주세요`;
 
-    super(message)
-    this.features = features
-    this.details = details
+    super(message);
+    this.features = features;
+    this.details = details;
   }
 }
