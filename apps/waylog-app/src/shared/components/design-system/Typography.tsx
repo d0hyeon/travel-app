@@ -1,6 +1,7 @@
 import { useMemo, type ComponentType, type ReactNode, type Ref } from 'react'
 import { StyleSheet, Text as RNText, type TextProps as RNTextProps } from 'react-native'
-import { palette } from '../../config/tokens'
+import { palette } from '~shared/config/tokens'
+
 
 // 웹 theme.ts 의 값을 그대로 옮긴다. 앱은 모바일이므로
 // breakpoints.down('md') 쪽 수치를 쓴다.

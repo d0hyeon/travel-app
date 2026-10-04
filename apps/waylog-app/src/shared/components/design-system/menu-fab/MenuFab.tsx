@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'rea
 import { MaterialIcons } from '@expo/vector-icons'
 import { ImpactFeedbackStyle, impactAsync } from 'expo-haptics'
 import Animated, { type SharedValue, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
-import { palette, zLayer } from '../../../config/tokens'
+import { palette, zLayer } from '~shared/config/tokens'
 import { MenuFabContext } from './MenuFabContext'
 import { MenuFabItem } from './MenuFabItem'
 import { CLOSE_DURATION_MS, FAB_SIZE, HINT_LAYERS, HINT_PRESS_DURATION_MS, LONG_PRESS_DELAY_MS, OPEN_DURATION_MS, getHintLayerOffset } from './menuFabMotion'

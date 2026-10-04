@@ -1,10 +1,10 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { Skeleton, Stack, Typography, type StackProps } from "~/shared/components/design-system";
+import { Skeleton, Stack, Typography, type StackProps } from "~shared/components/design-system";
 import { Suspense } from "react";
 import { StyleSheet, Pressable } from 'react-native';
-import { useAppNavigation } from '../../../shared/hooks/useAppNavigation';
-import { AppRoute } from '../../../app/AppRoute';
-import { ListItem } from "../../../shared/components/ListItem";
+import { useAppNavigation } from '~shared/hooks/useAppNavigation';
+import { AppRoute } from '~app/AppRoute';
+import { ListItem } from "~shared/components/ListItem";
 import { useTripMemo } from '@waylog/domains/modules/trip-memo';
 import { getMemoDisplayTitle } from './memoTitle';
 

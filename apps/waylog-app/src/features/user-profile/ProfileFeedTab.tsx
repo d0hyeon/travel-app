@@ -1,8 +1,8 @@
 import { StyleSheet, Pressable, View, useWindowDimensions } from 'react-native'
-import { Typography } from '~/shared/components/design-system'
-import { LoadableImage } from '../../shared/components/LoadableImage'
-import { useAppNavigation } from '../../shared/hooks/useAppNavigation'
-import { AppRoute } from '../../app/AppRoute'
+import { Typography } from '~shared/components/design-system'
+import { LoadableImage } from '~shared/components/LoadableImage'
+import { useAppNavigation } from '~shared/hooks/useAppNavigation'
+import { AppRoute } from '~app/AppRoute'
 import { useUserPostPhotos } from './useUserPostPhotos'
 
 export function ProfileFeedTab({ userId }: { userId: string }) {

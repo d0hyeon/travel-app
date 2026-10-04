@@ -2,10 +2,10 @@ import { Fragment, useMemo } from 'react'
 import { getMarineActivityMarkerItems } from '@waylog/domains/modules/marine-activity'
 import { useDailyMarineActivityIndices } from '@waylog/domains/modules/marine-activity'
 import { useTrip } from '@waylog/domains/modules/trip'
-import { Map } from '../../../shared/components/Map'
+import { Map } from '~shared/components/Map'
 import { MarineActivityMarkerIcon } from './MarineActivityMarkerIcon'
 import { useTripMarineActivityDetailOverlay } from './TripMarineActivityDetailOverlay'
-import { useActiveTripDay } from '../trip-route/trip-route-configuration/useActiveTripDay'
+import { useActiveTripDay } from '~features/trip/trip-route/trip-route-configuration/useActiveTripDay'
 
 interface TripMarineActivityMapMarkersProps {
   tripId: string

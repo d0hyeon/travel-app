@@ -5,12 +5,12 @@ import {
   type TripTransportTicket,
 } from '@waylog/domains/modules/trip-transport'
 import { Pressable, StyleSheet, View } from 'react-native'
-import { Button, Skeleton, Typography } from '~/shared/components/design-system'
-import { palette, radius } from '../../../../shared/config/tokens'
+import { Button, Skeleton, Typography } from '~shared/components/design-system'
+import { palette, radius } from '~shared/config/tokens'
 import { useTicketViewerOverlay } from './useTicketViewerOverlay'
-import { useTransportTicketFormOverlay } from '../transport-ticket/useTransportTicketFormOverlay'
-import { useTransportTicketUpload } from '../transport-ticket/useTransportTicketUpload'
-import { TransportDetailSectionError } from '../transport-detail/TransportDetailSectionError'
+import { useTransportTicketFormOverlay } from '~features/trip/trip-transport/transport-ticket/useTransportTicketFormOverlay'
+import { useTransportTicketUpload } from '~features/trip/trip-transport/transport-ticket/useTransportTicketUpload'
+import { TransportDetailSectionError } from '~features/trip/trip-transport/transport-detail/TransportDetailSectionError'
 
 interface Props {
   tripId: string

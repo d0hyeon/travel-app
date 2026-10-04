@@ -1,6 +1,6 @@
 import { useExpenses } from '@waylog/domains/modules/expense'
-import { Button } from '~/shared/components/design-system'
-import { useConfirmDialog } from '../../../shared/components/confirm-dialog/useConfirmDialog'
+import { Button } from '~shared/components/design-system'
+import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { ExpenseFormOverlayActions } from './useExpenseFormOverlay'
 
 interface Props {

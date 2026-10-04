@@ -2,7 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import type { Location } from "@waylog/domains/modules/location";
 import type { PlaceCategoryType } from "@waylog/domains/modules/place";
 import { useMemo } from "react";
-import { explorerKey, getExploredPlaces } from "../explorer.api";
+import { explorerKey, getExploredPlaces } from "~features/explorer/explorer.api";
 import { byHotRank } from "./recentHotPlaces.utils";
 
 interface PlaceFilters {

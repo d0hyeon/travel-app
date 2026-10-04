@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { Toaster } from 'sonner-native'
-import { palette } from '../../config/tokens'
+import { palette } from '~shared/config/tokens'
 
 const ICON_SIZE = 20
 

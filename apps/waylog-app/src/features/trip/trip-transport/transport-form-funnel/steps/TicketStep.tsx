@@ -1,13 +1,13 @@
 import type { TripTransportType } from '@waylog/domains/modules/trip-transport'
 import { useRef } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
-import { Button, Typography } from '~/shared/components/design-system'
-import { palette } from '../../../../../shared/config/tokens'
+import { Button, Typography } from '~shared/components/design-system'
+import { palette } from '~shared/config/tokens'
 import {
   TransportTicketForm,
   type TransportTicketFormRef,
-} from '../../transport-ticket/TransportTicketForm'
-import type { TransportTicketDraft } from '../../transport-ticket/transportTicket.types'
+} from '~features/trip/trip-transport/transport-ticket/TransportTicketForm'
+import type { TransportTicketDraft } from '~features/trip/trip-transport/transport-ticket/transportTicket.types'
 
 interface Props {
   tripId: string

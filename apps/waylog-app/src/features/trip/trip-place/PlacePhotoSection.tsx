@@ -1,11 +1,11 @@
 import * as ImagePicker from 'expo-image-picker'
 import { MaterialIcons } from '@expo/vector-icons'
 import { StyleSheet, Pressable, ScrollView } from 'react-native'
-import { Box, Skeleton, Stack, StackProps, Typography } from '~/shared/components/design-system'
-import { LoadableImage } from '../../../shared/components/LoadableImage'
-import { PhotoBottomSheet } from '../../../shared/components/photo/PhotoBottomSheet'
-import { useConfirmDialog } from '../../../shared/components/confirm-dialog/useConfirmDialog'
-import { useOverlay } from '../../../shared/hooks/useOverlay'
+import { Box, Skeleton, Stack, StackProps, Typography } from '~shared/components/design-system'
+import { LoadableImage } from '~shared/components/LoadableImage'
+import { PhotoBottomSheet } from '~shared/components/photo/PhotoBottomSheet'
+import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
+import { useOverlay } from '~shared/hooks/useOverlay'
 import { usePlacePhotos } from './useTripPlacePhotos'
 
 interface PlacePhotoSectionProps extends StackProps {

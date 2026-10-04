@@ -1,10 +1,10 @@
 import { useAuth } from '@waylog/domains/clients'
 import { useTrip } from '@waylog/domains/modules/trip'
-import { Button } from '~/shared/components/design-system'
-import type { ButtonProps } from '~/shared/components/design-system/Button'
-import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
-import { useConfirmDialog } from '../../../shared/components/confirm-dialog/useConfirmDialog'
-import { AppRoute } from '../../../app/AppRoute'
+import { Button } from '~shared/components/design-system'
+import type { ButtonProps } from '~shared/components/design-system/Button'
+import { useAppNavigation } from '~shared/hooks/useAppNavigation'
+import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
+import { AppRoute } from '~app/AppRoute'
 
 interface Props extends ButtonProps {
   tripId: string

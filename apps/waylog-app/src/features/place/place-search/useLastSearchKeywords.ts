@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { useStorageStore } from '../../../shared/hooks/useStorageStore'
+import { useStorageStore } from '~shared/hooks/useStorageStore'
 
 interface Options {
   size?: number

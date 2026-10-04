@@ -1,9 +1,9 @@
 import { Suspense } from 'react'
-import { useTripDetailTabTripId } from '../useTripId'
+import { useTripDetailTabTripId } from '~features/trip/useTripId'
 import { ActivityIndicator, View, StyleSheet } from 'react-native'
 import { TripBasicInfoContent } from './TripBasicInfoContent'
-import { palette } from '../../../shared/config/tokens'
-import { useTripLayoutSetting } from '../trip-layout/useTripLayoutSetting'
+import { palette } from '~shared/config/tokens'
+import { useTripLayoutSetting } from '~features/trip/trip-layout/useTripLayoutSetting'
 
 export function TripInfoTabScreen() {
   const tripId = useTripDetailTabTripId()

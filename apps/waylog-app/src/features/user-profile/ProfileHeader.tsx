@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native'
-import { Avatar, Stack, Typography } from '~/shared/components/design-system'
-import { palette } from '../../shared/config/tokens'
+import { Avatar, Stack, Typography } from '~shared/components/design-system'
+import { palette } from '~shared/config/tokens'
 import { useUserProfile } from './useUserProfile'
 
 export function ProfileHeader({ userId }: { userId: string }) {

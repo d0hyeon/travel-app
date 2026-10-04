@@ -1,7 +1,7 @@
 import type { Coordinate } from "@waylog/domains/modules/map";
 import type { RouteLeg } from "@waylog/domains/modules/route";
 import { useMemo } from "react";
-import { useRoadRoute } from "../../../route/road-route/useRoadRoute";
+import { useRoadRoute } from "~features/route/road-route/useRoadRoute";
 
 type Waypoint = Coordinate & { id: string };
 

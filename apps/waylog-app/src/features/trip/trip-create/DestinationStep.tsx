@@ -1,7 +1,7 @@
 import { LocationOptions, type LocationOption } from '@waylog/domains/modules/location'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { BottomArea } from '../../../shared/components/BottomArea'
-import { LocationForm } from '../../location/LocationForm'
+import { BottomArea } from '~shared/components/BottomArea'
+import { LocationForm } from '~features/location/LocationForm'
 
 export type Destination = LocationOption
 

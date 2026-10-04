@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from 'react'
-import { palette } from '../../../shared/config/tokens'
+import { palette } from '~shared/config/tokens'
 import { StyleSheet, View } from 'react-native'
 
 /**

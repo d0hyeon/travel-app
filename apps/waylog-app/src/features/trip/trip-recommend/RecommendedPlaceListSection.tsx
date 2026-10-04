@@ -4,10 +4,10 @@ import { useRecommendedPlaces } from '@waylog/domains/modules/trip-recommend'
 import type { RecommendedPlace } from '@waylog/domains/modules/trip-recommend'
 import { Suspense, type ReactNode } from 'react'
 import { StyleSheet, Pressable, ScrollView } from 'react-native'
-import { Box, Skeleton, Stack, Typography } from '~/shared/components/design-system'
-import { palette, radius } from '../../../shared/config/tokens'
+import { Box, Skeleton, Stack, Typography } from '~shared/components/design-system'
+import { palette, radius } from '~shared/config/tokens'
 import { useRecommendedPlaceDetailOverlay } from './RecommendedPlaceDetailOverlay'
-import { LoadableImage } from '../../../shared/components/LoadableImage'
+import { LoadableImage } from '~shared/components/LoadableImage'
 
 interface Props {
   tripId: string

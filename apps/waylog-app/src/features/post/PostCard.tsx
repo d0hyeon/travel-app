@@ -10,11 +10,11 @@ import {
   type NativeSyntheticEvent,
 } from 'react-native'
 import React, { Suspense } from 'react'
-import { Box, Skeleton, Stack, Typography } from '~/shared/components/design-system'
-import { palette } from '../../shared/config/tokens'
+import { Box, Skeleton, Stack, Typography } from '~shared/components/design-system'
+import { palette } from '~shared/config/tokens'
 import { PostAuthor } from './PostAuthor'
 import { PostLikeButton } from './PostLikeButton'
-import { LoadableImage } from '../../shared/components/LoadableImage'
+import { LoadableImage } from '~shared/components/LoadableImage'
 
 const RENDERED_PAGE_RADIUS = 1
 

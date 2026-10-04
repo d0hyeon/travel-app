@@ -1,9 +1,9 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { type ReactNode } from 'react'
-import { Box, IconButton, Stack, Typography } from '~/shared/components/design-system'
-import type { TypographyProps } from '~/shared/components/design-system'
+import { Box, IconButton, Stack, Typography } from '~shared/components/design-system'
+import type { TypographyProps } from '~shared/components/design-system'
 import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native'
-import { palette, radius } from '../../config/tokens'
+import { palette, radius } from '~shared/config/tokens'
 
 export interface NotificationCardProps {
   variant?: 'shadow' | 'outline'

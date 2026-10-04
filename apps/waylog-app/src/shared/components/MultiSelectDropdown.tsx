@@ -4,9 +4,9 @@ import { StyleSheet, Pressable, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { BottomSheet } from './bottom-sheet/BottomSheet'
 import { ListItem } from './ListItem'
-import { Button, GlassSurface, Stack, Typography } from '~/shared/components/design-system'
-import { palette } from '../config/tokens'
-import { useOverlay } from '../hooks/useOverlay'
+import { Button, GlassSurface, Stack, Typography } from '~shared/components/design-system'
+import { palette } from '~shared/config/tokens'
+import { useOverlay } from '~shared/hooks/useOverlay'
 import { getDisplayLabel, type MultiSelectDropdownOption } from './multiSelectDropdown.utils'
 
 export type { MultiSelectDropdownOption }

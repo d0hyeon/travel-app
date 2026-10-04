@@ -1,6 +1,6 @@
 import { StyleSheet, Pressable, type StyleProp, type ViewStyle } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
-import { palette } from '../../config/tokens'
+import { palette } from '~shared/config/tokens'
 import { Box } from './Box'
 import { Typography } from './Typography'
 
@@ -24,7 +24,8 @@ export function Chip({
   style,
 }: ChipProps) {
   const isPrimary = color === 'primary'
-  const filled = variant === 'filled'
+  const filled = variant === 'filled';
+
 
   return (
     <Pressable onPress={onPress}>

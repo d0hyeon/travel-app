@@ -1,10 +1,10 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { useController, useWatch, type Control, type UseFormSetValue } from 'react-hook-form'
 import { Pressable, StyleSheet, View } from 'react-native'
-import { Typography } from '~/shared/components/design-system'
-import { palette, radius } from '../../../../shared/config/tokens'
-import { useAirlineSelectOverlay } from '../../transport-airline/useAirlineSelectOverlay'
-import type { TransportFormValues } from '../transportForm.types'
+import { Typography } from '~shared/components/design-system'
+import { palette, radius } from '~shared/config/tokens'
+import { useAirlineSelectOverlay } from '~features/transport/transport-airline/useAirlineSelectOverlay'
+import type { TransportFormValues } from '~features/transport/transport-form/transportForm.types'
 
 interface Props {
   control: Control<TransportFormValues>

@@ -1,8 +1,8 @@
 import { StyleSheet } from 'react-native'
-import { Skeleton, Stack, Typography, type StackProps } from "~/shared/components/design-system";
+import { Skeleton, Stack, Typography, type StackProps } from "~shared/components/design-system";
 import { TripChecklist } from './TripChecklist';
 import { useTripChecklist } from '@waylog/domains/modules/trip-checklist';
-import { ListItem } from "../../../shared/components/ListItem";
+import { ListItem } from "~shared/components/ListItem";
 import { Suspense } from "react";
 
 interface Props extends StackProps {

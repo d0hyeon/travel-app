@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native'
-import { Box, Skeleton, Typography, type BoxProps } from '~/shared/components/design-system'
+import { Box, Skeleton, Typography, type BoxProps } from '~shared/components/design-system'
 import type { TextStyle } from 'react-native'
-import { useCountAnimation } from '../../../shared/hooks/animation/useCountdownAnimation'
+import { useCountAnimation } from '~shared/hooks/animation/useCountdownAnimation'
 import { useTrip } from '@waylog/domains/modules/trip'
 
 

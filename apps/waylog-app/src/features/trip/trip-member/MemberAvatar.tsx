@@ -1,9 +1,9 @@
 import { StyleSheet } from 'react-native'
 import type { TripMember } from '@waylog/domains/modules/trip-member'
-import { palette } from '../../../shared/config/tokens'
-import { Box, Typography } from '~/shared/components/design-system'
+import { palette } from '~shared/config/tokens'
+import { Box, Typography } from '~shared/components/design-system'
 import type { StyleProp, ViewStyle } from 'react-native'
-import { LoadableImage } from '../../../shared/components/LoadableImage'
+import { LoadableImage } from '~shared/components/LoadableImage'
 
 interface Props {
   member: TripMember

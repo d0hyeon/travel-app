@@ -7,7 +7,7 @@ import {
   updateTripTransportTicket,
   useTripTransports,
 } from '@waylog/domains/modules/trip-transport'
-import { uploadTransportTicketImage } from '../../../photo/photo.api'
+import { uploadTransportTicketImage } from '~features/photo/photo.api'
 import type { TransportTicketDraft } from './transportTicket.types'
 
 interface UploadParams {

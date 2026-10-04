@@ -1,11 +1,11 @@
 import { format as formatDate } from 'date-fns'
 import { Controller, useWatch, type Control } from 'react-hook-form'
 import { StyleSheet, View } from 'react-native'
-import { Typography } from '~/shared/components/design-system'
-import { palette } from '../../../../shared/config/tokens'
-import { DateField } from '../../../../shared/components/date-picker'
+import { Typography } from '~shared/components/design-system'
+import { palette } from '~shared/config/tokens'
+import { DateField } from '~shared/components/date-picker'
 import { RouteArrow } from './scheduleFieldParts'
-import type { TransportFormValues } from '../transportForm.types'
+import type { TransportFormValues } from '~features/transport/transport-form/transportForm.types'
 
 interface Props {
   control: Control<TransportFormValues>

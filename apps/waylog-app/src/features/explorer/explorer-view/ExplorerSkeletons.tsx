@@ -1,6 +1,6 @@
 import { StyleSheet, useWindowDimensions, View } from 'react-native'
-import { Skeleton } from '~/shared/components/design-system'
-import { palette, radius } from '../../../shared/config/tokens'
+import { Skeleton } from '~shared/components/design-system'
+import { palette, radius } from '~shared/config/tokens'
 
 export function ExplorerPlaceCardSectionSkeleton() {
   return (

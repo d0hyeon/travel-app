@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Animated, Modal, Pressable, ScrollView, StyleSheet, useWindowDimensions, type LayoutChangeEvent } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTheme, useThemeName, View } from 'tamagui'
-import { radius } from '../config/tokens'
+import { radius } from '~shared/config/tokens'
 import { ActionSheetCloseContext } from './action-sheet/ActionSheet'
 import { resolveMenuPlacement, type Rect, type Size } from './anchoredMenu.utils'
 

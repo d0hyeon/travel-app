@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { useOverlay } from '../../hooks/useOverlay'
+import { useOverlay } from '~shared/hooks/useOverlay'
 import ConfirmDialog, { type ConfirmDialogProps } from './ConfirmDialog'
 
 // 웹 useConfirmDialog 와 같은 시그니처를 유지한다.

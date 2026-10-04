@@ -1,8 +1,8 @@
 import { useDailyWeatherForecast, type UseDailyWeatherForecastParams } from '@waylog/domains/modules/weather'
 import type { DayPart } from '@waylog/domains/modules/weather'
 import { Suspense } from 'react'
-import { Box, Skeleton, Stack, Typography } from '~/shared/components/design-system'
-import { palette, radius } from '../../shared/config/tokens'
+import { Box, Skeleton, Stack, Typography } from '~shared/components/design-system'
+import { palette, radius } from '~shared/config/tokens'
 import { WeatherIcon } from './WeatherIcon'
 import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native'
 

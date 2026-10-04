@@ -1,9 +1,9 @@
 import { useAuth } from '@waylog/domains/clients'
 import { usePost } from '@waylog/domains/modules/post'
 import { useBlockUser } from '@waylog/domains/modules/user-block'
-import { useConfirmDialog } from '../../shared/components/confirm-dialog/useConfirmDialog'
-import { PopMenu } from '../../shared/components/PopMenu'
-import { useReportSheet } from '../report/useReportSheet'
+import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
+import { PopMenu } from '~shared/components/PopMenu'
+import { useReportSheet } from '~features/report/useReportSheet'
 
 interface Props {
   postId: string

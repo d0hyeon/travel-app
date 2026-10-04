@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useOverlay } from "../../../../shared/hooks/useOverlay";
+import { useOverlay } from "~shared/hooks/useOverlay";
 import { PlaceSelectSheet, PlaceSelectSheetProps } from "./PlaceSelectSheet";
 
 type OpenProps = Omit<PlaceSelectSheetProps, 'tripId'>;

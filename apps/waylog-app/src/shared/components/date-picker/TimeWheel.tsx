@@ -6,10 +6,10 @@ import {
   type NativeSyntheticEvent,
 } from 'react-native'
 
-import { Typography } from '~/shared/components/design-system'
+import { Typography } from '~shared/components/design-system'
 import { buildMinuteOptions, getTimesRange } from './calendar.utils'
 import type { DateBounds, TimeOfDay } from './datePicker.model'
-import { palette, radius } from '../../config/tokens'
+import { palette, radius } from '~shared/config/tokens'
 
 const ITEM_HEIGHT = 40
 // 위아래로 두 칸씩 보여야 고르는 중이라는 게 읽히고, 달력 단계와 자리도 맞는다.

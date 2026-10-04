@@ -11,7 +11,7 @@ import {
   useDailyWeatherForecast,
   type DayPart,
 } from '@waylog/domains/modules/weather'
-import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
+import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
 import { ErrorBoundary } from '@waylog/react'
 import { AsyncBoundary } from '@waylog/react'
 import {
@@ -22,11 +22,11 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Typography,
-} from '~/shared/components/design-system'
-import { DailyWeatherInfoBox } from '../../weather/DailyWeatherInfoBox'
-import { isPageWithinRenderWindow } from '../../../shared/components/pagerWindow'
+} from '~shared/components/design-system'
+import { DailyWeatherInfoBox } from '~features/weather/DailyWeatherInfoBox'
+import { isPageWithinRenderWindow } from '~shared/components/pagerWindow'
 import { toForecastPages, toPageIndex } from './weatherForecastPager'
-import { HourlyForecastList } from '../../weather/HourlyForecastList'
+import { HourlyForecastList } from '~features/weather/HourlyForecastList'
 
 const DAY_PARTS = [
   { dayPart: 'am', label: '오전' },

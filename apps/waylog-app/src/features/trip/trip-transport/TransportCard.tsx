@@ -8,9 +8,9 @@ import {
 import type { AirportArrivalGuidance } from '@waylog/domains/modules/airport-arrival-guidance'
 import { format as formatDate, isSameDay, isSameYear } from 'date-fns'
 import { Pressable, StyleSheet, View } from 'react-native'
-import { Stack, Typography } from '~/shared/components/design-system'
-import { palette, radius } from '../../../shared/config/tokens'
-import { TransportTypeIcon } from '../../transport/TransportTypeIcon'
+import { Stack, Typography } from '~shared/components/design-system'
+import { palette, radius } from '~shared/config/tokens'
+import { TransportTypeIcon } from '~features/transport/TransportTypeIcon'
 import { toCarrierLabel } from './transportLabel'
 
 const EMPTY_TIME = '—'

@@ -9,10 +9,10 @@ import {
   CircularProgress,
   Stack,
   Typography,
-} from '~/shared/components/design-system'
-import { useAppNavigation, useAppRoute } from '../../../shared/hooks/useAppNavigation'
-import { AppRoute } from '../../../app/AppRoute'
-import { palette } from '../../../shared/config/tokens'
+} from '~shared/components/design-system'
+import { useAppNavigation, useAppRoute } from '~shared/hooks/useAppNavigation'
+import { AppRoute } from '~app/AppRoute'
+import { palette } from '~shared/config/tokens'
 
 export type TripInviteParams = { shareLink: string }
 

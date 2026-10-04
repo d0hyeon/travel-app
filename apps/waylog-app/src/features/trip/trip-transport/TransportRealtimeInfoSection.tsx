@@ -8,8 +8,8 @@ import { TransportType } from '@waylog/domains/modules/transport'
 import { useTripTransportTickets } from '@waylog/domains/modules/trip-transport'
 import { AsyncBoundary } from '@waylog/react'
 import { StyleSheet, View } from 'react-native'
-import { Skeleton, Typography } from '~/shared/components/design-system'
-import { assert } from '../../../shared/utils/assert'
+import { Skeleton, Typography } from '~shared/components/design-system'
+import { assert } from '~shared/utils/assert'
 
 interface Props {
   tripId: string

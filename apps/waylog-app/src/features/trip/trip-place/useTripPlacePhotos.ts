@@ -1,5 +1,5 @@
 import type { Photo } from '@waylog/domains/modules/photo'
-import { useTripPhotos } from '../trip-photo/useTripPhotos'
+import { useTripPhotos } from '~features/trip/trip-photo/useTripPhotos'
 
 interface UploadAsset {
   uri: string

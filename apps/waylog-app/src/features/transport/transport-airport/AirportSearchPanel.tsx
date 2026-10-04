@@ -2,9 +2,9 @@ import { useAirportSearch, type Airport } from '@waylog/domains/modules/airport'
 import { AsyncBoundary } from '@waylog/react'
 import { useState } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
-import { Skeleton, Typography } from '~/shared/components/design-system'
-import { palette, radius } from '../../../shared/config/tokens'
-import { SearchPanelLayout } from '../transport-form/SearchPanelLayout'
+import { Skeleton, Typography } from '~shared/components/design-system'
+import { palette, radius } from '~shared/config/tokens'
+import { SearchPanelLayout } from '~features/transport/transport-form/SearchPanelLayout'
 
 interface Props {
   title: string

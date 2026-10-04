@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native'
 import { useMemo } from 'react'
-import { Stack, Typography } from '~/shared/components/design-system'
-import { palette, radius } from '../../shared/config/tokens'
+import { Stack, Typography } from '~shared/components/design-system'
+import { palette, radius } from '~shared/config/tokens'
 import { useUserTrips } from './useUserTrips'
 import { countUniqueCountries, countUniqueRegions } from '@waylog/domains/modules/trip'
 

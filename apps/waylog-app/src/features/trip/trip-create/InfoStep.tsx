@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native'
 import { useState, useTransition } from 'react'
-import { BottomArea } from '../../../shared/components/BottomArea'
-import { Box, Button, TextField, Typography } from '~/shared/components/design-system'
+import { BottomArea } from '~shared/components/BottomArea'
+import { Box, Button, TextField, Typography } from '~shared/components/design-system'
 
 interface Props {
   destination: string

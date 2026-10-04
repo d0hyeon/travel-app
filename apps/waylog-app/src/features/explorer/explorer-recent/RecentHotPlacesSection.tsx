@@ -1,11 +1,11 @@
 import type { Location } from '@waylog/domains/modules/location'
 import type { PlaceCategoryType } from '@waylog/domains/modules/place'
 import { ScrollView, StyleSheet, View } from 'react-native'
-import { ExplorerPlaceCard } from '../explorer-place-item/ExplorerPlaceCard'
-import { ExplorerEmptyState } from '../explorer-view/ExplorerEmptyState'
-import { SectionHeader } from '../explorer-view/SectionHeader'
-import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
-import { AppRoute } from '../../../app/AppRoute'
+import { ExplorerPlaceCard } from '~features/explorer/explorer-place-item/ExplorerPlaceCard'
+import { ExplorerEmptyState } from '~features/explorer/explorer-view/ExplorerEmptyState'
+import { SectionHeader } from '~features/explorer/explorer-view/SectionHeader'
+import { useAppNavigation } from '~shared/hooks/useAppNavigation'
+import { AppRoute } from '~app/AppRoute'
 import { useRecentHotPlaces } from './useRecentHotPlaces'
 
 interface Props {

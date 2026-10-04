@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useAuth } from '@waylog/domains/clients'
-import { useAppNavigation, useAppRoute } from '../../shared/hooks/useAppNavigation'
-import { AppRoute } from '../../app/AppRoute'
+import { useAppNavigation, useAppRoute } from '~shared/hooks/useAppNavigation'
+import { AppRoute } from '~app/AppRoute'
 import { LoginScreen } from './LoginScreen'
 
 export function LoginRoute() {

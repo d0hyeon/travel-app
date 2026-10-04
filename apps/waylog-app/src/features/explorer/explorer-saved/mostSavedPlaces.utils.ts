@@ -1,4 +1,4 @@
-import type { MostSavedPlace } from '../explorer.api'
+import type { MostSavedPlace } from '~features/explorer/explorer.api'
 
 export function bySaveRank(first: MostSavedPlace, second: MostSavedPlace) {
   const saveCountGap = second.saveCount - first.saveCount

@@ -3,8 +3,8 @@ import { LocationRegion } from '@waylog/domains/modules/location'
 import type { RegionTourismTrend } from '@waylog/domains/modules/tourism-trend'
 import { formatKoreanCount } from '@waylog/utility'
 import { StyleSheet, View } from 'react-native'
-import { Typography } from '~/shared/components/design-system'
-import { palette, radius } from '../../../shared/config/tokens'
+import { Typography } from '~shared/components/design-system'
+import { palette, radius } from '~shared/config/tokens'
 
 interface RegionTrendCardProps {
   trend: RegionTourismTrend

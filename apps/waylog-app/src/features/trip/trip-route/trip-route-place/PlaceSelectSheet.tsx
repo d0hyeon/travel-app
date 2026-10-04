@@ -3,11 +3,11 @@ import { useTrip, useTripPlaces } from '@waylog/domains/modules/trip'
 import { PlaceCategoryColorCode } from '@waylog/domains/modules/place'
 import { ComponentProps, useState } from 'react'
 import { MaterialIcons } from '@expo/vector-icons'
-import { BottomSheet, BottomSheetProps } from '../../../../shared/components/bottom-sheet/BottomSheet'
-import { ListItem } from '../../../../shared/components/ListItem'
-import { PlaceSearchSelectScreen } from '../../../place/place-search/PlaceSearchSelectScreen'
-import { Button, Checkbox, Chip, IconButton, Stack, Typography } from '~/shared/components/design-system'
-import { palette, radius } from '../../../../shared/config/tokens'
+import { BottomSheet, BottomSheetProps } from '~shared/components/bottom-sheet/BottomSheet'
+import { ListItem } from '~shared/components/ListItem'
+import { PlaceSearchSelectScreen } from '~features/place/place-search/PlaceSearchSelectScreen'
+import { Button, Checkbox, Chip, IconButton, Stack, Typography } from '~shared/components/design-system'
+import { palette, radius } from '~shared/config/tokens'
 
 export interface PlaceSelectSheetProps {
   tripId: string

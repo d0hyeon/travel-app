@@ -1,17 +1,17 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { Suspense, useEffect, useMemo, useState } from 'react'
 import { StyleSheet, Pressable, View } from 'react-native'
-import { Map } from '../../shared/components/Map'
-import { BottomSheet } from '../../shared/components/bottom-sheet/BottomSheet'
-import { Stack, Typography } from '~/shared/components/design-system'
-import { palette } from '../../shared/config/tokens'
+import { Map } from '~shared/components/Map'
+import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
+import { Stack, Typography } from '~shared/components/design-system'
+import { palette } from '~shared/config/tokens'
 import { useUserTrips } from './useUserTrips'
 import { Country } from '@waylog/domains/modules/location'
 import { getVisitedCountryColors, resolveVisitedCountryColor } from '@waylog/domains/modules/map'
 import { deriveVisitedCountries, deriveVisitedLocations, type VisitedLocation } from './user-profile.utils'
 import { UserTripPhotoList } from './UserTripPhotoList'
-import { useOverlay } from '../../shared/hooks/useOverlay'
-import { useStorageStore } from '../../shared/hooks/useStorageStore'
+import { useOverlay } from '~shared/hooks/useOverlay'
+import { useStorageStore } from '~shared/hooks/useStorageStore'
 
 export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChange }: {
   userId: string

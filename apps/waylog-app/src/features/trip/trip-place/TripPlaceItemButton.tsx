@@ -1,12 +1,12 @@
 import { StyleSheet } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons';
-import { Box, Stack } from "~/shared/components/design-system";
-import { Chip } from "~/shared/components/design-system/Chip";
+import { Box, Stack } from "~shared/components/design-system";
+import { Chip } from "~shared/components/design-system/Chip";
 import { type ComponentProps } from "react";
 import { PlaceCategoryColorCode, type TripPlace } from '@waylog/domains/modules/place';
-import { ListItem } from "../../../shared/components/ListItem";
-import { PopMenu } from "../../../shared/components/PopMenu";
-import { useConfirmDialog } from "../../../shared/components/confirm-dialog/useConfirmDialog";
+import { ListItem } from "~shared/components/ListItem";
+import { PopMenu } from "~shared/components/PopMenu";
+import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
 import { useTripPlaces } from '@waylog/domains/modules/trip';
 import { useTripPlaceFormOverlay } from './trip-place-form/useTripPlaceFormOverlay';
 

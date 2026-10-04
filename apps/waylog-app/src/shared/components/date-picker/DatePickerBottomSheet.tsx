@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { BottomSheet } from '../bottom-sheet/BottomSheet'
-import { Button } from '~/shared/components/design-system'
+import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
+import { Button } from '~shared/components/design-system'
 import { DatePicker } from './DatePicker'
 import { DEFAULT_MINUTE_STEP } from './datePicker.model'
 import type { DateBounds, DatePickerStep, DateRange, DateSelection, DateTimeSetter } from './datePicker.model'

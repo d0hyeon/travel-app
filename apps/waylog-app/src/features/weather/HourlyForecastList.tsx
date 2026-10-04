@@ -8,8 +8,8 @@ import {
   type DayPart,
   type UseDailyWeatherForecastParams,
 } from '@waylog/domains/modules/weather'
-import { Divider, Skeleton, Stack, Typography } from '~/shared/components/design-system'
-import { palette } from '../../shared/config/tokens'
+import { Divider, Skeleton, Stack, Typography } from '~shared/components/design-system'
+import { palette } from '~shared/config/tokens'
 import { HourlyForecastItem } from './HourlyForecastItem'
 
 interface Props extends UseDailyWeatherForecastParams {

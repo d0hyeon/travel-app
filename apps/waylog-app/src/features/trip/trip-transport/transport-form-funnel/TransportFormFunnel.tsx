@@ -4,14 +4,14 @@ import type { TripTransportType } from '@waylog/domains/modules/trip-transport'
 import { Suspense, useCallback, useRef, useState } from 'react'
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Typography } from '~/shared/components/design-system'
-import { palette } from '../../../../shared/config/tokens'
+import { Typography } from '~shared/components/design-system'
+import { palette } from '~shared/config/tokens'
 import { TicketStep } from './steps/TicketStep'
 import { TransportStep } from './steps/TransportStep'
 import { TypeStep } from './steps/TypeStep'
 import { TransportFormFunnelHeader } from './TransportFormFunnelHeader'
-import type { TransportTicketDraft } from '../transport-ticket/transportTicket.types'
-import type { TransportFormValues } from '../../../transport/transport-form/transportForm.types'
+import type { TransportTicketDraft } from '~features/trip/trip-transport/transport-ticket/transportTicket.types'
+import type { TransportFormValues } from '~features/transport/transport-form/transportForm.types'
 
 // 퍼널을 자체 스택으로 세운다. 부모 스택에서 이 화면은 엔트리 하나이므로
 // 소비자가 replace 한 번만 해도 스텝 전체가 함께 걷힌다.

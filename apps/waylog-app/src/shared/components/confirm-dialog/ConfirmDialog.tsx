@@ -1,6 +1,6 @@
 import { StyleSheet, Modal, Pressable } from 'react-native'
 import { Text, useTheme, View } from 'tamagui'
-import { Button } from '../design-system/Button'
+import { Button } from '~shared/components/design-system/Button'
 
 export interface ConfirmDialogProps {
   isOpen: boolean

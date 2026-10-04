@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Stack, type StackProps } from '~/shared/components/design-system'
-import { palette, zLayer } from '../config/tokens'
+import { Stack, type StackProps } from '~shared/components/design-system'
+import { palette, zLayer } from '~shared/config/tokens'
 
 // 웹 BottomArea 와 같은 역할이다. env(safe-area-inset-bottom) 대신
 // safe-area-context 로 하단 여백을 받는다.

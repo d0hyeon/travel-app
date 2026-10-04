@@ -3,12 +3,12 @@ import { upsertPlace } from '@waylog/domains/modules/place'
 import { useTripPlaces } from '@waylog/domains/modules/trip'
 import { Suspense, useCallback, useState } from 'react'
 import { StyleSheet, Pressable, View } from 'react-native'
-import { BottomSheet } from '../../../../shared/components/bottom-sheet/BottomSheet'
-import { Button, Chip, Skeleton, Typography } from '~/shared/components/design-system'
-import { palette } from '../../../../shared/config/tokens'
-import { useOverlay } from '../../../../shared/hooks/useOverlay'
-import { usePlaceSearchBottomSheet } from '../../../place/place-search/usePlaceSearchBottomSheet'
-import type { PostPlaceSelection } from '../postFormFunnel.types'
+import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
+import { Button, Chip, Skeleton, Typography } from '~shared/components/design-system'
+import { palette } from '~shared/config/tokens'
+import { useOverlay } from '~shared/hooks/useOverlay'
+import { usePlaceSearchBottomSheet } from '~features/place/place-search/usePlaceSearchBottomSheet'
+import type { PostPlaceSelection } from '~features/post/post-form-funnel/postFormFunnel.types'
 
 interface OpenParams {
   tripId: string | null

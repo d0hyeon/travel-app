@@ -1,9 +1,9 @@
 import type { Airline } from '@waylog/domains/modules/airline'
 import { useCallback } from 'react'
-import { FullScreenPopup } from '../../../shared/components/FullScreenPopup'
-import { useOverlay } from '../../../shared/hooks/useOverlay'
+import { FullScreenPopup } from '~shared/components/FullScreenPopup'
+import { useOverlay } from '~shared/hooks/useOverlay'
 import { AirlineSearchPanel } from './AirlineSearchPanel'
-import { KeyboardDismissArea } from '../../../shared/components/KeyboardDismissArea'
+import { KeyboardDismissArea } from '~shared/components/KeyboardDismissArea'
 
 export function useAirlineSelectOverlay() {
   const overlay = useOverlay()

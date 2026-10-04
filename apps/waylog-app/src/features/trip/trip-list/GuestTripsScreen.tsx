@@ -1,10 +1,10 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Box, Button, Stack, Typography } from '~/shared/components/design-system'
-import { AppRoute } from '../../../app/AppRoute'
-import { palette, radius } from '../../../shared/config/tokens'
-import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
+import { Box, Button, Stack, Typography } from '~shared/components/design-system'
+import { AppRoute } from '~app/AppRoute'
+import { palette, radius } from '~shared/config/tokens'
+import { useAppNavigation } from '~shared/hooks/useAppNavigation'
 
 const ICON_TILE_SIZE = 88
 const ICON_SIZE = 44

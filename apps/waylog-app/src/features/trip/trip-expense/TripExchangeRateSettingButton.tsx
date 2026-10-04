@@ -10,12 +10,12 @@ import {
 import { useTrip } from '@waylog/domains/modules/trip'
 import { useState } from 'react'
 import { Pressable, StyleSheet } from 'react-native'
-import { Button, Stack, TextField, Typography } from '~/shared/components/design-system'
-import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
-import { useOverlay } from '../../../shared/hooks/useOverlay'
-import { palette } from '../../../shared/config/tokens'
-import { KeyboardDismissArea } from '../../../shared/components/KeyboardDismissArea'
-import { EditableText } from '../../../shared/components'
+import { Button, Stack, TextField, Typography } from '~shared/components/design-system'
+import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
+import { useOverlay } from '~shared/hooks/useOverlay'
+import { palette } from '~shared/config/tokens'
+import { KeyboardDismissArea } from '~shared/components/KeyboardDismissArea'
+import { EditableText } from '~shared/components'
 
 interface Props {
   tripId: string

@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { IconButton } from '~/shared/components/design-system/IconButton'
-import { useOverlay } from '../../../../shared/hooks/useOverlay'
-import { TripRouteMapConfigDialog } from '../trip-route-configuration/TripRouteMapConfigDialog'
+import { IconButton } from '~shared/components/design-system/IconButton'
+import { useOverlay } from '~shared/hooks/useOverlay'
+import { TripRouteMapConfigDialog } from '~features/trip/trip-route/trip-route-configuration/TripRouteMapConfigDialog'
 
 export function TripRouteMapSettingsButton() {
   const overlay = useOverlay()

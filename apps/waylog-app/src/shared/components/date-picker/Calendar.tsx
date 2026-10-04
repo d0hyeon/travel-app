@@ -10,8 +10,8 @@ import {
 } from 'react-native'
 import { buildMonthMatrix, isDateSelectable } from './calendar.utils'
 import type { DateBounds, DateSelection } from './datePicker.model'
-import { Typography } from '~/shared/components/design-system'
-import { palette } from '../../config/tokens'
+import { Typography } from '~shared/components/design-system'
+import { palette } from '~shared/config/tokens'
 import { CalendarDay, CALENDAR_DAY_HEIGHT } from './CalendarDay'
 
 const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'] as const

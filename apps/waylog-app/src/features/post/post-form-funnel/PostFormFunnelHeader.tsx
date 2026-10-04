@@ -1,8 +1,8 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import type { NativeStackHeaderProps } from '@react-navigation/native-stack'
 import { StyleSheet, Pressable, View } from 'react-native'
-import { LinearProgress, Typography } from '~/shared/components/design-system'
-import { palette } from '../../../shared/config/tokens'
+import { LinearProgress, Typography } from '~shared/components/design-system'
+import { palette } from '~shared/config/tokens'
 import { POST_FORM_STEPS, type PostFormStep } from './postFormFunnel.types'
 
 interface Props extends NativeStackHeaderProps {

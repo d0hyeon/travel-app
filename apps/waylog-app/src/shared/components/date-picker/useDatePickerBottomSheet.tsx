@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { useOverlay } from '../../hooks/useOverlay'
+import { useOverlay } from '~shared/hooks/useOverlay'
 import { DatePickerBottomSheet } from './DatePickerBottomSheet'
 import type { DateBounds, DateRange, DateSelection, DateTimeSetter } from './datePicker.model'
 

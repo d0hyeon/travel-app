@@ -2,10 +2,10 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { useTrips, type Trip } from '@waylog/domains/modules/trip'
 import { Fragment, ReactNode, useState } from 'react'
 import { Pressable, PressableProps, ScrollView, StyleSheet, View } from 'react-native'
-import { Button, Typography } from '~/shared/components/design-system'
+import { Button, Typography } from '~shared/components/design-system'
 import { LocationThumbnail } from '~features/location/LocationThumbnail'
-import { BottomArea } from '../../../../shared/components/BottomArea'
-import { palette, radius } from '../../../../shared/config/tokens'
+import { BottomArea } from '~shared/components/BottomArea'
+import { palette, radius } from '~shared/config/tokens'
 import Animated from 'react-native-reanimated'
 
 type TripSelection = string | 'none' | null

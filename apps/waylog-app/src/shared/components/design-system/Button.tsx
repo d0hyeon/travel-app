@@ -2,7 +2,7 @@ import { useEffect, type ReactNode } from 'react'
 import { StyleSheet, Pressable, Text, type StyleProp, type TextStyle, type ViewStyle } from 'react-native'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { useTheme } from 'tamagui'
-import { radius } from '../../config/tokens'
+import { radius } from '~shared/config/tokens'
 import { CircularProgress } from './CircularProgress'
 import { resolveButtonColors, type ButtonColor, type ButtonVariant } from './Button.theme'
 

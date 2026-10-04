@@ -1,8 +1,8 @@
 import { StyleSheet } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 import { format } from 'date-fns'
-import { Stack, IconButton, Typography } from '~/shared/components/design-system'
-import { palette } from '../../config/tokens'
+import { Stack, IconButton, Typography } from '~shared/components/design-system'
+import { palette } from '~shared/config/tokens'
 
 // 두 단계의 헤더는 같은 높이여야 단계를 옮길 때 시트가 밀리지 않는다.
 // medium IconButton(36) 이 줄 높이를 정하고 위아래 여백이 더해진다.

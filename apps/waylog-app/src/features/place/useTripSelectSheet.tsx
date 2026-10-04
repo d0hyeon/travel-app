@@ -1,9 +1,9 @@
 import { formatTripDate, getTripDuration, type Trip } from '@waylog/domains/modules/trip'
 import { useCallback } from 'react'
 import { Pressable } from 'react-native'
-import { BottomSheet } from '../../shared/components/bottom-sheet/BottomSheet'
-import { Chip, Stack, Typography } from '~/shared/components/design-system'
-import { useOverlay } from '../../shared/hooks/useOverlay'
+import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
+import { Chip, Stack, Typography } from '~shared/components/design-system'
+import { useOverlay } from '~shared/hooks/useOverlay'
 
 /** @package { place-detail/PlaceDetailSheet.tsx } */
 export function useTripSelectSheet(options: Trip[]) {

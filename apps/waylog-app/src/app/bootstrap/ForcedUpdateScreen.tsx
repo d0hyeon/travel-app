@@ -1,8 +1,8 @@
 import * as Linking from 'expo-linking'
 import { StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Button, Typography } from '~/shared/components/design-system'
-import { palette } from '../../shared/config/tokens'
+import { Button, Typography } from '~shared/components/design-system'
+import { palette } from '~shared/config/tokens'
 import type { RequiredAppUpdate } from './appUpdateRequirement'
 
 export function ForcedUpdateScreen({ storeUrl }: RequiredAppUpdate) {

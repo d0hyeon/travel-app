@@ -1,6 +1,6 @@
 import { assert } from '@waylog/utility'
 import { StyleSheet, type TextStyle, type ViewStyle } from 'react-native'
-import { Avatar, Skeleton, Stack, Typography, type StackProps } from '~/shared/components/design-system'
+import { Avatar, Skeleton, Stack, Typography, type StackProps } from '~shared/components/design-system'
 import { useUserProfile } from './useUserProfile'
 
 export const UserProfileSize = {

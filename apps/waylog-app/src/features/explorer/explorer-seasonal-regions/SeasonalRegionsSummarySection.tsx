@@ -1,8 +1,8 @@
 import { SeasonLabel, useRegionTourismTrends } from '@waylog/domains/modules/tourism-trend'
 import { StyleSheet, Pressable, ScrollView, View } from 'react-native'
-import { Skeleton, Typography } from '~/shared/components/design-system'
-import { palette, radius } from '../../../shared/config/tokens'
-import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
+import { Skeleton, Typography } from '~shared/components/design-system'
+import { palette, radius } from '~shared/config/tokens'
+import { useExplorerFilterParams } from '~features/explorer/explorer-filters/useExplorerFilterParams'
 import { RegionTrendCard } from './RegionTrendCard'
 
 const SECTION_LIMIT = 20

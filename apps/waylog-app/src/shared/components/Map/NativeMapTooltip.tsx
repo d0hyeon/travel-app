@@ -1,5 +1,5 @@
 import { StyleSheet, Pressable, View } from 'react-native'
-import { Typography } from '~/shared/components/design-system'
+import { Typography } from '~shared/components/design-system'
 
 interface Props {
   visible: boolean

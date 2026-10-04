@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { AuthGuard, deleteAccount, signOut } from '@waylog/domains/clients'
-import { SignedOutRedirect } from '../auth/auth-redirect'
+import { SignedOutRedirect } from '~features/auth/auth-redirect'
 import { SettingsWebViewScreen } from './SettingsWebViewScreen'
 import { AppBar } from '~shared/components/design-system/AppBar'
 import { Stack, Typography } from '~shared/components/design-system'

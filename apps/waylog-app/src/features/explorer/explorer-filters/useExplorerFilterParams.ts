@@ -3,8 +3,8 @@ import {
   PlaceCategoryTypes,
   type PlaceCategoryType,
 } from "@waylog/domains/modules/place";
-import { useQueryParamState } from "../../../shared/hooks/useQueryParamState";
-import { useScheduledTripDestinations } from "../../trip/useScheduledTripDestinations";
+import { useQueryParamState } from "~shared/hooks/useQueryParamState";
+import { useScheduledTripDestinations } from "~features/trip/useScheduledTripDestinations";
 
 export function useExplorerFilterParams() {
   const tripDefaultLocation = useScheduledTripDestinations().at(0);

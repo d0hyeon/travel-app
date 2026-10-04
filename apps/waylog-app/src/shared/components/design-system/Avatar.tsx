@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { StyleSheet, type StyleProp, type TextStyle, type ViewStyle } from 'react-native'
-import { palette } from '../../config/tokens'
-import { LoadableImage } from '../LoadableImage'
+import { palette } from '~shared/config/tokens'
+import { LoadableImage } from '~shared/components/LoadableImage'
 import { Box } from './Box'
 import { Typography } from './Typography'
 

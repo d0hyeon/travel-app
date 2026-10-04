@@ -2,7 +2,7 @@ import { useEffect, useId } from 'react'
 import type { PolylineLineProps } from '@waylog/domains/modules/map'
 import Mapbox from '@rnmapbox/maps'
 import { StyleSheet, View } from 'react-native'
-import { Typography } from '~/shared/components/design-system'
+import { Typography } from '~shared/components/design-system'
 import { useMapContext } from './MapContext'
 import { usePolylineStyle } from './PolylineContext'
 

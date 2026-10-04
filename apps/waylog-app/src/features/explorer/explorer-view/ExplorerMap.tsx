@@ -1,9 +1,9 @@
 import { getCoordinateByLocation, type Location } from '@waylog/domains/modules/location'
 import { StyleSheet, View } from 'react-native'
-import { Map } from '../../../shared/components/Map'
-import { Typography } from '~/shared/components/design-system'
-import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
-import { AppRoute } from '../../../app/AppRoute'
+import { Map } from '~shared/components/Map'
+import { Typography } from '~shared/components/design-system'
+import { useAppNavigation } from '~shared/hooks/useAppNavigation'
+import { AppRoute } from '~app/AppRoute'
 
 interface ExplorerMapPlace {
   placeId: string

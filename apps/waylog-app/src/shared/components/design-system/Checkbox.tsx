@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { StyleSheet, Pressable, type StyleProp, type ViewStyle } from 'react-native'
-import { palette } from '../../config/tokens'
+import { palette } from '~shared/config/tokens'
 
 export interface CheckboxProps {
   checked?: boolean

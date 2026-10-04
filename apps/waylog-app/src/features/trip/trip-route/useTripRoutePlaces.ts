@@ -1,6 +1,6 @@
 import { useDayTripRoutes } from "@waylog/domains/modules/trip";
 import { useMemo } from "react";
-import { useQueryParamState } from "../../../shared/hooks/useQueryParamState";
+import { useQueryParamState } from "~shared/hooks/useQueryParamState";
 import { useRouteLegs } from "./trip-route-leg/useRouteLegs";
 
 interface Params {

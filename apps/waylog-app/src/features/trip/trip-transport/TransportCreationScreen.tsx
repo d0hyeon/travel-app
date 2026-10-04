@@ -1,14 +1,14 @@
 import { AuthGuard } from '@waylog/domains/clients'
 import { useTripTransports } from '@waylog/domains/modules/trip-transport'
 import { useEffect, useState } from 'react'
-import { useAppNavigation, useAppRoute } from '../../../shared/hooks/useAppNavigation'
-import { AppRoute } from '../../../app/AppRoute'
+import { useAppNavigation, useAppRoute } from '~shared/hooks/useAppNavigation'
+import { AppRoute } from '~app/AppRoute'
 import {
   TransportFormFunnel,
   type TransportSubmitValues,
 } from './transport-form-funnel/TransportFormFunnel'
 import { useTransportTicketUpload } from './transport-ticket/useTransportTicketUpload'
-import { RequireAuthRedirect } from '../../auth/auth-redirect'
+import { RequireAuthRedirect } from '~features/auth/auth-redirect'
 
 const START_STEP = 'type'
 

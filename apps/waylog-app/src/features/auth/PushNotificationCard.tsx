@@ -1,9 +1,9 @@
 import { useLoading } from '@waylog/react'
 import { useState } from 'react'
 import { Linking, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native'
-import { SlideReveal } from '../../shared/components/animation/SlideReveal'
-import { NotificationCard } from '../../shared/components/notification-card/NotificationCard'
-import { Button } from '~/shared/components/design-system'
+import { SlideReveal } from '~shared/components/animation/SlideReveal'
+import { NotificationCard } from '~shared/components/notification-card/NotificationCard'
+import { Button } from '~shared/components/design-system'
 import { useNativePushSubscription } from './useNativePushSubscription'
 
 interface Props {

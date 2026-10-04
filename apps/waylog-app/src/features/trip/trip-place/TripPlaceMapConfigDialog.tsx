@@ -1,7 +1,7 @@
 import type { ModalProps } from 'react-native'
-import { Switch } from '~/shared/components/design-system'
-import { MapConfigDialog } from '../../../shared/components/MapConfigDialog'
-import { useTripCluastering } from '../hooks/useTripCluastering'
+import { Switch } from '~shared/components/design-system'
+import { MapConfigDialog } from '~shared/components/MapConfigDialog'
+import { useTripCluastering } from '~features/trip/hooks/useTripCluastering'
 
 interface Props extends Omit<ModalProps, 'visible'> {
   isOpen?: boolean

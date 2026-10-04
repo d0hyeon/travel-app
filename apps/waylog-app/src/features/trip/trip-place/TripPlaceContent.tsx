@@ -1,23 +1,23 @@
 import { StyleSheet } from 'react-native'
-import { Box, Fab, Stack, Typography } from "~/shared/components/design-system";
+import { Box, Fab, Stack, Typography } from "~shared/components/design-system";
 import { MaterialIcons } from '@expo/vector-icons';
-import { palette, zLayer } from "../../../shared/config/tokens";
+import { palette, zLayer } from "~shared/config/tokens";
 import { Suspense, useMemo, useRef, useState } from "react";
 import { arraySplit } from '@waylog/utility';
-import { BottomSheet } from "../../../shared/components/bottom-sheet/BottomSheet";
-import { Map, type MapRef } from "../../../shared/components/Map";
+import { BottomSheet } from "~shared/components/bottom-sheet/BottomSheet";
+import { Map, type MapRef } from "~shared/components/Map";
 import { PlaceCategoryColorCode, type TripPlace } from '@waylog/domains/modules/place';
-import { useTripCluastering } from '../hooks/useTripCluastering';
+import { useTripCluastering } from '~features/trip/hooks/useTripCluastering';
 import { useTripRoutes } from '@waylog/domains/modules/trip';
 import { useTrip } from "@waylog/domains/modules/trip";
 import { useTripPlaceAddition } from './useTripPlaceAddition';
-import { RecommendedMarkers } from '../trip-recommend/RecommendedMarkers';
-import { useRecommendedPlaceDetailOverlay } from '../trip-recommend/RecommendedPlaceDetailOverlay';
+import { RecommendedMarkers } from '~features/trip/trip-recommend/RecommendedMarkers';
+import { useRecommendedPlaceDetailOverlay } from '~features/trip/trip-recommend/RecommendedPlaceDetailOverlay';
 import { TripPlaceItemButton } from './TripPlaceItemButton';
 import { TripPlaceMapSettingsButton } from './TripPlaceMapSettingsButton';
 import { useTripPlaces } from '@waylog/domains/modules/trip';
-import { FLOATING_TAB_BAR_RESERVE } from '../../../shared/components'
-import { useTripLayoutSetting } from '../trip-layout/useTripLayoutSetting'
+import { FLOATING_TAB_BAR_RESERVE } from '~shared/components'
+import { useTripLayoutSetting } from '~features/trip/trip-layout/useTripLayoutSetting'
 
 // 웹·앱 모두 zoom 이 커질수록 확대되는 표준 축을 쓴다 (카카오만 내부에서 반전).
 const MICRO_ZOOM_LEVEL = 9;

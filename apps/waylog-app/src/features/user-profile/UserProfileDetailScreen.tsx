@@ -1,5 +1,5 @@
-import { useAppRoute } from '../../shared/hooks/useAppNavigation'
-import { AppRoute } from '../../app/AppRoute'
+import { useAppRoute } from '~shared/hooks/useAppNavigation'
+import { AppRoute } from '~app/AppRoute'
 import { UserProfileScreen } from './UserProfileScreen'
 
 export type UserProfileParams = { userId: string; tab?: string }

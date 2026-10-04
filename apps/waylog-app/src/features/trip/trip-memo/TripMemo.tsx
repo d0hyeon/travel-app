@@ -1,18 +1,18 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { Box, Button, Fab, Skeleton, Stack, Typography } from '~/shared/components/design-system';
+import { Box, Button, Fab, Skeleton, Stack, Typography } from '~shared/components/design-system';
 import { Suspense, useRef } from 'react';
 import { StyleSheet, Pressable } from 'react-native';
-import { useAppNavigation } from '../../../shared/hooks/useAppNavigation';
-import { AppRoute } from '../../../app/AppRoute';
-import { useOverlay } from '../../../shared/hooks/useOverlay';
+import { useAppNavigation } from '~shared/hooks/useAppNavigation';
+import { AppRoute } from '~app/AppRoute';
+import { useOverlay } from '~shared/hooks/useOverlay';
 import { useTripMemo } from '@waylog/domains/modules/trip-memo';
 import type { TripMemo as TripMemoType } from '@waylog/domains/modules/trip-memo';
 import { TripMemoForm, type TripMemoFormRef } from './TripMemoForm';
-import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet';
+import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet';
 import { formatDate } from 'date-fns';
 import { getMemoDisplayTitle } from './memoTitle';
-import { FLOATING_TAB_BAR_RESERVE } from '../../../shared/components'
-import { KeyboardDismissArea } from '../../../shared/components/KeyboardDismissArea';
+import { FLOATING_TAB_BAR_RESERVE } from '~shared/components'
+import { KeyboardDismissArea } from '~shared/components/KeyboardDismissArea';
 
 interface Props {
   tripId: string;

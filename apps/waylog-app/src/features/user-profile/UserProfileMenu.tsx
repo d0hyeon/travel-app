@@ -1,7 +1,7 @@
 import { useBlockedUsers, useBlockUser, useUnblockUser } from '@waylog/domains/modules/user-block'
-import { useConfirmDialog } from '../../shared/components/confirm-dialog/useConfirmDialog'
-import { PopMenu } from '../../shared/components/PopMenu'
-import { useReportSheet } from '../report/useReportSheet'
+import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
+import { PopMenu } from '~shared/components/PopMenu'
+import { useReportSheet } from '~features/report/useReportSheet'
 import { toast } from 'sonner-native'
 
 export function UserProfileMenu({ userId }: { userId: string }) {

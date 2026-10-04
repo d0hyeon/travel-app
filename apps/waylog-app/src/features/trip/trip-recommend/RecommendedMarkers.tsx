@@ -1,7 +1,7 @@
 import { useRecommendedPlaces } from '@waylog/domains/modules/trip-recommend'
 import type { RecommendedPlace } from '@waylog/domains/modules/trip-recommend'
 import { Suspense } from 'react'
-import { Map, type MarkerProps } from '../../../shared/components/Map'
+import { Map, type MarkerProps } from '~shared/components/Map'
 
 interface Props extends Pick<MarkerProps, 'color' | 'opacity' | 'outlined'> {
   tripId: string

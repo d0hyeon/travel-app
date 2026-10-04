@@ -1,5 +1,5 @@
 import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native'
-import { palette } from '../../config/tokens'
+import { palette } from '~shared/config/tokens'
 import { Box } from './Box'
 
 export interface DividerProps {

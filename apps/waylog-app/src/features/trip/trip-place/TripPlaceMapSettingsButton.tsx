@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { IconButton } from '~/shared/components/design-system/IconButton'
-import { useOverlay } from '../../../shared/hooks/useOverlay'
+import { IconButton } from '~shared/components/design-system/IconButton'
+import { useOverlay } from '~shared/hooks/useOverlay'
 import { TripPlaceMapConfigDialog } from './TripPlaceMapConfigDialog'
 
 export function TripPlaceMapSettingsButton() {

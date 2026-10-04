@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native'
 import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated'
-import { palette } from '../../config/tokens'
+import { palette } from '~shared/config/tokens'
 import { Box } from './Box'
 
 export interface LinearProgressProps {

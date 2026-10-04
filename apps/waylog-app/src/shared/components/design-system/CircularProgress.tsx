@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated'
 import { Circle, Svg } from 'react-native-svg'
-import { palette } from '../../config/tokens'
+import { palette } from '~shared/config/tokens'
 
 const AnimatedSvg = Animated.createAnimatedComponent(Svg)
 

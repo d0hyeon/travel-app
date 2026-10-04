@@ -3,7 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { StyleSheet, View } from 'react-native'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming, type SharedValue } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { palette } from '../../../shared/config/tokens'
+import { palette } from '~shared/config/tokens'
 import { TripHeaderShade } from './TripHeaderShade'
 
 export type TripLayoutVariant = 'default' | 'glass'

@@ -1,9 +1,9 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { useTrip } from '@waylog/domains/modules/trip'
 import { StyleSheet, Pressable, View } from 'react-native'
-import { Skeleton, Stack, Typography } from '~/shared/components/design-system'
-import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
-import { AppRoute } from '../../../app/AppRoute'
+import { Skeleton, Stack, Typography } from '~shared/components/design-system'
+import { useAppNavigation } from '~shared/hooks/useAppNavigation'
+import { AppRoute } from '~app/AppRoute'
 
 interface Props {
   tripId: string

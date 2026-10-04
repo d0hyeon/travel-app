@@ -6,7 +6,7 @@ import Animated, {
   useDerivedValue,
   withTiming,
 } from 'react-native-reanimated'
-import { palette } from '../../config/tokens'
+import { palette } from '~shared/config/tokens'
 import { useTabNavigationContext } from './TabNavigationContext'
 import type { TabNavigationItemProps } from './TabNavigation.types'
 

@@ -5,9 +5,9 @@ import Animated, {
   interpolate,
   useAnimatedStyle,
 } from 'react-native-reanimated'
-import { fontSize, palette, radius } from '../../../config/tokens'
-import { GlassSurface } from '../GlassSurface'
-import { Typography } from '../Typography'
+import { fontSize, palette, radius } from '~shared/config/tokens'
+import { GlassSurface } from '~shared/components/design-system/GlassSurface'
+import { Typography } from '~shared/components/design-system/Typography'
 import { useMenuFabContext } from './MenuFabContext'
 import { getItemOffsetY, getItemStagger, ITEM_HEIGHT } from './menuFabMotion'
 

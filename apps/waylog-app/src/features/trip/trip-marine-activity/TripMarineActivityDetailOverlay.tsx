@@ -7,11 +7,11 @@ import type { Trip } from '@waylog/domains/modules/trip'
 import { useTrip } from '@waylog/domains/modules/trip'
 import { StyleSheet, useWindowDimensions } from 'react-native'
 import type Animated from 'react-native-reanimated'
-import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
-import { isPageWithinRenderWindow } from '../../../shared/components/pagerWindow'
-import { Box, Skeleton, Stack, Tab, Tabs, Typography } from '~/shared/components/design-system'
-import { useOverlay } from '../../../shared/hooks/useOverlay'
-import { palette } from '../../../shared/config/tokens'
+import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
+import { isPageWithinRenderWindow } from '~shared/components/pagerWindow'
+import { Box, Skeleton, Stack, Tab, Tabs, Typography } from '~shared/components/design-system'
+import { useOverlay } from '~shared/hooks/useOverlay'
+import { palette } from '~shared/config/tokens'
 
 const METRIC_ROW_COUNT = 6
 

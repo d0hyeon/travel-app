@@ -1,14 +1,14 @@
 import { createTripPlace, usePlace } from '@waylog/domains/modules/place'
 import { Suspense } from 'react'
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native'
-import { Box, Button, Skeleton, Stack, Typography } from '~/shared/components/design-system'
-import { Map } from '../../../shared/components/Map'
-import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
-import { AppRoute } from '../../../app/AppRoute'
-import { palette, radius } from '../../../shared/config/tokens'
-import { useScheduledTrips } from '../../trip/useScheduledTrips'
-import { PlacePhotoList } from '../PlacePhotoList'
-import { useTripSelectSheet } from '../useTripSelectSheet'
+import { Box, Button, Skeleton, Stack, Typography } from '~shared/components/design-system'
+import { Map } from '~shared/components/Map'
+import { useAppNavigation } from '~shared/hooks/useAppNavigation'
+import { AppRoute } from '~app/AppRoute'
+import { palette, radius } from '~shared/config/tokens'
+import { useScheduledTrips } from '~features/trip/useScheduledTrips'
+import { PlacePhotoList } from '~features/place/PlacePhotoList'
+import { useTripSelectSheet } from '~features/place/useTripSelectSheet'
 
 const styles = StyleSheet.create({
   backdrop: {

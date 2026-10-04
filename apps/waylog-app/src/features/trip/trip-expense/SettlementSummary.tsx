@@ -1,9 +1,9 @@
 import { StyleSheet } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
-import { Box, Stack, Typography } from "~/shared/components/design-system"
+import { Box, Stack, Typography } from "~shared/components/design-system"
 import { convertToKRW } from '@waylog/domains/modules/expense'
 import { formatCurrency } from '@waylog/domains/modules/expense'
-import { MemberAvatar } from '../trip-member/MemberAvatar'
+import { MemberAvatar } from '~features/trip/trip-member/MemberAvatar'
 import { useExpenseSummary } from './useExpenseSummary'
 
 interface Props {

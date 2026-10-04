@@ -7,7 +7,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { palette } from '../config/tokens'
+import { palette } from '~shared/config/tokens'
 
 // 웹 shared/components/FullScreenPopup 와 같은 공개 인터페이스를 유지한다.
 export interface FullScreenPopupProps {

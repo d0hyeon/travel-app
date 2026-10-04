@@ -1,6 +1,6 @@
 import { createContext, Fragment, useCallback, useState, type ReactElement, type ReactNode } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { KeyboardDismissArea } from '../components/KeyboardDismissArea'
+import { KeyboardDismissArea } from '~shared/components/KeyboardDismissArea'
 
 /** @package { useOverlay.tsx } */
 export interface OverlayContextValue {

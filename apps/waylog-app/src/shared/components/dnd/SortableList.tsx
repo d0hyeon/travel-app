@@ -18,8 +18,8 @@ import ReorderableList, {
   useReorderableDrag,
   type ReorderableListReorderEvent,
 } from 'react-native-reorderable-list'
-import { Box, type BoxProps } from '~/shared/components/design-system'
-import { palette } from '../../config/tokens'
+import { Box, type BoxProps } from '~shared/components/design-system'
+import { palette } from '~shared/config/tokens'
 import { impactAsync, ImpactFeedbackStyle } from 'expo-haptics'
 
 // 웹 dnd/SortableList 와 같은 공개 인터페이스를 유지한다.

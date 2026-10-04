@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { StyleSheet, Linking } from 'react-native'
 import { Text } from 'react-native'
-import { palette } from '../config/tokens'
+import { palette } from '~shared/config/tokens'
 
 // 웹 shared/utils/urls 와 같은 시그니처를 유지한다.
 // extractUrls 는 순수 함수라 웹과 같고, 링크 렌더만 RN 으로 바꾼다.

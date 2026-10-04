@@ -1,5 +1,5 @@
 import { StyleSheet, View, TextInput, type TextInputProps } from 'react-native'
-import { palette, radius } from '../../config/tokens'
+import { palette, radius } from '~shared/config/tokens'
 import { Typography } from './Typography'
 import { Ref } from 'react'
 

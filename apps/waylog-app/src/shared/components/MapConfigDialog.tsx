@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { StyleSheet, Modal, ModalProps, Pressable } from 'react-native'
-import { Box, Button, Stack, Typography } from '~/shared/components/design-system'
-import { palette, radius } from '../config/tokens'
+import { Box, Button, Stack, Typography } from '~shared/components/design-system'
+import { palette, radius } from '~shared/config/tokens'
 
 interface Props extends Omit<ModalProps, 'visible'> {
   isOpen?: boolean

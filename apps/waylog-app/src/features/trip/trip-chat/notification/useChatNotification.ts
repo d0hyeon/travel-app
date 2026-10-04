@@ -1,8 +1,8 @@
 import * as Notifications from "expo-notifications";
 import { useEffect } from "react";
 import { isTripChatPushData } from '@waylog/domains/modules/trip-chat/tripChatPush'
-import { useAppNavigation } from '../../../../shared/hooks/useAppNavigation'
-import { AppRoute } from '../../../../app/AppRoute'
+import { useAppNavigation } from '~shared/hooks/useAppNavigation'
+import { AppRoute } from '~app/AppRoute'
 
 /**
  * 알림을 탭했을 때 해당 채팅방으로 보낸다.

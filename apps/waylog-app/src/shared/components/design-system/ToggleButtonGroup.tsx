@@ -1,6 +1,6 @@
 import { Children, isValidElement, type ReactNode } from 'react'
 import { StyleSheet, Pressable, type StyleProp, type ViewStyle } from 'react-native'
-import { palette, radius } from '../../config/tokens'
+import { palette, radius } from '~shared/config/tokens'
 import { Box } from './Box'
 import { Typography } from './Typography'
 

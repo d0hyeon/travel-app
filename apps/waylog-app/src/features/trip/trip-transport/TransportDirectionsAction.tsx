@@ -2,8 +2,8 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { AsyncBoundary } from '@waylog/react'
 import { useTripTransportTickets } from '@waylog/domains/modules/trip-transport'
 import { Linking, Pressable, StyleSheet } from 'react-native'
-import { Skeleton, Typography } from '~/shared/components/design-system'
-import { palette } from '../../../shared/config/tokens'
+import { Skeleton, Typography } from '~shared/components/design-system'
+import { palette } from '~shared/config/tokens'
 import { TransportDetailSectionError } from './transport-detail/TransportDetailSectionError'
 
 interface Props {

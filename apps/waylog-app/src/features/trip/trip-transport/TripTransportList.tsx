@@ -13,14 +13,14 @@ import { Ionicons, MaterialIcons } from '@expo/vector-icons'
 import { format as formatDate } from 'date-fns'
 import { useMemo } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
-import { Accordion, Box, Button, Divider, Skeleton, Stack, Typography } from '~/shared/components/design-system'
-import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
-import { useOverlay } from '../../../shared/hooks/useOverlay'
-import { AppRoute } from '../../../app/AppRoute'
+import { Accordion, Box, Button, Divider, Skeleton, Stack, Typography } from '~shared/components/design-system'
+import { useAppNavigation } from '~shared/hooks/useAppNavigation'
+import { useOverlay } from '~shared/hooks/useOverlay'
+import { AppRoute } from '~app/AppRoute'
 import { SupportedNotificationSheet } from './SupportedNotificationSheet'
 import { TransportCard } from './TransportCard'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { palette, radius } from '~/shared/config/tokens';
+import { palette, radius } from '~shared/config/tokens';
 import { useTheme } from 'tamagui'
 
 interface Props {

@@ -1,5 +1,5 @@
 import { StyleSheet, View } from 'react-native'
-import { Typography } from '~/shared/components/design-system'
+import { Typography } from '~shared/components/design-system'
 
 export function ExplorerEmptyState() {
   return (

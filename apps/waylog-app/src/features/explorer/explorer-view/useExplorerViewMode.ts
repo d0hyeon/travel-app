@@ -1,4 +1,4 @@
-import { useQueryParamState } from '../../../shared/hooks/useQueryParamState'
+import { useQueryParamState } from '~shared/hooks/useQueryParamState'
 
 export type ExplorerViewMode = 'list' | 'map'
 

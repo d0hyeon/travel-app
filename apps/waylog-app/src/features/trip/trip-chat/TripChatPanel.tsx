@@ -5,11 +5,11 @@ import type { ChatMessage } from '@waylog/domains/modules/trip-chat'
 import { StyleSheet, KeyboardAvoidingView, Platform, TextInput, View } from 'react-native'
 import Animated, { FadeInDown, LinearTransition, ReduceMotion } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { IconButton, Skeleton, Stack, Typography } from '~/shared/components/design-system'
-import { palette, radius } from '../../../shared/config/tokens'
-import { PushNotificationCard } from '../../auth/PushNotificationCard'
+import { IconButton, Skeleton, Stack, Typography } from '~shared/components/design-system'
+import { palette, radius } from '~shared/config/tokens'
+import { PushNotificationCard } from '~features/auth/PushNotificationCard'
 import { TripChatMessage } from './TripChatMessage'
-import { useKeyboardMetrics } from '../../../shared/hooks/env/useKeyboardMetrics'
+import { useKeyboardMetrics } from '~shared/hooks/env/useKeyboardMetrics'
 
 interface Props {
   tripId: string

@@ -1,6 +1,6 @@
 import { useTrip } from '@waylog/domains/modules/trip'
-import { useAppNavigation, useAppRoute } from '../../../shared/hooks/useAppNavigation'
-import { AppRoute } from '../../../app/AppRoute'
+import { useAppNavigation, useAppRoute } from '~shared/hooks/useAppNavigation'
+import { AppRoute } from '~app/AppRoute'
 import { StyleSheet, Pressable, type StyleProp, type TextProps, type ViewStyle } from 'react-native'
 import Animated, {
   interpolate,
@@ -12,11 +12,11 @@ import Animated, {
 } from 'react-native-reanimated'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Suspense, type ReactNode } from 'react'
-import { Box, GlassSurface, Skeleton, Stack } from '~/shared/components/design-system'
-import { palette } from '../../../shared/config/tokens'
-import { ChatIconButton } from '../trip-chat/ChatIconButton'
-import { EditableText } from '../../../shared/components/EditableText'
-import { useTripLayout } from '../trip-layout/TripLayout'
+import { Box, GlassSurface, Skeleton, Stack } from '~shared/components/design-system'
+import { palette } from '~shared/config/tokens'
+import { ChatIconButton } from '~features/trip/trip-chat/ChatIconButton'
+import { EditableText } from '~shared/components/EditableText'
+import { useTripLayout } from '~features/trip/trip-layout/TripLayout'
 
 const AnimatedGlassSurface = Animated.createAnimatedComponent(GlassSurface)
 const AnimatedMaterialIcons = Animated.createAnimatedComponent(MaterialIcons)

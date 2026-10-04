@@ -4,10 +4,10 @@ import type { ControllerFieldState, ControllerRenderProps } from 'react-hook-for
 import { StyleSheet, Pressable, Text, useWindowDimensions, View, type TextInputProps } from 'react-native'
 import { TextInput } from 'react-native-gesture-handler'
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
-import { useKeyboardMetrics } from '../hooks/env/useKeyboardMetrics'
+import { useKeyboardMetrics } from '~shared/hooks/env/useKeyboardMetrics'
 import { useMeasureInWindow } from './EditableText.motion'
-import { TextOverlayField } from '~/shared/components/design-system/TextOverlayField'
-import { getTypographyStyle, Typography, type TypographyProps } from '~/shared/components/design-system/Typography'
+import { TextOverlayField } from '~shared/components/design-system/TextOverlayField'
+import { getTypographyStyle, Typography, type TypographyProps } from '~shared/components/design-system/Typography'
 import { useSharedElementTransition } from './animation/SharedElementTransition'
 import { ViewProps } from 'react-native-svg/lib/typescript/fabric/utils'
 

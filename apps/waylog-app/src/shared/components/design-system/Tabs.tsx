@@ -1,7 +1,7 @@
 import { Children, isValidElement, useCallback, useEffect, useRef, type ReactNode } from 'react'
 import { Pressable, StyleSheet, useWindowDimensions, View, type StyleProp, type ViewStyle } from 'react-native'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
-import { palette } from '../../config/tokens'
+import { palette } from '~shared/config/tokens'
 import { Typography } from './Typography'
 import { ScrollView } from 'react-native-gesture-handler'
 

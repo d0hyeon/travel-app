@@ -1,4 +1,4 @@
-import type { ExploredPlace } from "../explorer.api";
+import type { ExploredPlace } from "~features/explorer/explorer.api";
 
 export function byHotRank(first: ExploredPlace, second: ExploredPlace) {
   const scoreGap = second.score - first.score;

@@ -8,7 +8,7 @@ import {
   useState,
   type PropsWithChildren,
 } from 'react'
-import { useBatchedCallback } from '../../hooks/useBatchedCallback'
+import { useBatchedCallback } from '~shared/hooks/useBatchedCallback'
 
 export interface RegisteredMapMarker {
   id: string

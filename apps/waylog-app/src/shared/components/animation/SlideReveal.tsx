@@ -8,7 +8,7 @@ import Animated, {
   withDelay,
   withTiming,
 } from 'react-native-reanimated'
-import { palette } from '../../config/tokens'
+import { palette } from '~shared/config/tokens'
 
 const CONTENT_INITIAL_SCALE = 0.85
 const CONTENT_GAP = 100

@@ -1,11 +1,11 @@
 import { StyleSheet } from 'react-native'
 import { useTripChecklist } from '@waylog/domains/modules/trip-checklist'
 import { useCallback, useRef } from 'react'
-import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
-import { Button } from '~/shared/components/design-system'
-import { useOverlay } from '../../../shared/hooks/useOverlay'
+import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
+import { Button } from '~shared/components/design-system'
+import { useOverlay } from '~shared/hooks/useOverlay'
 import { TripChecklistForm, type TripChecklistFormRef, type TripChecklistFormValue } from './TripChecklistForm'
-import { KeyboardDismissArea } from '../../../shared/components/KeyboardDismissArea'
+import { KeyboardDismissArea } from '~shared/components/KeyboardDismissArea'
 
 export function useTripChecklistFormOverlay(tripId: string) {
   const overlay = useOverlay()

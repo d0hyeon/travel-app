@@ -1,10 +1,10 @@
 import { Pressable, StyleSheet, View } from 'react-native'
-import { Button, Typography } from '~/shared/components/design-system'
+import { Button, Typography } from '~shared/components/design-system'
 import { TransportType, TransportTypeLabel } from '@waylog/domains/modules/transport'
 import type { TripTransportType } from '@waylog/domains/modules/trip-transport'
 import { useState } from 'react'
-import { palette, radius } from '../../../../../shared/config/tokens'
-import { TransportTypeIcon } from '../../../../transport/TransportTypeIcon'
+import { palette, radius } from '~shared/config/tokens'
+import { TransportTypeIcon } from '~features/transport/TransportTypeIcon'
 
 const SELECTABLE_TYPES: TripTransportType[] = [
   TransportType.항공,

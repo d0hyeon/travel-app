@@ -1,9 +1,9 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import type { ReactNode } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { Button, Stack, Typography } from '~/shared/components/design-system'
-import { BottomSheet } from '~/shared/components/bottom-sheet/BottomSheet'
-import { palette } from '~/shared/config/tokens'
+import { Button, Stack, Typography } from '~shared/components/design-system'
+import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
+import { palette } from '~shared/config/tokens'
 
 interface Props {
   isOpen: boolean

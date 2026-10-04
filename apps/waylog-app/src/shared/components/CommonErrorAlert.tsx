@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
 import { Button, Stack, Typography } from "./design-system";
-import { radius } from "../config/tokens";
+import { radius } from "~shared/config/tokens";
 import { ReactNode } from "react";
 import { ButtonProps } from "./design-system/Button";
 

@@ -1,4 +1,4 @@
-import { TextField } from '~/shared/components/design-system'
+import { TextField } from '~shared/components/design-system'
 
 interface Props {
   value: string

@@ -1,8 +1,8 @@
 import type { Photo } from '@waylog/domains/modules/photo'
 import { Pressable, ScrollView, StyleSheet } from 'react-native'
-import { LoadableImage } from '../../shared/components/LoadableImage'
-import { PhotoBottomSheet } from '../../shared/components/photo/PhotoBottomSheet'
-import { useOverlay } from '../../shared/hooks/useOverlay'
+import { LoadableImage } from '~shared/components/LoadableImage'
+import { PhotoBottomSheet } from '~shared/components/photo/PhotoBottomSheet'
+import { useOverlay } from '~shared/hooks/useOverlay'
 import { Box, Skeleton } from '~shared/components/design-system'
 
 interface Props {

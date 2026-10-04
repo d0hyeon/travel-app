@@ -7,7 +7,7 @@ import Animated, {
   useDerivedValue,
   withTiming,
 } from 'react-native-reanimated'
-import { palette, radius } from '../../config/tokens'
+import { palette, radius } from '~shared/config/tokens'
 import { Typography } from './Typography'
 
 const EXPAND_DURATION = 220

@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native'
 import type { ReactNode } from 'react'
-import { palette } from '../../config/tokens'
+import { palette } from '~shared/config/tokens'
 import { Box } from './Box'
 import { Typography } from './Typography'
 

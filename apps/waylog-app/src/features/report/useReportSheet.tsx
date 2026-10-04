@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { useOverlay } from '~/shared/hooks/useOverlay'
+import { useOverlay } from '~shared/hooks/useOverlay'
 import type { ReportTarget } from '@waylog/domains/modules/report'
 import { ReportSheet } from './ReportSheet'
 

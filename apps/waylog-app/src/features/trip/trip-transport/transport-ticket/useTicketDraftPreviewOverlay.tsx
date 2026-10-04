@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { useCallback } from 'react'
 import { Dimensions, Image, Modal, Pressable, StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useOverlay } from '../../../../shared/hooks/useOverlay'
+import { useOverlay } from '~shared/hooks/useOverlay'
 
 // 저장 전 드래프트를 확인만 하는 자리다. 삭제는 목록의 제거 버튼이 맡으므로
 // 티켓 뷰어(식별자로 조회하고 지우는)를 쓸 수 없다 -- 아직 DB 행이 없다.

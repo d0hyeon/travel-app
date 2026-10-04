@@ -6,7 +6,7 @@ import {
   withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { palette } from "../../config/tokens";
+import { palette } from "~shared/config/tokens";
 import type { TabNavigationVariant } from "./TabNavigation.types";
 
 const VARIANT_TRANSITION_CONFIG = {

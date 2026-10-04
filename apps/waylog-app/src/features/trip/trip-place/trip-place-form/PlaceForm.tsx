@@ -7,8 +7,8 @@ import {
 } from '@waylog/domains/modules/place'
 import { forwardRef, useCallback, useImperativeHandle, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Box, Chip, Stack, TextField, Typography } from '~/shared/components/design-system'
-import { PopMenu } from '../../../../shared/components/PopMenu'
+import { Box, Chip, Stack, TextField, Typography } from '~shared/components/design-system'
+import { PopMenu } from '~shared/components/PopMenu'
 import { usePreservedCallback } from '@waylog/react'
 
 export interface PlaceFormValues {

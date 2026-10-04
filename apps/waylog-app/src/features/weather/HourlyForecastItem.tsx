@@ -9,8 +9,8 @@ import {
   SkyCondition,
   type HourlyWeatherForecast,
 } from '@waylog/domains/modules/weather'
-import { Box, Divider, Stack, Typography } from '~/shared/components/design-system'
-import { palette } from '../../shared/config/tokens'
+import { Box, Divider, Stack, Typography } from '~shared/components/design-system'
+import { palette } from '~shared/config/tokens'
 import { WeatherIcon } from './WeatherIcon'
 
 const SKY_CONDITION_LABEL = reverseKeyValue(SkyCondition)

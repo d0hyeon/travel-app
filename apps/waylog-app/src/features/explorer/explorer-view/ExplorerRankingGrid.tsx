@@ -1,10 +1,10 @@
 import { StyleSheet, ScrollView, useWindowDimensions, View } from 'react-native'
-import { ExplorerPlaceCard } from '../explorer-place-item/ExplorerPlaceCard'
+import { ExplorerPlaceCard } from '~features/explorer/explorer-place-item/ExplorerPlaceCard'
 import { ExplorerEmptyState } from './ExplorerEmptyState'
-import { useAppNavigation } from '../../../shared/hooks/useAppNavigation'
-import { AppRoute } from '../../../app/AppRoute'
-import type { useScrollStatus } from '../../../shared/hooks/interaction/useScrollStatus'
-import type { ExplorerPlace } from '../useAttentionPlaces'
+import { useAppNavigation } from '~shared/hooks/useAppNavigation'
+import { AppRoute } from '~app/AppRoute'
+import type { useScrollStatus } from '~shared/hooks/interaction/useScrollStatus'
+import type { ExplorerPlace } from '~features/explorer/useAttentionPlaces'
 
 interface Props {
   places: ExplorerPlace[]

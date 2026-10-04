@@ -2,10 +2,10 @@ import { StyleSheet } from 'react-native'
 import { useAuth } from '@waylog/domains/clients'
 import type { ChatMessage } from '@waylog/domains/modules/trip-chat'
 import type { TextStyle, ViewStyle } from 'react-native'
-import { Avatar, Box, Stack, Typography } from '~/shared/components/design-system'
-import { extractUrls, renderTextWithLinks } from '../../../shared/utils/urls'
-import { OgPreviewCard } from '../../open-graph/OgPreviewCard'
-import { palette } from '../../../shared/config/tokens'
+import { Avatar, Box, Stack, Typography } from '~shared/components/design-system'
+import { extractUrls, renderTextWithLinks } from '~shared/utils/urls'
+import { OgPreviewCard } from '~features/open-graph/OgPreviewCard'
+import { palette } from '~shared/config/tokens'
 
 interface Props {
   message: ChatMessage

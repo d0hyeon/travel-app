@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { useOverlay } from '../../../shared/hooks/useOverlay'
+import { useOverlay } from '~shared/hooks/useOverlay'
 import { PlaceDetailSheet } from './PlaceDetailSheet'
 
 // 웹 usePlaceDetailOverlay 와 같은 시그니처를 유지한다.

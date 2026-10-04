@@ -8,8 +8,8 @@ import Animated, {
 } from 'react-native-reanimated'
 import { useUnreadChatCount } from '@waylog/domains/modules/trip-chat'
 import { Suspense, useEffect } from 'react'
-import { Typography } from '~/shared/components/design-system'
-import { palette } from '../../../shared/config/tokens'
+import { Typography } from '~shared/components/design-system'
+import { palette } from '~shared/config/tokens'
 import type { StyleProp, ViewStyle } from 'react-native'
 
 interface Props {

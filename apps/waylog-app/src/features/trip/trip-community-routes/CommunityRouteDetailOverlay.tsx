@@ -9,9 +9,9 @@ import { useTripPlaces } from '@waylog/domains/modules/trip'
 import type { Coordinate } from '@waylog/utility'
 import { Suspense, useCallback, useMemo, useRef, useState } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
-import { useRoadRoute } from '../../route/road-route/useRoadRoute'
-import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
-import { Map, MapRef } from '../../../shared/components/Map'
+import { useRoadRoute } from '~features/route/road-route/useRoadRoute'
+import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
+import { Map, MapRef } from '~shared/components/Map'
 import {
   Box,
   Button,
@@ -21,9 +21,9 @@ import {
   Tab,
   Tabs,
   Typography,
-} from '~/shared/components/design-system'
-import { palette, radius } from '../../../shared/config/tokens'
-import { useOverlay } from '../../../shared/hooks/useOverlay'
+} from '~shared/components/design-system'
+import { palette, radius } from '~shared/config/tokens'
+import { useOverlay } from '~shared/hooks/useOverlay'
 import { useLoading } from '@waylog/react'
 import { ScrollView } from 'react-native-gesture-handler'
 

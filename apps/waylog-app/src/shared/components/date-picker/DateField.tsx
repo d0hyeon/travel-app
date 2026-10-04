@@ -1,8 +1,8 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { format as formatDate } from 'date-fns'
 import { Keyboard, Pressable, StyleSheet, View } from 'react-native'
-import { Typography } from '~/shared/components/design-system'
-import { palette, radius } from '../../config/tokens'
+import { Typography } from '~shared/components/design-system'
+import { palette, radius } from '~shared/config/tokens'
 import type { DateBounds, DateRange, DateTimeSetter } from './datePicker.model'
 import { useDatePickerBottomSheet } from './useDatePickerBottomSheet'
 

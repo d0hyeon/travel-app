@@ -1,7 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { ComponentProps } from "react";
-import { IconButton } from "~/shared/components/design-system";
-import { palette } from "../../../../shared/config/tokens";
+import { IconButton } from "~shared/components/design-system";
+import { palette } from "~shared/config/tokens";
 
 export function CurrenntLocationIconButton(props: ComponentProps<typeof IconButton>) {
   return (

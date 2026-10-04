@@ -1,5 +1,5 @@
 import { Switch as RNSwitch } from 'react-native'
-import { palette } from '../../config/tokens'
+import { palette } from '~shared/config/tokens'
 
 export interface SwitchProps {
   defaultChecked?: boolean

@@ -1,13 +1,13 @@
 import { calcDistance } from '@waylog/utility'
 import { usePlaceSearch, type PlaceResult } from '@waylog/domains/modules/place'
 import type { Coordinate, MapBounds, MapProvider } from '@waylog/domains/modules/map'
-import type { MapRef } from '~/shared/components/Map'
+import type { MapRef } from '~shared/components/Map'
 import { DependencyList, EffectCallback, useEffect, useRef, useState, useTransition } from 'react'
 import { StyleSheet, ActivityIndicator, FlatList, View } from 'react-native'
-import { Map } from '../../../shared/components/Map'
-import { Button, Chip } from '~/shared/components/design-system'
-import { ListItem } from '../../../shared/components/ListItem'
-import { palette } from '../../../shared/config/tokens'
+import { Map } from '~shared/components/Map'
+import { Button, Chip } from '~shared/components/design-system'
+import { ListItem } from '~shared/components/ListItem'
+import { palette } from '~shared/config/tokens'
 import { useVariation } from '@waylog/react'
 
 const MARKER_COLORS = ['#66BB6A', '#EB5757', '#5DADE2', '#7986CB']

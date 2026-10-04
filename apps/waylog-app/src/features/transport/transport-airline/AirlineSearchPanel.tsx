@@ -1,9 +1,9 @@
 import { searchAirlines, type Airline } from '@waylog/domains/modules/airline'
 import { useMemo, useState } from 'react'
 import { Pressable, StyleSheet } from 'react-native'
-import { Typography } from '~/shared/components/design-system'
-import { palette } from '../../../shared/config/tokens'
-import { SearchPanelLayout } from '../transport-form/SearchPanelLayout'
+import { Typography } from '~shared/components/design-system'
+import { palette } from '~shared/config/tokens'
+import { SearchPanelLayout } from '~features/transport/transport-form/SearchPanelLayout'
 
 interface Props {
   onSelect: (airline: Airline) => void

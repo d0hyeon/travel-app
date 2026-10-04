@@ -1,13 +1,13 @@
 import { PlaceCategoryTypeLabel } from '@waylog/domains/modules/place'
 import type { PropsWithChildren } from 'react'
 import { StyleSheet, Pressable, ScrollView, type StyleProp, type ViewStyle } from 'react-native'
-import { useOverlay } from '../../../shared/hooks/useOverlay'
-import { BottomSheet } from '../../../shared/components/bottom-sheet/BottomSheet'
-import { Button, Chip, Typography } from '~/shared/components/design-system'
-import { palette } from '../../../shared/config/tokens'
-import { EXPLORER_CATEGORY_TYPES } from '../explorer.api'
+import { useOverlay } from '~shared/hooks/useOverlay'
+import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
+import { Button, Chip, Typography } from '~shared/components/design-system'
+import { palette } from '~shared/config/tokens'
+import { EXPLORER_CATEGORY_TYPES } from '~features/explorer/explorer.api'
 import { useExplorerFilterParams } from './useExplorerFilterParams'
-import { LocationForm } from '../../location/LocationForm'
+import { LocationForm } from '~features/location/LocationForm'
 
 export function ExplorerFilterBar({ children }: PropsWithChildren) {
   const { location, category, setLocation, setCategory } = useExplorerFilterParams()

@@ -2,8 +2,8 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { Image, type ImageErrorEventData, type ImageProps } from 'expo-image'
 import { useState, type ReactNode } from 'react'
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native'
-import { Skeleton } from '~/shared/components/design-system/Skeleton'
-import { palette } from '../config/tokens'
+import { Skeleton } from '~shared/components/design-system/Skeleton'
+import { palette } from '~shared/config/tokens'
 
 export interface LoadableImageProps extends Omit<ImageProps, 'style'> {
   style?: StyleProp<ViewStyle>;

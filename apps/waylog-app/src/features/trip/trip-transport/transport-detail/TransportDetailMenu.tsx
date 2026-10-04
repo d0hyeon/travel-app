@@ -1,8 +1,8 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { useTripTransports } from '@waylog/domains/modules/trip-transport'
-import { useAppNavigation } from '../../../../shared/hooks/useAppNavigation'
-import { PopMenu } from '../../../../shared/components/PopMenu'
-import { useConfirmDialog } from '../../../../shared/components/confirm-dialog/useConfirmDialog'
+import { useAppNavigation } from '~shared/hooks/useAppNavigation'
+import { PopMenu } from '~shared/components/PopMenu'
+import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 
 interface Props {
   tripId: string

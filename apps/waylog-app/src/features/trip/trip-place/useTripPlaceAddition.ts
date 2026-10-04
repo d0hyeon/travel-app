@@ -1,7 +1,7 @@
 import type { TripPlace } from '@waylog/domains/modules/place'
 import { useTrip, useTripPlaces } from '@waylog/domains/modules/trip'
 import { useCallback } from 'react'
-import { usePlaceSearchBottomSheet } from '../../place/place-search/usePlaceSearchBottomSheet'
+import { usePlaceSearchBottomSheet } from '~features/place/place-search/usePlaceSearchBottomSheet'
 
 export function useTripPlaceAddition(tripId: string) {
   const { data: trip } = useTrip(tripId)

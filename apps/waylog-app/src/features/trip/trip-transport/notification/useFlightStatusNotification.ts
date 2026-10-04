@@ -1,7 +1,7 @@
 import * as Notifications from 'expo-notifications'
 import { useEffect } from 'react'
-import { useAppNavigation } from '../../../../shared/hooks/useAppNavigation'
-import { AppRoute } from '../../../../app/AppRoute'
+import { useAppNavigation } from '~shared/hooks/useAppNavigation'
+import { AppRoute } from '~app/AppRoute'
 import { getFlightStatusNotificationDestination } from './flightStatusNotification'
 
 export function useFlightStatusNotificationResponse() {

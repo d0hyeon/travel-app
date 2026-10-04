@@ -1,4 +1,4 @@
-import { CommonErrorAlert } from '../../../../shared/components/CommonErrorAlert'
+import { CommonErrorAlert } from '~shared/components/CommonErrorAlert'
 
 interface Props {
   message: string

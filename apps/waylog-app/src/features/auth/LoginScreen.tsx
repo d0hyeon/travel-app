@@ -6,8 +6,8 @@ import { ActivityIndicator, Image, Platform, StyleSheet, View } from 'react-nati
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Svg, { Path } from 'react-native-svg'
 import { toast } from 'sonner-native'
-import { Button, Divider, Stack, TextField, Typography } from '~/shared/components/design-system'
-import { palette, radius } from '../../shared/config/tokens'
+import { Button, Divider, Stack, TextField, Typography } from '~shared/components/design-system'
+import { palette, radius } from '~shared/config/tokens'
 import logoImage from '../../../assets/logo.png'
 
 const LOGO_SIZE = 72

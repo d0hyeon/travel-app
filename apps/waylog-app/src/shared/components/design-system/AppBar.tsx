@@ -1,8 +1,8 @@
 import { Pressable, StyleSheet } from 'react-native'
 import { Stack, StackProps } from './Stack'
 import { ComponentProps, ReactNode } from 'react'
-import { palette } from '../../config/tokens'
-import { useAppNavigation } from '../../hooks/useAppNavigation'
+import { palette } from '~shared/config/tokens'
+import { useAppNavigation } from '~shared/hooks/useAppNavigation'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Typography } from './Typography'
 

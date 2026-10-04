@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { Pressable, StyleSheet, View } from 'react-native'
-import { LinearProgress, Typography } from '~/shared/components/design-system'
-import { palette } from '../../../../shared/config/tokens'
+import { LinearProgress, Typography } from '~shared/components/design-system'
+import { palette } from '~shared/config/tokens'
 import { TRANSPORT_FORM_STEPS, type TransportFormStep } from './transportFormFunnel.types'
 
 const STEP_TITLE: Record<string, string> = {

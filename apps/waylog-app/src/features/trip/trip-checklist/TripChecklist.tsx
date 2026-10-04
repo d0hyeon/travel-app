@@ -1,16 +1,16 @@
 import { StyleSheet } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons';
-import { Box, Skeleton, Stack, Typography, type StackProps } from "~/shared/components/design-system";
-import { Checkbox } from "~/shared/components/design-system/Checkbox";
-import { Chip } from "~/shared/components/design-system/Chip";
-import { PopMenu } from "../../../shared/components/PopMenu";
+import { Box, Skeleton, Stack, Typography, type StackProps } from "~shared/components/design-system";
+import { Checkbox } from "~shared/components/design-system/Checkbox";
+import { Chip } from "~shared/components/design-system/Chip";
+import { PopMenu } from "~shared/components/PopMenu";
 import { differenceInDays, formatDate, isAfter, isBefore } from "date-fns";
 import { Suspense, useMemo, type ComponentProps, type MouseEvent } from "react";
 import { match, P } from 'ts-pattern';
-import { ListItem } from "../../../shared/components/ListItem";
-import { SwitchCase } from "../../../shared/components/SwitchCase";
+import { ListItem } from "~shared/components/ListItem";
+import { SwitchCase } from "~shared/components/SwitchCase";
 import { assert } from '@waylog/utility';
-import { useConfirmDialog } from "../../../shared/components/confirm-dialog/useConfirmDialog";
+import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
 import { TripChecklistModifyMenuItem } from "./TripChecklistModifyMenuItem";
 import { formatRemainTime } from "@waylog/utility";
 import { useTripMembers } from '@waylog/domains/modules/trip-member';

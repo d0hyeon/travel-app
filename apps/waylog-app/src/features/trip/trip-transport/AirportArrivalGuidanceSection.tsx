@@ -8,7 +8,7 @@ import { useTripTransportTickets } from '@waylog/domains/modules/trip-transport'
 import { AsyncBoundary } from '@waylog/react'
 import { format } from 'date-fns'
 import { StyleSheet, View } from 'react-native'
-import { Skeleton, Typography } from '~/shared/components/design-system'
+import { Skeleton, Typography } from '~shared/components/design-system'
 import { TransportDetailSectionError } from './transport-detail/TransportDetailSectionError'
 import { toCarrierLabel } from './transportLabel'
 

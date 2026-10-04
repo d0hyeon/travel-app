@@ -13,9 +13,9 @@ import {
   type PhotoUpdate,
 } from "@waylog/domains/modules/photo";
 import { tripKey, useTripPlaces } from "@waylog/domains/modules/trip";
-import { queryClient as appQueryClient } from "../../../shared/query-client";
-import { uploadPhoto } from "../../photo/photo.api";
-import { findNearestPlaceFromPhoto } from "../../photo/photo.utils";
+import { queryClient as appQueryClient } from "~shared/query-client";
+import { uploadPhoto } from "~features/photo/photo.api";
+import { findNearestPlaceFromPhoto } from "~features/photo/photo.utils";
 import { useSuspenseQuery, UseSuspenseQueryOptions } from "@waylog/react";
 import { assert } from "~shared/utils/assert";
 

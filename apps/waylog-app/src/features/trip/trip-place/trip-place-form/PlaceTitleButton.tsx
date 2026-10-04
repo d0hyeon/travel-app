@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { StyleSheet, Pressable } from 'react-native'
-import { Skeleton, Stack, Typography, type TypographyVariant } from '~/shared/components/design-system'
-import { VARIANT_STYLE } from '~/shared/components/design-system/Typography'
+import { Skeleton, Stack, Typography, type TypographyVariant } from '~shared/components/design-system'
+import { VARIANT_STYLE } from '~shared/components/design-system/Typography'
 
 interface PlaceTitleButtonProps {
   /** 표시할 장소명 */

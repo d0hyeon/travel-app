@@ -8,9 +8,9 @@ import {
 } from '@waylog/domains/modules/expense'
 import { useTrip } from '@waylog/domains/modules/trip'
 import { StyleSheet } from 'react-native'
-import { Stack, Typography } from '~/shared/components/design-system'
-import { EditableText } from '../../../shared/components'
-import { palette } from '../../../shared/config/tokens'
+import { Stack, Typography } from '~shared/components/design-system'
+import { EditableText } from '~shared/components'
+import { palette } from '~shared/config/tokens'
 import { useExpenseSummary } from './useExpenseSummary'
 import { TripExchangeRateSettingButton } from './TripExchangeRateSettingButton'
 

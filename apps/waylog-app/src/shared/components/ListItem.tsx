@@ -1,6 +1,6 @@
 import type { ElementType, ReactNode } from 'react'
 import { StyleSheet, Pressable, View } from 'react-native'
-import { palette } from '../config/tokens'
+import { palette } from '~shared/config/tokens'
 import {
   Box,
   Stack,
@@ -9,7 +9,7 @@ import {
   type PropsWithAs,
   type StackProps,
   type TypographyProps,
-} from '~/shared/components/design-system'
+} from '~shared/components/design-system'
 
 interface Props extends StackProps {
   leftAddon?: ReactNode

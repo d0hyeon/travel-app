@@ -1,14 +1,14 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import { RouterTabNavigation, TRANSPARENT_SCENE_STYLE } from '../../shared/components'
-import { palette } from '../../shared/config/tokens'
+import { RouterTabNavigation, TRANSPARENT_SCENE_STYLE } from '~shared/components'
+import { palette } from '~shared/config/tokens'
 import { TripInfoTabScreen } from './trip-basic-info/TripInfoTabScreen'
 import { TripPlaceTabScreen } from './trip-place/TripPlaceTabScreen'
 import { TripRouteTabScreen } from './trip-route/TripRouteTabScreen'
 import { TripExpenseTabScreen } from './trip-expense/TripExpenseTabScreen'
 import { TripPhotoTabScreen } from './trip-photo/TripPhotoTabScreen'
 import { StyleSheet } from 'react-native'
-import type { TripDetailTabParamList } from '../../app/routes'
+import type { TripDetailTabParamList } from '~app/routes'
 
 const Tab = createBottomTabNavigator<TripDetailTabParamList>()
 

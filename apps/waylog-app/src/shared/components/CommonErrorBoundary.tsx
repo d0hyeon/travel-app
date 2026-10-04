@@ -1,8 +1,8 @@
 import { StyleSheet } from 'react-native'
 import type { ComponentProps } from 'react'
-import { palette, radius } from '../config/tokens'
+import { palette, radius } from '~shared/config/tokens'
 import { ErrorBoundary } from '@waylog/react'
-import { Button, Stack, Typography } from '~/shared/components/design-system'
+import { Button, Stack, Typography } from '~shared/components/design-system'
 import { CommonErrorAlert } from './CommonErrorAlert'
 
 const ERROR_MAIN = '#d32f2f'

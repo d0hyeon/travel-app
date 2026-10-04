@@ -1,7 +1,7 @@
 import { Controller, type Control } from 'react-hook-form'
-import { TextField } from '~/shared/components/design-system'
+import { TextField } from '~shared/components/design-system'
 import { FieldPair, PairSlot, RouteArrow } from './scheduleFieldParts'
-import type { TransportFormValues } from '../transportForm.types'
+import type { TransportFormValues } from '~features/transport/transport-form/transportForm.types'
 
 interface Props {
   control: Control<TransportFormValues>

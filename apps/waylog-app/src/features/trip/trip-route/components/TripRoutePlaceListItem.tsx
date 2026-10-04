@@ -1,14 +1,14 @@
 import { StyleSheet } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons';
-import { Box, Stack } from '~/shared/components/design-system';
+import { Box, Stack } from '~shared/components/design-system';
 import { useMemo, type ReactNode } from 'react';
 import type { TripPlace } from '@waylog/domains/modules/place';
-import { ListItem } from '../../../../shared/components/ListItem';
-import { PopMenu } from '../../../../shared/components/PopMenu';
-import { useConfirmDialog } from '../../../../shared/components/confirm-dialog/useConfirmDialog';
+import { ListItem } from '~shared/components/ListItem';
+import { PopMenu } from '~shared/components/PopMenu';
+import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog';
 import { useDayTripRoutes, useTripRoutes } from '@waylog/domains/modules/trip';
-import { useTripPlaceFormOverlay } from '../../trip-place/trip-place-form/useTripPlaceFormOverlay';
-import { assert } from '../../../../shared/utils/assert';
+import { useTripPlaceFormOverlay } from '~features/trip/trip-place/trip-place-form/useTripPlaceFormOverlay';
+import { assert } from '~shared/utils/assert';
 import { NoteEditor } from './RouteNoteList';
 
 type ListItemButtonProps = Parameters<typeof ListItem.Button>[0];

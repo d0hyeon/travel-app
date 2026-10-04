@@ -1,9 +1,9 @@
-import { Box, Stack, Typography } from '~/shared/components/design-system'
+import { Box, Stack, Typography } from '~shared/components/design-system'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Suspense } from 'react'
 import { StyleSheet, Pressable, type GestureResponderEvent } from 'react-native'
-import { palette } from '../../shared/config/tokens'
-import { UserProfile } from '../user-profile/UserProfile'
+import { palette } from '~shared/config/tokens'
+import { UserProfile } from '~features/user-profile/UserProfile'
 
 interface Props {
   authorId: string
