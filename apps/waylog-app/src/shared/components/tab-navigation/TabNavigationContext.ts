@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react'
-import { assert } from '@waylog/utility'
+import { assert } from '~shared/utils/assert'
 import type { TabNavigationContextValue } from './TabNavigation.types'
 
 export const TabNavigationContext = createContext<TabNavigationContextValue | null>(null)

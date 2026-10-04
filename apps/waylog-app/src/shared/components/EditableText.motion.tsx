@@ -1,5 +1,5 @@
 import { usePreservedCallback } from '@waylog/react';
-import { assert } from '@waylog/utility';
+import { assert } from '~shared/utils/assert';
 import { Ref, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Keyboard,

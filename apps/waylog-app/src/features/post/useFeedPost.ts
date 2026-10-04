@@ -1,5 +1,5 @@
 import { useFeed, type Post } from '@waylog/domains/modules/post'
-import { assert } from '@waylog/utility'
+import { assert } from '~shared/utils/assert'
 
 export function useFeedPost(postId: string): Post {
   const { data: posts } = useFeed()

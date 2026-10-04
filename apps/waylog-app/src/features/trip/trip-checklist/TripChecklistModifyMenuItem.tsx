@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native'
 import { useRef } from 'react'
-import { assert } from '@waylog/utility'
+import { assert } from '~shared/utils/assert'
 import { useTripChecklist } from '@waylog/domains/modules/trip-checklist'
 import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
 import { Button } from '~shared/components/design-system'

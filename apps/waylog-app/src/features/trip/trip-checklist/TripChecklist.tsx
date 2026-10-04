@@ -9,7 +9,7 @@ import { Suspense, useMemo, type ComponentProps, type MouseEvent } from "react";
 import { match, P } from 'ts-pattern';
 import { ListItem } from "~shared/components/ListItem";
 import { SwitchCase } from "~shared/components/SwitchCase";
-import { assert } from '@waylog/utility';
+import { assert } from '~shared/utils/assert';
 import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
 import { TripChecklistModifyMenuItem } from "./TripChecklistModifyMenuItem";
 import { formatRemainTime } from "@waylog/utility";

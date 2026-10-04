@@ -1,4 +1,4 @@
-import { assert } from '@waylog/utility'
+import { assert } from '~shared/utils/assert'
 import { StyleSheet, type TextStyle, type ViewStyle } from 'react-native'
 import { Avatar, Skeleton, Stack, Typography, type StackProps } from '~shared/components/design-system'
 import { useUserProfile } from './useUserProfile'

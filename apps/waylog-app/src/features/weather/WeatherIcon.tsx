@@ -1,6 +1,7 @@
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { PrecipitationType, SkyCondition } from '@waylog/domains/modules/weather'
-import { arrayIncludes, assert } from '@waylog/utility'
+import { arrayIncludes } from '@waylog/utility'
+import { assert } from '~shared/utils/assert'
 import { palette } from '~shared/config/tokens'
 
 interface WeatherIconProps {

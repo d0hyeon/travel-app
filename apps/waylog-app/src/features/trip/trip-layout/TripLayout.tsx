@@ -1,4 +1,4 @@
-import { assert } from '@waylog/utility'
+import { assert } from '~shared/utils/assert'
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { StyleSheet, View } from 'react-native'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming, type SharedValue } from 'react-native-reanimated'
