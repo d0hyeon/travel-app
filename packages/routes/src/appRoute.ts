@@ -17,6 +17,7 @@ export const AppRoute = {
   설정: "/settings",
   계정_설정: "/settings/profile",
   차단_목록: "/settings/blocks",
+  저장된_장소: "/settings/bookmarks",
   포스트_생성: "/post/new",
   포스트_상세: "/post/:postId",
   어드민_여행_목록: "/admin/trips",
