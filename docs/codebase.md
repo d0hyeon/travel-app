@@ -101,6 +101,8 @@ TicketViewer 내부의 `ConfirmDialog`와 `ActionSheet`다. 공용 `Button`도 T
 /u/:userId                     → UserProfilePage
 /settings                      → SettingsPage (앱은 웹뷰로만 진입, 네이티브 스크린 없음)
 /settings/profile              → SettingsProfilePage (`@waylog/routes`에 없는 로컬 하위 경로)
+/settings/blocks               → BlockedUsersPage
+/settings/bookmarks            → BookmarkedPlacesPage (저장된 장소)
 /post/new                      → PostFormPage
 /post/:postId                  → PostDetailPage
 /admin/trips                   → (어드민 여행 목록)
@@ -222,6 +224,7 @@ packages/
 │           ├── community-route/ # 커뮤니티 경로
 │           ├── open-graph/      # 링크 미리보기
 │           ├── place/           # 장소 조회·검색·추가, 제공자 카테고리 → PlaceCategoryType 변환(placeCategory.utils)
+│           ├── place-bookmark/  # 장소 북마크(내 북마크 추가·해제·목록). 여행에 담기(trip_places)와 무관
 │           ├── post/            # 커뮤니티 포스트
 │           ├── route/           # 경로
 │           ├── storage/         # 스토리지
@@ -1475,7 +1478,7 @@ ref 로 붙잡아야 끌던 도중 스냅이 바뀌어도 제스처가 갈아끼
 | 계절 인기 지역       | `features/tourism-trend/`, `features/explorer/explorer-seasonal-regions/` |
 | 피드/포스트          | `features/post/FeedPage.tsx`, `features/post/post-form-funnel/`          |
 | 사용자 프로필        | `features/user-profile/UserProfilePage.tsx`                       |
-| 설정 (내정보 변경·로그아웃) | 웹 `features/settings/`(SettingsPage·SettingsProfilePage, 진입 라우트만 `@waylog/routes`의 `설정`, 하위 `/settings/profile`은 로컬 상수). 앱은 네이티브 `features/settings/SettingsScreen.tsx`(내 정보 변경·차단한 사용자·로그아웃)이 진입점이고, 로그아웃은 `signOut` 뒤 `navigation.reset`으로 로그인 화면으로 초기화한다. `SettingsWebViewScreen.tsx`는 웹 설정 라우트를 웹뷰로 띄운다 |
+| 설정 (내정보 변경·로그아웃) | 웹 `features/settings/`(SettingsPage·SettingsProfilePage, 진입 라우트만 `@waylog/routes`의 `설정`, 하위 `/settings/profile`은 로컬 상수). 앱은 네이티브 `features/settings/SettingsScreen.tsx`(내 정보 변경·저장된 장소·차단한 사용자·로그아웃)이 진입점이고, 로그아웃은 `signOut` 뒤 `navigation.reset`으로 로그인 화면으로 초기화한다. `SettingsWebViewScreen.tsx`는 웹 설정 라우트를 웹뷰로 띄운다 |
 | 회원 탈퇴 | 설정의 '회원 탈퇴'(웹 `SettingsPage`, 앱 `SettingsScreen`)가 `deleteAccount()`를 호출한다. Edge Function `delete-account`가 DB 함수 `prepare_account_deletion`으로 소유한 여행을 정리하고(다른 멤버가 있으면 가장 먼저 참여한 멤버에게 소유권 이전, 없으면 삭제), 사용자의 티켓과 삭제 대상 파일 경로를 모은 뒤 `auth.users`를 지운다. 게시물·사진·댓글·채팅은 FK CASCADE 로 함께 삭제되고, 저장 파일(R2)은 계정 삭제 뒤 지운다(실패해도 탈퇴는 유지). Apple 계정은 앱에서 삭제 전에 재인증해 새 인가 코드로 철회한다(`requestAppleAuthorizationCode`). 웹은 철회하지 않는다 |
 | 신고·차단 | DB: `reports`(insert 전용, 조회는 service_role), `user_blocks`(본인 행만), `can_view_post`·`photos_select` 가 차단한 작성자를 제외. 도메인: `@waylog/domains/modules/report`(`submitReport`, `useSubmitReport`, `ReportTarget`)·`user-block`(`blockUser`·`unblockUser`·`useBlockedUsers`; 차단 변경 뒤 게시물 상세 외 쿼리를 모두 무효화). 웹: `features/report/`(ReportDialog·useReportDialog), `features/post/PostMenu.tsx`, `features/user-profile/UserProfileMenu.tsx`, `features/settings/BlockedUsersPage.tsx`(`/settings/blocks`). 앱: `features/report/`(ReportSheet·useReportSheet), `features/post/PostMenu.tsx`, `features/user-profile/UserProfileMenu.tsx`, `features/settings/BlockedUsersScreen.tsx`(`차단_목록`). 운영 절차는 `docs/moderation.md` |
 | 통계                 | `features/statistics/StatisticsPage.tsx`                          |
@@ -1486,6 +1489,7 @@ ref 로 붙잡아야 끌던 도중 스냅이 바뀌어도 제스처가 갈아끼
 | 사진 업로드          | `shared/components/photo/PhotoUploader.tsx`                       |
 | 사진 상세 뷰어       | 웹 `shared/components/photo/PhotoBottomSheet.tsx`(모바일)·`PhotoDialog.tsx`(데스크탑), 앱 `shared/components/photo/PhotoBottomSheet.tsx`. 웹·앱 모두 여행 탭과 장소 탭이 같은 뷰어를 공유하며, `onDelete`·`onUpdate`·`places` 를 넘긴 만큼만 편집 UI 가 켜진다 |
 | 장소 사진 스트립     | 앱 `features/place/PlacePhotoStrip.tsx` — 썸네일 가로 목록과 뷰어 연결을 모은다. 탐색 장소 상세(`explorer/PlaceDetailScreen`)와 장소 상세 시트(`place/PlacePhotoList`)가 읽기 전용으로 쓰고, 여행 장소 탭(`trip/trip-place/PlacePhotoSection`)은 자체 목록에서 편집 가능하게 뷰어를 연다 |
+| 장소 북마크 | DB: `place_bookmarks`(user_id·place_id PK, 본인 행만 select/insert/delete, anon 권한 없음). 도메인: `@waylog/domains/modules/place-bookmark`(`addPlaceBookmark`·`removePlaceBookmark`·`getBookmarkedPlaces`, 훅 `useBookmarkedPlaces`·`usePlaceBookmark(placeId)`). 목록 쿼리 하나에서 북마크 여부를 파생하므로 장소별 요청이 없고, 비로그인이면 쿼리 없이 `[]`다. UI: 웹·앱 `features/place/PlaceBookmarkButton.tsx`(헤더 아이콘, 비로그인이면 누를 때 로그인으로 보낸다)가 장소 상세 **헤더 우측**에 고정된다 — CTA("내 여행에 담기") 유무와 무관하게 위치가 같다. 웹은 데스크탑 `PlaceSidePanel`(닫기 X 옆)·모바일 `PlaceFullScreenModal`·`PlaceDetailPage`, 앱은 `explorer/PlaceDetailScreen` 헤더와 `PlaceDetailSheet` 상단(장소명 옆)이다. 모바일 웹 풀스크린 모달은 닫기(X) 대신 뒤로가기(←)를 쓰며, `FullScreenPopup`의 `enterFrom="right"`(기본 `bottom`)로 우→좌 진입 모션을 쓴다. 목록 화면은 웹 `features/place/BookmarkedPlacesPage.tsx`·앱 `BookmarkedPlacesScreen.tsx`(`저장된_장소`, `/settings/bookmarks`)이며 설정 화면의 "저장된 장소"로 진입한다. 화면 문구의 "저장"은 북마크, 탐색의 "저장 순위"는 여행에 담긴 횟수로 서로 다르다 |
 | 장소 담기 버튼       | 앱 `features/place/AddTripButton.tsx` — 예정 여행 선택(`useTripSelectSheet`)·`createTripPlace`·성공 토스트("{여행명}에 추가되었어요")를 완결한다. 예정 여행이 없으면 호출할 수 없는 모듈이라(`assert`) 호출자가 `useScheduledTrips().data.length > 0` 로 렌더 여부를 정한다. 탐색 장소 상세(`explorer/PlaceDetailScreen` 기본정보 탭 하단)와 장소 상세 시트(`place/place-detail/PlaceDetailSheet`)가 쓰며, 담은 뒤에도 화면·시트를 닫지 않고 토스트로 알린다. 웹 `PlaceInfoWidget` 의 "내 여행에 담기"와 같은 기능이다 |
 | 장소 주소            | 앱 `features/place/PlaceAddress.tsx` — 주소 표시와 복사 버튼(`expo-clipboard`, 토스트 "주소가 복사되었어요")을 완결한다. 빈 주소는 호출자가 걸러 렌더링하지 않는다. 장소 상세 화면과 시트 본문(`PlaceDetailBody`)이 쓴다. 웹 `PlaceInfoWidget` 의 주소 복사와 같은 기능이다. `expo-clipboard` 는 네이티브 모듈이라 이 변경이 담긴 JS 를 OTA 로 받으려면 설치 앱이 모듈을 포함해야 하며, `runtimeVersion` 이 `appVersion` 정책이므로 새 바이너리와 함께 배포한다 |
 | 환율 설정            | 웹 데스크탑 `features/trip/trip-expense/TripExchangeRateSettingButton.tsx`, 앱 동명 파일. 앱은 지출 등록 전에도 정할 수 있도록 `getUsedCurrencies`(지출 기준) 대신 `getCurrenciesByDestinations`(목적지 기준)로 통화를 뽑는다. `trip.isOverseas` 는 저장값이 아니라 목적지가 `LocationCountry` 의 키일 때만 참이다 |
