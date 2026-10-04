@@ -402,6 +402,32 @@ export type Database = {
           },
         ]
       }
+      place_bookmarks: {
+        Row: {
+          created_at: string
+          place_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          place_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          place_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "place_bookmarks_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       places: {
         Row: {
           address: string | null
