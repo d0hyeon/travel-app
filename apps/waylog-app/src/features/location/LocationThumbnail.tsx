@@ -1,4 +1,4 @@
-import { useQueries } from "@tanstack/react-query";
+import { useQueries, UseQueryOptions } from "@tanstack/react-query";
 import { getCoordinateBounds, normalizeCoordsToCanvas, pointsToPath } from "@waylog/domains/modules/community-route";
 import { isLocation } from "@waylog/domains/modules/location";
 import { Coordinate } from "@waylog/utility";
@@ -32,7 +32,8 @@ export function LocationThumbnail({
       queryKey: ['location-coordinates', location],
       queryFn: () => getLocationCoordinates({ location }),
       enabled: validLocations.length > 0,
-    })),
+      throwOnError: false
+    } satisfies UseQueryOptions)),
   })
 
   const shapeRings = shapeRingQueries.map(x => x.data ?? []);
