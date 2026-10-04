@@ -9,6 +9,7 @@ import { palette, radius } from '~shared/config/tokens'
 import { useScheduledTrips } from '~features/trip/useScheduledTrips'
 import { AddTripButton } from '~features/place/AddTripButton'
 import { PlaceAddress } from '~features/place/PlaceAddress'
+import { PlaceBookmarkButton } from '~features/place/PlaceBookmarkButton'
 import { PlacePhotoList } from '~features/place/PlacePhotoList'
 
 const styles = StyleSheet.create({
@@ -24,6 +25,14 @@ const styles = StyleSheet.create({
     padding: 16,
     gap: 12,
     maxHeight: '85%',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  headerTitle: {
+    flex: 1,
   },
   mapArea: {
     height: 180,
@@ -48,6 +57,7 @@ export function PlaceDetailSheet({ placeId, isOpen, onClose }: Props) {
         <Pressable onPress={(event) => event.stopPropagation()}>
           <View style={styles.sheet}>
             <Suspense fallback={<PlaceDetailBody.Skeleton />}>
+              <PlaceDetailHeader placeId={placeId} />
               <ScrollView showsVerticalScrollIndicator={false}>
                 <PlaceDetailBody placeId={placeId} />
               </ScrollView>
@@ -58,6 +68,19 @@ export function PlaceDetailSheet({ placeId, isOpen, onClose }: Props) {
         </Pressable>
       </Pressable>
     </Modal>
+  )
+}
+
+function PlaceDetailHeader({ placeId }: { placeId: string }) {
+  const { data: place } = usePlace(placeId)
+
+  return (
+    <View style={styles.header}>
+      <Typography variant="subtitle1" numberOfLines={1} style={styles.headerTitle}>
+        {place.name}
+      </Typography>
+      <PlaceBookmarkButton placeId={placeId} />
+    </View>
   )
 }
 

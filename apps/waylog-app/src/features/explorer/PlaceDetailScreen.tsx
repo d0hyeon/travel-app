@@ -3,6 +3,7 @@ import { usePlace } from '@waylog/domains/modules/place'
 import { useScheduledTrips } from '~features/trip/useScheduledTrips'
 import { AddTripButton } from '~features/place/AddTripButton'
 import { PlaceAddress } from '~features/place/PlaceAddress'
+import { PlaceBookmarkButton } from '~features/place/PlaceBookmarkButton'
 import { usePlacePhotos } from '~features/place/usePlacePhotos'
 import { PlacePhotoStrip } from '~features/place/PlacePhotoStrip'
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native'
@@ -48,7 +49,7 @@ export function PlaceDetailScreen() {
           <MaterialIcons name="arrow-back" size={22} color={palette.text} />
         </Pressable>
         <Typography variant="subtitle1" numberOfLines={1} style={styles.headerTitle}>{place.name}</Typography>
-        <View style={styles.headerSpacer} />
+        <PlaceBookmarkButton placeId={placeId} />
       </View>
       <Tabs value={currentTab} onChange={(_, next) => selectTab(parsePlaceDetailTab(next))}>
         <Tab value="info" label="기본정보" />
@@ -125,7 +126,6 @@ const styles = StyleSheet.create({
   header: { height: 52, paddingHorizontal: 8, flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: palette.divider },
   backButton: { padding: 8 },
   headerTitle: { flex: 1, textAlign: 'center' },
-  headerSpacer: { width: 38 },
   tabContentLoading: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 80 },
   flex1: { flex: 1 },
   infoContent: { padding: 16, gap: 16, paddingBottom: 32 },
