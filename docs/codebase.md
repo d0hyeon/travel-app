@@ -234,7 +234,7 @@ packages/
 │           ├── trip-chat/       # 여행 채팅
 │           ├── trip-recommend/  # 추천 장소
 │           ├── trip-checklist/  # 여행 준비물
-│           ├── trip-member/     # 여행 멤버
+│           ├── trip-member/     # 여행 멤버·역할 권한. `TripPermission`(삭제·탈퇴·초대)과 역할별 정책 표(`tripPermission.utils.ts`)를 소유하고, `useTripPermission(tripId, 권한 | 권한[])`이 단건은 boolean, 복수는 `permission[TripPermission.삭제]`로 접근하는 객체를 돌려준다. 멤버가 아니면 모든 권한이 false. 서버 RLS 강제가 아닌 UI 권한이다
 │           ├── trip-memo/       # 여행 메모
 │           ├── trip-transport/  # 여행 교통편·티켓
 │           ├── weather/         # 날씨 예보
@@ -548,9 +548,9 @@ src/
 │       │   ├── TripFormDialog.tsx
 │       │   ├── TripDurationEditableText.tsx
 │       │   ├── TripNameEditableText.tsx
-│       │   ├── TripInviteButton.tsx
-│       │   ├── TripLeaveButton.tsx
-│       │   └── TripLeavePopMenuItem.tsx
+│       │   ├── TripInviteButton.tsx        # 초대 권한 판정은 호출자(멤버 섹션)가 한다. 이 버튼은 권한 없는 상태를 입력으로 받지 않는다
+│       │   ├── TripLeaveButton.tsx         # 삭제 권한(호스트)이면 "여행 삭제"와 삭제 확인, 아니면 멤버로 보고 "여행에서 나가기"
+│       │   └── TripLeavePopMenuItem.tsx    # 위와 같은 분기의 데스크탑 메뉴 항목
 │       ├── hooks/                          # 여행 공통 훅
 │       │   └── useTripCluastering.ts
 │       │
@@ -612,10 +612,7 @@ src/
 │       │   ├── CreateTripCardButton.tsx
 │       │   ├── trip-list.utils.ts
 │       │   └── (앱) GuestTripsScreen.tsx — 비로그인 내 여행 탭: 제목·아이콘 타일·안내 문구·하단 "로그인하고 시작하기" 버튼
-│       ├── trip-member/                   # 멤버 관리
-│       │   ├── tripMember.api.ts
-│       │   ├── tripMember.types.ts
-│       │   ├── useTripMembers.ts
+│       ├── trip-member/                   # 멤버 관리 (데이터·권한 로직은 `@waylog/domains/modules/trip-member`)
 │       │   ├── MemberAvatar.tsx
 │       │   ├── TripMemberAutocomplete.tsx
 │       │   ├── TripMemberRenderer.tsx
