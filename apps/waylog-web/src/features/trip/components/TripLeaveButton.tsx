@@ -1,43 +1,45 @@
 import { Button, type ButtonProps } from "@mui/material";
 import { useTrip } from "@waylog/domains/modules/trip";
-import { TripPermission, useTripPermission } from "@waylog/domains/modules/trip-member";
+import { findHostSuccessor, getTripRole, TripPermission, useTripMembers, useTripPermission } from "@waylog/domains/modules/trip-member";
+import { useAuth } from "@waylog/domains/clients";
 import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
 import { useNavigate } from "react-router";
 import { assert } from "@waylog/utility";
+import { toast } from "sonner";
 
 interface Props extends Omit<ButtonProps, 'children'> {
   tripId: string;
 }
 export function TripLeaveButton({ tripId, color = 'error', ...props }: Props) {
-  const {
-    data: { name },
-    remove: removeTrip,
-    leave: leaveTrip
-  } = useTrip(tripId);
-  const permission = useTripPermission(tripId, [TripPermission.삭제, TripPermission.탈퇴]);
-  const isDeletable = permission[TripPermission.삭제];
+  const { data: auth } = useAuth();
+  const { leave: leaveTrip } = useTrip(tripId);
+  const { data: members } = useTripMembers(tripId);
+  const isLeavable = useTripPermission(tripId, TripPermission.탈퇴);
 
-  assert(isDeletable || permission[TripPermission.탈퇴], '여행을 삭제하거나 나갈 수 있는 멤버가 아닙니다.');
+  assert(isLeavable, '여행을 나갈 수 있는 멤버가 아닙니다.');
 
   const confirm = useConfirmDialog();
   const navigate = useNavigate();
 
-  const handleDelete = async () => {
-    if (await confirm(`${name} 여행을 삭제할까요? 모든 멤버의 여행에서도 사라져요.`)) {
-      navigate('/', { replace: true });
-      removeTrip();
-    }
+  const isHost = getTripRole(members, auth.id) === 'host';
+  const hostSuccessor = findHostSuccessor(members);
+
+  const getConfirmMessage = () => {
+    if (!isHost) return '여행을 나가시겠어요?';
+    if (hostSuccessor == null) return '마지막 멤버예요. 나가면 여행이 삭제돼요. 여행에서 나가시겠어요?';
+    return `나가면 ${hostSuccessor.name}님이 호스트가 돼요. 여행에서 나가시겠어요?`;
   };
 
   const handleLeave = async () => {
-    if (await confirm(`여행을 나가시겠어요?`)) {
+    if (await confirm(getConfirmMessage())) {
       navigate('/', { replace: true });
-      leaveTrip();
+      try {
+        await leaveTrip();
+      } catch {
+        toast.error('여행에서 나가지 못했어요. 잠시 후 다시 시도해 주세요.');
+      }
     }
   };
 
-  if (isDeletable) {
-    return <Button {...props} color={color} onClick={handleDelete}>여행 삭제</Button>
-  }
   return <Button {...props} color={color} onClick={handleLeave}>여행에서 나가기</Button>
 }
