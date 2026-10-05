@@ -1,12 +1,13 @@
 import type { PlaceCategoryType } from '@waylog/domains/modules/place'
 import type { Location } from '@waylog/domains/modules/location'
-import { Suspense } from 'react'
+import { Suspense, useState } from 'react'
 import { StyleSheet, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { ErrorBoundary } from '@waylog/react'
 import { palette } from '~shared/config/tokens'
 import { useScrollStatus } from '~shared/hooks/interaction/useScrollStatus'
 import { useTabSwipeLock } from '~shared/hooks/useTabSwipeLock'
+import { TripDefaultLocationTooltip } from './explorer-filters/TripDefaultLocationTooltip'
 import { useExplorerFilterParams } from './explorer-filters/useExplorerFilterParams'
 import { ExploredPlacesRankingSection } from './explorer-ranking/ExploredPlacesRankingSection'
 import { RecentHotPlacesSection } from './explorer-recent/RecentHotPlacesSection'
@@ -24,6 +25,7 @@ interface Props {
 
 export function ExplorerCatalogScreen({ bottomContentInset = 0 }: Props) {
   const { location, category } = useExplorerFilterParams()
+  const [initialLocation] = useState(location)
   const [viewMode, setViewMode] = useExplorerViewMode()
   const { isScrollDown, onScroll } = useScrollStatus()
   const headerHeight = useExplorerScreenHeaderHeight()
@@ -37,7 +39,9 @@ export function ExplorerCatalogScreen({ bottomContentInset = 0 }: Props) {
         extrudeAxis="y"
         viewMode={viewMode}
         onChangeViewMode={setViewMode}
-      />
+      >
+        {initialLocation != null && <TripDefaultLocationTooltip />}
+      </ExplorerScreenHeader>
 
       {viewMode === 'map' ? (
         <Suspense fallback={<ExplorerMapSkeleton />}>
