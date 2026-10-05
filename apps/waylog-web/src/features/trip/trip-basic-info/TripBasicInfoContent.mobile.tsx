@@ -7,7 +7,7 @@ import { BottomNavigation } from '~shared/components/BottomNavigation'
 import { ErrorBoundary } from "@waylog/react"
 import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState'
 import { TripChecklist } from '../trip-checklist/TripChecklist'
-import { TripChecklistAddButton } from '../trip-checklist/TripChecklistAddButton'
+import { TripChecklistAddFab } from '../trip-checklist/TripChecklistAddButton'
 import { TripDeadlineChecklist } from '../trip-checklist/TripDeadlineChecklist'
 import { TripMemberSection } from '../trip-member/TripMemberSection.mobile'
 import { TripMemo } from '../trip-memo/TripMemo.mobile'
@@ -132,7 +132,7 @@ export function TripBasicInfoContent({ tripId }: Props) {
         {currentTab === 'checklist' && (
           <>
             <TripChecklist tripId={tripId} paddingBottom={`${BottomNavigation.HEIGHT}px`} />
-            <TripChecklistAddButton tripId={tripId} size="large" sx={{ position: 'absolute', bottom: 16, right: 16 }} />
+            <TripChecklistAddFab tripId={tripId} size="large" sx={{ position: 'absolute', bottom: 16, right: 16 }} />
           </>
         )}
 
