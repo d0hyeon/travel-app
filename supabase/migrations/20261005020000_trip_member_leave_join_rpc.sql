@@ -27,7 +27,7 @@ BEGIN
     SELECT m.user_id INTO successor
     FROM public.trip_members m
     WHERE m.trip_id = p_trip_id AND m.user_id <> caller AND m.left_at IS NULL
-    ORDER BY m.created_at
+    ORDER BY m.created_at, m.id
     LIMIT 1;
 
     IF successor IS NULL THEN

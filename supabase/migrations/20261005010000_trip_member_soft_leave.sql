@@ -130,7 +130,7 @@ BEGIN
     SELECT m.user_id INTO successor
     FROM public.trip_members m
     WHERE m.trip_id = owned_trip.id AND m.user_id <> target_user AND m.left_at IS NULL
-    ORDER BY m.created_at
+    ORDER BY m.created_at, m.id
     LIMIT 1;
 
     IF successor IS NOT NULL THEN

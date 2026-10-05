@@ -105,7 +105,6 @@ SELECT pg_temp._seed('t_legacy_host', 'h', false, ARRAY['a'], ARRAY[]::text[]);
 SELECT pg_temp._seed('t_legacy_alone', 'h', false, ARRAY[]::text[], ARRAY[]::text[]);
 SELECT pg_temp._seed('t_unauth', 'h', true, ARRAY['a'], ARRAY[]::text[]);
 
--- Foreign keys and triggers stay active everywhere except the transport/ticket seed, whose sync-job triggers are not under test.
 SET LOCAL session_replication_role = replica;
 SELECT pg_temp._seed_records('t_member_leave', 'a');
 SELECT pg_temp._seed_records('t_rejoin', 'c');
