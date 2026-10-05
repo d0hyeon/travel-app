@@ -789,18 +789,21 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          left_at: string | null
           trip_id: string
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
+          left_at?: string | null
           trip_id: string
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
+          left_at?: string | null
           trip_id?: string
           user_id?: string
         }
@@ -1351,6 +1354,8 @@ export type Database = {
         }
       }
       has_blocked: { Args: { target_user: string }; Returns: boolean }
+      join_trip: { Args: { p_trip_id: string }; Returns: undefined }
+      leave_trip: { Args: { p_trip_id: string }; Returns: undefined }
       prepare_account_deletion: {
         Args: { target_user: string }
         Returns: string[]
