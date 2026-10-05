@@ -12,15 +12,12 @@ import LockIcon from '@mui/icons-material/Lock';
 import 'swiper/css'
 // @ts-ignore
 import 'swiper/css/pagination'
-import { useAuth } from '@waylog/domains/clients'
 
 interface Props {
   post: Post
 }
 
 export function PostCard({ post }: Props) {
-  const { data: auth } = useAuth({ required: false });
-
   return (
     <Box key={post.id} bgcolor="white" borderRadius={4} overflow="hidden">
       <Box sx={{ aspectRatio: '1 / 1', overflow: 'hidden' }}>
@@ -59,10 +56,7 @@ export function PostCard({ post }: Props) {
               </>
             )}
           </Stack>
-          {auth == null
-            ? <PostLikeButton.Readonly postId={post.id} />
-            : <PostLikeButton postId={post.id} />
-          }
+          <PostLikeButton postId={post.id} />
         </Stack>
         {post.description && (
           <Typography variant="body2" color="textSecondary" paddingTop={1.5} paddingX={0.5}>
