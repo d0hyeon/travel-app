@@ -41,7 +41,6 @@ export function ToastRenderer() {
             content: 'toast-content'
           },
         }}
-        duration={50000}
         position="top-center"
         icons={{
           info: <InfoIcon fontSize="small" />,
