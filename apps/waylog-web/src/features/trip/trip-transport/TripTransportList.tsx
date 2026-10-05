@@ -1,11 +1,8 @@
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff'
-import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone'
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Button,
   Box,
   Skeleton,
   Stack,
@@ -18,59 +15,30 @@ import {
   useTripScheduledFlights,
 } from '@waylog/domains/modules/trip-transport'
 import { useAirportArrivalGuidances } from '@waylog/domains/modules/airport-arrival-guidance'
-import { getSupportedFlightStatusAirportCodes } from '@waylog/domains/modules/flight-status'
-import { useAirports } from '@waylog/domains/modules/airport'
 import { formatDate } from 'date-fns'
-import { useMemo } from 'react'
-import { useNavigate } from 'react-router'
+import { useMemo, type ReactNode } from 'react'
 import { TransportCard } from './TransportCard'
+import { generatePath, useNavigate } from 'react-router'
+import { AppRoute } from '@waylog/routes'
 
 interface Props extends StackProps {
   tripId: string
-  onTransportClick?: (transportId: string) => void
+  emptyFallback?: ReactNode
 }
 
-export function TripTransportList({ tripId, onTransportClick, ...props }: Props) {
+export function TripTransportList({ tripId, emptyFallback, ...props }: Props) {
   const { data: transports } = useTripScheduledFlights(tripId)
   const airportArrivalGuidances = useAirportArrivalGuidances({
     tripId,
     transportIds: transports.map((transport) => transport.id),
   })
-  const navigate = useNavigate()
 
   // 렌더마다 기준 시각이 달라지면 목록이 흔들린다. 조회 결과가 바뀔 때만 다시 가른다.
   const { past, upcoming } = useMemo(() => splitByDeparture(transports, new Date()), [transports])
   const upcomingGroups = useMemo(() => groupByDepartureDate(upcoming), [upcoming])
-  const { data: airports } = useAirports()
-  const supportedAirportNames = getSupportedFlightStatusAirportCodes()
-    .map((airportCode) => airports.find((airport) => airport.code === airportCode)?.nameKo)
-    .filter((airportName): airportName is string => airportName != null)
-    .join(', ')
+  const navigate = useNavigate()
 
-  if (transports.length === 0) {
-    return (
-      <Stack alignItems="center" p={3} gap={1.5} border="1px solid" borderColor="divider" borderRadius={3} bgcolor="rgba(76, 132, 255, 0.08)" {...props}>
-        <Box display="flex" alignItems="center" justifyContent="center" width={56} height={56} borderRadius="50%" bgcolor="background.paper">
-          <FlightTakeoffIcon color="primary" />
-        </Box>
-        <Typography variant="subtitle1" fontWeight={700}>
-          탑승권을 등록해보세요
-        </Typography>
-        <Typography variant="body2" color="text.secondary" textAlign="center" lineHeight={1.6}>
-          탑승 전, 여정 변동(지연, 결항, 탑승구 변경)등{`\n`}중요한 상황을 놓치지 않도록 알려드려요
-        </Typography>
-        <Stack direction="row" alignItems="center" gap={0.75} px={1.5} py={0.75} borderRadius={3} bgcolor="background.paper">
-          <NotificationsNoneIcon fontSize="small" color="action" />
-          <Typography variant="caption" color="text.secondary">
-            * 여정 변동 알림은 {supportedAirportNames} 출발 항공편에 한해 지원돼요.
-          </Typography>
-        </Stack>
-        <Button variant="contained" startIcon={<FlightTakeoffIcon />} onClick={() => navigate(`/trip/${tripId}/transport/new`)}>
-          탑승권 등록
-        </Button>
-      </Stack>
-    )
-  }
+  if (transports.length === 0) return emptyFallback;
 
   return (
     <Stack gap={2} {...props}>
@@ -88,7 +56,7 @@ export function TripTransportList({ tripId, onTransportClick, ...props }: Props)
                   key={transport.id}
                   transport={transport}
                   airportArrivalGuidance={airportArrivalGuidances.find((item) => item.transportId === transport.id)?.guidance}
-                  onClick={() => onTransportClick?.(transport.id)}
+                  onClick={() => navigate(generatePath(AppRoute.여행_교통편_상세, { tripId, transportId: transport.id }))}
                 />
               ))}
             </Stack>
@@ -106,7 +74,7 @@ export function TripTransportList({ tripId, onTransportClick, ...props }: Props)
               key={transport.id}
               transport={transport}
               airportArrivalGuidance={airportArrivalGuidances.find((item) => item.transportId === transport.id)?.guidance}
-              onClick={() => onTransportClick?.(transport.id)}
+              onClick={() => navigate(generatePath(AppRoute.여행_교통편_상세, { tripId, transportId: transport.id }))}
             />
           ))}
         </Stack>

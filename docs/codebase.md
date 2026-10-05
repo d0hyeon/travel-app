@@ -947,6 +947,11 @@ src/
 - 상세 화면 조립과 라우트 셸은 `transport-detail/`에 두고, 탑승권 목록·뷰어·업로드는
   `transport-ticket/`에 둔다. 상세 데이터 섹션(요약·실시간·운행 정보·길찾기)은
   `trip-transport/` 루트에 둔다.
+- 탑승권이 없을 때의 빈 화면은 `TripTransportList`가 `empty` prop 으로 받아 그리며, 기기별 셸이 각자 넘긴다.
+  모바일(`TransportEmptyCard.mobile.tsx`)은 앱과 같은 혜택 카드이고 "자세히 보기"가 바텀시트
+  (`SupportedNotificationSheet.mobile.tsx`)를 연다. 데스크톱(`TransportEmptyCard.desktop.tsx`)은 점선 안내 박스이고
+  "여정 변동 알림 지원 공항"이 같은 내용의 Dialog(`SupportedNotificationDialog.desktop.tsx`)를 연다.
+  두 구현은 코드를 공유하지 않는다.
 - 앱도 같은 소유권 축을 따른다. 다만 앱의 `TransportCreationScreen.tsx`는 생성 화면과
   제출을 직접 조율하고, `transport-form-funnel/`에는 앱 전용 퍼널 셸과 단계 컴포넌트만 둔다.
 - **진입**: 여행 상세 → 정보 탭 → 교통편 서브탭.

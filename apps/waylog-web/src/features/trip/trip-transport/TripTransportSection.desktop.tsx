@@ -2,6 +2,7 @@ import { Button, Card, CardContent, CardHeader, Stack } from '@mui/material'
 import { AsyncBoundary } from '@waylog/react'
 import { Link, useNavigate } from 'react-router'
 import { TransportDetailSectionError } from './transport-detail/TransportDetailSectionError'
+import { TransportEmptyCard } from './TransportEmptyCard.desktop'
 import { TripTransportList } from './TripTransportList'
 
 interface Props {
@@ -30,7 +31,7 @@ export function TripTransportSection({ tripId }: Props) {
         >
           <TripTransportList
             tripId={tripId}
-            onTransportClick={(transportId) => navigate(`/trip/${tripId}/transport/${transportId}`)}
+            emptyFallback={<TransportEmptyCard />}
           />
         </AsyncBoundary>
       </CardContent>

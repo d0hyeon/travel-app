@@ -2,6 +2,7 @@ import { Stack, type StackProps } from '@mui/material'
 import { AsyncBoundary } from '@waylog/react'
 import { useNavigate } from 'react-router'
 import { TransportDetailSectionError } from './transport-detail/TransportDetailSectionError'
+import { TransportEmptyCard } from './TransportEmptyCard.mobile'
 import { TripTransportList } from './TripTransportList'
 
 interface Props extends StackProps {
@@ -23,7 +24,7 @@ export function TripTransportSection({ tripId, ...props }: Props) {
       >
         <TripTransportList
           tripId={tripId}
-          onTransportClick={(transportId) => navigate(`/trip/${tripId}/transport/${transportId}`)}
+          emptyFallback={<TransportEmptyCard tripId={tripId} />}
         />
       </AsyncBoundary>
     </Stack>
