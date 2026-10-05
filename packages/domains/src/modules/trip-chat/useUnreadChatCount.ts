@@ -1,12 +1,17 @@
 import { useState, useEffect } from 'react'
 import type { ChatMessage } from './tripChat.types'
-import { getStorage } from '../storage'
+import { getStorage, hydrateStorage } from '../storage'
 import { useTripChatMessages } from './useTripChatMessages'
 
-const STORAGE_KEY = (tripId: string) => `chat_last_read_${tripId}`
+const STORAGE_KEY_PREFIX = 'chat_last_read_'
+const STORAGE_KEY = (tripId: string) => `${STORAGE_KEY_PREFIX}${tripId}`
 
 // 웹은 EventTarget 을 썼지만 RN 에 없다. 구독을 직접 들고 있는다.
 const listeners = new Set<(tripId: string, lastReadAt: string) => void>()
+
+export function hydrateLastReadAt(): Promise<void> {
+  return hydrateStorage(STORAGE_KEY_PREFIX)
+}
 
 export function getLastReadAt(tripId: string): string | null {
   return getStorage().get(STORAGE_KEY(tripId))

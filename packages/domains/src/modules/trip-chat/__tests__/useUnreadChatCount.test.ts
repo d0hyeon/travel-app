@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { getUnreadCount, markAsRead, getLastReadAt } from '../useUnreadChatCount'
+import { getUnreadCount, markAsRead, getLastReadAt, hydrateLastReadAt } from '../useUnreadChatCount'
 import { configureStorage } from '../../storage'
 import type { ChatMessage } from '../tripChat.types'
 
@@ -54,5 +54,24 @@ describe('markAsRead', () => {
     const saved = new Date(getLastReadAt('trip-1')!).getTime()
     expect(saved).toBeGreaterThanOrEqual(before)
     expect(saved).toBeLessThanOrEqual(after)
+  })
+})
+
+describe('hydrateLastReadAt', () => {
+  it('비동기 저장소의 읽은 시각을 동기 조회로 읽을 수 있게 미리 채운다', async () => {
+    const stored = new Map([
+      ['chat_last_read_trip-1', '2026-05-31T10:00:00Z'],
+      ['other_key', 'x'],
+    ])
+    configureStorage({
+      getItem: (key) => Promise.resolve(stored.get(key) ?? null),
+      setItem: () => {},
+      getAllKeys: () => Promise.resolve([...stored.keys()]),
+      multiGet: (keys) => Promise.resolve(keys.map((key) => [key, stored.get(key) ?? null] as const)),
+    })
+
+    expect(getLastReadAt('trip-1')).toBeNull()
+    await hydrateLastReadAt()
+    expect(getLastReadAt('trip-1')).toBe('2026-05-31T10:00:00Z')
   })
 })

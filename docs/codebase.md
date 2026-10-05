@@ -228,7 +228,7 @@ packages/
 │           ├── place-bookmark/  # 장소 북마크(내 북마크 추가·해제·목록). 여행에 담기(trip_places)와 무관
 │           ├── post/            # 커뮤니티 포스트
 │           ├── route/           # 경로
-│           ├── storage/         # 스토리지
+│           ├── storage/         # 동기 get/set 캐시 어댑터. 비동기 저장소(앱 AsyncStorage)는 hydrateStorage(prefix)로 캐시를 미리 채워야 첫 get 이 null 이 되지 않는다 — 앱은 AppBootstrap 이 hydrateLastReadAt 을 기다린다
 │           ├── tourism-trend/   # 관광 트렌드
 │           ├── transport/       # 이동수단 vocabulary
 │           ├── trip/            # 여행

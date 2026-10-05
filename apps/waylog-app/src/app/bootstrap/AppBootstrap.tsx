@@ -8,6 +8,7 @@ import { appBundleManager } from './appBundleManager'
 import { checkRequiredAppUpdate, type RequiredAppUpdate } from './appUpdateRequirement'
 import { ForcedUpdateScreen } from './ForcedUpdateScreen'
 import { prepareSession } from '@waylog/domains/clients'
+import { hydrateLastReadAt } from '@waylog/domains/modules/trip-chat'
 
 void SplashScreen.preventAutoHideAsync()
 
@@ -28,6 +29,7 @@ export function AppBootstrap({ children }: PropsWithChildren) {
     const initializationTasks = [
       waitForResolveBundle(),
       prepareSession(),
+      hydrateLastReadAt(),
       checkRequiredAppUpdate().then(setRequiredUpdate),
       delay(MIN_SPLASH_TIME)
     ];

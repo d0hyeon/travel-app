@@ -3,6 +3,8 @@ export type StorageValue = string | null
 export interface PlatformStorage {
   getItem(key: string): StorageValue | Promise<StorageValue>
   setItem(key: string, value: string): void | Promise<void>
+  getAllKeys?(): Promise<readonly string[]>
+  multiGet?(keys: readonly string[]): Promise<readonly (readonly [string, StorageValue])[]>
 }
 
 export interface Storage {
@@ -15,9 +17,20 @@ let configuredStorage: Storage = {
   get: (key) => memoryValues.get(key) ?? null,
   set: (key, value) => void memoryValues.set(key, value),
 }
+let hydrateConfiguredStorage = async (_keyPrefix: string): Promise<void> => {}
 
 export function configureStorage(platformStorage: PlatformStorage): void {
   const cache = new Map<string, string>()
+
+  hydrateConfiguredStorage = async (keyPrefix) => {
+    if (platformStorage.getAllKeys == null || platformStorage.multiGet == null) return
+
+    const keys = (await platformStorage.getAllKeys()).filter((key) => key.startsWith(keyPrefix))
+    const entries = await platformStorage.multiGet(keys)
+    entries.forEach(([key, value]) => {
+      if (value != null && !cache.has(key)) cache.set(key, value)
+    })
+  }
 
   configuredStorage = {
     get(key) {
@@ -38,6 +51,10 @@ export function configureStorage(platformStorage: PlatformStorage): void {
     },
   }
 
+}
+
+export function hydrateStorage(keyPrefix: string): Promise<void> {
+  return hydrateConfiguredStorage(keyPrefix)
 }
 
 export function getStorage(): Storage {
