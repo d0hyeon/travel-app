@@ -8,7 +8,7 @@ import { Typography } from '~shared/components/design-system'
 import { AppBar } from '~shared/components/design-system/AppBar'
 import { palette } from '~shared/config/tokens'
 import { BlockedUserListItem } from './BlockedUserListItem'
-import { toast } from 'sonner-native'
+import { toast } from '~shared/components/toast/toast'
 
 export function BlockedUsersScreen() {
   return (

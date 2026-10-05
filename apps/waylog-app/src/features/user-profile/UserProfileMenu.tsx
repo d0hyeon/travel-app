@@ -2,7 +2,7 @@ import { useBlockedUsers, useBlockUser, useUnblockUser } from '@waylog/domains/m
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { PopMenu } from '~shared/components/PopMenu'
 import { useReportSheet } from '~features/report/useReportSheet'
-import { toast } from 'sonner-native'
+import { toast } from '~shared/components/toast/toast'
 
 export function UserProfileMenu({ userId }: { userId: string }) {
   const { data: blockedUsers } = useBlockedUsers()

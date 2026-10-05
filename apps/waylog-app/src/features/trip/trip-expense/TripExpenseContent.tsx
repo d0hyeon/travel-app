@@ -13,7 +13,7 @@ import { useExpenseFormBottomSheet } from './useExpenseFormOverlay'
 import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
 import { useOverlay } from '~shared/hooks/useOverlay'
 import { FLOATING_TAB_BAR_RESERVE } from '~shared/components'
-import { toast } from 'sonner-native'
+import { toast } from '~shared/components/toast/toast'
 
 interface Props {
   tripId: string

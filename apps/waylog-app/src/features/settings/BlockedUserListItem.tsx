@@ -2,7 +2,7 @@ import { useUnblockUser } from '@waylog/domains/modules/user-block'
 import type { UserProfile } from '@waylog/domains/modules/user-profile'
 import { useLoading } from '@waylog/react'
 import { StyleSheet } from 'react-native'
-import { toast } from 'sonner-native'
+import { toast } from '~shared/components/toast/toast'
 import { Avatar, Button, Stack, Typography } from '~shared/components/design-system'
 
 interface Props {

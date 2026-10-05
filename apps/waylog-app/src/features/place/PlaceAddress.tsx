@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import * as Clipboard from 'expo-clipboard'
 import { Pressable, StyleSheet } from 'react-native'
-import { toast } from 'sonner-native'
+import { toast } from '~shared/components/toast/toast'
 import { Stack, Typography } from '~shared/components/design-system'
 import { palette } from '~shared/config/tokens'
 

@@ -13,7 +13,7 @@ import { PostAuthor } from './PostAuthor'
 import { PostLikeButton } from './PostLikeButton'
 import { PostMenu } from './PostMenu'
 import { LoadableImage } from '~shared/components/LoadableImage'
-import { toast } from 'sonner-native'
+import { toast } from '~shared/components/toast/toast'
 
 export type PostDetailParams = { postId: string }
 

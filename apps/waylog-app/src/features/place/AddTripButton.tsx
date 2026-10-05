@@ -1,5 +1,5 @@
 import { createTripPlace } from '@waylog/domains/modules/place'
-import { toast } from 'sonner-native'
+import { toast } from '~shared/components/toast/toast'
 import { Button } from '~shared/components/design-system'
 import { assert } from '~shared/utils/assert'
 import { useScheduledTrips } from '~features/trip/useScheduledTrips'

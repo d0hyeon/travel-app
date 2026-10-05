@@ -12,7 +12,7 @@ import { usePlaceDetailOverlay } from '~features/place/place-detail/usePlaceDeta
 import { PlacePhotoSection } from '~features/trip/trip-place/PlacePhotoSection'
 import { PlaceForm, type PlaceFormRef } from './PlaceForm'
 import { PlaceTitleButton } from './PlaceTitleButton'
-import { toast } from 'sonner-native'
+import { toast } from '~shared/components/toast/toast'
 import { assert } from '~shared/utils/assert'
 
 interface OpenParams {
