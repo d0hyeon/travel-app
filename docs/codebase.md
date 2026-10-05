@@ -234,14 +234,14 @@ packages/
 │           ├── trip-chat/       # 여행 채팅
 │           ├── trip-recommend/  # 추천 장소
 │           ├── trip-checklist/  # 여행 준비물
-│           ├── trip-member/     # 여행 멤버·역할 권한. `TripPermission`(삭제·탈퇴·초대)과 역할별 정책 표(`tripPermission.utils.ts`)를 소유하고, `useTripPermission(tripId, 권한 | 권한[])`이 단건은 boolean, 복수는 `permission[TripPermission.삭제]`로 접근하는 객체를 돌려준다. 멤버가 아니면 모든 권한이 false. 서버 RLS 강제가 아닌 UI 권한이다
+│           ├── trip-member/     # 여행 멤버·역할 권한·탈퇴. 탈퇴는 `trip_members.left_at` 기록(행 삭제 없음, NULL=활성)이며 `leaveTrip`(`leave_trip` RPC, 결과 `'left' | 'last_member'`)·`joinTrip`(`join_trip` RPC, 탈퇴 멤버 복구)이 호출한다. `getTripMembersByTripId`는 탈퇴 멤버도 돌려주되 `tripMember.api.ts`의 `toTripMember`가 이름을 `LEFT_MEMBER_NAME`('탈퇴한 유저')·`profileUrl`을 null로 가린다(`hasLeft`·`joinedAt` 제공). `findHostSuccessor`(`tripMember.utils.ts`)는 호스트 승계 대상(가장 먼저 참여한 활성 멤버) 표시용이며 승계의 원천은 DB `leave_trip`이다. `TripPermission`(탈퇴·초대)과 역할별 정책 표(`tripPermission.utils.ts`: 호스트 탈퇴·초대, 멤버 탈퇴)를 소유하고, `useTripPermission(tripId, 권한 | 권한[])`이 단건은 boolean, 복수는 `permission[TripPermission.초대]`로 접근하는 객체를 돌려준다. 멤버가 아니거나 탈퇴했으면 모든 권한이 false(`getTripRole`). 서버 RLS 강제가 아닌 UI 권한이다. `useTrip().leave`·`useTrips().leave`는 결과가 `'last_member'`면 `deleteTrip`으로 여행을 삭제한다
 │           ├── trip-memo/       # 여행 메모
 │           ├── trip-transport/  # 여행 교통편·티켓
 │           ├── weather/         # 날씨 예보
 │           ├── user-profile/    # 유저 프로필
 │           └── tripPlanRefetch.ts  # 계획 탭 공동 편집 갱신 정책 (모듈 공용)
 └── react/                      # @waylog/react — 플랫폼 비의존 훅
-supabase/                       # DB 마이그레이션·엣지 함수
+supabase/                       # DB 마이그레이션·엣지 함수·DB 시나리오 테스트(`tests/*.scenarios.sql`). 멤버 탈퇴는 `migrations/20261005010000_trip_member_soft_leave.sql`(`trip_members.left_at`, 뷰 `active_trip_members`, 접근 지점을 활성 멤버로 한정)과 `20261005020000_trip_member_leave_join_rpc.sql`(RPC `leave_trip`·`join_trip`)이 정의한다. 푸시·알림 Edge Function(`chat-web-push`·`airport-arrival-guidance`·`flight-status-watch`·`dispatch-notifications`)은 `active_trip_members`를 읽는다. `migrations/20261005000000_backfill_trip_host_members.sql`은 `trip_members` 행이 없는 호스트에게 행을 채우는 독립 마이그레이션(`left_at` 미참조)이다. 세 마이그레이션은 아직 적용 전이며 `packages/domains/src/gateways/client/_database.types.ts`의 `left_at`·`join_trip`·`leave_trip`은 `pnpm gen-types` 전까지 손으로 맞춘 값이다. 배포 순서와 옛 클라이언트: (0) 서버가 쥔 최소 앱 버전(`app_version_policies`, 강제 업데이트 장치)을 올려 이 변경 이전 앱 빌드가 계속 실행되지 못하게 한다 → (1) `20261005000000_backfill_trip_host_members.sql` 을 가장 먼저 단독 적용(독립적이며 안전, 적용 뒤에는 `toTripMember` 의 옛 호스트용 `id` 폴백이 불필요해짐) 후 나머지 두 마이그레이션 적용 → (2) Edge Function 4개 배포 → (3) 웹 배포 → (4) 앱 릴리스 → `pnpm gen-types` 후 `supabase/schema.sql` 재생성. 마이그레이션 적용 뒤 업데이트하지 않은 클라이언트는 (i) 옛 `joinTrip` 이 단순 insert 라 새 클라이언트로 탈퇴한 사용자에게는 유니크 제약(23505)에 걸리고 옛 코드가 그 에러를 삼켜 재가입이 조용히 실패하며 RLS 가 접근을 막는다, (ii) 옛 `getTripMembersByTripId` 가 `left_at` 을 무시해 탈퇴 멤버가 실명으로 목록·인원수·선택기에 나온다, (iii) 옛 `leaveTrip` 이 `trip_members_delete` 정책으로 자기 행을 DELETE 해 이력에서 이름이 사라진다, (iv) 앱의 옛 `TripLeaveButton` 은 호스트가 나가기를 누르면 `removeTrip()` 으로 여행 전체를 삭제하는데 `deleteTrip` 이 `trips` 행보다 사진을 먼저 지우므로, 이는 `trips_delete` 정책이 아니라 최소 앱 버전 게이트로 막아야 한다(정책만 두면 반쯤 지워진 여행이 남는다). 서버 보강 두 가지는 이 변경의 범위가 아니라 배포 게이트다: 운영에 `Allow all for trip_members` 정책(USING true)이 있는지 확인해 있으면 삭제하고, `trips_update` 를 제한한다(현재 활성 멤버 누구나 `trips.user_id` 를 바꿀 수 있다). 둘 다 클라이언트가 호스트 불변식을 우회하게 한다
 tools/                          # eslint 커스텀 룰
 package.json                    # 워크스페이스 루트 (앱으로 위임하는 스크립트)
 eslint.config.js                # 레포 전역 lint 설정 + 의존성
@@ -548,9 +548,9 @@ src/
 │       │   ├── TripFormDialog.tsx
 │       │   ├── TripDurationEditableText.tsx
 │       │   ├── TripNameEditableText.tsx
-│       │   ├── TripInviteButton.tsx        # 초대 권한 판정은 호출자(멤버 섹션)가 한다. 이 버튼은 권한 없는 상태를 입력으로 받지 않는다
-│       │   ├── TripLeaveButton.tsx         # 삭제 권한(호스트)이면 "여행 삭제"와 삭제 확인, 아니면 멤버로 보고 "여행에서 나가기"
-│       │   └── TripLeavePopMenuItem.tsx    # 위와 같은 분기의 데스크탑 메뉴 항목
+│       │   ├── TripInviteButton.tsx        # 초대 권한 판정은 호출자(멤버 섹션)가 한다. 이 버튼은 권한 없는 상태를 입력으로 받지 않는다(웹·앱 모두 멤버 섹션이 초대 권한으로 게이트하고, 버튼은 내부에서 assert 로 방어한다)
+│       │   ├── TripLeaveButton.tsx         # 단일 "여행에서 나가기". 확인 문구는 호스트 승계 대상 유무·마지막 멤버(여행 삭제)에 따라 달라진다
+│       │   └── TripLeavePopMenuItem.tsx    # 위와 같은 동작의 데스크탑 메뉴 항목
 │       ├── hooks/                          # 여행 공통 훅
 │       │   └── useTripCluastering.ts
 │       │
@@ -612,9 +612,9 @@ src/
 │       │   ├── CreateTripCardButton.tsx
 │       │   ├── trip-list.utils.ts
 │       │   └── (앱) GuestTripsScreen.tsx — 비로그인 내 여행 탭: 제목·아이콘 타일·안내 문구·하단 "로그인하고 시작하기" 버튼
-│       ├── trip-member/                   # 멤버 관리 (데이터·권한 로직은 `@waylog/domains/modules/trip-member`)
+│       ├── trip-member/                   # 멤버 관리 (데이터·권한 로직은 `@waylog/domains/modules/trip-member`). 멤버 섹션과 선택 UI(지출·준비물·티켓 폼)는 활성 멤버만, 지출 내역·정산 표시는 탈퇴 멤버 포함 전체 멤버를 쓴다
 │       │   ├── MemberAvatar.tsx
-│       │   ├── TripMemberAutocomplete.tsx
+│       │   ├── TripMemberAutocomplete.tsx   # 현재 사용처 없음
 │       │   ├── TripMemberRenderer.tsx
 │       │   ├── TripMemberSection.mobile.tsx
 │       │   └── TripMemberSection.desktop.tsx
