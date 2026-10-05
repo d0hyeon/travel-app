@@ -2,7 +2,9 @@
   "applinks": {
     "details": [
       {
-        "appIDs": ["APPLE_TEAM_ID.me.waylog.app"],
+        "appIDs": [
+          "JHQ5538PH7.me.waylog.app"
+        ],
         "components": [
           {
             "/": "/trip/invite/*",
