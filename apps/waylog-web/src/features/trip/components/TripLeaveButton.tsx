@@ -11,27 +11,17 @@ interface Props extends Omit<ButtonProps, 'children'> {
   tripId: string;
 }
 export function TripLeaveButton({ tripId, color = 'error', ...props }: Props) {
-  const { data: auth } = useAuth();
   const { leave: leaveTrip } = useTrip(tripId);
-  const { data: members } = useTripMembers(tripId);
   const isLeavable = useTripPermission(tripId, TripPermission.탈퇴);
 
-  assert(isLeavable, '여행을 나갈 수 있는 멤버가 아닙니다.');
+  assert(isLeavable, '권한이 없습니다.');
 
   const confirm = useConfirmDialog();
   const navigate = useNavigate();
 
-  const isHost = getTripRole(members, auth.id) === 'host';
-  const hostSuccessor = findHostSuccessor(members);
-
-  const getConfirmMessage = () => {
-    if (!isHost) return '여행을 나가시겠어요?';
-    if (hostSuccessor == null) return '마지막 멤버예요. 나가면 여행이 삭제돼요. 여행에서 나가시겠어요?';
-    return `나가면 ${hostSuccessor.name}님이 호스트가 돼요. 여행에서 나가시겠어요?`;
-  };
 
   const handleLeave = async () => {
-    if (await confirm(getConfirmMessage())) {
+    if (await confirm("여행을 나가시겠어요?")) {
       navigate('/', { replace: true });
       try {
         await leaveTrip();
