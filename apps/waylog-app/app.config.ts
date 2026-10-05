@@ -18,8 +18,7 @@ const config: ExpoConfig = {
     bundleIdentifier: "me.waylog.app",
     usesAppleSignIn: true,
     config: { googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY },
-    /** 플랜 등록 후 주석 해제 */
-    // associatedDomains: ["applinks:waylog.me", "applinks:www.waylog.me"],
+    associatedDomains: ["applinks:waylog.me", "applinks:www.waylog.me"],
     icon: "./assets/logo.png",
   },
   android: {
@@ -44,9 +43,6 @@ const config: ExpoConfig = {
     fallbackToCacheTimeout: 0,
   },
   plugins: [
-    // Expo mod 는 나중에 등록된 것이 먼저 실행된다. 다른 플러그인이 넣은
-    // entitlement 를 지우려면 반드시 맨 앞에 둔다.
-    "./plugins/withPersonalTeamSigning",
     "expo-web-browser",
     "expo-updates",
     "expo-apple-authentication",
