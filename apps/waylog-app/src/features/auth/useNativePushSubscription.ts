@@ -3,7 +3,7 @@ import { useSuspenseQuery } from '@waylog/react'
 import Constants from 'expo-constants'
 import * as Device from 'expo-device'
 import * as Notifications from 'expo-notifications'
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import { Platform } from 'react-native'
 import {
   addPushSubscription,
@@ -30,12 +30,15 @@ export function useNativePushSubscription() {
   const projectId = getProjectId()
 
   const isEnabled = Device.isDevice && projectId != null
-  const [token, setToken] = useState<string | null>(null)
 
   const { data: registeredSubscription, refetch } = useSuspenseQuery({
-    queryKey: ['push_subscriptions', currentUser.id, token],
-    queryFn: () => {
-      if (token == null) return null
+    queryKey: ['push_subscriptions', currentUser.id],
+    queryFn: async () => {
+      if (!isEnabled) return null
+      const { status } = await Notifications.getPermissionsAsync()
+      if (status !== 'granted') return null
+
+      const { data: token } = await Notifications.getExpoPushTokenAsync({ projectId })
       return findPushSubscription(currentUser.id, token)
     },
   })
@@ -76,17 +79,16 @@ export function useNativePushSubscription() {
     const { data: nextToken } = await Notifications.getExpoPushTokenAsync({ projectId })
 
     await addPushSubscription(currentUser.id, nextToken)
-    setToken(nextToken)
     await refetch()
   }, [currentUser.id, isEnabled, projectId, refetch])
 
   const unsubscribe = useCallback(async () => {
-    if (token == null) return
+    if (!isEnabled) return
 
+    const { data: token } = await Notifications.getExpoPushTokenAsync({ projectId })
     await removePushSubscription(currentUser.id, token)
-    setToken(null)
     await refetch()
-  }, [currentUser.id, refetch, token])
+  }, [currentUser.id, isEnabled, projectId, refetch])
 
   return {
     isEnabled,
