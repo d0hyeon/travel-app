@@ -18,6 +18,7 @@ export function ToastRenderer() {
             boxShadow: '3px 5px 18px rgba(0, 0, 0, 0.1.5) !important;',
             paddingBlock: '12px !important;',
             fontFamily: theme.typography.fontFamily,
+
             [theme.breakpoints.up('md')]: {
               paddingBlock: '16px !important;',
               borderRadius: '20px !important',
@@ -26,7 +27,8 @@ export function ToastRenderer() {
           },
           '.warning-message .toast-icon': {
             color: theme.palette.warning.main
-          }
+          },
+          '.toast-title, .toast-content': { width: '100%' }
         })}
       />
       <Toaster
@@ -34,9 +36,12 @@ export function ToastRenderer() {
           classNames: {
             toast: 'toast-container',
             warning: 'warning-message',
-            icon: 'toast-icon'
+            icon: 'toast-icon',
+            title: 'toast-title',
+            content: 'toast-content'
           },
         }}
+        duration={50000}
         position="top-center"
         icons={{
           info: <InfoIcon fontSize="small" />,

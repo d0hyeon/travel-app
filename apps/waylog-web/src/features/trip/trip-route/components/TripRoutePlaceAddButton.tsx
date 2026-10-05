@@ -9,7 +9,7 @@ interface Props {
   tripId: string;
 }
 
-export function TripRutePlaceAddButton({ tripId, }: Props) {
+export function TripRoutePlaceAddButton({ tripId, }: Props) {
   const { data: { isOverseas } } = useTrip(tripId);
   const { create: createPlace } = useTripPlaces(tripId)
   const overlay = useOverlay();

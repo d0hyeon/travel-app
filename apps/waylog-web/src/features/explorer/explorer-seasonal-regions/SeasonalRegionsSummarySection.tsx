@@ -1,6 +1,6 @@
 import HelpIcon from '@mui/icons-material/Help'
-import { Box, ButtonBase, Skeleton, Stack, Tooltip, Typography } from '@mui/material'
-import { useMemo } from 'react'
+import { Box, ButtonBase, Skeleton, Stack, Tooltip as MuiTooltip, Typography, type TooltipProps, ClickAwayListener } from '@mui/material'
+import { useMemo, useState } from 'react'
 import { SeasonLabel } from '@waylog/domains/modules/tourism-trend'
 import { useRegionTourismTrends } from '@waylog/domains/modules/tourism-trend'
 import { Scrollable } from '~shared/components/Scrollable'
@@ -117,3 +117,16 @@ function SeasonalRegionsSectionSkeleton() {
     </Box>
   )
 }
+
+function Tooltip(props: TooltipProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const isMobile = useIsMobile();
+
+  if (!isMobile) return <MuiTooltip {...props} />
+
+  return (
+    <ClickAwayListener onClickAway={() => setIsOpen(false)}>
+      <MuiTooltip open={isOpen} onClick={() => setIsOpen(!isOpen)} {...props} />
+    </ClickAwayListener>
+  )
+}  

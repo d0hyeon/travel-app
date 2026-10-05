@@ -132,9 +132,7 @@ export function TripBasicInfoContent({ tripId }: Props) {
         {currentTab === 'checklist' && (
           <>
             <TripChecklist tripId={tripId} paddingBottom={`${BottomNavigation.HEIGHT}px`} />
-            <BottomArea bottom={BottomNavigation.HEIGHT} left={0}>
-              <TripChecklistAddButton tripId={tripId} size="large" fullWidth />
-            </BottomArea>
+            <TripChecklistAddButton tripId={tripId} size="large" sx={{ position: 'absolute', bottom: 16, right: 16 }} />
           </>
         )}
 

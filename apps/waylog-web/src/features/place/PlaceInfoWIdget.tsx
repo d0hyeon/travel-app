@@ -1,5 +1,5 @@
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import { Box, Button, IconButton, Skeleton, Stack, Typography, type ButtonProps, type StackProps } from "@mui/material";
+import { Box, Button, Container, IconButton, Skeleton, Stack, Typography, type ButtonProps, type StackProps } from "@mui/material";
 import { Suspense } from "react";
 import { toast } from "sonner";
 import { useScheduledTrips } from "~features/trip/useScheduledTrips";
@@ -53,7 +53,7 @@ function Resolved({ placeId, ...props }: Props) {
       </Stack>
       <PlacePhotoList direction="row" placeId={place.id} sx={{ overflowX: 'auto', paddingX: 1.5 }} />
       {scheduledTrips.length > 0 && (
-        <BottomArea position="absolute" left={0} right={0} marginX="auto">
+        <BottomArea position="absolute" left="50%" sx={{ transform: 'translateX(-50%)' }}>
           <AddTripButton placeId={place.id} variant="contained" size="large" fullWidth>
             내 여행에 담기
           </AddTripButton>

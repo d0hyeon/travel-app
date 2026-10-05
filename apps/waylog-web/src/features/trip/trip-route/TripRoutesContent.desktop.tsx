@@ -15,7 +15,7 @@ import { useTrip } from '@waylog/domains/modules/trip'
 import { DragIcon } from './components/DragIcon'
 import { RoutePath } from './components/RoutePath'
 import { TripDateToggleGroup } from './components/TripDateToggleGroup'
-import { TripRutePlaceAddButton } from './components/TripRoutePlaceAddButton'
+import { TripRoutePlaceAddButton } from './components/TripRoutePlaceAddButton'
 import { TripRoutePlaceItem } from './components/TripRoutePlaceItem'
 import { TripRouteSelector } from './components/TripRouteSelector'
 import { Dot, RouteLegItem } from './RouteTimeline'
@@ -201,7 +201,7 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
             )}
           </Stack>
           <BottomBar>
-            <TripRutePlaceAddButton tripId={tripId} />
+            <TripRoutePlaceAddButton tripId={tripId} />
           </BottomBar>
         </Stack>
       </SidePanel>

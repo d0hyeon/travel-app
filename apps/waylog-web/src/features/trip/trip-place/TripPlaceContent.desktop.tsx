@@ -67,46 +67,26 @@ export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
       <Box ref={listRef} sx={{ width: '30%', borderRight: 1, borderColor: 'divider', overflow: 'auto', p: 2, scrollBehavior: 'smooth', scrollMarginBottom: 40 }}>
         <Stack height="100%" sx={{ scrollBehavior: 'smooth' }}>
           <Box flex="1 1 100%" paddingBottom={3}>
-            <Typography variant="subtitle2" color="text.secondary" mb={1}>
-              확정된 장소 ({plannedPlaces.length})
-            </Typography>
-            {plannedPlaces.length === 0 ? (
-              <Typography variant="body2" color="text.secondary" mb={3}>
-                아직 확정된 장소가 없어요
-              </Typography>
-            ) : (
-              <Stack spacing={1} mb={3}>
-                {plannedPlaces.map((place) => (
-                  <TripPlaceItemButton
-                    key={place.id}
-                    place={place}
-                    onClick={() => handlePlaceClick(place)}
-                    component="button"
-                    focused={place.id === focusedId}
-                  />
-                ))}
-              </Stack>
-            )}
-
-            <Typography variant="subtitle2" color="text.secondary" mb={1}>
-              희망 장소 ({candidatePlaces.length})
-            </Typography>
-            {candidatePlaces.length === 0 ? (
-              <Typography variant="body2" color="text.secondary">
-                희망 장소를 추가해보세요
-              </Typography>
-            ) : (
-              <Stack spacing={1}>
-                {candidatePlaces.map((place) => (
-                  <TripPlaceItemButton
-                    key={place.id}
-                    place={place}
-                    onClick={() => handlePlaceClick(place)}
-                    focused={place.id === focusedId}
-                  />
-                ))}
-              </Stack>
-            )}
+            <Stack spacing={1}>
+              {plannedPlaces.map((place) => (
+                <TripPlaceItemButton
+                  key={place.id}
+                  place={place}
+                  onClick={() => handlePlaceClick(place)}
+                  component="button"
+                  focused={place.id === focusedId}
+                  sx={theme => ({ borderColor: theme.palette.primary.main })}
+                />
+              ))}
+              {candidatePlaces.map((place) => (
+                <TripPlaceItemButton
+                  key={place.id}
+                  place={place}
+                  onClick={() => handlePlaceClick(place)}
+                  focused={place.id === focusedId}
+                />
+              ))}
+            </Stack>
           </Box>
           <Box padding={1} position="sticky" bottom={0} flex="0 0 auto" sx={{ backgroundColor: '#fff' }}>
             <Button

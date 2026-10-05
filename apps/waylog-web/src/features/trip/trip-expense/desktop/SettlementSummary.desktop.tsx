@@ -22,6 +22,7 @@ export function SettlementSummary({ tripId }: Props) {
           background: theme.palette.primary.main,
           color: 'white',
           borderRadius: 3,
+          minWidth: 160
         })}
       >
         <Stack alignItems="start" gap={1} height="100%">

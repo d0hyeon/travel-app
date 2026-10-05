@@ -61,7 +61,7 @@ export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
 
 
       <Stack direction="row" flexWrap="wrap">
-        <Box component="li" margin={0.5}>
+        <Box component="li" margin={0.5} sx={{ listStyle: 'none' }}>
           <PhotoUploader
             width="100%"
             sx={{ width: 120 }}

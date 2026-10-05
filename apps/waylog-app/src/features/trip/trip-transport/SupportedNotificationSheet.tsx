@@ -58,7 +58,7 @@ export function SupportedNotificationSheet({
               <Item label="대상" description="모든 항공편" />
               <Item
                 label="푸시 알림"
-                description="출발 30분 전에 알려드려요. 탑승은 보통 출발 20분 전부터 시작해요"
+                description="출발 30분 전에 알려드려요."
               />
             </Group>
             <Group label="버스/기차">

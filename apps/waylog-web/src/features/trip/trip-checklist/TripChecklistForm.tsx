@@ -80,10 +80,10 @@ export function TripChecklistForm({
               label="종료"
               value={value ? new Date(value) : undefined}
               onChange={value => onChange(formatDate(value as Date, 'yyyy-MM-dd HH:mm'))}
-              sx={isMobile ? {
+              sx={{
                 '.MuiPickersSectionList-root': { paddingY: 1.5 },
                 '.MuiFormLabel-root': { lineHeight: 1 }
-              } : {}}
+              }}
               maxDate={new Date(endDate)}
               ampm={false}
               disableFuture={false}

@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useEffectEvent } from "react";
 import { KakaoMapContext, useMapContext } from "../MapContext";
-import type { MarkerData, MarkerProps } from "../types";
+import type { MarkerCallbackData, MarkerData, MarkerProps } from "../types";
 import { useRegisterClusterMarker } from "../useClusterRegistry";
 import { renderMarker } from "./marker.renderers";
 import { useMapZoomLevel } from "./useMapZoomLevel";
@@ -25,9 +25,20 @@ export default function KakaoMapMarker(props: MarkerProps) {
   const renderDependencies = Object.values(omit(props, ['onClick', 'onContextMenu', 'tooltip']))
   const tooltip = Array.isArray(props.tooltip) ? props.tooltip.join() : props.tooltip;
 
+  const handleClick = useEffectEvent(() => {
+    props.onClick?.(props);
+  })
+  const handleContextMenu = useEffectEvent(() => {
+    props.onContextMenu?.(props);
+  })
+
   useEffect(() => {
     if (config.clustering || map == null) return;
-    return renderMarker(markerData, map, zoom);
+    return renderMarker(
+      { ...markerData, onClick: handleClick, onContextMenu: handleContextMenu },
+      map,
+      zoom
+    );
   }, [config.clustering, tooltip, zoom, ...renderDependencies]);
 
   useEffect(() => {

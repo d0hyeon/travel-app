@@ -1,9 +1,9 @@
 import CloseIcon from '@mui/icons-material/Close';
 import CheckIcon from '@mui/icons-material/Check';
-import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Downloading';
+import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { Box, Dialog, IconButton, ListSubheader, Menu, MenuItem, Slide, Stack } from "@mui/material";
+import { Box, Dialog, IconButton, ListSubheader, Menu, MenuItem, Slide, Stack, Typography } from "@mui/material";
 import { forwardRef, useRef, useState, type ComponentProps } from "react";
 import { Mousewheel } from 'swiper/modules';
 import { Swiper, SwiperSlide, type SwiperRef } from "swiper/react";
@@ -36,7 +36,7 @@ export function PhotoDialog({ photos: _photos, onDelete, onUpdate, places, initi
   const handleDelete = async () => {
     const photo = photos.at(index);
     if (photo != null) {
-      if (await confirm('추억을 지우시겠어요?')) {
+      if (await confirm('사진을 삭제하실건가요?')) {
         if (photos.length === 1) {
           onClose();
         }
@@ -110,73 +110,82 @@ export function PhotoDialog({ photos: _photos, onDelete, onUpdate, places, initi
           right={0}
           zIndex={1}
         >
-          {onDelete && (
-            <IconButton onClick={handleDelete} sx={{ color: 'white' }}>
-              <DeleteIcon />
-            </IconButton>
-          )}
-          <Stack direction="row" spacing={1}>
-            {onUpdate && (
-              <>
-                <IconButton onClick={(event) => setMenuAnchorEl(event.currentTarget)} sx={{ color: 'white' }}>
-                  <MoreVertIcon />
-                </IconButton>
-                <Menu
-                  anchorEl={menuAnchorEl}
-                  open={Boolean(menuAnchorEl)}
-                  onClose={() => setMenuAnchorEl(null)}
-                  slotProps={{
-                    paper: {
-                      sx: {
-                        minWidth: 160,
-                      },
+          {onUpdate && (
+            <>
+              <IconButton onClick={(event) => setMenuAnchorEl(event.currentTarget)} sx={{ color: 'white' }}>
+                <MoreVertIcon />
+              </IconButton>
+              <Menu
+                anchorEl={menuAnchorEl}
+                open={Boolean(menuAnchorEl)}
+                onClose={() => setMenuAnchorEl(null)}
+                slotProps={{
+                  paper: {
+                    sx: {
+                      minWidth: 160,
                     },
-                  }}
-                >
-                  <MenuItem onClick={() => {
+                  },
+                }}
+              >
+                <MenuItem
+                  onClick={() => {
                     void downloadRemoteSource(photos[index].url);
                     setMenuAnchorEl(null);
-                  }} sx={{ minHeight: 40 }}>
-                    <Stack direction="row" alignItems="center" justifyContent="space-between" width="100%">
-                      <Box>다운로드</Box>
-                      <DownloadIcon fontSize="small" />
-                    </Stack>
-                  </MenuItem>
-                  <ListSubheader
-                    disableSticky
-                    sx={{
-                      fontSize: 11,
-                      lineHeight: 1.4,
-                      color: 'text.secondary',
-                      fontWeight: 700,
-                      py: 0.75,
-                      bgcolor: 'transparent',
-                    }}
+                  }}
+                  sx={{ minHeight: 40 }}
+                >
+                  <Stack direction="row" alignItems="center" justifyContent="space-between" width="100%">
+                    <Box>다운로드</Box>
+                    <DownloadIcon fontSize="small" />
+                  </Stack>
+                </MenuItem>
+                {onDelete && (
+                  <MenuItem
+                    onClick={handleDelete}
+                    sx={{ minHeight: 40 }}
                   >
-                    공개 설정
-                  </ListSubheader>
-                  <MenuItem onClick={() => void handleChangeVisibility(true)} sx={{ minHeight: 40 }}>
                     <Stack direction="row" alignItems="center" justifyContent="space-between" width="100%">
-                      <Box>공개</Box>
-                      {photos[index]?.isPublic && <CheckIcon fontSize="small" />}
+                      <Typography variant='body2' color="error">삭제</Typography>
+                      <DeleteIcon fontSize="small" color="error" />
                     </Stack>
                   </MenuItem>
-                  <MenuItem onClick={() => void handleChangeVisibility(false)} sx={{ minHeight: 40 }}>
-                    <Stack direction="row" alignItems="center" justifyContent="space-between" width="100%">
-                      <Box>비공개</Box>
-                      {!photos[index]?.isPublic && <CheckIcon fontSize="small" />}
-                    </Stack>
-                  </MenuItem>
-                </Menu>
-              </>
-            )}
-            <IconButton
-              onClick={onClose}
-              sx={{ color: 'white' }}
-            >
-              <CloseIcon />
-            </IconButton>
-          </Stack>
+                )}
+                <ListSubheader
+                  disableSticky
+                  sx={{
+                    fontSize: 11,
+                    lineHeight: 1.4,
+                    color: 'text.secondary',
+                    fontWeight: 700,
+                    py: 0.75,
+                    bgcolor: 'transparent',
+                  }}
+                >
+                  공개 설정
+                </ListSubheader>
+                <MenuItem onClick={() => void handleChangeVisibility(true)} sx={{ minHeight: 40 }}>
+                  <Stack direction="row" alignItems="center" justifyContent="space-between" width="100%">
+                    <Box>공개</Box>
+                    {photos[index]?.isPublic && <CheckIcon fontSize="small" />}
+                  </Stack>
+                </MenuItem>
+                <MenuItem onClick={() => void handleChangeVisibility(false)} sx={{ minHeight: 40 }}>
+                  <Stack direction="row" alignItems="center" justifyContent="space-between" width="100%">
+                    <Box>비공개</Box>
+                    {!photos[index]?.isPublic && <CheckIcon fontSize="small" />}
+                  </Stack>
+                </MenuItem>
+
+              </Menu>
+            </>
+          )}
+          <IconButton
+            onClick={onClose}
+            sx={{ color: 'white' }}
+          >
+            <CloseIcon />
+          </IconButton>
+
         </Stack>
         {photos[index]?.isPublic && (
           <PhotoVisibilityBadge sx={{ position: 'absolute', top: 56, left: 16, zIndex: 1 }} />

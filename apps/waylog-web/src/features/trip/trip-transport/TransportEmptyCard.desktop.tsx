@@ -8,8 +8,8 @@ import { SupportedNotificationDialog } from './SupportedNotificationDialog.deskt
 
 export function TransportEmptyCard() {
   return (
-    <Stack gap={1.5}>
-      <Stack alignItems="center" gap={0.75} py={4.5} border="1px dashed" borderColor="divider" borderRadius={3} bgcolor="action.hover">
+    <Stack gap={1.5} >
+      <Stack alignItems="center" gap={0.75} py={4.5} border="1px dashed" borderColor="divider" borderRadius={3} bgcolor="action.hover" paddingX={2}>
         <Typography variant="subtitle1" fontWeight={700}>
           등록된 탑승권이 없어요
         </Typography>
@@ -47,7 +47,7 @@ function SupportedNotificationLink() {
     <Box display="flex" justifyContent="flex-end">
       <Stack direction="row" alignItems="center" onClick={openSupportedNotification} sx={{ cursor: 'pointer' }}>
         <Typography variant="caption" color="text.disabled">
-          여정 변동 알림 지원 공항
+          자세히 보기
         </Typography>
         <ChevronRightIcon sx={{ fontSize: 18, color: 'text.disabled' }} />
       </Stack>
