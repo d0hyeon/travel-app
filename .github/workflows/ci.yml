@@ -9,8 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       web: ${{ steps.filter.outputs.web }}
+      affected: ${{ steps.affected.outputs.filter }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: dorny/paths-filter@v3
         id: filter
         with:
@@ -24,15 +27,34 @@ jobs:
               - '.npmrc'
               - 'tsconfig.json'
               - '.github/**'
+            root:
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - '.npmrc'
+              - 'tsconfig.json'
+              - '.github/**'
+      - name: Resolve affected packages
+        id: affected
+        env:
+          ROOT_CHANGED: ${{ steps.filter.outputs.root }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ "$ROOT_CHANGED" = "true" ]; then
+            echo "filter=*" >> "$GITHUB_OUTPUT"
+          else
+            echo "filter=...[$BASE_SHA]" >> "$GITHUB_OUTPUT"
+          fi
 
   ts-check:
     name: TypeScript Check
+    needs: changes
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-      - run: pnpm ts-check
+      - run: pnpm --filter "${{ needs.changes.outputs.affected }}" --if-present run ts-check
 
   lint-check:
     name: ESLint Check
@@ -58,6 +80,7 @@ jobs:
 
   test:
     name: Unit Tests
+    needs: changes
     runs-on: ubuntu-latest
 
     env:
@@ -70,7 +93,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-      - run: pnpm test
+      - run: pnpm --filter "${{ needs.changes.outputs.affected }}" --if-present run test
 
   e2e-test:
     name: End to End Tests
