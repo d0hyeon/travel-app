@@ -38,6 +38,7 @@ const config: ExpoConfig = {
     predictiveBackGestureEnabled: false,
   },
   web: { favicon: "./assets/logo.png" },
+  platforms: ["ios", "android"],
   scheme: "waylog",
   runtimeVersion: { policy: "appVersion" },
   updates: {
