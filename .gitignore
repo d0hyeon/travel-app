@@ -27,6 +27,7 @@ build
 
 .env
 build/
+!packages/expo-uiscene-lifecycle/build
 supabase/.temp/
 .gstack/
 .omc
