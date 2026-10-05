@@ -47,4 +47,10 @@ export default defineConfig([
       "react-hooks/static-components": "off"
     },
   },
+  {
+    files: ['packages/expo-uiscene-lifecycle/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
+    },
+  },
 ])
