@@ -51,7 +51,8 @@ jobs:
 
   update-production:
     name: EAS Update (production)
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: detect-version
+    if: github.ref == 'refs/heads/main' && needs.detect-version.outputs.build != 'true' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read
