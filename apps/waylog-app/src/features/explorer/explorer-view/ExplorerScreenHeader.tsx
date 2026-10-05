@@ -38,6 +38,7 @@ export function ExplorerScreenHeader({
   viewMode,
   onChangeViewMode,
   filterExtras,
+  children,
 }: PropsWithChildren<Props>) {
   const navigation = useAppNavigation()
   const insets = useSafeAreaInsets()
@@ -71,6 +72,7 @@ export function ExplorerScreenHeader({
             ]}
           >
             <ExplorerFilterBar>{filterExtras}</ExplorerFilterBar>
+            {children}
           </Animated.View>
         </Animated.View>
       </FilterNavigation>
