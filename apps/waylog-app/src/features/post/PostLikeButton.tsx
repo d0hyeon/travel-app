@@ -1,20 +1,22 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { usePostLikes } from '@waylog/domains/modules/post'
 import { StyleSheet, Pressable } from 'react-native'
+import { useLoginRedirect } from '~features/auth/auth-redirect'
 import { Skeleton, Stack, Typography } from '~shared/components/design-system'
 import { palette } from '~shared/config/tokens'
 
 export function PostLikeButton({ postId }: { postId: string }) {
   const { data, toggle, canLike } = usePostLikes(postId)
+  const redirectToLogin = useLoginRedirect()
 
   return (
     <Stack direction="row" alignItems="center" style={styles.likeCount}>
       <Pressable
         onPress={(event) => {
           event.stopPropagation()
+          if (!canLike) return redirectToLogin()
           toggle().catch(() => undefined)
         }}
-        disabled={!canLike}
         accessibilityLabel={data.liked ? '좋아요 취소' : '좋아요'}
         hitSlop={8}
       >
