@@ -4,6 +4,7 @@ import { StyleSheet, ScrollView, View } from 'react-native'
 import { ExplorerPlaceCard } from '~features/explorer/explorer-place-item/ExplorerPlaceCard'
 import { ExplorerEmptyState } from '~features/explorer/explorer-view/ExplorerEmptyState'
 import { SectionHeader } from '~features/explorer/explorer-view/SectionHeader'
+import { buildExplorerDetailParams } from '~features/explorer/explorer.utils'
 import { useAppNavigation } from '~shared/hooks/useAppNavigation'
 import { AppRoute } from '~app/AppRoute'
 import { useMostSavedPlaces } from './useMostSavedPlaces'
@@ -20,7 +21,7 @@ export function MostSavedPlacesSection({ location, category }: Props) {
 
   return (
     <View>
-      <SectionHeader title="많이 저장된 곳이에요" onMore={() => navigation.navigate(AppRoute.장소_저장순, { category, location })} />
+      <SectionHeader title="많이 저장된 곳이에요" onMore={() => navigation.navigate(AppRoute.장소_저장순, buildExplorerDetailParams(location, category))} />
       {places.length === 0 ? (
         <ExplorerEmptyState />
       ) : (

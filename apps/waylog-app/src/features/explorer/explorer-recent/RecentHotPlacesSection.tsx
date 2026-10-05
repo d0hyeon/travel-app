@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, View } from 'react-native'
 import { ExplorerPlaceCard } from '~features/explorer/explorer-place-item/ExplorerPlaceCard'
 import { ExplorerEmptyState } from '~features/explorer/explorer-view/ExplorerEmptyState'
 import { SectionHeader } from '~features/explorer/explorer-view/SectionHeader'
+import { buildExplorerDetailParams } from '~features/explorer/explorer.utils'
 import { useAppNavigation } from '~shared/hooks/useAppNavigation'
 import { AppRoute } from '~app/AppRoute'
 import { useRecentHotPlaces } from './useRecentHotPlaces'
@@ -23,7 +24,7 @@ export function RecentHotPlacesSection({ location, category }: Props) {
       <SectionHeader
         title="최근 핫한 곳이에요"
         onMore={() => {
-          navigation.navigate(AppRoute.장소_급상승, { category, location })
+          navigation.navigate(AppRoute.장소_급상승, buildExplorerDetailParams(location, category))
         }}
       />
       {places.length === 0 ? (

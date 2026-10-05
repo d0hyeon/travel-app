@@ -1480,6 +1480,7 @@ ref 로 붙잡아야 끌던 도중 스냅이 바뀌어도 제스처가 갈아끼
 | 여행 채팅            | `features/trip/trip-chat/`, `features/trip/TripChatPage.tsx`      |
 | 안읽은 메시지 뱃지   | `features/trip/trip-chat/TripUnreadCountBadge.tsx`                |
 | 예정된 여행 목적지   | `features/trip/useScheduledTripDestinations.ts`                   |
+| 탐색 필터 → 더보기   | 앱 `features/explorer/explorer.utils.ts` 의 `buildExplorerDetailParams` — 탐색 필터(위치·카테고리)는 파라미터가 없으면 예정 여행지 기본값을 쓰므로, 사용자가 해제한 값은 `undefined` 가 아니라 빈 문자열로 명시해 더보기 화면(최다방문·급상승·저장순)에 넘긴다. 웹 `buildExplorerDetailUrl` 과 같은 규칙이다 |
 | 지출 내역 UI         | `features/trip/trip-expense/desktop/`, `features/trip/trip-expense/mobile/` |
 | 정산 계산 로직       | `features/expense/expense.utils.ts`                               |
 | 정산 요약 훅         | `features/trip/trip-expense/useExpenseSummary.ts`                 |
