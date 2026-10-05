@@ -5,6 +5,7 @@ import { REQUIRED_AGREEMENT_KEYS, type AgreementKey } from '@waylog/domains/modu
 import { AppRoute } from '@waylog/routes'
 import { IntroFullScreenBanner } from '~features/intro/IntroFullScreenBanner'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
+import { useNavigate } from 'react-router'
 
 const agreementLabels: Record<AgreementKey, { label: string; href?: string }> = {
   terms: { label: '(필수) 이용약관 동의', href: AppRoute.이용약관 },
@@ -27,11 +28,13 @@ export function SignUpConsent() {
   function toggleAll(checked: boolean) {
     setAgreed({ terms: checked, privacy: checked, age: checked })
   }
+  const navigate = useNavigate();
 
   async function handleAgree() {
     setError(null)
     try {
-      await signUp()
+      await signUp();
+      navigate(AppRoute.메인);
     } catch (e) {
       setError(e instanceof Error ? e.message : '가입에 실패했습니다')
     }

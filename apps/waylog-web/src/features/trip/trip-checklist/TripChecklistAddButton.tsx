@@ -5,6 +5,7 @@ import { useLoading } from "@waylog/react";
 import { useOverlay } from "~shared/hooks/useOverlay";
 import { TripChecklistForm } from "./TripChecklistForm";
 import { useTripChecklist } from '@waylog/domains/modules/trip-checklist';
+import { DialogTitle } from "~shared/components/confirm-dialog/DialogTitle";
 
 interface Props extends Omit<ButtonProps, 'onClick'> {
   tripId: string;
@@ -67,6 +68,7 @@ export function TripChecklistAddButton({ tripId, ...props }: Props) {
                 open={isOpen}
                 onClose={handleClose}
               >
+                <DialogTitle>체크리스트</DialogTitle>
                 <DialogContent>
                   <TripChecklistForm
                     tripId={tripId}

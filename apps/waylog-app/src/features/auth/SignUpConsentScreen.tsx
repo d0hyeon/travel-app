@@ -9,6 +9,7 @@ import { palette, radius } from '~shared/config/tokens'
 import logoImage from '../../../assets/logo.png'
 import { LegalDocumentModal } from './LegalDocumentModal'
 import { BottomArea } from '~shared/components/BottomArea'
+import { useAppNavigation } from '~shared/hooks/useAppNavigation'
 
 const LOGO_SIZE = 72
 
@@ -35,11 +36,12 @@ export function SignUpConsentScreen() {
     const next = !isAllAgreed
     setAgreed({ terms: next, privacy: next, age: next })
   }
-
+  const navigate = useAppNavigation();
   async function handleAgree() {
     setError(null)
     try {
-      await signUp()
+      await signUp();
+      navigate.push(AppRoute.메인);
     } catch (e) {
       setError(e instanceof Error ? e.message : '가입에 실패했습니다')
     }

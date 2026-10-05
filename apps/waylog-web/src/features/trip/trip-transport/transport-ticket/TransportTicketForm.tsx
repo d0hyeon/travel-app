@@ -257,7 +257,13 @@ function TicketOwnerMenu({ members, memberId, ownerName, onChange }: OwnerMenuPr
       </Stack>
 
       <Menu anchorEl={anchor} open={anchor != null} onClose={() => setAnchor(null)}>
-        <MenuItem selected={memberId == null} onClick={() => select(undefined)}>
+        <MenuItem
+          selected={memberId == null}
+          onClick={(event) => {
+            event.stopPropagation();
+            select(undefined)
+          }}
+        >
           <SelectedMark isSelected={memberId == null} />
           공용
         </MenuItem>
@@ -265,7 +271,10 @@ function TicketOwnerMenu({ members, memberId, ownerName, onChange }: OwnerMenuPr
           <MenuItem
             key={member.id}
             selected={memberId === member.id}
-            onClick={() => select(member.id)}
+            onClick={(event) => {
+              event.stopPropagation();
+              select(member.id);
+            }}
           >
             <SelectedMark isSelected={memberId === member.id} />
             {member.name}

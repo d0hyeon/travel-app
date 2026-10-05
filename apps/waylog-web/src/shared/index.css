@@ -19,3 +19,7 @@ img {
 a {
   color: initial;
 }
+
+.MuiAutocomplete-root .MuiFormControl-root .MuiFormLabel-root {
+  line-height: 1.5;
+}

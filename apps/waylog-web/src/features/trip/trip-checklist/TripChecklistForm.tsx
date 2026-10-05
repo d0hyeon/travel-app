@@ -59,10 +59,10 @@ export function TripChecklistForm({
               label="시작"
               value={value ? new Date(value) : undefined}
               onChange={value => onChange(formatDate(value as Date, 'yyyy-MM-dd HH:mm'))}
-              sx={isMobile ? {
+              sx={{
                 '.MuiPickersSectionList-root': { paddingY: 1.5 },
                 '.MuiFormLabel-root': { lineHeight: 1 }
-              } : {}}
+              }}
               ampm={false}
               disableIgnoringDatePartForTimeValidation={false}
               {...field}
