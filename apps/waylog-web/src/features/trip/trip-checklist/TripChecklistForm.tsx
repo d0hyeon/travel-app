@@ -101,7 +101,7 @@ export function TripChecklistForm({
           <Stack gap={1} marginTop={1} paddingX={0.5}>
             <Typography variant="body2" color="textSecondary">담당자</Typography>
             <Stack direction="row" gap={0.5} paddingX={0.5}>
-              {members.map(x => (
+              {members.filter(x => !x.hasLeft || x.id === value).map(x => (
                 <Chip
                   key={x.id}
                   size="small"

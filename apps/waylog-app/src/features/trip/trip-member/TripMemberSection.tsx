@@ -25,13 +25,14 @@ function Resolved({ tripId }: Props) {
   const navigation = useAppNavigation()
   const { data: members } = useTripMembers(tripId)
   // 호스트를 앞으로 보낸다.
-  const orderedMembers = members.toSorted((a) => (a.isHost ? -1 : 0))
+  const activeMembers = members.filter((member) => !member.hasLeft)
+  const orderedMembers = activeMembers.toSorted((a) => (a.isHost ? -1 : 0))
 
   return (
     <Stack gap={1} style={styles.container}>
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Typography variant="subtitle2" color="text.secondary">
-          인원 ({members.length}명)
+          인원 ({activeMembers.length}명)
         </Typography>
         <TripInviteButton tripId={tripId} variant="contained">초대</TripInviteButton>
       </Stack>

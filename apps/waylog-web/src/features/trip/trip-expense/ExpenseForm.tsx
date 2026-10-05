@@ -86,6 +86,7 @@ function Resolved({
 
   const { data: { id: userId } } = useAuth();
   const writer = members.find(x => x.userId === userId);
+  const selectableMembers = members.filter((member) => !member.hasLeft);
 
   const methods = useForm<ExpenseFormValues>({
     mode: 'onChange',
@@ -93,7 +94,7 @@ function Resolved({
       ...defaultValues,
       currency: defaultValues?.currency ?? 'KRW',
       payments: defaultValues?.payments ?? [{ amount: 0, memberId: writer!.id }],
-      splitAmong: defaultValues?.splitAmong ?? members.map(m => m.id),
+      splitAmong: defaultValues?.splitAmong ?? selectableMembers.map(m => m.id),
     },
   })
   const { control, handleSubmit, register, setValue } = methods;
@@ -103,11 +104,15 @@ function Resolved({
   })
 
   const payments = useWatch({ control, name: 'payments' })
+  const splitAmong = useWatch({ control, name: 'splitAmong' })
   const selectedCurrency = useWatch({ control, name: 'currency' });
   const currencyUnit = getCurrencyName(selectedCurrency);
 
+  const unpaidMembers = selectableMembers.filter(member => !payments.some(p => p.memberId === member.id))
+
   const selectAllMembers = () => {
-    setValue('splitAmong', members.map(m => m.id))
+    const keptLeftIds = splitAmong.filter(id => members.some(member => member.id === id && member.hasLeft))
+    setValue('splitAmong', [...selectableMembers.map(m => m.id), ...keptLeftIds])
   }
 
   const totalAmount = payments.reduce((acc, item) => acc + item.amount, 0);
@@ -137,10 +142,9 @@ function Resolved({
               </Typography>
               <Button
                 size="small"
-                disabled={members.length === payments.length}
+                disabled={unpaidMembers.length === 0}
                 onClick={() => {
-                  const paymentMIds = payments.map(p => p.memberId);
-                  const nextMember = members.find(member => !paymentMIds.includes(member.id));
+                  const [nextMember] = unpaidMembers;
                   assert(!!nextMember)
 
                   append({ memberId: nextMember.id, amount: 0 })
@@ -158,7 +162,7 @@ function Resolved({
                     render={({ field }) => (
                       <FormControl size="small" sx={{ minWidth: 120 }}>
                         <Select variant="standard" {...field}>
-                          {members.map(m => (
+                          {members.filter(m => !m.hasLeft || m.id === field.value).map(m => (
                             <MenuItem key={m.id} value={m.id}>
                               {m.name}
                             </MenuItem>
@@ -360,7 +364,7 @@ function Resolved({
               }}
               render={({ field: { value, onChange: setValue, ...props } }) => (
                 <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
-                  {members.map((member) => {
+                  {members.filter((member) => !member.hasLeft || value.includes(member.id)).map((member) => {
                     const isSelected = value.includes(member.id);
 
                     return (

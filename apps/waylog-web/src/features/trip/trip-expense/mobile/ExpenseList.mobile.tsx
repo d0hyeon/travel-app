@@ -46,6 +46,8 @@ export function ExpenseList({ tripId }: Props) {
           return peopleAmount[memberId] === splitedAmount
         })
 
+        const isPartialSplit = members.some((member) => !member.hasLeft && !expense.splitAmong.includes(member.id))
+
         return (
           <ListItem
             key={expense.id}
@@ -83,7 +85,7 @@ export function ExpenseList({ tripId }: Props) {
                     {expense.place.name}
                   </ListItem.Text>
                 )}
-                {expense.splitAmong.length < members.length && (
+                {isPartialSplit && (
                   <Stack direction="row" spacing={0.5} alignItems="center" flexWrap="wrap" useFlexGap>
                     <GroupIcon sx={{ fontSize: 14 }} />
                     {expense.splitAmong.map(id => {

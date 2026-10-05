@@ -23,12 +23,13 @@ export function TripMemberSection(props: Props) {
 function Resolved({ tripId }: Props) {
   const { data: members } = useTripMembers(tripId)
   const isInvitable = useTripPermission(tripId, TripPermission.초대)
-  const orderedMembers = members.toSorted((a) => a.isHost ? SortCommand.Shift : SortCommand.Maintain)
+  const activeMembers = members.filter((member) => !member.hasLeft)
+  const orderedMembers = activeMembers.toSorted((a) => a.isHost ? SortCommand.Shift : SortCommand.Maintain)
 
   return (
     <Card variant="outlined">
       <Stack direction="row" alignItems="center" justifyContent="space-between" paddingRight={2}>
-        <CardHeader title={`참여 인원 (${members.length}명)`} />
+        <CardHeader title={`참여 인원 (${activeMembers.length}명)`} />
         {isInvitable && <TripInviteButton tripId={tripId}>초대</TripInviteButton>}
       </Stack>
       <CardContent>

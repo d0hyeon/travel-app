@@ -25,13 +25,14 @@ export function TripMemberSection(props: Props) {
 function Resolved({ tripId }: Props) {
   const { data: members } = useTripMembers(tripId)
   const isInvitable = useTripPermission(tripId, TripPermission.초대)
-  const orderedMembers = members.toSorted((a) => a.isHost ? SortCommand.Shift : SortCommand.Maintain)
+  const activeMembers = members.filter((member) => !member.hasLeft)
+  const orderedMembers = activeMembers.toSorted((a) => a.isHost ? SortCommand.Shift : SortCommand.Maintain)
 
   return (
     <Stack gap={1} width="100%">
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Typography variant="subtitle2" color="text.secondary" sx={{ marginTop: -1 }}>
-          인원 ({members.length}명)
+          인원 ({activeMembers.length}명)
         </Typography>
         {isInvitable && <TripInviteButton tripId={tripId}>초대</TripInviteButton>}
       </Stack>

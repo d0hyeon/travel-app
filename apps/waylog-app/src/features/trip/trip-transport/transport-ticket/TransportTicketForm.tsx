@@ -117,7 +117,7 @@ export function TransportTicketForm({ tripId, type, onSubmit, ref }: Props) {
                               >
                                 공용
                               </PopMenu.Item>
-                              {members.map((member) => (
+                              {members.filter((member) => !member.hasLeft || member.id === ticket.memberId).map((member) => (
                                 <PopMenu.Item
                                   key={member.id}
                                   icon={<SelectedMark isSelected={ticket.memberId === member.id} />}
