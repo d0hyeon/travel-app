@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { useTripMembers } from '@waylog/domains/modules/trip-member'
+import { TripPermission, useTripMembers, useTripPermission } from '@waylog/domains/modules/trip-member'
 import { Suspense } from 'react'
 import { StyleSheet, Pressable } from 'react-native'
 import { ListItem } from '~shared/components/ListItem'
@@ -24,6 +24,7 @@ export function TripMemberSection(props: Props) {
 function Resolved({ tripId }: Props) {
   const navigation = useAppNavigation()
   const { data: members } = useTripMembers(tripId)
+  const isInvitable = useTripPermission(tripId, TripPermission.초대)
   // 호스트를 앞으로 보낸다.
   const activeMembers = members.filter((member) => !member.hasLeft)
   const orderedMembers = activeMembers.toSorted((a) => (a.isHost ? -1 : 0))
@@ -34,7 +35,7 @@ function Resolved({ tripId }: Props) {
         <Typography variant="subtitle2" color="text.secondary">
           인원 ({activeMembers.length}명)
         </Typography>
-        <TripInviteButton tripId={tripId} variant="contained">초대</TripInviteButton>
+        {isInvitable && <TripInviteButton tripId={tripId} variant="contained">초대</TripInviteButton>}
       </Stack>
 
       <Stack gap={1} style={styles.container}>
