@@ -59,6 +59,24 @@ eas update --channel production --message "채팅 목록 버그 수정"
 
 심사가 반려되면 `version`은 그대로 두고 코드를 고쳐 2번부터 다시 한다. 빌드 번호만 올라간다.
 
+## GitHub Actions 자동화
+
+[`app-cd.yml`](../.github/workflows/app-cd.yml)이 위 절차 중 일부를 대신한다.
+
+| 상황 | 자동으로 하는 일 |
+| --- | --- |
+| `main` 대상 PR (앱·`packages` 변경) | `pr-<번호>` 브랜치로 OTA 게시(preview 환경) |
+| `main` push (앱·`packages`·lock 변경) | 테스트 후 `production` 브랜치로 OTA 게시 |
+| `main` push에서 `app.config.ts`의 `version`이 직전 push보다 바뀜 | iOS 빌드 요청, 성공 후 `app-v<version>` GitHub Release(태그 포함, 자동 노트) 생성 |
+| 수동 실행(`workflow_dispatch`) | `production` 브랜치로 OTA 게시. `build` 입력을 켜면 iOS 빌드도 요청 |
+
+- 스토어 배포는 `version`을 올린 PR을 머지하면 시작된다. 태그를 직접 만들지 않는다.
+- OTA를 필수 업데이트로 보내려면 머지되는 PR에 `mandatory` 라벨을 달거나, 수동 실행에서 `is_mandatory`를 켠다.
+- 같은 `version`으로 TestFlight만 다시 빌드하려면 수동 실행에서 `build`를 켠다. 이 경우 릴리스는 만들지 않는다.
+- 빌드는 `--no-wait`로 EAS 큐에 넣기만 한다. 릴리스는 빌드 요청이 성공했다는 뜻이지 빌드 완료나 스토어 출시를 뜻하지 않는다.
+- 자동 제출은 없다. 빌드가 끝나면 `pnpm submit-package`(iOS)로 직접 올린다.
+- 릴리스 노트는 웹 PR까지 섞여 나온다.
+
 ## 강제 업데이트
 
 두 종류가 있다.
