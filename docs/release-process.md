@@ -68,7 +68,7 @@ eas update --channel production --message "채팅 목록 버그 수정"
 | `main` 대상 PR (앱·`packages` 변경) | `pr-<번호>` 브랜치로 OTA 게시(preview 환경) |
 | `main` push (앱·`packages`·lock 변경) | 테스트 후 `production` 브랜치로 OTA 게시 |
 | `main` push에서 `app.config.ts`의 `version`이 직전 push보다 바뀜 | iOS 빌드 요청, 성공 후 `app-v<version>` GitHub Release(태그 포함, 자동 노트) 생성 |
-| 수동 실행(`workflow_dispatch`) | `production` 브랜치로 OTA 게시. `build` 입력을 켜면 iOS 빌드도 요청 |
+| 수동 실행(`workflow_dispatch`) | `main`에서 실행했을 때만 `production` 브랜치로 OTA 게시. `build` 입력을 켜면 iOS 빌드도 요청 |
 
 - 스토어 배포는 `version`을 올린 PR을 머지하면 시작된다. 태그를 직접 만들지 않는다.
 - OTA를 필수 업데이트로 보내려면 머지되는 PR에 `mandatory` 라벨을 달거나, 수동 실행에서 `is_mandatory`를 켠다.
