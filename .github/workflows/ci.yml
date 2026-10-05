@@ -95,7 +95,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm --filter waylog-web exec playwright install --with-deps chromium
       - run: pnpm test:e2e
       - name: Upload Playwright report
         if: ${{ !cancelled() }}
