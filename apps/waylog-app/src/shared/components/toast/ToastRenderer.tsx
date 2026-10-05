@@ -1,8 +1,15 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { Toaster } from 'sonner-native'
+import { Toaster, type ToastStyles } from 'sonner-native'
 import { palette } from '~shared/config/tokens'
 
 const ICON_SIZE = 20
+const ACTION_BUTTON_WIDTH = 48
+const ACTION_BUTTON_RADIUS = 8
+
+export const actionToastStyles: ToastStyles = {
+  title: { paddingRight: ACTION_BUTTON_WIDTH },
+  description: { paddingRight: ACTION_BUTTON_WIDTH },
+}
 
 export function ToastRenderer() {
   return (
@@ -25,6 +32,18 @@ export function ToastRenderer() {
           shadowRadius: 16,
           shadowOffset: { width: 0, height: 4 },
           elevation: 4,
+        },
+        buttonsStyle: {
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          bottom: 0,
+          marginTop: 0,
+          alignItems: 'center',
+        },
+        actionButtonStyle: {
+          alignSelf: 'center',
+          borderRadius: ACTION_BUTTON_RADIUS,
         },
         titleStyle: {
           fontFamily: 'SUIT',

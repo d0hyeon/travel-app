@@ -10,12 +10,12 @@ import { isTripChatPushData, TripChatPushData } from '@waylog/domains/modules/tr
 import { ErrorBoundary } from '@waylog/react'
 import { AppRoute as BaseAppRoute } from '@waylog/routes'
 import { ExceptionError } from '@waylog/utility'
+import { toast } from '~shared/components/toast/toast'
 import { StatusBar } from 'expo-status-bar'
 import { Suspense, type PropsWithChildren } from 'react'
 import { ActivityIndicator, LogBox, StyleSheet, View } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
-import { toast } from 'sonner-native'
 import { TamaguiProvider } from 'tamagui'
 import { setupApi } from '~api-config'
 import { LoginRoute } from '~features/auth/LoginRoute'
@@ -42,7 +42,7 @@ import { isFlightStatusNotificationData } from '~features/trip/trip-transport/no
 import { TransportDetailScreen } from '~features/trip/trip-transport/transport-detail/TransportDetailScreen'
 import { UserProfileDetailScreen } from '~features/user-profile/UserProfileDetailScreen'
 import { CommonErrorAlert } from '~shared/components/CommonErrorAlert'
-import { ToastRenderer } from '~shared/components/toast/ToastRenderer'
+import { ToastRenderer, actionToastStyles } from '~shared/components/toast/ToastRenderer'
 import { useAppNavigation } from '~shared/hooks/useAppNavigation'
 import { usePreventNotification, useNotificationPressListener, type TypedNotification } from '~shared/hooks/useNotificationEntries'
 import { OverlayProvider } from '~shared/hooks/useOverlay.context'
@@ -173,9 +173,10 @@ function NotificationGateway() {
     onPrevent: ({ request: { content: { title, body, data } } }) => {
       if (data.tripId === getActivedChatTripId()) return;
 
-      toast.info(title ?? '새 메시지', {
+      toast(title ?? '새 메시지', {
         description: body ?? undefined,
         action: { label: '답장', onClick: () => openTripChat(data.tripId) },
+        styles: actionToastStyles,
       })
     }
   })

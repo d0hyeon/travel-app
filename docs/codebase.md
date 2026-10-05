@@ -1130,6 +1130,11 @@ src/
   걸린 알림만 표시를 끄고 `onPrevent`로 넘기며, 전역 `setNotificationHandler`도 이 파일이 소유한다.
   채팅 푸시는 `NotificationGateway`가 이 규칙으로 끄고 토스트로 대신 알리되,
   보고 있는 채팅방(`getActivedChatTripId`)의 메시지는 토스트도 띄우지 않는다.
+  토스트의 `action` 은 sonner-native 설계상 텍스트 아래에 놓이므로, `ToastRenderer` 의 `toastOptions` 가
+  버튼 영역을 우측 상하 중앙에 띄운다(액션이 없으면 빈 View 라 영향 없음). 텍스트가 버튼 밑으로 들어가지 않게
+  주는 우측 여백은 액션이 있을 때만 필요해, 호출부가 `actionToastStyles` 를 `styles` 로 넘긴다.
+  액션 버튼을 누르면 토스트가 닫혀야 하는데 sonner-native 는 `cancel` 만 닫으므로, 앱은 `sonner-native` 가 아니라
+  `shared/components/toast/toast` 의 `toast`(아이콘 없는 기본 호출·success·error·info)를 쓴다. `action.onClick` 뒤에 토스트를 닫도록 감싼 래퍼다.
   알림 탭 이동은 같은 파일의 `useNotificationPressListener`가 받아 `NotificationGateway`가 분기한다.
 - **티켓 뷰어**는 타이틀 없이 어두운 배경에 이미지만 둔다.
   탑승 시 밝기 조절 없이 바코드가 읽히는 것이 목적이다.
