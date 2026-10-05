@@ -17,7 +17,10 @@ const config: ExpoConfig = {
     supportsTablet: true,
     bundleIdentifier: "me.waylog.app",
     usesAppleSignIn: true,
-    config: { googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY },
+    config: {
+      googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
+      usesNonExemptEncryption: false,
+    },
     associatedDomains: ["applinks:waylog.me", "applinks:www.waylog.me"],
     icon: "./assets/logo.png",
   },
