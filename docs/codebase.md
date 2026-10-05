@@ -1125,6 +1125,12 @@ src/
   다르므로 이 공통 모델에 넣지 않는다.
   운항 상태 알림은 탑승권 상세(`/trip/:tripId/transport/:transportId`)로, 채팅
   알림은 기존 채팅 목적지로 이동한다.
+  앱이 포그라운드일 때 알림은 기본적으로 시스템 배너·소리로 표시된다.
+  `shared/hooks/useNotificationEntries.ts`의 `usePreventNotification`이 `prevented` 규칙에
+  걸린 알림만 표시를 끄고 `onPrevent`로 넘기며, 전역 `setNotificationHandler`도 이 파일이 소유한다.
+  채팅 푸시는 `NotificationGateway`가 이 규칙으로 끄고 토스트로 대신 알리되,
+  보고 있는 채팅방(`getActivedChatTripId`)의 메시지는 토스트도 띄우지 않는다.
+  알림 탭 이동은 같은 파일의 `useNotificationPressListener`가 받아 `NotificationGateway`가 분기한다.
 - **티켓 뷰어**는 타이틀 없이 어두운 배경에 이미지만 둔다.
   탑승 시 밝기 조절 없이 바코드가 읽히는 것이 목적이다.
   상단은 좌측 닫기 · 우측 `PopMenu`(삭제)다.

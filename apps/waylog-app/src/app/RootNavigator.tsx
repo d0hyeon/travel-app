@@ -6,17 +6,17 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { AuthError, AuthErrorBoundary, AuthStateSync, SignUpGate } from '@waylog/domains/clients'
 import { getActivedChatTripId } from '@waylog/domains/modules/trip-chat'
-import { isTripChatPushData } from '@waylog/domains/modules/trip-chat/tripChatPush'
+import { isTripChatPushData, TripChatPushData } from '@waylog/domains/modules/trip-chat/tripChatPush'
+import { ErrorBoundary } from '@waylog/react'
 import { AppRoute as BaseAppRoute } from '@waylog/routes'
 import { ExceptionError } from '@waylog/utility'
-import * as Notifications from 'expo-notifications'
 import { StatusBar } from 'expo-status-bar'
 import { Suspense, type PropsWithChildren } from 'react'
 import { ActivityIndicator, LogBox, StyleSheet, View } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
+import { toast } from 'sonner-native'
 import { TamaguiProvider } from 'tamagui'
-import { tamaguiConfig } from '../../tamagui.config'
 import { setupApi } from '~api-config'
 import { LoginRoute } from '~features/auth/LoginRoute'
 import { SignUpConsentScreen } from '~features/auth/SignUpConsentScreen'
@@ -25,50 +25,39 @@ import { PlaceDetailScreen } from '~features/explorer/PlaceDetailScreen'
 import { TopVisitedScreen } from '~features/explorer/explorer-ranking/TopVisitedScreen'
 import { RecentHotScreen } from '~features/explorer/explorer-recent/RecentHotScreen'
 import { MostSavedScreen } from '~features/explorer/explorer-saved/MostSavedScreen'
+import { BookmarkedPlacesScreen } from '~features/place/BookmarkedPlacesScreen'
 import { PostCreationScreen } from '~features/post/PostCreationScreen'
 import { PostDetailScreen } from '~features/post/PostDetailScreen'
+import { AccountSettingScreen } from '~features/settings/AccountSettingScreen'
+import { BlockedUsersScreen } from '~features/settings/BlockedUsersScreen'
 import { SettingsScreen } from '~features/settings/SettingsScreen'
 import { TripDetailScreen } from '~features/trip/TripDetailScreen'
-import { useChatNotificationResponse } from '~features/trip/trip-chat/notification/useChatNotification'
+import { useTripChatOverlay } from '~features/trip/trip-chat/useTripChatOverlay'
 import { TripCreateScreen } from '~features/trip/trip-create/TripCreateScreen'
 import { TripInviteScreen } from '~features/trip/trip-invite/TripInviteScreen'
 import { TripMemoDetailScreen } from '~features/trip/trip-memo/TripMemoDetailScreen'
 import { TripMemoEditScreen } from '~features/trip/trip-memo/TripMemoEditScreen'
 import { TransportCreationScreen } from '~features/trip/trip-transport/TransportCreationScreen'
-import { useFlightStatusNotificationResponse } from '~features/trip/trip-transport/notification/useFlightStatusNotification'
+import { isFlightStatusNotificationData } from '~features/trip/trip-transport/notification/flightStatusNotification'
 import { TransportDetailScreen } from '~features/trip/trip-transport/transport-detail/TransportDetailScreen'
 import { UserProfileDetailScreen } from '~features/user-profile/UserProfileDetailScreen'
+import { CommonErrorAlert } from '~shared/components/CommonErrorAlert'
 import { ToastRenderer } from '~shared/components/toast/ToastRenderer'
+import { useAppNavigation } from '~shared/hooks/useAppNavigation'
+import { usePreventNotification, useNotificationPressListener, type TypedNotification } from '~shared/hooks/useNotificationEntries'
 import { OverlayProvider } from '~shared/hooks/useOverlay.context'
 import { queryClient } from '~shared/query-client'
+import { tamaguiConfig } from '../../tamagui.config'
 import { AppRoute } from './AppRoute'
 import { HomeTabs } from './HomeTabs'
 import { AppBootstrap } from './bootstrap/AppBootstrap'
 import { registerLinkingScreens } from './registerLinkingScreens'
 import type { RootStackParamList } from './routes'
-import { AccountSettingScreen } from '~features/settings/AccountSettingScreen';
-import { BlockedUsersScreen } from '~features/settings/BlockedUsersScreen'
-import { BookmarkedPlacesScreen } from '~features/place/BookmarkedPlacesScreen'
-import { ErrorBoundary } from '@waylog/react'
-import { CommonErrorAlert } from '~shared/components/CommonErrorAlert'
+import * as Notifications from 'expo-notifications'
 
 setupApi()
 LogBox.ignoreLogs([ExceptionError.name])
-Notifications.setNotificationHandler({
-  handleNotification: async (notification) => {
-    const tripMessage = notification.request.content.data
-    const isActiveTripMessage = isTripChatPushData(tripMessage)
-      && tripMessage.tripId === getActivedChatTripId()
-    const shouldPresent = !isActiveTripMessage
 
-    return {
-      shouldShowBanner: shouldPresent,
-      shouldShowList: shouldPresent,
-      shouldPlaySound: shouldPresent,
-      shouldSetBadge: false,
-    }
-  },
-})
 
 declare module '~app/routes' {
   interface RouteParamsRegistry {
@@ -171,10 +160,38 @@ function AuthGuard({ children }: PropsWithChildren) {
   return <AuthErrorBoundary onSessionExpired={redirectToLogin}>{children}</AuthErrorBoundary>
 }
 
+const isTripChatNotification = (notification: Notifications.Notification): notification is TypedNotification<TripChatPushData> => {
+  return isTripChatPushData(notification.request.content.data);
+}
 /** 알림 도메인별 응답 처리를 루트에서 함께 등록한다. */
 function NotificationGateway() {
-  useChatNotificationResponse()
-  useFlightStatusNotificationResponse()
+  const navigation = useAppNavigation();
+  const { open: openTripChat } = useTripChatOverlay();
+
+  usePreventNotification<TripChatPushData>({
+    prevented: (notification) => isTripChatNotification(notification),
+    onPrevent: ({ request: { content: { title, body, data } } }) => {
+      if (data.tripId === getActivedChatTripId()) return;
+
+      toast.info(title ?? '새 메시지', {
+        description: body ?? undefined,
+        action: { label: '답장', onClick: () => openTripChat(data.tripId) },
+      })
+    }
+  })
+
+  useNotificationPressListener(({ notification }) => {
+    const { data } = notification.request.content;
+
+    if (isTripChatPushData(data)) {
+      return navigation.navigate(AppRoute.여행_상세, data)
+    }
+    if (isFlightStatusNotificationData(data)) {
+      return navigation.navigate(AppRoute.여행_교통편_상세, data)
+    }
+  })
+
+
   return null
 }
 
