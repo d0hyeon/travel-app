@@ -1,0 +1,60 @@
+// 웹 shared/config/theme.ts 에서 순수 값만 추출한다.
+// MUI 의 createTheme 결과는 웹 전용이므로 값만 승계한다.
+
+export const palette = {
+  primary: '#4C84FF',
+  primaryContainer: '#EEF2FF',
+  warning: '#d68d06',
+  error: '#d32f2f',
+  errorContainer: '#FFEBEE',
+  grey: '#787c7e',
+  info: '#333',
+  success: '#66BB6A',
+  text: '#1a1a1a',
+  textSecondary: '#787c7e',
+  textDisabled: 'rgba(0,0,0,0.38)',
+  onPrimary: '#fff',
+  background: '#fff',
+  divider: 'rgba(0,0,0,0.12)',
+} as const
+
+// 웹은 breakpoints.down('md') 에서 값이 줄어든다. 앱은 모바일이므로
+// 그 축소된 값이 곧 앱의 값이다.
+export const radius = {
+  sm: 4,
+  md: 8,
+  lg: 12,
+  xl: 16,
+  xxl: 20,
+} as const
+
+export const controlHeight = {
+  sm: 24,
+  md: 32,
+  lg: 40,
+} as const
+
+export const fontSize = {
+  h6: 16,
+  subtitle2: 13,
+  body1: 14,
+  body2: 13,
+  caption: 11,
+} as const
+
+// 웹 theme.ts 의 fontWeight: regular 700, medium 700, bold 900
+export const fontWeight = {
+  regular: '700',
+  bold: '900',
+} as const
+
+// 겹침 순서. 값 자체보다 서로의 대소가 의미다.
+// 시트는 화면을 덮는 층이므로 흐름에 놓인 하단 CTA 보다 위에 있어야 한다.
+// 같은 값을 주면 RN 이 렌더 순서로 정해 CTA 가 시트를 뚫고 나온다.
+// 지도 위 FAB 는 지도보다 위, 시트보다 아래다. 시트가 올라오면 FAB 를 덮는다.
+export const zLayer = {
+  bottomArea: 10,
+  mapFab: 15,
+  mapFabMenu: 16,
+  bottomSheet: 20,
+} as const

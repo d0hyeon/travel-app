@@ -1,0 +1,96 @@
+import { MaterialIcons } from '@expo/vector-icons'
+import { PostVisibility, type PostVisibility as PostVisibilityValue } from '@waylog/domains/modules/post'
+import { useLoading } from '@waylog/react'
+import { useState } from 'react'
+import { StyleSheet, Pressable, ScrollView, View, useWindowDimensions } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { BottomArea } from '~shared/components/BottomArea'
+import { LoadableImage } from '~shared/components/LoadableImage'
+import { Button, Typography } from '~shared/components/design-system'
+import { palette } from '~shared/config/tokens'
+import { useKeyboardMetrics } from '~shared/hooks/env/useKeyboardMetrics'
+import { PostDescriptionField } from './PostDescriptionField'
+import { VISIBILITY_OPTIONS } from './PostVisibilityField'
+import { usePostPlacesBottomSheet } from './usePostPlacesBottomSheet'
+import { usePostVisibilityBottomSheet } from './usePostVisibilityBottomSheet'
+import type { PostFormPhoto, PostPlaceSelection } from '~features/post/post-form-funnel/postFormFunnel.types'
+
+export interface PostMetaValue {
+  description: string
+  places: PostPlaceSelection[]
+  visibility: PostVisibility
+}
+
+export function MetaStep({ tripId, photos, onNext }: { tripId: string | null; photos: PostFormPhoto[]; onNext: (value: PostMetaValue) => Promise<void> }) {
+  const { width, height: screenHeight } = useWindowDimensions()
+  const { metrics: keyboard } = useKeyboardMetrics()
+  const insets = useSafeAreaInsets()
+  const [description, setDescription] = useState('')
+  const [places, setPlaces] = useState<PostPlaceSelection[]>([])
+  const [visibility, setVisibility] = useState<PostVisibilityValue>(PostVisibility.PRIVATE)
+  const placesSheet = usePostPlacesBottomSheet()
+  const visibilitySheet = usePostVisibilityBottomSheet()
+  const [isPending, startTransition] = useLoading()
+  const photoWidth = width - 32
+  const placesLabel = places.length === 0 ? '선택 안 함' : places.length === 1 ? places[0]?.name : `${places[0]?.name} 외 ${places.length - 1}`
+
+  // screenY 는 키보드 상단의 화면 절대 좌표다. 퍼널이 paddingBottom 으로 하단
+  // 안전영역을 이미 비워 둔 만큼 빼야 CTA 가 그 높이만큼 더 뜨지 않는다.
+  // 키보드가 그 영역을 덮으므로 남은 여백은 0 아래로 내려가지 않는다.
+  const keyboardLift = keyboard == null ? 0 : Math.max(screenHeight - keyboard.screenY - insets.bottom, 0)
+
+  const editPlaces = async () => {
+    const selected = await placesSheet.open({ tripId, defaultValue: places })
+    if (selected == null) return
+    setPlaces(selected)
+  }
+
+  const editVisibility = async () => {
+    const selected = await visibilitySheet.open({ tripId, defaultValue: visibility })
+    if (selected == null) return
+    setVisibility(selected)
+  }
+
+  return (
+    <View style={styles.screen}>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
+        <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false}>{photos.map((photo) => <LoadableImage key={photo.id} source={{ uri: photo.uri }} style={[styles.photo, { width: photoWidth }]} contentFit="cover" />)}</ScrollView>
+        <PostDescriptionField value={description} onChange={setDescription} />
+        <View style={styles.fields}>
+          <OverlayField label="위치" value={placesLabel ?? '선택 안 함'} onPress={() => void editPlaces()} />
+          <OverlayField label="공개 범위" value={VISIBILITY_OPTIONS.find((option) => option.value === visibility)?.label ?? ''} onPress={() => void editVisibility()} />
+        </View>
+      </ScrollView>
+      <BottomArea position="static" style={[styles.actions, { marginBottom: keyboardLift }]}>
+        <Button
+          variant="contained"
+          size="large"
+          fullWidth
+          disabled={isPending}
+          loading={isPending}
+          onPress={() => {
+            void startTransition(async () => {
+              await onNext({ description: description.trim(), places, visibility })
+            })
+          }}
+        >
+          확인
+        </Button>
+      </BottomArea>
+    </View>
+  )
+}
+
+function OverlayField({ label, value, onPress }: { label: string; value: string; onPress: () => void }) {
+  return <Pressable onPress={onPress} style={styles.field}><Typography variant="subtitle2">{label}</Typography><View style={styles.fieldValue}><Typography variant="caption" color="text.secondary">{value}</Typography><MaterialIcons name="chevron-right" size={22} color={palette.textSecondary} /></View></Pressable>
+}
+
+const styles = StyleSheet.create({
+  screen: { flex: 1 },
+  content: { padding: 16, gap: 20 },
+  photo: { aspectRatio: 1 },
+  fields: { gap: 8 },
+  actions: { borderTopWidth: 1, borderTopColor: palette.divider },
+  field: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  fieldValue: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+})

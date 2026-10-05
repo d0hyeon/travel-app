@@ -1,0 +1,147 @@
+name: App CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/waylog-app/**'
+      - 'packages/**'
+      - 'pnpm-lock.yaml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'apps/waylog-app/**'
+      - 'packages/**'
+  workflow_dispatch:
+    inputs:
+      is_mandatory:
+        description: 필수 업데이트로 배포한다 (앱 시작 시 즉시 적용)
+        type: boolean
+        default: false
+      build:
+        description: iOS 빌드도 실행한다 (version 변경 없이 TestFlight 재빌드할 때)
+        type: boolean
+        default: false
+
+concurrency:
+  group: app-cd-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+defaults:
+  run:
+    working-directory: apps/waylog-app
+
+jobs:
+  update-preview:
+    name: EAS Update (PR preview)
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - run: eas update --branch pr-${{ github.event.pull_request.number }} --environment preview --non-interactive
+
+  update-production:
+    name: EAS Update (production)
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - name: Read mandatory label
+        id: mandatory
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          LABELS=$(gh api repos/${{ github.repository }}/commits/${{ github.sha }}/pulls --jq '.[].labels[].name')
+          if echo "$LABELS" | grep -qx mandatory; then
+            echo "value=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=false" >> "$GITHUB_OUTPUT"
+          fi
+      - run: pnpm test
+      - run: eas update --branch production --environment production --message "${{ github.sha }}" --non-interactive
+        env:
+          BUNDLE_IS_MANDATORY: ${{ inputs.is_mandatory == true && 'true' || steps.mandatory.outputs.value || 'false' }}
+
+  detect-version:
+    name: Detect app version
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      build: ${{ steps.version.outputs.build }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: version
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          MANUAL_BUILD: ${{ inputs.build == true }}
+        run: |
+          read_version() { sed -nE 's/^  version: "([^"]+)".*/\1/p' | head -n1; }
+          CURRENT=$(read_version < app.config.ts)
+          if [ -z "$CURRENT" ]; then
+            echo "app.config.ts에서 version을 읽지 못했습니다."
+            exit 1
+          fi
+          echo "version=$CURRENT" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "build=$MANUAL_BUILD" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          PREVIOUS=$(git show "$BEFORE_SHA:apps/waylog-app/app.config.ts" 2>/dev/null | read_version || true)
+          if [ "$CURRENT" != "$PREVIOUS" ]; then
+            echo "build=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "build=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    name: EAS Build (iOS)
+    needs: detect-version
+    if: needs.detect-version.outputs.build == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - run: eas build --platform ios --profile production --non-interactive --no-wait
+
+  release:
+    name: GitHub Release
+    needs: [detect-version, build]
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: app-v${{ needs.detect-version.outputs.version }}
+        run: |
+          if gh release view "$TAG" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            echo "$TAG 릴리스가 이미 있어 건너뜁니다."
+            exit 0
+          fi
+          gh release create "$TAG" --repo "${{ github.repository }}" --target "${{ github.sha }}" --title "$TAG" --generate-notes

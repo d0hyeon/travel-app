@@ -1,0 +1,19 @@
+import { createContext, useContext } from 'react'
+import type { AutoFocus, Coordinate } from '@waylog/domains/modules/map'
+
+export interface MapContextValue {
+  extendBound: (value: Coordinate) => void
+  config: { autoFocus: AutoFocus }
+  visibleMarkerIds: Set<string> | null
+  zoom: number
+}
+
+export const MapContext = createContext<MapContextValue | null>(null)
+
+export function useMapContext(): MapContextValue {
+  const context = useContext(MapContext)
+  if (context == null) {
+    throw new Error('MapContext is not available. Make sure this is rendered inside <Map>.')
+  }
+  return context
+}

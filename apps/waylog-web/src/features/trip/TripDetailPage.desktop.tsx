@@ -1,0 +1,114 @@
+import {
+  Alert,
+  AlertTitle,
+  Box,
+  Button,
+  Tab,
+  Tabs,
+  Typography
+} from '@mui/material';
+import { useQueryParamState } from '../../shared/hooks/urls/useQueryParamState.ts';
+import { TripBasicInfoContent } from './trip-basic-info/TripBasicInfoContent.desktop';
+
+
+import { ErrorBoundary } from '@waylog/react';
+import { TopNavigation } from '~shared/components/layout/TopNavigation.desktop.tsx';
+import { PopMenu } from '~shared/components/PopMenu.tsx';
+import { SwitchCase } from '~shared/components/SwitchCase';
+import { lazy } from '~shared/utils/react';
+import { TripLeavePopMenuItem } from './components/TripLeavePopMenuItem.tsx';
+import { TripNameEditableText } from './components/TripNameEditableText.tsx';
+import { useTripId } from './useTripId';
+import { ChatFab } from './trip-chat/ChatFab';
+
+const TripPhotoContent = lazy(async () => {
+  const module = await import('./trip-photo/TripPhotoContent.desktop.tsx')
+  return { default: module.TripPhotoContent }
+});
+
+const TripPlaceContent = lazy(async () => {
+  const module = await import('./trip-place/TripPlaceContent.desktop');
+  return { default: module.TripPlaceContent }
+});
+
+const TripRoutesContent = lazy(async () => {
+  const module = await import('./trip-route/TripRoutesContent.desktop');
+  return { default: module.TripRoutesContent }
+});
+
+const TripExpenseContent = lazy(async () => {
+  const module = await import('./trip-expense/desktop/ExpenseContent.desktop.tsx');
+  return { default: module.ExpenseContent }
+});
+
+type TabType = 'Info' | 'Place' | 'Route' | 'Expense' | 'Photo'
+
+export function TripDetailPageDesktop() {
+  const tripId = useTripId()
+
+  const [currentTab, setCurrentTab] = useQueryParamState<TabType>('content', {
+    defaultValue: 'Info'
+  })
+
+  return (
+    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+      {/* Header */}
+      <TopNavigation
+        rightElement={
+          <PopMenu items={<TripLeavePopMenuItem tripId={tripId} />} />
+        }
+      >
+        <TripNameEditableText tripId={tripId} variant="h6" />
+      </TopNavigation>
+
+      <Box
+        position="sticky"
+        top={72}
+        width="100%"
+        bgcolor="background.paper"
+        zIndex={10}
+      >
+        <Tabs
+          value={currentTab} onChange={(_, v) => setCurrentTab(v)}
+          sx={{ borderBottom: '1px solid #ddd' }}
+        >
+          <Tab label="정보" value="Info" />
+          <Tab label="장소" value="Place" onMouseEnter={() => TripPlaceContent.preload()} />
+          <Tab label="계획" value="Route" onMouseEnter={() => TripRoutesContent.preload()} />
+          <Tab label="정산" value="Expense" onMouseEnter={() => TripExpenseContent.preload()} />
+          <Tab label="사진" value="Photo" onMouseEnter={() => TripPhotoContent.preload()} />
+        </Tabs>
+      </Box>
+      {/* Content */}
+      <ErrorBoundary
+        fallback={({ error, resetError }) => (
+          <Alert
+            color="error"
+            action={(<Button size="small" variant='contained' onClick={resetError}>재시도</Button>)}
+            sx={{ margin: 2, marginX: 1.5 }}
+          >
+            <AlertTitle>에러가 발생했어요!</AlertTitle>
+            <Typography variant="caption">{error.message}</Typography>
+          </Alert>
+        )}
+      >
+
+        <SwitchCase
+          value={currentTab}
+          cases={{
+            Info: <TripBasicInfoContent tripId={tripId} />,
+            Place: () => <TripPlaceContent tripId={tripId} />,
+            Route: () => <TripRoutesContent tripId={tripId} />,
+            Expense: () => <TripExpenseContent tripId={tripId} />,
+            Photo: () => <TripPhotoContent tripId={tripId} />
+          }}
+        />
+
+      </ErrorBoundary>
+
+      {/* 채팅 FAB */}
+      <ChatFab tripId={tripId} />
+    </Box>
+  )
+}
+

@@ -1,0 +1,118 @@
+import { useMemo, type ComponentType, type ReactNode, type Ref } from 'react'
+import { StyleSheet, Text as RNText, type TextProps as RNTextProps } from 'react-native'
+import { palette } from '~shared/config/tokens'
+
+
+// 웹 theme.ts 의 값을 그대로 옮긴다. 앱은 모바일이므로
+// breakpoints.down('md') 쪽 수치를 쓴다.
+// RN 커스텀 폰트는 fontWeight 를 무시하므로, weight 는 fontFamily 선택으로 표현한다.
+export const VARIANT_STYLE = StyleSheet.create({
+  h4: { fontSize: 24, lineHeight: 34, fontWeight: 700, fontFamily: 'SUIT-Bold' },
+  h5: { fontSize: 20, lineHeight: 28, fontWeight: 700, fontFamily: 'SUIT-Bold' },
+  h6: { fontSize: 16, lineHeight: 22, fontWeight: 700, fontFamily: 'SUIT-Bold' },
+
+  subtitle1: { fontSize: 14, lineHeight: 20, fontWeight: 600, fontFamily: 'SUIT-Bold' },
+  subtitle2: { fontSize: 13, lineHeight: 18, fontWeight: 600, fontFamily: 'SUIT-Bold' },
+
+  body1: { fontSize: 15, lineHeight: 20, fontWeight: 500, fontFamily: 'SUIT' },
+  body2: { fontSize: 13, lineHeight: 18, fontWeight: 500, fontFamily: 'SUIT' },
+
+  caption: { fontSize: 11, lineHeight: 14, fontWeight: 500, fontFamily: 'SUIT' },
+})
+
+// fontWeight prop 으로 넘어온 값을 로드된 SUIT family 이름으로 치환한다.
+// 숫자/문자열 weight 는 굵기 구간별로 가장 가까운 family 에 매핑한다.
+function resolveFontFamily(fontWeight: TypographyProps['fontWeight']): string {
+  if (fontWeight === 'medium') return 'SUIT'
+  if (fontWeight === 'bold') return 'SUIT-Bold'
+
+  const numeric = typeof fontWeight === 'number' ? fontWeight : Number(fontWeight)
+  if (Number.isNaN(numeric)) return 'SUIT-Bold'
+  if (numeric >= 600) return 'SUIT-Bold'
+  return 'SUIT'
+}
+
+export type TypographyVariant = keyof typeof VARIANT_STYLE
+
+// MUI 의 color="text.secondary" 같은 표기를 그대로 받는다.
+const COLOR_MAP = {
+  'text.primary': palette.text,
+  'text.secondary': palette.textSecondary,
+  'text.disabled': palette.textDisabled,
+  'primary.main': palette.primary,
+  primary: palette.primary,
+  'common.white': palette.onPrimary,
+  'error.main': palette.error,
+  error: palette.error,
+  warning: palette.warning,
+  'success.main': palette.success,
+  success: palette.success,
+} as const;
+
+export interface TypographyProps extends RNTextProps {
+  ref?: Ref<RNText>
+  /** 텍스트를 그리는 컴포넌트. 애니메이션처럼 기본 Text 로 할 수 없는 표현이 필요할 때 바꾼다 */
+  as?: ComponentType<RNTextProps>
+  variant?: TypographyVariant
+  color?: keyof typeof COLOR_MAP;
+  fontWeight?: 'bold' | 'medium' | number | string
+  /** MUI 축약 prop */
+  mb?: number
+  mt?: number
+  ml?: number
+  mr?: number
+  flexShrink?: number
+  noWrap?: boolean
+  textAlign?: 'left' | 'center' | 'right'
+  py?: number
+  px?: number
+  children?: ReactNode
+}
+
+export function Typography({
+  as: TextComponent = RNText,
+  variant = 'body1',
+  color,
+  fontWeight,
+  mb,
+  mt,
+  ml,
+  mr,
+  flexShrink,
+  noWrap,
+  textAlign,
+  py,
+  px,
+  style,
+  ...rest
+}: TypographyProps) {
+  return (
+    <TextComponent
+      style={[
+        VARIANT_STYLE[variant],
+        { color: color != null ? (COLOR_MAP[color] ?? color) : palette.text },
+        fontWeight != null && {
+          fontWeight: (fontWeight === 'medium' ? '700' : String(fontWeight)) as never,
+          fontFamily: resolveFontFamily(fontWeight),
+        },
+        {
+          marginBottom: mb != null ? mb * 8 : undefined,
+          marginTop: mt != null ? mt * 8 : undefined,
+          marginLeft: ml != null ? ml * 8 : undefined,
+          marginRight: mr != null ? mr * 8 : undefined,
+          flexShrink,
+          textAlign,
+          paddingVertical: py != null ? py * 8 : undefined,
+          paddingHorizontal: px != null ? px * 8 : undefined,
+        },
+        style,
+      ]}
+      numberOfLines={noWrap === true ? 1 : rest.numberOfLines}
+      {...rest}
+    />
+  )
+}
+
+export function getTypographyStyle(variant: TypographyVariant) {
+  return VARIANT_STYLE[variant];
+}

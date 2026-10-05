@@ -27,6 +27,7 @@ build
 
 .env
 build/
+!packages/expo-uiscene-lifecycle/build
 supabase/.temp/
 .gstack/
 .omc
@@ -34,3 +35,5 @@ supabase/.temp/
 e2e/.auth/
 test-results/
 playwright-report/
+
+apps/waylog-web/public/service-worker.js

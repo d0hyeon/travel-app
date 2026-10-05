@@ -1,0 +1,170 @@
+import { MaterialIcons } from '@expo/vector-icons'
+import { Suspense, useEffect, useMemo, useState } from 'react'
+import { StyleSheet, Pressable, View } from 'react-native'
+import { Map } from '~shared/components/Map'
+import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
+import { Stack, Typography } from '~shared/components/design-system'
+import { palette } from '~shared/config/tokens'
+import { useUserTrips } from './useUserTrips'
+import { Country } from '@waylog/domains/modules/location'
+import { getVisitedCountryColors, resolveVisitedCountryColor } from '@waylog/domains/modules/map'
+import { deriveVisitedCountries, deriveVisitedLocations, type VisitedLocation } from './user-profile.utils'
+import { UserTripPhotoList } from './UserTripPhotoList'
+import { useOverlay } from '~shared/hooks/useOverlay'
+import { useStorageStore } from '~shared/hooks/useStorageStore'
+
+export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChange }: {
+  userId: string
+  /** 안전 영역을 뺀 화면 높이. 지도가 이 높이를 채운다 */
+  viewportHeight: number
+  /** 지도를 만지는 동안 바깥 세로 스크롤을 멈추기 위해 알린다 */
+  onMapInteractionChange?: (isInteracting: boolean) => void
+}) {
+  const { data: trips } = useUserTrips(userId)
+
+  // 웹의 calc(100svh - 40px) 과 같다. 탭바를 뺀 만큼을 지도에 준다.
+  const mapHeight = Math.max(viewportHeight - TAB_BAR_HEIGHT, 0)
+  const visitedLocations = useMemo(() => deriveVisitedLocations(trips), [trips])
+  const visitCountByCountry = useMemo(() => deriveVisitedCountries(trips), [trips])
+  const countryColors = useMemo(() => getVisitedCountryColors([...visitCountByCountry.keys()]), [visitCountByCountry])
+  const [selectedLocation, setSelectedLocation] = useState<VisitedLocation | null>(null)
+  const [isLocationVisible, setIsLocationVisible] = useStorageStore('user-record-visible-location', true)
+  const locationOverlay = useOverlay()
+
+  useEffect(() => {
+    if (selectedLocation == null) return;
+
+    const closeOverlay = locationOverlay.open(({ isOpen, onClose }) => (
+      <BottomSheet
+        isOpen={isOpen}
+        snapPoints={[0.6, 0.8]}
+        defaultSnapIndex={0}
+        safeArea
+        onDismiss={() => {
+          setSelectedLocation(null);
+          onClose();
+        }}
+      >
+        <BottomSheet.Header>
+          <LocationMetaInfo value={selectedLocation} />
+        </BottomSheet.Header>
+        <BottomSheet.Body>
+          <BottomSheet.ScrollView contentContainerStyle={styles.locationDetails}>
+            {selectedLocation.trips.map((trip) => (
+              <View key={trip.id}>
+                <Typography variant="body2" fontWeight="bold">{trip.name}</Typography>
+                {/* 사진 조회가 서스펜드해도 루트 경계까지 올라가지 않게 여기서 받는다.
+                    올라가면 화면 전체가 다시 마운트되어 지도 위치가 초기화된다. */}
+                <Suspense fallback={<Typography variant="caption" color="text.secondary">사진을 불러오는 중…</Typography>}>
+                  <UserTripPhotoList tripId={trip.id} />
+                </Suspense>
+              </View>
+            ))}
+          </BottomSheet.ScrollView>
+        </BottomSheet.Body>
+      </BottomSheet>
+    ))
+
+    return () => closeOverlay();
+  }, [selectedLocation, locationOverlay])
+
+  if (visitedLocations.length === 0) {
+    return (
+      <Stack alignItems="center" justifyContent="center" style={{ height: mapHeight }}>
+        <Typography variant="body2" color="text.secondary">아직 방문 기록이 없어요</Typography>
+      </Stack>
+    )
+  }
+
+  return (
+    <View style={styles.records}>
+      <View
+        style={[styles.map, { height: mapHeight }]}
+        onStartShouldSetResponderCapture={() => {
+          onMapInteractionChange?.(true)
+          return false
+        }}
+        onTouchEnd={() => onMapInteractionChange?.(false)}
+        onTouchCancel={() => onMapInteractionChange?.(false)}
+      >
+        <Pressable onPress={() => setIsLocationVisible(!isLocationVisible)} style={styles.locationToggle}>
+          <MaterialIcons name={isLocationVisible ? 'visibility' : 'visibility-off'} size={18} color={palette.textSecondary} />
+        </Pressable>
+        <Map autoFocus="marker" defaultZoom={1} clustering>
+          <Map.PolygonLayer>
+            {[...visitCountByCountry].map(([country, visitCount]) => (
+              <Map.Region key={country} country={country} color={countryColors.get(country)} opacity={getCountryPolygonOpacity(visitCount)} />
+            ))}
+            {visitedLocations.map((visitedLocation) => (
+              <Map.Region
+                key={visitedLocation.location}
+                location={visitedLocation.location}
+                level="auto"
+                {...getRegionPolygonStyle(
+                  visitedLocation.visitCount,
+                  resolveVisitedCountryColor(countryColors, visitedLocation.countryCode),
+                )}
+              />
+            ))}
+          </Map.PolygonLayer>
+
+          {isLocationVisible && visitedLocations.map((visitedLocation) => (
+            <Map.Marker
+              key={visitedLocation.location}
+              id={visitedLocation.location}
+              lat={visitedLocation.coordinate.lat}
+              lng={visitedLocation.coordinate.lng}
+              variant="circle"
+              color={selectedLocation?.location === visitedLocation.location ? 'selected' : 'default'}
+              onPress={() => setSelectedLocation((current) => current?.location === visitedLocation.location ? null : visitedLocation)}
+            />
+          ))}
+        </Map>
+      </View>
+
+    </View>
+  )
+}
+
+// 웹의 calc(100svh - 40px) 과 같다. 탭바를 뺀 만큼을 지도에 준다.
+const TAB_BAR_HEIGHT = 40
+
+const MIN_VISIT_OPACITY = 0.3
+const OPACITY_STEP_PER_VISIT = 0.2
+
+function getVisitOpacity(visitCount: number, maxOpacity: number) {
+  return Math.max(Math.min(MIN_VISIT_OPACITY + (visitCount - 1) * OPACITY_STEP_PER_VISIT, maxOpacity), MIN_VISIT_OPACITY)
+}
+
+const COUNTRY_MAX_VISIT_OPACITY = 0.6;
+function getCountryPolygonOpacity(visitCount: number) {
+  return getVisitOpacity(visitCount, COUNTRY_MAX_VISIT_OPACITY)
+}
+
+const REGION_MAX_VISIT_OPACITY = 0.8
+function getRegionPolygonStyle(visitCount: number, countryColor: string) {
+  return {
+    color: countryColor,
+    opacity: getVisitOpacity(visitCount, REGION_MAX_VISIT_OPACITY),
+  }
+}
+
+function LocationMetaInfo({ value }: { value: VisitedLocation }) {
+  return <Stack direction="row" alignItems="center" style={styles.locationTitle}><View style={styles.locationDot} /><Typography variant="subtitle1">{value.location}</Typography><Typography variant="caption" color="text.secondary">{value.countryName}</Typography></Stack>
+}
+
+function formatLastVisit(isoDate: string): string {
+  const [year, month] = isoDate.split('-')
+  return `${year ?? ''}.${month ?? ''}`
+}
+
+const styles = StyleSheet.create({
+  locationDetails: { padding: 16, gap: 16 },
+  records: { flex: 1 },
+  map: { backgroundColor: '#EDF2F7' },
+  locationToggle: { position: 'absolute', right: 8, top: 8, zIndex: 2, padding: 8, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.85)' },
+  locationList: { padding: 16, gap: 8 },
+  locationRow: { paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: palette.divider },
+  locationTitle: { gap: 8 },
+  locationDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: palette.primary },
+})

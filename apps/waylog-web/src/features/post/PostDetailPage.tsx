@@ -1,0 +1,53 @@
+import { Box, Container } from '@mui/material'
+import { useNavigate, useParams } from 'react-router'
+import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
+import { assert } from '@waylog/utility'
+import { PostMenu } from './PostMenu'
+import { PostScreen } from './PostScreen'
+import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
+import { toast } from 'sonner'
+
+export const meta = () => [
+  { title: '포스트 — WayLog' },
+  { property: 'og:title', content: '포스트 — WayLog' },
+]
+
+export default function PostDetailPage() {
+  const postId = usePostId();
+  const navigate = useNavigate();
+
+  useScrollRestore({ key: `post-page-${postId}` });
+
+  return (
+    <Container maxWidth="sm" disableGutters sx={{ flex: 1 }}>
+      <TopNavigation
+        position="sticky"
+        borderBottom="none !important"
+        bgcolor="transparent !important"
+        leftElement={
+          <TopNavigation.BackButton />
+        }
+        rightElement={
+          <PostMenu
+            postId={postId}
+            onDelete={() => {
+              navigate(-1)
+              toast.success('사용자를 차단했어요')
+            }}
+            onBlock={() => navigate(-1)}
+          />
+        }
+      />
+
+      <PostScreen postId={postId} />
+    </Container>
+  )
+}
+
+
+function usePostId() {
+  const { postId } = useParams<{ postId?: string }>()
+  assert(!!postId, '잘못된 접근입니다.');
+
+  return postId;
+}

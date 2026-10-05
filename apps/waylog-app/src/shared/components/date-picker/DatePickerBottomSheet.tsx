@@ -1,0 +1,117 @@
+import { useState } from 'react'
+import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
+import { Button } from '~shared/components/design-system'
+import { DatePicker } from './DatePicker'
+import { DEFAULT_MINUTE_STEP } from './datePicker.model'
+import type { DateBounds, DatePickerStep, DateRange, DateSelection, DateTimeSetter } from './datePicker.model'
+import { endOfDay } from 'date-fns'
+
+/** 확정된 값의 모양도 타입이 정한다. 시트를 여는 쪽은 무엇을 고를지 이미 안다. */
+type DatePickerBottomSheetValueProps =
+  | ({
+    type?: 'date' | 'dateTime'
+    /** 시트를 열 때의 값. 확정 전까지 밖으로 새어 나가지 않는다. */
+    defaultValue: Date | null
+    minuteStep?: number
+    onConfirm: (value: Date) => void
+  } & DateTimeSetter)
+  | {
+    type: 'range'
+    defaultValue: DateSelection
+    /** 하루만 골라도 확정할 수 있게 한다. 이때 시작일과 종료일이 같아진다. */
+    allowSingleDay?: boolean
+    onConfirm: (value: DateRange) => void
+  }
+
+type DatePickerBottomSheetProps = DatePickerBottomSheetValueProps &
+  DateBounds & {
+    isOpen: boolean
+    /** 사용자가 닫으려 한다 (취소·배경 탭·아래로 끌기) */
+    onDismiss: () => void
+    onClose?: () => void
+  }
+
+export function DatePickerBottomSheet(props: DatePickerBottomSheetProps) {
+  const { isOpen, minDate, maxDate, onDismiss, onClose } = props
+
+  // 두 모양을 한 상태에 담으면 다시 빈 칸을 들고 다니게 되므로 따로 쥔다.
+  const [day, setDay] = useState<Date | null>(
+    props.type === 'range' ? null : props.defaultValue,
+  )
+  const [range, setRange] = useState<DateSelection>(
+    props.type === 'range' ? props.defaultValue : [null, null],
+  )
+  const [step, setStep] = useState<DatePickerStep>('date')
+
+  const [start, end] = range
+  const allowSingleDay = props.type === 'range' && props.allowSingleDay === true
+  const isConfirmable =
+    props.type === 'range' ? start != null && (end != null || allowSingleDay) : day != null
+
+  const handlePressPrimary = () => {
+    if (props.type === 'range') {
+      if (start == null) return
+      // 하루만 고른 기간은 양끝을 같은 날로 채운다. 소비자는 빈 칸을 보지 않는다.
+      props.onConfirm([start, end ?? endOfDay(start)])
+      return
+    }
+
+    if (props.type === 'dateTime' && step === 'date') {
+      return setStep('time')
+    }
+
+    if (day == null) return
+    props.onConfirm(day)
+  }
+
+  return (
+    <BottomSheet
+      isOpen={isOpen}
+      onDismiss={onDismiss}
+      onClose={onClose}
+      safeArea
+    >
+      <BottomSheet.Body>
+        <BottomSheet.GestureArea>
+          {props.type === 'range' ? (
+            <DatePicker
+              type="range"
+              value={range}
+              minDate={minDate}
+              maxDate={maxDate}
+              onChange={setRange}
+            />
+          ) : (
+            <DatePicker
+              type={props.type ?? 'date'}
+              value={day ?? undefined}
+              step={step}
+              minuteStep={props.minuteStep ?? DEFAULT_MINUTE_STEP}
+              minDate={minDate}
+              maxDate={maxDate}
+              defaultHours={props.defaultHours}
+              defaultMinutes={props.defaultMinutes}
+              onChange={setDay}
+              onStepChange={setStep}
+            />
+          )}
+        </BottomSheet.GestureArea>
+
+      </BottomSheet.Body>
+      <BottomSheet.BottomActions>
+        <Button fullWidth size="large" onPress={step === 'time' ? () => setStep('date') : onDismiss}>
+          {step === 'time' ? '이전' : '취소'}
+        </Button>
+        <Button
+          fullWidth
+          size="large"
+          variant="contained"
+          disabled={!isConfirmable}
+          onPress={handlePressPrimary}
+        >
+          {props.type === 'dateTime' && step === 'date' ? '다음' : '확인'}
+        </Button>
+      </BottomSheet.BottomActions>
+    </BottomSheet>
+  )
+}

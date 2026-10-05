@@ -12,7 +12,7 @@ import {
 } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist', 'dev-dist', '.react-router']),
+  globalIgnores(['**/dist/**', '**/dev-dist/**', '**/.react-router/**', '**/node_modules/**']),
   {
     files: ['**/*.{ts,tsx}'],
 
@@ -36,14 +36,15 @@ export default defineConfig([
     },
 
     rules: {
-      'package/import': ['error', { aliases: { '~': './src' }}],
+      'package/import': ['error', { aliases: { '~': './apps/waylog-web/src' }}],
       'react-hooks/set-state-in-effect': 'warn',
       'react-hooks/refs': 'off',
       '@typescript-eslint/no-explicit-any': ['warn', { ignoreRestArgs: true }],
       "@typescript-eslint/no-unsafe-function-type": "off",
       "@typescript-eslint/no-unused-vars": "off",
       "no-async-promise-executor": "off",
-      "@typescript-eslint/ban-ts-comment": "off"
+      "@typescript-eslint/ban-ts-comment": "off",
+      "react-hooks/static-components": "off"
     },
   },
 ])

@@ -1,0 +1,51 @@
+import { Fragment, useMemo } from 'react'
+import { getMarineActivityMarkerItems } from '@waylog/domains/modules/marine-activity'
+import { useDailyMarineActivityIndices } from '@waylog/domains/modules/marine-activity'
+import { useTrip } from '@waylog/domains/modules/trip'
+import { Map } from '~shared/components/Map'
+import { MarineActivityMarkerIcon } from './MarineActivityMarkerIcon'
+import { useTripMarineActivityDetailOverlay } from './TripMarineActivityDetailOverlay'
+import { useActiveTripDay } from '~features/trip/trip-route/trip-route-configuration/useActiveTripDay'
+
+interface TripMarineActivityMapMarkersProps {
+  tripId: string
+}
+
+export function TripMarineActivityMapMarkers({ tripId }: TripMarineActivityMapMarkersProps) {
+  const detailOverlay = useTripMarineActivityDetailOverlay(tripId)
+  const {
+    data: { lat, lng },
+  } = useTrip(tripId)
+  const { value: activedTripDate } = useActiveTripDay(tripId)
+  const { data } = useDailyMarineActivityIndices({
+    coordinate: { lat, lng },
+    date: activedTripDate,
+  })
+
+  const markerItems = useMemo(() => {
+    if (!data) return []
+    return getMarineActivityMarkerItems(data)
+  }, [data])
+
+  return (
+    <Fragment>
+      {markerItems.map((markerItem) => (
+        <Map.Marker
+          key={markerItem.placeCode}
+          lat={markerItem.coordinate.lat}
+          lng={markerItem.coordinate.lng}
+          label={markerItem.placeName}
+          icon={<MarineActivityMarkerIcon markerItem={markerItem} />}
+          onPress={() => {
+            if (!activedTripDate) return
+            detailOverlay.open({
+              placeCode: markerItem.placeCode,
+              placeName: markerItem.placeName,
+              initialDate: activedTripDate,
+            })
+          }}
+        />
+      ))}
+    </Fragment>
+  )
+}

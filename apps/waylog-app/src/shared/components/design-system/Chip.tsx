@@ -1,0 +1,74 @@
+import { StyleSheet, Pressable, type StyleProp, type ViewStyle } from 'react-native'
+import { MaterialIcons } from '@expo/vector-icons'
+import { palette } from '~shared/config/tokens'
+import { Box } from './Box'
+import { Typography } from './Typography'
+
+export interface ChipProps {
+  label: string
+  size?: 'small' | 'medium'
+  variant?: 'filled' | 'outlined'
+  color?: 'primary' | 'default'
+  onPress?: () => void
+  onDelete?: () => void
+  style?: StyleProp<ViewStyle>
+}
+
+export function Chip({
+  label,
+  size = 'medium',
+  variant = 'filled',
+  color = 'default',
+  onPress,
+  onDelete,
+  style,
+}: ChipProps) {
+  const isPrimary = color === 'primary'
+  const filled = variant === 'filled';
+
+
+  return (
+    <Pressable onPress={onPress}>
+      <Box
+        style={[
+          [styles.box, {
+            paddingHorizontal: size === 'small' ? 8 : 12, paddingVertical: size === 'small' ? 4 : 6, flexGrow: 1, flexShrink: 0, borderWidth: filled ? 0 : 1, borderColor: isPrimary ? palette.primary : palette.divider, backgroundColor: filled
+              ? isPrimary
+                ? palette.primary
+                : 'rgba(0,0,0,0.08)'
+              : 'transparent'
+          }],
+          style,
+        ]}
+      >
+        <Typography
+          variant={size === 'small' ? 'caption' : 'body2'}
+          style={{
+            color: filled && isPrimary ? '#fff' : palette.text,
+          }}
+        >
+          {label}
+        </Typography>
+        {onDelete != null && (
+          <Pressable onPress={onDelete} hitSlop={8}>
+            <MaterialIcons
+              name="close"
+              size={14}
+              color={filled && isPrimary ? '#fff' : palette.textSecondary}
+            />
+          </Pressable>
+        )}
+      </Box>
+    </Pressable>
+  )
+}
+
+const styles = StyleSheet.create({
+  box: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    borderRadius: 12,
+    alignSelf: 'flex-start',
+  },
+})

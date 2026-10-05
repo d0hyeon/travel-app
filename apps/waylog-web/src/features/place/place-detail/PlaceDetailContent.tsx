@@ -1,0 +1,50 @@
+import { Box, Skeleton, Stack } from '@mui/material'
+import { generatePath, Link } from 'react-router'
+import { AppRoute } from '@waylog/routes'
+import { PostCard } from '~features/post/PostCard'
+import { usePlaceFeed } from '../../post/place-feed/usePlaceFeed'
+import { PlaceInfoWidget } from '../PlaceInfoWIdget'
+import { usePostOverlay } from '~features/post/usePostOverlay'
+
+interface Props {
+  placeId: string
+}
+
+export const PlaceDetailContent = {
+  Feed: PlaceFeed,
+  Info: PlaceInfoWidget,
+} as const;
+
+
+
+
+function PlaceFeed({ placeId }: Props) {
+  const { data: { feed } } = usePlaceFeed(placeId);
+  const { Trigger } = usePostOverlay()
+
+  if (feed.length === 0) {
+    return (
+      <Box textAlign="center" py={8} color="text.secondary" fontSize={14}>
+        아직 이 장소의 기록이 없어요
+      </Box>
+    )
+  }
+
+  return (
+    <Stack gap={2} padding={2} bgcolor={(theme) => theme.palette.grey[200]}>
+      {feed.map((post) => (
+        <Trigger key={post.id} postId={post.id}>
+          <PostCard post={post} />
+        </Trigger>
+      ))}
+    </Stack>
+  )
+}
+
+PlaceFeed.Pending = () => (
+  <Stack gap={2} padding={2}>
+    <Skeleton height={300} />
+    <Skeleton height={300} />
+    <Skeleton height={300} />
+  </Stack>
+)

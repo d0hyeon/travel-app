@@ -1,0 +1,63 @@
+import { StyleSheet } from 'react-native'
+import { Skeleton, Stack, Typography, type StackProps } from "~shared/components/design-system";
+import { TripChecklist } from './TripChecklist';
+import { useTripChecklist } from '@waylog/domains/modules/trip-checklist';
+import { ListItem } from "~shared/components/ListItem";
+import { Suspense } from "react";
+
+interface Props extends StackProps {
+  tripId: string;
+  /** true면 항목이 없을 때 아무것도 렌더하지 않는다. */
+  hideOnEmpty?: boolean;
+}
+
+
+export function TripDeadlineChecklist(props: Props) {
+  return (
+    <Suspense fallback={<Pending {...props} />}>
+      <Resolved {...props} />
+    </Suspense>
+  )
+}
+
+function Resolved({ tripId, hideOnEmpty, ...props }: Props) {
+  const { data: { deadlines } } = useTripChecklist(tripId);
+
+  if (deadlines.length === 0 && hideOnEmpty) return null;
+
+
+  return (
+    <Stack gap={1} style={styles.container}>
+      <Typography variant="subtitle2" >
+        해야할 일
+      </Typography>
+      <Stack {...props}>
+        {deadlines.length > 0 ? (
+          deadlines.map(x => (
+            <TripChecklist.ReadonlyItem
+              key={x.id}
+              id={x.id}
+              tripId={tripId}
+            />
+          ))
+        ) : <Typography variant="body2" style={styles.emptyMessage}>모든 사항을 점검했어요</Typography>}
+      </Stack>
+    </Stack>
+  )
+}
+
+function Pending(props: StackProps) {
+  return (
+    <Stack {...props}>
+      {Array.from({ length: 2 }).map((_, key) => (
+        <ListItem key={key}>
+          <Skeleton />
+        </ListItem>
+      ))}
+    </Stack>
+  )
+}
+const styles = StyleSheet.create({
+  container: { width: '100%' },
+  emptyMessage: { paddingVertical: 24 },
+})

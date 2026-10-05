@@ -1,0 +1,148 @@
+import { supabase } from '@waylog/domains/clients'
+import { PlaceCategoryType, type PlaceCategoryType as PlaceCategoryTypeValue } from '@waylog/domains/modules/place'
+
+export const explorerKey = 'explorer'
+
+const NON_EXPLORABLE_CATEGORIES: readonly PlaceCategoryTypeValue[] = [
+  PlaceCategoryType.대중교통,
+  PlaceCategoryType.기타,
+]
+
+export const EXPLORER_CATEGORY_TYPES = Object.values(PlaceCategoryType).filter(
+  (c) => !NON_EXPLORABLE_CATEGORIES.includes(c),
+)
+
+export interface ExploredPlace {
+  placeId: string
+  name: string
+  address: string
+  lat: number
+  lng: number
+  visitorCount: number
+  lastSavedAt?: string
+  photoCount: number
+  postCount: number
+  score: number
+  destinations: string[]
+  categories: PlaceCategoryTypeValue[]
+  thumbnailUrl?: string
+}
+
+export interface ExploredPlacesResult {
+  places: ExploredPlace[]
+  totalTrips: number
+}
+
+interface ExploredPlaceRow {
+  place_id: string
+  name: string
+  address: string
+  lat: number
+  lng: number
+  visitor_count: number
+  last_saved_at: string | null
+  photo_count: number
+  post_count: number
+  score: number
+  destinations: string[]
+  categories: PlaceCategoryTypeValue[]
+  thumbnail_url: string | null
+  total_trips: number
+}
+
+async function callExploredPlaces(sinceDate?: string): Promise<ExploredPlacesResult> {
+  const { data, error } = await supabase.rpc('get_explored_places', {
+    since_date: sinceDate,
+  })
+
+  if (error) throw error
+
+  const rows = (data ?? []) as unknown as ExploredPlaceRow[]
+  const totalTrips = rows[0]?.total_trips ?? 0
+
+  const places = rows.map((row) => ({
+    placeId: row.place_id,
+    name: row.name,
+    address: row.address ?? '',
+    lat: row.lat,
+    lng: row.lng,
+    visitorCount: row.visitor_count,
+    lastSavedAt: row.last_saved_at ?? undefined,
+    photoCount: row.photo_count,
+    postCount: row.post_count,
+    score: row.score,
+    destinations: row.destinations ?? [],
+    categories: row.categories ?? [],
+    thumbnailUrl: row.thumbnail_url ?? undefined,
+  }))
+
+  return { places, totalTrips }
+}
+
+export async function getExploredPlaces(): Promise<ExploredPlacesResult> {
+  return callExploredPlaces()
+}
+
+export async function getRecentHotPlaces(months: number): Promise<ExploredPlacesResult> {
+  const since = new Date()
+  since.setMonth(since.getMonth() - months)
+  const sinceISO = since.toISOString().split('T')[0]
+
+  return callExploredPlaces(sinceISO)
+}
+
+export interface MostSavedPlace {
+  placeId: string
+  name: string
+  address: string
+  lat: number
+  lng: number
+  saveCount: number
+  lastSavedAt?: string
+  destinations: string[]
+  categories: PlaceCategoryTypeValue[]
+  thumbnailUrl?: string
+}
+
+export interface MostSavedPlacesResult {
+  places: MostSavedPlace[]
+  totalTrips: number
+}
+
+interface MostSavedPlaceRow {
+  place_id: string
+  name: string
+  address: string
+  lat: number
+  lng: number
+  save_count: number
+  last_saved_at: string | null
+  destinations: string[]
+  categories: PlaceCategoryTypeValue[]
+  thumbnail_url: string | null
+  total_trips: number
+}
+
+export async function getMostSavedPlaces(): Promise<MostSavedPlacesResult> {
+  const { data, error } = await supabase.rpc('get_most_saved_places')
+
+  if (error) throw error
+
+  const rows = (data ?? []) as unknown as MostSavedPlaceRow[]
+  const totalTrips = rows[0]?.total_trips ?? 0
+
+  const places = rows.map((row) => ({
+    placeId: row.place_id,
+    name: row.name,
+    address: row.address ?? '',
+    lat: row.lat,
+    lng: row.lng,
+    saveCount: row.save_count,
+    lastSavedAt: row.last_saved_at ?? undefined,
+    destinations: row.destinations ?? [],
+    categories: row.categories ?? [],
+    thumbnailUrl: row.thumbnail_url ?? undefined,
+  }))
+
+  return { places, totalTrips }
+}
