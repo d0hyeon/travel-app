@@ -29,6 +29,9 @@ concurrency:
   group: app-cd-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+env:
+  EXPO_PUBLIC_EAS_PROJECT_ID: ${{ vars.EXPO_PUBLIC_EAS_PROJECT_ID }}
+
 defaults:
   run:
     working-directory: apps/waylog-app
