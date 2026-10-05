@@ -73,7 +73,7 @@ TicketViewer 내부의 `ConfirmDialog`와 `ActionSheet`다. 공용 `Button`도 T
 | `.github/workflows/ci.yml` | PR → main | `pnpm ts-check`(웹·앱·패키지 전체), 변경 파일 ESLint, `pnpm test`, e2e. e2e는 `dorny/paths-filter`로 `apps/waylog-web`·`packages`·lock·`.github` 변경 시에만 돈다 |
 | `.github/workflows/app-cd.yml` | main push, PR, 수동 | PR은 EAS Update `pr-<번호>` 브랜치(preview 환경), main에서의 push·수동은 `production` 브랜치 OTA(다른 브랜치의 수동 실행은 OTA 없음). push·수동은 커밋별로 동시성 그룹이 달라 서로 취소되지 않는다. main push에서 `app.config.ts`의 `version`이 직전 push 대비 바뀌었거나 수동 실행의 `build` 입력이 켜지면 OTA는 건너뛰고 EAS Build(iOS, production 프로필, `--no-wait`)만 돌리며(새 빌드가 같은 커밋의 번들을 내장한다), push 경로에서는 빌드 후 `app-v<version>` GitHub Release(태그 포함, 자동 노트)를 만든다 |
 
-앱 CD가 쓰는 GitHub 설정은 Repository secret `EXPO_TOKEN`과 Repository variable `EXPO_PUBLIC_EAS_PROJECT_ID`다.
+앱 CD가 쓰는 GitHub 설정은 Repository secrets의 `EXPO_TOKEN`과 `EXPO_PUBLIC_EAS_PROJECT_ID`다.
 프로젝트 ID는 EAS가 환경변수를 읽어 오기 전에 프로젝트를 식별하는 데 필요해서 워크플로 `env`로 직접 넘긴다.
 나머지 `EXPO_PUBLIC_*` 값은 expo.dev의 환경변수(`eas.json` 프로필의 `environment`: development·preview·production)에서 불러온다.
 병합된 PR에 `mandatory` 라벨이 있으면 main 푸시 배포가 `BUNDLE_IS_MANDATORY=true`로 나가 필수 업데이트가 된다. 수동 실행의 `is_mandatory`도 같은 값으로 넘어간다.
