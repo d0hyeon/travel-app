@@ -50,8 +50,9 @@ const config = {
 }
 
 
-  config.plugins.push(
+const createPwaPlugins = (disable: boolean) => (
     VitePWA({
+      disable,
       registerType: 'prompt',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       injectRegister: 'inline',
@@ -136,26 +137,8 @@ const config = {
   )
 
 
-const e2eConfig = {
-  ...config,
-  css: { devSourcemap: false },
-  server: {
-    ...config.server,
-    hmr: false,
-    warmup: {
-      clientFiles: [
-        'src/app/**/*.{ts,tsx}',
-        'src/features/**/*.{ts,tsx}',
-        'src/shared/**/*.{ts,tsx}',
-        '!src/**/*.test.{ts,tsx}',
-        '!src/**/__test__/**',
-      ],
-    },
-  },
-}
-
 export default defineConfig(({ mode }) => {
   const isMockedEnvironment = loadEnv(mode, process.cwd(), 'VITE_').VITE_MSW === 'true'
 
-  return isMockedEnvironment ? e2eConfig : config
+  return { ...config, plugins: [...config.plugins, createPwaPlugins(isMockedEnvironment)] }
 });
