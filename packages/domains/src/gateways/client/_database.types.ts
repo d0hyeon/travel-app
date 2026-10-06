@@ -1317,6 +1317,13 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      get_trip_unread_counts: {
+        Args: { last_reads?: Json }
+        Returns: {
+          trip_id: string
+          unread_count: number
+        }[]
+      }
       get_trips_by_destination: {
         Args: { p_destinations: string[]; p_exclude_trip_id: string }
         Returns: {
