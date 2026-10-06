@@ -21,6 +21,7 @@ export function TripChecklistAddFab({ tripId, ...props }: TripAddFabProps) {
     <Fab
       color="primary"
       size="medium"
+      aria-label="추가"
       onClick={async () => {
         const data = await getWritedTodo();
         if (data != null) {
@@ -50,6 +51,7 @@ export function TripChecklistAddButton({ tripId, ...props }: TripAddButtonProps)
       color="primary"
       size="medium"
       loading={isLoading}
+      aria-label="추가"
       onClick={() => {
         startTransition(async () => {
           await todoFormOverlay.open({
