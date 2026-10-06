@@ -119,14 +119,15 @@ jobs:
       build: ${{ steps.version.outputs.build }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - id: version
         env:
-          BEFORE_SHA: ${{ github.event.before }}
           MANUAL_BUILD: ${{ inputs.build == true }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
         run: |
           read_version() { sed -nE 's/^  version: "([^"]+)".*/\1/p' | head -n1; }
+          normalize_version() { echo "$1" | sed -E 's/(\.0)+$//'; }
           CURRENT=$(read_version < app.config.ts)
           if [ -z "$CURRENT" ]; then
             echo "app.config.ts에서 version을 읽지 못했습니다."
@@ -137,8 +138,8 @@ jobs:
             echo "build=$MANUAL_BUILD" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          PREVIOUS=$(git show "$BEFORE_SHA:apps/waylog-app/app.config.ts" 2>/dev/null | read_version || true)
-          if [ "$CURRENT" != "$PREVIOUS" ]; then
+          STORE=$(node scripts/read-store-version.mjs)
+          if [ -z "$STORE" ] || [ "$(normalize_version "$CURRENT")" != "$(normalize_version "$STORE")" ]; then
             echo "build=true" >> "$GITHUB_OUTPUT"
           else
             echo "build=false" >> "$GITHUB_OUTPUT"
