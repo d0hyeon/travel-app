@@ -1,6 +1,6 @@
 export const LEGAL_OPERATOR = {
   serviceName: 'WayLog',
   operatorName: '김도현',
-  contactEmail: 'waylog.customer@gmail.com',
+  contactEmail: 'customer@waylog.me',
   privacyOfficerName: '김도현',
 }
