@@ -1265,6 +1265,9 @@ export type Database = {
       get_posts: {
         Args: {
           p_author_id?: string
+          p_before_created_at?: string
+          p_before_id?: string
+          p_limit?: number
           p_place_id?: string
           p_post_id?: string
           p_public_only?: boolean
