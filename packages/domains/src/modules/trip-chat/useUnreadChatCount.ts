@@ -23,6 +23,11 @@ export function markAsRead(tripId: string, lastMessageAt?: string): void {
   listeners.forEach((notify) => notify(tripId, lastReadAt))
 }
 
+export function subscribeLastReadChange(notify: () => void): () => void {
+  listeners.add(notify)
+  return () => void listeners.delete(notify)
+}
+
 export function getUnreadCount(tripId: string, messages: ChatMessage[]): number {
   return countAfter(getLastReadAt(tripId), messages)
 }

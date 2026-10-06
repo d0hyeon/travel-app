@@ -66,11 +66,37 @@ export function subscribeTripMessages(
   };
 }
 
+export async function getTripUnreadCounts(
+  lastReads: Record<string, string>,
+): Promise<Record<string, number>> {
+  const { data, error } = await supabase.rpc("get_trip_unread_counts", {
+    last_reads: lastReads,
+  });
+
+  if (error) throw error;
+  return Object.fromEntries(
+    (data ?? []).map((row) => [row.trip_id, row.unread_count]),
+  );
+}
+
+export function subscribeTripMessageActivity(
+  callback: (message: ChatMessage) => void,
+) {
+  return subscribeMessageInserts("trip_messages:activity", callback);
+}
+
 export function subscribeAllTripMessages(
   callback: (data: ChatMessage) => void,
 ) {
+  return subscribeMessageInserts("trip_messages:all", callback);
+}
+
+function subscribeMessageInserts(
+  channelName: string,
+  callback: (data: ChatMessage) => void,
+) {
   const channel = supabase
-    .channel("trip_messages:all")
+    .channel(channelName)
     .on<DataRaw<"trip_messages">>(
       "postgres_changes",
       { event: "INSERT", schema: "public", table: "trip_messages" },
