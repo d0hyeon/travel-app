@@ -29,7 +29,11 @@ if [ -z "$version" ]; then
   echo "app.config.ts에서 version을 읽지 못했습니다." >&2
   exit 1
 fi
-echo "version $version 으로 빌드합니다."
+select_option "version $version 으로 빌드할까요?" 아니오 예
+if [ "$selected" != "예" ]; then
+  echo "빌드를 취소했습니다." >&2
+  exit 1
+fi
 
 mandatory_answer=아니오
 if [ "$environment" = "production" ]; then
