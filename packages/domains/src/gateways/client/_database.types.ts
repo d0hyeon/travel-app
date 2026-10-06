@@ -606,6 +606,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          like_count: number
           title: string | null
           trip_id: string | null
           updated_at: string | null
@@ -616,6 +617,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          like_count?: number
           title?: string | null
           trip_id?: string | null
           updated_at?: string | null
@@ -626,6 +628,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          like_count?: number
           title?: string | null
           trip_id?: string | null
           updated_at?: string | null
