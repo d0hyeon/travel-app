@@ -79,6 +79,13 @@ export function SettingsScreen() {
             </Stack>
             <MaterialIcons name="keyboard-arrow-right" size={20} />
           </StyledItem>
+          <StyledItem onPress={() => navigation.navigate(AppRoute.문의)}>
+            <Stack direction="row" gap={2}>
+              <MaterialIcons name="mail-outline" size={20} />
+              <Typography variant="body1">문의하기</Typography>
+            </Stack>
+            <MaterialIcons name="keyboard-arrow-right" size={20} />
+          </StyledItem>
           <StyledItem disabled={isSigningOut} onPress={() => void handleSignOut()}>
             <Stack direction="row" gap={2}>
               <MaterialIcons name="logout" size={20} color={palette.error} />
