@@ -43,7 +43,7 @@ export function FeedScreen() {
 }
 
 function Contents() {
-  const { data: posts } = useFeed()
+  const { data: posts, hasNextPage, isFetchingNextPage, fetchNextPage } = useFeed()
   const navigation = useAppNavigation()
 
   const openPost = (postId: string) => {
@@ -64,6 +64,10 @@ function Contents() {
       data={posts}
       keyExtractor={post => post.id}
       showsVerticalScrollIndicator={false}
+      onEndReached={() => {
+        if (hasNextPage && !isFetchingNextPage) fetchNextPage()
+      }}
+      onEndReachedThreshold={0.5}
       renderItem={({ item }) => (
         <PostCard key={item.id} post={item} onPress={() => openPost(item.id)} />
       )}
