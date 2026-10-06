@@ -78,9 +78,7 @@
     "ios": "expo run:ios",
     "prebuild": "expo prebuild --platform ios",
     "replace-bundle": "bash scripts/replace-bundle.sh",
-    "replace-bundle:preview": "bash scripts/replace-bundle.sh preview",
     "upload-package": "bash scripts/upload-package.sh",
-    "upload-package:preview": "bash scripts/upload-package.sh preview",
     "submit-package": "pnpm eas submit --platform ios --profile production --latest --non-interactive",
     "test": "vitest run",
     "ts-check": "tsc --noEmit"

@@ -53,13 +53,12 @@ update app_version_policies set minimum_version = '1.2.0', updated_at = now() wh
 `apps/waylog-app`에서 스크립트를 실행한다.
 
 ```bash
-pnpm replace-bundle // or
-pnpm replace-bundle:preview
+pnpm replace-bundle
 ```
 
 #### 강제 업데이트
 
-강제 업데이트 여부에 `y`를 답한다.
+강제 업데이트 여부에서 `예`를 선택한다.
 
 ### 앱 배포
 
@@ -68,7 +67,6 @@ pnpm replace-bundle:preview
 
    ```bash
    pnpm upload-package
-   pnpm upload-package:preview
    ```
 
 3. 빌드 요청 후 출력되는 안내를 순서대로 진행한다.
@@ -79,7 +77,7 @@ pnpm replace-bundle:preview
 
 #### 강제 업데이트
 
-강제 업데이트 여부에 `y`를 답하면 안내에 `minimum_version`을 올리는 SQL이 나온다. 패키지 심사 승인 후 Supabase 대시보드에서 실행한다.
+강제 업데이트 여부에서 `예`를 선택하면 안내에 `minimum_version`을 올리는 SQL이 나온다. 패키지 심사 승인 후 Supabase 대시보드에서 실행한다.
 
 ---
 
