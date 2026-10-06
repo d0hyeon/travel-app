@@ -1,0 +1,17 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": [
+          "JHQ5538PH7.me.waylog.app"
+        ],
+        "components": [
+          {
+            "/": "/trip/invite/*",
+            "comment": "여행 초대 링크"
+          }
+        ]
+      }
+    ]
+  }
+}

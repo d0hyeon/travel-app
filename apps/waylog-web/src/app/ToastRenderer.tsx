@@ -1,0 +1,53 @@
+import CheckIcon from '@mui/icons-material/Check';
+import InfoIcon from '@mui/icons-material/Info';
+import ReportIcon from '@mui/icons-material/Report';
+import { GlobalStyles } from "@mui/material";
+import { Toaster } from "sonner";
+import { useIsMobile } from "~shared/hooks/env/useIsMobile";
+
+
+export function ToastRenderer() {
+  const isMobile = useIsMobile();
+
+  return (
+    <>
+      <GlobalStyles
+        styles={theme => ({
+          '.toast-container': {
+            borderRadius: '16px !important;',
+            boxShadow: '3px 5px 18px rgba(0, 0, 0, 0.1.5) !important;',
+            paddingBlock: '12px !important;',
+            fontFamily: theme.typography.fontFamily,
+
+            [theme.breakpoints.up('md')]: {
+              paddingBlock: '16px !important;',
+              borderRadius: '20px !important',
+              fontSize: '14px !important'
+            }
+          },
+          '.warning-message .toast-icon': {
+            color: theme.palette.warning.main
+          },
+          '.toast-title, .toast-content': { width: '100%' }
+        })}
+      />
+      <Toaster
+        toastOptions={{
+          classNames: {
+            toast: 'toast-container',
+            warning: 'warning-message',
+            icon: 'toast-icon',
+            title: 'toast-title',
+            content: 'toast-content'
+          },
+        }}
+        position="top-center"
+        icons={{
+          info: <InfoIcon fontSize="small" />,
+          success: <CheckIcon fontSize="small" color="success" />,
+          error: <ReportIcon fontSize="small" color="error" />
+        }}
+      />
+    </>
+  )
+}

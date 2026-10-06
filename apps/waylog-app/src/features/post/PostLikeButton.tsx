@@ -1,0 +1,42 @@
+import { MaterialIcons } from '@expo/vector-icons'
+import { usePostLikes, type Post } from '@waylog/domains/modules/post'
+import { StyleSheet, Pressable } from 'react-native'
+import { useLoginRedirect } from '~features/auth/auth-redirect'
+import { Skeleton, Stack, Typography } from '~shared/components/design-system'
+import { palette } from '~shared/config/tokens'
+
+export function PostLikeButton({ post }: { post: Pick<Post, 'id' | 'likeCount' | 'likedByMe'> }) {
+  const { data, toggle, canLike } = usePostLikes(post)
+  const redirectToLogin = useLoginRedirect()
+
+  return (
+    <Stack direction="row" alignItems="center" style={styles.likeCount}>
+      <Pressable
+        onPress={(event) => {
+          event.stopPropagation()
+          if (!canLike) return redirectToLogin()
+          toggle().catch(() => undefined)
+        }}
+        accessibilityLabel={data.liked ? '좋아요 취소' : '좋아요'}
+        hitSlop={8}
+      >
+        <MaterialIcons name={data.liked ? 'favorite' : 'favorite-border'} size={22} color={data.liked ? '#D32F2F' : palette.textSecondary} />
+      </Pressable>
+      <Typography style={styles.countLabel}>{data.count}</Typography>
+    </Stack>
+  )
+}
+
+PostLikeButton.Skeleton = function PostLikeButtonSkeleton() {
+  return (
+    <Stack direction="row" alignItems="center" style={styles.likeCount}>
+      <Skeleton variant="circular" width={22} height={22} />
+      <Skeleton width={12} height={11} />
+    </Stack>
+  )
+}
+
+const styles = StyleSheet.create({
+  likeCount: { gap: 4 },
+  countLabel: { fontSize: 11, color: palette.textSecondary },
+})

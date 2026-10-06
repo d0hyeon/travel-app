@@ -1,0 +1,33 @@
+{
+  "name": "@waylog/domains",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./clients": "./src/gateways/index.ts",
+    "./modules/*": "./src/modules/*/index.ts",
+    "./modules/trip-chat/tripChatPush": "./src/modules/trip-chat/tripChatPush.ts",
+    "./*": "./src/*/index.ts"
+  },
+  "dependencies": {
+    "@waylog/utility": "workspace:*",
+    "@waylog/react": "workspace:*",
+    "date-fns": "^4.1.0"
+  },
+  "peerDependencies": {
+    "@supabase/supabase-js": ">=2",
+    "@tanstack/react-query": ">=5",
+    "react": ">=19"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "^2.108.1",
+    "@types/react": ">=19",
+    "typescript": "~5.9.3",
+    "vitest": "3"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "ts-check": "tsc --noEmit"
+  }
+}

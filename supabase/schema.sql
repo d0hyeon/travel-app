@@ -52,6 +52,12 @@ CREATE TYPE "public"."post_visibility" AS ENUM (
 );
 
 
+CREATE TYPE "public"."report_reason" AS ENUM ('spam', 'inappropriate', 'harassment', 'other');
+
+
+CREATE TYPE "public"."report_target_type" AS ENUM ('post', 'user');
+
+
 ALTER TYPE "public"."post_visibility" OWNER TO "postgres";
 
 
@@ -75,20 +81,36 @@ $$;
 ALTER FUNCTION "public"."can_access_trip"("trip_id" "uuid") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."has_blocked"("target_user" "uuid") RETURNS boolean
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.user_blocks b
+    WHERE b.blocker_id = auth.uid() AND b.blocked_id = target_user
+  );
+$$;
+
+ALTER FUNCTION "public"."has_blocked"("target_user" "uuid") OWNER TO "postgres";
+
 CREATE OR REPLACE FUNCTION "public"."can_view_post"("post_visibility" "public"."post_visibility", "post_author" "uuid", "post_trip" "uuid") RETURNS boolean
-    LANGUAGE "sql" SECURITY DEFINER
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+    SET "search_path" TO 'public'
     AS $$
   SELECT
-    post_visibility = 'PUBLIC'
-    OR post_author = auth.uid()
-    OR (post_visibility = 'MEMBERS' AND post_trip IS NOT NULL AND can_access_trip(post_trip));
+    (
+      post_visibility = 'PUBLIC'
+      OR post_author = auth.uid()
+      OR (post_visibility = 'MEMBERS' AND post_trip IS NOT NULL AND public.can_access_trip(post_trip))
+    )
+    AND NOT public.has_blocked(post_author);
 $$;
 
 
 ALTER FUNCTION "public"."can_view_post"("post_visibility" "public"."post_visibility", "post_author" "uuid", "post_trip" "uuid") OWNER TO "postgres";
 
 
-CREATE OR REPLACE FUNCTION "public"."get_explored_places"("since_date" "date" DEFAULT NULL::"date") RETURNS TABLE("place_id" "uuid", "name" "text", "address" "text", "lat" double precision, "lng" double precision, "visitor_count" bigint, "destinations" "jsonb", "categories" "jsonb", "thumbnail_url" "text", "total_trips" bigint, "photo_count" bigint, "post_count" bigint, "score" double precision)
+CREATE OR REPLACE FUNCTION "public"."get_explored_places"("since_date" "date" DEFAULT NULL::"date") RETURNS TABLE("place_id" "uuid", "name" "text", "address" "text", "lat" double precision, "lng" double precision, "visitor_count" bigint, "last_saved_at" timestamp with time zone, "destinations" "jsonb", "categories" "jsonb", "thumbnail_url" "text", "total_trips" bigint, "photo_count" bigint, "post_count" bigint, "score" double precision)
     LANGUAGE "sql" STABLE SECURITY DEFINER
     AS $$
   WITH filtered_trips AS (
@@ -100,7 +122,8 @@ CREATE OR REPLACE FUNCTION "public"."get_explored_places"("since_date" "date" DE
     SELECT
       r.trip_id,
       tp.place_id,
-      tp.category
+      tp.category,
+      tp.created_at
     FROM routes r
     JOIN filtered_trips t ON r.trip_id = t.id
     JOIN LATERAL unnest(r.place_ids) AS tp_id ON TRUE
@@ -114,6 +137,11 @@ CREATE OR REPLACE FUNCTION "public"."get_explored_places"("since_date" "date" DE
   visit_counts AS (
     SELECT place_id, count(DISTINCT trip_id) AS visitor_count
     FROM trip_place_set
+    GROUP BY place_id
+  ),
+  last_saves AS (
+    SELECT place_id, max(created_at) AS last_saved_at
+    FROM route_places
     GROUP BY place_id
   ),
   place_destinations AS (
@@ -177,6 +205,7 @@ CREATE OR REPLACE FUNCTION "public"."get_explored_places"("since_date" "date" DE
     p.lat,
     p.lng,
     vc.visitor_count,
+    ls.last_saved_at,
     COALESCE(pd.destinations, '[]'::jsonb) AS destinations,
     COALESCE(pc2.categories, '[]'::jsonb) AS categories,
     t2.url AS thumbnail_url,
@@ -190,6 +219,7 @@ CREATE OR REPLACE FUNCTION "public"."get_explored_places"("since_date" "date" DE
     ) AS score
   FROM visit_counts vc
   JOIN places p ON p.id = vc.place_id
+  LEFT JOIN last_saves ls ON ls.place_id = vc.place_id
   LEFT JOIN place_destinations pd ON pd.place_id = vc.place_id
   LEFT JOIN place_categories pc2 ON pc2.place_id = vc.place_id
   LEFT JOIN thumbnails t2 ON t2.place_id = vc.place_id
@@ -202,11 +232,11 @@ $$;
 ALTER FUNCTION "public"."get_explored_places"("since_date" "date") OWNER TO "postgres";
 
 
-CREATE OR REPLACE FUNCTION "public"."get_most_saved_places"() RETURNS TABLE("place_id" "uuid", "name" "text", "address" "text", "lat" double precision, "lng" double precision, "save_count" bigint, "destinations" "jsonb", "categories" "jsonb", "thumbnail_url" "text", "total_trips" bigint)
+CREATE OR REPLACE FUNCTION "public"."get_most_saved_places"() RETURNS TABLE("place_id" "uuid", "name" "text", "address" "text", "lat" double precision, "lng" double precision, "save_count" bigint, "last_saved_at" timestamp with time zone, "destinations" "jsonb", "categories" "jsonb", "thumbnail_url" "text", "total_trips" bigint)
     LANGUAGE "sql" STABLE SECURITY DEFINER
     AS $$
   WITH save_counts AS (
-    SELECT tp.place_id, count(DISTINCT tp.trip_id) AS save_count
+    SELECT tp.place_id, count(DISTINCT tp.trip_id) AS save_count, max(tp.created_at) AS last_saved_at
     FROM trip_places tp
     WHERE tp.category IS DISTINCT FROM 'transit'
     GROUP BY tp.place_id
@@ -247,6 +277,7 @@ CREATE OR REPLACE FUNCTION "public"."get_most_saved_places"() RETURNS TABLE("pla
     p.lat,
     p.lng,
     sc.save_count,
+    sc.last_saved_at,
     COALESCE(pd.destinations, '[]'::jsonb) AS destinations,
     COALESCE(pc.categories, '[]'::jsonb) AS categories,
     t2.url AS thumbnail_url,
@@ -311,7 +342,7 @@ CREATE OR REPLACE FUNCTION "public"."get_routes_with_places_by_trip_id"("p_trip_
     r.id AS route_id,
     r.name AS route_name,
     r.scheduled_date,
-    tp.id AS place_id,
+    tp.place_id AS place_id,
     pl.name AS place_name,
     pl.address AS place_address,
     pl.lat AS place_lat,
@@ -328,6 +359,80 @@ $$;
 ALTER FUNCTION "public"."get_routes_with_places_by_trip_id"("p_trip_id" "uuid") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."get_recommended_place_candidates"(
+  "p_trip_id" "uuid",
+  "p_destinations" "text"[]
+)
+RETURNS TABLE(
+  "trip_place_id" "uuid",
+  "place_id" "uuid",
+  "trip_id" "uuid",
+  "trip_start_date" "text",
+  "category" "text",
+  "provider" "text",
+  "external_id" "text",
+  "name" "text",
+  "address" "text",
+  "lat" double precision,
+  "lng" double precision,
+  "photo_urls" "text"[],
+  "is_confirmed" boolean,
+  "is_hidden" boolean
+)
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+    AS $$
+  WITH other_trips AS (
+    SELECT t.id, t.start_date
+    FROM trips t
+    WHERE t.destination = ANY(p_destinations)
+      AND t.id <> p_trip_id
+  ),
+  route_flags AS (
+    SELECT
+      tp_id AS trip_place_id,
+      bool_or(r.place_ids @> ARRAY[tp_id]) AS is_confirmed,
+      bool_or(r.hidden_places @> ARRAY[tp_id]) AS is_hidden
+    FROM routes r
+    JOIN other_trips ot ON ot.id = r.trip_id
+    JOIN LATERAL unnest(
+      COALESCE(r.place_ids, '{}'::uuid[]) || COALESCE(r.hidden_places, '{}'::uuid[])
+    ) AS tp_id ON TRUE
+    GROUP BY tp_id
+  )
+  SELECT
+    tp.id AS trip_place_id,
+    tp.place_id AS place_id,
+    tp.trip_id,
+    ot.start_date AS trip_start_date,
+    tp.category,
+    pl.provider,
+    pl.external_id,
+    pl.name,
+    COALESCE(pl.address, '') AS address,
+    pl.lat,
+    pl.lng,
+    COALESCE(
+      ARRAY(
+        SELECT ph.url FROM photos ph
+        WHERE ph.place_id = pl.id AND ph.is_public = true
+      ),
+      '{}'::text[]
+    ) AS photo_urls,
+    COALESCE(rf.is_confirmed, false) AS is_confirmed,
+    COALESCE(rf.is_hidden, false) AS is_hidden
+  FROM trip_places tp
+  JOIN other_trips ot ON ot.id = tp.trip_id
+  JOIN places pl ON pl.id = tp.place_id
+  LEFT JOIN route_flags rf ON rf.trip_place_id = tp.id;
+$$;
+
+ALTER FUNCTION "public"."get_recommended_place_candidates"("p_trip_id" "uuid", "p_destinations" "text"[]) OWNER TO "postgres";
+
+GRANT ALL ON FUNCTION "public"."get_recommended_place_candidates"("p_trip_id" "uuid", "p_destinations" "text"[]) TO "anon";
+GRANT ALL ON FUNCTION "public"."get_recommended_place_candidates"("p_trip_id" "uuid", "p_destinations" "text"[]) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."get_recommended_place_candidates"("p_trip_id" "uuid", "p_destinations" "text"[]) TO "service_role";
+
+
 CREATE OR REPLACE FUNCTION "public"."get_trip_by_share_link"("link" "uuid") RETURNS SETOF "public"."trips"
     LANGUAGE "sql" SECURITY DEFINER
     AS $$
@@ -339,7 +444,7 @@ ALTER FUNCTION "public"."get_trip_by_share_link"("link" "uuid") OWNER TO "postgr
 
 
 CREATE OR REPLACE FUNCTION "public"."get_trips_by_destination"("p_destinations" "text"[], "p_exclude_trip_id" "uuid") RETURNS TABLE("id" "uuid", "destinations" "text"[], "start_date" "text", "end_date" "text", "route_count" bigint, "member_count" bigint, "preview_coordinates" json)
-    LANGUAGE "sql" STABLE
+    LANGUAGE "sql" STABLE SECURITY DEFINER
     AS $$
   SELECT
     t.id,
@@ -466,7 +571,8 @@ CREATE TABLE IF NOT EXISTS "public"."places" (
     "lng" double precision NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "provider" "text" DEFAULT 'legacy'::"text" NOT NULL,
-    "external_id" "text" DEFAULT ''::"text" NOT NULL
+    "external_id" "text" DEFAULT ''::"text" NOT NULL,
+    "category" "text"
 );
 
 
@@ -607,7 +713,9 @@ CREATE TABLE IF NOT EXISTS "public"."user_profiles" (
     "id" "uuid" NOT NULL,
     "name" "text" DEFAULT ''::"text" NOT NULL,
     "avatar_url" "text",
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "terms_version" "text" DEFAULT 'legacy'::"text" NOT NULL,
+    "terms_agreed_at" timestamp with time zone DEFAULT "now"() NOT NULL
 );
 
 
@@ -840,12 +948,12 @@ ALTER TABLE ONLY "public"."photos"
 
 
 ALTER TABLE ONLY "public"."photos"
-    ADD CONSTRAINT "photos_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
+    ADD CONSTRAINT "photos_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
 
 
 
 ALTER TABLE ONLY "public"."post_comments"
-    ADD CONSTRAINT "post_comments_author_id_fkey" FOREIGN KEY ("author_id") REFERENCES "auth"."users"("id");
+    ADD CONSTRAINT "post_comments_author_id_fkey" FOREIGN KEY ("author_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
 
 
 
@@ -910,7 +1018,7 @@ ALTER TABLE ONLY "public"."trip_messages"
 
 
 ALTER TABLE ONLY "public"."trip_messages"
-    ADD CONSTRAINT "trip_messages_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id");
+    ADD CONSTRAINT "trip_messages_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
 
 
 
@@ -962,11 +1070,11 @@ CREATE POLICY "Users can upsert own push subscriptions" ON "public"."push_subscr
 
 
 
-CREATE POLICY "authenticated users can insert messages" ON "public"."trip_messages" FOR INSERT WITH CHECK (("auth"."uid"() = "user_id"));
+CREATE POLICY "trip_messages_insert" ON "public"."trip_messages" FOR INSERT TO "authenticated" WITH CHECK ((("auth"."uid"() = "user_id") AND "public"."can_access_trip"("trip_id")));
 
 
 
-CREATE POLICY "authenticated users can read messages" ON "public"."trip_messages" FOR SELECT USING (("auth"."uid"() IS NOT NULL));
+CREATE POLICY "trip_messages_select" ON "public"."trip_messages" FOR SELECT TO "authenticated" USING ("public"."can_access_trip"("trip_id"));
 
 
 
@@ -998,7 +1106,10 @@ CREATE POLICY "photos_delete" ON "public"."photos" FOR DELETE USING ("public"."c
 
 
 
-CREATE POLICY "photos_select" ON "public"."photos" FOR SELECT USING ((("is_public" = true) OR "public"."can_access_trip"("trip_id")));
+CREATE POLICY "photos_select" ON "public"."photos" FOR SELECT USING (
+  (("is_public" = true) OR "public"."can_access_trip"("trip_id"))
+  AND NOT "public"."has_blocked"("user_id")
+);
 
 
 
@@ -1366,6 +1477,12 @@ GRANT ALL ON FUNCTION "public"."can_view_post"("post_visibility" "public"."post_
 
 
 
+GRANT ALL ON FUNCTION "public"."has_blocked"("target_user" "uuid") TO "anon";
+GRANT ALL ON FUNCTION "public"."has_blocked"("target_user" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."has_blocked"("target_user" "uuid") TO "service_role";
+
+
+
 GRANT ALL ON FUNCTION "public"."get_explored_places"("since_date" "date") TO "anon";
 GRANT ALL ON FUNCTION "public"."get_explored_places"("since_date" "date") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."get_explored_places"("since_date" "date") TO "service_role";
@@ -1557,32 +1674,134 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TAB
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "service_role";
 
 
+CREATE TABLE IF NOT EXISTS "public"."reports" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "reporter_id" "uuid" NOT NULL,
+    "target_type" "public"."report_target_type" NOT NULL,
+    "target_id" "uuid" NOT NULL,
+    "reason" "public"."report_reason" NOT NULL,
+    "detail" "text",
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    CONSTRAINT "reports_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "reports_detail_length" CHECK (("char_length"("detail") <= 500)),
+    CONSTRAINT "reports_reporter_target_key" UNIQUE ("reporter_id", "target_type", "target_id"),
+    CONSTRAINT "reports_reporter_id_fkey" FOREIGN KEY ("reporter_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE
+);
+
+ALTER TABLE "public"."reports" OWNER TO "postgres";
+ALTER TABLE "public"."reports" ENABLE ROW LEVEL SECURITY;
+
+CREATE INDEX "reports_target_idx" ON "public"."reports" USING "btree" ("target_type", "target_id");
+
+CREATE POLICY "reports_insert" ON "public"."reports" FOR INSERT TO "authenticated" WITH CHECK (("reporter_id" = "auth"."uid"()));
+
+REVOKE ALL ON TABLE "public"."reports" FROM "anon", "authenticated";
+GRANT INSERT ON TABLE "public"."reports" TO "authenticated";
+GRANT ALL ON TABLE "public"."reports" TO "service_role";
+
+CREATE TABLE IF NOT EXISTS "public"."user_blocks" (
+    "blocker_id" "uuid" NOT NULL,
+    "blocked_id" "uuid" NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    CONSTRAINT "user_blocks_pkey" PRIMARY KEY ("blocker_id", "blocked_id"),
+    CONSTRAINT "user_blocks_not_self" CHECK (("blocker_id" <> "blocked_id")),
+    CONSTRAINT "user_blocks_blocker_id_fkey" FOREIGN KEY ("blocker_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE,
+    CONSTRAINT "user_blocks_blocked_id_fkey" FOREIGN KEY ("blocked_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE
+);
+
+ALTER TABLE "public"."user_blocks" OWNER TO "postgres";
+ALTER TABLE "public"."user_blocks" ENABLE ROW LEVEL SECURITY;
+
+CREATE INDEX "user_blocks_blocked_id_idx" ON "public"."user_blocks" USING "btree" ("blocked_id");
+
+CREATE POLICY "user_blocks_select" ON "public"."user_blocks" FOR SELECT TO "authenticated" USING (("blocker_id" = "auth"."uid"()));
+CREATE POLICY "user_blocks_insert" ON "public"."user_blocks" FOR INSERT TO "authenticated" WITH CHECK (("blocker_id" = "auth"."uid"()));
+CREATE POLICY "user_blocks_delete" ON "public"."user_blocks" FOR DELETE TO "authenticated" USING (("blocker_id" = "auth"."uid"()));
+
+REVOKE ALL ON TABLE "public"."user_blocks" FROM "anon", "authenticated";
+GRANT SELECT, INSERT, DELETE ON TABLE "public"."user_blocks" TO "authenticated";
+GRANT ALL ON TABLE "public"."user_blocks" TO "service_role";
 
 
+CREATE OR REPLACE FUNCTION "public"."prepare_account_deletion"("target_user" "uuid") RETURNS "text"[]
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+DECLARE
+  owned_trip record;
+  successor uuid;
+  storage_paths text[] := '{}';
+BEGIN
+  FOR owned_trip IN SELECT t.id FROM public.trips t WHERE t.user_id = target_user LOOP
+    SELECT m.user_id INTO successor
+    FROM public.trip_members m
+    WHERE m.trip_id = owned_trip.id AND m.user_id <> target_user
+    ORDER BY m.created_at
+    LIMIT 1;
+
+    IF successor IS NOT NULL THEN
+      UPDATE public.trips SET user_id = successor WHERE id = owned_trip.id;
+    ELSE
+      storage_paths := storage_paths
+        || ARRAY(SELECT p.storage_path FROM public.photos p WHERE p.trip_id = owned_trip.id)
+        || ARRAY(
+          SELECT regexp_replace(k.image, '^https?://[^/]+/', '')
+          FROM public.trip_transport_tickets k
+          JOIN public.trip_transports r ON r.id = k.transport_id
+          WHERE r.trip_id = owned_trip.id AND k.image IS NOT NULL
+        );
+      DELETE FROM public.trips WHERE id = owned_trip.id;
+    END IF;
+  END LOOP;
+
+  storage_paths := storage_paths
+    || ARRAY(SELECT p.storage_path FROM public.photos p WHERE p.user_id = target_user)
+    || ARRAY(
+      SELECT pp.storage_path
+      FROM public.post_photos pp
+      JOIN public.posts po ON po.id = pp.post_id
+      WHERE po.author_id = target_user
+    )
+    || ARRAY(
+      SELECT regexp_replace(k.image, '^https?://[^/]+/', '')
+      FROM public.trip_transport_tickets k
+      JOIN public.trip_members m ON m.id = k.member_id
+      WHERE m.user_id = target_user AND k.image IS NOT NULL
+    );
+
+  DELETE FROM public.trip_transport_tickets k
+  USING public.trip_members m
+  WHERE m.id = k.member_id AND m.user_id = target_user;
+
+  RETURN ARRAY(SELECT DISTINCT unnest(storage_paths));
+END;
+$$;
+
+ALTER FUNCTION "public"."prepare_account_deletion"("target_user" "uuid") OWNER TO "postgres";
+REVOKE ALL ON FUNCTION "public"."prepare_account_deletion"("target_user" "uuid") FROM PUBLIC, "anon", "authenticated";
+GRANT EXECUTE ON FUNCTION "public"."prepare_account_deletion"("target_user" "uuid") TO "service_role";
 
 
+CREATE TABLE IF NOT EXISTS "public"."app_version_policies" (
+    "platform" "text" NOT NULL,
+    "minimum_version" "text" NOT NULL,
+    "store_url" "text" NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    CONSTRAINT "app_version_policies_pkey" PRIMARY KEY ("platform"),
+    CONSTRAINT "app_version_policies_platform_check" CHECK (("platform" = ANY (ARRAY['ios'::"text", 'android'::"text"]))),
+    CONSTRAINT "app_version_policies_minimum_version_check" CHECK (("minimum_version" ~ '^\d+(\.\d+)*$'::"text"))
+);
 
+ALTER TABLE "public"."app_version_policies" OWNER TO "postgres";
+ALTER TABLE "public"."app_version_policies" ENABLE ROW LEVEL SECURITY;
 
+CREATE POLICY "app_version_policies_select" ON "public"."app_version_policies" FOR SELECT TO "anon", "authenticated" USING (true);
 
+REVOKE ALL ON TABLE "public"."app_version_policies" FROM "anon", "authenticated";
+GRANT SELECT ON TABLE "public"."app_version_policies" TO "anon", "authenticated";
+GRANT ALL ON TABLE "public"."app_version_policies" TO "service_role";
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+INSERT INTO "public"."app_version_policies" ("platform", "minimum_version", "store_url") VALUES
+    ('ios', '1.0.0', 'https://apps.apple.com/app/idAPP_STORE_ID'),
+    ('android', '1.0.0', 'market://details?id=me.waylog.app')
+ON CONFLICT ("platform") DO NOTHING;

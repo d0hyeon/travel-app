@@ -313,8 +313,14 @@ yarn test:e2e --debug              # 디버그 모드
 주요 설정:
 - `globalSetup`: auth-setup.ts로 세션 미리 준비
 - `storageState`: 모든 테스트에 인증 상태 자동 주입
-- `webServer`: `--mode test` 플래그로 `.env.test`(VITE_MSW=true) 로드
-- `timeout: 15_000`: 4개 worker 동시 시작 시 여유 확보
+- `webServer`: `pnpm build:e2e && pnpm preview` — `--mode test` 로 빌드해 `.env.test`(VITE_MSW=true)를 박고 정적으로 서빙한다. dev 서버는 모듈 요청이 페이지당 500개를 넘어 CI에서 초기 로딩이 4~5초 걸렸다
+- `reuseExistingServer`: 로컬에서는 5173의 기존 서버를 재사용한다. `--mode test` 없이 뜬 서버면 MSW가 꺼져 `user_profiles` 등이 실제 Supabase로 나가 401로 빈 화면이 된다
+- `timeout`, `expect.timeout`: CI에서만 각각 30초·15초로 늘린다. 로컬은 15초·5초
+- `reporter`: CI에서는 `list`를 함께 켜 테스트별 소요 시간과 서버 로그를 남긴다
+
+`VITE_MSW=true` 빌드는 PWA 서비스 워커를 만들지 않는다(`vite.config.ts`). 같은 스코프(`/`)의 MSW 워커와 경쟁하고 업데이트 팝업이 화면을 `aria-hidden`으로 가리기 때문이다.
+
+MSW가 가로채지 않는 요청은 `onUnhandledRequest: 'bypass'` 때문에 실제 네트워크로 나간다. CI의 더미 키로는 401을 받고 쿼리 재시도 동안 스플래시가 길어지므로, e2e에서는 `retry: false`로 두고 새 요청이 생기면 핸들러를 추가한다.
 
 ### MSW 동작 원리
 
@@ -397,6 +403,8 @@ yarn test:e2e e2e/trip-detail-tabs.spec.ts
 ```
 
 `getByText`는 부분 문자열 매칭으로 여러 요소에 걸릴 수 있다. strict mode violation이 발생하면 `getByRole`로 범위를 좁힌다.
+
+MUI 아이콘의 `data-testid`(예: `MoreVertIcon`)는 프로덕션 빌드에서 붙지 않는다. e2e는 빌드를 서빙하므로 이 속성으로 찾지 말고, 버튼에 `aria-label`을 달아 `getByRole`로 찾는다.
 
 ### 환경변수 관리
 

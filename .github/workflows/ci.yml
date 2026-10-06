@@ -2,21 +2,81 @@ name: CI
 
 on:
   pull_request:
-    branches:
-      - main
 
 jobs:
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      source: ${{ steps.exclusion.outputs.source }}
+      lint: ${{ steps.filter.outputs.lint }}
+      web: ${{ steps.filter.outputs.web }}
+      affected: ${{ steps.affected.outputs.filter }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            root: &root
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - '.npmrc'
+              - 'tsconfig.json'
+              - 'eslint.config.js'
+              - 'tools/eslint/**'
+              - '.github/workflows/ci.yml'
+              - '.github/actions/**'
+            web:
+              - *root
+              - 'apps/waylog-web/**'
+              - 'packages/**'
+            lint:
+              - '**/*.ts'
+              - '**/*.tsx'
+      - uses: dorny/paths-filter@v3
+        id: exclusion
+        with:
+          predicate-quantifier: every
+          filters: |
+            source:
+              - '**'
+              - '!**/*.md'
+              - '!docs/**'
+              - '!supabase/**'
+              - '!apps/*/assets/**'
+              - '!apps/*/public/**'
+              - '!.github/workflows/app-*.yml'
+      - name: Resolve affected packages
+        id: affected
+        env:
+          ROOT_CHANGED: ${{ steps.filter.outputs.root }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ "$ROOT_CHANGED" = "true" ]; then
+            echo "filter=*" >> "$GITHUB_OUTPUT"
+          else
+            echo "filter=...[$BASE_SHA]" >> "$GITHUB_OUTPUT"
+          fi
+
   ts-check:
     name: TypeScript Check
+    needs: changes
+    if: needs.changes.outputs.source == 'true'
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-      - run: pnpm ts-check
+      - run: pnpm --filter "${{ needs.changes.outputs.affected }}" --if-present run ts-check
 
   lint-check:
     name: ESLint Check
+    needs: changes
+    if: needs.changes.outputs.lint == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -39,6 +99,8 @@ jobs:
 
   test:
     name: Unit Tests
+    needs: changes
+    if: needs.changes.outputs.source == 'true'
     runs-on: ubuntu-latest
 
     env:
@@ -51,10 +113,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-      - run: pnpm test
+      - run: pnpm --filter "${{ needs.changes.outputs.affected }}" --if-present run test
 
   e2e-test:
     name: End to End Tests
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
     runs-on: ubuntu-latest
 
     env:
@@ -74,7 +138,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm --filter waylog-web exec playwright install --with-deps chromium
       - run: pnpm test:e2e
       - name: Upload Playwright report
         if: ${{ !cancelled() }}
@@ -82,6 +146,6 @@ jobs:
         with:
           name: playwright-report
           path: |
-            playwright-report/
-            test-results/
+            apps/waylog-web/playwright-report/
+            apps/waylog-web/test-results/
           retention-days: 7

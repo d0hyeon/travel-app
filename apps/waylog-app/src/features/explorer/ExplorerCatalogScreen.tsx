@@ -1,0 +1,94 @@
+import type { PlaceCategoryType } from '@waylog/domains/modules/place'
+import type { Location } from '@waylog/domains/modules/location'
+import { Suspense, useState } from 'react'
+import { StyleSheet, ScrollView } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { ErrorBoundary } from '@waylog/react'
+import { palette } from '~shared/config/tokens'
+import { useScrollStatus } from '~shared/hooks/interaction/useScrollStatus'
+import { useTabSwipeLock } from '~shared/hooks/useTabSwipeLock'
+import { TripDefaultLocationTooltip } from './explorer-filters/TripDefaultLocationTooltip'
+import { useExplorerFilterParams } from './explorer-filters/useExplorerFilterParams'
+import { ExploredPlacesRankingSection } from './explorer-ranking/ExploredPlacesRankingSection'
+import { RecentHotPlacesSection } from './explorer-recent/RecentHotPlacesSection'
+import { MostSavedPlacesSection } from './explorer-saved/MostSavedPlacesSection'
+import { SeasonalRegionsSummarySection, SeasonalRegionsSummarySectionSkeleton } from './explorer-seasonal-regions/SeasonalRegionsSummarySection'
+import { ExplorerMap } from './explorer-view/ExplorerMap'
+import { ExplorerMapSkeleton, ExplorerPlaceCardSectionSkeleton, ExplorerPlaceListSectionSkeleton } from './explorer-view/ExplorerSkeletons'
+import { ExplorerScreenHeader, useExplorerScreenHeaderHeight } from './explorer-view/ExplorerScreenHeader'
+import { useExplorerViewMode } from './explorer-view/useExplorerViewMode'
+import { useAttentionPlaces } from './useAttentionPlaces'
+
+interface Props {
+  bottomContentInset?: number
+}
+
+export function ExplorerCatalogScreen({ bottomContentInset = 0 }: Props) {
+  const { location, category } = useExplorerFilterParams()
+  const [initialLocation] = useState(location)
+  const [viewMode, setViewMode] = useExplorerViewMode()
+  const { isScrollDown, onScroll } = useScrollStatus()
+  const headerHeight = useExplorerScreenHeaderHeight()
+  useTabSwipeLock(viewMode === 'map')
+
+  return (
+    <SafeAreaView edges={SCREEN_SAFE_AREA_EDGES} style={styles.screen}>
+      <ExplorerScreenHeader
+        title="탐색"
+        isScrollDown={isScrollDown}
+        extrudeAxis="y"
+        viewMode={viewMode}
+        onChangeViewMode={setViewMode}
+      >
+        {initialLocation != null && <TripDefaultLocationTooltip />}
+      </ExplorerScreenHeader>
+
+      {viewMode === 'map' ? (
+        <Suspense fallback={<ExplorerMapSkeleton />}>
+          <ExplorerCatalogMap location={location} category={category} />
+        </Suspense>
+      ) : (
+        <ScrollView
+          style={styles.scroll}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
+          contentContainerStyle={[styles.content, { paddingTop: headerHeight + 16, paddingBottom: bottomContentInset + 24 }]}
+        >
+          <ErrorBoundary
+            fallback={() => null}
+            onError={(error) => {
+              console.error('[explorer] 계절 인기 여행지 섹션 로드 실패', error)
+            }}
+          >
+            <Suspense fallback={<SeasonalRegionsSummarySectionSkeleton />}>
+              <SeasonalRegionsSummarySection />
+            </Suspense>
+          </ErrorBoundary>
+          <Suspense fallback={<ExplorerPlaceCardSectionSkeleton />}>
+            <RecentHotPlacesSection location={location} category={category} />
+          </Suspense>
+          <Suspense fallback={<ExplorerPlaceCardSectionSkeleton />}>
+            <MostSavedPlacesSection location={location} category={category} />
+          </Suspense>
+          <Suspense fallback={<ExplorerPlaceListSectionSkeleton />}>
+            <ExploredPlacesRankingSection location={location} category={category} />
+          </Suspense>
+        </ScrollView>
+      )}
+    </SafeAreaView>
+  )
+}
+
+function ExplorerCatalogMap({ location, category }: { location?: Location; category?: PlaceCategoryType }) {
+  const attentionPlaces = useAttentionPlaces({ location, category })
+  return <ExplorerMap places={attentionPlaces} location={location} />
+}
+
+/** top은 오버레이 헤더가 직접 처리한다. */
+const SCREEN_SAFE_AREA_EDGES = ['left', 'right'] as const
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: palette.background },
+  scroll: { flex: 1 },
+  content: { gap: 48 },
+})

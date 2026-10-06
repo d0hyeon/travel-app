@@ -17,6 +17,9 @@ interface PlaceResult {
   address: string
   lat: number
   lng: number
+  categoryName?: string
+  primaryType?: string
+  types?: string[]
 }
 
 interface SearchResponse {
@@ -60,6 +63,7 @@ async function searchKakao(
     address: item.road_address_name || item.address_name,
     lat: parseFloat(item.y),
     lng: parseFloat(item.x),
+    categoryName: item.category_name || undefined,
   }))
 
   return {
@@ -89,7 +93,7 @@ async function searchGoogle(
       'Content-Type': 'application/json',
       'X-Goog-Api-Key': GOOGLE_PLACES_API_KEY!,
       'X-Goog-FieldMask':
-        'places.id,places.displayName,places.formattedAddress,places.location,nextPageToken',
+        'places.id,places.displayName,places.formattedAddress,places.location,places.primaryType,places.types,nextPageToken',
     },
     body: JSON.stringify(body),
   })
@@ -114,6 +118,8 @@ async function searchGoogle(
         address: String(item.formattedAddress ?? ''),
         lat: location.latitude,
         lng: location.longitude,
+        primaryType: typeof item.primaryType === 'string' ? item.primaryType : undefined,
+        types: Array.isArray(item.types) ? item.types.filter((t): t is string => typeof t === 'string') : undefined,
       }
     })
 

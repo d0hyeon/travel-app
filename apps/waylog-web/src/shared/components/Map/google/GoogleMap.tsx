@@ -1,0 +1,94 @@
+import { Box, type BoxProps } from '@mui/material';
+import { Suspense, use, useEffect, useImperativeHandle, useMemo, useState } from 'react';
+import { DEFAULT_MAP_CENTER, pastelMapStyle } from '@waylog/domains/modules/map';
+import { GoogleMapContext } from '../MapContext';
+import type { MapProps } from '../types';
+import { ClusterProvider } from '../useClusterRegistry';
+import { GoogleMapClusterOverlays } from './cluster/GoogleMapClusterOverlays';
+import { useBoundsChangeListener, useViewportFit } from './GoogleMap.hooks';
+import { loadGoogleMaps } from './loader';
+import { useMapZoomLevel } from './useMapZoomLevel';
+
+const DEFAULT_ZOOM = 10;
+
+type Props = MapProps & Omit<BoxProps, 'ref' | 'autoFocus' | 'children'>
+
+export function preload() {
+  loadGoogleMaps();
+}
+
+export default function GoogleMap({
+  center,
+  defaultCenter = DEFAULT_MAP_CENTER,
+  defaultZoom = DEFAULT_ZOOM,
+  ref,
+  autoFocus = 'marker',
+  clustering = false,
+  clusterGridSize = 60,
+  onBoundsChange,
+  children,
+  ...boxProps
+}: Props) {
+  use(loadGoogleMaps());
+  const [container, setContainer] = useState<HTMLDivElement | null>(null);
+  const [map, setMap] = useState<google.maps.Map | null>(null);
+
+  useEffect(() => {
+    if (!container) return;
+    setMap(
+      new google.maps.Map(container, {
+        center: center ?? defaultCenter,
+        zoom: defaultZoom,
+        disableDefaultUI: true,
+        styles: pastelMapStyle,
+      })
+    )
+  }, [container]);
+
+  useEffect(() => {
+    if (center != null) map?.setCenter(center);
+  }, [map, center?.lat, center?.lng]);
+
+  const { extend: extendBound, fit: focusBounds } = useViewportFit(map);
+
+  useImperativeHandle(ref, () => ({
+    panTo: (lat: number, lng: number, zoom?: number) => {
+      if (!map) return;
+      map.panTo({ lat, lng });
+      if (zoom != null) map.setZoom(zoom);
+    },
+    relayout: () => {
+      if (!map) return;
+      google.maps.event.trigger(map, 'resize');
+    },
+    focus: focusBounds,
+  }), [map, focusBounds]);
+
+  const mapContextValue = useMemo(() => ({
+    map,
+    extendBound,
+    config: { autoFocus, clustering, gridSize: clusterGridSize },
+  }), [map, extendBound, autoFocus, clustering, clusterGridSize]);
+
+  useBoundsChangeListener(map, onBoundsChange);
+
+  return (
+    <GoogleMapContext.Provider value={mapContextValue}>
+      <Box ref={setContainer} position="relative" {...boxProps} />
+      <Suspense>
+        <ClusterProvider>
+          <Resolved>{children}</Resolved>
+          {clustering && <GoogleMapClusterOverlays gridSize={clusterGridSize} />}
+        </ClusterProvider>
+      </Suspense>
+    </GoogleMapContext.Provider>
+  );
+}
+
+
+function Resolved({ children }: Props) {
+  const zoom = useMapZoomLevel();
+
+  if (typeof children === 'function') return children({ zoom });
+  return children;
+}

@@ -1,0 +1,168 @@
+import AddIcon from '@mui/icons-material/Add'
+import { Box, Fab, Stack, Tab, Tabs, Typography } from "@mui/material"
+import { Suspense } from 'react'
+import { useNavigate } from 'react-router'
+import { BottomArea } from '~shared/components/BottomArea'
+import { BottomNavigation } from '~shared/components/BottomNavigation'
+import { ErrorBoundary } from "@waylog/react"
+import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState'
+import { TripChecklist } from '../trip-checklist/TripChecklist'
+import { TripChecklistAddFab } from '../trip-checklist/TripChecklistAddButton'
+import { TripDeadlineChecklist } from '../trip-checklist/TripDeadlineChecklist'
+import { TripMemberSection } from '../trip-member/TripMemberSection.mobile'
+import { TripMemo } from '../trip-memo/TripMemo.mobile'
+import { TripPinnedMemos } from '../trip-memo/TripPinnedMemos'
+import { TripBaseInfoList } from './TripBaseInfoList'
+import { TripDDay } from './TripDDay'
+import { TripPostCreateCard } from './TripPostCreateCard'
+import { RecommendedPlaceListSection } from '../trip-recommend/RecommendedPlaceListSection'
+import { CommunityRoutesSection } from '../trip-community-routes/CommunityRoutesSection'
+import { TripLeaveButton } from "../components/TripLeaveButton"
+import { TripTransportSection } from '../trip-transport/TripTransportSection.mobile'
+import { UpcomingTransportSection } from '../trip-transport/UpcomingTransportSection'
+
+interface Props {
+  tripId: string
+}
+
+export function TripBasicInfoContent({ tripId }: Props) {
+  const [currentTab, setCurrentTab] = useQueryParamState('info-tab', { defaultValue: 'default' })
+  const navigate = useNavigate()
+
+
+  return (
+    <Stack height="100%">
+      <Tabs value={currentTab} onChange={(_, value) => setCurrentTab(value)}>
+        <Tab value="default" label="기본정보" />
+        <Tab value="checklist" label="체크리스트" />
+        <Tab value="memo" label="메모" />
+        <Tab value="transport" label="탑승권" />
+      </Tabs>
+      <Box
+        position="relative"
+        width="100%"
+        sx={{ flex: 1, overflow: currentTab === 'memo' ? 'hidden' : 'auto', p: currentTab === 'memo' ? 0 : 2 }}>
+        {currentTab === 'default' && (
+          <>
+            <Suspense fallback={<TripDDay.Skeleton marginBottom={2} />}>
+              <TripDDay tripId={tripId} marginBottom={2} />
+            </Suspense>
+
+            <Stack gap={3} alignItems="start">
+              <ErrorBoundary>
+                <Suspense fallback={null}>
+                  <TripPostCreateCard tripId={tripId} />
+                </Suspense>
+              </ErrorBoundary>
+
+              {/* 여행 정보 */}
+              <TripBaseInfoList
+                tripId={tripId}
+                direction="horizontal"
+                size="s"
+                spacing={1}
+                border="1px solid #ddd"
+                padding={2}
+                borderRadius={4}
+                width="100%"
+              />
+
+              <ErrorBoundary>
+                <Stack gap={1} width="100%">
+                  <Typography variant='subtitle2' color="text.secondary">
+                    해야할 일
+                  </Typography>
+                  <TripDeadlineChecklist
+                    tripId={tripId}
+                    gap={1}
+                    throwOnEmpty
+                  />
+                </Stack>
+              </ErrorBoundary>
+
+              {/* 다가오는 교통편 */}
+              <ErrorBoundary>
+                <Suspense fallback={null}>
+                  <UpcomingTransportSection
+                    tripId={tripId}
+                    width="calc(100% + 32px)"
+                    marginX={-2}
+                    paddingX={2}
+                  />
+                </Suspense>
+              </ErrorBoundary>
+
+              {/* 고정된 메모 */}
+              <ErrorBoundary>
+                <TripPinnedMemos tripId={tripId} throwOnEmpty />
+              </ErrorBoundary>
+
+              <Stack gap={1} width="100%">
+                <RecommendedPlaceListSection
+                  tripId={tripId}
+                  header={(
+                    <Typography variant="subtitle2" color="text.secondary">
+                      사람들이 많이 찾는 곳이에요
+                    </Typography>
+                  )}
+                  width="calc(100% + 32px)"
+                  marginX={-2}
+                  paddingX={2}
+                />
+              </Stack>
+
+              <ErrorBoundary>
+                <CommunityRoutesSection
+                  tripId={tripId}
+                  width="calc(100% + 32px)"
+                  marginX={-2}
+                  paddingX={2}
+                />
+              </ErrorBoundary>
+
+              {/* 인원 관리 */}
+              <TripMemberSection tripId={tripId} />
+              <TripLeaveButton fullWidth variant="outlined" tripId={tripId} sx={{ marginTop: 6 }}>
+                여행에서 나가기
+              </TripLeaveButton>
+            </Stack>
+          </>
+        )}
+
+        {currentTab === 'checklist' && (
+          <>
+            <TripChecklist tripId={tripId} paddingBottom={`${BottomNavigation.HEIGHT}px`} />
+            <TripChecklistAddFab tripId={tripId} size="large" sx={{ position: 'absolute', bottom: 16, right: 16 }} />
+          </>
+        )}
+
+        {currentTab === 'memo' && (
+          <TripMemo tripId={tripId} />
+        )}
+
+        {currentTab === 'transport' && (
+          <>
+            <TripTransportSection
+              tripId={tripId}
+              paddingBottom={`${BottomNavigation.HEIGHT}px`}
+            />
+            <Fab
+              color="primary"
+              size="medium"
+              aria-label="탑승권 추가"
+              onClick={() => navigate(`/trip/${tripId}/transport/new`)}
+              sx={{
+                position: 'fixed',
+                bottom: `calc(${BottomNavigation.HEIGHT + 16}px + env(safe-area-inset-bottom))`,
+                right: 16
+              }}
+            >
+              <AddIcon />
+            </Fab>
+          </>
+        )}
+
+      </Box>
+    </Stack>
+  )
+}

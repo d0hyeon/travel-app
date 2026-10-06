@@ -1,0 +1,144 @@
+import AddIcon from '@mui/icons-material/Add'
+import {
+  Box,
+  Button,
+  Stack,
+  Typography
+} from '@mui/material'
+import { Suspense, useMemo, useRef, useState } from 'react'
+import { Map, type MapRef } from '../../../shared/components/Map'
+import { usePlaceSearchDialog } from '../../place/place-search/usePlaceSearchDialog'
+import { PlaceCategoryColorCode, type TripPlace } from '@waylog/domains/modules/place'
+import { useTripCluastering } from '../hooks/useTripCluastering'
+import { RecommendedMarkers } from '../trip-recommend/RecommendedMarkers'
+import { useRecommendedPlaceDetailOverlay } from '../trip-recommend/RecommendedPlaceDetailOverlay'
+import { useTripRoutes } from '@waylog/domains/modules/trip'
+import { useTrip } from '@waylog/domains/modules/trip'
+import { TripPlaceItemButton } from './TripPlaceItemButton'
+import { TripPlaceMapFloatingControls } from './TripPlaceMapFloatingControls'
+import { useTripPlaceFormOverlay } from './trip-place-form/useTripPlaceFormOverlay'
+import { useTripPlaces } from '@waylog/domains/modules/trip'
+
+const MICRO_ZOOM_LEVEL = 14; // 기존 카카오 level <= 8(확대) 과 동일한 확대 정도의 표준 축 값
+interface TripPlaceContentProps {
+  tripId: string
+}
+
+export function TripPlaceContent({ tripId }: TripPlaceContentProps) {
+  const { data: trip } = useTrip(tripId)
+  const { data: places, create } = useTripPlaces(tripId)
+  const { data: { routes } } = useTripRoutes(tripId)
+  const mapRef = useRef<MapRef>(null)
+  const mapType = trip.isOverseas ? 'google' : 'kakao'
+
+  const { searchPlace } = usePlaceSearchDialog({ service: mapType });
+
+  const handleAddPlace = async () => {
+    const place = await searchPlace();
+    if (place == null) return;
+    await create(place);
+    listRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }
+
+  const handlePlaceClick = (place: TripPlace) => {
+    mapRef.current?.panTo(place.lat, place.lng)
+  }
+
+  const plannedPlaceIds = useMemo(() => {
+    const ids = new Set<string>()
+    routes.forEach((route) => {
+      route.placeIds.forEach((id) => ids.add(id))
+    })
+    return ids
+  }, [routes])
+
+  const plannedPlaces = places.filter((p) => plannedPlaceIds.has(p.id))
+  const candidatePlaces = places.filter((p) => !plannedPlaceIds.has(p.id))
+
+  const [cluastering] = useTripCluastering();
+  const [focusedId, setFocusedId] = useState<string | null>(null)
+  const { openDialog: openDetailDialog } = useTripPlaceFormOverlay()
+  const { openDialog: openRecommendedDialog } = useRecommendedPlaceDetailOverlay()
+  const listRef = useRef<HTMLDivElement>(null)
+
+  return (
+    <Box height="100%" sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+      {/* Left: List (30%) */}
+      <Box ref={listRef} sx={{ width: '30%', borderRight: 1, borderColor: 'divider', overflow: 'auto', p: 2, scrollBehavior: 'smooth', scrollMarginBottom: 40 }}>
+        <Stack height="100%" sx={{ scrollBehavior: 'smooth' }}>
+          <Box flex="1 1 100%" paddingBottom={3}>
+            <Stack spacing={1}>
+              {plannedPlaces.map((place) => (
+                <TripPlaceItemButton
+                  key={place.id}
+                  place={place}
+                  onClick={() => handlePlaceClick(place)}
+                  component="button"
+                  focused={place.id === focusedId}
+                  sx={theme => ({ borderColor: theme.palette.primary.main })}
+                />
+              ))}
+              {candidatePlaces.map((place) => (
+                <TripPlaceItemButton
+                  key={place.id}
+                  place={place}
+                  onClick={() => handlePlaceClick(place)}
+                  focused={place.id === focusedId}
+                />
+              ))}
+            </Stack>
+          </Box>
+          <Box padding={1} position="sticky" bottom={0} flex="0 0 auto" sx={{ backgroundColor: '#fff' }}>
+            <Button
+              variant="outlined"
+              startIcon={<AddIcon />}
+              onClick={handleAddPlace}
+              fullWidth
+            >
+              장소 추가
+            </Button>
+          </Box>
+        </Stack>
+      </Box>
+
+      {/* Right: Map (70%) */}
+      <Box sx={{ flex: 1, position: 'relative' }}>
+        <TripPlaceMapFloatingControls />
+        <Map
+          type={mapType}
+          ref={mapRef}
+          defaultCenter={{ lat: trip.lat, lng: trip.lng }}
+          height="100%"
+          clustering={cluastering}
+          clusterGridSize={60}
+        >
+          {({ zoom }) => (
+            <>
+              {places.map(place => (
+                <Map.Marker
+                  key={place.id}
+                  label={place.name}
+                  lat={place.lat}
+                  lng={place.lng}
+                  color={place.category ? PlaceCategoryColorCode[place.category] : undefined}
+                  onClick={() => {
+                    setFocusedId(place.id);
+                    openDetailDialog({ tripId, placeId: place.id, })
+                  }}
+                />
+              ))}
+              {zoom >= MICRO_ZOOM_LEVEL && (
+                <Suspense>
+                  <RecommendedMarkers
+                    tripId={tripId}
+                    onClick={(place) => openRecommendedDialog({ place, tripId })}
+                  />
+                </Suspense>
+              )}
+            </>
+          )}
+        </Map>
+      </Box>
+    </Box>
+  )
+}

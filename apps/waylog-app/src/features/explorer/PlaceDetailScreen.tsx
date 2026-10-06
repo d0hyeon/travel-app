@@ -1,0 +1,139 @@
+import { MaterialIcons } from '@expo/vector-icons'
+import { usePlace } from '@waylog/domains/modules/place'
+import { useScheduledTrips } from '~features/trip/useScheduledTrips'
+import { AddTripButton } from '~features/place/AddTripButton'
+import { PlaceAddress } from '~features/place/PlaceAddress'
+import { PlaceBookmarkButton } from '~features/place/PlaceBookmarkButton'
+import { usePlacePhotos } from '~features/place/usePlacePhotos'
+import { PlacePhotoStrip } from '~features/place/PlacePhotoStrip'
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native'
+import { Suspense } from 'react'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { Map } from '~shared/components/Map'
+import { Tab, Tabs, Typography } from '~shared/components/design-system'
+import { palette, radius } from '~shared/config/tokens'
+import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
+import { useOverlay } from '~shared/hooks/useOverlay'
+import { PostCard } from '~features/post/PostCard'
+import { useAppNavigation, useAppRoute } from '~shared/hooks/useAppNavigation'
+import { AppRoute } from '~app/AppRoute'
+import { useQueryParamState } from '~shared/hooks/useQueryParamState'
+import { useExplorerPlaceFeed } from './useExplorerPlaceFeed'
+import { LoadableImage } from '~shared/components/LoadableImage'
+
+type PlaceDetailTab = 'info' | 'feed'
+
+export type PlaceDetailParams = { placeId: string; tab?: string }
+
+declare module '~app/routes' {
+  interface RouteParamsRegistry {
+    [AppRoute.장소_상세]: PlaceDetailParams
+  }
+}
+
+export function PlaceDetailScreen() {
+  const { params } = useAppRoute<typeof AppRoute.장소_상세>()
+  const { placeId } = params
+  const insets = useSafeAreaInsets()
+  const navigation = useAppNavigation()
+  const [currentTab, selectTab] = useQueryParamState<PlaceDetailTab>('tab', {
+    defaultValue: 'info',
+    parse: parsePlaceDetailTab,
+  })
+  const { data: place } = usePlace(placeId)
+
+  return (
+    <View style={[styles.screen, { paddingTop: insets.top }]}>
+      <View style={styles.header}>
+        <Pressable accessibilityLabel="장소 상세 닫기" onPress={() => navigation.goBack()} hitSlop={8} style={styles.backButton}>
+          <MaterialIcons name="arrow-back" size={22} color={palette.text} />
+        </Pressable>
+        <Typography variant="subtitle1" numberOfLines={1} style={styles.headerTitle}>{place.name}</Typography>
+        <PlaceBookmarkButton placeId={placeId} />
+      </View>
+      <Tabs style={styles.tabs} value={currentTab} onChange={(_, next) => selectTab(parsePlaceDetailTab(next))}>
+        <Tab value="info" label="기본정보" />
+        <Tab value="feed" label="피드" />
+      </Tabs>
+      {/* 루트의 전역 Suspense 가 여기서 잡히지 않으면 탭 전환마다 화면 전체가 로딩으로 바뀐다. */}
+      <Suspense fallback={<TabContentLoading />}>
+        {currentTab === 'info' ? <PlaceInfoContent placeId={placeId} /> : <PlaceFeedContent placeId={placeId} />}
+      </Suspense>
+    </View>
+  )
+}
+
+function TabContentLoading() {
+  return (
+    <View style={styles.tabContentLoading}>
+      <ActivityIndicator />
+    </View>
+  )
+}
+
+function PlaceInfoContent({ placeId }: { placeId: string }) {
+  const { width } = useWindowDimensions()
+  const { data: place } = usePlace(placeId)
+  const { data: photos } = usePlacePhotos(placeId)
+  const { data: scheduledTrips } = useScheduledTrips()
+  const insets = useSafeAreaInsets()
+  const photoWidth = Math.min(120, Math.max(96, width * 0.28))
+
+  return (
+    <>
+      <ScrollView style={styles.flex1} contentContainerStyle={styles.infoContent} showsVerticalScrollIndicator={false}>
+        <View style={styles.mapContainer}>
+          <Map defaultCenter={{ lat: place.lat, lng: place.lng }}>
+            <Map.Marker id={place.id} lat={place.lat} lng={place.lng} label={place.name} />
+          </Map>
+        </View>
+        <View style={styles.infoText}>
+          <Typography variant="subtitle1">{place.name}</Typography>
+          {place.address !== '' && <PlaceAddress address={place.address} />}
+        </View>
+        {photos.length > 0 && <PlacePhotoStrip photos={photos} thumbnailWidth={photoWidth} />}
+      </ScrollView>
+      {scheduledTrips.length > 0 && (
+        <View style={[styles.addTripArea, { paddingBottom: insets.bottom }]}>
+          <AddTripButton placeId={place.id} />
+        </View>
+      )}
+    </>
+  )
+}
+
+function PlaceFeedContent({ placeId }: { placeId: string }) {
+  const { data: posts } = useExplorerPlaceFeed(placeId)
+  const navigation = useAppNavigation()
+
+  if (posts.length === 0) {
+    return <View style={styles.emptyFeed}><Typography variant="body2" color="text.secondary">아직 이 장소의 기록이 없어요</Typography></View>
+  }
+
+  return (
+    <ScrollView style={styles.feed} contentContainerStyle={styles.feedContent} showsVerticalScrollIndicator={false}>
+      {posts.map((post) => <PostCard key={post.id} post={post} onPress={() => navigation.navigate(AppRoute.포스트_상세, { postId: post.id })} />)}
+    </ScrollView>
+  )
+}
+
+function parsePlaceDetailTab(value: string): PlaceDetailTab {
+  return value === 'feed' ? 'feed' : 'info'
+}
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: palette.background },
+  header: { height: 52, paddingHorizontal: 8, flexDirection: 'row', alignItems: 'center', zIndex: 1, backgroundColor: palette.background },
+  tabs: { marginTop: -8 },
+  backButton: { padding: 8 },
+  headerTitle: { flex: 1, textAlign: 'center' },
+  tabContentLoading: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 80 },
+  flex1: { flex: 1 },
+  infoContent: { padding: 16, gap: 16, paddingBottom: 32 },
+  mapContainer: { height: 220, borderRadius: radius.lg, overflow: 'hidden' },
+  infoText: { gap: 8 },
+  addTripArea: { paddingHorizontal: 16 },
+  emptyFeed: { alignItems: 'center', paddingVertical: 80 },
+  feed: { flex: 1 },
+  feedContent: { gap: 16, padding: 16, paddingBottom: 32 },
+})

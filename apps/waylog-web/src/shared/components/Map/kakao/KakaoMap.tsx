@@ -1,0 +1,92 @@
+import { Box, type BoxProps } from '@mui/material';
+import { Suspense, use, useEffect, useImperativeHandle, useMemo, useState } from 'react';
+import { KakaoMapContext } from '../MapContext';
+import type { MapProps } from '../types';
+import { ClusterProvider } from '../useClusterRegistry';
+import { KakaoMapClusterOverlays } from './cluster/KakaoMapClusterOverlays';
+import { useBoundsChangeListener, useViewportFit } from './KakaoMap.hooks';
+import { loadKakaoMap } from './loader';
+import { useMapZoomLevel } from './useMapZoomLevel';
+import { zoomToKakaoLevel } from './zoomLevel.utils';
+import { DEFAULT_MAP_CENTER } from '@waylog/domains/modules/map'
+
+const DEFAULT_ZOOM = 14; // 기존 level: 8 과 동일한 확대 정도 (22 - 14 = 8)
+
+type Props = MapProps & Omit<BoxProps, 'ref' | 'autoFocus' | 'children'>
+
+export default function KakaoMap({
+  center,
+  defaultCenter = DEFAULT_MAP_CENTER,
+  defaultZoom = DEFAULT_ZOOM,
+  ref,
+  autoFocus = 'marker',
+  clustering = false,
+  clusterGridSize = 60,
+  onBoundsChange,
+  children,
+  ...boxProps
+}: Props) {
+  use(loadKakaoMap());
+  const [container, setContainer] = useState<HTMLDivElement | null>(null);
+  const [map, setMap] = useState<kakao.maps.Map | null>(null);
+
+  useEffect(() => {
+    if (!container) return;
+    const coordinate = center ?? defaultCenter;
+    const mapInstance = new kakao.maps.Map(container, {
+      center: new kakao.maps.LatLng(coordinate.lat, coordinate.lng),
+      level: zoomToKakaoLevel(defaultZoom),
+    });
+
+    setMap(mapInstance);
+  }, [container]);
+
+  useEffect(() => {
+    if (map != null && center != null) {
+      map.setCenter(new kakao.maps.LatLng(center.lat, center.lng));
+    }
+  }, [map, center?.lat, center?.lng]);
+
+  const { extend: extendBound, fit: focusBounds } = useViewportFit(map);
+
+  useImperativeHandle(ref, () => ({
+    panTo: (lat: number, lng: number, zoom?: number) => {
+      if (!map) return;
+      if (zoom != null) map.setLevel(zoomToKakaoLevel(zoom));
+      map.panTo(new kakao.maps.LatLng(lat, lng));
+    },
+    relayout: () => map?.relayout(),
+    focus: focusBounds,
+  }), [map]);
+
+  const mapContextValue = useMemo(() => ({
+    map,
+    extendBound,
+    config: { autoFocus, clustering },
+  }), [map, extendBound, autoFocus, clustering]);
+
+  useBoundsChangeListener(map, onBoundsChange);
+
+  return (
+    <KakaoMapContext.Provider value={mapContextValue}>
+      <Box ref={setContainer} position="relative" {...boxProps} />
+      <Suspense>
+        <ClusterProvider>
+          <Renderer>{children}</Renderer>
+          {clustering && <KakaoMapClusterOverlays gridSize={clusterGridSize} />}
+        </ClusterProvider>
+      </Suspense>
+    </KakaoMapContext.Provider>
+  );
+}
+
+function Renderer(props: Pick<Props, 'children'>) {
+  const zoom = useMapZoomLevel();
+
+  if (typeof props.children === 'function') {
+    return props.children({ zoom })
+  }
+
+  return props.children;
+}
+

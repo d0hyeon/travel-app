@@ -1,0 +1,122 @@
+import {
+  keepPreviousData,
+  useSuspenseQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+import {
+  getRoutesByTripId,
+  routeKey,
+  createRoute,
+  updateRoute,
+  deleteRoute,
+} from "../route";
+import { assert } from "../../utils";
+import { useTrip } from "./useTrip";
+import { mergeQueriesStatus } from "../../utils";
+import { useMemo } from "react";
+import { addDays, differenceInDays } from "date-fns";
+import { formatDisplayDate } from "../../utils";
+import { TRIP_PLAN_REFETCH } from "../tripPlanRefetch";
+
+export function useTripRoutes(id: string) {
+  const queryClient = useQueryClient();
+  const { data: trip, ...tripQueries } = useTrip(id);
+
+  const { data: routes, ...routeQueries } = useSuspenseQuery(
+    useTripRoutes.query(id),
+  );
+
+  const dates = useMemo(() => {
+    const diffDays = differenceInDays(trip.endDate, trip.startDate);
+    return Array.from({ length: diffDays + 1 }).map((_, day) =>
+      formatDisplayDate(new Date(addDays(trip.startDate, day))),
+    );
+  }, [trip.startDate, trip.endDate]);
+
+  const creation = useMutation({
+    mutationFn: (
+      params: OmitPartial<
+        Parameters<typeof createRoute>[0],
+        "name" | "tripId" | "scheduledDate"
+      >,
+    ) => {
+      return createRoute({
+        placeIds: [],
+        isMain: false,
+        placeMemos: {},
+        ...params,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: useTripRoutes.key(id) });
+    },
+  });
+
+  const updateVisibleMutation = useMutation({
+    mutationFn: (params: { routeId: string; placeId: string }) => {
+      const route = routes.find((x) => x.id === params.routeId);
+      assert(!!route, "존재하지 않는 경로입니다.");
+
+      return updateRoute(params.routeId, {
+        hiddenPlaces: route.hiddenPlaces.includes(params.placeId)
+          ? route.hiddenPlaces.filter((x) => x !== params.placeId)
+          : [...route.hiddenPlaces, params.placeId],
+      });
+    },
+    onSuccess: () => {
+      routeQueries.refetch();
+    },
+  });
+
+  const updation = useMutation({
+    mutationFn: ({
+      routeId,
+      ...payload
+    }: { routeId: string } & Parameters<typeof updateRoute>[1]) => {
+      return updateRoute(routeId, payload);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: useTripRoutes.key(id) });
+    },
+  });
+
+  const deletion = useMutation({
+    mutationFn: deleteRoute,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: useTripRoutes.key(id) });
+    },
+  });
+
+  return {
+    data: { trip, routes, tripDates: dates },
+    create: Object.assign(creation.mutateAsync, creation),
+    update: Object.assign(updation.mutateAsync, updation),
+    remove: Object.assign(deletion.mutateAsync, deletion),
+    toggleVisible: Object.assign(
+      updateVisibleMutation.mutateAsync,
+      updateVisibleMutation,
+    ),
+    ...mergeQueriesStatus(tripQueries, routeQueries),
+  };
+}
+
+useTripRoutes.key = (id: string) => [routeKey, id];
+
+// 소비처가 자기 QueryClient 로 prefetch 한다.
+// 패키지가 QueryClient 를 알 필요가 없다.
+useTripRoutes.query = (id: string) => ({
+  queryKey: useTripRoutes.key(id),
+  queryFn: async () => {
+    const data = await getRoutesByTripId(id);
+    assert(!!data, "데이터를 찾을수 없습니다.");
+    return data;
+  },
+  // 무효화 뒤 재조회하는 동안 이전 목록을 그대로 보여준다.
+  // 이게 없으면 useSuspenseQuery 가 다시 suspend 해서 화면이 폴백으로 바뀌고,
+  // 그 사이 컴포넌트가 다시 마운트되며 진행 중이던 제스처가 끊긴다.
+  placeholderData: keepPreviousData,
+  ...TRIP_PLAN_REFETCH,
+});
+
+type OmitPartial<T, Key extends keyof T> = Partial<Omit<T, Key>> & Pick<T, Key>;
