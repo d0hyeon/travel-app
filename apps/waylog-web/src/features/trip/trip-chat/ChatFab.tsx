@@ -1,8 +1,8 @@
 import ChatIcon from '@mui/icons-material/Send'
 import { Badge, Fab } from '@mui/material'
 import { Suspense } from 'react'
-import { useUnreadChatCount } from '@waylog/domains/modules/trip-chat'
 import { useTripChatOverlay } from './useTripChatOverlay'
+import { useTripUnreadMessageCount } from '@waylog/domains/modules/trip-chat'
 
 interface Props {
   tripId: string
@@ -17,7 +17,7 @@ export function ChatFab({ tripId }: Props) {
 }
 
 function ChatFabResolved({ tripId }: Props) {
-  const unreadCount = useUnreadChatCount(tripId)
+  const unreadCount = useTripUnreadMessageCount(tripId)
   return <ChatFabBase tripId={tripId} unreadCount={unreadCount} />
 }
 

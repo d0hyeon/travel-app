@@ -1,5 +1,5 @@
 import { keyframes, Stack, Typography, type StackProps } from '@mui/material'
-import { useTripUnreadCount } from '@waylog/domains/modules/trip-chat'
+import { useTripUnreadMessageCount } from '@waylog/domains/modules/trip-chat'
 
 interface Props extends StackProps {
   tripId: string
@@ -15,7 +15,7 @@ const popIn = keyframes`
 const POP_IN_DURATION_MS = 300
 
 export function TripUnreadCountBadge({ tripId, variant = 'fill', sx, ...props }: Props) {
-  const count = useTripUnreadCount(tripId)
+  const count = useTripUnreadMessageCount(tripId)
   if (count === 0) return null
 
   const isFill = variant === 'fill'

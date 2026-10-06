@@ -6,7 +6,7 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated'
-import { useTripUnreadCount } from '@waylog/domains/modules/trip-chat'
+import { useTripUnreadMessageCount } from '@waylog/domains/modules/trip-chat'
 import { Suspense, useEffect } from 'react'
 import { Typography } from '~shared/components/design-system'
 import { palette } from '~shared/config/tokens'
@@ -31,7 +31,7 @@ export function TripUnreadCountBadge(props: Props) {
 }
 
 function Resolved({ tripId, ...badgeProps }: Props) {
-  const count = useTripUnreadCount(tripId)
+  const count = useTripUnreadMessageCount(tripId)
   if (count === 0) return null
 
   return <PoppingBadge count={count} {...badgeProps} />

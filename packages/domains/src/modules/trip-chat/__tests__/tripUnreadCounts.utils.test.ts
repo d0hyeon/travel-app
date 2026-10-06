@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { buildLastReads, increaseUnreadCount } from '../tripUnreadCounts.utils'
 import { configureStorage } from '../../storage'
-import { markAsRead } from '../useUnreadChatCount'
+import { markAsRead } from '../useTripUnreadMessageCount'
 
 beforeEach(() => {
   const store = new Map<string, string>()

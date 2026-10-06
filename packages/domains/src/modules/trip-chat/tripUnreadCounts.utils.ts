@@ -1,4 +1,5 @@
-import { getLastReadAt } from './useUnreadChatCount'
+
+import { getLastReadAt } from '@waylog/domains/modules/trip-chat';
 
 export function buildLastReads(tripIds: string[]): Record<string, string> {
   return tripIds.reduce<Record<string, string>>((lastReads, tripId) => {
