@@ -5,7 +5,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  reporter: 'html',
+  reporter: process.env.CI ? [['list'], ['html']] : 'html',
   globalSetup: './e2e/helpers/auth-setup.ts',
   workers: process.env.CI ? 2 : 4,
   timeout: 15_000,
@@ -50,6 +50,8 @@ export default defineConfig({
     command: 'pnpm dev --mode test',
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
+    stdout: 'pipe',
+    stderr: 'pipe',
     timeout: 120_000,
   },
 })
