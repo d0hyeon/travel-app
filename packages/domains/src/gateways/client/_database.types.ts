@@ -1196,7 +1196,11 @@ export type Database = {
         Returns: boolean
       }
       get_explored_places: {
-        Args: { since_date?: string }
+        Args: {
+          category?: string
+          location?: string
+          since_date?: string
+        }
         Returns: {
           address: string
           categories: Json
@@ -1215,7 +1219,7 @@ export type Database = {
         }[]
       }
       get_most_saved_places: {
-        Args: never
+        Args: { category?: string; location?: string }
         Returns: {
           address: string
           categories: Json
