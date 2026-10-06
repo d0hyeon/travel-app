@@ -9,6 +9,7 @@ AS $$
   FROM "public"."trips" "t"
   LEFT JOIN "public"."trip_messages" "m"
     ON "m"."trip_id" = "t"."id"
+   AND "m"."user_id" <> "auth"."uid"()
    AND (
      ("last_reads" ->> ("t"."id")::"text") IS NULL
      OR "m"."created_at" > (("last_reads" ->> ("t"."id")::"text"))::timestamp with time zone
