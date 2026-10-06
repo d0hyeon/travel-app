@@ -78,6 +78,39 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
       - run: eas update --branch pr-${{ github.event.pull_request.number }} --environment preview --message "${{ github.event.pull_request.head.sha }}" --non-interactive
 
+  comment-build-notice:
+    name: PR build notice
+    needs: [detect-app-changes, detect-version]
+    if: github.event_name == 'pull_request' && needs.detect-app-changes.outputs.changed == 'true' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BUILD: ${{ needs.detect-version.outputs.build }}
+          VERSION: ${{ needs.detect-version.outputs.version }}
+          STORE: ${{ needs.detect-version.outputs.store }}
+        run: |
+          MARKER='<!-- app-cd-build-notice -->'
+          if [ "$BUILD" = "true" ]; then
+            SUMMARY="병합 후 CI에서 iOS 빌드가 실행됩니다."
+          else
+            SUMMARY="병합 후 OTA 업데이트만 배포됩니다."
+          fi
+          BODY="$MARKER
+          $SUMMARY
+
+          - app.config.ts version: \`$VERSION\`
+          - App Store 배포 버전: \`${STORE:-없음}\`"
+          COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" --paginate --jq ".[] | select(.body | contains(\"$MARKER\")) | .id" | head -n1)
+          if [ -n "$COMMENT_ID" ]; then
+            gh api --method PATCH "repos/${{ github.repository }}/issues/comments/$COMMENT_ID" -f body="$BODY"
+          else
+            gh api --method POST "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" -f body="$BODY"
+          fi
+
   update-production:
     name: EAS Update (production)
     needs: detect-version
@@ -112,10 +145,11 @@ jobs:
 
   detect-version:
     name: Detect app version
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
+      store: ${{ steps.version.outputs.store }}
       build: ${{ steps.version.outputs.build }}
     steps:
       - uses: actions/checkout@v4
@@ -139,6 +173,7 @@ jobs:
             exit 0
           fi
           STORE=$(node scripts/read-store-version.mjs)
+          echo "store=$STORE" >> "$GITHUB_OUTPUT"
           if [ -z "$STORE" ] || [ "$(normalize_version "$CURRENT")" != "$(normalize_version "$STORE")" ]; then
             echo "build=true" >> "$GITHUB_OUTPUT"
           else
@@ -148,7 +183,7 @@ jobs:
   build:
     name: EAS Build (iOS)
     needs: detect-version
-    if: needs.detect-version.outputs.build == 'true'
+    if: needs.detect-version.outputs.build == 'true' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
