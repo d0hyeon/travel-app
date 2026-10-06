@@ -11,9 +11,6 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - 'apps/waylog-app/**'
-      - 'packages/**'
   workflow_dispatch:
     inputs:
       is_mandatory:
@@ -37,9 +34,38 @@ defaults:
     working-directory: apps/waylog-app
 
 jobs:
+  detect-app-changes:
+    name: Detect app changes
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.diff.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: diff
+        env:
+          ACTION: ${{ github.event.action }}
+          BEFORE_SHA: ${{ github.event.before }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if [ "$ACTION" = "synchronize" ] && git cat-file -e "$BEFORE_SHA^{commit}" 2>/dev/null; then
+            FILES=$(git diff --name-only "$BEFORE_SHA" "$HEAD_SHA")
+          else
+            FILES=$(git diff --name-only "$BASE_SHA...$HEAD_SHA")
+          fi
+          if echo "$FILES" | grep -qE '^(apps/waylog-app|packages)/'; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
   update-preview:
     name: EAS Update (PR preview)
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    needs: detect-app-changes
+    if: github.event_name == 'pull_request' && needs.detect-app-changes.outputs.changed == 'true' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     permissions:
       contents: read
