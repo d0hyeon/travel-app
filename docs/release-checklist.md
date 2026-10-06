@@ -123,11 +123,11 @@ Personal Team으로는 Sign in with Apple, Push Notifications, Associated Domain
 ### 5-3. 푸시 알림
 
 - [x] APNs 인증 키(.p8)를 발급해 EAS에 등록한다(`eas credentials`). Expo 푸시가 이 키로 iOS에 전달한다.
-- [ ] 실기기에서 채팅 알림이 오는지 확인한다. Edge Function `chat-web-push`가 Expo 푸시로 보낸다.
+- [x] 실기기에서 채팅 알림이 오는지 확인한다. Edge Function `chat-web-push`가 Expo 푸시로 보낸다.
 
 ### 5-4. 빌드와 심사
 
-- [ ] `eas build --platform ios --profile production`으로 릴리스 빌드를 만들고 TestFlight에 올려 실기기 확인.
+- [x] `eas build --platform ios --profile production`으로 릴리스 빌드를 만들고 TestFlight에 올려 실기기 확인.
 - [ ] 번들 업데이트를 실기기에서 확인한다. `production` 빌드를 설치한 뒤 `eas update --channel production`으로 게시하고, 앱을 완전히 종료했다 다시 켠 다음 한 번 더 켰을 때 새 번들이 적용되는지 본다(비필수는 받아만 두고 다음 실행에 적용된다). 필수 업데이트는 `BUNDLE_IS_MANDATORY=true`로 게시해 받은 직후 재시작되는지 본다. 개발 빌드는 `Updates.isEnabled`가 꺼져 있어 확인되지 않는다.
 - [ ] Sign in with Apple 로그인과 가입 취소 시 Apple 철회를 실기기에서 확인(`apple-login-setup.md` 마지막 절차).
 - [ ] 초대 링크(`https://waylog.me/trip/invite/...`)를 메모 앱 등에서 눌러 앱이 열리는지 확인.
