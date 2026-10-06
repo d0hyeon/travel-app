@@ -28,6 +28,7 @@ function getDatesBetween(startDate: string, endDate: string): string[] {
 }
 
 export const tripKey = "trips";
+export const tripByUserKey = "by-user";
 
 export function toTrip(row: DataRaw<"trips">): Trip {
   const destinations: string[] = (row.destinations as string[] | null) ?? [

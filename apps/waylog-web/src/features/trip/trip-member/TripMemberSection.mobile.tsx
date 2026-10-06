@@ -3,7 +3,7 @@ import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium'
 import { IconButton, Skeleton, Stack, Typography } from "@mui/material"
 import { Suspense } from 'react'
 import { ListItem } from '~shared/components/ListItem'
-import { useTripMembers } from '@waylog/domains/modules/trip-member'
+import { TripPermission, useTripMembers, useTripPermission } from '@waylog/domains/modules/trip-member'
 import { TripInviteButton } from '../components/TripInviteButton'
 import { MemberAvatar } from './MemberAvatar'
 import { SortCommand } from '~shared/utils/sorts'
@@ -24,15 +24,17 @@ export function TripMemberSection(props: Props) {
 
 function Resolved({ tripId }: Props) {
   const { data: members } = useTripMembers(tripId)
-  const orderedMembers = members.toSorted((a) => a.isHost ? SortCommand.Shift : SortCommand.Maintain)
+  const isInvitable = useTripPermission(tripId, TripPermission.초대)
+  const activeMembers = members.filter((member) => !member.hasLeft)
+  const orderedMembers = activeMembers.toSorted((a) => a.isHost ? SortCommand.Shift : SortCommand.Maintain)
 
   return (
     <Stack gap={1} width="100%">
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Typography variant="subtitle2" color="text.secondary" sx={{ marginTop: -1 }}>
-          인원 ({members.length}명)
+          인원 ({activeMembers.length}명)
         </Typography>
-        <TripInviteButton tripId={tripId}>초대</TripInviteButton>
+        {isInvitable && <TripInviteButton tripId={tripId}>초대</TripInviteButton>}
       </Stack>
       <Stack spacing={1} width="100%">
         {orderedMembers.length === 0 ? (

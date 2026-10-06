@@ -127,7 +127,7 @@ async function observeFlights(
 
 async function notify(transport: TransportRow, status: WatchedStatus, isGateChanged: boolean) {
   const { data: members } = await supabase
-    .from('trip_members')
+    .from('active_trip_members')
     .select('user_id')
     .eq('trip_id', transport.trip_id)
 

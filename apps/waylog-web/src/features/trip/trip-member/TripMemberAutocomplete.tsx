@@ -22,11 +22,12 @@ export function TripMemberAutocomplete<Multiple extends boolean = false>({
 
   if (multiple) {
     const value = members.filter((member) => _value?.includes(member.id));
+    const optionMembers = members.filter((member) => !member.hasLeft || _value?.includes(member.id));
 
     return (
       <Autocomplete<TripMember, true, false, false>
         value={value}
-        options={members}
+        options={optionMembers}
         multiple={true}
         renderInput={(props) => <TextField {...props} />}
         // @ts-ignore
@@ -41,13 +42,14 @@ export function TripMemberAutocomplete<Multiple extends boolean = false>({
     )
   }
   const value = members.find(member => member.id === _value);
+  const optionMembers = members.filter((member) => !member.hasLeft || member.id === _value);
 
   return (
     <Autocomplete<TripMember, false, false, false>
       // @ts-ignore
       getOptionLabel={option => option.user.name}
       value={value}
-      options={members}
+      options={optionMembers}
       multiple={multiple}
       renderInput={props => <TextField {...props} />}
       onChange={(_, value, __) => {

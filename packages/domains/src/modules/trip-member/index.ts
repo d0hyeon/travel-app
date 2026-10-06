@@ -1,3 +1,7 @@
 export * from './tripMember.api'
 export * from './tripMember.types'
 export * from './useTripMembers'
+export * from './tripPermission.types'
+export * from './useTripPermission'
+export { findHostSuccessor } from './tripMember.utils'
+export { getTripRole } from './tripPermission.utils'

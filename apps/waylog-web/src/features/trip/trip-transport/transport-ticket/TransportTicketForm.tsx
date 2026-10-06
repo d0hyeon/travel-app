@@ -230,6 +230,7 @@ interface OwnerMenuProps {
 
 function TicketOwnerMenu({ members, memberId, ownerName, onChange }: OwnerMenuProps) {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null)
+  const ownerCandidates = members.filter((member) => !member.hasLeft || member.id === memberId)
 
   const select = (next?: string) => {
     onChange(next)
@@ -267,7 +268,7 @@ function TicketOwnerMenu({ members, memberId, ownerName, onChange }: OwnerMenuPr
           <SelectedMark isSelected={memberId == null} />
           공용
         </MenuItem>
-        {members.map((member) => (
+        {ownerCandidates.map((member) => (
           <MenuItem
             key={member.id}
             selected={memberId === member.id}

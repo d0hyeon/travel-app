@@ -1,6 +1,8 @@
 import { Button, Snackbar, Tooltip, type ButtonProps } from '@mui/material'
 import { useState } from 'react'
 import { useTrip } from '@waylog/domains/modules/trip'
+import { TripPermission, useTripPermission } from '@waylog/domains/modules/trip-member'
+import { assert } from '@waylog/utility'
 
 interface Props extends ButtonProps {
   tripId: string
@@ -8,7 +10,10 @@ interface Props extends ButtonProps {
 
 export function TripInviteButton({ tripId, children = '초대하기', ...props }: Props) {
   const { data: trip } = useTrip(tripId)
+  const isInvitable = useTripPermission(tripId, TripPermission.초대)
   const [open, setOpen] = useState(false)
+
+  assert(isInvitable, '초대 권한이 없습니다.')
 
   const handleShare = async () => {
     const url = `${window.location.origin}/trip/invite/${trip.shareLink}`

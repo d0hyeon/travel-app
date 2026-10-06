@@ -1,8 +1,10 @@
-import { useAuth } from "@waylog/domains/clients";
-import { assert } from "@waylog/utility";
 import { useTrip } from "@waylog/domains/modules/trip";
+import { findHostSuccessor, getTripRole, TripPermission, useTripMembers, useTripPermission } from "@waylog/domains/modules/trip-member";
+import { useAuth } from "@waylog/domains/clients";
 import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
 import { useNavigate } from "react-router";
+import { assert } from "@waylog/utility";
+import { toast } from "sonner";
 import { PopMenu } from "~shared/components/PopMenu";
 import LeaveIcon from '@mui/icons-material/Logout';
 import { Suspense } from "react";
@@ -22,34 +24,42 @@ export function TripLeavePopMenuItem(props: ItemProps) {
   )
 }
 function Resolved({ tripId }: ItemProps) {
-  const { data: auth } = useAuth();
-  assert(!!auth, '로그인이 필요합니다.');
-
+  const { data: auth } = useAuth()
   const {
-    data: { userId, name },
-    remove: removeTrip,
+    data: { name },
     leave: leaveTrip
   } = useTrip(tripId)
-  const isHost = auth.id === userId;
+  const { data: members } = useTripMembers(tripId)
+  const isLeavable = useTripPermission(tripId, TripPermission.탈퇴)
+
+  assert(isLeavable, '여행을 나갈 수 있는 멤버가 아닙니다.')
 
   const confirm = useConfirmDialog();
   const navigate = useNavigate();
 
-  return (
-    <PopMenu.Item
-      icon={<LeaveIcon />}
-      color="error"
-      onClick={async () => {
-        if (await confirm(`${name}을(를) 나가시겠어요?`)) {
-          navigate('/', { replace: true })
+  const isHost = getTripRole(members, auth.id) === 'host'
+  const hostSuccessor = findHostSuccessor(members)
 
-          if (isHost) removeTrip()
-          else leaveTrip()
-        }
-      }}
-    >
+  const getConfirmMessage = () => {
+    if (!isHost) return `${name}을(를) 나가시겠어요?`
+    if (hostSuccessor == null) return '마지막 멤버예요. 나가면 여행이 삭제돼요. 여행에서 나가시겠어요?'
+    return `나가면 ${hostSuccessor.name}님이 호스트가 돼요. 여행에서 나가시겠어요?`
+  }
+
+  const handleLeave = async () => {
+    if (await confirm(getConfirmMessage())) {
+      navigate('/', { replace: true })
+      try {
+        await leaveTrip()
+      } catch {
+        toast.error('여행에서 나가지 못했어요. 잠시 후 다시 시도해 주세요.')
+      }
+    }
+  }
+
+  return (
+    <PopMenu.Item icon={<LeaveIcon />} color="error" onClick={handleLeave}>
       나가기
     </PopMenu.Item>
   )
 }
-

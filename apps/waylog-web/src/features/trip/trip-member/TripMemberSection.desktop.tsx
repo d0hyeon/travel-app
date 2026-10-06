@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, IconButton, Skeleton, Stack, Typography 
 import { Suspense } from 'react'
 import { ListItem } from '../../../shared/components/ListItem'
 import { TripInviteButton } from '../components/TripInviteButton'
-import { useTripMembers } from '@waylog/domains/modules/trip-member'
+import { TripPermission, useTripMembers, useTripPermission } from '@waylog/domains/modules/trip-member'
 import { MemberAvatar } from './MemberAvatar'
 import { SortCommand } from '~shared/utils/sorts'
 
@@ -22,13 +22,15 @@ export function TripMemberSection(props: Props) {
 
 function Resolved({ tripId }: Props) {
   const { data: members } = useTripMembers(tripId)
-  const orderedMembers = members.toSorted((a) => a.isHost ? SortCommand.Shift : SortCommand.Maintain)
+  const isInvitable = useTripPermission(tripId, TripPermission.초대)
+  const activeMembers = members.filter((member) => !member.hasLeft)
+  const orderedMembers = activeMembers.toSorted((a) => a.isHost ? SortCommand.Shift : SortCommand.Maintain)
 
   return (
     <Card variant="outlined">
       <Stack direction="row" alignItems="center" justifyContent="space-between" paddingRight={2}>
-        <CardHeader title={`참여 인원 (${members.length}명)`} />
-        <TripInviteButton tripId={tripId}>초대</TripInviteButton>
+        <CardHeader title={`참여 인원 (${activeMembers.length}명)`} />
+        {isInvitable && <TripInviteButton tripId={tripId}>초대</TripInviteButton>}
       </Stack>
       <CardContent>
         <Stack spacing={1}>

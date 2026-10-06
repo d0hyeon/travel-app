@@ -140,7 +140,7 @@ export const TripChecklistForm = forwardRef<TripChecklistFormRef, Props>(
               담당자
             </Typography>
             <Stack direction="row" gap={0.5} style={styles.memberList}>
-              {members.map((member) => (
+              {members.filter((member) => !member.hasLeft || member.id === selectedMemberId).map((member) => (
                 <Chip
                   key={member.id}
                   label={member.name}

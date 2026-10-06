@@ -67,6 +67,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
     ...destinationCurrencyCodes.filter((code) => !usedCurrencies.includes(code)),
   ]
   const otherCurrencyCodes = (Object.values(CurrencyCodeMap) as CurrencyCode[]).filter((code) => !destinationCurrencyCodes.includes(code))
+  const selectableMembers = members.filter((member) => !member.hasLeft)
   const myMemberId = members.find((member) => member.userId === auth?.id)?.id
 
   const { control, handleSubmit, setValue } = useForm<ExpenseFormValues>({
@@ -76,7 +77,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
       currency: currencies[0]?.code ?? 'KRW',
       payments: myMemberId != null ? [{ memberId: myMemberId, amount: 0 }] : [],
       ...defaultValues,
-      splitAmong: defaultValues?.splitAmong ?? members.map((member) => member.id),
+      splitAmong: defaultValues?.splitAmong ?? selectableMembers.map((member) => member.id),
     },
   })
   const { fields: paymentFields, append, remove } = useFieldArray({
@@ -98,8 +99,10 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
   const placeId = useWatch({ control, name: 'placeId' })
   const payments = useWatch({ control, name: 'payments' })
 
+  const unpaidMembers = selectableMembers.filter((member) => !payments.some((payment) => payment.memberId === member.id))
+
   const addPayer = () => {
-    const nextMember = members.find((member) => !payments.some((payment) => payment.memberId === member.id))
+    const [nextMember] = unpaidMembers
     if (nextMember == null) return
     append({ memberId: nextMember.id, amount: 0 })
   }
@@ -124,7 +127,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
       <Stack gap={0.5}>
         <Stack direction="row" justifyContent="space-between" alignItems="center">
           <Typography variant="subtitle2" >결제 금액</Typography>
-          <Button size="small" onPress={addPayer} disabled={paymentFields.length >= members.length}>추가</Button>
+          <Button size="small" onPress={addPayer} disabled={unpaidMembers.length === 0}>추가</Button>
         </Stack>
         {paymentFields.map((field, index) => (
           <Stack key={field.id} direction="row" gap={1} alignItems="flex-end">
@@ -136,7 +139,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
                   <Pressable onPress={() => overlay.open(({ isOpen, close }) => (
                     <BottomSheet isOpen={isOpen} onDismiss={close} snapPoints={[0.4]} defaultSnapIndex={0} safeArea>
                       <BottomSheet.Body style={styles.payerSheetBody}>
-                        {members.map((member) => (
+                        {members.filter((member) => !member.hasLeft || member.id === value).map((member) => (
                           <Pressable key={member.id} onPress={() => { onChange(member.id); close() }} style={styles.payerSheetItem}>
                             <Typography>{member.name}</Typography>
                           </Pressable>
@@ -301,9 +304,11 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
                   size="small"
                   variant="text"
                   onPress={() => {
-                    setValue(value.length === members.length
-                      ? []
-                      : members.map((member) => member.id)
+                    const keptLeftIds = value.filter((id) => members.some((member) => member.id === id && member.hasLeft))
+                    const isAllSelectableSelected = selectableMembers.every((member) => value.includes(member.id))
+                    setValue(isAllSelectableSelected
+                      ? keptLeftIds
+                      : [...selectableMembers.map((member) => member.id), ...keptLeftIds]
                     )
                   }}
                 >
@@ -311,7 +316,7 @@ export const ExpenseForm = forwardRef<ExpenseFormRef, Props>(function ExpenseFor
                 </Button>
               </Stack>
               <Stack direction="row" gap={0.5} style={styles.wrapRow}>
-                {members.map((member) => {
+                {members.filter((member) => !member.hasLeft || value.includes(member.id)).map((member) => {
                   const included = value.includes(member.id)
 
                   return (

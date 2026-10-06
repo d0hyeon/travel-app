@@ -18,6 +18,8 @@ function makeMember(id: string): TripMember {
     name: id,
     profileUrl: null,
     isHost: false,
+    hasLeft: false,
+    joinedAt: '2025-07-01T00:00:00Z',
   }
 }
 

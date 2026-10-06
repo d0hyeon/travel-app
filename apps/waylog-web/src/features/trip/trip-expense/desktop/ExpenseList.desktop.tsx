@@ -49,16 +49,17 @@ export function ExpenseList({ tripId }: ExpenseListProps) {
   return (
     <Stack spacing={1.5} sx={{ maxHeight: 450, overflow: 'auto' }}>
       {expenses.map((expense) => {
-        const splitedAmount = Math.ceil(expense.totalAmount / members.length);
+        const splitedAmount = Math.ceil(expense.totalAmount / expense.splitAmong.length);
         const peopleAmount = expense.payments.reduce<Record<string, number>>((acc, item) => ({
           ...acc,
           [item.memberId]: (acc[item.memberId] ?? 0) + item.amount
         }), {});
 
-        const is엔빵 = members.every(member => {
-          if (peopleAmount[member.id] == null) return false;
-          return peopleAmount[member.id] === splitedAmount;
+        const is엔빵 = expense.splitAmong.every(memberId => {
+          if (peopleAmount[memberId] == null) return false;
+          return peopleAmount[memberId] === splitedAmount;
         })
+        const isPartialSplit = members.some((member) => !member.hasLeft && !expense.splitAmong.includes(member.id))
 
         return (
           <Card
@@ -84,7 +85,7 @@ export function ExpenseList({ tripId }: ExpenseListProps) {
                       </Typography>
                     )}
                   </Stack>
-                  {expense.splitAmong.length < members.length && (
+                  {isPartialSplit && (
                     <Stack direction="row" spacing={0.5} mt={0.5} flexWrap="wrap" useFlexGap>
                       {expense.splitAmong.map(id => {
                         const member = memberMap.get(id);
