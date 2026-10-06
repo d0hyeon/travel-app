@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-source "$(dirname "$0")/select-option.sh"
+source "$(dirname "$0")/prompt.sh"
 
 select_option "환경 선택" production preview
 environment=$selected
@@ -40,8 +40,8 @@ if [ "$environment" = "production" ]; then
   select_option "강제 업데이트로 배포할까요?" 아니오 예
   mandatory_answer=$selected
 fi
-read -r -p "메시지 (비우면 커밋 SHA): " message
-message=${message:-$sha}
+read_with_placeholder "메시지 (비우면 커밋 SHA): " "$(git log -1 --format=%s)"
+message=${input:-$sha}
 
 pnpm eas build --platform ios --profile "$environment" --message "$message" --non-interactive --no-wait
 

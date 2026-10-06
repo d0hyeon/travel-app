@@ -29,4 +29,19 @@ select_option() {
   selected=${options[$cursor]}
 }
 
+read_with_placeholder() {
+  local prompt=$1 placeholder=$2 first rest
+  printf '%s' "$prompt"
+  printf '\0337\033[2m%s\033[0m\0338' "$placeholder"
+  IFS= read -rsn1 first
+  if [ -z "$first" ]; then
+    echo
+    input=""
+    return
+  fi
+  printf '\033[K%s' "$first"
+  IFS= read -r rest
+  input=$first$rest
+}
+
 trap 'tput cnorm' EXIT

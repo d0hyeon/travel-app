@@ -196,7 +196,7 @@ apps/
 │   │                            #   useTripDetailTabNavigation·useTripDetailTabRoute(TripDetail 탭 스코프),
 │   │                            #   useOverlay·useQueryParamState(route params 기반, 웹과 동일 시그니처)
 │   ├── metro.config.js         # 워크스페이스 해석 설정
-│   ├── scripts/                # 수기 배포 스크립트와 스토어 버전 조회 (`pnpm replace-bundle`, `pnpm upload-package`, 두 스크립트 모두 환경·강제 업데이트 여부를 `select-option.sh` 의 화살표 메뉴로 고른다. 사용법은 docs/app-deploy-guide.md)
+│   ├── scripts/                # 수기 배포 스크립트와 스토어 버전 조회 (`pnpm replace-bundle`, `pnpm upload-package`, 두 스크립트 모두 환경·강제 업데이트 여부를 `prompt.sh` 의 화살표 메뉴로 고르고, 배포 메시지 입력란은 마지막 커밋 메시지를 참고용 placeholder 로만 보여주고 비우면 커밋 SHA 가 들어간다. 사용법은 docs/app-deploy-guide.md)
 │   └── app.config.ts
 └── waylog-web/                 # 웹 앱 (React Router 7 + Vite)
     ├── src/                    # 아래 "앱 내부 구조" 참조
