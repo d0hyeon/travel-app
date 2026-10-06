@@ -35,7 +35,7 @@
 ### App Store Connect
 
 - [ ] 개인정보 라벨: 위치(서버·제3자 전송 시 수집으로 표시), 사진, 사용자 콘텐츠, 식별자(푸시 토큰) 등 실제 수집 항목.
-- [ ] Support URL: 연락처가 보이는 페이지여야 한다. 지금은 `/support`가 없어 처리방침 URL을 쓰면 지적받을 수 있다.
+- [ ] Support URL: `https://waylog.me/support`를 입력한다. 배포 후 로그인 없이 열리고 문의 이메일이 보이는지 확인한다.
 - [ ] 개인정보처리방침 URL(웹 `/privacy`).
 - [ ] 심사 노트: 신고·차단(게시물 메뉴, 프로필 메뉴, 설정 → 차단한 사용자)과 회원 탈퇴(설정 → 회원 탈퇴) 위치 설명.
 
@@ -170,6 +170,6 @@ Personal Team으로는 Sign in with Apple, Push Notifications, Associated Domain
 
 - **법률 검토**: 코드베이스에 임의로 넣은 조항(약관 변경 공지 기간, 서비스 종료 공지, 외부 정보 면책, 관할 법원)과 기존 유저 일괄 동의 백필의 유효성을 검토할지 정한다.
 - **카카오 연결 끊기**: 탈퇴 시 카카오 서비스 연결(unlink)은 호출하지 않는다. 필요하면 카카오 Admin Key로 호출을 추가한다.
-- **문의 이메일**: 지금은 `waylog.customer@gmail.com`이다. `support@waylog.me` 같은 도메인 메일로 바꾸려면 메일 포워딩을 설정하고 `apps/waylog-web/src/features/legal/legal.config.ts`의 `contactEmail`을 고친다.
-- **`/support` 페이지**: 보류 중이다. Apple Support URL 요건 때문에 출시 전에 필요할 수 있다.
+- **문의 이메일**: `customer@waylog.me`다(`apps/waylog-web/src/features/legal/legal.config.ts`의 `contactEmail`). 이 주소로 온 메일이 실제로 도착하도록 메일 포워딩을 설정했는지 출시 전에 확인한다. 약관·처리방침·`/support`가 모두 이 값을 쓴다.
+- **`/support` 페이지**: 구현했다. FAQ 문구와 "영업일 기준 3일 이내" 답변 약속은 `features/support/SupportPage.tsx`에 있으니 운영 가능한 수준인지 확인한다.
 - **R2 삭제 실패 재시도**: 탈퇴 시 저장 파일 삭제가 실패하면 파일이 남고 다시 시도하지 않는다. 필요하면 정리 작업을 추가한다.
