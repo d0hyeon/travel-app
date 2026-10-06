@@ -307,7 +307,7 @@ function TripChecklistMenu({ id, tripId }: CheckMenuProps) {
 
 
   return (
-    <IconButton onClick={(event) => openMenu(event)}>
+    <IconButton aria-label="항목 메뉴" onClick={(event) => openMenu(event)}>
       <MoreVertIcon />
     </IconButton>
   )

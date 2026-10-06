@@ -271,8 +271,7 @@ test.describe('TripBasicInfoContent — 기본정보탭 (모바일)', () => {
     await waitForAppLoad(page)
 
     await page.getByText('여권 챙기기').waitFor()
-    // MoreVertIcon 버튼 (aria-label 없음) → nth(0) = 첫 항목의 메뉴 버튼
-    await page.locator('button').filter({ has: page.locator('[data-testid="MoreVertIcon"]') }).first().click()
+    await page.getByRole('button', { name: '항목 메뉴' }).first().click()
     await page.getByRole('menuitem', { name: '삭제' }).click()
     await page.getByRole('button', { name: '확인' }).click()
 
