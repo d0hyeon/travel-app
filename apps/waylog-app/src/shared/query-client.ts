@@ -1,4 +1,5 @@
-import { QueryClient } from '@tanstack/react-query'
+import { focusManager, QueryClient } from '@tanstack/react-query'
+import { AppState } from 'react-native'
 
 /**
  * 웹 ~app/query-client 와 같은 역할이다.
@@ -7,9 +8,13 @@ import { QueryClient } from '@tanstack/react-query'
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // RN 에는 window focus 개념이 없다.
       refetchOnWindowFocus: false,
       throwOnError: true,
     },
   },
+})
+
+focusManager.setEventListener((handleFocus) => {
+  const subscription = AppState.addEventListener('change', (state) => handleFocus(state === 'active'))
+  return () => subscription.remove()
 })
