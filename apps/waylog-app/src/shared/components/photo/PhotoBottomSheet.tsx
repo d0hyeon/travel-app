@@ -136,9 +136,7 @@ export function PhotoBottomSheet({
                       <PopMenu.Item
                         color="error"
                         icon={<MaterialIcons name="delete" size={18} color="#ff8a8a" />}
-                        onPress={async () => {
-                          if (await confirm('사진을 삭제하시겠어요?')) await onDelete(currentPhoto)
-                        }}
+                        onPress={() => onDelete(currentPhoto)}
                       >
                         삭제
                       </PopMenu.Item>

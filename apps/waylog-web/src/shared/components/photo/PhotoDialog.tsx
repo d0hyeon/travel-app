@@ -36,7 +36,7 @@ export function PhotoDialog({ photos: _photos, onDelete, onUpdate, places, initi
   const handleDelete = async () => {
     const photo = photos.at(index);
     if (photo != null) {
-      if (await confirm('사진을 삭제하실건가요?')) {
+      if (await confirm('사진을 삭제할까요?')) {
         if (photos.length === 1) {
           onClose();
         }
