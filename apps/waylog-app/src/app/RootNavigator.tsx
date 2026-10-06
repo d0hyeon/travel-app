@@ -30,6 +30,7 @@ import { PostCreationScreen } from '~features/post/PostCreationScreen'
 import { PostDetailScreen } from '~features/post/PostDetailScreen'
 import { AccountSettingScreen } from '~features/settings/AccountSettingScreen'
 import { BlockedUsersScreen } from '~features/settings/BlockedUsersScreen'
+import { SupportScreen } from '~features/settings/SupportScreen'
 import { SettingsScreen } from '~features/settings/SettingsScreen'
 import { TripDetailScreen } from '~features/trip/TripDetailScreen'
 import { useTripChatOverlay } from '~features/trip/trip-chat/useTripChatOverlay'
@@ -134,6 +135,7 @@ export function RootNavigator() {
                           <RootStack.Screen name={AppRoute.설정} component={SettingsScreen} />
                           <RootStack.Screen name={AppRoute.계정_설정} component={AccountSettingScreen} />
                           <RootStack.Screen name={AppRoute.차단_목록} component={BlockedUsersScreen} />
+                          <RootStack.Screen name={AppRoute.문의} component={SupportScreen} />
                           <RootStack.Screen name={AppRoute.저장된_장소} component={BookmarkedPlacesScreen} />
                           <RootStack.Screen name={AppRoute.여행_교통편_추가} component={TransportCreationScreen} />
                           <RootStack.Screen name={AppRoute.여행_교통편_상세} component={TransportDetailScreen} />
