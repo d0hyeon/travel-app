@@ -137,6 +137,8 @@ export default [
     created_at: '2025-06-10T00:00:00Z',
   }, { status: 201 })),
   http.get('*/rest/v1/routes', () => HttpResponse.json([])),
+  http.get('*/rest/v1/trip_transports', () => HttpResponse.json([])),
+  http.post('*/rest/v1/rpc/get_recommended_place_candidates', () => HttpResponse.json([])),
   http.get('*/rest/v1/expenses', () => HttpResponse.json([])),
   http.get('*/rest/v1/memos', () => HttpResponse.json(MOCK_MEMOS)),
   http.post('*/rest/v1/memos', () => HttpResponse.json({
