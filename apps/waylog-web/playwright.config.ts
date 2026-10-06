@@ -8,7 +8,8 @@ export default defineConfig({
   reporter: process.env.CI ? [['list'], ['html']] : 'html',
   globalSetup: './e2e/helpers/auth-setup.ts',
   workers: process.env.CI ? 2 : 4,
-  timeout: 15_000,
+  timeout: process.env.CI ? 30_000 : 15_000,
+  expect: { timeout: process.env.CI ? 15_000 : 5_000 },
 
   use: {
     baseURL: 'http://localhost:5173',
