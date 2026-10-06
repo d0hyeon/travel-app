@@ -1,5 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { explorerKey, getPlaceFeed } from './explorer.api'
+import { getPlaceFeed } from '@waylog/domains/modules/post'
+import { explorerKey } from './explorer.api'
 
 export function useExplorerPlaceFeed(placeId: string) {
   return useSuspenseQuery({

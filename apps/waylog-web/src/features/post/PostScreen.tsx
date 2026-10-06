@@ -9,7 +9,7 @@ import { Map } from '~shared/components/Map'
 import { useRouteOverlay } from '~shared/hooks/extends/route-overlay/useRouteOverlay'
 import { isOverseasByCoordinate } from '@waylog/utility'
 import { PostLikeButton } from './PostLikeButton'
-import { usePost } from './usePost'
+import { usePost } from '@waylog/domains/modules/post'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { PlaceSidePanel } from '~features/place/place-detail/PlaceSidePanel'
 
@@ -94,7 +94,7 @@ function Resolved({ postId }: Props) {
         </>
       )}
       <Box>
-        <PostLikeButton postId={post.id} />
+        <PostLikeButton post={post} />
       </Box>
     </Stack>
   )

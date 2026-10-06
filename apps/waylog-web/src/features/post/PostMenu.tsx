@@ -1,6 +1,6 @@
 import { useAuth } from "@waylog/domains/clients";
 import { useBlockUser } from "@waylog/domains/modules/user-block";
-import { usePost } from "./usePost";
+import { usePost } from "@waylog/domains/modules/post";
 import { useReportDialog } from "~features/report/useReportDialog";
 import { useConfirmDialog } from "~shared/components/confirm-dialog/useConfirmDialog";
 import { PopMenu } from "~shared/components/PopMenu";

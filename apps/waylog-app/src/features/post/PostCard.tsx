@@ -49,7 +49,7 @@ export function PostCard({ post, onPress }: Props) {
               onPress={onPress}
             />
             <Suspense fallback={<PostLikeButton.Skeleton />}>
-              <PostLikeButton postId={post.id} />
+              <PostLikeButton post={post} />
             </Suspense>
           </Stack>
           {post.description && <Typography style={styles.description}>{post.description}</Typography>}

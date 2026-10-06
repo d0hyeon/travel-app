@@ -81,7 +81,7 @@ function ResolvedPostDetail() {
           </Stack>
         )}
         {post.places.length > 0 && <PostPlaces places={post.places} onPlacePress={(placeId) => navigation.navigate(AppRoute.장소_상세, { placeId })} />}
-        <PostLikeButton postId={post.id} />
+        <PostLikeButton post={post} />
       </ScrollView>
     </View>
   )

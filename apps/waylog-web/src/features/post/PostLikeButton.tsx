@@ -2,14 +2,14 @@ import FavoriteIcon from '@mui/icons-material/Favorite'
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
 import { IconButton, Stack, Typography, type StackProps } from '@mui/material'
 import { useAuthNavigate } from '~features/auth/AuthNavigate'
-import { usePostLikes } from './usePostLikes'
+import { usePostLikes, type Post } from '@waylog/domains/modules/post'
 
 interface Props extends StackProps {
-  postId: string;
+  post: Pick<Post, 'id' | 'likeCount' | 'likedByMe'>;
 }
 
-export function PostLikeButton({ postId, ...props }: Props) {
-  const { data, toggle, canLike } = usePostLikes(postId)
+export function PostLikeButton({ post, ...props }: Props) {
+  const { data, toggle, canLike } = usePostLikes(post)
   const navigateToLogin = useAuthNavigate()
 
   return (

@@ -1,5 +1,5 @@
 import { List, ListItemButton, ListItemText, Typography } from '@mui/material'
-import { PostVisibility } from '../post.types'
+import { PostVisibility } from '@waylog/domains/modules/post'
 import { useState } from 'react'
 
 interface Props {

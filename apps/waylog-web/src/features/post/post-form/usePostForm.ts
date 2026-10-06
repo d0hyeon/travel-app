@@ -1,5 +1,5 @@
 import { useForm, useFormContext } from "react-hook-form";
-import { PostVisibility } from "../post.types";
+import { PostVisibility } from '@waylog/domains/modules/post';
 import type { DraftPostPhoto } from "./postDraftPhoto";
 import type { PostPlaceSelection } from "./PostPlacesField";
 import { useCallback, useState } from "react";

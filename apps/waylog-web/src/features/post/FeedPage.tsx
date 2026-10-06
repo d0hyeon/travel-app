@@ -8,7 +8,7 @@ import { TopNavigation as DesktopNavigation } from '~shared/components/layout/To
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { PostCard } from './PostCard'
-import { useFeed } from './useFeed'
+import { useFeed } from '@waylog/domains/modules/post'
 import { usePostOverlay } from './usePostOverlay'
 
 export const meta = () => [

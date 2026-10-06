@@ -6,7 +6,7 @@ import { createPhotoFileFromUrl, uploadPostPhoto } from '~features/photo/photo.a
 import { SwitchCase } from '~shared/components/SwitchCase'
 import { useQueryParamState } from '~shared/hooks/urls/useQueryParamState'
 import { lazy } from '~shared/utils/react'
-import { useCreatePost } from '../usePost'
+import { useCreatePost } from '@waylog/domains/modules/post'
 import type { MetaStepValue } from './MetaStep'
 import { isLocalDraftPostPhoto, type DraftPostPhoto } from './postDraftPhoto'
 import { usePostForm } from './usePostForm'

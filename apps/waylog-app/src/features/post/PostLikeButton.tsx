@@ -1,12 +1,12 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { usePostLikes } from '@waylog/domains/modules/post'
+import { usePostLikes, type Post } from '@waylog/domains/modules/post'
 import { StyleSheet, Pressable } from 'react-native'
 import { useLoginRedirect } from '~features/auth/auth-redirect'
 import { Skeleton, Stack, Typography } from '~shared/components/design-system'
 import { palette } from '~shared/config/tokens'
 
-export function PostLikeButton({ postId }: { postId: string }) {
-  const { data, toggle, canLike } = usePostLikes(postId)
+export function PostLikeButton({ post }: { post: Pick<Post, 'id' | 'likeCount' | 'likedByMe'> }) {
+  const { data, toggle, canLike } = usePostLikes(post)
   const redirectToLogin = useLoginRedirect()
 
   return (

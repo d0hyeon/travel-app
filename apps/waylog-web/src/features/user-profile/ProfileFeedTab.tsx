@@ -1,7 +1,7 @@
 import { Box, ImageList, ImageListItem, Stack, Typography } from '@mui/material'
 import { generatePath, Link } from 'react-router'
 import { AppRoute } from '@waylog/routes'
-import { useUserFeed } from '~features/post/useUserFeed'
+import { useUserFeed } from '@waylog/domains/modules/post'
 
 interface Props {
   userId: string

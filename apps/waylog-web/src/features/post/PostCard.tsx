@@ -1,7 +1,7 @@
 import { Box, Stack, Typography } from '@mui/material'
 import { Link } from 'react-router'
 import { PostLikeButton } from './PostLikeButton'
-import { PostVisibility, type Post } from './post.types'
+import { PostVisibility, type Post } from '@waylog/domains/modules/post'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { UserProfile } from '~features/user-profile/UserProfile'
 import { Pagination, Virtual } from 'swiper/modules'
@@ -56,7 +56,7 @@ export function PostCard({ post }: Props) {
               </>
             )}
           </Stack>
-          <PostLikeButton postId={post.id} />
+          <PostLikeButton post={post} />
         </Stack>
         {post.description && (
           <Typography variant="body2" color="textSecondary" paddingTop={1.5} paddingX={0.5}>
