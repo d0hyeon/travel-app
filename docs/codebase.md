@@ -71,7 +71,7 @@ TicketViewer 내부의 `ConfirmDialog`와 `ActionSheet`다. 공용 `Button`도 T
 | 워크플로 | 트리거 | 하는 일 |
 | -------- | ------ | ------- |
 | `.github/workflows/ci.yml` | PR → main | `pnpm ts-check`(웹·앱·패키지 전체), 변경 파일 ESLint, `pnpm test`, e2e. e2e는 `dorny/paths-filter`로 `apps/waylog-web`·`packages`·lock·`.github` 변경 시에만 돈다 |
-| `.github/workflows/app-cd.yml` | main push, PR, 수동 | PR은 직전 푸시(최초·재오픈·강제 푸시는 PR base 대비)에서 `apps/waylog-app`·`packages`가 바뀐 경우에만 EAS Update `pr-<번호>` 브랜치(preview 환경)에 게시한다(누적 diff를 쓰는 `paths` 필터는 웹·앱이 섞인 장기 PR에서 매 푸시마다 발동해 쓰지 않는다). main에서의 push·수동은 `production` 브랜치 OTA(다른 브랜치의 수동 실행은 OTA 없음). push·수동은 커밋별로 동시성 그룹이 달라 서로 취소되지 않는다. main push에서 `app.config.ts`의 `version`이 직전 push 대비 바뀌었거나 수동 실행의 `build` 입력이 켜지면 OTA는 건너뛰고 EAS Build(iOS, production 프로필, `--no-wait`)만 돌리며(새 빌드가 같은 커밋의 번들을 내장한다), push 경로에서는 빌드 후 `app-v<version>` GitHub Release(태그 포함, 자동 노트)를 만든다 |
+| `.github/workflows/app-cd.yml` | main push, PR, 수동 | PR은 직전 푸시(최초·재오픈·강제 푸시는 PR base 대비)에서 `apps/waylog-app`·`packages`가 바뀐 경우에만 EAS Update `pr-<번호>` 브랜치(preview 환경)에 게시한다(누적 diff를 쓰는 `paths` 필터는 웹·앱이 섞인 장기 PR에서 매 푸시마다 발동해 쓰지 않는다). main에서의 push·수동은 `production` 브랜치 OTA(다른 브랜치의 수동 실행은 OTA 없음). push·수동은 커밋별로 동시성 그룹이 달라 서로 취소되지 않는다. main push에서 `app.config.ts`의 `version`이 App Store Connect `Ready for Sale` 버전과 다르거나(`scripts/read-store-version.mjs`로 조회, 뒤쪽 `.0` 무시, 배포 버전이 없으면 다른 것으로 본다. 시크릿 `ASC_KEY_ID`·`ASC_ISSUER_ID`·`ASC_PRIVATE_KEY` 필요) 수동 실행의 `build` 입력이 켜지면 OTA는 건너뛰고 EAS Build(iOS, production 프로필, `--no-wait`)만 돌리며(새 빌드가 같은 커밋의 번들을 내장한다), push 경로에서는 빌드 후 `app-v<version>` GitHub Release(태그 포함, 자동 노트)를 만든다 |
 
 앱 CD가 쓰는 GitHub 설정은 Repository secrets의 `EXPO_TOKEN`과 `EXPO_PUBLIC_EAS_PROJECT_ID`다.
 프로젝트 ID는 EAS가 환경변수를 읽어 오기 전에 프로젝트를 식별하는 데 필요해서 워크플로 `env`로 직접 넘긴다.
@@ -196,6 +196,7 @@ apps/
 │   │                            #   useTripDetailTabNavigation·useTripDetailTabRoute(TripDetail 탭 스코프),
 │   │                            #   useOverlay·useQueryParamState(route params 기반, 웹과 동일 시그니처)
 │   ├── metro.config.js         # 워크스페이스 해석 설정
+│   ├── scripts/                # 수기 배포 스크립트와 스토어 버전 조회 (`pnpm replace-bundle`, `pnpm upload-package`, 환경 인자는 `:preview` 스크립트가 넘긴다. 사용법은 docs/app-deploy-guide.md)
 │   └── app.config.ts
 └── waylog-web/                 # 웹 앱 (React Router 7 + Vite)
     ├── src/                    # 아래 "앱 내부 구조" 참조
