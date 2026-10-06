@@ -30,6 +30,13 @@ export interface Post {
   places: PostPlace[]
   visibility: PostVisibility
   photos: PostPhoto[]
+  likeCount: number
+  likedByMe: boolean
   createdAt: string
   updatedAt: string | null
+}
+
+export interface PostLikeStatus {
+  count: number
+  liked: boolean
 }

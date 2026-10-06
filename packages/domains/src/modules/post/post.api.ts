@@ -1,120 +1,87 @@
 import { getAuth } from '../../gateways/auth'
-import { supabase, type DataRaw } from '../../gateways/client'
+import { supabase } from '../../gateways/client'
 import { assert } from '@waylog/utility'
 import { PostVisibility } from './post.types'
-import type { Post, PostPhoto, PostPlace } from './post.types'
+import type { Post } from './post.types'
 
 export const postKey = 'posts'
 export const postDetailKey = 'post-detail'
 export const postLikeKey = 'post-likes'
 
-type PostRow = DataRaw<'posts'>
-type PostPhotoRow = DataRaw<'post_photos'>
-type PostLocationRow = DataRaw<'post_locations'>
-type PlaceRow = DataRaw<'places'>
-
-interface PostRelations {
-  photos: PostPhotoRow[]
-  locations: PostLocationRow[]
-  placesById: Map<string, PlaceRow>
+export interface PostRpcRow {
+  id: string
+  author_id: string
+  trip_id: string | null
+  title: string | null
+  description: string | null
+  visibility: PostVisibility
+  like_count: number
+  liked_by_me: boolean
+  created_at: string
+  updated_at: string | null
+  photos: { url: string; storage_path: string; place_id: string | null; is_public: boolean }[]
+  places: { place_id: string; name: string; lat: number; lng: number; address: string | null }[]
 }
 
-function toPost(post: PostRow, relations: PostRelations): Post {
-  const photos: PostPhoto[] = relations.photos
-    .toSorted((firstPhoto, secondPhoto) => firstPhoto.display_order - secondPhoto.display_order)
-    .map((photo) => ({
+export function toPost(row: PostRpcRow): Post {
+  return {
+    id: row.id,
+    authorId: row.author_id,
+    tripId: row.trip_id,
+    title: row.title,
+    description: row.description,
+    places: row.places.map((place) => ({
+      placeId: place.place_id,
+      name: place.name,
+      lat: place.lat,
+      lng: place.lng,
+      address: place.address,
+    })),
+    visibility: row.visibility,
+    photos: row.photos.map((photo) => ({
       url: photo.url,
       storagePath: photo.storage_path,
       placeId: photo.place_id,
       isPublic: photo.is_public,
-    }))
+    })),
+    likeCount: row.like_count,
+    likedByMe: row.liked_by_me,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  }
+}
 
-  const places: PostPlace[] = relations.locations
-    .toSorted((firstLocation, secondLocation) => firstLocation.display_order - secondLocation.display_order)
-    .flatMap((location) => {
-      const place = relations.placesById.get(location.place_id)
-      if (!place) return []
-      return [{
-        placeId: place.id,
-        name: place.name,
-        lat: place.lat,
-        lng: place.lng,
-        address: place.address,
-      }]
+interface PostsFilter {
+  postId?: string
+  authorId?: string
+  placeId?: string
+  publicOnly?: boolean
+}
+
+async function getPosts({ postId, authorId, placeId, publicOnly }: PostsFilter): Promise<Post[]> {
+  const { data, error } = await supabase
+    .rpc('get_posts', {
+      p_post_id: postId,
+      p_author_id: authorId,
+      p_place_id: placeId,
+      p_public_only: publicOnly,
     })
-
-  return {
-    id: post.id,
-    authorId: post.author_id,
-    tripId: post.trip_id,
-    title: post.title,
-    description: post.description,
-    places,
-    visibility: post.visibility,
-    photos,
-    createdAt: post.created_at,
-    updatedAt: post.updated_at,
-  }
-}
-
-async function getRelations(postIds: string[]): Promise<Map<string, PostRelations>> {
-  if (postIds.length === 0) return new Map()
-
-  const [{ data: photos, error: photoError }, { data: locations, error: locationError }] = await Promise.all([
-    supabase.from('post_photos').select('*').in('post_id', postIds),
-    supabase.from('post_locations').select('*').in('post_id', postIds),
-  ])
-  if (photoError) throw photoError
-  if (locationError) throw locationError
-
-  const placeIds = [...new Set((locations ?? []).map((location) => location.place_id))]
-  const { data: places, error: placeError } = placeIds.length === 0
-    ? { data: [], error: null }
-    : await supabase.from('places').select('*').in('id', placeIds)
-  if (placeError) throw placeError
-
-  const placesById = new Map((places ?? []).map((place) => [place.id, place]))
-  const photosByPostId = new Map<string, PostPhotoRow[]>()
-  const locationsByPostId = new Map<string, PostLocationRow[]>()
-
-  for (const photo of photos ?? []) {
-    const postPhotos = photosByPostId.get(photo.post_id) ?? []
-    postPhotos.push(photo)
-    photosByPostId.set(photo.post_id, postPhotos)
-  }
-  for (const location of locations ?? []) {
-    const postLocations = locationsByPostId.get(location.post_id) ?? []
-    postLocations.push(location)
-    locationsByPostId.set(location.post_id, postLocations)
-  }
-
-  return new Map(postIds.map((postId) => [postId, {
-    photos: photosByPostId.get(postId) ?? [],
-    locations: locationsByPostId.get(postId) ?? [],
-    placesById,
-  }]))
-}
-
-export async function getFeed(authorId?: string): Promise<Post[]> {
-  let query = supabase.from('posts').select('*').order('created_at', { ascending: false })
-  if (authorId != null) {
-    query = query.eq('author_id', authorId)
-  }
-
-  const { data: posts, error } = await query
+    .overrideTypes<PostRpcRow[], { merge: false }>()
   if (error) throw error
-  const rows = posts ?? []
-  const relationsByPostId = await getRelations(rows.map((post) => post.id))
-  return rows.map((post) => toPost(post, relationsByPostId.get(post.id) ?? { photos: [], locations: [], placesById: new Map() }))
+  return data.map(toPost)
+}
+
+export function getFeed(authorId?: string): Promise<Post[]> {
+  return getPosts({ authorId })
+}
+
+export function getPlaceFeed(placeId: string): Promise<Post[]> {
+  return getPosts({ placeId, publicOnly: true })
 }
 
 export async function getPostById(postId: string): Promise<Post | null> {
-  const { data: post, error } = await supabase.from('posts').select('*').eq('id', postId).maybeSingle()
-  if (error) throw error
-  if (post == null) return null
-
-  const relationsByPostId = await getRelations([post.id])
-  return toPost(post, relationsByPostId.get(post.id) ?? { photos: [], locations: [], placesById: new Map() })
+  const [post] = await getPosts({ postId })
+  return post ?? null
 }
 
 export interface PostPhotoInput {
@@ -212,19 +179,6 @@ export async function deletePost(postId: string): Promise<void> {
       body: { storagePaths },
     })
   }
-}
-
-export async function getLikeStatus(postId: string): Promise<{ count: number; liked: boolean }> {
-  const auth = getAuth()
-  const [{ count, error: countError }, { data: mine, error: mineError }] = await Promise.all([
-    supabase.from('post_likes').select('post_id', { count: 'exact', head: true }).eq('post_id', postId),
-    auth == null
-      ? Promise.resolve({ data: null, error: null })
-      : supabase.from('post_likes').select('post_id').eq('post_id', postId).eq('user_id', auth.id).maybeSingle(),
-  ])
-  if (countError) throw countError
-  if (mineError) throw mineError
-  return { count: count ?? 0, liked: mine != null }
 }
 
 export async function addLike(postId: string, userId: string): Promise<void> {

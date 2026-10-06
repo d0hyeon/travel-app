@@ -1,5 +1,6 @@
 export * from './post.api'
 export * from './post.types'
 export * from './useFeed'
+export * from './useUserFeed'
 export * from './usePostLikes'
 export * from './usePost'
