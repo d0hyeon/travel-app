@@ -1,6 +1,7 @@
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import LogoutIcon from '@mui/icons-material/Logout'
+import MailOutlineIcon from '@mui/icons-material/MailOutline'
 import BlockIcon from '@mui/icons-material/Block'
 import PersonIcon from '@mui/icons-material/Person'
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove'
@@ -79,6 +80,11 @@ export default function SettingsPage() {
           <ListItemButton onClick={() => navigate(AppRoute.차단_목록)}>
             <ListItemIcon><BlockIcon /></ListItemIcon>
             <ListItemText primary="차단한 사용자" />
+            <ChevronRightIcon color="disabled" />
+          </ListItemButton>
+          <ListItemButton onClick={() => navigate(AppRoute.문의)}>
+            <ListItemIcon><MailOutlineIcon /></ListItemIcon>
+            <ListItemText primary="문의하기" />
             <ChevronRightIcon color="disabled" />
           </ListItemButton>
           <ListItemButton disabled={isSigningOut} onClick={handleSignOut}>
