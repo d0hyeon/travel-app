@@ -2,7 +2,8 @@ import { getAuth } from '../../gateways/auth'
 import { supabase } from '../../gateways/client'
 import { assert } from '@waylog/utility'
 import { PostVisibility } from './post.types'
-import type { Post } from './post.types'
+import type { Post, PostCursor } from './post.types'
+import { FEED_PAGE_SIZE } from './post.utils'
 
 export const postKey = 'posts'
 export const postDetailKey = 'post-detail'
@@ -56,22 +57,31 @@ interface PostsFilter {
   authorId?: string
   placeId?: string
   publicOnly?: boolean
+  cursor?: PostCursor
+  limit?: number
 }
 
-async function getPosts({ postId, authorId, placeId, publicOnly }: PostsFilter): Promise<Post[]> {
+async function getPosts({ postId, authorId, placeId, publicOnly, cursor, limit }: PostsFilter): Promise<Post[]> {
   const { data, error } = await supabase
     .rpc('get_posts', {
       p_post_id: postId,
       p_author_id: authorId,
       p_place_id: placeId,
       p_public_only: publicOnly,
+      p_before_created_at: cursor?.createdAt,
+      p_before_id: cursor?.id,
+      p_limit: limit,
     })
     .overrideTypes<PostRpcRow[], { merge: false }>()
   if (error) throw error
   return data.map(toPost)
 }
 
-export function getFeed(authorId?: string): Promise<Post[]> {
+export function getFeedPage(cursor?: PostCursor, authorId?: string): Promise<Post[]> {
+  return getPosts({ authorId, cursor, limit: FEED_PAGE_SIZE })
+}
+
+export function getUserPosts(authorId: string): Promise<Post[]> {
   return getPosts({ authorId })
 }
 

@@ -1,10 +1,15 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { getFeed, postKey } from './post.api'
+import { useSuspenseInfiniteQuery } from '@tanstack/react-query'
+import { getFeedPage, postKey } from './post.api'
+import { getNextFeedCursor } from './post.utils'
+import type { PostCursor } from './post.types'
 
 export function useUserFeed(userId: string) {
-  return useSuspenseQuery({
+  return useSuspenseInfiniteQuery({
     queryKey: useUserFeed.key(userId),
-    queryFn: () => getFeed(userId),
+    queryFn: ({ pageParam }) => getFeedPage(pageParam, userId),
+    initialPageParam: undefined as PostCursor | undefined,
+    getNextPageParam: getNextFeedCursor,
+    select: (data) => data.pages.flat(),
   })
 }
 
