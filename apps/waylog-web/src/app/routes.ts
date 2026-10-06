@@ -76,6 +76,7 @@ export default [
   ),
   route(AppRoute.이용약관, "../features/legal/TermsOfServicePage.tsx"),
   route(AppRoute.개인정보처리방침, "../features/legal/PrivacyPolicyPage.tsx"),
+  route(AppRoute.문의, "../features/support/SupportPage.tsx"),
 
   route("*", "NotFound.tsx"),
 ] satisfies RouteConfig;
