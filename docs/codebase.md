@@ -456,13 +456,7 @@ src/
 │   │   ├── place-detail/       # 장소 상세 (페이지 / 사이드시트·풀스크린 오버레이: usePlaceDetailOverlay)
 │   │   └── place-search/       # 장소 검색 (BottomSheet / Dialog)
 │   │
-│   ├── post/                   # 포스트/피드 도메인
-│   │   ├── post.api.ts
-│   │   ├── post.types.ts
-│   │   ├── useFeed.ts
-│   │   ├── usePost.ts
-│   │   ├── usePostLikes.ts
-│   │   ├── useUserFeed.ts
+│   ├── post/                   # 포스트/피드 도메인 (조회·훅·타입은 `@waylog/domains/modules/post` 가 소유하고 웹은 UI 만 둔다)
 │   │   ├── FeedPage.tsx
 │   │   ├── PostCard.tsx
 │   │   ├── PostDetailPage.tsx
@@ -568,10 +562,10 @@ src/
 │       │   ├── tripChat.mock.ts
 │       │   ├── useTripChatMessages.ts
 │       │   ├── useTripChatOverlay.tsx
-│       │   ├── useUnreadChatCount.ts
+│       │   ├── useUnreadChatCount.ts       # 단일 여행 채팅 안(채팅 버튼·FAB)
 │       │   ├── ChatFab.tsx
 │       │   ├── ChatIconButton.tsx
-│       │   ├── TripUnreadCountBadge.tsx
+│       │   ├── TripUnreadCountBadge.tsx    # 목록 행 뱃지. `useTripUnreadCount` 로 목록 단위 RPC 한 번을 공유한다
 │       │   ├── notification/              # 푸시 알림
 │       │   └── trip-chat-pannel/          # 채팅 패널 UI
 │       ├── trip-marine-activity/          # 여행 계획 탭용 해양 활동 지수 바/상세
@@ -759,6 +753,19 @@ src/
 - `*.api.ts` — Supabase 직접 호출, DB row → 도메인 모델 변환
 - `use*.ts` — React Query 훅으로 감싸서 컴포넌트에 제공
 - DB 타입은 `packages/domains/src/client/_database.types.ts` (자동 생성, 직접 수정 금지)
+
+### 목록 쿼리 (N+1 방지)
+
+목록 행마다 쿼리를 날리지 않도록 서버가 집계·조립한 값을 목록 단위로 한 번에 받는다.
+기존 테이블 구조는 바꾸지 않고(컬럼·함수만 추가) 그 위에 얹는다 — 이미 배포된 앱이 옛 쿼리로도 동작해야 하기 때문이다.
+마이그레이션은 클라이언트 배포보다 먼저 적용한다.
+
+| 대상 | 서버 | 도메인 |
+| --- | --- | --- |
+| 여행 목록 안읽음 | RPC `get_trip_unread_counts(last_reads jsonb)` → `(trip_id, unread_count)`. `security invoker`라 RLS 가 그대로 적용되고, 내가 보낸 메시지는 세지 않는다. 읽은 시각은 클라이언트 로컬 저장소가 소유하므로 `{ tripId: lastReadAt }` 으로 넘기고, 키가 없는 여행은 전부 안읽음으로 센다 | `trip-chat/useTripUnreadCount(tripId)`. 여행 id 목록(`useTrips`)을 키에 넣어 한 쿼리를 모든 행이 공유(`select`)한다. 새 메시지는 realtime 으로 받아 캐시를 +1(`increaseUnreadCount`, 내 메시지·목록에 없는 여행은 무시)하고, 읽음 변경은 무효화한다. 앱은 `AppState` 를 `focusManager` 에 연결해(`shared/query-client.ts`) 포그라운드 복귀 때 이 쿼리만 다시 받는다. 구독은 모듈 전역 refcount 로 하나만 열며 채널 이름이 `subscribeAllTripMessages`(`trip_messages:all`)와 달라 충돌하지 않는다. `buildLastReads` 는 `tripUnreadCounts.utils.ts` |
+| 포스트 목록·상세 | RPC `get_posts(p_post_id, p_author_id, p_place_id, p_public_only)` 가 포스트·사진·장소·`like_count`·`liked_by_me` 를 한 번에 조립해 돌려준다(`security invoker`, 최신순). `posts.like_count` 는 `post_likes` insert/delete 트리거(`sync_post_like_count`, security definer)가 갱신하고, `posts_protect_like_count` 트리거가 사용자의 직접 수정을 막는다(`pg_trigger_depth() = 1` 이면 이전 값 유지) | `post.api` 의 `getFeed(authorId?)`·`getPlaceFeed(placeId)`·`getPostById` 가 모두 `get_posts` 하나를 쓴다. `Post.likeCount`·`Post.likedByMe` 를 갖고, `PostLikeButton` 은 `post` 를 받아 `usePostLikes(post)` 가 그 값을 `initialData`(`staleTime: Infinity`)로 쓴다. 그래서 카드마다 쿼리가 나가지 않고 토글은 낙관적으로 캐시를 갱신한다 |
+
+피드 쿼리 키는 사용자별이 아니므로 `likedByMe` 는 조회 시점 사용자의 값이다. 로그인 상태가 바뀌면 피드를 다시 받아야 한다.
 
 ### 오버레이 시스템
 
