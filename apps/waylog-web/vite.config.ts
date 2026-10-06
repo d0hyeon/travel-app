@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import { reactRouter } from '@react-router/dev/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
@@ -136,4 +136,26 @@ const config = {
   )
 
 
-export default defineConfig(config);
+const e2eConfig = {
+  ...config,
+  css: { devSourcemap: false },
+  server: {
+    ...config.server,
+    hmr: false,
+    warmup: {
+      clientFiles: [
+        'src/app/**/*.{ts,tsx}',
+        'src/features/**/*.{ts,tsx}',
+        'src/shared/**/*.{ts,tsx}',
+        '!src/**/*.test.{ts,tsx}',
+        '!src/**/__test__/**',
+      ],
+    },
+  },
+}
+
+export default defineConfig(({ mode }) => {
+  const isMockedEnvironment = loadEnv(mode, process.cwd(), 'VITE_').VITE_MSW === 'true'
+
+  return isMockedEnvironment ? e2eConfig : config
+});
