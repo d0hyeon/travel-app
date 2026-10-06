@@ -5,7 +5,7 @@ import MailOutlineIcon from '@mui/icons-material/MailOutline'
 import BlockIcon from '@mui/icons-material/Block'
 import PersonIcon from '@mui/icons-material/Person'
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove'
-import { List, ListItemButton, ListItemIcon, ListItemText, Stack } from '@mui/material'
+import { Divider, List, ListItemButton, ListItemIcon, ListItemText, Stack } from '@mui/material'
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
@@ -29,6 +29,9 @@ export default function SettingsPage() {
   const [isDeletingAccount, setIsDeletingAccount] = useState(false)
 
   const handleSignOut = async () => {
+    const isConfirmed = await confirm('로그아웃 하시겠어요?')
+    if (!isConfirmed) return
+
     setIsSigningOut(true)
     try {
       await signOut();
@@ -50,7 +53,7 @@ export default function SettingsPage() {
       await deleteAccount()
       navigate('/login', { replace: true })
     } catch {
-      toast.error('탈퇴하지 못했어요. 잠시 후 다시 시도해 주세요')
+      toast.error('일시적인 오류가 발생했어요', { description: '잠시 후 다시 시도해 주세요' })
     } finally {
       setIsDeletingAccount(false)
     }
@@ -87,6 +90,7 @@ export default function SettingsPage() {
             <ListItemText primary="문의하기" />
             <ChevronRightIcon color="disabled" />
           </ListItemButton>
+          <Divider sx={{ marginY: 1.5 }} />
           <ListItemButton disabled={isSigningOut} onClick={handleSignOut}>
             <ListItemIcon><LogoutIcon color="error" /></ListItemIcon>
             <ListItemText primary="로그아웃" slotProps={{ primary: { color: 'error' } }} />
