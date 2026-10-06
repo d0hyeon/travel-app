@@ -6,6 +6,7 @@ import { AppRoute } from '@waylog/routes'
 import { BottomNavigation } from '~shared/components/BottomNavigation'
 import { TopNavigation as DesktopNavigation } from '~shared/components/layout/TopNavigation.desktop'
 import { TopNavigation } from '~shared/components/layout/TopNavigation.mobile'
+import { IntersectionArea } from '~shared/components/IntersectionArea'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { PostCard } from './PostCard'
 import { useFeed } from '@waylog/domains/modules/post'
@@ -45,7 +46,7 @@ export default function FeedPage() {
 }
 
 function Contents() {
-  const { data: posts } = useFeed();
+  const { data: posts, hasNextPage, isFetchingNextPage, fetchNextPage } = useFeed();
   const { Trigger: PostLink } = usePostOverlay()
 
   return (
@@ -55,6 +56,14 @@ function Contents() {
           <PostCard post={post} />
         </PostLink>
       ))}
+      {hasNextPage && (
+        <IntersectionArea
+          key={posts.length}
+          onEnter={() => {
+            if (!isFetchingNextPage) fetchNextPage()
+          }}
+        />
+      )}
     </Stack>
   )
 }

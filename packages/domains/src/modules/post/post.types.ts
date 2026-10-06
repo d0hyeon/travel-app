@@ -40,3 +40,8 @@ export interface PostLikeStatus {
   count: number
   liked: boolean
 }
+
+export interface PostCursor {
+  createdAt: string
+  id: string
+}

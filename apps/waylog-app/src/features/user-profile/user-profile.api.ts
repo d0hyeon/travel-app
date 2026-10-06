@@ -1,7 +1,7 @@
 import { supabase } from '@waylog/domains/clients'
 import { toPhoto, type Photo } from '@waylog/domains/modules/photo'
 import { toTrip, type Trip } from '@waylog/domains/modules/trip'
-import { getFeed } from '@waylog/domains/modules/post'
+import { getUserPosts } from '@waylog/domains/modules/post'
 
 export async function getUserTrips(userId: string): Promise<Trip[]> {
   const { data, error } = await supabase.rpc('get_user_trips', { p_user_id: userId })
@@ -27,7 +27,7 @@ export interface UserPostPhoto {
 }
 
 export async function getUserPostPhotos(userId: string): Promise<UserPostPhoto[]> {
-  const posts = await getFeed(userId)
+  const posts = await getUserPosts(userId)
 
   return posts.flatMap((post) => {
     const [coverPhoto] = post.photos
