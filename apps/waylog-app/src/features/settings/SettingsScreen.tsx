@@ -3,9 +3,9 @@ import { AuthGuard, deleteAccount, signOut } from '@waylog/domains/clients'
 import { SignedOutRedirect } from '~features/auth/auth-redirect'
 import { SettingsWebViewScreen } from './SettingsWebViewScreen'
 import { AppBar } from '~shared/components/design-system/AppBar'
-import { Stack, Typography } from '~shared/components/design-system'
+import { Divider, Stack, Typography } from '~shared/components/design-system'
 import { ListItem } from '~shared/components/ListItem'
-import { styled, View } from 'tamagui'
+import { styled } from 'tamagui'
 import { Alert, Pressable, StyleSheet } from 'react-native'
 import { palette } from '~shared/config/tokens'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -14,6 +14,7 @@ import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDi
 import { MaterialIcons } from '@expo/vector-icons'
 import { useAppNavigation } from '~shared/hooks/useAppNavigation'
 import { AppRoute } from '~app/AppRoute'
+import { toast } from '~shared/components/toast/toast'
 
 export function SettingsScreen() {
   const navigation = useAppNavigation();
@@ -23,6 +24,9 @@ export function SettingsScreen() {
   const [isDeletingAccount, setIsDeletingAccount] = useState(false)
 
   async function handleSignOut() {
+    const isConfirmed = await confirm('로그아웃 하시겠어요?')
+    if (!isConfirmed) return
+
     setIsSigningOut(true)
     try {
       await signOut()
@@ -46,7 +50,7 @@ export function SettingsScreen() {
       navigation.reset({ index: 0, routes: [{ name: AppRoute.메인 }] })
       queryClient.clear()
     } catch {
-      Alert.alert('탈퇴하지 못했어요', '잠시 후 다시 시도해주세요')
+      toast.error('일시적인 오류가 발생했어요', { description: '잠시 후 다시 시도해주세요' })
     } finally {
       setIsDeletingAccount(false)
     }
@@ -86,6 +90,7 @@ export function SettingsScreen() {
             </Stack>
             <MaterialIcons name="keyboard-arrow-right" size={20} />
           </StyledItem>
+          <Divider style={styles.divider} />
           <StyledItem disabled={isSigningOut} onPress={() => void handleSignOut()}>
             <Stack direction="row" gap={2}>
               <MaterialIcons name="logout" size={20} color={palette.error} />
@@ -105,7 +110,8 @@ export function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: palette.background }
+  root: { flex: 1, backgroundColor: palette.background },
+  divider: { marginVertical: 12 },
 })
 
 const StyledItem = styled(Pressable, {
