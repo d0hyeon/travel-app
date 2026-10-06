@@ -1262,6 +1262,28 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      get_posts: {
+        Args: {
+          p_author_id?: string
+          p_place_id?: string
+          p_post_id?: string
+          p_public_only?: boolean
+        }
+        Returns: {
+          author_id: string
+          created_at: string
+          description: string
+          id: string
+          liked_by_me: boolean
+          like_count: number
+          photos: Json
+          places: Json
+          title: string
+          trip_id: string
+          updated_at: string
+          visibility: Database["public"]["Enums"]["post_visibility"]
+        }[]
+      }
       get_recommended_place_candidates: {
         Args: { p_destinations: string[]; p_trip_id: string }
         Returns: {
