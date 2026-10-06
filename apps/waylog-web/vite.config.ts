@@ -36,6 +36,7 @@ const config = {
     // 테스트 파일은 msw/node(@mswjs/interceptors) 같은 Node 전용 모듈을 import하므로
     // 브라우저 사전 번들 스캔에서 제외한다. 스캔 대상은 실제 앱 코드로 한정한다.
     entries: ['src/app/root.tsx', 'src/**/*.{ts,tsx}', '!src/**/*.test.{ts,tsx}', '!src/**/__test__/**'],
+    include: ['@mui/material/DialogContentText', '@mui/x-date-pickers/internals'],
   },
   server: {
     proxy: {
