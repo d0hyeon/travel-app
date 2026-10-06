@@ -1,0 +1,36 @@
+name: App Submit
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_id:
+        description: 제출할 EAS 빌드 ID (비우면 가장 최근 iOS production 빌드)
+        type: string
+        required: false
+
+env:
+  EXPO_PUBLIC_EAS_PROJECT_ID: ${{ secrets.EXPO_PUBLIC_EAS_PROJECT_ID }}
+
+defaults:
+  run:
+    working-directory: apps/waylog-app
+
+jobs:
+  submit:
+    name: EAS Submit (iOS)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - env:
+          BUILD_ID: ${{ inputs.build_id }}
+        run: |
+          if [ -n "$BUILD_ID" ]; then
+            eas submit --platform ios --profile production --id "$BUILD_ID" --non-interactive
+          else
+            eas submit --platform ios --profile production --latest --non-interactive
+          fi
