@@ -12,8 +12,8 @@ interface PlaceFilters {
 
 export function useMostSavedPlaces(filters: PlaceFilters = {}) {
   const query = useSuspenseQuery({
-    queryKey: [explorerKey, 'most-saved'],
-    queryFn: getMostSavedPlaces,
+    queryKey: [explorerKey, 'most-saved', filters.location, filters.category],
+    queryFn: () => getMostSavedPlaces(filters),
   })
 
   const places = useMemo(() => {
@@ -22,10 +22,8 @@ export function useMostSavedPlaces(filters: PlaceFilters = {}) {
 
     return query.data
       .filter((place) => place.saveCount >= minimumSaveCount)
-      .filter((place) => !filters.location || place.destinations.includes(filters.location))
-      .filter((place) => !filters.category || place.categories.includes(filters.category))
       .toSorted(bySaveRank)
-  }, [filters.category, filters.location, query.data])
+  }, [query.data])
 
   return { ...query, data: places }
 }

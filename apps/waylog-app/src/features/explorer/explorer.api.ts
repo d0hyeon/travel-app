@@ -37,9 +37,19 @@ export interface MostSavedPlace {
   thumbnailUrl?: string
 }
 
-export async function getExploredPlaces(sinceDate?: string): Promise<ExploredPlace[]> {
+export interface ExplorerPlaceFilters {
+  location?: string
+  category?: PlaceCategoryValue
+}
+
+export async function getExploredPlaces(
+  { location, category }: ExplorerPlaceFilters,
+  sinceDate?: string,
+): Promise<ExploredPlace[]> {
   const { data, error } = await supabase.rpc('get_explored_places', {
     since_date: sinceDate,
+    location,
+    category,
   })
 
   if (error) throw error
@@ -61,8 +71,11 @@ export async function getExploredPlaces(sinceDate?: string): Promise<ExploredPla
   }))
 }
 
-export async function getMostSavedPlaces(): Promise<MostSavedPlace[]> {
-  const { data, error } = await supabase.rpc('get_most_saved_places')
+export async function getMostSavedPlaces({ location, category }: ExplorerPlaceFilters): Promise<MostSavedPlace[]> {
+  const { data, error } = await supabase.rpc('get_most_saved_places', {
+    location,
+    category,
+  })
 
   if (error) throw error
 

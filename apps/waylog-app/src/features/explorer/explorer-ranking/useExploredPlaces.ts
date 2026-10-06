@@ -11,8 +11,8 @@ interface PlaceFilters {
 
 export function useExploredPlaces(filters: PlaceFilters = {}) {
   const query = useSuspenseQuery({
-    queryKey: [explorerKey, 'explored'],
-    queryFn: () => getExploredPlaces(),
+    queryKey: [explorerKey, 'explored', filters.location, filters.category],
+    queryFn: () => getExploredPlaces(filters),
   })
 
   const places = useMemo(() => {
@@ -21,10 +21,8 @@ export function useExploredPlaces(filters: PlaceFilters = {}) {
 
     return query.data
       .filter((place) => place.visitorCount >= minimumVisitorCount)
-      .filter((place) => !filters.location || place.destinations.includes(filters.location))
-      .filter((place) => !filters.category || place.categories.includes(filters.category))
       .toSorted((first, second) => second.visitorCount - first.visitorCount)
-  }, [filters.category, filters.location, query.data])
+  }, [query.data])
 
   return { ...query, data: places }
 }

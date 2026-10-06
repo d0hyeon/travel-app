@@ -12,8 +12,8 @@ interface PlaceFilters {
 
 export function useRecentHotPlaces(months: number, filters: PlaceFilters = {}) {
   const query = useSuspenseQuery({
-    queryKey: [explorerKey, "recent-hot", months],
-    queryFn: () => getExploredPlaces(getSinceDate(months)),
+    queryKey: [explorerKey, "recent-hot", months, filters.location, filters.category],
+    queryFn: () => getExploredPlaces(filters, getSinceDate(months)),
   });
 
   const places = useMemo(() => {
@@ -21,16 +21,8 @@ export function useRecentHotPlaces(months: number, filters: PlaceFilters = {}) {
     const minimumScore = highestScore / 2;
     return query.data
       .toSorted(byHotRank)
-      .filter((place) => place.score >= minimumScore)
-      .filter(
-        (place) =>
-          !filters.location || place.destinations.includes(filters.location),
-      )
-      .filter(
-        (place) =>
-          !filters.category || place.categories.includes(filters.category),
-      );
-  }, [filters.category, filters.location, query.data]);
+      .filter((place) => place.score >= minimumScore);
+  }, [query.data]);
 
   return { ...query, data: places };
 }
