@@ -50,9 +50,19 @@ interface ExploredPlaceRow {
   total_trips: number
 }
 
-async function callExploredPlaces(sinceDate?: string): Promise<ExploredPlacesResult> {
+export interface ExplorerPlaceFilters {
+  location?: string | null
+  category?: PlaceCategoryTypeValue | null
+}
+
+async function callExploredPlaces(
+  { location, category }: ExplorerPlaceFilters,
+  sinceDate?: string,
+): Promise<ExploredPlacesResult> {
   const { data, error } = await supabase.rpc('get_explored_places', {
     since_date: sinceDate,
+    location: location ?? undefined,
+    category: category ?? undefined,
   })
 
   if (error) throw error
@@ -79,16 +89,19 @@ async function callExploredPlaces(sinceDate?: string): Promise<ExploredPlacesRes
   return { places, totalTrips }
 }
 
-export async function getExploredPlaces(): Promise<ExploredPlacesResult> {
-  return callExploredPlaces()
+export async function getExploredPlaces(filters: ExplorerPlaceFilters): Promise<ExploredPlacesResult> {
+  return callExploredPlaces(filters)
 }
 
-export async function getRecentHotPlaces(months: number): Promise<ExploredPlacesResult> {
+export async function getRecentHotPlaces(
+  months: number,
+  filters: ExplorerPlaceFilters,
+): Promise<ExploredPlacesResult> {
   const since = new Date()
   since.setMonth(since.getMonth() - months)
   const sinceISO = since.toISOString().split('T')[0]
 
-  return callExploredPlaces(sinceISO)
+  return callExploredPlaces(filters, sinceISO)
 }
 
 export interface MostSavedPlace {
@@ -123,8 +136,11 @@ interface MostSavedPlaceRow {
   total_trips: number
 }
 
-export async function getMostSavedPlaces(): Promise<MostSavedPlacesResult> {
-  const { data, error } = await supabase.rpc('get_most_saved_places')
+export async function getMostSavedPlaces({ location, category }: ExplorerPlaceFilters): Promise<MostSavedPlacesResult> {
+  const { data, error } = await supabase.rpc('get_most_saved_places', {
+    location: location ?? undefined,
+    category: category ?? undefined,
+  })
 
   if (error) throw error
 
