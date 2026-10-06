@@ -8,6 +8,8 @@ jobs:
     name: Detect Changes
     runs-on: ubuntu-latest
     outputs:
+      source: ${{ steps.exclusion.outputs.source }}
+      lint: ${{ steps.filter.outputs.lint }}
       web: ${{ steps.filter.outputs.web }}
       affected: ${{ steps.affected.outputs.filter }}
     steps:
@@ -18,22 +20,36 @@ jobs:
         id: filter
         with:
           filters: |
+            root: &root
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - '.npmrc'
+              - 'tsconfig.json'
+              - 'eslint.config.js'
+              - 'tools/eslint/**'
+              - '.github/workflows/ci.yml'
+              - '.github/actions/**'
             web:
+              - *root
               - 'apps/waylog-web/**'
               - 'packages/**'
-              - 'package.json'
-              - 'pnpm-lock.yaml'
-              - 'pnpm-workspace.yaml'
-              - '.npmrc'
-              - 'tsconfig.json'
-              - '.github/**'
-            root:
-              - 'package.json'
-              - 'pnpm-lock.yaml'
-              - 'pnpm-workspace.yaml'
-              - '.npmrc'
-              - 'tsconfig.json'
-              - '.github/**'
+            lint:
+              - '**/*.ts'
+              - '**/*.tsx'
+      - uses: dorny/paths-filter@v3
+        id: exclusion
+        with:
+          predicate-quantifier: every
+          filters: |
+            source:
+              - '**'
+              - '!**/*.md'
+              - '!docs/**'
+              - '!supabase/**'
+              - '!apps/*/assets/**'
+              - '!apps/*/public/**'
+              - '!.github/workflows/app-*.yml'
       - name: Resolve affected packages
         id: affected
         env:
@@ -49,6 +65,7 @@ jobs:
   ts-check:
     name: TypeScript Check
     needs: changes
+    if: needs.changes.outputs.source == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -58,6 +75,8 @@ jobs:
 
   lint-check:
     name: ESLint Check
+    needs: changes
+    if: needs.changes.outputs.lint == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -81,6 +100,7 @@ jobs:
   test:
     name: Unit Tests
     needs: changes
+    if: needs.changes.outputs.source == 'true'
     runs-on: ubuntu-latest
 
     env:
