@@ -26,4 +26,5 @@ export const AppRoute = {
   장소_저장순: "/explorer/most-saved",
   이용약관: "/terms",
   개인정보처리방침: "/privacy",
+  문의: "/support",
 } as const
