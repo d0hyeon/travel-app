@@ -45,14 +45,13 @@ export default defineConfig({
     },
   ],
 
-  // 테스트 실행 전 dev 서버를 자동으로 띄운다
+  // 테스트 실행 전 e2e 빌드를 만들어 정적으로 서빙한다 (build:e2e → .env.test의 VITE_MSW=true 주입)
   webServer: {
-    // --mode test → Vite가 .env.test를 로드 → VITE_MSW=true 주입
-    command: 'pnpm dev --mode test',
+    command: 'pnpm build:e2e && pnpm preview --port 5173 --strictPort',
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
     stdout: 'pipe',
     stderr: 'pipe',
-    timeout: 120_000,
+    timeout: 300_000,
   },
 })

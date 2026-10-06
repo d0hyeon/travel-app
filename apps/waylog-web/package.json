@@ -7,6 +7,7 @@
     "dev": "vite",
     "build:sw": "vite build --config vite.sw.config.ts",
     "build": "pnpm build:sw && react-router build",
+    "build:e2e": "react-router build --mode test",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
