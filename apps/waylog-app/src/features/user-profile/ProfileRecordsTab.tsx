@@ -84,7 +84,10 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
           onMapInteractionChange?.(true)
           return false
         }}
-        onTouchEnd={() => onMapInteractionChange?.(false)}
+        onTouchEnd={(event) => {
+          const isAllFingersLifted = event.nativeEvent.touches.length === 0
+          if (isAllFingersLifted) onMapInteractionChange?.(false)
+        }}
         onTouchCancel={() => onMapInteractionChange?.(false)}
       >
         <Pressable onPress={() => setIsLocationVisible(!isLocationVisible)} style={styles.locationToggle}>

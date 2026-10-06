@@ -5,6 +5,7 @@ import { StyleSheet, Pressable, ScrollView, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Tabs, Tab } from '~shared/components/design-system'
 import { useQueryParamState } from '~shared/hooks/useQueryParamState'
+import { useTabSwipeLock } from '~shared/hooks/useTabSwipeLock'
 import { palette } from '~shared/config/tokens'
 import { AppRoute } from '~app/AppRoute'
 import { useAppNavigation } from '~shared/hooks/useAppNavigation'
@@ -29,6 +30,7 @@ export function UserProfileScreen({ userId, bottomContentInset = 0 }: Props) {
   const [currentTab, selectTab] = useQueryParamState<ProfileTab>('tab', { defaultValue: 'feed', parse: parseProfileTab })
   // 지도를 만지는 동안 세로 스크롤을 멈춘다. 두 제스처가 겹치면 지도가 끊긴다.
   const [isMapInteracting, setIsMapInteracting] = useState(false)
+  useTabSwipeLock(currentTab === 'records')
   // 안전 영역을 뺀 실제 높이. 기록 탭 지도가 이 높이를 채운다.
   const [viewportHeight, setViewportHeight] = useState(0)
   const profileScrollRef = useRef<ScrollView>(null)
