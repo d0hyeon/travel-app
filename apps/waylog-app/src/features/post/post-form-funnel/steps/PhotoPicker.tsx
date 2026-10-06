@@ -127,10 +127,12 @@ function Rejected({ error, resetError }: FallbackProps) {
   const permission = usePhotoLibraryPermission()
 
   if (error.cause !== 'permission') {
-    <CommonErrorAlert
-      message={error.message}
-      action={<CommonErrorAlert.RetryButton onPress={resetError} />}
-    />
+    return (
+      <CommonErrorAlert
+        message={error.message}
+        action={<CommonErrorAlert.RetryButton onPress={resetError} />}
+      />
+    )
   }
 
   const handlePresss = async () => {
