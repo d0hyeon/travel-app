@@ -85,6 +85,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
+    defaults:
+      run:
+        working-directory: .
     steps:
       - env:
           GH_TOKEN: ${{ github.token }}
