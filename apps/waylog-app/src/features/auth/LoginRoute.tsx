@@ -1,3 +1,4 @@
+import { StackActions } from '@react-navigation/native'
 import { useEffect } from 'react'
 import { useAuth } from '@waylog/domains/clients'
 import { useAppNavigation, useAppRoute } from '~shared/hooks/useAppNavigation'
@@ -12,10 +13,9 @@ export function LoginRoute() {
 
   useEffect(() => {
     if (auth == null) return
-    navigation.reset({
-      index: 0,
-      routes: [{ name: returnTo.screen, params: returnTo.params }],
-    })
+    const { routes, index } = navigation.getState()
+    if (routes[index - 1]?.name === returnTo.screen) return navigation.goBack()
+    navigation.dispatch(StackActions.replace(returnTo.screen, returnTo.params))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth, navigation, returnTo.screen])
 

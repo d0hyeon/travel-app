@@ -20,10 +20,7 @@ export function RequireAuthRedirect({ returnTo }: { returnTo?: ReturnTo }) {
   const resolvedReturnTo = returnTo ?? { screen: route.name, params: route.params as Record<string, unknown> }
 
   useEffect(() => {
-    navigation.reset({
-      index: 0,
-      routes: [{ name: AppRoute.로그인, params: { returnTo: resolvedReturnTo } }],
-    })
+    navigation.replace(AppRoute.로그인, { returnTo: resolvedReturnTo })
     // resolvedReturnTo 는 매 렌더 새 객체일 수 있다. screen 값만 실제로 의미 있는
     // 변경이므로 그것만 의존성으로 좁힌다.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -57,6 +54,6 @@ export function useLoginRedirect() {
     const returnTo: ReturnTo = activeRoute == null
       ? HOME
       : { screen: activeRoute.name, params: activeRoute.params as Record<string, unknown> }
-    navigation.reset({ index: 0, routes: [{ name: AppRoute.로그인, params: { returnTo } }] })
+    navigation.navigate(AppRoute.로그인, { returnTo })
   }
 }

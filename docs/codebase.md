@@ -314,6 +314,9 @@ capability다. bridge client는 실제 `ReactNativeWebView` 환경에서만 생�
   세션 만료 감지는 `useLoginRedirect()`, 복귀는 `login.tsx`의 `useReturnTo()`가 읽는다.
   로그인 성공 후 별도 이동 코드는 없다 — 세션이 갱신되면 `login.tsx`의 `useAuth`가
   재평가되어 `<Redirect href={returnTo} />`가 스스로 동작한다.
+  앱은 스택을 지우지 않는다(`reset` 금지). 행동 중 로그인 유도(`useLoginRedirect`)는 로그인을 위에 쌓고,
+  가드 fallback(`RequireAuthRedirect`)은 현재 스크린을 로그인으로 교체한다. `LoginRoute`는 returnTo 화면이
+  바로 아래에 있으면 `goBack`, 아니면 그 자리에 `replace`해서 로그인 후에도 뒤로가기가 이어진다.
   앱의 설정 계열 화면(설정·계정 설정·차단 목록)은 로그인 화면 대신 `SignedOutRedirect`로 홈(`메인`)에 돌려보낸다.
   읽기 위주의 공개 화면(포스트 상세·장소 상세·장소 순위 3종·타 유저 프로필)은 `AuthGuard` 없이 게스트에게도 열린다.
   로그인이 필요한 쓰기 동작(신고·차단 등)은 실행 시점에 세션을 확인한다.
