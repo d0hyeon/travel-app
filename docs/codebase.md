@@ -110,7 +110,7 @@ TicketViewer 내부의 `ConfirmDialog`와 `ActionSheet`다. 공용 `Button`도 T
 /login                         → LoginPage
 /terms                         → TermsOfServicePage (공개, 앱은 웹뷰로 연다)
 /privacy                       → PrivacyPolicyPage (공개, 앱은 웹뷰로 연다)
-/support                       → SupportPage (공개, Apple Support URL. 앱은 `SupportScreen`이 AppBar와 웹뷰로 연다)
+/support                       → SupportPage (공개, Apple Support URL. 앱은 `SupportScreen`이 브릿지 웹뷰로 연다. 제목 좌측 뒤로가기는 웹에선 `navigate(-1)`, 웹뷰에선 `closeWebView()` 브릿지 요청)
 *                              → NotFound
 ```
 
@@ -1509,7 +1509,7 @@ ref 로 붙잡아야 끌던 도중 스냅이 바뀌어도 제스처가 갈아끼
 | 회원 탈퇴 | 설정의 '회원 탈퇴'(웹 `SettingsPage`, 앱 `SettingsScreen`)가 `deleteAccount()`를 호출한다. Edge Function `delete-account`가 DB 함수 `prepare_account_deletion`으로 소유한 여행을 정리하고(다른 멤버가 있으면 가장 먼저 참여한 멤버에게 소유권 이전, 없으면 삭제), 사용자의 티켓과 삭제 대상 파일 경로를 모은 뒤 `auth.users`를 지운다. 게시물·사진·댓글·채팅은 FK CASCADE 로 함께 삭제되고, 저장 파일(R2)은 계정 삭제 뒤 지운다(실패해도 탈퇴는 유지). Apple 계정은 앱에서 삭제 전에 재인증해 새 인가 코드로 철회한다(`requestAppleAuthorizationCode`). 웹은 철회하지 않는다 |
 | 신고·차단 | DB: `reports`(insert 전용, 조회는 service_role), `user_blocks`(본인 행만), `can_view_post`·`photos_select` 가 차단한 작성자를 제외. 도메인: `@waylog/domains/modules/report`(`submitReport`, `useSubmitReport`, `ReportTarget`)·`user-block`(`blockUser`·`unblockUser`·`useBlockedUsers`; 차단 변경 뒤 게시물 상세 외 쿼리를 모두 무효화). 웹: `features/report/`(ReportDialog·useReportDialog), `features/post/PostMenu.tsx`, `features/user-profile/UserProfileMenu.tsx`, `features/settings/BlockedUsersPage.tsx`(`/settings/blocks`). 앱: `features/report/`(ReportSheet·useReportSheet), `features/post/PostMenu.tsx`, `features/user-profile/UserProfileMenu.tsx`, `features/settings/BlockedUsersScreen.tsx`(`차단_목록`). 운영 절차는 `docs/moderation.md` |
 | 통계                 | `features/statistics/StatisticsPage.tsx`                          |
-| 문의 | 웹 `features/support/SupportPage.tsx`(`/support`, 문의 이메일은 `legal.config.ts`의 `contactEmail`, FAQ 3건)가 내용을 소유한다. 앱 `features/settings/SupportScreen.tsx`(`문의`)는 AppBar와 웹뷰만 가지며 설정 화면의 "문의하기"로 진입한다. 웹 설정 페이지에도 같은 항목이 있다 |
+| 문의 | 웹 `features/support/SupportPage.tsx`(`/support`, 문의 이메일은 `legal.config.ts`의 `contactEmail`, FAQ 3건)가 내용을 소유한다. 앱 `features/settings/SupportScreen.tsx`(`문의`)는 `SettingsWebViewScreen`(브릿지 호스트 포함)으로 웹뷰만 띄우고 네이티브 AppBar는 없으며 설정 화면의 "문의하기"로 진입한다. 웹 설정 페이지에도 같은 항목이 있다 |
 | 약관·처리방침        | 웹 `features/legal/`(TermsOfServicePage·PrivacyPolicyPage·`legal.config.ts`의 운영자 정보). 시행일은 `@waylog/domains/modules/terms`의 `TERMS_VERSION`. 앱은 `features/auth/LegalDocumentModal.tsx`가 웹 라우트를 웹뷰로 띄운다 |
 | 가입·약관 동의       | 가입 완료 = `user_profiles` 행 존재(`terms_version`·`terms_agreed_at` 포함). 세션은 있으나 프로필이 없으면 `usePendingSignUp`이 사용자를 돌려주고 `SignUpGate`가 동의 화면(웹 `SignUpConsent`, 앱 `SignUpConsentScreen`)을 그린다. 동의는 `useSignUp()`이 `signUp`으로 프로필을 만든다. 거절은 `cancelSignUp()`이 Edge Function `cancel-sign-up`으로 방금 만들어진 `auth.users`를 지우고 로그아웃한다(프로필이 있으면 거부). 약관 버전이 바뀌면 재동의 흐름은 아직 없다 |
 | Apple 로그인         | `AuthProvider`에 `apple`. 웹은 Supabase OAuth, 앱은 `expo-apple-authentication`의 토큰을 `signInWithIdToken`으로 교환(`waylog-app/src/supabase-auth.ts`). 콘솔 설정은 `docs/apple-login-setup.md` |

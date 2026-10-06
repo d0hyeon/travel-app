@@ -1,8 +1,10 @@
-import { Box, Button, Link, Stack, Typography } from '@mui/material'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import { Box, Button, IconButton, Link, Stack, Typography } from '@mui/material'
 import { useEffect, useState } from 'react'
-import { Link as RouterLink } from 'react-router'
+import { Link as RouterLink, useNavigate } from 'react-router'
 import { AppRoute } from '@waylog/routes'
 import { LEGAL_OPERATOR } from '~features/legal/legal.config'
+import { getWebViewBridge } from '~shared/bridge/bridgeClient'
 
 const FAQS = [
   {
@@ -22,11 +24,14 @@ const FAQS = [
   },
 ]
 
+const { isInWebView, client: bridgeClient } = getWebViewBridge()
+
 const BRAND_COLOR = '#2F5BD3'
 const COPIED_LABEL_DURATION_MS = 1600
 
 export default function SupportPage() {
   const { contactEmail } = LEGAL_OPERATOR
+  const navigate = useNavigate()
   const [openFaqIndexes, setOpenFaqIndexes] = useState([0])
   const [isEmailCopied, setIsEmailCopied] = useState(false)
 
@@ -40,6 +45,8 @@ export default function SupportPage() {
     setOpenFaqIndexes((current) =>
       current.includes(index) ? current.filter((openIndex) => openIndex !== index) : [...current, index],
     )
+
+  const goBack = () => (isInWebView ? bridgeClient.closeWebView() : navigate(-1))
 
   const copyEmail = async () => {
     await navigator.clipboard.writeText(contactEmail)
@@ -74,6 +81,27 @@ export default function SupportPage() {
           color: '#1A1D23',
         }}
       >
+        <IconButton
+          aria-label="뒤로가기"
+          onClick={goBack}
+          sx={{
+            position: 'sticky',
+            top: 8,
+            zIndex: 1,
+            alignSelf: 'flex-start',
+            p: 1.5,
+            mt: -4.5,
+            mb: -3.5,
+            ml: -2,
+            bgcolor: 'rgba(255, 255, 255, 0.25)',
+            backdropFilter: 'blur(3px)',
+            WebkitBackdropFilter: 'blur(3px)',
+            '&:hover': { bgcolor: 'rgba(243, 245, 249, 0.4)' },
+          }}
+        >
+          <ArrowBackIcon />
+        </IconButton>
+
         <Stack component="header" spacing={1}>
           <Typography fontSize={13} fontWeight={600} letterSpacing="0.08em" color={BRAND_COLOR}>
             WAYLOG
