@@ -1,18 +1,19 @@
+
 import { StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import WebView from 'react-native-webview'
+import { WEB_SERVICE_URL } from '~app/env'
 import { useCommonBridgeResolvers } from '~shared/bridge/useCommonBridgeResolvers'
 import { useWebViewBridge } from '~shared/bridge/useWebViewBridge'
-import { WEB_SERVICE_URL } from '~app/env'
 import { palette } from '~shared/config/tokens'
-import { AppBar } from '~shared/components/design-system/AppBar'
-import { BridgeInterface } from '@waylog/bridge'
+import { AppRoute } from '~app/AppRoute';
+import { ValueOf } from '@waylog/utility'
 
 interface Props {
-  path?: string;
+  route: ValueOf<typeof AppRoute>;
 }
 
-export function SettingsWebViewScreen({ path = '/settings' }: Props) {
+export function WaylogWebViewScreen({ route }: Props) {
   const commonResolvers = useCommonBridgeResolvers()
   const { attachWebView, bindMessage } = useWebViewBridge({
     resolvers: commonResolvers,
@@ -23,7 +24,7 @@ export function SettingsWebViewScreen({ path = '/settings' }: Props) {
       <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
         <WebView
           ref={attachWebView}
-          source={{ uri: `${WEB_SERVICE_URL}${path}` }}
+          source={{ uri: `${WEB_SERVICE_URL}${route}` }}
           style={styles.webview}
           onMessage={bindMessage}
         />

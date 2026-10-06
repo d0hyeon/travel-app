@@ -1,8 +1,8 @@
 import { AppRoute } from '~app/AppRoute'
-import { SettingsWebViewScreen } from './SettingsWebViewScreen'
+import { WaylogWebViewScreen } from '~shared/bridge/WaylogWebViewScreen'
 
 export function SupportScreen() {
-  return <SettingsWebViewScreen path={AppRoute.문의} />
+  return <WaylogWebViewScreen route={AppRoute.문의} />
 }
 
 declare module '~app/routes' {
