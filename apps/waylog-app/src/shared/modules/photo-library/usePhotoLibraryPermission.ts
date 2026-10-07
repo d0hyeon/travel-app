@@ -8,23 +8,29 @@ import { useCallback, useEffect } from "react";
 import { AppState } from "react-native";
 import { queryClient } from "~shared/query-client";
 import { usePhotoLibrary } from "./usePhotoLibrary";
+import { PermissionResponse } from "expo";
 
 interface PhotoLibraryPermissionResult {
-  requestPermission: () => Promise<void>;
+  requestPermission: () => Promise<PermissionResponse>;
 }
 
-interface AsynablePermissionResult extends PhotoLibraryPermissionResult {
+interface PendingPermission {
+  isLoading: true; 
+  isDenied?: boolean; 
+  isPermissionRequestAvailable?: boolean; 
+  hasPermission?: boolean;
+}
+
+interface ResolvedPermission {
   isLoading: false;
   isDenied: boolean;
   isPermissionRequestAvailable: boolean;
   hasPermission: boolean;
 }
-interface SynablePermissionResult extends PhotoLibraryPermissionResult {
-  isLoading: boolean;
-  isDenied?: boolean;
-  isPermissionRequestAvailable?: boolean;
-  hasPermission?: boolean;
-}
+
+type AsynablePermissionResult = PhotoLibraryPermissionResult & ResolvedPermission;
+
+type SynablePermissionResult = PhotoLibraryPermissionResult & (ResolvedPermission | PendingPermission);
 
 interface Options {
   suspense?: boolean;
@@ -58,6 +64,8 @@ export function usePhotoLibraryPermission(options?: Options) {
     const permission = await requestPermissionsAsync(false, ["photo"]);
     queryClient.setQueryData(usePhotoLibraryPermission.key(), permission);
     queryClient.invalidateQueries({ queryKey: usePhotoLibrary.key() });
+
+    return permission;
   }, []);
 
   useEffect(() => {
@@ -71,14 +79,14 @@ export function usePhotoLibraryPermission(options?: Options) {
     return () => subscription.remove();
   }, [refetch]);
 
-  if (permission == null) {
+  if (permission == null || isLoading) {
     return {
       hasPermission: undefined,
       isDenied: undefined,
       isPermissionRequestAvailable: undefined,
-      isLoading,
+      isLoading: true,
       requestPermission,
-    };
+    } satisfies SynablePermissionResult;
   }
 
   return {
