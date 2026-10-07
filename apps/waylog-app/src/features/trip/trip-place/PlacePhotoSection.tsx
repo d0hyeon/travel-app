@@ -1,10 +1,11 @@
-import * as ImagePicker from 'expo-image-picker'
 import { MaterialIcons } from '@expo/vector-icons'
-import { StyleSheet, Pressable, ScrollView } from 'react-native'
+import { useLoading } from '@waylog/react'
+import * as ImagePicker from 'expo-image-picker'
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet } from 'react-native'
+import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { Box, Skeleton, Stack, StackProps, Typography } from '~shared/components/design-system'
 import { LoadableImage } from '~shared/components/LoadableImage'
 import { PhotoBottomSheet } from '~shared/components/photo/PhotoBottomSheet'
-import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { useOverlay } from '~shared/hooks/useOverlay'
 import { usePlacePhotos } from './useTripPlacePhotos'
 
@@ -39,15 +40,17 @@ export function PlacePhotoSection({ tripId, placeId, ...props }: PlacePhotoSecti
     ))
   }
 
-  const addPhoto = async () => {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync()
-    if (!permission.granted) return
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsMultipleSelection: true,
-      quality: 1,
+  const [isPending, startTransition] = useLoading();
+  
+  const addPhoto = () => {
+    startTransition(async () => {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsMultipleSelection: true,
+        quality: 1,
+      })
+      if (!result.canceled) await upload(result.assets)
     })
-    if (!result.canceled) await upload(result.assets)
   }
 
 
@@ -56,9 +59,11 @@ export function PlacePhotoSection({ tripId, placeId, ...props }: PlacePhotoSecti
       <Typography variant="subtitle2" style={styles.title}>사진</Typography>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <Stack direction="row" gap={1}>
-          <Pressable onPress={() => void addPhoto()}>
+          <Pressable onPress={() => void addPhoto()} disabled={isPending}>
             <Box style={styles.uploadButton}>
-              <MaterialIcons name="add-photo-alternate" size={30} color="#777" />
+              {isPending 
+                ? <ActivityIndicator /> 
+                : <MaterialIcons name="add-photo-alternate" size={30} color="#777" />}
             </Box>
           </Pressable>
           {photos.map((photo, index) => (
