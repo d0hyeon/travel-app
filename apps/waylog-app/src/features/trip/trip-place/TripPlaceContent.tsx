@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native'
-import { Box, Fab, Stack, Typography } from "~shared/components/design-system";
+import { Box, Fab, Skeleton, Stack, Typography } from "~shared/components/design-system";
 import { MaterialIcons } from '@expo/vector-icons';
 import { palette, zLayer } from "~shared/config/tokens";
 import { Suspense, useMemo, useRef, useState } from "react";
@@ -33,6 +33,31 @@ const DEFAULT_BOTTOM_SHEET_RATIO = 0.55 satisfies typeof BOTTOM_SHEET_RATIOS[num
 const MAX_BOTTOM_SHEET_RATIO = 0.85 satisfies typeof BOTTOM_SHEET_RATIOS[number];
 
 export default function TripPlaceContent({ tripId }: PlaceContentProps) {
+  return (
+    <Suspense fallback={<Pending />}>
+      <Resolved tripId={tripId} />
+    </Suspense>
+  )
+}
+
+function Pending() {
+  useTripLayoutSetting({ variant: 'glass', actions: <TripPlaceMapSettingsButton /> })
+
+  return (
+    <Box style={styles.container}>
+      <Box style={styles.pendingSheet}>
+        <Skeleton width={120} height={14} style={styles.listHeading} />
+        <Stack gap={0.75}>
+          {Array.from({ length: 4 }, (_, index) => (
+            <Skeleton key={index} variant="rounded" height={64} />
+          ))}
+        </Stack>
+      </Box>
+    </Box>
+  )
+}
+
+function Resolved({ tripId }: PlaceContentProps) {
   const { data: trip } = useTrip(tripId)
   const { data: places } = useTripPlaces(tripId)
   const { data: { routes } } = useTripRoutes(tripId)
@@ -172,4 +197,5 @@ const styles = StyleSheet.create({
   listContent: { paddingHorizontal: 12, paddingBottom: 40 + FLOATING_TAB_BAR_RESERVE },
   listHeading: { marginBottom: 12 },
   selectedPlace: { borderColor: palette.primary },
+  pendingSheet: { position: 'absolute', left: 0, right: 0, bottom: 0, height: `${DEFAULT_BOTTOM_SHEET_RATIO * 100}%`, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 12, paddingTop: 24, backgroundColor: palette.background },
 })
