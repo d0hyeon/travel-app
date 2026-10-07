@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
-import { Box, Stack, Typography } from "~shared/components/design-system"
+import { Suspense } from 'react'
+import { Box, Skeleton, Stack, Typography } from "~shared/components/design-system"
 import { convertToKRW } from '@waylog/domains/modules/expense'
 import { formatCurrency } from '@waylog/domains/modules/expense'
 import { MemberAvatar } from '~features/trip/trip-member/MemberAvatar'
@@ -11,7 +12,42 @@ interface Props {
   formatAmount?: (amount: number) => string
 }
 
-export function SettlementSummary({ tripId, formatAmount = formatCurrency }: Props) {
+export function SettlementSummary(props: Props) {
+  return (
+    <Suspense fallback={<Pending />}>
+      <Resolved {...props} />
+    </Suspense>
+  )
+}
+
+function Pending() {
+  return (
+    <Stack gap={3}>
+      <Box>
+        <Typography variant="subtitle2" color="text.secondary" mb={1.5}>
+          개인별 정산 현황
+        </Typography>
+        <Stack gap={1}>
+          <Skeleton variant="rounded" height={88} />
+          <Skeleton variant="rounded" height={88} />
+        </Stack>
+      </Box>
+      <Box style={styles.divider} />
+      <Box>
+        <Typography variant="subtitle2" color="text.secondary" mb={1.5}>
+          이렇게 정산하세요
+        </Typography>
+        <Stack gap={1.5}>
+          <Skeleton variant="rounded" height={48} />
+        </Stack>
+      </Box>
+    </Stack>
+  )
+}
+
+SettlementSummary.Skeleton = Pending
+
+function Resolved({ tripId, formatAmount = formatCurrency }: Props) {
   const { balances, settlements, members, expenses, exchangeRates } = useExpenseSummary(tripId)
   const memberMap = new Map(members.map(m => [m.id, m]))
 
