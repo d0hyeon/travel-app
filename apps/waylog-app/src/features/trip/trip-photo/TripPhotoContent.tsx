@@ -2,9 +2,9 @@ import { MaterialIcons } from '@expo/vector-icons'
 import * as ImagePicker from 'expo-image-picker'
 import type { Photo } from '@waylog/domains/modules/photo'
 import { useTripPlaces } from '@waylog/domains/modules/trip'
-import { useEffect, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native'
-import { BlurSwap, Box, Fab, GlassSurface, PressableScale, Stack, Typography } from '~shared/components/design-system'
+import { BlurSwap, Box, Fab, GlassSurface, PressableScale, Skeleton, Stack, Typography } from '~shared/components/design-system'
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { useOverlay } from '~shared/hooks/useOverlay'
 import { palette } from '~shared/config/tokens'
@@ -27,6 +27,33 @@ interface Props {
 }
 
 export function TripPhotoContent({ tripId }: Props) {
+  return (
+    <Suspense fallback={<Pending />}>
+      <Resolved tripId={tripId} />
+    </Suspense>
+  )
+}
+
+const PENDING_PHOTO_COUNT = COLUMNS * 4
+
+function Pending() {
+  const { width } = useWindowDimensions()
+  const size = (width - LIST_PADDING * 2 - GAP * (COLUMNS - 1)) / COLUMNS
+
+  return (
+    <Box style={styles.container}>
+      <Box style={styles.photoList}>
+        <Box style={styles.pendingGrid}>
+          {Array.from({ length: PENDING_PHOTO_COUNT }, (_, index) => (
+            <Skeleton key={index} variant="rounded" width={size} height={size} />
+          ))}
+        </Box>
+      </Box>
+    </Box>
+  )
+}
+
+function Resolved({ tripId }: Props) {
   const { data: photos, upload, remove, update, isUploading } = useTripPhotos(tripId)
   const { data: places } = useTripPlaces(tripId)
   const confirm = useConfirmDialog()
@@ -249,6 +276,7 @@ const styles = StyleSheet.create({
   selectionButton: { height: 34, paddingHorizontal: 18, alignItems: 'center', justifyContent: 'center' },
 
   photoRow: { gap: GAP },
+  pendingGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: GAP },
   photoList: { gap: GAP, paddingTop: TOOLBAR_HEIGHT, paddingHorizontal: LIST_PADDING, paddingBottom: 16 + FLOATING_TAB_BAR_RESERVE },
   uploadButton: { alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderStyle: 'dashed', borderColor: '#d5d5d5', borderRadius: 8 },
   photoListWithDeleteBar: { paddingBottom: DELETE_BAR_BOTTOM + DELETE_BAR_HEIGHT },
