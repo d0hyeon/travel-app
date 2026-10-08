@@ -49,17 +49,19 @@ export function useRoutePlaceEditForm({ tripId, routeId, placeId, onSaved }: Par
   const submit = handleSubmit(
     async ({ startTime, endTime, routeMemo, category, placeMemo }) => {
       try {
-        await updateRoutePlace({
-          routeId,
-          placeId: place.id,
-          time: { startTime, endTime },
-          memos: toMemos(routeMemo),
-        })
-        await updatePlace({
-          id: place.id,
-          category: category === 'none' ? null : category,
-          memo: placeMemo,
-        })
+        await Promise.all([
+          updateRoutePlace({
+            routeId,
+            placeId: place.id,
+            time: { startTime, endTime },
+            memos: toMemos(routeMemo),
+          }),
+          updatePlace({
+            id: place.id,
+            category: category === 'none' ? null : category,
+            memo: placeMemo,
+          }),
+        ])
       } catch {
         toast.error('저장하지 못했어요')
         return

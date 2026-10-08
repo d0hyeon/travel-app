@@ -73,13 +73,15 @@ export function RoutePlaceEditSheet({ tripId, routeId, placeId, onClose }: Props
   const save = handleSubmit(
     async ({ startTime, endTime, routeMemo, category, placeMemo }) => {
       try {
-        await updateRoutePlace({
-          routeId,
-          placeId: place.id,
-          time: { startTime, endTime },
-          memos: toMemos(routeMemo),
-        })
-        await updatePlace({ id: place.id, category, memo: placeMemo })
+        await Promise.all([
+          updateRoutePlace({
+            routeId,
+            placeId: place.id,
+            time: { startTime, endTime },
+            memos: toMemos(routeMemo),
+          }),
+          updatePlace({ id: place.id, category, memo: placeMemo }),
+        ])
       } catch {
         toast.error('저장하지 못했어요')
         return
