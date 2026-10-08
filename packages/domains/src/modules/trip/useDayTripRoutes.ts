@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { arrayIncludes, assert } from "../../utils";
 import { useTripPlaces } from "./useTripPlaces";
 import { useTripRoutes } from "./useTripRoutes";
@@ -6,12 +6,6 @@ import { useTripRoutes } from "./useTripRoutes";
 type Params = {
   tripId: string;
   date: string;
-};
-
-type UpdateMemoParams = {
-  routeId: string;
-  placeId: string;
-  memos: string[];
 };
 
 export function useDayTripRoutes({ tripId, date }: Params) {
@@ -38,24 +32,10 @@ export function useDayTripRoutes({ tripId, date }: Params) {
     }));
   }, [routes, allPlaces]);
 
-  const updateNotes = useCallback(
-    ({ memos, placeId, routeId }: UpdateMemoParams) => {
-      const targetRoute = routes.find((x) => x.id === routeId);
-      if (targetRoute == null) return;
-
-      return update({
-        routeId,
-        placeMemos: { ...targetRoute.placeMemos, [placeId]: memos },
-      });
-    },
-    [routes],
-  );
-
   return {
     ...result,
     data: { routes: routesWithPlace, tripDates },
     update,
-    updateNotes,
   };
 }
 useDayTripRoutes.key = useTripRoutes.key;
