@@ -3,7 +3,7 @@ import { StyleSheet, Pressable, ScrollView, View } from 'react-native'
 import { Skeleton, Typography } from '~shared/components/design-system'
 import { palette, radius } from '~shared/config/tokens'
 import { useExplorerFilterParams } from '~features/explorer/explorer-filters/useExplorerFilterParams'
-import { RegionTrendCard } from './RegionTrendCard'
+import { REGION_TREND_CARD_INNER_DIVIDER, RegionTrendCard } from './RegionTrendCard'
 
 const SECTION_LIMIT = 20
 
@@ -53,12 +53,20 @@ export function SeasonalRegionsSummarySectionSkeleton() {
         {Array.from({ length: 3 }).map((_, index) => (
           <View key={index} style={styles.skeletonCard}>
             <View style={styles.skeletonHeading}>
-              <Skeleton variant="circular" width={20} height={20} />
+              <Skeleton variant="circular" width={24} height={24} />
               <Skeleton width="55%" height={24} />
             </View>
-            <Skeleton width="45%" height={32} />
-            <Skeleton width="60%" height={16} />
-            <Skeleton width="55%" height={16} />
+            <Skeleton width="45%" height={26} />
+            <View style={styles.skeletonStatistics}>
+              <View style={styles.skeletonStatistic}>
+                <Skeleton width="50%" height={14} />
+                <Skeleton width="70%" height={22} />
+              </View>
+              <View style={[styles.skeletonStatistic, styles.skeletonGrowthStatistic]}>
+                <Skeleton width="60%" height={14} />
+                <Skeleton width="70%" height={22} />
+              </View>
+            </View>
           </View>
         ))}
       </View>
@@ -71,10 +79,13 @@ const styles = StyleSheet.create({
   header: { paddingHorizontal: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 },
   emptyState: { alignItems: 'center', paddingHorizontal: 16, paddingVertical: 32 },
   regionsContent: { paddingHorizontal: 16, gap: 12, alignItems: 'flex-start' },
-  regionCard: { width: 150 },
+  regionCard: { width: 196 },
   skeleton: { gap: 12 },
   skeletonTitle: { marginHorizontal: 16 },
   skeletonCards: { flexDirection: 'row', gap: 8, paddingHorizontal: 16, overflow: 'hidden' },
-  skeletonCard: { width: 150, flexShrink: 0, padding: 16, gap: 8, borderWidth: 1, borderColor: palette.divider, borderRadius: radius.lg },
+  skeletonCard: { width: 196, flexShrink: 0, padding: 18, gap: 12, borderWidth: 1, borderColor: palette.divider, borderRadius: radius.xl },
   skeletonHeading: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  skeletonStatistics: { flexDirection: 'row', paddingTop: 12, borderTopWidth: 1, borderTopColor: REGION_TREND_CARD_INNER_DIVIDER },
+  skeletonStatistic: { flex: 1, gap: 6 },
+  skeletonGrowthStatistic: { paddingLeft: 12, borderLeftWidth: 1, borderLeftColor: REGION_TREND_CARD_INNER_DIVIDER },
 })
