@@ -2,13 +2,11 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { PostVisibility, type PostVisibility as PostVisibilityValue } from '@waylog/domains/modules/post'
 import { useLoading } from '@waylog/react'
 import { useState } from 'react'
-import { StyleSheet, Pressable, ScrollView, View, useWindowDimensions } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { StyleSheet, Pressable, ScrollView, View, useWindowDimensions, KeyboardAvoidingView, Platform } from 'react-native'
 import { BottomArea } from '~shared/components/BottomArea'
 import { LoadableImage } from '~shared/components/LoadableImage'
 import { Button, Typography } from '~shared/components/design-system'
 import { palette } from '~shared/config/tokens'
-import { useKeyboardMetrics } from '~shared/hooks/env/useKeyboardMetrics'
 import { PostDescriptionField } from './PostDescriptionField'
 import { VISIBILITY_OPTIONS } from './PostVisibilityField'
 import { usePostPlacesBottomSheet } from './usePostPlacesBottomSheet'
@@ -22,9 +20,7 @@ export interface PostMetaValue {
 }
 
 export function MetaStep({ tripId, photos, onNext }: { tripId: string | null; photos: PostFormPhoto[]; onNext: (value: PostMetaValue) => Promise<void> }) {
-  const { width, height: screenHeight } = useWindowDimensions()
-  const { metrics: keyboard } = useKeyboardMetrics()
-  const insets = useSafeAreaInsets()
+  const { width } = useWindowDimensions()
   const [description, setDescription] = useState('')
   const [places, setPlaces] = useState<PostPlaceSelection[]>([])
   const [visibility, setVisibility] = useState<PostVisibilityValue>(PostVisibility.PRIVATE)
@@ -33,11 +29,6 @@ export function MetaStep({ tripId, photos, onNext }: { tripId: string | null; ph
   const [isPending, startTransition] = useLoading()
   const photoWidth = width - 32
   const placesLabel = places.length === 0 ? '선택 안 함' : places.length === 1 ? places[0]?.name : `${places[0]?.name} 외 ${places.length - 1}`
-
-  // screenY 는 키보드 상단의 화면 절대 좌표다. 퍼널이 paddingBottom 으로 하단
-  // 안전영역을 이미 비워 둔 만큼 빼야 CTA 가 그 높이만큼 더 뜨지 않는다.
-  // 키보드가 그 영역을 덮으므로 남은 여백은 0 아래로 내려가지 않는다.
-  const keyboardLift = keyboard == null ? 0 : Math.max(screenHeight - keyboard.screenY - insets.bottom, 0)
 
   const editPlaces = async () => {
     const selected = await placesSheet.open({ tripId, defaultValue: places })
@@ -52,7 +43,7 @@ export function MetaStep({ tripId, photos, onNext }: { tripId: string | null; ph
   }
 
   return (
-    <View style={styles.screen}>
+    <KeyboardAvoidingView style={styles.screen} behavior="position" >
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
         <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false}>{photos.map((photo) => <LoadableImage key={photo.id} source={{ uri: photo.uri }} style={[styles.photo, { width: photoWidth }]} contentFit="cover" />)}</ScrollView>
         <PostDescriptionField value={description} onChange={setDescription} />
@@ -61,7 +52,7 @@ export function MetaStep({ tripId, photos, onNext }: { tripId: string | null; ph
           <OverlayField label="공개 범위" value={VISIBILITY_OPTIONS.find((option) => option.value === visibility)?.label ?? ''} onPress={() => void editVisibility()} />
         </View>
       </ScrollView>
-      <BottomArea position="static" style={[styles.actions, { marginBottom: keyboardLift }]}>
+      <BottomArea position="static" style={styles.actions}>
         <Button
           variant="contained"
           size="large"
@@ -77,7 +68,8 @@ export function MetaStep({ tripId, photos, onNext }: { tripId: string | null; ph
           확인
         </Button>
       </BottomArea>
-    </View>
+    
+    </KeyboardAvoidingView>
   )
 }
 
