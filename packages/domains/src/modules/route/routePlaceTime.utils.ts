@@ -48,7 +48,7 @@ export function getRoutePlaceTimeMinutes({ startTime, endTime }: RoutePlaceTime)
 
 export function formatRoutePlaceTime({ startTime, endTime }: RoutePlaceTime) {
   if (startTime != null && endTime != null) return `${startTime}–${endTime}`
-  if (startTime != null) return startTime
+  if (startTime != null) return `${startTime}~`
   if (endTime != null) return `~${endTime}`
   return null
 }

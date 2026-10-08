@@ -63,8 +63,8 @@ describe('formatRoutePlaceTime', () => {
     expect(formatRoutePlaceTime({ startTime: '10:00', endTime: '11:30' })).toBe('10:00–11:30')
   })
 
-  it('시작만 있으면 시작 시각만 보여준다', () => {
-    expect(formatRoutePlaceTime({ startTime: '14:00', endTime: null })).toBe('14:00')
+  it('시작만 있으면 시작 시각 뒤에 물결을 붙인다', () => {
+    expect(formatRoutePlaceTime({ startTime: '14:00', endTime: null })).toBe('14:00~')
   })
 
   it('종료만 있으면 종료 시각 앞에 물결을 붙인다', () => {
