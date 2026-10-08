@@ -42,11 +42,9 @@ export function HomeTabs() {
       >
         {() => (
           <ScreenLayout>
-            <TabSuspense>
-              <AuthGuard fallback={<GuestTripsScreen />}>
-                <TripListScreen />
-              </AuthGuard>
-            </TabSuspense>
+            <AuthGuard fallback={<GuestTripsScreen />}>
+              <TripListScreen />
+            </AuthGuard>
           </ScreenLayout>
         )}
       </Tab.Screen>

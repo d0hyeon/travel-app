@@ -1,7 +1,8 @@
 import { getTripYear, groupTripsByStatus, useTrips } from '@waylog/domains/modules/trip'
+import { Suspense } from 'react'
 import { Pressable, ScrollView, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Box, Fab, Stack, Typography } from '~shared/components/design-system'
+import { Box, Fab, Skeleton, Stack, Typography } from '~shared/components/design-system'
 import { FLOATING_TAB_BAR_RESERVE } from '~shared/components'
 import { useAppNavigation } from '~shared/hooks/useAppNavigation'
 import { AppRoute } from '~app/AppRoute'
@@ -15,6 +16,44 @@ import { MaterialIcons } from '@expo/vector-icons'
 type Trip = Parameters<typeof groupTripsByStatus>[0][number]
 
 export function TripListScreen() {
+  return (
+    <Suspense fallback={<Pending />}>
+      <Resolved />
+    </Suspense>
+  )
+}
+
+const PENDING_SECTION_LABEL_WIDTH = 72
+const PENDING_ONGOING_CARD_HEIGHT = 140
+const PENDING_PAST_ROW_HEIGHT = 72
+const PENDING_PAST_ROW_COUNT = 3
+
+function Pending() {
+  const insets = useSafeAreaInsets()
+
+  return (
+    <Box style={styles.screen}>
+      <Box style={[styles.scrollContent, { paddingTop: insets.top }]}>
+        <Typography variant="h5" style={styles.pageTitle}>
+          내 여행
+        </Typography>
+        <Stack style={styles.tripSections}>
+          <Skeleton variant="rounded" height={PENDING_ONGOING_CARD_HEIGHT} style={styles.pendingCard} />
+          <Stack style={styles.groupedSections}>
+            <Stack style={styles.sectionGap}>
+              <Skeleton width={PENDING_SECTION_LABEL_WIDTH} height={14} />
+              {Array.from({ length: PENDING_PAST_ROW_COUNT }, (_, index) => (
+                <Skeleton key={index} variant="rounded" height={PENDING_PAST_ROW_HEIGHT} />
+              ))}
+            </Stack>
+          </Stack>
+        </Stack>
+      </Box>
+    </Box>
+  )
+}
+
+function Resolved() {
   const { data: trips } = useTrips()
   const navigation = useAppNavigation()
   const insets = useSafeAreaInsets()
@@ -152,6 +191,9 @@ const styles = StyleSheet.create({
   },
   sectionGap: {
     gap: 12,
+  },
+  pendingCard: {
+    borderRadius: 20,
   },
   yearGroupList: {
     gap: 20,
