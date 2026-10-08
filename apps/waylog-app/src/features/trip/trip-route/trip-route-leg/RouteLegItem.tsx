@@ -2,10 +2,12 @@ import { StyleSheet, View, type ViewStyle } from 'react-native'
 import type { ReactNode } from 'react'
 import type { RouteLeg } from '@waylog/domains/modules/route'
 import { formatDistance, formatDuration } from '@waylog/utility'
-import { palette } from '~shared/config/tokens'
 import { Typography, type StackProps } from '~shared/components/design-system'
 import { TransportIcon } from '~features/trip/trip-route/components/TransportIcon'
 
+const LEG_BORDER_COLOR = '#C5D8F7'
+const LEG_BACKGROUND_COLOR = '#F3F7FF'
+const LEG_TEXT_COLOR = '#2A73E8'
 
 interface RouteLegItemProps extends StackProps {
   leg: RouteLeg
@@ -19,7 +21,7 @@ export function RouteLegItem({ leg, style, ...props }: RouteLegItemProps) {
       <Line style={styles.lineBottom} />
       <View style={styles.chip}>
         <TransportIcon transport={leg.transport} size={14} />
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" style={styles.chipText}>
           {formatDuration(leg.duration)} · {formatDistance(leg.distance)}
         </Typography>
       </View>
@@ -48,18 +50,19 @@ const styles = StyleSheet.create({
     left: '50%',
     height: '50%',
     width: 2,
-    backgroundColor: palette.divider,
+    backgroundColor: LEG_BORDER_COLOR,
   },
   lineTop: { top: 0 },
   lineBottom: { bottom: 0 },
+  chipText: { color: LEG_TEXT_COLOR },
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.2)',
-    backgroundColor: palette.background,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: LEG_BORDER_COLOR,
+    backgroundColor: LEG_BACKGROUND_COLOR,
     zIndex: 10,
     paddingHorizontal: 8,
     paddingVertical: 2,
