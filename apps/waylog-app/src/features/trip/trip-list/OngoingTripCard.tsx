@@ -26,7 +26,7 @@ export function OngoingTripCard({ trip, onPress }: Props) {
         <Stack direction="row" alignItems="flex-start" justifyContent="space-between" style={styles.headerRow}>
           <Stack direction="row" alignItems="center" style={styles.dayLabelRow}>
             <Typography style={styles.dayLabel}>{currentDay}일차</Typography>
-            <Typography style={styles.tripName} numberOfLines={1}>
+            <Typography variant="h5" style={styles.tripName} numberOfLines={1}>
               {trip.name}
             </Typography>
           </Stack>
@@ -80,8 +80,7 @@ const styles = StyleSheet.create({
   },
   tripName: {
     color: '#fff',
-    fontSize: 20,
-    fontWeight: '900',
+    
     flexShrink: 1,
   },
   dateRange: {

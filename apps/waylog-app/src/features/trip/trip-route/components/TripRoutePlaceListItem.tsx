@@ -51,7 +51,7 @@ export function TripRoutePlaceListItem({ tripId, routeId, title, titleIcon, data
         {titleIcon}
         <ListItem.Title>{place.name}</ListItem.Title>
         <MaterialIcons
-          name={place ? 'visibility-off' : 'visibility'}
+          name="visibility"
           size={18}
           color={isHidden ? '#bbb' : '#787c7e'}
           onPress={() => toggleVisible({ routeId, placeId: place.id })}

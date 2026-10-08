@@ -87,7 +87,9 @@ export function TripBasicInfoContent({ tripId }: Props) {
               </ErrorBoundary>
               <TripMemberSection tripId={tripId} />
 
-              <TripLeaveButton tripId={tripId} fullWidth variant="outlined" style={styles.leaveButton} />
+              <Suspense fallback={null}>
+                <TripLeaveButton tripId={tripId} fullWidth variant="outlined" style={styles.leaveButton} />
+              </Suspense>
 
             </Stack>
           </ScrollView>

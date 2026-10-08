@@ -1,5 +1,4 @@
-import { Suspense } from 'react'
-import { ActivityIndicator, View, StyleSheet } from 'react-native'
+import { View, StyleSheet } from 'react-native'
 import { useTripDetailTabTripId } from '~features/trip/useTripId'
 import { TripPhotoContent } from './TripPhotoContent'
 import { useTripLayoutSetting } from '~features/trip/trip-layout/useTripLayoutSetting'
@@ -9,11 +8,8 @@ export function TripPhotoTabScreen() {
   const { contentInsetTop } = useTripLayoutSetting({ variant: 'default' })
 
   return (
-    // 재조회 때 화면 전체가 다시 마운트되지 않도록 탭 안에 경계를 둔다.
     <View style={[styles.fill, { paddingTop: contentInsetTop }]}>
-      <Suspense fallback={<ActivityIndicator style={styles.fill} />}>
-        <TripPhotoContent tripId={tripId} />
-      </Suspense>
+      <TripPhotoContent tripId={tripId} />
     </View>
   )
 }

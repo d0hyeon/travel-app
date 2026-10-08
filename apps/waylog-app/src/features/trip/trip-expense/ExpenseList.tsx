@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { Stack, Typography } from "~shared/components/design-system"
-import { useMemo } from "react"
+import { Skeleton, Stack, Typography } from "~shared/components/design-system"
+import { Suspense, useMemo } from "react"
 import type { Expense } from "@waylog/domains/modules/expense"
 import { formatByCurrencyCode } from "@waylog/domains/modules/expense"
 import { useExpenses } from '@waylog/domains/modules/expense'
@@ -16,6 +16,26 @@ interface Props {
 }
 
 export function ExpenseList({ tripId }: Props) {
+  return (
+    <Suspense fallback={<Pending />}>
+      <Resolved tripId={tripId} />
+    </Suspense>
+  )
+}
+
+function Pending() {
+  return (
+    <Stack gap={1.5}>
+      <ListItem><Skeleton width="60%" /></ListItem>
+      <ListItem><Skeleton width="45%" /></ListItem>
+      <ListItem><Skeleton width="55%" /></ListItem>
+    </Stack>
+  )
+}
+
+ExpenseList.Skeleton = Pending
+
+function Resolved({ tripId }: Props) {
   const { data: expenses, update, remove } = useExpenses(tripId)
   const { data: members } = useTripMembers(tripId)
   const memberMap = useMemo(() => new Map(members.map(m => [m.id, m])), [members])

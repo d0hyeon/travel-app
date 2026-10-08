@@ -100,7 +100,7 @@ function CommunityTripCard({ trip, onClick }: { trip: CommunityTrip; onClick: ()
         destinations={trip.destinations}
         previewRoutes={trip.previewRoutes}
         width={140}
-        height={80}
+        height={95}
       />
 
       {/* 텍스트 정보 */}
@@ -122,7 +122,7 @@ function CommunityRoutesSkeleton({ ...props }: StackProps) {
       <Skeleton variant="text" width={120} height={20} />
       <Stack direction="row" spacing={1.5}>
         {[0, 1, 2].map((i) => (
-          <Skeleton key={i} variant="rounded" width={130} height={72} />
+          <Skeleton key={i} variant="rounded" width={140} height={95} />
         ))}
       </Stack>
     </Stack>

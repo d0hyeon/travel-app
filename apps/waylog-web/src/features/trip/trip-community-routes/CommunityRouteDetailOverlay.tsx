@@ -106,7 +106,7 @@ function DetailContent({ communityTrip, tripId }: { communityTrip: CommunityTrip
 
       {/* 지도 */}
       {mapCenter && currentRoute && currentRoute.places.length >= 2 && (
-        <BottomSheet.Scrollable height={200} flexShrink={0}>
+        <BottomSheet.Scrollable height={250} flexShrink={0}>
           <Map
             type={isOverseas ? 'google' : 'kakao'}
             defaultCenter={mapCenter}

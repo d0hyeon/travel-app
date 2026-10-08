@@ -67,7 +67,7 @@ export function LoginScreen({ bottomContentInset }: LoginScreenProps) {
         </View>
       </View>
 
-      <Stack gap={3} direction="column">
+      <Stack gap={2} direction="column">
         <Button
           variant="contained"
           size="large"

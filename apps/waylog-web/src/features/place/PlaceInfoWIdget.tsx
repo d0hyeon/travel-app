@@ -28,7 +28,7 @@ function Resolved({ placeId, ...props }: Props) {
 
   return (
     <Stack spacing={2} paddingBottom={6} {...props}>
-      <Box sx={{ height: 200, borderRadius: 1, overflow: 'hidden' }}>
+      <Box sx={{ height: 250, borderRadius: 1, overflow: 'hidden' }}>
         <Suspense >
           <PlaceMap placeId={place.id} height="100%" />
         </Suspense>

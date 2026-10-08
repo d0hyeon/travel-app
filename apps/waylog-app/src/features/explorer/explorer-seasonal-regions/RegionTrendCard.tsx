@@ -1,10 +1,11 @@
-import { MaterialIcons } from '@expo/vector-icons'
 import { LocationRegion } from '@waylog/domains/modules/location'
 import type { RegionTourismTrend } from '@waylog/domains/modules/tourism-trend'
 import { formatKoreanCount } from '@waylog/utility'
 import { StyleSheet, View } from 'react-native'
 import { Typography } from '~shared/components/design-system'
 import { palette, radius } from '~shared/config/tokens'
+
+export const REGION_TREND_CARD_INNER_DIVIDER = 'rgba(0,0,0,0.06)'
 
 interface RegionTrendCardProps {
   trend: RegionTourismTrend
@@ -16,6 +17,8 @@ export function RegionTrendCard({ trend, rank }: RegionTrendCardProps) {
   const trendColor = isRising ? 'primary' : 'text.secondary'
   const growthPercent = Math.round(Math.abs(trend.growthRate) * 100)
   const regionLabel = getRegionLabel(trend.location)
+  const visitors = getCountParts(trend.visitorCount)
+  const growth = getCountParts(Math.abs(trend.visitorGrowth))
 
   return (
     <View style={styles.card}>
@@ -25,31 +28,46 @@ export function RegionTrendCard({ trend, rank }: RegionTrendCardProps) {
             {rank}
           </Typography>
         </View>
-        <Typography variant="subtitle1" fontWeight="bold" numberOfLines={1}>
+        <Typography variant="subtitle1" fontWeight="bold" numberOfLines={1} style={styles.location}>
           {trend.location}
         </Typography>
         {regionLabel != null && (
-          <Typography variant="caption" color="text.secondary" numberOfLines={1}>
+          <Typography variant="caption" color="text.secondary" numberOfLines={1} style={styles.regionLabel}>
             {regionLabel}
           </Typography>
         )}
       </View>
 
+      <Typography variant="h6" fontWeight="bold" color={trendColor} style={styles.growthRate}>
+        {isRising ? '↗ +' : '↘ -'}
+        {growthPercent}%
+      </Typography>
+
       <View style={styles.statistics}>
-        <MaterialIcons name={isRising ? 'trending-up' : 'trending-down'} size={20} color={isRising ? palette.primary : palette.textSecondary} />
-        <Typography variant="h6" fontWeight="bold" color={trendColor}>
-          {isRising ? '+' : '-'}
-          {growthPercent}%
-        </Typography>
+        <View style={styles.statistic}>
+          <Typography variant="caption" color="text.secondary" style={styles.statisticLabel}>
+            방문객
+          </Typography>
+          <Typography variant="subtitle1" fontWeight="bold" numberOfLines={1} style={styles.statisticValue}>
+            {visitors.amount}
+            <Typography variant="caption" color="text.secondary" style={styles.statisticUnit}>
+              {visitors.unit}
+            </Typography>
+          </Typography>
+        </View>
+        <View style={[styles.statistic, styles.growthStatistic]}>
+          <Typography variant="caption" color="text.secondary" style={styles.statisticLabel}>
+            작년 대비
+          </Typography>
+          <Typography variant="subtitle1" fontWeight="bold" color={trendColor} numberOfLines={1} style={styles.statisticValue}>
+            {isRising ? '+' : '-'}
+            {growth.amount}
+            <Typography variant="caption" color={trendColor} style={styles.statisticUnit}>
+              {growth.unit}
+            </Typography>
+          </Typography>
+        </View>
       </View>
-
-      <Typography variant="caption" color="text.secondary" numberOfLines={1}>
-        {formatKoreanCount(Math.abs(trend.visitorGrowth))}명 {isRising ? '증가' : '감소'}
-      </Typography>
-
-      <Typography variant="caption" color="text.secondary" numberOfLines={1} style={styles.description}>
-        {formatKoreanCount(trend.visitorCount)}명 방문
-      </Typography>
     </View>
   )
 }
@@ -62,11 +80,25 @@ function getRegionLabel(location: RegionTourismTrend['location']) {
   return region
 }
 
+function getCountParts(count: number) {
+  const formatted = formatKoreanCount(count)
+  const hasManUnit = formatted.endsWith('만')
+  if (hasManUnit) return { amount: formatted.slice(0, -1), unit: '만명' }
+  return { amount: formatted, unit: '명' }
+}
+
 const styles = StyleSheet.create({
-  card: { padding: 16, minHeight: 180, borderRadius: radius.lg, borderWidth: 1, borderColor: palette.divider, backgroundColor: palette.background },
+  card: { padding: 18, gap: 12, borderRadius: radius.xl, borderWidth: 1, borderColor: palette.divider, backgroundColor: palette.background },
   heading: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  rankBadge: { width: 20, height: 20, borderRadius: 10, backgroundColor: palette.primary, alignItems: 'center', justifyContent: 'center' },
-  rankLabel: { fontSize: 11 },
-  statistics: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 12 },
-  description: { marginTop: 'auto', paddingTop: 8 },
+  rankBadge: { width: 24, height: 24, borderRadius: 12, backgroundColor: palette.primary, alignItems: 'center', justifyContent: 'center' },
+  rankLabel: { fontSize: 13 },
+  location: { fontSize: 18, flexShrink: 1 },
+  regionLabel: { fontSize: 14, flexShrink: 1 },
+  growthRate: { fontSize: 22 },
+  statistics: { flexDirection: 'row', paddingTop: 12, borderTopWidth: 1, borderTopColor: REGION_TREND_CARD_INNER_DIVIDER },
+  statistic: { flex: 1, gap: 2 },
+  growthStatistic: { paddingLeft: 12, borderLeftWidth: 1, borderLeftColor: REGION_TREND_CARD_INNER_DIVIDER },
+  statisticLabel: { fontSize: 11 },
+  statisticValue: { fontSize: 17 },
+  statisticUnit: { fontSize: 13 },
 })

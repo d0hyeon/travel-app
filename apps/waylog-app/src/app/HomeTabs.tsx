@@ -42,11 +42,9 @@ export function HomeTabs() {
       >
         {() => (
           <ScreenLayout>
-            <TabSuspense>
-              <AuthGuard fallback={<GuestTripsScreen />}>
-                <TripListScreen />
-              </AuthGuard>
-            </TabSuspense>
+            <AuthGuard fallback={<GuestTripsScreen />}>
+              <TripListScreen />
+            </AuthGuard>
           </ScreenLayout>
         )}
       </Tab.Screen>
@@ -80,11 +78,9 @@ export function HomeTabs() {
       >
         {() => (
           <ScreenLayout>
-            <TabSuspense>
-              <AuthGuard fallback={<LoginScreen bottomContentInset={0} />}>
-                <ProfileTab />
-              </AuthGuard>
-            </TabSuspense>
+            <AuthGuard fallback={<LoginScreen bottomContentInset={0} />}>
+              <ProfileTab />
+            </AuthGuard>
           </ScreenLayout>
         )}
       </Tab.Screen>

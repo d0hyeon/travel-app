@@ -154,14 +154,13 @@ function DetailContent({
             경로에 장소가 없어요
           </Typography>
         )}
-        <ScrollView>
+        <ScrollView style={styles.list}>
           {currentRoute?.places.map((place, index) => (
             <Pressable
               key={`community-route-place-${place.placeId}`}
               onPress={() => mapRef.current?.panTo(place.lat, place.lng, FOCUS_ZOOM)}
             >
               <PlaceRow
-
                 place={place}
                 index={index}
                 tripId={tripId}
@@ -278,10 +277,11 @@ function DetailSkeleton() {
 const styles = StyleSheet.create({
   errorState: { padding: 24 },
   content: { flex: 1 },
-  map: { height: 200 },
+  map: { height: 300 },
   emptyMessage: { padding: 16 },
   placeRow: { paddingVertical: 10, paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: palette.divider },
   orderBadge: { width: 24, height: 24, borderRadius: 12, backgroundColor: palette.primary, alignItems: 'center', justifyContent: 'center' },
   orderLabel: { fontSize: 11, fontWeight: '900', color: '#fff' },
   addedLabel: { color: palette.success },
+  list: { paddingTop: 8 }
 })

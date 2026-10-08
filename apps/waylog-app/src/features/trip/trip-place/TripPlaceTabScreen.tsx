@@ -1,5 +1,4 @@
-import { Suspense } from 'react'
-import { ActivityIndicator, View, StyleSheet } from 'react-native'
+import { View, StyleSheet } from 'react-native'
 import { useTripDetailTabTripId } from '~features/trip/useTripId'
 import TripPlaceContent from './TripPlaceContent'
 
@@ -7,11 +6,8 @@ export function TripPlaceTabScreen() {
   const tripId = useTripDetailTabTripId()
 
   return (
-    // 재조회 때 화면 전체가 다시 마운트되지 않도록 탭 안에 경계를 둔다.
     <View style={styles.fill}>
-      <Suspense fallback={<ActivityIndicator style={styles.fill} />}>
-        <TripPlaceContent tripId={tripId} />
-      </Suspense>
+      <TripPlaceContent tripId={tripId} />
     </View>
   )
 }

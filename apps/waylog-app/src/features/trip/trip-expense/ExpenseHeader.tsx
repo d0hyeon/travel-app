@@ -7,8 +7,10 @@ import {
   type CurrencyCode,
 } from '@waylog/domains/modules/expense'
 import { useTrip } from '@waylog/domains/modules/trip'
+import { Suspense } from 'react'
 import { StyleSheet } from 'react-native'
-import { Stack, Typography } from '~shared/components/design-system'
+import { Skeleton, Stack, Typography } from '~shared/components/design-system'
+import { VARIANT_STYLE } from '~shared/components/design-system/Typography'
 import { EditableText } from '~shared/components'
 import { palette } from '~shared/config/tokens'
 import { useExpenseSummary } from './useExpenseSummary'
@@ -18,8 +20,37 @@ interface Props {
   tripId: string
 }
 
-// 웹 ExpenseHeader.mobile 을 옮긴다. 해외 여행이면 통화별 환율을 눌러 고친다.
 export function ExpenseHeader({ tripId }: Props) {
+  return (
+    <Suspense fallback={<Pending />}>
+      <Resolved tripId={tripId} />
+    </Suspense>
+  )
+}
+
+function Pending() {
+  return (
+    <Stack
+      direction="row"
+      gap={1}
+      justifyContent="space-between"
+      alignItems="flex-end"
+      style={styles.header}
+    >
+      <Stack alignItems="flex-start" style={styles.summary}>
+        <Typography variant="caption" style={styles.title}>
+          총 지출
+        </Typography>
+        <Skeleton width={120} height={VARIANT_STYLE.h6.lineHeight} style={styles.pendingAmount} />
+      </Stack>
+
+      <Stack direction="row" gap={1} alignItems="flex-end" />
+    </Stack>
+  )
+}
+
+// 웹 ExpenseHeader.mobile 을 옮긴다. 해외 여행이면 통화별 환율을 눌러 고친다.
+function Resolved({ tripId }: Props) {
   const { data: trip, update: updateTrip } = useTrip(tripId)
   const { totalInKRW, expenses } = useExpenseSummary(tripId)
 
@@ -87,5 +118,6 @@ const styles = StyleSheet.create({
   header: { paddingHorizontal: 16, paddingVertical: 12, backgroundColor: palette.primary },
   summary: { flex: 1 },
   title: { color: '#fff' },
+  pendingAmount: { backgroundColor: 'rgba(255,255,255,0.25)' },
   exchangeRateLink: { color: '#fff', fontSize: 11, textDecorationLine: 'underline' },
 })

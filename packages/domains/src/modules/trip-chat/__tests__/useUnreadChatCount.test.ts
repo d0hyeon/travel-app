@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { getUnreadCount, markAsRead, getLastReadAt, hydrateLastReadAt } from '../useUnreadChatCount'
+import { getUnreadCount, markAsRead, getLastReadAt, hydrateLastReadAt } from '../useTripUnreadMessageCount'
 import { configureStorage } from '../../storage'
 import type { ChatMessage } from '../tripChat.types'
 

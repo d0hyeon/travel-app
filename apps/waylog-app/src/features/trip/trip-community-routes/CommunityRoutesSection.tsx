@@ -66,7 +66,7 @@ function CommunityTripCard({ trip, onPress }: { trip: CommunityTrip; onPress: ()
           destinations={trip.destinations}
           previewRoutes={trip.previewRoutes}
           width={140}
-          height={80}
+          height={95}
         />
         <Stack style={styles.details}>
           <Stack direction="row" alignItems="center" gap={0.5}>
@@ -87,7 +87,7 @@ function CommunityRoutesSkeleton() {
       <Skeleton variant="text" width={120} height={20} />
       <Stack direction="row" gap={1.5}>
         {[0, 1, 2].map((index) => (
-          <Skeleton key={index} variant="rounded" width={130} height={72} />
+          <Skeleton key={index} variant="rounded" width={140} height={85} />
         ))}
       </Stack>
     </Stack>

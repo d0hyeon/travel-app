@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mapArea: {
-    height: 180,
+    height: 250,
     borderRadius: radius.md,
     overflow: 'hidden',
   },
@@ -114,7 +114,7 @@ export function PlaceDetailBody({ placeId }: { placeId: string }) {
   const { data: place } = usePlace(placeId)
 
   return (
-    <Stack gap={1.25} >
+    <Stack gap={1.25} mb={3}>
 
       <View style={styles.mapArea}>
         <Map defaultCenter={{ lat: place.lat, lng: place.lng }}>
@@ -132,7 +132,7 @@ export function PlaceDetailBody({ placeId }: { placeId: string }) {
 }
 PlaceDetailBody.Skeleton = () => {
   return (
-    <Stack gap={1.25} >
+    <Stack gap={1.25} mb={3}>
       <View style={styles.mapArea}>
         <Skeleton width="100%" height="100%" />
       </View>

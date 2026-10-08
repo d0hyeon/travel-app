@@ -104,7 +104,7 @@ function RecommendedPlaceCard({
     <Box
       onClick={onClick}
       sx={{
-        width: 110,
+        width: 140,
         flexShrink: 0,
         cursor: 'pointer',
         borderRadius: 1,
@@ -119,7 +119,7 @@ function RecommendedPlaceCard({
         <Box
           sx={{
             width: '100%',
-            height: 72,
+            height: 95,
             bgcolor: accentColor ? `${accentColor}22` : 'grey.100',
             display: 'flex',
             alignItems: 'center',
@@ -169,7 +169,7 @@ function RecommendedPlacesSkeleton() {
       <Skeleton variant="text" width={60} height={20} />
       <Stack direction="row" spacing={1.5}>
         {[0, 1, 2].map(i => (
-          <Skeleton key={i} variant="rounded" width={110} height={96} />
+          <Skeleton key={i} variant="rounded" width={140} height={95} />
         ))}
       </Stack>
     </Stack>

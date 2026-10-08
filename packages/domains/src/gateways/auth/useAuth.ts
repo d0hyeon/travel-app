@@ -12,7 +12,7 @@ import type { AuthSession, AuthUser } from "./auth.types";
 import { AuthError } from "./AuthError";
 
 export type Auth = AuthUser & { profile: UserProfile };
-export const userQueryKey = (userId: string | undefined) => ["user", userId];
+
 type UseAuthOptions = { required?: boolean };
 const sessionStore = createStore<AuthSession | null>(() =>
   getAuthService().readSession(),
@@ -25,26 +25,28 @@ export function useAuth(options?: UseAuthOptions): UseSuspenseQueryResult<Auth>;
 export function useAuth({ required }: UseAuthOptions = {}) {
   const userSession = useStoreValue(sessionStore);
   if (required) assert(!!userSession, new AuthError());
+
   return useSuspenseQuery({
-    ...sessionProfileQuery(userSession),
+    ...sessionProfileQuery(userSession?.user.id),
     select: (profile) =>
       profile == null || userSession == null
         ? null
         : { ...userSession.user, profile },
   });
 }
+useAuth.key = (userId?: string) => ["user", userId];
 
-function sessionProfileQuery(session: AuthSession | null) {
+export function sessionProfileQuery(userId?: string) {
   return {
-    queryKey: userQueryKey(session?.user.id),
+    queryKey: useAuth.key(userId),
     queryFn: () =>
-      session == null ? null : getUserProfileById(session.user.id),
+      userId == null ? null : getUserProfileById(userId),
   };
 }
 
 export function usePendingSignUp(): AuthUser | null {
   const session = useStoreValue(sessionStore);
-  const { data: profile } = useSuspenseQuery(sessionProfileQuery(session));
+  const { data: profile } = useSuspenseQuery(sessionProfileQuery(session?.user.id));
   if (session == null || profile != null) return null;
   return session.user;
 }

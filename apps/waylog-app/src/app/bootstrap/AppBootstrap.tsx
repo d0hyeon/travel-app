@@ -7,8 +7,9 @@ import SuitRegular from '../../../assets/fonts/SUIT-Regular.ttf'
 import { appBundleManager } from './appBundleManager'
 import { checkRequiredAppUpdate, type RequiredAppUpdate } from './appUpdateRequirement'
 import { ForcedUpdateScreen } from './ForcedUpdateScreen'
-import { prepareSession } from '@waylog/domains/clients'
+import { getSession, prepareSession, sessionProfileQuery } from '@waylog/domains/clients'
 import { hydrateLastReadAt } from '@waylog/domains/modules/trip-chat'
+import { queryClient } from '~shared/query-client'
 
 void SplashScreen.preventAutoHideAsync()
 
@@ -24,16 +25,16 @@ export function AppBootstrap({ children }: PropsWithChildren) {
     'SUIT-Bold': SuitBold,
     'SUIT-Heavy': SuitHeavy,
   })
-
+  
   useEffect(() => {
     const initializationTasks = [
       waitForResolveBundle(),
-      prepareSession(),
+      prepareSession().then(() => prefetchSessionResources()),
       hydrateLastReadAt(),
       checkRequiredAppUpdate().then(setRequiredUpdate),
       delay(MIN_SPLASH_TIME)
     ];
-
+    
     Promise.all(initializationTasks)
       .then(async () => {
         setIsReady(true);
@@ -50,6 +51,13 @@ export function AppBootstrap({ children }: PropsWithChildren) {
   if (requiredUpdate != null) return <ForcedUpdateScreen {...requiredUpdate} />
 
   return children;
+}
+
+function prefetchSessionResources() {
+  const session = getSession();
+  if(session == null) return Promise.resolve();
+
+  return queryClient.prefetchQuery(sessionProfileQuery(session.id))    
 }
 
 /**

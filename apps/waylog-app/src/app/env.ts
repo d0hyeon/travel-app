@@ -1,1 +1,1 @@
-export const WEB_SERVICE_URL = "http://localhost:5173";
+export const WEB_SERVICE_URL = process.env.EXPO_PUBLIC_WEB_BASE_URL;

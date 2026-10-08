@@ -120,7 +120,7 @@ export function Tabs({
 }
 
 const styles = StyleSheet.create({
-  root: { flexGrow: 0, borderBottomWidth: 1, borderBottomColor: palette.divider },
+  root: { flexGrow: 0, flexShrink: 0, borderBottomWidth: 1, borderBottomColor: palette.divider },
   tabRow: { flexDirection: 'row' },
   tab: { alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12 },
   tabFullWidth: { flex: 1 },

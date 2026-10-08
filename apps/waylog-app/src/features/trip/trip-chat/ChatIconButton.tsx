@@ -1,8 +1,8 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { useUnreadChatCount } from '@waylog/domains/modules/trip-chat'
 import { Suspense } from 'react'
 import { Badge, IconButton } from '~shared/components/design-system'
 import { useTripChatOverlay } from './useTripChatOverlay'
+import { useTripUnreadMessageCount } from '@waylog/domains/modules/trip-chat'
 
 interface Props {
   tripId: string
@@ -17,7 +17,7 @@ export function ChatIconButton({ tripId }: Props) {
 }
 
 function ChatIconButtonResolved({ tripId }: Props) {
-  const unreadCount = useUnreadChatCount(tripId)
+  const unreadCount = useTripUnreadMessageCount(tripId)
   return <ChatIconButtonBase tripId={tripId} unreadCount={unreadCount} />
 }
 

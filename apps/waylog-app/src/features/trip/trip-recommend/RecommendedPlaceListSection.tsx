@@ -89,7 +89,7 @@ function RecommendedPlacesSkeleton() {
       <Skeleton variant="text" width={60} height={20} />
       <Stack direction="row" gap={1.5}>
         {[0, 1, 2].map((index) => (
-          <Skeleton key={index} variant="rounded" width={110} height={96} />
+          <Skeleton key={index} variant="rounded" width={140} height={95} />
         ))}
       </Stack>
     </Stack>
@@ -97,9 +97,9 @@ function RecommendedPlacesSkeleton() {
 }
 
 const styles = StyleSheet.create({
-  card: { width: 110, overflow: 'hidden', borderWidth: 1, borderColor: palette.divider },
+  card: { width: 140, overflow: 'hidden', borderWidth: 1, borderColor: palette.divider },
   imageArea: { position: 'relative' },
-  imagePlaceholder: { width: '100%', height: 72, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  imagePlaceholder: { width: '100%', height: 95, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   image: { width: '100%', height: '100%' },
   details: { padding: 6 },
 })

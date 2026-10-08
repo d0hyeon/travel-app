@@ -7,7 +7,7 @@ import { formatDisplayDate, formatDuration, formatShortDate } from '@waylog/util
 import { Fragment, Suspense, useEffect, useRef, useState } from 'react'
 import { StyleSheet } from 'react-native'
 import { View } from 'tamagui'
-import { Box, MenuFab, Tab, Tabs, Typography } from '~shared/components/design-system'
+import { Box, MenuFab, Skeleton, Stack, Tab, Tabs, Typography } from '~shared/components/design-system'
 import { getItemOffsetY, ITEM_HEIGHT } from '~shared/components/design-system/menu-fab/menuFabMotion'
 import { FLOATING_TAB_BAR_RESERVE } from '~shared/components'
 import { ActionSheet } from '~shared/components/action-sheet/ActionSheet'
@@ -42,6 +42,30 @@ interface RouteContentProps {
 }
 
 export default function TripRoutesContent({ tripId }: RouteContentProps) {
+  return (
+    <Suspense fallback={<Pending />}>
+      <Resolved tripId={tripId} />
+    </Suspense>
+  )
+}
+
+function Pending() {
+  useTripLayoutSetting({ variant: 'glass', actions: <TripRouteMapSettingsButton /> })
+
+  return (
+    <Box style={styles.container}>
+      <Box style={styles.pendingSheet}>
+        <Stack gap={1.5}>
+          {Array.from({ length: 4 }, (_, index) => (
+            <Skeleton key={index} variant="rounded" height={64} />
+          ))}
+        </Stack>
+      </Box>
+    </Box>
+  )
+}
+
+function Resolved({ tripId }: RouteContentProps) {
   const { data: trip } = useTrip(tripId)
   const { data: allPlaces } = useTripPlaces(tripId)
 
@@ -350,6 +374,7 @@ const styles = StyleSheet.create({
   placeTitle: { flex: 1, minWidth: 0 },
   placeOrderLabel: { color: '#fff', fontSize: 11, fontWeight: '900' },
   placeList: { marginTop: 12 },
+  pendingSheet: { position: 'absolute', left: 0, right: 0, bottom: 0, height: `${DEFAULT_BOTTOM_SHEET_RATIO * 100}%`, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 16, paddingTop: 24, backgroundColor: palette.background },
   dot: {
     width: 20,
     height: 20,

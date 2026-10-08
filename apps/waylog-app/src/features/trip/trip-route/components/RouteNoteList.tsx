@@ -89,7 +89,7 @@ function NoteSheet({ isOpen, initial, onClose, onConfirm, onDelete }: NoteSheetP
   const [value, setValue] = useState(initial)
 
   return (
-    <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.4]} defaultSnapIndex={0}>
+    <BottomSheet isOpen={isOpen} onDismiss={onClose} snapPoints={[0.4]} defaultSnapIndex={0} safeArea>
       <BottomSheet.Header>메모</BottomSheet.Header>
       <BottomSheet.Body style={styles.sheetBody}>
         <TextField
@@ -97,18 +97,18 @@ function NoteSheet({ isOpen, initial, onClose, onConfirm, onDelete }: NoteSheetP
           placeholder="메모를 입력하세요"
           fullWidth
           multiline
-          minRows={3}
+          minRows={7}
           value={value}
           onChangeText={setValue}
         />
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
         {onDelete != null && (
-          <Button variant="outlined" color="error" fullWidth onPress={onDelete}>
+          <Button variant="outlined" size="large" color="error" onPress={onDelete} style={styles.deleteBtn}>
             삭제
           </Button>
         )}
-        <Button variant="contained" fullWidth onPress={() => onConfirm(value)}>
+        <Button variant="contained"  size="large" fullWidth onPress={() => onConfirm(value)}>
           저장
         </Button>
       </BottomSheet.BottomActions>
@@ -121,4 +121,5 @@ const styles = StyleSheet.create({
   editLink: { fontSize: 12, color: palette.primary, borderBottomWidth: 1, borderColor: palette.primary },
   emptyMessage: { fontSize: 12 },
   sheetBody: { paddingHorizontal: 16 },
+  deleteBtn: { minWidth: 100 }
 })
