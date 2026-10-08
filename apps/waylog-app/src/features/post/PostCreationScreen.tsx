@@ -42,24 +42,26 @@ function ResolvedPostCreationScreen() {
   }, [navigation, step, startStep])
 
   const uploadPhotos = async (values: PostFormValues) => {
-    const tripPhotos = values.tripId != null
-      ? await getTripPhotos(values.tripId)
-      : [];
+    const [tripPhotos, uploadResults] = await Promise.all([
+      values.tripId != null ? getTripPhotos(values.tripId) : [],
+      Promise.all(
+        values.photos.map(async (photo) => {
+          const fileURI = await resolvePhotoUri(photo.uri);
+          return uploadPostPhoto(values.tripId, fileURI);
+        })
+      ),
+    ]);
 
-    return Promise.all(
-      values.photos.map(async (photo) => {
-        const fileURI = await resolvePhotoUri(photo.uri);
-        const result = await uploadPostPhoto(values.tripId, fileURI);
-        const savedPhoto = tripPhotos.find(tripPhoto => tripPhoto.id === photo.id);
+    return uploadResults.map((result, index) => {
+      const savedPhoto = tripPhotos.find(tripPhoto => tripPhoto.id === values.photos[index]?.id);
 
-        return {
-          ...result,
-          placeId: savedPhoto?.placeId,
-          savedPhotoId: savedPhoto?.id,
-          isPublic: values.visibility !== PostVisibility.PRIVATE,
-        }
-      })
-    )
+      return {
+        ...result,
+        placeId: savedPhoto?.placeId,
+        savedPhotoId: savedPhoto?.id,
+        isPublic: values.visibility !== PostVisibility.PRIVATE,
+      }
+    })
   }
 
   const handleSubmit = async (formValues: PostFormValues) => {
