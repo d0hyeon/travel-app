@@ -1,10 +1,11 @@
+import { format } from 'date-fns'
 import { useCallback } from 'react'
 import { useOverlay } from '~shared/hooks/useOverlay'
 import { DatePickerBottomSheet } from './DatePickerBottomSheet'
 import type { DateBounds, DateRange, DateSelection, DateTimeSetter } from './datePicker.model'
 
 interface OpenDayParams extends DateBounds, DateTimeSetter {
-  type?: 'date' | 'dateTime'
+  type?: 'date' | 'dateTime' | 'time'
   defaultValue?: Date | null
   minuteStep?: number
 }
@@ -16,6 +17,14 @@ interface OpenRangeParams extends DateBounds {
 }
 
 const EMPTY_RANGE: DateSelection = [null, null]
+const DEFAULT_TIME = '09:00'
+
+function toTodayAt(time: string) {
+  const [hours, minutes] = time.split(':').map(Number)
+  const today = new Date()
+  today.setHours(hours, minutes, 0, 0)
+  return today
+}
 
 /**
  * 날짜 선택 시트를 연다. 확정하면 고른 값이, 취소하면 null 이 온다.
@@ -52,6 +61,20 @@ export function useDatePickerBottomSheet() {
     [overlay],
   )
 
+  const openTime = useCallback(
+    async ({ defaultValue, minuteStep }: { defaultValue: string | null; minuteStep?: number }) => {
+      const picked = await openDay({
+        type: 'time',
+        defaultValue: toTodayAt(defaultValue ?? DEFAULT_TIME),
+        minuteStep,
+      })
+      if (picked == null) return null
+
+      return format(picked, 'HH:mm')
+    },
+    [openDay],
+  )
+
   const openRange = useCallback(
     ({ defaultValue = EMPTY_RANGE, allowSingleDay, minDate, maxDate }: OpenRangeParams = {}) =>
       new Promise<DateRange | null>((resolve) => {
@@ -78,5 +101,5 @@ export function useDatePickerBottomSheet() {
     [overlay],
   )
 
-  return { openDay, openRange }
+  return { openDay, openTime, openRange }
 }

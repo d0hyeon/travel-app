@@ -23,7 +23,7 @@ const EMPTY_RANGE: DateSelection = [null, null]
  */
 type DatePickerValueProps =
   | ({
-    type?: 'date' | 'dateTime'
+    type?: 'date' | 'dateTime' | 'time'
     /** 아직 안 골랐으면 옵셔널이다. */
     value?: Date
     onChange?: (value: Date) => void
@@ -69,7 +69,7 @@ export function DatePicker(props: DatePickerProps) {
     props.type === 'range' ? (props.value ?? EMPTY_RANGE) : [props.value ?? null, null]
 
   const [innerSelection, setInnerSelection] = useState(selectionFromProps)
-  const [innerStep, setInnerStep] = useState<DatePickerStep>('date')
+  const [innerStep, setInnerStep] = useState<DatePickerStep>(type === 'time' ? 'time' : 'date')
 
   // value 를 준 쪽이 값의 주인이다. step 은 따로 물어야 한다. 둘은 각각 맡길 수 있다.
   const isValueControlled = props.value !== undefined

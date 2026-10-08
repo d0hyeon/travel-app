@@ -9,7 +9,7 @@ import { endOfDay } from 'date-fns'
 /** 확정된 값의 모양도 타입이 정한다. 시트를 여는 쪽은 무엇을 고를지 이미 안다. */
 type DatePickerBottomSheetValueProps =
   | ({
-    type?: 'date' | 'dateTime'
+    type?: 'date' | 'dateTime' | 'time'
     /** 시트를 열 때의 값. 확정 전까지 밖으로 새어 나가지 않는다. */
     defaultValue: Date | null
     minuteStep?: number
@@ -41,12 +41,14 @@ export function DatePickerBottomSheet(props: DatePickerBottomSheetProps) {
   const [range, setRange] = useState<DateSelection>(
     props.type === 'range' ? props.defaultValue : [null, null],
   )
-  const [step, setStep] = useState<DatePickerStep>('date')
+  const [step, setStep] = useState<DatePickerStep>(props.type === 'time' ? 'time' : 'date')
 
   const [start, end] = range
   const allowSingleDay = props.type === 'range' && props.allowSingleDay === true
   const isConfirmable =
     props.type === 'range' ? start != null && (end != null || allowSingleDay) : day != null
+
+  const isBackToDateStep = props.type === 'dateTime' && step === 'time'
 
   const handlePressPrimary = () => {
     if (props.type === 'range') {
@@ -99,8 +101,8 @@ export function DatePickerBottomSheet(props: DatePickerBottomSheetProps) {
 
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
-        <Button fullWidth size="large" onPress={step === 'time' ? () => setStep('date') : onDismiss}>
-          {step === 'time' ? '이전' : '취소'}
+        <Button fullWidth size="large" onPress={isBackToDateStep ? () => setStep('date') : onDismiss}>
+          {isBackToDateStep ? '이전' : '취소'}
         </Button>
         <Button
           fullWidth
