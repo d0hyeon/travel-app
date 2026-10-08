@@ -707,6 +707,7 @@ export type Database = {
           name: string
           place_ids: string[]
           place_memos: Json
+          place_times: Json
           scheduled_date: string | null
           trip_id: string
         }
@@ -718,6 +719,7 @@ export type Database = {
           name: string
           place_ids?: string[]
           place_memos?: Json
+          place_times?: Json
           scheduled_date?: string | null
           trip_id: string
         }
@@ -729,6 +731,7 @@ export type Database = {
           name?: string
           place_ids?: string[]
           place_memos?: Json
+          place_times?: Json
           scheduled_date?: string | null
           trip_id?: string
         }
