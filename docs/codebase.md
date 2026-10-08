@@ -61,7 +61,7 @@ TicketViewer 내부의 `ConfirmDialog`와 `ActionSheet`다. 공용 `Button`도 T
 여행 상세 5개 탭의 웹-앱 대조 기준은
 [`docs/app-trip-feature-definition.md`](./app-trip-feature-definition.md)와
 [`docs/app-trip-ui-definition.md`](./app-trip-ui-definition.md)에 기록한다.
-앱의 로딩 표현은 스피너가 아니라 스켈레톤이며, `Suspense` 경계와 스켈레톤은 데이터를 읽는 세부 컴포넌트가 소유한다. 탭 화면(`*TabScreen`)은 경계를 두지 않는다. 형태는 둘 중 하나다 — ① 컴포넌트가 `Suspense`로 감싼 래퍼 + `Resolved`(훅 호출) + `Pending`(같은 뼈대, 값 자리만 `Skeleton`)으로 나뉜 완성형(`ExpenseHeader`·`ExpenseList`·`SettlementSummary`·`TripBaseInfoList`), ② `Component.Skeleton` 정적 프로퍼티를 제공해 소비자가 경계를 조립하는 컴포넌트 컴파운드(`TripDDay`·`TripTransportList`). 경계가 없는 서스펜드 컴포넌트가 하나라도 있으면 상위로 번져 화면 전체가 폴백이 되므로, 훅을 호출하는 컴포넌트는 반드시 둘 중 하나를 따른다. 장소·계획·사진 탭의 `*Content`는 지도·바텀시트·선택 상태가 한 컴포넌트에 얽혀 있어 `Content` 단위로 래퍼/`Pending`을 둔다(`Pending`은 장소·계획 탭에서 `useTripLayoutSetting`으로 헤더 모양을 미리 요청해 헤더가 튀지 않게 한다).
+앱의 로딩 표현은 스피너가 아니라 스켈레톤이며, `Suspense` 경계와 스켈레톤은 데이터를 읽는 세부 컴포넌트가 소유한다. 탭 화면(`*TabScreen`)은 경계를 두지 않는다. 형태는 둘 중 하나다 — ① 컴포넌트가 `Suspense`로 감싼 래퍼 + `Resolved`(훅 호출) + `Pending`(같은 뼈대, 값 자리만 `Skeleton`)으로 나뉜 완성형(`ExpenseHeader`·`ExpenseList`·`SettlementSummary`·`TripBaseInfoList`·`TripListScreen`), ② `Component.Skeleton` 정적 프로퍼티를 제공해 소비자가 경계를 조립하는 컴포넌트 컴파운드(`TripDDay`·`TripTransportList`·`ProfileHeader`·`ProfileStatStrip`·`ProfileFeedTab`·`ProfileRecordsTab`, 프로필은 `UserProfileScreen`이 경계를 조립). 경계가 없는 서스펜드 컴포넌트가 하나라도 있으면 상위로 번져 화면 전체가 폴백이 되므로, 훅을 호출하는 컴포넌트는 반드시 둘 중 하나를 따른다. 장소·계획·사진 탭의 `*Content`는 지도·바텀시트·선택 상태가 한 컴포넌트에 얽혀 있어 `Content` 단위로 래퍼/`Pending`을 둔다(`Pending`은 장소·계획 탭에서 `useTripLayoutSetting`으로 헤더 모양을 미리 요청해 헤더가 튀지 않게 한다).
 앱 지도 렌더링은 Google 단일이며, 장소 검색과 경로찾기 provider는 Google/Kakao
 양쪽을 지원한다.
 
