@@ -1,3 +1,4 @@
+import { useQueries, UseQueryOptions } from '@tanstack/react-query'
 import {
   dedupeNearbyPoints,
   getCoordinateBounds,
@@ -6,8 +7,9 @@ import {
   type PreviewRoute,
 } from '@waylog/domains/modules/community-route'
 import { isLocation } from '@waylog/domains/modules/location'
-import { getCachedLocationCoordinates } from '@waylog/domains/modules/map'
+import { getCachedLocationCoordinates, getLocationCoordinates } from '@waylog/domains/modules/map'
 import Svg, { Circle, Path, Rect } from 'react-native-svg'
+import { useLocationGeoCoordinates } from '~features/location/useLocationGeoCoordinates'
 
 const DOT_COLOR = '#1976d2'
 const SHAPE_FILL = '#dde8f0'
@@ -33,7 +35,9 @@ export function CommunityRouteThumbnail({
   width = 140,
   height = 90,
 }: Props) {
-  const shapeRings = getCachedShapeRings(destinations)
+
+  const locations = destinations.filter(isLocation);
+  const shapeRings = useLocationGeoCoordinates(locations.filter(isLocation));
   const routeCoords = previewRoutes.flatMap((route) => route.coords)
   const allCoords = [...shapeRings.flat(), ...routeCoords]
 
@@ -45,9 +49,9 @@ export function CommunityRouteThumbnail({
     )
   }
 
-  const bounds = getCoordinateBounds(allCoords)
+  const bounds = getCoordinateBounds(allCoords.flat())
   const canvas = { width, height, padding: 6 }
-  const toCanvas = (coords: typeof allCoords) => normalizeCoordsToCanvas(coords, bounds, canvas)
+  const toCanvas = (coords: typeof allCoords) => normalizeCoordsToCanvas(coords.flat(), bounds, canvas)
   const dots = dedupeNearbyPoints(toCanvas(routeCoords))
 
   return (

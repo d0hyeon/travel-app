@@ -1,10 +1,9 @@
-import { useQueries, UseQueryOptions } from "@tanstack/react-query";
 import { getCoordinateBounds, normalizeCoordsToCanvas, pointsToPath } from "@waylog/domains/modules/community-route";
 import { isLocation } from "@waylog/domains/modules/location";
 import { Coordinate } from "@waylog/utility";
-import { getLocationCoordinates } from "~shared/components/Map/getLocationCoordinates";
 import { Fragment, ReactNode } from "react";
 import Svg, { Path, Rect } from "react-native-svg";
+import { useLocationGeoCoordinates } from "./useLocationGeoCoordinates";
 
 interface Props {
   location: string | string[];
@@ -22,21 +21,11 @@ export function LocationThumbnail({
   height = 90,
   fillColor = '#dde8f0',
   backgroundColor = '#f0f4f8',
-  outlineColor = '#b0c8d8'
+  outlineColor = '#b0c8d8',
+  children
 }: Props) {
   const locations = Array.isArray(location) ? location : [location];
-  const validLocations = locations.filter(isLocation);
-
-  const shapeRingQueries = useQueries({
-    queries: validLocations.map((location) => ({
-      queryKey: ['location-coordinates', location],
-      queryFn: () => getLocationCoordinates({ location }),
-      enabled: validLocations.length > 0,
-      throwOnError: false
-    } satisfies UseQueryOptions)),
-  })
-
-  const shapeRings = shapeRingQueries.map(x => x.data ?? []);
+  const shapeRings = useLocationGeoCoordinates(locations.filter(isLocation))
   const allCoords = shapeRings == null ? [] : shapeRings.flat();
   const bounds = getCoordinateBounds(allCoords.flat())
   const size = { width, height, padding: 6 }
@@ -72,6 +61,7 @@ export function LocationThumbnail({
 
         </Fragment>
       ))}
+      {children}
     </Svg>
   )
 }
