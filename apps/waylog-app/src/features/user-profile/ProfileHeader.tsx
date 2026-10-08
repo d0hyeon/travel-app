@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native'
-import { Avatar, Stack, Typography } from '~shared/components/design-system'
+import { Avatar, Skeleton, Stack, Typography } from '~shared/components/design-system'
 import { palette } from '~shared/config/tokens'
 import { useUserProfile } from './useUserProfile'
 
@@ -22,8 +22,19 @@ export function ProfileHeader({ userId }: { userId: string }) {
   )
 }
 
+ProfileHeader.Skeleton = function ProfileHeaderSkeleton() {
+  return (
+    <Stack direction="row" alignItems="center" style={styles.header}>
+      <Skeleton variant="circular" width={AVATAR_SIZE} height={AVATAR_SIZE} />
+      <Skeleton width={120} height={24} />
+    </Stack>
+  )
+}
+
+const AVATAR_SIZE = 72
+
 const styles = StyleSheet.create({
   header: { paddingHorizontal: 16, paddingVertical: 16, gap: 16 },
-  avatar: { width: 72, height: 72, backgroundColor: palette.primary },
+  avatar: { width: AVATAR_SIZE, height: AVATAR_SIZE, backgroundColor: palette.primary },
   name: { fontSize: 20, fontWeight: 'bold', color: palette.text },
 })

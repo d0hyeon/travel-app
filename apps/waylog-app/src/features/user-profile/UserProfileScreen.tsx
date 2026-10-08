@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { useAuth } from '@waylog/domains/clients'
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { StyleSheet, Pressable, ScrollView, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Tabs, Tab } from '~shared/components/design-system'
@@ -70,7 +70,9 @@ export function UserProfileScreen({ userId, bottomContentInset = 0 }: Props) {
         stickyHeaderIndices={[TAB_BAR_CHILD_INDEX]}
       >
         <View style={styles.header}>
-          <ProfileHeader userId={userId} />
+          <Suspense fallback={<ProfileHeader.Skeleton />}>
+            <ProfileHeader userId={userId} />
+          </Suspense>
           {isMyProfile ? (
             <Pressable onPress={() => navigation.navigate(AppRoute.설정)} style={styles.settingsButton}>
               <MaterialIcons name="settings" size={22} color={palette.textSecondary} />
@@ -83,7 +85,9 @@ export function UserProfileScreen({ userId, bottomContentInset = 0 }: Props) {
             )
           )}
         </View>
-        <ProfileStatStrip userId={userId} />
+        <Suspense fallback={<ProfileStatStrip.Skeleton />}>
+          <ProfileStatStrip userId={userId} />
+        </Suspense>
         <View
           style={styles.tabs}
           onLayout={(event) => {
@@ -98,9 +102,13 @@ export function UserProfileScreen({ userId, bottomContentInset = 0 }: Props) {
           </Tabs>
         </View>
         {currentTab === 'feed' ? (
-          <ProfileFeedTab userId={userId} />
+          <Suspense fallback={<ProfileFeedTab.Skeleton />}>
+            <ProfileFeedTab userId={userId} />
+          </Suspense>
         ) : (
-          <ProfileRecordsTab userId={userId} viewportHeight={viewportHeight} onMapInteractionChange={setIsMapInteracting} />
+          <Suspense fallback={<ProfileRecordsTab.Skeleton viewportHeight={viewportHeight} />}>
+            <ProfileRecordsTab userId={userId} viewportHeight={viewportHeight} onMapInteractionChange={setIsMapInteracting} />
+          </Suspense>
         )}
       </ScrollView>
     </SafeAreaView>

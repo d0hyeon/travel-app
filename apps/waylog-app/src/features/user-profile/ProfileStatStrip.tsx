@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native'
 import { useMemo } from 'react'
-import { Stack, Typography } from '~shared/components/design-system'
+import { Skeleton, Stack, Typography } from '~shared/components/design-system'
 import { palette, radius } from '~shared/config/tokens'
 import { useUserTrips } from './useUserTrips'
 import { countUniqueCountries, countUniqueRegions } from '@waylog/domains/modules/trip'
@@ -31,6 +31,21 @@ function StatCell({ value, label }: { value: number | string; label: string }) {
     </Stack>
   )
 }
+
+ProfileStatStrip.Skeleton = function ProfileStatStripSkeleton() {
+  return (
+    <Stack direction="row" gap={2} style={styles.statistics}>
+      {Array.from({ length: STAT_CELL_COUNT }, (_, index) => (
+        <Stack key={index} flex={1} alignItems="center" gap={1} style={styles.statistic}>
+          <Skeleton width={24} height={20} />
+          <Skeleton width={32} height={14} />
+        </Stack>
+      ))}
+    </Stack>
+  )
+}
+
+const STAT_CELL_COUNT = 3
 
 const styles = StyleSheet.create({
   statistics: { marginHorizontal: 16, padding: 4, borderRadius: radius.lg, backgroundColor: '#f5f5f7' },

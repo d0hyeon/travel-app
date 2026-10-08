@@ -1,5 +1,5 @@
 import { StyleSheet, Pressable, View, useWindowDimensions } from 'react-native'
-import { Typography } from '~shared/components/design-system'
+import { Skeleton, Typography } from '~shared/components/design-system'
 import { LoadableImage } from '~shared/components/LoadableImage'
 import { useAppNavigation } from '~shared/hooks/useAppNavigation'
 import { AppRoute } from '~app/AppRoute'
@@ -24,7 +24,23 @@ export function ProfileFeedTab({ userId }: { userId: string }) {
   )
 }
 
+ProfileFeedTab.Skeleton = function ProfileFeedTabSkeleton() {
+  const { width } = useWindowDimensions()
+  const cellSize = (width - 4) / 3
+
+  return (
+    <View style={styles.photoGrid}>
+      {Array.from({ length: PENDING_CELL_COUNT }, (_, index) => (
+        <Skeleton key={index} variant="rectangular" width={cellSize} height={cellSize} style={styles.pendingCell} />
+      ))}
+    </View>
+  )
+}
+
+const PENDING_CELL_COUNT = 9
+
 const styles = StyleSheet.create({
+  pendingCell: { borderRadius: 0 },
   emptyState: { alignItems: 'center', paddingVertical: 48 },
   photoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 2 },
 })

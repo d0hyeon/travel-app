@@ -3,7 +3,7 @@ import { Suspense, useEffect, useMemo, useState } from 'react'
 import { StyleSheet, Pressable, View } from 'react-native'
 import { Map } from '~shared/components/Map'
 import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
-import { Stack, Typography } from '~shared/components/design-system'
+import { Skeleton, Stack, Typography } from '~shared/components/design-system'
 import { palette } from '~shared/config/tokens'
 import { useUserTrips } from './useUserTrips'
 import { Country } from '@waylog/domains/modules/location'
@@ -129,6 +129,10 @@ export function ProfileRecordsTab({ userId, viewportHeight, onMapInteractionChan
   )
 }
 
+ProfileRecordsTab.Skeleton = function ProfileRecordsTabSkeleton({ viewportHeight }: { viewportHeight: number }) {
+  return <Skeleton variant="rectangular" height={Math.max(viewportHeight - TAB_BAR_HEIGHT, 0)} style={styles.pendingMap} />
+}
+
 // 웹의 calc(100svh - 40px) 과 같다. 탭바를 뺀 만큼을 지도에 준다.
 const TAB_BAR_HEIGHT = 40
 
@@ -165,6 +169,7 @@ const styles = StyleSheet.create({
   locationDetails: { padding: 16, gap: 16 },
   records: { flex: 1 },
   map: { backgroundColor: '#EDF2F7' },
+  pendingMap: { borderRadius: 0 },
   locationToggle: { position: 'absolute', right: 8, top: 8, zIndex: 2, padding: 8, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.85)' },
   locationList: { padding: 16, gap: 8 },
   locationRow: { paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: palette.divider },
