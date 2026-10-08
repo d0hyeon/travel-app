@@ -6,7 +6,7 @@ import { useRegionTourismTrends } from '@waylog/domains/modules/tourism-trend'
 import { Scrollable } from '~shared/components/Scrollable'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { useExplorerFilterParams } from '../explorer-filters/useExplorerFilterParams'
-import { RegionTrendCard } from './RegionTrendCard'
+import { REGION_TREND_CARD_INNER_DIVIDER, RegionTrendCard } from './RegionTrendCard'
 import { toast } from 'sonner'
 
 const SECTION_LIMIT = 20
@@ -68,10 +68,10 @@ export function SeasonalRegionsSummarySection() {
                 toast.success('지역 필터가 적용되었어요')
               }}
               sx={{
-                width: isMobile ? 150 : 200,
+                width: 196,
                 flexShrink: 0,
                 textAlign: 'left',
-                borderRadius: 3,
+                borderRadius: '16px',
                 display: 'block',
               }}
             >
@@ -96,21 +96,32 @@ function SeasonalRegionsSectionSkeleton() {
           <Box
             key={index}
             sx={{
-              width: isMobile ? 150 : 200,
+              width: 196,
               flexShrink: 0,
-              borderRadius: 3,
+              borderRadius: '16px',
               border: 1,
               borderColor: 'divider',
-              p: 2,
+              p: '18px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
             }}
           >
             <Stack direction="row" alignItems="center" gap={0.75}>
-              <Skeleton variant="circular" width={20} height={20} />
+              <Skeleton variant="circular" width={24} height={24} />
               <Skeleton variant="text" width="55%" height={24} />
             </Stack>
-            <Skeleton variant="text" width="45%" height={32} sx={{ mt: 1.5 }} />
-            <Skeleton variant="text" width="60%" height={16} />
-            <Skeleton variant="text" width="55%" height={16} sx={{ mt: 1 }} />
+            <Skeleton variant="text" width="45%" height={26} />
+            <Stack direction="row" pt="12px" borderTop={1} borderColor={REGION_TREND_CARD_INNER_DIVIDER}>
+              <Stack flex={1} gap="6px">
+                <Skeleton variant="text" width="50%" height={14} />
+                <Skeleton variant="text" width="70%" height={22} />
+              </Stack>
+              <Stack flex={1} gap="6px" pl="12px" borderLeft={1} borderColor={REGION_TREND_CARD_INNER_DIVIDER}>
+                <Skeleton variant="text" width="60%" height={14} />
+                <Skeleton variant="text" width="70%" height={22} />
+              </Stack>
+            </Stack>
           </Box>
         ))}
       </Stack>

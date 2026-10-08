@@ -1,9 +1,9 @@
-import TrendingDownIcon from '@mui/icons-material/TrendingDown'
-import TrendingUpIcon from '@mui/icons-material/TrendingUp'
 import { Box, Stack, Typography } from '@mui/material'
 import { LocationRegion } from '@waylog/domains/modules/location'
 import type { RegionTourismTrend } from '@waylog/domains/modules/tourism-trend'
 import { formatKoreanCount } from '@waylog/utility'
+
+export const REGION_TREND_CARD_INNER_DIVIDER = 'rgba(0,0,0,0.06)'
 
 interface RegionTrendCardProps {
   trend: RegionTourismTrend
@@ -12,16 +12,18 @@ interface RegionTrendCardProps {
 
 export function RegionTrendCard({ trend, rank }: RegionTrendCardProps) {
   const isRising = trend.visitorGrowth >= 0
-  const trendColor = isRising ? 'primary.main' : 'text.disabled'
-  const TrendIcon = isRising ? TrendingUpIcon : TrendingDownIcon
+  const trendColor = isRising ? 'primary.main' : 'text.secondary'
   const growthPercent = Math.round(Math.abs(trend.growthRate) * 100)
   const regionLabel = getRegionLabel(trend.location)
+  const visitors = getCountParts(trend.visitorCount)
+  const growth = getCountParts(Math.abs(trend.visitorGrowth))
 
   return (
     <Stack
-      p={2}
+      gap="12px"
+      p="18px"
       height="100%"
-      borderRadius={3}
+      borderRadius="16px"
       border={1}
       borderColor="divider"
       sx={{ bgcolor: 'background.paper' }}
@@ -29,44 +31,58 @@ export function RegionTrendCard({ trend, rank }: RegionTrendCardProps) {
       <Stack direction="row" alignItems="center" gap={0.75}>
         <Box
           flexShrink={0}
-          width={20}
-          height={20}
+          width={24}
+          height={24}
           borderRadius="50%"
           bgcolor="primary.main"
           color="common.white"
-          fontSize={12}
+          fontSize={13}
           fontWeight={700}
-          lineHeight="20px"
+          lineHeight="24px"
           textAlign="center"
         >
           {rank}
         </Box>
-        <Typography variant="subtitle1" fontWeight={700} noWrap>
+        <Typography fontSize={18} fontWeight={700} noWrap>
           {trend.location}
         </Typography>
         {regionLabel && (
-          <Typography variant="caption" color="text.secondary" noWrap>
+          <Typography fontSize={14} color="text.secondary" noWrap>
             {regionLabel}
           </Typography>
         )}
       </Stack>
 
-      <Stack direction="row" alignItems="center" gap={0.5} mt={1.5} color={trendColor}>
-        <TrendIcon sx={{ fontSize: 20 }} />
-        <Typography variant="h6" fontWeight={800} lineHeight={1.2}>
-          {isRising ? '+' : '-'}
-          {growthPercent}%
-        </Typography>
+      <Typography fontSize={22} fontWeight={700} lineHeight={1.2} color={trendColor}>
+        {isRising ? '↗ +' : '↘ -'}
+        {growthPercent}%
+      </Typography>
+
+      <Stack direction="row" pt="12px" borderTop={1} borderColor={REGION_TREND_CARD_INNER_DIVIDER}>
+        <Stack flex={1} minWidth={0} gap="2px">
+          <Typography fontSize={11} color="text.secondary">
+            방문객
+          </Typography>
+          <Typography fontSize={17} fontWeight={700} noWrap sx={{ fontVariantNumeric: 'tabular-nums' }}>
+            {visitors.amount}
+            <Typography component="span" fontSize={13} color="text.secondary">
+              {visitors.unit}
+            </Typography>
+          </Typography>
+        </Stack>
+        <Stack flex={1} minWidth={0} gap="2px" pl="12px" borderLeft={1} borderColor={REGION_TREND_CARD_INNER_DIVIDER}>
+          <Typography fontSize={11} color="text.secondary">
+            작년 대비
+          </Typography>
+          <Typography fontSize={17} fontWeight={700} color={trendColor} noWrap sx={{ fontVariantNumeric: 'tabular-nums' }}>
+            {isRising ? '+' : '-'}
+            {growth.amount}
+            <Typography component="span" fontSize={13} color={trendColor}>
+              {growth.unit}
+            </Typography>
+          </Typography>
+        </Stack>
       </Stack>
-
-      <Typography variant="caption" color="text.secondary" noWrap>
-        {formatKoreanCount(Math.abs(trend.visitorGrowth))}명{' '}
-        {isRising ? '증가' : '감소'}
-      </Typography>
-
-      <Typography variant="caption" color="text.disabled" mt="auto" pt={1} noWrap>
-        {formatKoreanCount(trend.visitorCount)}명 방문
-      </Typography>
     </Stack>
   )
 }
@@ -77,4 +93,11 @@ function getRegionLabel(location: RegionTourismTrend['location']) {
   if (region === location) return null
   if (region.startsWith(location)) return null
   return region
+}
+
+function getCountParts(count: number) {
+  const formatted = formatKoreanCount(count)
+  const hasManUnit = formatted.endsWith('만')
+  if (hasManUnit) return { amount: formatted.slice(0, -1), unit: '만명' }
+  return { amount: formatted, unit: '명' }
 }
