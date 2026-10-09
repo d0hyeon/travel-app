@@ -152,7 +152,7 @@ apps/
 │   │   │   │   │                #   번들 확인·세션 준비·폰트 로딩·최소 노출 시간이 끝나면 hideAsync, 그 전까지는
 │   │   │   │   │                #   화면을 렌더링하지 않고 네이티브 스플래시(app.config.ts, 흰 배경 + logo.png)를 유지
 │   │   │   │   ├── appBundleManager.ts # 번들 관리자(expo-updates, EAS Update). checkForUpdate는 Updates.isEnabled가 꺼진
-│   │   │   │   │                #   개발 빌드면 null, 아니면 checkForUpdateAsync 결과를 돌려준다. 필수 여부는 manifest.extra.isMandatory
+│   │   │   │   │                #   개발 빌드면 null, 아니면 checkForUpdateAsync 결과를 돌려준다. 필수 여부는 manifest.extra.expoClient.extra.isMandatory
 │   │   │   │   │                #   (app.config.ts가 게시 시점 BUNDLE_IS_MANDATORY=true 로 채운다).
 │   │   │   │   │                #   install은 비필수면 받아두기만(다음 실행 때 네이티브가 적용), 필수면 받은 뒤 재시작해
 │   │   │   │   │                #   반환하지 않는다. 대기·실행 중 번들은 네이티브가 소유하고 이 모듈은 상태를 들고 있지 않는다.

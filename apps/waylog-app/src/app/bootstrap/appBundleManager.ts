@@ -35,7 +35,7 @@ export const appBundleManager: AppBundleManager = {
   },
 }
 
-/** 개발 빌드처럼 업데이트가 꺼진 환경에서는 확인하지 않는다. 필수 여부는 manifest.extra 에서 읽는다. */
+/** 개발 빌드처럼 업데이트가 꺼진 환경에서는 확인하지 않는다. 필수 여부는 manifest.extra.expoClient.extra 에서 읽는다. */
 async function fetchAvailableBundle(): Promise<AvailableBundle | null> {
   if (!Updates.isEnabled) return null
 
@@ -46,8 +46,8 @@ async function fetchAvailableBundle(): Promise<AvailableBundle | null> {
 }
 
 function isMandatoryManifest(manifest: Updates.Manifest) {
-  if (!('extra' in manifest) || manifest.extra == null) return false
-  return 'isMandatory' in manifest.extra && manifest.extra.isMandatory === true
+  if (!('extra' in manifest)) return false
+  return manifest.extra?.expoClient?.extra?.isMandatory === true
 }
 
 /** 받은 번들은 다음 실행 때 적용된다. */
