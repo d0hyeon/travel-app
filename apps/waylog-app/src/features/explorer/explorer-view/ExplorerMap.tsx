@@ -37,9 +37,6 @@ export function ExplorerMap({ places, location }: Props) {
           />
         ))}
       </Map>
-      <View pointerEvents="none" style={styles.emptyNotice}>
-        <Typography variant="caption" color="text.secondary">마커를 누르면 장소 정보를 볼 수 있어요</Typography>
-      </View>
     </View>
   )
 }
