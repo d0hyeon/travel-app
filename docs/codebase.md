@@ -1087,9 +1087,21 @@ src/
   이름을 매핑해 현재 스케줄 변경 알림 대상을 보여준다. provider가 UI 문자열을
   소유하지 않게 해 provider 정책과 표시 정책을 분리한다.
 - **공항 도착 안내**는 `airport-arrival-guidance` 도메인 훅이 Edge Function의
-  `get-guidance`만 호출한다. 화면은 정책·혼잡 스냅샷을 직접 읽지 않으며, Edge가
+  `get-guidances`(교통편 배치, 여행 활성 멤버만)와 `get-departure-gate-recommendation`(터미널 단위,
+  로그인 사용자면 허용)을 호출한다. 화면은 정책·혼잡 스냅샷을 직접 읽지 않으며, Edge가
   여행 멤버 권한, `trips.is_overseas`, 터미널, 운항 상태, 정책과 혼잡 데이터를
-  함께 판단해 표시 결과만 반환한다.
+  함께 판단해 표시 결과만 반환한다. 레거시 `get-guidance`(교통편 하나)는 설치된 앱 빌드 호환용으로
+  남겼고 권장 도착 120분 이내면 `recommendedDepartureGate`를 붙인다. 최소 앱 버전을 올린 뒤 제거하고,
+  그때 Edge의 `getIsDepartureGateRecommendable` 사본도 함께 지운다. 배치에서 교통편 하나가 실패하면 배치
+  전체가 실패한다(변경 전 클라이언트 `Promise.all`과 같다).
+  **출국장 추천 창**(권장 도착 120분 이하, 터미널 있음)은 클라이언트(`useDepartureGateRecommendation`)가
+  queryFn 안에서 판단한다. `enabled`에 현재 시각을 넣으면 시간이 지나도 쿼리가 다시 켜지지 않기 때문이다.
+  **혼잡 스냅샷 로더**(`createCongestionSnapshotLoader`)는 같은 출처·공항·터미널·예측 날짜를 요청 안에서
+  한 번만 조회하고(요청 단위 메모), 요청 간 캐시는 `airport_congestion_snapshots`(실시간 2분·예측 24시간)가
+  맡는다. 저장은 원본 인원수이고 기준값은 읽을 때 한 번 적용하며, 활성 정책도 배치(`get-guidances`) 경로에서는 요청당 한 번 읽는다.
+  배포 순서는 Edge(`supabase functions deploy airport-arrival-guidance`와
+  `supabase functions deploy dispatch-notifications` — 후자는 `guidanceForTransport.ts`를 번들에 포함하므로
+  재배포해야 예약 푸시에 반영된다) → 웹 → 앱이다. Edge가 세 액션을 모두 받으므로 옛 앱은 계속 동작한다.
   **터미널은 인천에서만 확인한다.** 해외는 인천 출발편만 안내하며 터미널을
   `trip_transport_flight_status.terminal`(인천 API)에서 읽고 `P01`·`P02` → T1, `P03` → T2
   로 혼잡도를 조회한다(`incheonTerminal.ts`). 터미널을 못 읽으면 안내가 없다. 한국공항공사 소관
@@ -1114,7 +1126,7 @@ src/
   종류가 늘면 핸들러 하나와 행을 만드는 DB 트리거만 더한다. 푸시 발송 공통 코드는 `sendPush.ts`다.
   `subject_id`에는 FK가 없어서 교통편 삭제 트리거(`delete_scheduled_notifications_of_transport`)가 대상이 같은
   행을 지운다. 여행을 지우면 교통편이 연쇄 삭제되므로 같은 트리거가 정리한다. `airport-arrival-guidance` 함수는 화면용 안내
-  계산(`get-guidance`)만 하고 예약 테이블과 푸시를 모른다(`guidanceForTransport.ts`를 디스패처 핸들러가 가져다 쓴다).
+  계산(`get-guidances`·`get-departure-gate-recommendation`·레거시 `get-guidance`)만 하고 예약 테이블과 푸시를 모른다(`guidanceForTransport.ts`를 디스패처 핸들러가 가져다 쓴다).
   설계: `docs/superpowers/specs/2026-10-03-scheduled-notifications-design.md`.
 - **탑승 전 알림**은 항공 출발 30분 전, 기차·버스 출발 10분 전에 여행 멤버에게 푸시한다
   (항공은 보통 출발 20분 전부터 탑승을 시작하므로 30분 전은 탑승 시작 10분 전이다).
