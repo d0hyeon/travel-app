@@ -94,19 +94,14 @@ export interface AirportArrivalGuidance {
   congestionTier: AirportCongestionTier;
   sourceKind: "forecast" | "domestic";
   observedAt: string;
-  recommendedDepartureGate?: {
-    gate: string;
-    observedAt: string;
-  };
 }
 
 // 도착 임박 여부 판단 뒤에만 쓴다. 미래 예측에는 실시간 데이터를 쓰지 않는다.
 export const REALTIME_GATE_RECOMMENDATION_WINDOW_MINUTES = 120;
 
-export interface RecommendedDepartureGateInput {
-  recommendedArrivalAt: string;
-  now: string;
-  realtimeSnapshot: AirportCongestionSnapshot | null;
+export interface DepartureGateRecommendation {
+  gate: string;
+  observedAt: string;
 }
 
 export interface AirportArrivalGuidanceQuery {
