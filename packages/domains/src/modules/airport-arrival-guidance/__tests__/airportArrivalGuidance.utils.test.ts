@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   getAirportArrivalGuidance,
   getCongestionTier,
-  getRecommendedDepartureGate,
+  getIsDepartureGateRecommendable,
   toGuidanceTerminalLabel,
 } from '../airportArrivalGuidance.utils'
 import type {
@@ -241,51 +241,6 @@ describe('airport arrival guidance', () => {
   })
 
   it.todo('기본정보 카드와 상세 화면은 같은 항공편에 같은 권장 도착 시각을 표시한다')
-
-  it('권장 도착 시각이 2시간 이내로 가까우면 가장 여유로운 출국장을 추천한다', () => {
-    const gate = getRecommendedDepartureGate({
-      recommendedArrivalAt: '2026-09-23T08:00:00+09:00',
-      now: '2026-09-23T07:00:00+09:00',
-      realtimeSnapshot: {
-        sourceKind: 'realtime',
-        airportCode: 'ICN',
-        terminal: 'T1',
-        observedAt: '2026-09-23T07:00:00+09:00',
-        departureGates: [
-          { gate: 'DG1_W', passengerCount: 50, referencePassengerCount: 100 },
-          { gate: 'DG2_W', passengerCount: 10, referencePassengerCount: 100 },
-        ],
-      },
-    })
-
-    expect(gate?.gate).toBe('DG2_W')
-  })
-
-  it('권장 도착 시각이 아직 멀면 실시간 출국장을 추천하지 않는다', () => {
-    const gate = getRecommendedDepartureGate({
-      recommendedArrivalAt: '2026-09-24T08:00:00+09:00',
-      now: '2026-09-23T07:00:00+09:00',
-      realtimeSnapshot: {
-        sourceKind: 'realtime',
-        airportCode: 'ICN',
-        terminal: 'T1',
-        observedAt: '2026-09-23T07:00:00+09:00',
-        departureGates: [{ gate: 'DG1_W', passengerCount: 10, referencePassengerCount: 100 }],
-      },
-    })
-
-    expect(gate).toBeUndefined()
-  })
-
-  it('실시간 스냅샷이 없으면 출국장을 추천하지 않는다', () => {
-    const gate = getRecommendedDepartureGate({
-      recommendedArrivalAt: '2026-09-23T08:00:00+09:00',
-      now: '2026-09-23T07:00:00+09:00',
-      realtimeSnapshot: null,
-    })
-
-    expect(gate).toBeUndefined()
-  })
 })
 
 describe('toGuidanceTerminalLabel', () => {
@@ -307,5 +262,34 @@ describe('toGuidanceTerminalLabel', () => {
 
   it('터미널이 없으면 표시하지 않는다', () => {
     expect(toGuidanceTerminalLabel({ terminal: null })).toBeNull()
+  })
+})
+
+describe('getIsDepartureGateRecommendable', () => {
+  const now = new Date('2026-09-23T07:00:00+09:00')
+
+  it('권장 도착 120분 이내면 참이다', () => {
+    const guidance = { recommendedArrivalAt: '2026-09-23T08:00:00+09:00', terminal: 'P01' }
+    expect(getIsDepartureGateRecommendable(guidance, now)).toBe(true)
+  })
+
+  it('정확히 120분이면 참이다', () => {
+    const guidance = { recommendedArrivalAt: '2026-09-23T09:00:00+09:00', terminal: 'P01' }
+    expect(getIsDepartureGateRecommendable(guidance, now)).toBe(true)
+  })
+
+  it('120분 초과면 거짓이다', () => {
+    const guidance = { recommendedArrivalAt: '2026-09-23T09:00:01+09:00', terminal: 'P01' }
+    expect(getIsDepartureGateRecommendable(guidance, now)).toBe(false)
+  })
+
+  it('권장 도착 시각이 지났으면 참이다', () => {
+    const guidance = { recommendedArrivalAt: '2026-09-23T06:00:00+09:00', terminal: 'P01' }
+    expect(getIsDepartureGateRecommendable(guidance, now)).toBe(true)
+  })
+
+  it('터미널이 없으면(국내) 거짓이다', () => {
+    const guidance = { recommendedArrivalAt: '2026-09-23T08:00:00+09:00', terminal: null }
+    expect(getIsDepartureGateRecommendable(guidance, now)).toBe(false)
   })
 })

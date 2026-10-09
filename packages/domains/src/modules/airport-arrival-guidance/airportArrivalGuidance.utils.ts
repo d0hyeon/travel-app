@@ -6,7 +6,6 @@ import {
   type AirportCongestionDepartureGate,
   type AirportCongestionTier,
   type CongestionTierInput,
-  type RecommendedDepartureGateInput,
 } from "./airportArrivalGuidance.types";
 import { toTerminalLabel } from "../flight-status";
 
@@ -111,44 +110,22 @@ export function getAirportArrivalGuidance(
   };
 }
 
-function getLeastCongestedGate(
-  gates: readonly AirportCongestionDepartureGate[],
-): AirportCongestionDepartureGate | null {
-  if (gates.length === 0) return null;
+export function getIsDepartureGateRecommendable<
+  TGuidance extends Pick<
+    AirportArrivalGuidance,
+    "recommendedArrivalAt" | "terminal"
+  >,
+>(guidance: TGuidance, now: Date): guidance is TGuidance & { terminal: string } {
+  if (guidance.terminal == null) return false;
 
-  // 실시간 출국장 추천은 항상 forecast·realtime 소스라 비율로 비교한다.
-  return gates.reduce((least, gate) =>
-    getCongestionRatio(gate) < getCongestionRatio(least) ? gate : least,
-  );
-}
-
-/**
- * 권장 도착 시각이 가까워진 뒤에만 현재 가장 여유로운 출국장을 추천한다.
- *
- * 실시간 데이터는 미래 예측에 쓰지 않는다는 정책 때문에 별도 함수로 둔다 --
- * getAirportArrivalGuidance 는 미래 시각 계산만 하고, 이 함수는 "지금"만 본다.
- */
-export function getRecommendedDepartureGate(
-  input: RecommendedDepartureGateInput,
-): AirportArrivalGuidance["recommendedDepartureGate"] {
-  if (input.realtimeSnapshot == null) return undefined;
-
-  const minutesUntilRecommended =
-    (new Date(input.recommendedArrivalAt).getTime() -
-      new Date(input.now).getTime()) /
+  const minutesUntilRecommendedArrival =
+    (new Date(guidance.recommendedArrivalAt).getTime() - now.getTime()) /
     (60 * 1000);
-  if (minutesUntilRecommended > REALTIME_GATE_RECOMMENDATION_WINDOW_MINUTES)
-    return undefined;
 
-  const leastCongestedGate = getLeastCongestedGate(
-    input.realtimeSnapshot.departureGates,
+  return (
+    minutesUntilRecommendedArrival <=
+    REALTIME_GATE_RECOMMENDATION_WINDOW_MINUTES
   );
-  if (leastCongestedGate == null) return undefined;
-
-  return {
-    gate: leastCongestedGate.gate,
-    observedAt: input.realtimeSnapshot.observedAt,
-  };
 }
 
 export function toDepartureGateLabel(gateId: string): string {

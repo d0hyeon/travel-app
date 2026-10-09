@@ -2,6 +2,8 @@ import {
   toDepartureGateLabel,
   toGuidanceTerminalLabel,
   useAirportArrivalGuidance,
+  useDepartureGateRecommendation,
+  type AirportArrivalGuidance,
   type AirportCongestionTier,
 } from '@waylog/domains/modules/airport-arrival-guidance'
 import { useTripTransportTickets } from '@waylog/domains/modules/trip-transport'
@@ -40,7 +42,6 @@ function Resolved({ tripId, transportId }: Props) {
   if (guidance == null) return null
 
   const carrierLabel = toCarrierLabel(transport)
-  const isRealtime = guidance.recommendedDepartureGate != null
 
   return (
     <View style={styles.card}>
@@ -58,22 +59,31 @@ function Resolved({ tripId, transportId }: Props) {
             .join(' · ')}
         </Typography>
       </View>
-      {isRealtime ? (
-        <View style={styles.realtimeRow}>
-          <View style={styles.realtimeDot} />
-          <Typography style={styles.realtimeText}>
-            현재 {toDepartureGateLabel(guidance.recommendedDepartureGate!.gate)}이 가장 여유로워요
-          </Typography>
-          <Typography style={styles.realtimeTime}>
-            {format(new Date(guidance.recommendedDepartureGate!.observedAt), 'HH:mm')} 기준
-          </Typography>
-        </View>
-      ) : (
-        <View style={styles.congestionRow}>
-          <Typography variant="body2"  >공항 예상 혼잡도</Typography>
-          <CongestionChip tier={guidance.congestionTier} />
-        </View>
-      )}
+      <AsyncBoundary
+        resetKeys={[guidance.recommendedArrivalAt]}
+        pendingFallback={<Skeleton width="100%" height={36} />}
+        rejectedFallback={() => <CongestionRow tier={guidance.congestionTier} />}
+      >
+        <DepartureGateRecommendationRow guidance={guidance} />
+      </AsyncBoundary>
+    </View>
+  )
+}
+
+function DepartureGateRecommendationRow({ guidance }: { guidance: AirportArrivalGuidance }) {
+  const recommendation = useDepartureGateRecommendation(guidance)
+
+  if (recommendation == null) return <CongestionRow tier={guidance.congestionTier} />
+
+  return (
+    <View style={styles.realtimeRow}>
+      <View style={styles.realtimeDot} />
+      <Typography style={styles.realtimeText}>
+        현재 {toDepartureGateLabel(recommendation.gate)}이 가장 여유로워요
+      </Typography>
+      <Typography style={styles.realtimeTime}>
+        {format(new Date(recommendation.observedAt), 'HH:mm')} 기준
+      </Typography>
     </View>
   )
 }
@@ -83,6 +93,15 @@ const CONGESTION_TONE: Record<AirportCongestionTier, { label: string; fg: string
   normal: { label: '보통', fg: '#C5631A', bg: '#FFF4E6' },
   crowded: { label: '혼잡', fg: '#D14343', bg: '#FDECEC' },
   veryCrowded: { label: '매우 혼잡', fg: '#D14343', bg: '#FDECEC' },
+}
+
+function CongestionRow({ tier }: { tier: AirportCongestionTier }) {
+  return (
+    <View style={styles.congestionRow}>
+      <Typography variant="body2">공항 예상 혼잡도</Typography>
+      <CongestionChip tier={tier} />
+    </View>
+  )
 }
 
 function CongestionChip({ tier }: { tier: AirportCongestionTier }) {

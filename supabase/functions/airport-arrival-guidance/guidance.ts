@@ -3,6 +3,9 @@
 // Deno 는 workspace 별칭을 못 읽어 여기 옮겨 적는다. 규칙을 고칠 때는
 // 원본과 함께 고친다 -- 갈라지면 화면·상세는 원본 정책을 쓰는데 푸시는
 // 다른 권장 시각을 말한다. 검증은 원본의 vitest 가 맡는다.
+// 출국장 추천 판별(getIsDepartureGateRecommendable)도 원본의 사본이다.
+// 가장 여유로운 출국장 선택(getLeastCongestedDepartureGate)은 원본이 없는
+// Edge 소유 로직이라 여기 Deno 테스트가 검증한다.
 
 export type AirportCongestionTier = 'calm' | 'normal' | 'crowded' | 'veryCrowded'
 
@@ -52,7 +55,11 @@ export interface AirportArrivalGuidance {
   congestionTier: AirportCongestionTier
   sourceKind: 'forecast' | 'domestic'
   observedAt: string
-  recommendedDepartureGate?: { gate: string; observedAt: string }
+}
+
+export interface DepartureGateRecommendation {
+  gate: string
+  observedAt: string
 }
 
 const REALTIME_GATE_RECOMMENDATION_WINDOW_MINUTES = 120
@@ -143,25 +150,25 @@ export function getAirportArrivalGuidance(
   }
 }
 
-export function getRecommendedDepartureGate(input: {
-  recommendedArrivalAt: string
-  now: string
-  realtimeSnapshot: AirportCongestionSnapshot | null
-}): AirportArrivalGuidance['recommendedDepartureGate'] {
-  if (input.realtimeSnapshot == null) return undefined
+export function getIsDepartureGateRecommendable<
+  TGuidance extends Pick<AirportArrivalGuidance, 'recommendedArrivalAt' | 'terminal'>,
+>(guidance: TGuidance, now: Date): guidance is TGuidance & { terminal: string } {
+  if (guidance.terminal == null) return false
 
-  const minutesUntilRecommended =
-    (new Date(input.recommendedArrivalAt).getTime() - new Date(input.now).getTime()) / (60 * 1000)
-  if (minutesUntilRecommended > REALTIME_GATE_RECOMMENDATION_WINDOW_MINUTES) return undefined
+  const minutesUntilRecommendedArrival =
+    (new Date(guidance.recommendedArrivalAt).getTime() - now.getTime()) / (60 * 1000)
 
-  const leastCongestedGate = input.realtimeSnapshot.departureGates.reduce<AirportCongestionDepartureGate | null>(
-    (least, gate) => {
-      if (least == null || getCongestionRatio(gate) < getCongestionRatio(least)) return gate
-      return least
-    },
-    null,
+  return minutesUntilRecommendedArrival <= REALTIME_GATE_RECOMMENDATION_WINDOW_MINUTES
+}
+
+export function getLeastCongestedDepartureGate(
+  snapshot: AirportCongestionSnapshot,
+): DepartureGateRecommendation | null {
+  if (snapshot.departureGates.length === 0) return null
+
+  const leastCongestedGate = snapshot.departureGates.reduce((least, gate) =>
+    getCongestionRatio(gate) < getCongestionRatio(least) ? gate : least,
   )
-  if (leastCongestedGate == null) return undefined
 
-  return { gate: leastCongestedGate.gate, observedAt: input.realtimeSnapshot.observedAt }
+  return { gate: leastCongestedGate.gate, observedAt: snapshot.observedAt }
 }
