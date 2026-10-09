@@ -27,7 +27,7 @@ export function formatDepartureTime(transport: TripTransport): string {
   return formatInTimezone(transport.departureAt, transport.departureTimezone, {
     hour: "2-digit",
     minute: "2-digit",
-    hour12: false,
+    hourCycle: 'h23',
   });
 }
 
@@ -39,7 +39,7 @@ export function formatArrivalTime(
   return formatInTimezone(transport.arrivalAt, transport.arrivalTimezone, {
     hour: "2-digit",
     minute: "2-digit",
-    hour12: false,
+    hourCycle: 'h23',
   });
 }
 
