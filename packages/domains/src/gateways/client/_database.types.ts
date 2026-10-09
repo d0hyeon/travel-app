@@ -1433,6 +1433,10 @@ export type Database = {
         Args: { p_transport_id: string }
         Returns: undefined
       }
+      sync_departure_gate_recommendation_job: {
+        Args: { p_transport_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       post_visibility: "PRIVATE" | "MEMBERS" | "PUBLIC"

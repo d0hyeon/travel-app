@@ -268,18 +268,18 @@ describe('toGuidanceTerminalLabel', () => {
 describe('getIsDepartureGateRecommendable', () => {
   const now = new Date('2026-09-23T07:00:00+09:00')
 
-  it('권장 도착 120분 이내면 참이다', () => {
-    const guidance = { recommendedArrivalAt: '2026-09-23T08:00:00+09:00', terminal: 'P01' }
+  it('권장 도착 30분 이내면 참이다', () => {
+    const guidance = { recommendedArrivalAt: '2026-09-23T07:20:00+09:00', terminal: 'P01' }
     expect(getIsDepartureGateRecommendable(guidance, now)).toBe(true)
   })
 
-  it('정확히 120분이면 참이다', () => {
-    const guidance = { recommendedArrivalAt: '2026-09-23T09:00:00+09:00', terminal: 'P01' }
+  it('정확히 30분이면 참이다', () => {
+    const guidance = { recommendedArrivalAt: '2026-09-23T07:30:00+09:00', terminal: 'P01' }
     expect(getIsDepartureGateRecommendable(guidance, now)).toBe(true)
   })
 
-  it('120분 초과면 거짓이다', () => {
-    const guidance = { recommendedArrivalAt: '2026-09-23T09:00:01+09:00', terminal: 'P01' }
+  it('30분 초과면 거짓이다', () => {
+    const guidance = { recommendedArrivalAt: '2026-09-23T07:30:01+09:00', terminal: 'P01' }
     expect(getIsDepartureGateRecommendable(guidance, now)).toBe(false)
   })
 

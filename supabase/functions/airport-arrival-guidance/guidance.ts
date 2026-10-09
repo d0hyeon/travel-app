@@ -62,7 +62,7 @@ export interface DepartureGateRecommendation {
   observedAt: string
 }
 
-const REALTIME_GATE_RECOMMENDATION_WINDOW_MINUTES = 120
+export const REALTIME_GATE_RECOMMENDATION_WINDOW_MINUTES = 30
 
 function getCongestionTier(
   passengerCount: number,
