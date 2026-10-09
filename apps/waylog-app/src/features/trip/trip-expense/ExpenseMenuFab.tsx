@@ -58,7 +58,13 @@ function Resolved({ tripId }: Props) {
   }
 
   return (
-    <MenuFab onPress={handleAddExpense} disabled={!hasMember} style={styles.menuFab} surface="plain">
+    <MenuFab 
+      onPress={handleAddExpense} 
+      disabled={!hasMember} 
+      style={styles.menuFab} 
+      variant="inner"
+      surface="plain"
+    >
       <MenuFab.Item
         icon={<MaterialIcons name="add" size={18} color={palette.primary} />}
         onPress={handleAddExpense}
