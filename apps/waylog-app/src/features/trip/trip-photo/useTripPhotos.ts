@@ -13,11 +13,12 @@ import {
   type PhotoUpdate,
 } from "@waylog/domains/modules/photo";
 import { tripKey, useTripPlaces } from "@waylog/domains/modules/trip";
-import { queryClient as appQueryClient } from "~shared/query-client";
+import { useSuspenseQuery, UseSuspenseQueryOptions } from "@waylog/react";
 import { uploadPhoto } from "~features/photo/photo.api";
 import { findNearestPlaceFromPhoto } from "~features/photo/photo.utils";
-import { useSuspenseQuery, UseSuspenseQueryOptions } from "@waylog/react";
-import { assert } from "~shared/utils/assert";
+import { toast } from "~shared/components/toast/toast";
+import { queryClient as appQueryClient } from "~shared/query-client";
+
 
 // 웹 useTripPhotos 와 같은 시그니처를 유지한다.
 // 웹은 File 을 받지만 앱은 picker 가 준 asset 을 받는다.
@@ -92,7 +93,17 @@ export function useTripPhotos(
 
   const { mutateAsync: remove } = useMutation({
     mutationFn: (photo: Photo) => deletePhoto(photo),
-    onSuccess: () => refetch(),
+    onMutate: async (photo) => {
+      await queryClient.cancelQueries({ queryKey: useTripPhotos.key(tripId) });
+      queryClient.setQueryData<Photo[]>(useTripPhotos.key(tripId), (curr) =>
+        curr?.filter((item) => item.id !== photo.id),
+      );
+      toast.success("사진을 삭제했어요");
+    },
+    onError: () => {
+      toast.error("사진을 삭제하지 못했어요");
+      refetch();
+    },
   });
 
   const { mutateAsync: update } = useMutation({
