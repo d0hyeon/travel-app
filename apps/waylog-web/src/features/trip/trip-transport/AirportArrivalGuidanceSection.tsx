@@ -8,6 +8,7 @@ import {
   type AirportCongestionTier,
 } from '@waylog/domains/modules/airport-arrival-guidance'
 import { useTripTransportTickets } from '@waylog/domains/modules/trip-transport'
+import { josa } from '@waylog/utility'
 import { AsyncBoundary } from '@waylog/react'
 import { format } from 'date-fns'
 import { TransportDetailSectionError } from './transport-detail/TransportDetailSectionError'
@@ -88,7 +89,7 @@ function DepartureGateRecommendationRow({ guidance }: { guidance: AirportArrival
     >
       <Box width={8} height={8} borderRadius="50%" bgcolor="#2DB95F" flexShrink={0} />
       <Typography flex={1} fontSize={12} fontWeight={600}>
-        현재 {toDepartureGateLabel(recommendation.gate)}이 가장 여유로워요
+        현재 {josa(toDepartureGateLabel(recommendation.gate), '이/가')} 가장 여유로워요
       </Typography>
       <Typography fontSize={11} color="text.disabled">
         {format(new Date(recommendation.observedAt), 'HH:mm')} 기준
