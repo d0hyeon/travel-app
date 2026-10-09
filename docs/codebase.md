@@ -1110,7 +1110,9 @@ src/
   맡는다. 저장은 원본 인원수이고 기준값은 읽을 때 한 번 적용하며, 활성 정책도 배치(`get-guidances`) 경로에서는 요청당 한 번 읽는다.
   배포 순서는 Edge(`supabase functions deploy airport-arrival-guidance`와
   `supabase functions deploy dispatch-notifications` — 후자는 `guidanceForTransport.ts`를 번들에 포함하므로
-  재배포해야 예약 푸시에 반영된다) → 웹 → 앱이다. Edge가 세 액션을 모두 받으므로 옛 앱은 계속 동작한다.
+  재배포해야 예약 푸시에 반영된다) → 웹 → 앱이다. 출국장 추천 푸시는 그보다 앞서 마이그레이션
+  (`20261010000000_departure_gate_recommendation_jobs.sql`)을 적용한 뒤 `supabase functions deploy dispatch-notifications`(`--project-ref` 없이)로 배포한다.
+  `_database.types.ts`의 `scheduled_notifications` 타입 항목은 `pnpm gen-types`로 재생성하기 전까지 손으로 추가한 것이다. Edge가 세 액션을 모두 받으므로 옛 앱은 계속 동작한다.
   **터미널은 인천에서만 확인한다.** 해외는 인천 출발편만 안내하며 터미널을
   `trip_transport_flight_status.terminal`(인천 API)에서 읽고 `P01`·`P02` → T1, `P03` → T2
   로 혼잡도를 조회한다(`incheonTerminal.ts`). 터미널을 못 읽으면 안내가 없다. 한국공항공사 소관
@@ -1129,8 +1131,10 @@ src/
   (알림의 대상 식별자, 의미는 `type`의 핸들러가 안다), `status`, `scheduled_for`, 재시도 상태. **행에는 제목·본문을 담지 않는다** — 때와 대상만 담고, 내용과 발송 직전
   확인(이미 출발, 결항)은 핸들러가 발송 때 최신 데이터로 한다. 크론 `dispatch-notifications`(매분)가 Edge
   함수 `dispatch-notifications`를 깨우면 디스패처(`dispatch.ts`)가 때가 된 행을 점유하고 `type`에 맞는 핸들러
-  (`handlers/airportArrivalGuidance.ts`, `handlers/boardingReminder.ts`)를 부른다. 핸들러는
-  `(알림 행, 현재 시각) → 'sent' | 'skipped' | 'cancelled'`이고 실패는 예외로 던지면 5·15·30분 뒤 재시도한다.
+  (`handlers/airportArrivalGuidance.ts`, `handlers/boardingReminder.ts`, `handlers/departureGateRecommendation.ts`)를 부른다. 핸들러는
+  `(알림 행, 현재 시각) → 'sent' | 'skipped' | 'cancelled' | RescheduledOutcome`(`{ rescheduledFor }` — 같은 행을 그 시각의 `pending`으로 되돌린다)이고
+  실패는 예외로 던지면 5·15·30분 뒤 재시도한다. 디스패처의 모든 상태 갱신(발송 완료·취소·재예약·재시도)은 아직 `processing`인 행에만 적용한다 —
+  핸들러가 도는 동안 트리거가 그 작업을 취소하거나 새로 만들 수 있고, 그 행을 되살리면 안 되기 때문이다.
   수신자(여행 멤버)는 행이 아니라 핸들러가 `subject_id`의 교통편에서 `trip_id`를 읽어 정한다 — 테이블은 trip 도메인을 모른다.
   종류가 늘면 핸들러 하나와 행을 만드는 DB 트리거만 더한다. 푸시 발송 공통 코드는 `sendPush.ts`다.
   `subject_id`에는 FK가 없어서 교통편 삭제 트리거(`delete_scheduled_notifications_of_transport`)가 대상이 같은
@@ -1144,6 +1148,17 @@ src/
   다시 예약하고 결항이면 취소한다. 예약 시각이 이미 지났으면 예약하지 않는다. 발송 시점에 이미 출발했거나
   결항이면 보내지 않는다. 문구는 `boardingReminderMessage.ts`가 만든다. 기차·버스는 입력한 출발 시각을 그대로 쓴다.
   설계: `docs/superpowers/specs/2026-10-03-boarding-reminder-design.md`.
+- **출국장 추천 푸시**는 인천 출발 해외편의 권장 도착 30분 전에 "지금 가장 여유로운 출국장"을 여행 멤버에게 보낸다.
+  `type = 'departure_gate_recommendation'`이고 트리거(`sync_departure_gate_recommendation_job`)가 교통편·운항 상태·`trips.is_overseas`
+  변경 때 다시 돌려 예약을 맞춘다. SQL은 혼잡 보정(실시간 혼잡도에 따른 추가 시간)을 모르므로 활성 정책의
+  `COALESCE(estimated_at, departure_at) − (international_base_buffer_minutes + GREATEST(네 혼잡 단계 추가 시간) + 30분)`,
+  즉 가능한 가장 이른 시각으로 보수적으로 예약한다. 그 시각에 핸들러가 실제 권장 도착 시각을 계산해 아직 창 전이면
+  **같은 행을** `권장 도착 − 30분`으로 재예약하고, 창 안이면 추천을 계산해 보낸다
+  (문구 `departureGateRecommendationMessage.ts`, 제목은 출발 터미널 — `인천공항 제1터미널 출국장 안내`, 안내 터미널 P01·P02 → 제1, P03 → 제2).
+  출발 전인데 안내를 못 만들면 10분 뒤 다시 시도하고, 그사이 출발 시각이 지나면 `skipped`로 끝난다. 터미널을 모르면 `skipped`,
+  결항이면 `cancelled`다. 재동기화는 자격(인천 출발 해외편·결항 아님·출발 전·활성 정책)을 잃었을 때만 활성 작업을 취소한다.
+  보수적 시각이 이미 지났으면 기존 활성 작업을 그대로 두고 새로 예약하지 않는다 — 지연된 항공편은 작업을 유지하고(핸들러가 발송 시점에
+  다시 계산한다), 보수적 시각이 지난 뒤 등록된 항공편은 푸시 없이 화면 추천만 보인다.
 - `trips.is_overseas`가 해외 여부의 단일 기준이다. 생성·목적지 변경 시
   `trip.api.ts`가 `destinations`로 저장값을 갱신하고, 예약 트리거와 Edge Function은
   그 저장값만 읽는다. 국내편은 화면 안내만 만들고 푸시를 예약하지 않는다.
