@@ -95,7 +95,7 @@ export function RoutePlaceScheduleFields({ control }: Props) {
               placeholder="경로 메모"
               fullWidth
               multiline
-              minRows={3}
+              minRows={5}
               value={field.value}
               onChangeText={field.onChange}
             />
@@ -135,7 +135,7 @@ function TimeButton({ placeholder, value, invalid, onPress, onClear }: TimeButto
 const styles = StyleSheet.create({
   timeButton: {
     flex: 1,
-    height: 46,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,

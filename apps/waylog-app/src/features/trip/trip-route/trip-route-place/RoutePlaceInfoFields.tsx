@@ -64,7 +64,7 @@ export function RoutePlaceInfoFields({ control }: Props) {
               placeholder="장소 메모"
               fullWidth
               multiline
-              minRows={3}
+              minRows={5}
               value={field.value}
               onChangeText={field.onChange}
             />
