@@ -3,6 +3,7 @@ import webpush from 'npm:web-push'
 import { dispatchDueNotifications, type NotificationHandler } from './dispatch.ts'
 import { handleAirportArrivalGuidance } from './handlers/airportArrivalGuidance.ts'
 import { handleBoardingReminder } from './handlers/boardingReminder.ts'
+import { handleDepartureGateRecommendation } from './handlers/departureGateRecommendation.ts'
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL')!,
@@ -18,6 +19,7 @@ webpush.setVapidDetails(
 const handlers: Record<string, NotificationHandler> = {
   airport_arrival_guidance: handleAirportArrivalGuidance,
   boarding_reminder: handleBoardingReminder,
+  departure_gate_recommendation: handleDepartureGateRecommendation,
 }
 
 function isServiceRoleRequest(req: Request): boolean {
