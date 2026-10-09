@@ -33,6 +33,35 @@ describe("getShouldNotify", () => {
     ).toBe(false);
   });
 
+  // 알림 이력은 timestamptz 라 UTC 로 읽히고, API 변환값은 +09:00 이다.
+  it("시간대 표기만 다른 같은 지연 시각이면 다시 보내지 않는다", () => {
+    expect(
+      getShouldNotify(지연, null, {
+        lastNotifiedKind: "delayed",
+        lastNotifiedEstimatedAt: "2026-09-17T11:00:00+00:00",
+        lastNotifiedGate: null,
+      }),
+    ).toBe(false);
+  });
+
+  it("결항을 알린 뒤에는 시각 표기가 달라도 다시 보내지 않는다", () => {
+    expect(
+      getShouldNotify(
+        {
+          kind: FlightStatusKind.결항,
+          estimatedAt: "2026-09-17T20:00:00+09:00",
+          gate: null,
+        },
+        null,
+        {
+          lastNotifiedKind: "cancelled",
+          lastNotifiedEstimatedAt: "2026-09-17T11:00:00+00:00",
+          lastNotifiedGate: null,
+        },
+      ),
+    ).toBe(false);
+  });
+
   it("지연 시각이 또 밀리면 다시 보낸다", () => {
     expect(
       getShouldNotify(지연, null, {

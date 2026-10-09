@@ -70,7 +70,13 @@ export function getShouldNotify(
 
   if (current.kind !== notified.lastNotifiedKind) return true
 
-  return current.kind === 'delayed' && current.estimatedAt !== notified.lastNotifiedEstimatedAt
+  return current.kind === 'delayed' && !getIsSameInstant(current.estimatedAt, notified.lastNotifiedEstimatedAt)
+}
+
+function getIsSameInstant(left: string | null, right: string | null) {
+  if (left == null || right == null) return left === right
+
+  return new Date(left).getTime() === new Date(right).getTime()
 }
 
 function toClock(value: string | null) {

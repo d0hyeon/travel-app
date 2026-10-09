@@ -1081,6 +1081,9 @@ src/
   푸시 이력(`last_notified_gate`)은 같은 게이트를 다시 알리지 않는 데만 쓴다 — 이력과 비교하면
   이력이 없는 편의 첫 관측이 모두 "변경"으로 나간다. 알림 창(출발 24시간 전) 밖에서 일어난
   변경은 푸시하지 않고 화면 카드로만 보인다.
+- **지연 재알림은 지연 시각이 같은 순간인지로 비교한다**(문자열 비교 금지). 푸시 이력의
+  `last_notified_estimated_at`은 `timestamptz`라 UTC(`+00`)로 읽히고 API 변환값은 `+09:00`이라,
+  문자열로 비교하면 같은 지연이 5분마다 다시 나간다.
   이 `gate` 는 `trip_transport_tickets.gate`(탑승권 인쇄값)와 다른
   컬럼이다 — 실시간 API 값으로 탑승권 값을 덮지 않는다.
 - 판정·문구의 원본은 `flightStatusNotify.utils` 다. Edge Function 은

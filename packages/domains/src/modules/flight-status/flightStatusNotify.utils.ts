@@ -84,8 +84,14 @@ export function getShouldNotify(
 
   return (
     current.kind === FlightStatusKind.지연 &&
-    current.estimatedAt !== notified.lastNotifiedEstimatedAt
+    !getIsSameInstant(current.estimatedAt, notified.lastNotifiedEstimatedAt)
   );
+}
+
+function getIsSameInstant(left: string | null, right: string | null) {
+  if (left == null || right == null) return left === right;
+
+  return new Date(left).getTime() === new Date(right).getTime();
 }
 
 function toClock(value: string | null) {
