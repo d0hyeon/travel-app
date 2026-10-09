@@ -55,21 +55,28 @@ const GATE_WATCHABLE: readonly string[] = [
 
 // 탑승구는 배정 후에도 바뀔 수 있다. 출발 전(예정·지연)에만 의미가 있고,
 // 결항·회항·출발·도착 이후엔 알려도 늦거나 무의미하다.
-export function getIsGateChanged(current: WatchedStatus, notified: NotifiedStatus) {
+export function getIsGateChanged(
+  current: WatchedStatus,
+  previousGate: string | null,
+  notified: NotifiedStatus,
+) {
   if (!GATE_WATCHABLE.includes(current.kind)) return false;
   if (current.gate == null || current.gate === "") return false;
+  if (previousGate == null || previousGate === "") return false;
+  if (current.gate === previousGate) return false;
 
   return current.gate !== notified.lastNotifiedGate;
 }
 
 export function getShouldNotify(
   current: WatchedStatus,
+  previousGate: string | null,
   notified: NotifiedStatus,
   { notifyAlways = false }: ShouldNotifyOptions = {},
 ) {
   if (notifyAlways) return true;
 
-  if (getIsGateChanged(current, notified)) return true;
+  if (getIsGateChanged(current, previousGate, notified)) return true;
 
   if (!getIsNotifiable(current.kind)) return false;
 

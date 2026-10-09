@@ -274,11 +274,12 @@ Deno.serve(async () => {
     }
 
     const previous = previousById.get(transport.id)
+    const previousGate = previous?.gate || null
     const notifiedStatus = toNotifiedStatus(noticeById.get(transport.id))
     const isWithinNotifyWindow = getIsWithinNotifyWindow(transport.departure_at, now, notifyWindowHours)
     const shouldNotify =
-      isWithinNotifyWindow && getShouldNotify(status, notifiedStatus, { notifyAlways })
-    const isGateChanged = getIsGateChanged(status, notifiedStatus)
+      isWithinNotifyWindow && getShouldNotify(status, previousGate, notifiedStatus, { notifyAlways })
+    const isGateChanged = getIsGateChanged(status, previousGate, notifiedStatus)
 
     if (shouldNotify) {
       const sent = await notify(transport, status, isGateChanged)
@@ -288,7 +289,6 @@ Deno.serve(async () => {
     // 알림 발송 여부와 무관하게, 실제 gate 가 바뀐 순간의 직전 값을 그대로
     // 남긴다. 안 바뀌었으면 이미 저장된 이전 값을 지키고, 저장된 적이
     // 없으면(첫 조회) 비교 대상이 없어 비워둔다.
-    const previousGate = previous?.gate || null
     const isRealGateChanged =
       previousGate != null && status.gate != null && previousGate !== status.gate
     const prevGate = isRealGateChanged ? previousGate : (previous?.prev_gate || null)

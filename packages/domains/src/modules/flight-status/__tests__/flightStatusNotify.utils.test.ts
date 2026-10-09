@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { FlightStatusKind } from "../flightStatus.types";
 import {
+  getIsGateChanged,
   getShouldNotify,
   toNotificationText,
 } from "../flightStatusNotify.utils";
@@ -18,13 +19,13 @@ const 없음 = {
 
 describe("getShouldNotify", () => {
   it("처음 지연되면 보낸다", () => {
-    expect(getShouldNotify(지연, 없음)).toBe(true);
+    expect(getShouldNotify(지연, null, 없음)).toBe(true);
   });
 
   // 5분마다 도는 cron 이라 이게 참이면 지연이 풀릴 때까지 계속 보낸다.
   it("같은 지연을 이미 보냈으면 다시 보내지 않는다", () => {
     expect(
-      getShouldNotify(지연, {
+      getShouldNotify(지연, null, {
         lastNotifiedKind: "delayed",
         lastNotifiedEstimatedAt: "2026-09-17T20:00:00+09:00",
         lastNotifiedGate: null,
@@ -34,7 +35,7 @@ describe("getShouldNotify", () => {
 
   it("지연 시각이 또 밀리면 다시 보낸다", () => {
     expect(
-      getShouldNotify(지연, {
+      getShouldNotify(지연, null, {
         lastNotifiedKind: "delayed",
         lastNotifiedEstimatedAt: "2026-09-17T19:50:00+09:00",
         lastNotifiedGate: null,
@@ -46,6 +47,7 @@ describe("getShouldNotify", () => {
     expect(
       getShouldNotify(
         { kind: FlightStatusKind.결항, estimatedAt: null, gate: null },
+        null,
         {
           lastNotifiedKind: "delayed",
           lastNotifiedEstimatedAt: "2026-09-17T20:00:00+09:00",
@@ -59,6 +61,7 @@ describe("getShouldNotify", () => {
     expect(
       getShouldNotify(
         { kind: FlightStatusKind.결항, estimatedAt: null, gate: null },
+        null,
         {
           lastNotifiedKind: "cancelled",
           lastNotifiedEstimatedAt: null,
@@ -72,6 +75,7 @@ describe("getShouldNotify", () => {
     expect(
       getShouldNotify(
         { kind: FlightStatusKind.예정, estimatedAt: null, gate: null },
+        null,
         없음,
       ),
     ).toBe(false);
@@ -82,12 +86,14 @@ describe("getShouldNotify", () => {
     expect(
       getShouldNotify(
         { kind: FlightStatusKind.출발, estimatedAt: null, gate: null },
+        null,
         없음,
       ),
     ).toBe(false);
     expect(
       getShouldNotify(
         { kind: FlightStatusKind.도착, estimatedAt: null, gate: null },
+        null,
         없음,
       ),
     ).toBe(false);
@@ -98,6 +104,7 @@ describe("getShouldNotify", () => {
     expect(
       getShouldNotify(
         { kind: FlightStatusKind.예정, estimatedAt: null, gate: null },
+        null,
         {
           lastNotifiedKind: "delayed",
           lastNotifiedEstimatedAt: "2026-09-17T20:00:00+09:00",
@@ -109,73 +116,46 @@ describe("getShouldNotify", () => {
 });
 
 describe("getShouldNotify — 탑승구 변경", () => {
-  it("예정편의 탑승구가 처음 배정되면 보낸다", () => {
-    expect(
-      getShouldNotify(
-        { kind: FlightStatusKind.예정, estimatedAt: null, gate: "101" },
-        없음,
-      ),
-    ).toBe(true);
+  const 예정 = (gate: string | null) => ({
+    kind: FlightStatusKind.예정,
+    estimatedAt: null,
+    gate,
+  });
+  const 알린탑승구 = (gate: string) => ({ ...없음, lastNotifiedGate: gate });
+
+  it("직전에 관측한 탑승구가 없으면 처음 배정이라 보내지 않는다", () => {
+    expect(getShouldNotify(예정("101"), null, 없음)).toBe(false);
   });
 
   it("탑승구가 빈 문자열이면 아직 배정 전이라 보내지 않는다", () => {
-    expect(
-      getShouldNotify(
-        { kind: FlightStatusKind.예정, estimatedAt: null, gate: "" },
-        없음,
-      ),
-    ).toBe(false);
+    expect(getShouldNotify(예정(""), "101", 없음)).toBe(false);
   });
 
-  it("탑승구가 빈 문자열이면 아직 배정 전이라 보내지 않는다", () => {
-    expect(
-      getShouldNotify(
-        { kind: FlightStatusKind.예정, estimatedAt: null, gate: "" },
-        없음,
-      ),
-    ).toBe(false);
+  it("직전에 관측한 탑승구와 다르면 보낸다", () => {
+    expect(getShouldNotify(예정("102"), "101", 없음)).toBe(true);
   });
 
-  it("탑승구가 바뀌면 보낸다", () => {
-    expect(
-      getShouldNotify(
-        { kind: FlightStatusKind.예정, estimatedAt: null, gate: "102" },
-        {
-          lastNotifiedKind: null,
-          lastNotifiedEstimatedAt: null,
-          lastNotifiedGate: "101",
-        },
-      ),
-    ).toBe(true);
+  // 알림 창(출발 24시간 전) 밖에서 이미 관측된 탑승구가 창에 들어올 때다.
+  it("직전에 관측한 탑승구와 같으면 알린 적이 없어도 보내지 않는다", () => {
+    expect(getShouldNotify(예정("101"), "101", 없음)).toBe(false);
   });
 
-  it("같은 탑승구를 이미 보냈으면 다시 보내지 않는다", () => {
-    expect(
-      getShouldNotify(
-        { kind: FlightStatusKind.예정, estimatedAt: null, gate: "101" },
-        {
-          lastNotifiedKind: null,
-          lastNotifiedEstimatedAt: null,
-          lastNotifiedGate: "101",
-        },
-      ),
-    ).toBe(false);
+  // 관측 저장이 실패해 직전 관측값이 갱신되지 않은 채 다음 주기가 돈 경우다.
+  it("직전 관측과 달라도 그 탑승구를 이미 알렸으면 다시 보내지 않는다", () => {
+    expect(getShouldNotify(예정("102"), "101", 알린탑승구("102"))).toBe(false);
+  });
+
+  it("원래 탑승구로 되돌아오면 다시 보낸다", () => {
+    expect(getShouldNotify(예정("101"), "102", 알린탑승구("102"))).toBe(true);
   });
 
   it("지연 중에도 탑승구가 바뀌면 보낸다", () => {
     expect(
-      getShouldNotify(
-        {
-          kind: FlightStatusKind.지연,
-          estimatedAt: "2026-09-17T20:00:00+09:00",
-          gate: "102",
-        },
-        {
-          lastNotifiedKind: "delayed",
-          lastNotifiedEstimatedAt: "2026-09-17T20:00:00+09:00",
-          lastNotifiedGate: "101",
-        },
-      ),
+      getShouldNotify({ ...지연, gate: "102" }, "101", {
+        lastNotifiedKind: "delayed",
+        lastNotifiedEstimatedAt: "2026-09-17T20:00:00+09:00",
+        lastNotifiedGate: "101",
+      }),
     ).toBe(true);
   });
 
@@ -184,6 +164,7 @@ describe("getShouldNotify — 탑승구 변경", () => {
     expect(
       getShouldNotify(
         { kind: FlightStatusKind.출발, estimatedAt: null, gate: "102" },
+        "101",
         {
           lastNotifiedKind: "departed",
           lastNotifiedEstimatedAt: null,
@@ -193,15 +174,18 @@ describe("getShouldNotify — 탑승구 변경", () => {
     ).toBe(false);
 
     expect(
-      getShouldNotify(
+      getIsGateChanged(
         { kind: FlightStatusKind.결항, estimatedAt: null, gate: "102" },
-        {
-          lastNotifiedKind: null,
-          lastNotifiedEstimatedAt: null,
-          lastNotifiedGate: "101",
-        },
+        "101",
+        알린탑승구("101"),
       ),
-    ).toBe(true); // 결항 자체는 알린다 -- 게이트 변경과 무관하게
+    ).toBe(false);
+  });
+});
+
+describe("getIsGateChanged", () => {
+  it("지연과 겹친 첫 배정은 탑승구 변경이 아니다", () => {
+    expect(getIsGateChanged({ ...지연, gate: "101" }, null, 없음)).toBe(false);
   });
 });
 
@@ -210,6 +194,7 @@ describe("getShouldNotify — notifyAlways", () => {
     expect(
       getShouldNotify(
         { kind: FlightStatusKind.예정, estimatedAt: null, gate: null },
+        null,
         없음,
         {
           notifyAlways: true,
@@ -222,6 +207,7 @@ describe("getShouldNotify — notifyAlways", () => {
     expect(
       getShouldNotify(
         지연,
+        null,
         {
           lastNotifiedKind: "delayed",
           lastNotifiedEstimatedAt: "2026-09-17T20:00:00+09:00",
@@ -236,6 +222,7 @@ describe("getShouldNotify — notifyAlways", () => {
     expect(
       getShouldNotify(
         { kind: FlightStatusKind.예정, estimatedAt: null, gate: null },
+        null,
         없음,
         {
           notifyAlways: false,
