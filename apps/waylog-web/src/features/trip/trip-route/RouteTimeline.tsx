@@ -6,6 +6,10 @@ import { TransportIcon } from './TransportIcon';
 // 경로 순서를 나타내는 번호 원. 연결선이 이 폭의 중심에 정렬되도록 크기를 공유한다.
 const DOT_SIZE = 20;
 
+const ROUTE_LEG_BORDER_COLOR = '#C5D8F7';
+const ROUTE_LEG_BACKGROUND_COLOR = '#F3F7FF';
+const ROUTE_LEG_TEXT_COLOR = '#2A73E8';
+
 
 interface RouteLegItemProps extends StackProps {
   leg: RouteLeg;
@@ -51,18 +55,18 @@ export const Dot = styled(Box)(({ theme }) => ({
   flexShrink: 0,
 }));
 
-const Line = styled(Box)(({ theme }) => ({
+const Line = styled(Box)(() => ({
   position: 'absolute', left: '50%', top: 0, transform: 'translateX(-50%)',
   height: '100%', width: 2,
-  backgroundColor: theme.palette.divider
+  backgroundColor: ROUTE_LEG_BORDER_COLOR
 }))
 
-const Chip = styled(Stack)(({ theme }) => ({
+const Chip = styled(Stack)(() => ({
   flexDirection: 'row',
   alignItems: 'center',
-  color: theme.palette.text.secondary,
-  borderRadius: 8, border: '1px solid rgba(0, 0, 0, 0.2)',
-  background: theme.palette.background.default,
+  color: ROUTE_LEG_TEXT_COLOR,
+  borderRadius: 16, border: `1.5px solid ${ROUTE_LEG_BORDER_COLOR}`,
+  background: ROUTE_LEG_BACKGROUND_COLOR,
   zIndex: 10,
   gap: 0.5,
   paddingInline: 8

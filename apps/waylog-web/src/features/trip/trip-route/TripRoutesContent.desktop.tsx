@@ -29,7 +29,8 @@ import { TripMarineActivityMapMarkers } from '../trip-marine-activity/TripMarine
 import { TripWeatherIconButton } from '../trip-weather/TripWeatherIconButton'
 import { FloatingControl } from './components/FloatingControl'
 import { TripRouteMapFloatingControls } from './components/TripRouteMapFloatingControls'
-import { NoteEditor } from './RouteNoteList'
+import { RoutePlaceNotes, RoutePlaceTimeLabel } from './trip-route-place/RoutePlaceSummary'
+import { useRoutePlaceEditOverlay } from './trip-route-place/useRoutePlaceEditOverlay'
 import { useActiveTripDay } from './useActiveTripDay'
 import { useTripViewConfigValue } from './useTripViewConfig'
 
@@ -57,7 +58,6 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
     update,
     remove: removeRoute,
     toggleVisible,
-    updateNotes
   } = useDayTripRoutes({ tripId, date: selectedDate })
   const { data: places } = useTripPlaces(tripId)
   const [selectedRouteId, setSelectedRouteId] = useState<string | null>(routes?.[0].id ?? null);
@@ -76,6 +76,7 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
   const legByArrivalPlaceId = useRouteLegs(visiblePlaces)
 
   const detailOverlay = useTripPlaceFormOverlay();
+  const { openDialog: editRoutePlace } = useRoutePlaceEditOverlay();
 
   const mapViewConfig = useTripViewConfigValue();
   const mapRef = useRef<MapRef>(null)
@@ -159,15 +160,18 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
                               <ListItem.Title
                                 leftAddon={<Dot>{idx + 1}</Dot>}
                                 rightAddon={(
-                                  <IconButton
-                                    size="small"
-                                    onClick={(event) => {
-                                      event.stopPropagation();
-                                      toggleVisible({ routeId: currentRoute.id, placeId: place.id });
-                                    }}
-                                  >
-                                    {isHidden ? <VisibilityOffIcon fontSize="small" sx={{ opacity: 0.7 }} /> : <VisibilityOnIcon fontSize="small" />}
-                                  </IconButton>
+                                  <>
+                                    <IconButton
+                                      size="small"
+                                      onClick={(event) => {
+                                        event.stopPropagation();
+                                        toggleVisible({ routeId: currentRoute.id, placeId: place.id });
+                                      }}
+                                    >
+                                      {isHidden ? <VisibilityOffIcon fontSize="small" sx={{ opacity: 0.7 }} /> : <VisibilityOnIcon fontSize="small" />}
+                                    </IconButton>
+                                    <RoutePlaceTimeLabel time={currentRoute.placeTimes[place.id]} marginLeft={1} />
+                                  </>
                                 )}
                               >
                                 {place.name}
@@ -187,10 +191,7 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
                               />
                             )}
                           >
-                            <NoteEditor
-                              notes={place.routeNotes ?? []}
-                              onChange={(memos) => updateNotes({ placeId: place.id, routeId: currentRoute.id, memos })}
-                            />
+                            <RoutePlaceNotes notes={place.routeNotes ?? []} />
                           </TripRoutePlaceItem>
                         </SortableList.Item>
                       </Stack>
@@ -251,7 +252,11 @@ export function TripRoutesContent({ tripId }: TripRoutesContentProps) {
                 key={place.id}
                 label={isInCurrentRoute ? `${orderInRoute + 1}. ${place.name}` : place.name}
                 color={isInCurrentRoute && place.category ? PlaceCategoryColorCode[place.category] : undefined}
-                onContextMenu={() => detailOverlay.openDialog({ placeId: place.id, tripId })}
+                onContextMenu={() => (
+                  isInCurrentRoute
+                    ? editRoutePlace({ tripId, routeId: currentRoute.id, placeId: place.id })
+                    : detailOverlay.openDialog({ placeId: place.id, tripId })
+                )}
                 onClick={() => {
                   if (currentRoute == null) {
                     return createRoute({

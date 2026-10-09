@@ -18,12 +18,20 @@ export interface RoadRoute {
   legs: RouteLeg[]
 }
 
+export type RoutePlaceTime = {
+  /** 'HH:mm'. 미정이면 null */
+  startTime: string | null
+  /** 'HH:mm'. 미정이면 null */
+  endTime: string | null
+}
+
 export interface Route {
   id: string
   tripId: string
   name: string
   placeIds: string[] // 순서대로
   placeMemos: Record<string, string[]> // placeId -> memos (경로별 장소 메모 리스트)
+  placeTimes: Record<string, RoutePlaceTime> // placeId -> 이 경로에서의 방문 시간
   isMain: boolean
   scheduledDate?: string // ISO date
   createdAt: string

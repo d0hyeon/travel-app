@@ -658,9 +658,8 @@ src/
 │           ├── useTripRoutes.ts
 │           ├── useDayTripRoutes.ts
 │           ├── useTripViewConfig.ts
-│           ├── usePlaceFormOverlay.tsx
+│           ├── trip-route-place/              # 경로 장소 수정(일정/장소 정보 탭): RoutePlaceEditBody·RoutePlaceScheduleFields·RoutePlaceRemoveButton·RoutePlaceSummary(시간 라벨·경로 메모 표시)·useRoutePlaceEditOverlay(openBottomsheet·openDialog)
 │           ├── PlaceSelectSheet.tsx
-│           ├── RouteNoteList.tsx          # 날짜 토글 아래에 해양 지수 바를 함께 배치
 │           └── findNearestPlace.utils.ts  # 좌표 기준 최근접 장소 탐색 (순수 함수)
 │
 └── shared/                     # 공통 모듈
@@ -1240,9 +1239,20 @@ src/
 - `AuthStateSync`는 `USER_UPDATED` 이벤트에서 Supabase 사용자 메타데이터를 프로필에 반영한다.
 - 프로필 이름과 아바타는 각각 `user_metadata.name`, `user_metadata.picture`를 사용하며, 값이 없으면 `undefined`로 전달한다.
 
+### 경로 장소 시간 (`placeTimes`)
+
+- `routes.place_times`(jsonb, `{ placeId: { startTime, endTime } }`)는 "이 경로에서 언제 방문하는가"라 `Place`가 아니라 `Route`가 소유한다. 마이그레이션은 `20261008000000_add_route_place_times.sql`이며 아직 적용 전이고, `_database.types.ts`·`schema.sql`의 `place_times`는 `pnpm gen-types` 전까지 손으로 맞춘 값이다.
+- 시작·종료는 각각 `'HH:mm' | null`이다. 둘 다 있으면 종료가 시작보다 뒤여야 한다(`isValidRoutePlaceTime`). 정규화·검증·표시는 `packages/domains/src/modules/route/routePlaceTime.utils.ts`(순수)가 맡고, `toRoute`가 깨진 JSON을 `normalizePlaceTimes`로 걸러 앱이 죽지 않게 한다.
+- 시간과 경로 메모는 `useTripRoutes().updateRoutePlace({ routeId, placeId, time, memos })` 한 번의 `updateRoute`로 쓴다. 같은 행에 쓰기를 두 번 보내 서로 덮어쓰지 않게 하려는 것이다.
+- 경로 탭의 장소 수정은 `PlaceForm`을 재사용하지 않고 시트 전용 RHF 폼 하나(`RoutePlaceFormValues`: startTime·endTime·routeMemo·category·placeMemo)로 만든다. 앱은 `trip-route/trip-route-place/useRoutePlaceEditOverlay().open({ tripId, routeId, placeId })`, 웹은 같은 이름 훅의 `openBottomsheet`(모바일)·`openDialog`(데스크탑)가 연다. `일정` 탭(`RoutePlaceScheduleFields`: 시간 두 칸 + 경로 메모)과 `장소 정보` 탭(`RoutePlaceInfoFields`: 카테고리 + 장소 메모)이 같은 `control`을 받고, 태그·사진은 두지 않는다. 종료 시간 검증은 `endTime`의 `validate`와 `startTime`의 `deps`로 걸고, 무효하면 `일정` 탭으로 돌려보낸다. 저장은 `updateRoutePlace`와 `useTripPlaces.update`(`category`·`memo`만, `tags`는 생략해 기존 값 유지)를 `Promise.all`로 동시에 호출하며 트랜잭션이 아니라 한쪽이 실패하면 다시 저장해 맞춘다. 경로 메모 텍스트 영역은 줄 단위로 `placeMemos`의 `string[]`이 된다. 장소 탭의 시트(`useTripPlaceFormOverlay`)는 그대로고, 경로에 없는 장소의 지도 마커 `장소 수정`도 그쪽을 연다.
+- 시각 선택은 `shared/components/date-picker`의 `type: 'time'`(시각 단계부터 시작)과 `useDatePickerBottomSheet().openTime({ defaultValue })`(`'HH:mm' | null`)를 쓴다.
+- 리스트 카드(`TripRoutePlaceListItem`)는 제목 우측에 시간(`10:00–11:30`·`14:00~`·`~11:30`), 하단에 경로 메모를 있을 때만 보여준다. `RouteNoteList`(NoteEditor)는 편집이 시트로 옮겨가 웹·앱 모두 삭제했고, `useDayTripRoutes.updateNotes`도 함께 지웠다.
+- 웹의 시간 입력은 MUI X `DesktopTimePicker`(30분 단위 시간 목록에서 고르거나 직접 입력, 24시간, 지우기 가능)이고, 웹 시트의 상태는 `useRoutePlaceEditForm`이 쥐어 푸터의 저장 버튼(`form` 속성)이 `isSubmitting`을 읽는다. 구 `usePlaceFormOverlay`는 쓰는 곳이 없어져 삭제했다.
+- 앱 시트 높이는 `snapPoints={[0.6]}`이다.
+
 ### 계획 탭 동시 편집
 
-`routes.place_ids` / `place_memos` / `hidden_places`는 blob 컬럼이며, 클라이언트가 배열 전체를 만들어 `updateRoute`로 덮어쓴다. 여러 명이 동시에 편집하면 유실이 발생할 수 있다.
+`routes.place_ids` / `place_memos` / `place_times` / `hidden_places`는 blob 컬럼이며, 클라이언트가 배열 전체를 만들어 `updateRoute`로 덮어쓴다. 여러 명이 동시에 편집하면 유실이 발생할 수 있다.
 
 - 현재 대응: 갱신 주기 단축 (`trip-route/tripPlanRefetch.ts`의 `TRIP_PLAN_REFETCH`를 `useTripRoutes`·`useTripPlaces`가 공유)
 - 단계별 전략: `docs/strategies/plan-tab-concurrency.md`

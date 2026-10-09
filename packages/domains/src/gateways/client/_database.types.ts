@@ -707,6 +707,7 @@ export type Database = {
           name: string
           place_ids: string[]
           place_memos: Json
+          place_times: Json
           scheduled_date: string | null
           trip_id: string
         }
@@ -718,6 +719,7 @@ export type Database = {
           name: string
           place_ids?: string[]
           place_memos?: Json
+          place_times?: Json
           scheduled_date?: string | null
           trip_id: string
         }
@@ -729,6 +731,7 @@ export type Database = {
           name?: string
           place_ids?: string[]
           place_memos?: Json
+          place_times?: Json
           scheduled_date?: string | null
           trip_id?: string
         }
@@ -785,8 +788,7 @@ export type Database = {
           type?: string
           updated_at?: string
         }
-        Relationships: [
-        ]
+        Relationships: []
       }
       trip_members: {
         Row: {
@@ -1189,7 +1191,35 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      active_trip_members: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          trip_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string | null
+          trip_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string | null
+          trip_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_members_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       can_access_trip: { Args: { trip_id: string }; Returns: boolean }
@@ -1202,11 +1232,7 @@ export type Database = {
         Returns: boolean
       }
       get_explored_places: {
-        Args: {
-          category?: string
-          location?: string
-          since_date?: string
-        }
+        Args: { category?: string; location?: string; since_date?: string }
         Returns: {
           address: string
           categories: Json
@@ -1280,8 +1306,8 @@ export type Database = {
           created_at: string
           description: string
           id: string
-          liked_by_me: boolean
           like_count: number
+          liked_by_me: boolean
           photos: Json
           places: Json
           title: string

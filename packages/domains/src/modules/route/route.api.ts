@@ -2,6 +2,7 @@ import type { DataRaw, CreateDataType, UpdateDataType } from '../../gateways/cli
 import type { Json } from '../../gateways/client'
 import { supabase } from '../../gateways/client'
 import type { Route } from './route.types'
+import { normalizePlaceTimes } from './routePlaceTime.utils'
 
 export const routeKey = 'routes'
 
@@ -28,6 +29,7 @@ function toRoute(row: DataRaw<'routes'>): Route {
     name: row.name,
     placeIds: row.place_ids ?? [],
     placeMemos: normalizePlaceMemos(row.place_memos),
+    placeTimes: normalizePlaceTimes(row.place_times),
     isMain: row.is_main,
     scheduledDate: row.scheduled_date ?? undefined,
     createdAt: row.created_at,
@@ -102,6 +104,7 @@ export async function createRoute(data: Omit<Route, 'id' | 'createdAt' | "hidden
       name: data.name,
       place_ids: data.placeIds,
       place_memos: data.placeMemos as Json ?? {},
+      place_times: data.placeTimes ?? {},
       is_main: data.isMain,
       scheduled_date: data.scheduledDate ?? null,
     } satisfies CreateDataType<'routes'>)
@@ -129,6 +132,7 @@ export async function updateRoute(id: string, data: Partial<Omit<Route, 'id' | '
   if (data.name !== undefined) updateData.name = data.name
   if (data.placeIds !== undefined) updateData.place_ids = data.placeIds
   if (data.placeMemos !== undefined) updateData.place_memos = data.placeMemos
+  if (data.placeTimes !== undefined) updateData.place_times = data.placeTimes
   if (data.isMain !== undefined) updateData.is_main = data.isMain
   if (data.scheduledDate !== undefined) updateData.scheduled_date = data.scheduledDate ?? null
   if (data.hiddenPlaces !== undefined) updateData.hidden_places = data.hiddenPlaces

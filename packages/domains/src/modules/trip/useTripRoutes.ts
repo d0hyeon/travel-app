@@ -11,6 +11,7 @@ import {
   updateRoute,
   deleteRoute,
 } from "../route";
+import type { RoutePlaceTime } from "../route";
 import { assert } from "../../utils";
 import { useTrip } from "./useTrip";
 import { mergeQueriesStatus } from "../../utils";
@@ -45,6 +46,7 @@ export function useTripRoutes(id: string) {
         placeIds: [],
         isMain: false,
         placeMemos: {},
+        placeTimes: {},
         ...params,
       });
     },
@@ -66,6 +68,31 @@ export function useTripRoutes(id: string) {
     },
     onSuccess: () => {
       routeQueries.refetch();
+    },
+  });
+
+  const routePlaceUpdation = useMutation({
+    mutationFn: ({
+      routeId,
+      placeId,
+      time,
+      memos,
+    }: {
+      routeId: string;
+      placeId: string;
+      time: RoutePlaceTime;
+      memos: string[];
+    }) => {
+      const route = routes.find((x) => x.id === routeId);
+      assert(!!route, "존재하지 않는 경로입니다.");
+
+      return updateRoute(routeId, {
+        placeTimes: { ...route.placeTimes, [placeId]: time },
+        placeMemos: { ...route.placeMemos, [placeId]: memos },
+      });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: useTripRoutes.key(id) });
     },
   });
 
@@ -92,6 +119,10 @@ export function useTripRoutes(id: string) {
     data: { trip, routes, tripDates: dates },
     create: Object.assign(creation.mutateAsync, creation),
     update: Object.assign(updation.mutateAsync, updation),
+    updateRoutePlace: Object.assign(
+      routePlaceUpdation.mutateAsync,
+      routePlaceUpdation,
+    ),
     remove: Object.assign(deletion.mutateAsync, deletion),
     toggleVisible: Object.assign(
       updateVisibleMutation.mutateAsync,

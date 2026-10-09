@@ -5,9 +5,8 @@ import type { ReactNode } from 'react';
 import type { TripPlace } from '@waylog/domains/modules/place';
 import { ListItem } from '~shared/components/ListItem';
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog';
-import { useTripPlaces } from '@waylog/domains/modules/trip';
 import { useDayTripRoutes } from '@waylog/domains/modules/trip';
-import { usePlaceFormOverlay } from '../usePlaceFormOverlay';
+import { useRoutePlaceEditOverlay } from '../trip-route-place/useRoutePlaceEditOverlay';
 
 type ListItemProps = Parameters<typeof ListItem>[0];
 
@@ -47,19 +46,12 @@ interface ActionsProps {
 // 장소 수정/삭제 액션. route 조회·변경은 내부 책임이다.
 TripRoutePlaceItem.Actions = function TripRoutePlaceItemActions({ tripId, date, routeId, placeId }: ActionsProps) {
   const confirm = useConfirmDialog();
-  const { openDialog: getUpdatedPlace } = usePlaceFormOverlay();
-  const { update: updatePlace } = useTripPlaces(tripId);
+  const { openDialog: editPlace } = useRoutePlaceEditOverlay();
   const { data: { routes }, update } = useDayTripRoutes({ tripId, date });
 
   const route = routes.find(x => x.id === routeId);
   const place = route?.places.find(x => x.id === placeId);
   if (!route || !place) return null;
-
-  const editPlace = async () => {
-    const updated = await getUpdatedPlace({ tripId, placeId: place.id, defaultValues: place });
-    if (!updated) return;
-    updatePlace({ ...updated, id: place.id, category: updated.category || undefined, tags: updated.tags });
-  };
 
   const removeFromRoute = async () => {
     if (!(await confirm('정말로 삭제하시겠어요?'))) return;
@@ -68,7 +60,7 @@ TripRoutePlaceItem.Actions = function TripRoutePlaceItemActions({ tripId, date, 
 
   return (
     <Box flexShrink={0}>
-      <IconButton size="small" onClick={editPlace}>
+      <IconButton size="small" onClick={() => editPlace({ tripId, routeId, placeId: place.id })}>
         <EditIcon fontSize="small" />
       </IconButton>
       <IconButton size="small" color="error" onClick={removeFromRoute}>

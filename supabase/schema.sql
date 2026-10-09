@@ -662,7 +662,8 @@ CREATE TABLE IF NOT EXISTS "public"."routes" (
     "scheduled_date" "date",
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "place_memos" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
-    "hidden_places" "uuid"[]
+    "hidden_places" "uuid"[],
+    "place_times" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL
 );
 
 

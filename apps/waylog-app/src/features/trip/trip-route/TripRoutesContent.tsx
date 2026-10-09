@@ -22,6 +22,7 @@ import { getRouteColor } from '~features/trip/trip-expense/routeExpenseView.util
 import { useTripLayoutSetting } from '~features/trip/trip-layout/useTripLayoutSetting'
 import { TripMarineActivityMapMarkers } from '~features/trip/trip-marine-activity/TripMarineActivityMapMarkers'
 import { useTripPlaceFormOverlay } from '~features/trip/trip-place/trip-place-form/useTripPlaceFormOverlay'
+import { useRoutePlaceEditOverlay } from './trip-route-place/useRoutePlaceEditOverlay'
 import { TripWeatherIconButton } from '~features/trip/trip-weather/TripWeatherIconButton'
 import { CurrenntLocationIconButton } from './components/CurrentLocationIconButton'
 import { TripRouteMapSettingsButton } from './components/TripRouteMapSettingsButton'
@@ -127,6 +128,7 @@ function Resolved({ tripId }: RouteContentProps) {
   }
 
   const { openBottomSheet: editPlace } = useTripPlaceFormOverlay()
+  const { open: editRoutePlace } = useRoutePlaceEditOverlay()
 
   return (
     <>
@@ -218,7 +220,11 @@ function Resolved({ tripId }: RouteContentProps) {
                     overlay.open(({ isOpen, close }) => (
                       <ActionSheet isOpen={isOpen} onClose={close}>
                         <ActionSheet.Item
-                          onPress={() => editPlace({ tripId, placeId: place.id })}
+                          onPress={() => (
+                            isInCurrentRoute && currentRoute != null
+                              ? editRoutePlace({ tripId, routeId: currentRoute.id, placeId: place.id })
+                              : editPlace({ tripId, placeId: place.id })
+                          )}
                         >
                           장소 수정
                         </ActionSheet.Item>

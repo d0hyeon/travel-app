@@ -33,10 +33,11 @@ import { TripRoutePlaceListItem } from "./components/TripRoutePlaceListItem";
 import { TripRouteSelector } from "./components/TripRouteSelector";
 import { findNearestPlace } from '@waylog/domains/modules/trip';
 import { PlaceSelectSheet } from "./PlaceSelectSheet";
-import { NoteEditor } from './RouteNoteList';
+import { RoutePlaceNotes, RoutePlaceTimeLabel } from './trip-route-place/RoutePlaceSummary';
 import { RouteLegItem } from './RouteTimeline';
 import { useDayTripRoutes } from '@waylog/domains/modules/trip';
-import { usePlaceFormOverlay } from './usePlaceFormOverlay';
+import { useRoutePlaceEditOverlay } from './trip-route-place/useRoutePlaceEditOverlay';
+import { useTripPlaceFormOverlay } from '../trip-place/trip-place-form/useTripPlaceFormOverlay';
 import { useRouteLegs } from './useRouteLegs';
 import { useTripViewConfigValue } from './useTripViewConfig';
 
@@ -57,7 +58,7 @@ const DEFAULT_BOTTOM_SHEET_RATIO = 0.5 satisfies typeof BOTTOM_SHEET_RATIOS[numb
 export default function TripRoutesContent({ tripId }: RouteContentProps) {
 
   const { data: trip } = useTrip(tripId);
-  const { data: allPlaces, update: updatePlace } = useTripPlaces(tripId)
+  const { data: allPlaces } = useTripPlaces(tripId)
 
   const [selectedDate, setSelectedDate] = useQueryParamState<string>('days', {
     defaultValue: () => {
@@ -74,7 +75,6 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
     update,
     remove: removeRoute,
     toggleVisible,
-    updateNotes
   } = useDayTripRoutes({ tripId, date: selectedDate });
 
 
@@ -93,7 +93,8 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
   )
   const legByArrivalPlaceId = useRouteLegs(visiblePlaces)
 
-  const { openBottomsheet: getUpdatedPlace } = usePlaceFormOverlay();
+  const { openBottomsheet: editRoutePlace } = useRoutePlaceEditOverlay();
+  const { openBottomSheet: editPlace } = useTripPlaceFormOverlay();
 
   const viewConfig = useTripViewConfigValue();
   const [sheetRatio, setSheetRatio] = useState(DEFAULT_BOTTOM_SHEET_RATIO);
@@ -274,7 +275,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                             <TripRoutePlaceListItem
                               data={place}
                               title={(
-                                <Stack direction="row" alignItems="center" gap={0.5}>
+                                <Stack direction="row" alignItems="center" gap={0.5} width="100%">
                                   <Dot>{idx}</Dot>
                                   <ListItem.Title>{place.name}</ListItem.Title>
                                   <IconButton
@@ -288,6 +289,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                                       ? <VisibilityOffIcon fontSize="small" sx={{ opacity: 0.7 }} />
                                       : <VisibilityOnIcon fontSize="small" />}
                                   </IconButton>
+                                  <RoutePlaceTimeLabel time={currentRoute.placeTimes[place.id]} marginLeft="auto" />
                                 </Stack>
                               )}
                               leftAddon={(
@@ -306,12 +308,7 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
                               focused={focusedId === place.id}
                               onClick={() => mapRef.current?.panTo(place.lat, place.lng)}
                             >
-                              <NoteEditor
-                                notes={place.routeNotes ?? []}
-                                onChange={(memos) => updateNotes({ placeId: place.id, routeId: currentRoute.id, memos })}
-                                action="dialog"
-                                marginTop={1}
-                              />
+                              <RoutePlaceNotes notes={place.routeNotes ?? []} />
                             </TripRoutePlaceListItem>
                           </SortableList.Item>
                         </Fragment>
@@ -334,9 +331,11 @@ export default function TripRoutesContent({ tripId }: RouteContentProps) {
             <MenuItem
               onClick={async () => {
                 setSelectedPlace(null)
-                const updated = await getUpdatedPlace({ tripId, placeId: selectedPlace.id, defaultValues: selectedPlace });
-                if (updated) await updatePlace({ ...selectedPlace, ...updated });
-
+                if (currentRoute != null && getIsInRoute(selectedPlace)) {
+                  await editRoutePlace({ tripId, routeId: currentRoute.id, placeId: selectedPlace.id });
+                  return;
+                }
+                await editPlace({ tripId, placeId: selectedPlace.id });
               }}
             >
               <ListItemIcon><EditIcon fontSize="small" /></ListItemIcon>
