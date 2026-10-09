@@ -11,7 +11,15 @@ export interface DueNotification {
   attempt_count: number
 }
 
-export type NotificationOutcome = 'sent' | 'skipped' | 'cancelled'
+export interface RescheduledOutcome {
+  rescheduledFor: Date
+}
+
+export type NotificationOutcome = 'sent' | 'skipped' | 'cancelled' | RescheduledOutcome
+
+function getIsRescheduled(outcome: NotificationOutcome): outcome is RescheduledOutcome {
+  return typeof outcome === 'object'
+}
 
 export interface NotificationHandlerContext {
   supabase: SupabaseClient
@@ -40,6 +48,7 @@ async function markCancelled(supabase: SupabaseClient, id: string) {
     .from(TABLE)
     .update({ status: 'cancelled', cancelled_at: new Date().toISOString(), updated_at: new Date().toISOString() })
     .eq('id', id)
+    .eq('status', 'processing')
 }
 
 async function markDelivered(supabase: SupabaseClient, id: string) {
@@ -47,6 +56,20 @@ async function markDelivered(supabase: SupabaseClient, id: string) {
     .from(TABLE)
     .update({ status: 'delivered', delivered_at: new Date().toISOString(), updated_at: new Date().toISOString() })
     .eq('id', id)
+    .eq('status', 'processing')
+}
+
+async function markRescheduled(supabase: SupabaseClient, id: string, rescheduledFor: Date) {
+  await supabase
+    .from(TABLE)
+    .update({
+      status: 'pending',
+      scheduled_for: rescheduledFor.toISOString(),
+      locked_at: null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', id)
+    .eq('status', 'processing')
 }
 
 async function markFailedOrRetry(
@@ -68,6 +91,7 @@ async function markFailedOrRetry(
       updated_at: now.toISOString(),
     })
     .eq('id', notification.id)
+    .eq('status', 'processing')
 }
 
 export async function dispatchDueNotifications(
@@ -98,6 +122,11 @@ export async function dispatchDueNotifications(
 
     try {
       const outcome = await handlers[notification.type](notification, { supabase, now })
+
+      if (getIsRescheduled(outcome)) {
+        await markRescheduled(supabase, notification.id, outcome.rescheduledFor)
+        continue
+      }
 
       if (outcome === 'cancelled') {
         await markCancelled(supabase, notification.id)
