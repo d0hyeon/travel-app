@@ -1,15 +1,18 @@
 import type { ReactNode } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import Animated, {
-  Extrapolation,
   interpolate,
+  useAnimatedReaction,
   useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
 } from 'react-native-reanimated'
 import { fontSize, palette, radius } from '~shared/config/tokens'
 import { GlassSurface } from '~shared/components/design-system/GlassSurface'
 import { Typography } from '~shared/components/design-system/Typography'
 import { useMenuFabContext } from './MenuFabContext'
-import { getItemOffsetY, getItemStagger, ITEM_HEIGHT } from './menuFabMotion'
+import { CLOSE_DURATION_MS, getItemOffsetY, getItemStagger, ITEM_ENTRY_SPRING, ITEM_HEIGHT } from './menuFabMotion'
 
 // 검은 틴트는 블러와 겹치면 탁한 회색으로 보인다. 흰 틴트를 줘야 서리
 // 낀 유리(frosted glass) 특유의 밝고 뽀얀 느낌이 난다. 지도·사진처럼 색이
@@ -28,24 +31,26 @@ export interface MenuFabItemProps {
 
 export function MenuFabItem({ icon, onPress, children }: MenuFabItemProps) {
   const { menuProgress, index, itemCount, isOpen, closeMenu, surface } = useMenuFabContext()
-  const { start, end } = getItemStagger(index, itemCount)
+  const { start } = getItemStagger(index, itemCount)
+  const entry = useSharedValue(0)
 
-  const animatedStyle = useAnimatedStyle(() => {
-    const progress = interpolate(
-      menuProgress.get(),
-      [start, end],
-      [0, 1],
-      Extrapolation.CLAMP,
-    )
+  useAnimatedReaction(
+    () => menuProgress.get() > start,
+    (isEntering, wasEntering) => {
+      if (isEntering === wasEntering) return
+      entry.set(
+        isEntering ? withSpring(1, ITEM_ENTRY_SPRING) : withTiming(0, { duration: CLOSE_DURATION_MS }),
+      )
+    },
+  )
 
-    return {
-      opacity: progress,
-      transform: [
-        { translateY: interpolate(progress, [0, 1], [12, 0]) },
-        { scale: interpolate(progress, [0, 1], [0.92, 1]) },
-      ],
-    }
-  })
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: Math.min(Math.max(entry.get(), 0), 1),
+    transform: [
+      { translateY: interpolate(entry.get(), [0, 1], [16, 0]) },
+      { scale: interpolate(entry.get(), [0, 1], [0.92, 1]) },
+    ],
+  }))
 
   return (
     <Animated.View

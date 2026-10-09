@@ -178,7 +178,7 @@ apps/
 │   │       │   │   ├── GlassSurface.tsx # 유리 재질. iOS 26 Liquid Glass, 그 아래는 블러로 대체
 │   │       │   │   ├── PressableScale.tsx # 누르는 동안 easing 으로 커지고 떼면 오버슈트하며 복귀하는 Pressable (style 은 커지는 바깥 컨테이너에 적용)
 │   │       │   │   ├── BlurSwap.tsx # transitionKey 가 바뀌면 children 을 흐려 지운 뒤 갈아 끼우고 다시 선명하게 한다. 블러는 RN 0.86 `filter: blur` 라 iOS 에서 `enableSwiftUIBasedFilters` 플래그(기본 꺼짐)가 켜져야 그려지고, 꺼져 있으면 투명도 변화만 보인다
-│   │       │   │   └── menu-fab/ # 탭 기본 동작·롱프레스 보조 메뉴, 순수 모션 계산 분리
+│   │       │   │   └── menu-fab/ # 탭 기본 동작·롱프레스 보조 메뉴, 순수 모션 계산 분리. 롱프레스 총 시간은 항목 수와 무관하게 300ms 고정이다. 200ms 임계점까지는 아무 변화가 없고, 임계점부터 남은 100ms 를 항목 수로 균등 분배해 항목이 하나씩 순서대로 열리고(각 항목은 자기 칸이 시작되는 순간 스프링으로 튀어나와 살짝 밀렸다 자리잡는다), 끝까지 누르면 고정·중간에 떼면 접힌다. 원호(MenuFabProgressRing)가 임계점과 무관하게 누르는 즉시 차오르기 시작해 롱프레스 완료 시점에 가득 차고, `variant` 로 표현을 고른다 — 'bouncing'(기본): FAB 바깥쪽 4px 간격의 옅은(불투명도 0.75) primary 링이 끝으로 갈수록 빨라지며 차오르고 완료 시 커지며 진해지는 펄스를 낸다 / 'inner': FAB 안쪽 4px 의 흰 링이 일정한 속도로 차오르고 펄스는 없다. 링은 메뉴가 열려 있는 동안 가득 찬 채 유지되고, 아이콘도 같은 진행도에 맞춰 회전한다. 보조 메뉴가 있다는 표시로 FAB 뒤에 같은 색 원 두 장이 위로 살짝 겹쳐 비치고 펼쳐지면 사라진다
 │   │       │   ├── Map/        # @rnmapbox/maps 구현. 클러스터 외형은 NativeMapCluster.utils.ts,
 │   │       │   │                #   카메라는 useMapCamera, 클러스터 전이는 useClusterTransition
 │   │       │   ├── bottom-sheet/ # 자체 구현 (Reanimated) — 웹과 같은 공개 API. Body 레이아웃·ScrollView 제스처

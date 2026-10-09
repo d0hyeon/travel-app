@@ -1,5 +1,6 @@
-const ITEM_STAGGER_DELAY = 0.16
-const ITEM_STAGGER_SPAN = 0.55
+export const LONG_PRESS_THRESHOLD_MS = 170
+export const LONG_PRESS_DURATION_MS = 270
+export const UNFOLD_DURATION_MS = LONG_PRESS_DURATION_MS - LONG_PRESS_THRESHOLD_MS
 
 export interface StaggerRange {
   start: number
@@ -7,14 +8,11 @@ export interface StaggerRange {
 }
 
 export function getItemStagger(index: number, count: number): StaggerRange {
-  if (count <= 1) return { start: 0, end: 1 }
+  return { start: index / count, end: (index + 1) / count }
+}
 
-  const naturalSpan = ITEM_STAGGER_DELAY * (count - 1) + ITEM_STAGGER_SPAN
-  const scale = naturalSpan > 1 ? 1 / naturalSpan : 1
-
-  const start = index * ITEM_STAGGER_DELAY * scale
-
-  return { start, end: start + ITEM_STAGGER_SPAN * scale }
+export function getItemRevealEndMs(index: number, count: number): number {
+  return getItemStagger(index, count).end * UNFOLD_DURATION_MS
 }
 
 export const FAB_SIZE = 52
@@ -26,25 +24,9 @@ export function getItemOffsetY(index: number): number {
   return FAB_SIZE + ITEM_GAP + index * (ITEM_HEIGHT + ITEM_GAP)
 }
 
-export interface HintLayerSpec {
-  size: number
-  opacity: number
-  restingOffset: number
-  pressedOffset: number
-}
-
-export const HINT_LAYERS: readonly [HintLayerSpec, HintLayerSpec] = [
-  { size: 52, opacity: 0.36, restingOffset: 5, pressedOffset: 14 },
-  { size: 44, opacity: 0.22, restingOffset: 9, pressedOffset: 24 },
-]
-
-export function getHintLayerOffset(layer: HintLayerSpec, pressProgress: number): number {
-  'worklet'
-
-  return layer.restingOffset + (layer.pressedOffset - layer.restingOffset) * pressProgress
-}
-
-export const LONG_PRESS_DELAY_MS = 250
-export const HINT_PRESS_DURATION_MS = 180
+export const PRESS_SCALE_DURATION_MS = 180
 export const OPEN_DURATION_MS = 220
 export const CLOSE_DURATION_MS = 160
+
+export const ITEM_ENTRY_SPRING = { damping: 14, stiffness: 260, mass: 0.6 }
+export const RING_PULSE_SPRING = { damping: 12, stiffness: 200 }
