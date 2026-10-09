@@ -632,7 +632,7 @@ src/
 │       │   ├── TripMemoForm.tsx
 │       │   └── TripPinnedMemos.tsx
 │       ├── trip-photo/                    # 사진 탭
-│       │   ├── useTripPhotos.ts
+│       │   ├── useTripPhotos.ts       # remove 는 낙관적 삭제(캐시에서 먼저 제거) + 토스트, 실패 시 에러 토스트·refetch 로 복구. 앱 useTripPhotos 도 동일
 │       │   ├── TripPhotoContent.mobile.tsx
 │       │   └── TripPhotoContent.desktop.tsx
 │       ├── trip-place/                    # 장소 탭

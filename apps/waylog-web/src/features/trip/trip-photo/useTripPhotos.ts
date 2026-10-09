@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deletePhoto, getPhotosByTripId, photoKey, updatePhoto, uploadPhoto, type PhotoUpdate } from "~features/photo/photo.api";
 import { findNearestPlaceFromPhoto } from "~features/photo/photo.utils";
@@ -6,6 +7,7 @@ import { tripKey } from "@waylog/domains/modules/trip";
 import { useTripPlaces } from '@waylog/domains/modules/trip';
 import { queryClient } from "~app/query-client";
 import { useSuspenseQuery, type UseSuspenseQueryOptions } from "@waylog/react";
+
 
 type FileUploadParams =
   | { files: File[]; placeId?: string }
@@ -45,7 +47,15 @@ export function useTripPhotos(tripId: string, options?: Omit<QueryOptions, 'quer
 
   const { mutateAsync: remove } = useMutation({
     mutationFn: (photo: Photo) => deletePhoto(photo),
-    onSuccess: () => refetch()
+    onMutate: async (photo) => {
+      await queryClient.cancelQueries({ queryKey: useTripPhotos.key(tripId) })
+      queryClient.setQueryData<Photo[]>(useTripPhotos.key(tripId), (curr) => curr?.filter((item) => item.id !== photo.id))
+      toast.success('사진을 삭제했어요')
+    },
+    onError: () => {
+      toast.error('사진을 삭제하지 못했어요')
+      refetch()
+    }
   })
 
   const { mutateAsync: update } = useMutation({
