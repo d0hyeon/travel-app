@@ -87,20 +87,20 @@ Deno.test('터미널이 없어도 국내선 안내를 만든다', () => {
 
 const now = new Date('2026-09-23T07:00:00+09:00')
 
-Deno.test('권장 도착까지 120분 이내면 출국장을 추천할 수 있다', () => {
-  const guidance = { recommendedArrivalAt: '2026-09-23T08:00:00+09:00', terminal: 'P01' }
+Deno.test('권장 도착까지 30분 이내면 출국장을 추천할 수 있다', () => {
+  const guidance = { recommendedArrivalAt: '2026-09-23T07:20:00+09:00', terminal: 'P01' }
 
   assertEquals(getIsDepartureGateRecommendable(guidance, now), true)
 })
 
-Deno.test('권장 도착까지 정확히 120분이면 출국장을 추천할 수 있다', () => {
-  const guidance = { recommendedArrivalAt: '2026-09-23T09:00:00+09:00', terminal: 'P01' }
+Deno.test('권장 도착까지 정확히 30분이면 출국장을 추천할 수 있다', () => {
+  const guidance = { recommendedArrivalAt: '2026-09-23T07:30:00+09:00', terminal: 'P01' }
 
   assertEquals(getIsDepartureGateRecommendable(guidance, now), true)
 })
 
-Deno.test('권장 도착까지 120분을 넘으면 출국장을 추천하지 않는다', () => {
-  const guidance = { recommendedArrivalAt: '2026-09-23T09:01:00+09:00', terminal: 'P01' }
+Deno.test('권장 도착까지 30분을 넘으면 출국장을 추천하지 않는다', () => {
+  const guidance = { recommendedArrivalAt: '2026-09-23T07:31:00+09:00', terminal: 'P01' }
 
   assertEquals(getIsDepartureGateRecommendable(guidance, now), false)
 })

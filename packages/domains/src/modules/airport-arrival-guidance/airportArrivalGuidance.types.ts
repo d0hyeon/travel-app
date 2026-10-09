@@ -97,7 +97,7 @@ export interface AirportArrivalGuidance {
 }
 
 // 도착 임박 여부 판단 뒤에만 쓴다. 미래 예측에는 실시간 데이터를 쓰지 않는다.
-export const REALTIME_GATE_RECOMMENDATION_WINDOW_MINUTES = 120;
+export const REALTIME_GATE_RECOMMENDATION_WINDOW_MINUTES = 30;
 
 export interface DepartureGateRecommendation {
   gate: string;

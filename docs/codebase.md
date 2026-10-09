@@ -1100,10 +1100,10 @@ src/
   로그인 사용자면 허용)을 호출한다. 화면은 정책·혼잡 스냅샷을 직접 읽지 않으며, Edge가
   여행 멤버 권한, `trips.is_overseas`, 터미널, 운항 상태, 정책과 혼잡 데이터를
   함께 판단해 표시 결과만 반환한다. 레거시 `get-guidance`(교통편 하나)는 설치된 앱 빌드 호환용으로
-  남겼고 권장 도착 120분 이내면 `recommendedDepartureGate`를 붙인다. 최소 앱 버전을 올린 뒤 제거하고,
+  남겼고 권장 도착 30분 이내면 `recommendedDepartureGate`를 붙인다. 최소 앱 버전을 올린 뒤 제거하고,
   그때 Edge의 `getIsDepartureGateRecommendable` 사본도 함께 지운다. 배치에서 교통편 하나가 실패하면 배치
   전체가 실패한다(변경 전 클라이언트 `Promise.all`과 같다).
-  **출국장 추천 창**(권장 도착 120분 이하, 터미널 있음)은 클라이언트(`useDepartureGateRecommendation`)가
+  **출국장 추천 창**(권장 도착 30분 전부터, 터미널 있음 — "현재" 혼잡도를 공항에 들어서기 직전에 보여주기 위해)은 클라이언트(`useDepartureGateRecommendation`)가
   queryFn 안에서 판단한다. `enabled`에 현재 시각을 넣으면 시간이 지나도 쿼리가 다시 켜지지 않기 때문이다.
   **혼잡 스냅샷 로더**(`createCongestionSnapshotLoader`)는 같은 출처·공항·터미널·예측 날짜를 요청 안에서
   한 번만 조회하고(요청 단위 메모), 요청 간 캐시는 `airport_congestion_snapshots`(실시간 2분·예측 24시간)가
