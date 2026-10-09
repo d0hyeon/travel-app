@@ -67,7 +67,7 @@ function Resolved({ postId }: Props) {
           <Map
             type={isOverseasByCoordinate(post.places[0].lat, post.places[0].lng) ? 'google' : 'kakao'}
             center={post.places[0]}
-            height={300}
+            height={isMobile ? 200 : 300}
             borderRadius={4}
           >
             {post.places.map((place) => (

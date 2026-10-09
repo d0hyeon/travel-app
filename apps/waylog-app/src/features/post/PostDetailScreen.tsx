@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   placesMap: {
-    height: 300,
+    height: 200,
     borderRadius: 12,
     overflow: 'hidden',
   },
