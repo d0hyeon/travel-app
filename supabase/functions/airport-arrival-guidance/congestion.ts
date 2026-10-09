@@ -192,18 +192,6 @@ async function fetchDomesticCongestion(
   }
 }
 
-export interface FreshCongestionSnapshotInput {
-  sourceKind: AirportCongestionSourceKind
-  airportCode: string
-  terminal: string
-  forecastDate?: string
-}
-
-export interface FreshCongestionSnapshotResult {
-  snapshotId: string
-  isCacheHit: boolean
-}
-
 const REALTIME_TTL_MS = 2 * 60 * 1000
 const FORECAST_TTL_MS = 24 * 60 * 60 * 1000
 
@@ -212,26 +200,43 @@ interface ReferenceCountRow {
   reference_passenger_count: number
 }
 
-async function withReferenceCounts(
+interface CongestionSnapshotRow {
+  source_kind: AirportCongestionSourceKind
+  airport_code: string
+  terminal: string
+  observed_at: string
+  departure_gates: CongestionDepartureGate[]
+}
+
+export interface CongestionSnapshotRequest {
+  sourceKind: AirportCongestionSourceKind
+  airportCode: string
+  terminal: string
+  forecastDate?: string
+}
+
+export function toCongestionSnapshotKey(request: CongestionSnapshotRequest): string {
+  const forecastDate = request.sourceKind === 'forecast' ? (request.forecastDate ?? '') : ''
+  return [request.sourceKind, request.airportCode, request.terminal, forecastDate].join('|')
+}
+
+const SNAPSHOT_COLUMNS = 'source_kind, airport_code, terminal, observed_at, departure_gates'
+
+async function applyReferenceCounts(
   supabase: SupabaseClient,
-  input: FreshCongestionSnapshotInput,
+  policyId: string,
+  request: CongestionSnapshotRequest,
   gates: CongestionDepartureGate[],
 ): Promise<CongestionDepartureGateWithReference[]> {
-  const { data: policy } = await supabase
-    .from('airport_arrival_guidance_policies')
-    .select('id')
-    .eq('is_active', true)
-    .single()
+  const { data: references, error } = await supabase
+    .from('airport_congestion_reference_counts')
+    .select('departure_gate, reference_passenger_count')
+    .eq('policy_id', policyId)
+    .eq('source_kind', request.sourceKind)
+    .eq('airport_code', request.airportCode)
+    .eq('terminal', request.terminal)
 
-  const { data: references } = policy
-    ? await supabase
-        .from('airport_congestion_reference_counts')
-        .select('departure_gate, reference_passenger_count')
-        .eq('policy_id', policy.id)
-        .eq('source_kind', input.sourceKind)
-        .eq('airport_code', input.airportCode)
-        .eq('terminal', input.terminal)
-    : { data: null }
+  if (error != null) throw new Error(error.message)
 
   const referenceByGate = new Map(
     ((references ?? []) as ReferenceCountRow[]).map((row) => [row.departure_gate, row.reference_passenger_count]),
@@ -239,102 +244,74 @@ async function withReferenceCounts(
 
   return gates.map((gate) => ({
     ...gate,
-    // 기준값이 없는 출국장은 실측값을 그대로 기준으로 삼아 비율 1을 만든다 --
-    // 관리자가 기준값을 아직 등록하지 않았다고 해서 안내를 막지 않는다.
     referencePassengerCount: referenceByGate.get(gate.gate) ?? (gate.passengerCount || 1),
   }))
 }
 
-/**
- * 유효한 스냅샷이 있으면 재사용하고, 없거나 만료됐으면 API 를 호출해
- * 정규화한 결과를 저장한다.
- */
-export async function getFreshCongestionSnapshot(
+async function loadRawCongestionSnapshot(
   supabase: SupabaseClient,
   serviceKey: string,
-  input: FreshCongestionSnapshotInput,
-): Promise<FreshCongestionSnapshotResult> {
+  request: CongestionSnapshotRequest,
+): Promise<CongestionSnapshotRow> {
   const now = new Date()
+  const isForecast = request.sourceKind === 'forecast'
 
   let query = supabase
     .from('airport_congestion_snapshots')
-    .select('id')
-    .eq('source_kind', input.sourceKind)
-    .eq('airport_code', input.airportCode)
-    .eq('terminal', input.terminal)
+    .select(SNAPSHOT_COLUMNS)
+    .eq('source_kind', request.sourceKind)
+    .eq('airport_code', request.airportCode)
+    .eq('terminal', request.terminal)
     .gt('expires_at', now.toISOString())
     .order('observed_at', { ascending: false })
     .limit(1)
 
-  query =
-    input.sourceKind === 'forecast'
-      ? query.eq('snapshot_date', input.forecastDate ?? null)
-      : query.is('snapshot_date', null)
+  query = isForecast
+    ? query.eq('snapshot_date', request.forecastDate ?? null)
+    : query.is('snapshot_date', null)
 
   const { data: cached } = await query.maybeSingle()
-  if (cached != null) {
-    return { snapshotId: cached.id, isCacheHit: true }
-  }
+  if (cached != null) return cached
 
   const normalized =
-    input.sourceKind === 'forecast'
-      ? await fetchForecastCongestion(serviceKey, input.terminal, input.forecastDate ?? '0')
-      : input.sourceKind === 'realtime'
-        ? await fetchRealtimeCongestion(serviceKey, input.terminal)
-        : await fetchDomesticCongestion(serviceKey, input.airportCode)
+    request.sourceKind === 'forecast'
+      ? await fetchForecastCongestion(serviceKey, request.terminal, request.forecastDate ?? '0')
+      : request.sourceKind === 'realtime'
+        ? await fetchRealtimeCongestion(serviceKey, request.terminal)
+        : await fetchDomesticCongestion(serviceKey, request.airportCode)
 
-  const departureGates = await withReferenceCounts(supabase, input, normalized.departureGates)
-  const ttlMs = input.sourceKind === 'forecast' ? FORECAST_TTL_MS : REALTIME_TTL_MS
+  const ttlMs = isForecast ? FORECAST_TTL_MS : REALTIME_TTL_MS
 
   const { data: inserted, error } = await supabase
     .from('airport_congestion_snapshots')
     .insert({
-      source_kind: input.sourceKind,
-      airport_code: input.airportCode,
-      terminal: input.terminal,
-      snapshot_date: input.sourceKind === 'forecast' ? (input.forecastDate ?? null) : null,
+      source_kind: request.sourceKind,
+      airport_code: request.airportCode,
+      terminal: request.terminal,
+      snapshot_date: isForecast ? (request.forecastDate ?? null) : null,
       observed_at: normalized.observedAt,
       expires_at: new Date(now.getTime() + ttlMs).toISOString(),
       raw_response: normalized.rawResponse,
-      departure_gates: departureGates,
+      departure_gates: normalized.departureGates,
     })
-    .select('id')
+    .select(SNAPSHOT_COLUMNS)
     .single()
 
   if (error != null || inserted == null) {
     throw new Error(error?.message ?? '공항 혼잡 스냅샷 저장에 실패했습니다.')
   }
 
-  return { snapshotId: inserted.id, isCacheHit: false }
+  return inserted
 }
 
-interface CongestionSnapshotRow {
-  source_kind: AirportCongestionSourceKind
-  airport_code: string
-  terminal: string
-  observed_at: string
-  departure_gates: CongestionDepartureGateWithReference[]
-}
-
-/** 저장된 스냅샷을 도메인 계산에 바로 넣을 수 있는 형태로 읽어온다. */
-export async function getCongestionSnapshotData(
+async function loadCongestionSnapshot(
   supabase: SupabaseClient,
-  snapshotId: string,
-): Promise<CongestionSnapshotData | null> {
-  const { data } = await supabase
-    .from('airport_congestion_snapshots')
-    .select('source_kind, airport_code, terminal, observed_at, departure_gates')
-    .eq('id', snapshotId)
-    .maybeSingle()
-
-  if (data == null) return null
-
-  const row = data as CongestionSnapshotRow
-  const departureGates = await withReferenceCounts(supabase, {
-    sourceKind: row.source_kind,
-    airportCode: row.airport_code,
-    terminal: row.terminal,
-  }, row.departure_gates)
+  serviceKey: string,
+  policyId: string,
+  request: CongestionSnapshotRequest,
+): Promise<CongestionSnapshotData> {
+  const row = await loadRawCongestionSnapshot(supabase, serviceKey, request)
+  const departureGates = await applyReferenceCounts(supabase, policyId, request, row.departure_gates)
 
   return {
     sourceKind: row.source_kind,
@@ -342,5 +319,23 @@ export async function getCongestionSnapshotData(
     terminal: row.terminal,
     observedAt: row.observed_at,
     departureGates,
+  }
+}
+
+export function createCongestionSnapshotLoader(
+  supabase: SupabaseClient,
+  serviceKey: string,
+  policyId: string,
+): (request: CongestionSnapshotRequest) => Promise<CongestionSnapshotData> {
+  const snapshotByKey = new Map<string, Promise<CongestionSnapshotData>>()
+
+  return (request) => {
+    const key = toCongestionSnapshotKey(request)
+    const pending = snapshotByKey.get(key)
+    if (pending != null) return pending
+
+    const snapshot = loadCongestionSnapshot(supabase, serviceKey, policyId, request)
+    snapshotByKey.set(key, snapshot)
+    return snapshot
   }
 }

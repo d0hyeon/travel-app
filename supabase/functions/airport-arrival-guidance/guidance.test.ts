@@ -1,8 +1,10 @@
 import { assertEquals } from 'jsr:@std/assert@1'
 import {
   getAirportArrivalGuidance,
-  getRecommendedDepartureGate,
+  getIsDepartureGateRecommendable,
+  getLeastCongestedDepartureGate,
   type AirportArrivalGuidancePolicy,
+  type AirportCongestionSnapshot,
 } from './guidance.ts'
 
 const policy: AirportArrivalGuidancePolicy = {
@@ -83,21 +85,64 @@ Deno.test('터미널이 없어도 국내선 안내를 만든다', () => {
   assertEquals(guidance?.sourceKind, 'domestic')
 })
 
-Deno.test('권장 도착 시각이 가까워진 해외편에만 가장 여유로운 출국장을 추천한다', () => {
-  const gate = getRecommendedDepartureGate({
-    recommendedArrivalAt: '2026-09-23T08:00:00+09:00',
-    now: '2026-09-23T07:00:00+09:00',
-    realtimeSnapshot: {
-      sourceKind: 'realtime',
-      airportCode: 'ICN',
-      terminal: 'T1',
-      observedAt: '2026-09-23T07:00:00+09:00',
-      departureGates: [
-        { gate: 'DG1', passengerCount: 50, referencePassengerCount: 100 },
-        { gate: 'DG2', passengerCount: 10, referencePassengerCount: 100 },
-      ],
-    },
-  })
+const now = new Date('2026-09-23T07:00:00+09:00')
 
-  assertEquals(gate?.gate, 'DG2')
+Deno.test('권장 도착까지 120분 이내면 출국장을 추천할 수 있다', () => {
+  const guidance = { recommendedArrivalAt: '2026-09-23T08:00:00+09:00', terminal: 'P01' }
+
+  assertEquals(getIsDepartureGateRecommendable(guidance, now), true)
+})
+
+Deno.test('권장 도착까지 정확히 120분이면 출국장을 추천할 수 있다', () => {
+  const guidance = { recommendedArrivalAt: '2026-09-23T09:00:00+09:00', terminal: 'P01' }
+
+  assertEquals(getIsDepartureGateRecommendable(guidance, now), true)
+})
+
+Deno.test('권장 도착까지 120분을 넘으면 출국장을 추천하지 않는다', () => {
+  const guidance = { recommendedArrivalAt: '2026-09-23T09:01:00+09:00', terminal: 'P01' }
+
+  assertEquals(getIsDepartureGateRecommendable(guidance, now), false)
+})
+
+Deno.test('권장 도착 시각이 지났어도 출국장을 추천할 수 있다', () => {
+  const guidance = { recommendedArrivalAt: '2026-09-23T06:00:00+09:00', terminal: 'P01' }
+
+  assertEquals(getIsDepartureGateRecommendable(guidance, now), true)
+})
+
+Deno.test('터미널이 없는 국내선은 출국장을 추천하지 않는다', () => {
+  const guidance = { recommendedArrivalAt: '2026-09-23T08:00:00+09:00', terminal: null }
+
+  assertEquals(getIsDepartureGateRecommendable(guidance, now), false)
+})
+
+const realtimeSnapshot: AirportCongestionSnapshot = {
+  sourceKind: 'realtime',
+  airportCode: 'ICN',
+  terminal: 'T1',
+  observedAt: '2026-09-23T07:00:00+09:00',
+  departureGates: [
+    { gate: 'DG1', passengerCount: 50, referencePassengerCount: 100 },
+    { gate: 'DG2', passengerCount: 30, referencePassengerCount: 30 },
+    { gate: 'DG3', passengerCount: 40, referencePassengerCount: 200 },
+  ],
+}
+
+Deno.test('기준값 대비 비율이 가장 낮은 출국장을 고른다', () => {
+  const recommendation = getLeastCongestedDepartureGate(realtimeSnapshot)
+
+  assertEquals(recommendation?.gate, 'DG3')
+})
+
+Deno.test('출국장이 없으면 추천하지 않는다', () => {
+  const recommendation = getLeastCongestedDepartureGate({ ...realtimeSnapshot, departureGates: [] })
+
+  assertEquals(recommendation, null)
+})
+
+Deno.test('추천 출국장과 함께 관측 시각을 돌려준다', () => {
+  const recommendation = getLeastCongestedDepartureGate(realtimeSnapshot)
+
+  assertEquals(recommendation?.observedAt, '2026-09-23T07:00:00+09:00')
 })
