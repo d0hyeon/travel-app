@@ -351,6 +351,16 @@ describe("toNotificationText — 탑승구 변경", () => {
     expect(body).toContain("탑승구가 102로 변경됐어요.");
   });
 
+  it("탑승구 번호의 읽는 소리에 맞춰 조사를 붙인다", () => {
+    const { body } = toNotificationText(
+      항공편,
+      { kind: FlightStatusKind.예정, estimatedAt: null, gate: "220" },
+      true,
+    );
+
+    expect(body).toBe("탑승구가 220으로 변경됐어요.");
+  });
+
   it("탑승구 변경이 없으면 접미사를 붙이지 않는다", () => {
     const { body } = toNotificationText(항공편, 지연, false);
 

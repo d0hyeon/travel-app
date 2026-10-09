@@ -6,6 +6,7 @@ import {
   type FlightStatusTone,
 } from '@waylog/domains/modules/flight-status'
 import { useTripTransportTickets } from '@waylog/domains/modules/trip-transport'
+import { josa } from '@waylog/utility'
 import { AsyncBoundary } from '@waylog/react'
 import { TransportDetailSectionError } from './transport-detail/TransportDetailSectionError'
 
@@ -83,7 +84,7 @@ function Resolved({ tripId, transportId }: Props) {
             <Typography component="span" fontSize="inherit" fontWeight={700} color={color.fg}>
               {view.timeChange.toClock}
             </Typography>
-            로 변경됐어요.
+            으로 변경됐어요.
           </>
         )}
         {view.gateChange != null && (
@@ -96,7 +97,7 @@ function Resolved({ tripId, transportId }: Props) {
             <Typography component="span" fontSize="inherit" fontWeight={700} color={color.fg}>
               {view.gateChange.toGate}
             </Typography>
-            (으)로 변경됐어요.
+            {josa.pick(view.gateChange.toGate, '으로/로')} 변경됐어요.
           </>
         )}
         {view.description}

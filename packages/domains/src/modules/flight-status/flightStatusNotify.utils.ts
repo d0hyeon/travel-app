@@ -1,3 +1,4 @@
+import { josa } from "@waylog/utility";
 import { FlightStatusKind } from "./flightStatusKind";
 
 export interface WatchedStatus {
@@ -103,7 +104,7 @@ function toClock(value: string | null) {
   return new Intl.DateTimeFormat("ko-KR", {
     hour: "2-digit",
     minute: "2-digit",
-    hour12: false,
+    hourCycle: "h23",
     timeZone: "Asia/Seoul",
   }).format(date);
 }
@@ -129,7 +130,7 @@ function toTitle(flight: WatchedFlight, label: string) {
 function withGateChangedBody(text: NotificationText, status: WatchedStatus, isGateChanged: boolean) {
   if (!isGateChanged || status.gate == null) return text;
 
-  return { ...text, body: `${text.body} 탑승구가 ${status.gate}로 변경됐어요.` };
+  return { ...text, body: `${text.body} 탑승구가 ${josa(status.gate, "으로/로")} 변경됐어요.` };
 }
 
 export function toNotificationText(
@@ -179,7 +180,7 @@ export function toNotificationText(
   if (status.kind === FlightStatusKind.예정 && isGateChanged && status.gate != null) {
     return {
       title: toTitle(flight, "탑승구 변경"),
-      body: `탑승구가 ${status.gate}로 변경됐어요.`,
+      body: `탑승구가 ${josa(status.gate, "으로/로")} 변경됐어요.`,
     };
   }
 
