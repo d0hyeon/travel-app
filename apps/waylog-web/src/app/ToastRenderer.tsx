@@ -1,7 +1,7 @@
 import CheckIcon from '@mui/icons-material/Check';
 import InfoIcon from '@mui/icons-material/Info';
 import ReportIcon from '@mui/icons-material/Report';
-import { GlobalStyles } from "@mui/material";
+import { alpha, GlobalStyles } from "@mui/material";
 import { Toaster } from "sonner";
 import { useIsMobile } from "~shared/hooks/env/useIsMobile";
 
@@ -17,6 +17,9 @@ export function ToastRenderer() {
             borderRadius: '16px !important;',
             boxShadow: '3px 5px 18px rgba(0, 0, 0, 0.1.5) !important;',
             paddingBlock: '12px !important;',
+            background: `${alpha(theme.palette.background.paper, 0.7)} !important`,
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
             fontFamily: theme.typography.fontFamily,
 
             [theme.breakpoints.up('md')]: {
