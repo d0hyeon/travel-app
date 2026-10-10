@@ -1,7 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { useAuth } from '@waylog/domains/clients'
 import { usePlaceBookmark } from '@waylog/domains/modules/place-bookmark'
-import { useLoading } from '@waylog/react'
 import { Suspense } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { toast } from '~shared/components/toast/toast'
@@ -26,17 +25,16 @@ function Resolved({ placeId }: Props) {
   const { data: auth } = useAuth({ required: false })
 
   const { isBookmarked, toggle } = usePlaceBookmark(placeId)
-  const [isToggling, startToggle] = useLoading()
   const redirectToLogin = useLoginRedirect()
 
   const handlePress = async () => {
     if (auth == null) return redirectToLogin();
-    if (isToggling) return
+    if (toggle.isPending) return
     haptic(ImpactFeedbackStyle.Light).catch(() => { });
 
 
     try {
-      await startToggle(toggle)
+      await toggle()
       toast.success(isBookmarked ? '저장을 해제했어요' : '장소를 저장했어요', { position: 'bottom-center' })
     } catch {
       toast.error('일시적인 문제가 발생했어요. 잠시 후 다시 시도해 주세요.', { position: 'bottom-center' })

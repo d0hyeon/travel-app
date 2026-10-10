@@ -45,7 +45,7 @@ export function usePlaceBookmark(placeId: string) {
     },
   })
 
-  return { isBookmarked, toggle: mutation.mutateAsync }
+  return { isBookmarked, toggle: Object.assign(mutation.mutateAsync, mutation) }
 }
 
 usePlaceBookmark.key = (userId?: string) => [placeBookmarkKey, 'place-ids', userId]
