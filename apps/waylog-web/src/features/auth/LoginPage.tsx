@@ -1,10 +1,11 @@
-import { Button, Container, Divider, Stack, TextField } from '@mui/material'
-import { useState } from 'react'
-import { isDev } from '~app/env'
+import { Button, Container, Stack } from '@mui/material'
+import { AppRoute } from '@waylog/routes'
+import { useNavigate } from 'react-router'
 import { IntroFullScreenBanner } from '~features/intro/IntroFullScreenBanner'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
-import { signInWithApple, signInWithEmail, signInWithKakao } from '@waylog/domains/clients'
+import { signInWithApple, signInWithKakao } from '@waylog/domains/clients'
 import { useAuthRedirection } from './AuthNavigate'
+import { useEmailSignInOverlay } from './useEmailSignInOverlay'
 
 const KAKAO_BRAND_COLOR = '#FEE500'
 const KAKAO_LABEL_COLOR = '#3C1E1E'
@@ -34,6 +35,14 @@ function AppleSymbol() {
 export default function LoginPage() {
   const isMobile = useIsMobile()
   const redirection = useAuthRedirection()
+  const emailSignInOverlay = useEmailSignInOverlay()
+  const navigate = useNavigate()
+
+  async function signInWithEmail() {
+    const isSignedIn = await emailSignInOverlay.open()
+    if (!isSignedIn) return
+    navigate(redirection == null ? AppRoute.메인 : toInAppPath(redirection), { replace: true })
+  }
 
   return (
     <IntroFullScreenBanner>
@@ -60,58 +69,21 @@ export default function LoginPage() {
           >
             Apple로 로그인
           </Button>
+          <Button
+            onClick={signInWithEmail}
+            variant="contained"
+            size="large"
+            sx={{ minWidth: 300 }}
+          >
+            이메일로 로그인
+          </Button>
         </Stack>
-
-
-        {isDev && (
-          <>
-            <Divider sx={{ width: 300, color: 'text.disabled', fontSize: 12 }}>dev only</Divider>
-            <DevEmailLogin />
-          </>
-        )}
       </Container>
     </IntroFullScreenBanner>
   )
 }
 
-function DevEmailLogin() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setError(null)
-    try {
-      await signInWithEmail(email, password)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '로그인 실패')
-    }
-  }
-
-  return (
-    <Stack component="form" onSubmit={handleSubmit} spacing={1.5} sx={{ width: 300 }}>
-      <TextField
-        size="small"
-        label="이메일"
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        autoComplete="email"
-      />
-      <TextField
-        size="small"
-        label="비밀번호"
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        autoComplete="current-password"
-        error={!!error}
-        helperText={error ?? undefined}
-      />
-      <Button type="submit" variant="outlined" size="small">
-        이메일로 로그인
-      </Button>
-    </Stack>
-  )
+function toInAppPath(href: string) {
+  const url = new URL(href)
+  return `${url.pathname}${url.search}${url.hash}`
 }
