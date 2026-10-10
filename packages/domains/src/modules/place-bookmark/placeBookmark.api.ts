@@ -1,7 +1,7 @@
 import { assert } from '@waylog/utility'
 import { getSession } from '../../gateways/auth'
 import { supabase } from '../../gateways/client'
-import { getPlacesByIds, type Place } from '../place'
+import { toPlace, type Place } from '../place'
 
 export const placeBookmarkKey = 'place-bookmarks'
 
@@ -39,14 +39,9 @@ export async function getBookmarkedPlaces(): Promise<Place[]> {
 
   const { data: bookmarks, error } = await supabase
     .from('place_bookmarks')
-    .select('place_id')
+    .select('places(*)')
     .order('created_at', { ascending: false })
   if (error) throw error
 
-  const bookmarkedPlaceIds = (bookmarks ?? []).map((bookmark) => bookmark.place_id)
-  if (bookmarkedPlaceIds.length === 0) return []
-
-  const places = await getPlacesByIds(bookmarkedPlaceIds)
-  const placesById = new Map(places.map((place) => [place.id, place]))
-  return bookmarkedPlaceIds.flatMap((placeId) => placesById.get(placeId) ?? [])
+  return (bookmarks ?? []).map((bookmark) => toPlace(bookmark.places))
 }

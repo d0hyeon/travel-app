@@ -15,7 +15,7 @@ export const placeKey = "places";
 // 변환 헬퍼
 // ─────────────────────────────────────────
 
-function toPlace(row: {
+export function toPlace(row: {
   id: string;
   name: string;
   address: string | null;
