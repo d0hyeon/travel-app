@@ -184,7 +184,7 @@ function Resolved({ tripId }: Props) {
               // 업로드 중에는 다시 고르지 못하게 막는다.
               onPress={isUploading ? undefined : pick}
               disabled={isUploading}
-              style={[styles.uploadButton, { opacity: isUploading ? 0.8 : 1}, { width: size, height: size, opacity: isUploading ? 0.4 : 1 }]}
+              style={[styles.uploadButton, { width: size, height: size, opacity: isUploading ? 0.8 : 1 }]}
             >
               {isUploading ? (
                 <ActivityIndicator />
