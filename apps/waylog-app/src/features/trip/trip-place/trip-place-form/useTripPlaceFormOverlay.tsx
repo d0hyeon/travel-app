@@ -36,7 +36,7 @@ export function useTripPlaceFormOverlay() {
               safeArea
               onDismiss={close}
               onClose={onClose}
-              snapPoints={[0.7]}
+              snapPoints={[0.5]}
               defaultSnapIndex={0}
             >
               <AsyncBoundary
@@ -80,7 +80,7 @@ function PlaceFormSheetContent({ tripId, placeId, isOpen, onClose }: SheetProps)
   assert(place != null, '해당 장소가 존재하지 않습니다.')
   const confirm = useConfirmDialog()
   const placeDetail = usePlaceDetailOverlay()
-  const formRef = useRef<PlaceFormRef>(null)
+  const formRef = useRef<PlaceFormRef>(null);
 
   return (
     <>
@@ -107,7 +107,7 @@ function PlaceFormSheetContent({ tripId, placeId, isOpen, onClose }: SheetProps)
       <BottomSheet.Body style={styles.sheetBody}>
         <Stack direction="row" gap={1} style={styles.header}>
           <Chip label="네이버" variant="outlined" onPress={() => void Linking.openURL(`https://search.naver.com/search.naver?query=${encodeURIComponent(place.name)}`)} />
-          <Chip label="인스타" variant="outlined" onPress={() => void Linking.openURL(`https://www.instagram.com/explore/search/keyword/?q=${encodeURIComponent(place.name.replaceAll(' ', ''))}`)} />
+          <Chip label="인스타" variant="outlined" onPress={() => void Linking.openURL(`https://www.instagram.com/explore/tags/${encodeURIComponent(place.name.replaceAll(' ', ''))}/`)} />
           <Chip label="구글" variant="outlined" onPress={() => void Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(place.name)}`)} />
         </Stack>
         <PlaceForm
@@ -119,7 +119,6 @@ function PlaceFormSheetContent({ tripId, placeId, isOpen, onClose }: SheetProps)
             onClose()
           }}
         />
-        <PlacePhotoSection mt={3} tripId={tripId} placeId={place.placeId} />
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
         <Button variant="outlined" size="large" fullWidth onPress={onClose}>

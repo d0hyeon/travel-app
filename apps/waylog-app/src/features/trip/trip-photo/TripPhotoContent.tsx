@@ -104,6 +104,7 @@ function Resolved({ tripId }: Props) {
       mediaTypes: ['images'],
       allowsMultipleSelection: true,
       quality: 1,
+
       // 장소 자동 매칭에 쓴다. 리사이즈를 거치면 EXIF 가 사라지므로 여기서 받아야 한다.
       exif: true,
     })
@@ -182,7 +183,8 @@ function Resolved({ tripId }: Props) {
               accessibilityLabel="사진 추가"
               // 업로드 중에는 다시 고르지 못하게 막는다.
               onPress={isUploading ? undefined : pick}
-              style={[styles.uploadButton, { width: size, height: size, opacity: isUploading ? 0.4 : 1 }]}
+              disabled={isUploading}
+              style={[styles.uploadButton, { width: size, height: size, opacity: isUploading ? 0.8 : 1 }]}
             >
               {isUploading ? (
                 <ActivityIndicator />
