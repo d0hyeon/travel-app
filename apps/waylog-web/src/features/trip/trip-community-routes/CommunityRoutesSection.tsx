@@ -27,7 +27,7 @@ export function CommunityRoutesSection(props: Props) {
 
 function CommunityRoutesSectionContent({ tripId, sx, ...props }: Props) {
   const { data: trips } = useCommunityRoutes(tripId)
-  const { open } = useCommunityRouteDetailOverlay()
+  const { openBottomSheet } = useCommunityRouteDetailOverlay()
 
   if (trips.length === 0) return null
 
@@ -38,7 +38,7 @@ function CommunityRoutesSectionContent({ tripId, sx, ...props }: Props) {
       </Typography>
       <CommunityRouteList
         trips={trips}
-        onTripClick={(trip) => open({ communityTrip: trip, tripId })}
+        onTripClick={(trip) => openBottomSheet({ communityTrip: trip, tripId })}
         sx={sx}
       />
     </Stack>

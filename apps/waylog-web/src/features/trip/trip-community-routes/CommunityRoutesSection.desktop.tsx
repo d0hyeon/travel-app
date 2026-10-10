@@ -14,7 +14,7 @@ export function CommunityRoutesSectionDesktop({ tripId }: { tripId: string }) {
 
 function CommunityRoutesSectionDesktopContent({ tripId }: { tripId: string }) {
   const { data: trips } = useCommunityRoutes(tripId)
-  const { open } = useCommunityRouteDetailOverlay()
+  const { openDialog } = useCommunityRouteDetailOverlay()
 
   if (trips.length === 0) return null
 
@@ -24,7 +24,7 @@ function CommunityRoutesSectionDesktopContent({ tripId }: { tripId: string }) {
       <CardContent>
         <CommunityRouteList
           trips={trips}
-          onTripClick={(trip) => open({ communityTrip: trip, tripId })}
+          onTripClick={(trip) => openDialog({ communityTrip: trip, tripId })}
         />
       </CardContent>
     </Card>
