@@ -2,6 +2,7 @@ import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-q
 import { useAuth } from '../../gateways/auth'
 import {
   addPlaceBookmark,
+  getBookmarkedPlaceIds,
   getBookmarkedPlaces,
   placeBookmarkKey,
   removePlaceBookmark,
@@ -17,14 +18,34 @@ export function useBookmarkedPlaces() {
 }
 
 export function usePlaceBookmark(placeId: string) {
+  const { data: auth } = useAuth({ required: false })
   const queryClient = useQueryClient()
-  const { data: bookmarkedPlaces } = useBookmarkedPlaces()
-  const isBookmarked = bookmarkedPlaces.some((place) => place.id === placeId)
+  const queryKey = usePlaceBookmark.key(auth?.id)
+  const { data: bookmarkedPlaceIds } = useSuspenseQuery({
+    queryKey,
+    queryFn: getBookmarkedPlaceIds,
+  })
+  const isBookmarked = bookmarkedPlaceIds.includes(placeId)
 
   const mutation = useMutation({
     mutationFn: () => (isBookmarked ? removePlaceBookmark(placeId) : addPlaceBookmark(placeId)),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [placeBookmarkKey] }),
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey })
+      const previousPlaceIds = queryClient.getQueryData<string[]>(queryKey)
+      queryClient.setQueryData<string[]>(queryKey, (placeIds = []) =>
+        isBookmarked ? placeIds.filter((id) => id !== placeId) : [placeId, ...placeIds],
+      )
+      return { previousPlaceIds }
+    },
+    onError: (_error, _variables, context) => {
+      queryClient.setQueryData(queryKey, context?.previousPlaceIds)
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [placeBookmarkKey] })
+    },
   })
 
   return { isBookmarked, toggle: mutation.mutateAsync }
 }
+
+usePlaceBookmark.key = (userId?: string) => [placeBookmarkKey, 'place-ids', userId]

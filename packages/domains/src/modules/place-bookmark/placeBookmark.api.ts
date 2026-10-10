@@ -34,6 +34,18 @@ export async function removePlaceBookmark(placeId: string) {
   if (error) throw error
 }
 
+export async function getBookmarkedPlaceIds(): Promise<string[]> {
+  if (getSession() == null) return []
+
+  const { data: bookmarks, error } = await supabase
+    .from('place_bookmarks')
+    .select('place_id')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+
+  return (bookmarks ?? []).map((bookmark) => bookmark.place_id)
+}
+
 export async function getBookmarkedPlaces(): Promise<Place[]> {
   if (getSession() == null) return []
 

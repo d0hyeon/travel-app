@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   addPlaceBookmark,
+  getBookmarkedPlaceIds,
   getBookmarkedPlaces,
   removePlaceBookmark,
 } from '../placeBookmark.api'
@@ -95,6 +96,27 @@ describe('removePlaceBookmark', () => {
     expect(mockFrom).toHaveBeenCalledWith('place_bookmarks')
     expect(firstEq).toHaveBeenCalledWith('user_id', 'me')
     expect(secondEq).toHaveBeenCalledWith('place_id', 'place-1')
+  })
+})
+
+describe('getBookmarkedPlaceIds', () => {
+  it('최근 북마크한 순서로 장소 id 를 돌려준다', async () => {
+    const order = vi.fn().mockResolvedValue({ data: [{ place_id: 'b' }, { place_id: 'a' }], error: null })
+    const select = vi.fn().mockReturnValue({ order })
+    mockFrom.mockReturnValue({ select } as never)
+
+    const placeIds = await getBookmarkedPlaceIds()
+
+    expect(select).toHaveBeenCalledWith('place_id')
+    expect(order).toHaveBeenCalledWith('created_at', { ascending: false })
+    expect(placeIds).toEqual(['b', 'a'])
+  })
+
+  it('비로그인이면 쿼리 없이 빈 배열을 돌려준다', async () => {
+    vi.mocked(getSession).mockReturnValue(null)
+
+    await expect(getBookmarkedPlaceIds()).resolves.toEqual([])
+    expect(mockFrom).not.toHaveBeenCalled()
   })
 })
 
