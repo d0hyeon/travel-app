@@ -3,6 +3,7 @@ import { format } from 'date-fns'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useScheduledTripDestinations } from '../useScheduledTripDestinations'
 import * as tripApi from '@waylog/domains/modules/trip'
+import * as clients from '@waylog/domains/clients'
 import { createWrapper } from '~fixtures/wraper'
 import type { Trip } from '@waylog/domains/modules/trip'
 
@@ -35,6 +36,18 @@ function today(offsetDays = 0): string {
 describe('useScheduledTripDestinations', () => {
   beforeEach(() => {
     vi.spyOn(tripApi, 'getAllTrips')
+    vi.spyOn(clients, 'useAuth').mockReturnValue({ data: { id: 'user-001' } } as ReturnType<typeof clients.useAuth>)
+  })
+
+  it('비로그인이면 여행을 조회하지 않고 빈 배열을 반환한다', async () => {
+    vi.mocked(clients.useAuth).mockReturnValue({ data: null } as unknown as ReturnType<typeof clients.useAuth>)
+
+    const { result } = renderHook(() => useScheduledTripDestinations(), {
+      wrapper: createWrapper(),
+    })
+
+    await waitFor(() => expect(result.current).toEqual([]))
+    expect(tripApi.getAllTrips).not.toHaveBeenCalled()
   })
 
   it('ongoing 여행의 모든 destinations를 반환한다', async () => {
