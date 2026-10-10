@@ -11,13 +11,12 @@ interface UploadAsset {
  * 웹은 placeId 로 따로 조회하지만 앱은 여행 사진 목록을 이미 들고 있어 그중에서 고른다.
  */
 export function usePlacePhotos(tripId: string, placeId: string) {
-  const { data: photos, upload, remove, update, isUploading, refetch, ...queries } = useTripPhotos(tripId)
+  const { data: photos, upload, remove, update, refetch, ...queries } = useTripPhotos(tripId)
 
   const data = photos.filter((photo) => photo.placeId === placeId)
 
   return {
     data,
-    isUploading,
     refetch,
     upload: (assets: UploadAsset[]) => upload({ assets, placeId }),
     remove: (photo: Photo) => remove(photo),

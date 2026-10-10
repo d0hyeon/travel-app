@@ -633,7 +633,7 @@ src/
 │       │   ├── TripMemoForm.tsx
 │       │   └── TripPinnedMemos.tsx
 │       ├── trip-photo/                    # 사진 탭
-│       │   ├── useTripPhotos.ts       # remove 는 낙관적 삭제(캐시에서 먼저 제거) + 토스트, 실패 시 에러 토스트·refetch 로 복구. 앱 useTripPhotos 도 동일
+│       │   ├── useTripPhotos.ts       # remove 는 낙관적 삭제(캐시에서 먼저 제거) + 토스트, 실패 시 에러 토스트·refetch 로 복구. 앱 useTripPhotos 도 동일. 앱은 업로드 진행 여부를 `useIsTripPhotoUploading`(mutationKey `uploadKey` 기반)으로 읽어 화면 재진입 후에도 유지
 │       │   ├── TripPhotoContent.mobile.tsx
 │       │   └── TripPhotoContent.desktop.tsx
 │       ├── trip-place/                    # 장소 탭

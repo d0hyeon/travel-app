@@ -9,7 +9,7 @@ import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDi
 import { useOverlay } from '~shared/hooks/useOverlay'
 import { palette } from '~shared/config/tokens'
 import { MultiSelectDropdown } from '~shared/components/MultiSelectDropdown'
-import { useTripPhotos } from './useTripPhotos'
+import { useIsTripPhotoUploading, useTripPhotos } from './useTripPhotos'
 import { PhotoBottomSheet } from '~shared/components/photo/PhotoBottomSheet'
 import { LoadableImage } from '~shared/components/LoadableImage'
 import { FLOATING_TAB_BAR_RESERVE } from '~shared/components'
@@ -54,7 +54,8 @@ function Pending() {
 }
 
 function Resolved({ tripId }: Props) {
-  const { data: photos, upload, remove, update, isUploading } = useTripPhotos(tripId)
+  const { data: photos, upload, remove, update } = useTripPhotos(tripId)
+  const isUploading = useIsTripPhotoUploading(tripId)
   const { data: places } = useTripPlaces(tripId)
   const confirm = useConfirmDialog()
   const { width } = useWindowDimensions()

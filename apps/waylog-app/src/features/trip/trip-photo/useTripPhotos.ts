@@ -1,4 +1,5 @@
 import {
+  useIsMutating,
   useMutation,
   useQueryClient,
   type UseMutateAsyncFunction,
@@ -41,7 +42,6 @@ type TripPhotosResult<Data> = UseSuspenseQueryResult<Data> & {
   upload: UseMutateAsyncFunction<void, Error, UploadParams>;
   remove: UseMutateAsyncFunction<boolean, Error, Photo>;
   update: UseMutateAsyncFunction<Photo, Error, UpdatePhotoParams>;
-  isUploading: boolean;
 };
 
 type QueryOptions = Omit<
@@ -72,7 +72,8 @@ export function useTripPhotos(
     ...options,
   });
 
-  const { mutateAsync: upload, isPending: isUploading } = useMutation({
+  const { mutateAsync: upload } = useMutation({
+    mutationKey: useTripPhotos.uploadKey(tripId),
     mutationFn: async ({ assets, placeId }: UploadParams) => {
       if (places == null) return Promise.resolve();
       for (const asset of assets) {
@@ -120,10 +121,11 @@ export function useTripPhotos(
     },
   });
 
-  return { data, upload, remove, update, refetch, isUploading, ...queries };
+  return { data, upload, remove, update, refetch, ...queries };
 }
 
 useTripPhotos.key = (tripId: string) => [tripKey, photoKey, tripId];
+useTripPhotos.uploadKey = (tripId: string) => [...useTripPhotos.key(tripId), "upload"];
 
 /** 훅을 걸기 전에 캐시를 채운다. 웹 useTripPhotos.prefetch 와 같은 역할. */
 useTripPhotos.prefetch = (tripId: string) => {
@@ -132,3 +134,7 @@ useTripPhotos.prefetch = (tripId: string) => {
     queryFn: () => getPhotosByTripId(tripId),
   });
 };
+
+export function useIsTripPhotoUploading(tripId: string) {
+  return useIsMutating({ mutationKey: useTripPhotos.uploadKey(tripId) }) > 0;
+}
