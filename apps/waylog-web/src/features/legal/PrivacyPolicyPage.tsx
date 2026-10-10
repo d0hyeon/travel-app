@@ -44,8 +44,11 @@ export default function PrivacyPolicyPage() {
           서비스 제공
         </Typography>
         <Typography variant="body2">3. 교통편 티켓 이미지로부터 정보를 추출하여 등록하는 기능 제공</Typography>
-        <Typography variant="body2">4. 푸시 알림 발송</Typography>
-        <Typography variant="body2">5. 부정 이용 방지, 신고 처리 및 서비스 안정성 확보</Typography>
+        <Typography variant="body2">
+          4. 작성자를 식별할 수 없는 형태로 가공한 여행 코스·방문지 정보를 다른 이용자에게 추천
+        </Typography>
+        <Typography variant="body2">5. 푸시 알림 발송</Typography>
+        <Typography variant="body2">6. 부정 이용 방지, 신고 처리 및 서비스 안정성 확보</Typography>
       </LegalSection>
 
       <LegalSection heading="4. 위치정보의 이용">

@@ -17,7 +17,7 @@ export default function TermsOfServicePage() {
       <LegalSection heading="제2조 (정의)">
         <Typography variant="body2">
           1. "서비스"란 여행 일정·장소·경비·메모·체크리스트·사진 기록, 여행 멤버와의 공유·채팅, 피드 게시물 작성 및
-          열람, 교통편 티켓 등록 등 운영자가 제공하는 여행 기록·공유 기능 일체를 말합니다.
+          열람, 교통편 티켓 등록, 여행 코스·방문지 추천 등 운영자가 제공하는 여행 기록·공유 기능 일체를 말합니다.
         </Typography>
         <Typography variant="body2">2. "이용자"란 이 약관에 따라 서비스를 이용하는 회원을 말합니다.</Typography>
         <Typography variant="body2">
@@ -75,7 +75,9 @@ export default function TermsOfServicePage() {
         </Typography>
         <Typography variant="body2">
           2. 이용자는 운영자에게 서비스의 운영, 표시, 노출에 필요한 범위에서 게시물을 저장·복제·전송·표시할 수 있는
-          비독점적 이용을 허락합니다. 이용 허락은 이용자가 게시물을 삭제하거나 탈퇴하면 종료됩니다.
+          비독점적 이용을 허락합니다. 운영자는 이용자가 등록한 방문지, 방문 순서 등 여행 코스 정보와 전체 공개로
+          설정된 사진을 다른 이용자에게 여행 코스와 방문지를 추천하는 데 활용할 수 있으며, 이 경우 작성자와 원본 여행을
+          식별할 수 있는 정보는 표시하지 않습니다. 이용 허락은 이용자가 게시물을 삭제하거나 탈퇴하면 종료됩니다.
         </Typography>
         <Typography variant="body2">
           3. 피드 게시물은 이용자가 선택한 공개 범위(비공개, 여행 멤버 공개, 전체 공개)에 따라 노출됩니다. 공개 범위를
