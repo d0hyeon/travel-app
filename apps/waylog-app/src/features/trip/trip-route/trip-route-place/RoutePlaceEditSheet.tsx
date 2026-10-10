@@ -100,7 +100,7 @@ export function RoutePlaceEditSheet({ tripId, routeId, placeId, onClose }: Props
           일정에서 빼기
         </Button>
       </BottomSheet.Header>
-      <BottomSheet.Body style={styles.sheetBody}>
+      <BottomSheet.KeyboardAwareBody style={styles.sheetBody}>
         <Stack direction="row" gap={1} style={styles.searchLinks}>
           <Chip label="네이버" variant="outlined" onPress={() => void Linking.openURL(`https://search.naver.com/search.naver?query=${encodeURIComponent(place.name)}`)} />
           <Chip label="인스타" variant="outlined" onPress={() => void Linking.openURL(`https://www.instagram.com/explore/tags/${encodeURIComponent(place.name.replaceAll(' ', ''))}/`)} />
@@ -132,7 +132,7 @@ export function RoutePlaceEditSheet({ tripId, routeId, placeId, onClose }: Props
             <RoutePlaceInfoFields control={control} />
           </View>
         </View>
-      </BottomSheet.Body>
+      </BottomSheet.KeyboardAwareBody>
       <BottomSheet.BottomActions>
         <Button variant="outlined" size="large" fullWidth onPress={onClose}>
           취소
