@@ -1,12 +1,13 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import type { Photo } from '@waylog/domains/modules/photo'
 import { useState } from 'react'
-import { Image, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native'
+import { Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native'
 import { toast } from '~shared/components/toast/toast'
 import { Theme } from 'tamagui'
 import { Box, Button, Stack, Typography } from '~shared/components/design-system'
 import { savePhotoToLibrary } from '~shared/modules/photo-library/savePhotoToLibrary'
 import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
+import { LoadableImage } from '~shared/components/LoadableImage'
 import { useOverlay } from '~shared/hooks/useOverlay'
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { PopMenu } from '~shared/components/PopMenu'
@@ -172,7 +173,7 @@ export function PhotoBottomSheet({
               {viewerPhotos.map((item) => (
                 <Box key={item.id} style={[styles.imagePage, { width, height: imagePagerHeight }]}>
                   <ZoomArea width={width} height={imagePagerHeight} onZoomStart={() => setIsZooming(true)} onZoomEnd={() => setIsZooming(false)}>
-                    <Image source={{ uri: item.url }} resizeMode="contain" style={{ width, height: imagePagerHeight }} />
+                    <LoadableImage source={{ uri: item.url }} contentFit="contain" style={{ width, height: imagePagerHeight }} />
                   </ZoomArea>
                 </Box>
               ))}
