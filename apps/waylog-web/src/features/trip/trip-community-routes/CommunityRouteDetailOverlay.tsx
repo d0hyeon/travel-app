@@ -73,7 +73,7 @@ function CommunityRouteDetailDialog({ communityTrip, tripId, isOpen, onClose }: 
         </Suspense>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>닫기</Button>
+        <Button variant="contained" onClick={onClose}>확인</Button>
       </DialogActions>
     </Dialog>
   )
