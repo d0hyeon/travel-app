@@ -227,7 +227,7 @@ packages/
 │           ├── marine-activity/ # 해양 활동
 │           ├── map/             # 좌표·마커 타입, 클러스터링(순수)
 │           ├── photo/           # 사진 조회·삭제·수정
-│           ├── community-route/ # 커뮤니티 경로. 목록 RPC `get_community_trips`는 같은 여행지의 남의 여행을 `community_key`·여행지·박 수·썸네일 좌표로, 상세 RPC `get_community_trip_routes(p_community_key)`는 일정별 일차·장소로 내준다. `trips.community_key`는 이 두 RPC 전용 무작위 키라 원본 여행 id·경로 id·절대 날짜는 내보내지 않으며, 둘 다 `authenticated` 전용이다(`20261010030000_community_trips_without_trip_identity.sql`). `toTrip`은 `community_key`를 `Trip`으로 매핑하지 않는다
+│           ├── community-route/ # 커뮤니티 경로. 목록 RPC `get_community_trips`는 같은 여행지의 남의 여행을 `community_key`·여행지·박 수·썸네일 좌표로, 상세 RPC `get_community_trip_routes(p_community_key)`는 일정별 일차·장소로 내준다. `trips.community_key`는 이 두 RPC 전용 무작위 키라 원본 여행 id·경로 id·절대 날짜는 내보내지 않으며, 둘 다 `authenticated` 전용이다(`20261010030000_community_trips_without_trip_identity.sql`). `toTrip`은 `community_key`를 `Trip`으로 매핑하지 않는다. 두 RPC 모두 여행 기간 밖에 날짜가 잡힌 일정(여행 날짜를 바꾼 뒤 남은 일정)과 장소가 없는 일정을 제외한다(`20261010050000_community_trip_routes_within_trip_days.sql`)
 │           ├── open-graph/      # 링크 미리보기
 │           ├── place/           # 장소 조회·검색·추가, 제공자 카테고리 → PlaceCategoryType 변환(placeCategory.utils)
 │           ├── place-bookmark/  # 장소 북마크(내 북마크 추가·해제·목록). 여행에 담기(trip_places)와 무관

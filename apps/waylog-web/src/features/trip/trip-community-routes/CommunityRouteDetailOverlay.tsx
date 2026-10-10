@@ -1,6 +1,19 @@
 import AddIcon from '@mui/icons-material/Add'
 import CheckIcon from '@mui/icons-material/Check'
-import { Box, Button, CircularProgress, Skeleton, Stack, Tab, Tabs, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Skeleton,
+  Stack,
+  Tab,
+  Tabs,
+  Typography,
+} from '@mui/material'
 import { Suspense, useCallback, useMemo, useState } from 'react'
 import { useRoadRoute } from '~features/route/road-route/useRoadRoute'
 import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
@@ -23,7 +36,16 @@ interface Props {
 export function useCommunityRouteDetailOverlay() {
   const overlay = useOverlay()
 
-  const open = useCallback(
+  const openDialog = useCallback(
+    (params: Omit<Props, 'isOpen' | 'onClose'>) => {
+      overlay.open(({ isOpen, close }) => (
+        <CommunityRouteDetailDialog {...params} isOpen={isOpen} onClose={close} />
+      ))
+    },
+    [overlay],
+  )
+
+  const openBottomSheet = useCallback(
     (params: Omit<Props, 'isOpen' | 'onClose'>) => {
       overlay.open(({ isOpen, close }) => (
         <CommunityRouteDetailSheet {...params} isOpen={isOpen} onClose={close} />
@@ -32,7 +54,29 @@ export function useCommunityRouteDetailOverlay() {
     [overlay],
   )
 
-  return { open }
+  return { openDialog, openBottomSheet }
+}
+
+function CommunityRouteDetailDialog({ communityTrip, tripId, isOpen, onClose }: Props) {
+  return (
+    <Dialog
+      open={isOpen}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      slotProps={{ paper: { sx: { height: '80vh' } } }}
+    >
+      <DialogTitle>{communityTrip.destinations.join(', ')}</DialogTitle>
+      <DialogContent sx={{ p: 0, display: 'flex', flexDirection: 'column' }}>
+        <Suspense fallback={<DetailSkeleton />}>
+          <DetailContent communityTrip={communityTrip} tripId={tripId} />
+        </Suspense>
+      </DialogContent>
+      <DialogActions>
+        <Button variant="contained" onClick={onClose}>확인</Button>
+      </DialogActions>
+    </Dialog>
+  )
 }
 
 function CommunityRouteDetailSheet({ communityTrip, tripId, isOpen, onClose }: Props) {
