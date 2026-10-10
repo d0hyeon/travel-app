@@ -2,6 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons'
 import * as ImagePicker from 'expo-image-picker'
 import type { Photo } from '@waylog/domains/modules/photo'
 import { useTripPlaces } from '@waylog/domains/modules/trip'
+import { useLoading } from '@waylog/react'
 import { Suspense, useEffect, useMemo, useState } from 'react'
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native'
 import { BlurSwap, Box, Fab, GlassSurface, PressableScale, Skeleton, Stack, Typography } from '~shared/components/design-system'
@@ -9,7 +10,7 @@ import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDi
 import { useOverlay } from '~shared/hooks/useOverlay'
 import { palette } from '~shared/config/tokens'
 import { MultiSelectDropdown } from '~shared/components/MultiSelectDropdown'
-import { useTripPhotos } from './useTripPhotos'
+import { useIsTripPhotoUploading, useTripPhotos } from './useTripPhotos'
 import { PhotoBottomSheet } from '~shared/components/photo/PhotoBottomSheet'
 import { LoadableImage } from '~shared/components/LoadableImage'
 import { FLOATING_TAB_BAR_RESERVE } from '~shared/components'
@@ -54,7 +55,9 @@ function Pending() {
 }
 
 function Resolved({ tripId }: Props) {
-  const { data: photos, upload, remove, update, isUploading } = useTripPhotos(tripId)
+  const { data: photos, upload, remove, update } = useTripPhotos(tripId)
+  const isUploading = useIsTripPhotoUploading(tripId)
+  const [isPicking, startPicking] = useLoading()
   const { data: places } = useTripPlaces(tripId)
   const confirm = useConfirmDialog()
   const { width } = useWindowDimensions()
@@ -95,6 +98,7 @@ function Resolved({ tripId }: Props) {
       curr.includes(photo.id) ? curr.filter((id) => id !== photo.id) : [...curr, photo.id],
     )
   const size = (width - LIST_PADDING * 2 - GAP * (COLUMNS - 1)) / COLUMNS
+  const isAddingPhotos = isPicking || isUploading
 
   const pick = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync()
@@ -182,11 +186,11 @@ function Resolved({ tripId }: Props) {
             <Pressable
               accessibilityLabel="사진 추가"
               // 업로드 중에는 다시 고르지 못하게 막는다.
-              onPress={isUploading ? undefined : pick}
-              disabled={isUploading}
-              style={[styles.uploadButton, { width: size, height: size, opacity: isUploading ? 0.8 : 1 }]}
+              onPress={isAddingPhotos ? undefined : () => startPicking(pick)}
+              disabled={isAddingPhotos}
+              style={[styles.uploadButton, { width: size, height: size, opacity: isAddingPhotos ? 0.8 : 1 }]}
             >
-              {isUploading ? (
+              {isAddingPhotos ? (
                 <ActivityIndicator />
               ) : (
                 <MaterialIcons name="add-photo-alternate" size={22} color={palette.textSecondary} />
