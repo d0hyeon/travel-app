@@ -190,7 +190,7 @@ apps/
 │   │       │   ├── tab-navigation/ # 하단 탭바. variant default(라운드+그림자)·apple(블러) 전환.
 │   │       │   │                #   RouterTabNavigation 이 react-navigation 탭 어댑터(bottom-tabs·material-top-tabs 공용, state·descriptors·navigation 구조만 요구)
 │   │       │   ├── date-picker/ # 날짜·기간·시각 선택 (바텀시트 + 스와이프 달력)
-│   │       │   ├── photo/      # PhotoBottomSheet(여행·장소 공용 상세 뷰어. 다크 테마, 우측 상단 `PopMenu` 에 다운로드·공개 설정 그룹·삭제. 다운로드는 `shared/modules/photo-library/savePhotoToLibrary` 로 내려받아 사진 보관함에 바로 저장하고 토스트로 결과를 알린다. 이미지는 썸네일과 캐시를 공유하도록 `LoadableImage`(expo-image)로 그리고), usePhotoViewerState,
+│   │       │   ├── photo/      # PhotoBottomSheet(여행·장소 공용 상세 뷰어. 다크 테마, 우측 상단 `PopMenu` 에 다운로드·공개 설정 그룹·삭제. 다운로드는 `shared/modules/photo-library/savePhotoToLibrary` 로 내려받아 사진 보관함에 바로 저장하고 토스트로 결과를 알린다. 이미지는 썸네일과 캐시를 공유하도록 `LoadableImage`(expo-image)로 그리고, 페이저는 `FlatList` 로 현재 사진 앞뒤만 렌더한다), usePhotoViewerState,
 │   │       │   │                #   ZoomArea, PhotoVisibilityBadge
 │   │       │   └── dnd/        # 제스처 기반 정렬 목록 (드래그 핸들)
 │   │       ├── config/tokens.ts # 웹 theme.ts 에서 승계한 값

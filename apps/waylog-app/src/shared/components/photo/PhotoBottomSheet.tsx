@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import type { Photo } from '@waylog/domains/modules/photo'
 import { useState } from 'react'
-import { Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native'
+import { FlatList, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native'
 import { toast } from '~shared/components/toast/toast'
 import { Theme } from 'tamagui'
 import { Box, Button, Stack, Typography } from '~shared/components/design-system'
@@ -158,26 +158,31 @@ export function PhotoBottomSheet({
           }}
         >
           <BottomSheet.GestureArea>
-            <ScrollView
+            <FlatList
+              data={viewerPhotos}
+              keyExtractor={(item) => item.id}
               horizontal
               pagingEnabled
               scrollEnabled={!isZooming}
               nestedScrollEnabled
               directionalLockEnabled
               showsHorizontalScrollIndicator={false}
-              contentOffset={{ x: initialIndex * width, y: 0 }}
+              initialScrollIndex={initialIndex}
+              getItemLayout={(_, index) => ({ length: width, offset: width * index, index })}
+              initialNumToRender={1}
+              maxToRenderPerBatch={1}
+              windowSize={3}
               onMomentumScrollEnd={(event) => setCurrentIndex(Math.round(event.nativeEvent.contentOffset.x / width))}
               style={[styles.imagePager, { height: imagePagerHeight }]}
               contentContainerStyle={{ height: imagePagerHeight }}
-            >
-              {viewerPhotos.map((item) => (
-                <Box key={item.id} style={[styles.imagePage, { width, height: imagePagerHeight }]}>
+              renderItem={({ item }) => (
+                <Box style={[styles.imagePage, { width, height: imagePagerHeight }]}>
                   <ZoomArea width={width} height={imagePagerHeight} onZoomStart={() => setIsZooming(true)} onZoomEnd={() => setIsZooming(false)}>
                     <LoadableImage source={{ uri: item.url }} contentFit="contain" style={{ width, height: imagePagerHeight }} />
                   </ZoomArea>
                 </Box>
-              ))}
-            </ScrollView>
+              )}
+            />
           </BottomSheet.GestureArea>
         </BottomSheet.Body>
         {canSelectPlace && (
