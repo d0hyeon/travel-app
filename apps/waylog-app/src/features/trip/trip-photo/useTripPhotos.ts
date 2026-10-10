@@ -17,7 +17,6 @@ import { tripKey, useTripPlaces } from "@waylog/domains/modules/trip";
 import { useSuspenseQuery, UseSuspenseQueryOptions } from "@waylog/react";
 import { uploadPhoto } from "~features/photo/photo.api";
 import { findNearestPlaceFromPhoto } from "~features/photo/photo.utils";
-import { toast } from "~shared/components/toast/toast";
 import { queryClient as appQueryClient } from "~shared/query-client";
 
 
@@ -99,12 +98,8 @@ export function useTripPhotos(
       queryClient.setQueryData<Photo[]>(useTripPhotos.key(tripId), (curr) =>
         curr?.filter((item) => item.id !== photo.id),
       );
-      toast.success("사진을 삭제했어요");
     },
-    onError: () => {
-      toast.error("사진을 삭제하지 못했어요");
-      refetch();
-    },
+    onError: () => refetch(),
   });
 
   const { mutateAsync: update } = useMutation({

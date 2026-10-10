@@ -8,6 +8,7 @@ import { ActivityIndicator, FlatList, Pressable, StyleSheet, View, useWindowDime
 import { BlurSwap, Box, Fab, GlassSurface, PressableScale, Skeleton, Stack, Typography } from '~shared/components/design-system'
 import { useConfirmDialog } from '~shared/components/confirm-dialog/useConfirmDialog'
 import { useOverlay } from '~shared/hooks/useOverlay'
+import { toast } from '~shared/components/toast/toast'
 import { palette } from '~shared/config/tokens'
 import { MultiSelectDropdown } from '~shared/components/MultiSelectDropdown'
 import { useIsTripPhotoUploading, useTripPhotos } from './useTripPhotos'
@@ -128,8 +129,13 @@ function Resolved({ tripId }: Props) {
         onUpdate={update}
         onDelete={async (currentPhoto) => {
           if (!(await confirm('사진을 삭제할까요?'))) return
-          await remove(currentPhoto)
-          close()
+          try {
+            await remove(currentPhoto)
+            toast.success('사진을 삭제했어요')
+            close()
+          } catch {
+            toast.error('사진을 삭제하지 못했어요')
+          }
         }}
         onClose={close}
       />
@@ -254,6 +260,9 @@ function Resolved({ tripId }: Props) {
                       if (photo != null) await remove(photo)
                     }
                     setSelectedPhotoIds([])
+                    toast.success('사진을 삭제했어요')
+                  } catch {
+                    toast.error('사진을 삭제하지 못했어요')
                   } finally {
                     setIsDeleting(false)
                   }

@@ -7,6 +7,7 @@ import { Box, Skeleton, Stack, StackProps, Typography } from '~shared/components
 import { LoadableImage } from '~shared/components/LoadableImage'
 import { PhotoBottomSheet } from '~shared/components/photo/PhotoBottomSheet'
 import { useOverlay } from '~shared/hooks/useOverlay'
+import { toast } from '~shared/components/toast/toast'
 import { usePlacePhotos } from './useTripPlacePhotos'
 
 interface PlacePhotoSectionProps extends StackProps {
@@ -32,8 +33,13 @@ export function PlacePhotoSection({ tripId, placeId, ...props }: PlacePhotoSecti
         onUpdate={update}
         onDelete={async (photo) => {
           if (!(await confirm('사진을 삭제할까요?'))) return
-          await remove(photo)
-          close()
+          try {
+            await remove(photo)
+            toast.success('사진을 삭제했어요')
+            close()
+          } catch {
+            toast.error('사진을 삭제하지 못했어요')
+          }
         }}
         onClose={close}
       />
