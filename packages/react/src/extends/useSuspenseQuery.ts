@@ -94,6 +94,7 @@ export function useSuspenseQuery<
   queryKey,
   queryFn,
   enabled = true,
+  select,
   placeholderData,
   ...options
 }: UseSuspenseQueryOptions<QueryFnData, QueryError, Data, Key>) {
@@ -117,7 +118,7 @@ export function useSuspenseQuery<
             (resolvedPlacehilder ?? null) as unknown as QueryFnData,
           );
         },
-
+    select: enabled ? select : (data) => data as unknown as Data,
     ...options,
   });
 
