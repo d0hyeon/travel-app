@@ -1396,7 +1396,7 @@ export type Database = {
         }[]
       }
       has_blocked: { Args: { target_user: string }; Returns: boolean }
-      join_trip: { Args: { p_trip_id: string }; Returns: undefined }
+      join_trip: { Args: { p_share_link: string }; Returns: undefined }
       leave_trip: { Args: { p_trip_id: string }; Returns: undefined }
       prepare_account_deletion: {
         Args: { target_user: string }

@@ -58,11 +58,11 @@ export async function getTripMembersByTripId(tripId: string): Promise<TripMember
   }))
 }
 
-export async function joinTrip(tripId: string): Promise<void> {
+export async function joinTrip(shareLink: string): Promise<void> {
   const user = getAuth()
   if (!user) throw new AuthError()
 
-  const { error } = await supabase.rpc('join_trip', { p_trip_id: tripId })
+  const { error } = await supabase.rpc('join_trip', { p_share_link: shareLink })
   if (error) throw error
 }
 

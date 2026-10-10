@@ -1,4 +1,4 @@
--- Scratch DB only. Apply migrations 20261005010000 and 20261005020000 first. Everything is rolled back at the end.
+-- Scratch DB only. Apply migrations 20261005010000, 20261005020000 and 20261010070000 first. Everything is rolled back at the end.
 -- Each block prints one row: scenario, actual, expected. Run as a superuser/postgres session.
 
 BEGIN;
@@ -37,7 +37,10 @@ CREATE FUNCTION pg_temp._leave(p_trip text) RETURNS text LANGUAGE sql AS $$
 $$;
 
 CREATE FUNCTION pg_temp._join(p_trip text) RETURNS text LANGUAGE sql AS $$
-  SELECT pg_temp._try(format('SELECT public.join_trip(%L)', pg_temp._i(p_trip)))
+  SELECT pg_temp._try(format(
+    'SELECT public.join_trip(%L)',
+    (SELECT t.share_link FROM public.trips t WHERE t.id = pg_temp._i(p_trip))
+  ))
 $$;
 
 CREATE FUNCTION pg_temp._seed(p_trip text, p_host text, p_host_row boolean, p_active text[], p_left text[]) RETURNS void
@@ -205,6 +208,9 @@ SELECT 'legacy host alone: host unchanged' AS scenario, pg_temp._host('t_legacy_
 -- scenario: 존재하지 않는 여행은 예외다
 SELECT 'missing trip: leave raises trip_not_found' AS scenario, pg_temp._leave('t_missing') AS actual, 'trip_not_found' AS expected;
 SELECT 'missing trip: join raises trip_not_found' AS scenario, pg_temp._join('t_missing') AS actual, 'trip_not_found' AS expected;
+SELECT 'trip id instead of share link: join raises trip_not_found' AS scenario,
+       pg_temp._try(format('SELECT public.join_trip(%L)', pg_temp._i('t_first_join'))) AS actual,
+       'trip_not_found' AS expected;
 
 -- scenario: 비로그인 호출은 예외다
 SELECT pg_temp._as_anon();
@@ -250,4 +256,4 @@ ROLLBACK;
 -- Afterwards: exactly one active_trip_members row for T (A), trips.user_id = A.
 -- Repeat with the roles swapped (A leaves first and commits, then H) -> H gets 'last_member'.
 -- Also verify join_trip blocks the same way: with Session A holding an uncommitted leave_trip,
--- a third session's join_trip('<T>') must wait until Session A commits or rolls back.
+-- a third session's join_trip('<share_link of T>') must wait until Session A commits or rolls back.
