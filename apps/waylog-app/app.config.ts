@@ -61,7 +61,8 @@ const config: ExpoConfig = {
           "지도에 내 위치를 표시하고 가까운 장소를 찾기 위해 위치를 사용합니다.",
         locationAlwaysAndWhenInUsePermission: false,
         locationAlwaysPermission: false,
-        motionUsagePermission: false,
+        motionUsagePermission:
+          "지도에서 내 위치와 이동 방향을 정확하게 표시하기 위해 동작 정보를 사용합니다.",
       },
     ],
     [
