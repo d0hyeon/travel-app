@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { StyleSheet, Image, Pressable, View, useWindowDimensions } from 'react-native'
+import { StyleSheet, Pressable, View, useWindowDimensions } from 'react-native'
 import type { Photo } from '@waylog/domains/modules/photo'
 import { useTripPhotos } from '~features/trip/trip-photo/useTripPhotos'
 import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
@@ -67,7 +67,7 @@ function PhotoPreviewSheet({ isOpen, onClose, photos, initialIndex }: { isOpen: 
             {photos.map((photo) => (
               <View key={photo.id} style={[styles.photoPage, { width, height: imagePagerHeight }]}>
                 <ZoomArea width={width} height={imagePagerHeight} onZoomStart={() => setIsZooming(true)} onZoomEnd={() => setIsZooming(false)}>
-                  <Image source={{ uri: photo.url }} resizeMode="contain" style={{ width, height: imagePagerHeight }} />
+                  <LoadableImage source={{ uri: photo.url }} contentFit="contain" style={{ width, height: imagePagerHeight }} />
                 </ZoomArea>
               </View>
             ))}
