@@ -1,10 +1,15 @@
 import { isLocation, type Location } from '@waylog/domains/modules/location'
 import { useScheduledTrips } from './useScheduledTrips'
+import { useAuth } from '@waylog/domains/clients'
+
 
 export function useScheduledTripDestinations(): Location[] {
-  const { data: scheduledTrips } = useScheduledTrips()
+  const { data: auth } = useAuth({ required: false });
+  const isSignedIn = auth != null;
 
-  const scheduled = scheduledTrips.at(0)
+  const { data: scheduledTrips } = useScheduledTrips({ enabled: isSignedIn })
+
+  const scheduled = scheduledTrips?.at(0)
 
   if (!scheduled) return []
   return scheduled.destinations.filter(isLocation)
