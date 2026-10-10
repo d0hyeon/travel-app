@@ -54,6 +54,14 @@ export const config: VercelConfig = {
       ],
     },
   ],
+  redirects: [
+    {
+      source: "/((?!\\.well-known/).*)",
+      has: [{ type: "host", value: "waylog.me" }],
+      destination: "https://www.waylog.me/$1",
+      permanent: true,
+    },
+  ],
   rewrites: [
     {
       source: "/api/og-preview",
