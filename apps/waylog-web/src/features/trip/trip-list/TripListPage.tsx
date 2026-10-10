@@ -16,8 +16,8 @@ import { UpcomingCard } from './UpcomingCard'
 import { getTripYear, groupTripsByStatus } from '@waylog/domains/modules/trip'
 
 export const meta = () => [
-  { title: '내 여행 — WayLog' },
-  { property: 'og:title', content: '내 여행 — WayLog' },
+  { title: '내 여행 — Waylog' },
+  { property: 'og:title', content: '내 여행 — Waylog' },
 ]
 
 export default function TripListPage() {

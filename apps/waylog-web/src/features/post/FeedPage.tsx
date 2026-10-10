@@ -13,8 +13,8 @@ import { useFeed } from '@waylog/domains/modules/post'
 import { usePostOverlay } from './usePostOverlay'
 
 export const meta = () => [
-  { title: '피드 — WayLog' },
-  { property: 'og:title', content: '피드 — WayLog' },
+  { title: '피드 — Waylog' },
+  { property: 'og:title', content: '피드 — Waylog' },
 ]
 
 export default function FeedPage() {

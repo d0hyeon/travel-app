@@ -35,7 +35,7 @@ export function IntroFullScreenBanner({ children }: PropsWithChildren) {
         </Box>
         <Box textAlign="center">
           <Typography variant="h5" fontWeight={700} mb={0.5}>
-            WayLog
+            Waylog
           </Typography>
           <Typography variant="body2" color="text.secondary">
             여행을 계획하고 함께 기록해요

@@ -8,8 +8,8 @@ import { useScrollRestore } from '~shared/hooks/interaction/useScrollRestore'
 import { toast } from 'sonner'
 
 export const meta = () => [
-  { title: '포스트 — WayLog' },
-  { property: 'og:title', content: '포스트 — WayLog' },
+  { title: '포스트 — Waylog' },
+  { property: 'og:title', content: '포스트 — Waylog' },
 ]
 
 export default function PostDetailPage() {

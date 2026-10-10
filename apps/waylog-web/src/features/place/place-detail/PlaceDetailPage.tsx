@@ -14,8 +14,8 @@ import { usePlaceId } from './usePlaceId'
 type ContentType = keyof typeof PlaceDetailContent;
 
 export const meta = () => [
-  { title: '장소 상세 — WayLog' },
-  { property: 'og:title', content: '장소 상세 — WayLog' },
+  { title: '장소 상세 — Waylog' },
+  { property: 'og:title', content: '장소 상세 — Waylog' },
 ]
 
 export default function PlaceDetailPage() {

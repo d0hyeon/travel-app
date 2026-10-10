@@ -61,7 +61,7 @@ export function LoginScreen({ bottomContentInset }: LoginScreenProps) {
         </View>
         <View style={styles.brand}>
           <Typography variant="h5" fontWeight="bold" mb={0.5}>
-            WayLog
+            Waylog
           </Typography>
           <Typography variant="body2" color="text.secondary">
             여행을 계획하고 함께 기록해요

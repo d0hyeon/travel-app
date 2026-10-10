@@ -10,8 +10,8 @@ import { useStatisticsSummary } from './statistics-expense/useStatisticsSummary'
 type StatisticsTab = 'overview' | 'expense' | 'currency'
 
 export const meta = () => [
-  { title: '통계 — WayLog' },
-  { property: 'og:title', content: '통계 — WayLog' },
+  { title: '통계 — Waylog' },
+  { property: 'og:title', content: '통계 — Waylog' },
 ]
 
 export default function StatisticsPage() {

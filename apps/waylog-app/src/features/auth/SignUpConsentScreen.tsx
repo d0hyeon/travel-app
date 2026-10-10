@@ -66,7 +66,7 @@ export function SignUpConsentScreen() {
             <Image source={logoImage} style={styles.logoImage} />
           </View>
           <Typography variant="h5" fontWeight="bold">
-            WayLog
+            Waylog
           </Typography>
         </View>
 

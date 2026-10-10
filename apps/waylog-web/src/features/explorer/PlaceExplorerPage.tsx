@@ -5,8 +5,8 @@ import { PlaceExplorerPage as PlaceExplorerPageMobile } from './PlaceExplorerPag
 
 
 export const meta = () => [
-  { title: '탐색 — WayLog' },
-  { property: 'og:title', content: '탐색 — WayLog' },
+  { title: '탐색 — Waylog' },
+  { property: 'og:title', content: '탐색 — Waylog' },
 ]
 
 export default function PlaceExplorerPage() {

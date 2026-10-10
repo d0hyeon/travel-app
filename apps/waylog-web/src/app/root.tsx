@@ -23,13 +23,13 @@ import { ToastRenderer } from './ToastRenderer'
 import { APP_ROOT_NODE_CLASS } from './constants'
 
 export const meta = () => [
-  { title: 'WayLog' },
-  { property: 'og:title', content: 'WayLog' },
+  { title: 'Waylog' },
+  { property: 'og:title', content: 'Waylog' },
   { property: 'og:type', content: 'website' },
   { property: 'og:url', content: 'https://waylog.me' },
   { property: 'og:image', content: 'https://waylog.me/pwa-512x512.png' },
   { name: 'twitter:card', content: 'summary' },
-  { name: 'twitter:title', content: 'WayLog' },
+  { name: 'twitter:title', content: 'Waylog' },
   { name: 'twitter:image', content: 'https://waylog.me/pwa-512x512.png' },
   { name: 'theme-color', content: '#ffffff' },
 ]
