@@ -9,7 +9,6 @@ export const recommendedPlaceKey = 'recommended-places'
 export interface RecommendedPlace {
   /** 전역 places.id */
   id: string
-  tripId: string
   provider: string
   externalId: string
   name: string
@@ -41,7 +40,6 @@ function calcRecencyScore(tripStartDate: string): number {
 interface ScoredPlace {
   /** 전역 places.id */
   id: string
-  tripId: string
   provider: string
   externalId: string
   name: string
@@ -107,20 +105,13 @@ function deduplicateAndMerge(places: ScoredPlace[]): ScoredPlace[] {
       photoCount: mergedPhotoCount,
       latestTripDate,
       photos: mergedPhotos,
-      tripCount: new Set(group.map(p => p.tripId)).size,
+      tripCount: group.reduce((sum, p) => sum + p.tripCount, 0),
     }
   })
 }
 
-/**
- * RPC 가 내주는 후보 한 줄. trip_place_id 와 place_id 를 모두 받는다 —
- * 한쪽만 place_id 로 부르면 어느 테이블의 키인지 이름으로 구분되지 않는다.
- */
 interface CandidateRow {
-  trip_place_id: string
   place_id: string
-  trip_id: string
-  trip_start_date: string
   category: string | null
   provider: string
   external_id: string
@@ -129,8 +120,9 @@ interface CandidateRow {
   lat: number
   lng: number
   photo_urls: string[] | null
-  is_confirmed: boolean
-  is_hidden: boolean
+  trip_count: number
+  confirmed_count: number
+  latest_trip_start_date: string
 }
 
 /**
@@ -160,13 +152,11 @@ export async function getRecommendedPlaces(
   const currentPlaceNames = new Set(currentPlaces.map(p => normalizeName(p.name)))
 
   const scoredPlaces: ScoredPlace[] = candidates
-    .filter(row => !row.is_hidden)
     .filter(row => !currentPlaceNames.has(normalizeName(row.name)))
     .map(row => {
       const photos = row.photo_urls ?? []
       return {
         id: row.place_id,
-        tripId: row.trip_id,
         provider: row.provider,
         externalId: row.external_id,
         name: row.name,
@@ -175,10 +165,10 @@ export async function getRecommendedPlaces(
         lng: row.lng,
         category: (row.category as PlaceCategoryType) ?? undefined,
         photos,
-        confirmedCount: row.is_confirmed ? 1 : 0,
+        confirmedCount: row.confirmed_count,
         photoCount: photos.length,
-        latestTripDate: row.trip_start_date,
-        tripCount: 1,
+        latestTripDate: row.latest_trip_start_date,
+        tripCount: row.trip_count,
       }
     })
 
@@ -187,7 +177,6 @@ export async function getRecommendedPlaces(
     .slice(0, MAX_RESULTS)
     .map(place => ({
       id: place.id,
-      tripId: place.tripId,
       provider: place.provider,
       externalId: place.externalId,
       name: place.name,

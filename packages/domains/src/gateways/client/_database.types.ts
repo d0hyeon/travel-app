@@ -1321,18 +1321,16 @@ export type Database = {
         Returns: {
           address: string
           category: string
+          confirmed_count: number
           external_id: string
-          is_confirmed: boolean
-          is_hidden: boolean
           lat: number
+          latest_trip_start_date: string
           lng: number
           name: string
           photo_urls: string[]
           place_id: string
           provider: string
-          trip_id: string
-          trip_place_id: string
-          trip_start_date: string
+          trip_count: number
         }[]
       }
       get_routes_with_places_by_trip_id: {
