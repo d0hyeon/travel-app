@@ -34,4 +34,4 @@ fi
 if [ "$mandatory_answer" = "예" ]; then
   export BUNDLE_IS_MANDATORY=true
 fi
-pnpm eas update --branch "$environment" --environment "$environment" --message "$message" --non-interactive
+pnpm eas update --platform ios --branch "$environment" --environment "$environment" --message "$message" --non-interactive
