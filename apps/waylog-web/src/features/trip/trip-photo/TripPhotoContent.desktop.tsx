@@ -1,5 +1,6 @@
 import { Box, Chip, Stack } from '@mui/material';
 import { useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import { PhotoDialog } from '~shared/components/photo/PhotoDialog';
 import { PhotoUploader } from '~shared/components/photo/PhotoUploader';
 import { PhotoVisibilityBadge } from '~shared/components/photo/PhotoVisibilityBadge';
@@ -18,6 +19,15 @@ export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
   const { data: photos, remove, upload, update } = useTripPhotos(tripId);
   const { data: places } = useTripPlaces(tripId);
   const placeOptions = useMemo(() => places.map((place) => ({ placeId: place.placeId, name: place.name })), [places]);
+
+  const removePhoto = async (photo: Photo) => {
+    try {
+      await remove(photo);
+      toast.success('사진을 삭제했어요');
+    } catch {
+      toast.error('사진을 삭제하지 못했어요');
+    }
+  };
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
 
   const photosByPlace = useMemo(() => {
@@ -84,7 +94,7 @@ export function TripPhotoContent({ tripId }: TripPhotoContentProps) {
                     photos={filteredPhotos}
                     open={isOpen}
                     onClose={close}
-                    onDelete={remove}
+                    onDelete={removePhoto}
                     onUpdate={(photo, patch) => update({ photoId: photo.id, ...patch })}
                     places={placeOptions}
                   />

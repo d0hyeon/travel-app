@@ -60,7 +60,7 @@ function RecommendedPlaceCard({
   return (
     <Pressable onPress={onPress}>
       <Box
-        style={[styles.card, { borderRadius: radius.sm }]}
+        style={[styles.card, { borderRadius: radius.md }]}
       >
         <Box style={styles.imageArea}>
           <Box
@@ -97,9 +97,9 @@ function RecommendedPlacesSkeleton() {
 }
 
 const styles = StyleSheet.create({
-  card: { width: 140, overflow: 'hidden', borderWidth: 1, borderColor: palette.divider },
+  card: { width: 140, borderWidth: 1, borderColor: palette.divider, backgroundColor: palette.background, overflow: 'hidden' },
   imageArea: { position: 'relative' },
   imagePlaceholder: { width: '100%', height: 95, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   image: { width: '100%', height: '100%' },
-  details: { padding: 6 },
+  details: { padding: 8 },
 })

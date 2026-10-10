@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { StyleSheet, Image, Pressable, View, useWindowDimensions } from 'react-native'
+import { FlatList, StyleSheet, Pressable, View, useWindowDimensions } from 'react-native'
 import type { Photo } from '@waylog/domains/modules/photo'
 import { useTripPhotos } from '~features/trip/trip-photo/useTripPhotos'
 import { BottomSheet } from '~shared/components/bottom-sheet/BottomSheet'
@@ -8,7 +8,6 @@ import { useOverlay } from '~shared/hooks/useOverlay'
 import { LoadableImage } from '~shared/components/LoadableImage'
 import { PhotoVisibilityBadge } from '~shared/components/photo/PhotoVisibilityBadge'
 import { ZoomArea } from '~shared/components/photo/ZoomArea'
-import { ScrollView } from 'react-native-gesture-handler'
 
 export function UserTripPhotoList({ tripId }: { tripId: string }) {
   const { data: photos } = useTripPhotos(tripId)
@@ -52,26 +51,31 @@ function PhotoPreviewSheet({ isOpen, onClose, photos, initialIndex }: { isOpen: 
         }}
       >
         <BottomSheet.GestureArea style={styles.gestureArea}>
-          <ScrollView
+          <FlatList
+            data={photos}
+            keyExtractor={(photo) => photo.id}
             horizontal
             pagingEnabled
             scrollEnabled={!isZooming}
             nestedScrollEnabled
             directionalLockEnabled
             showsHorizontalScrollIndicator={false}
-            contentOffset={{ x: initialIndex * width, y: 0 }}
+            initialScrollIndex={initialIndex}
+            getItemLayout={(_, index) => ({ length: width, offset: width * index, index })}
+            initialNumToRender={1}
+            maxToRenderPerBatch={1}
+            windowSize={3}
             onMomentumScrollEnd={(event) => setCurrentIndex(Math.round(event.nativeEvent.contentOffset.x / width))}
             style={[styles.pager, { height: imagePagerHeight }]}
             contentContainerStyle={{ height: imagePagerHeight }}
-          >
-            {photos.map((photo) => (
-              <View key={photo.id} style={[styles.photoPage, { width, height: imagePagerHeight }]}>
+            renderItem={({ item: photo }) => (
+              <View style={[styles.photoPage, { width, height: imagePagerHeight }]}>
                 <ZoomArea width={width} height={imagePagerHeight} onZoomStart={() => setIsZooming(true)} onZoomEnd={() => setIsZooming(false)}>
-                  <Image source={{ uri: photo.url }} resizeMode="contain" style={{ width, height: imagePagerHeight }} />
+                  <LoadableImage source={{ uri: photo.url }} contentFit="contain" style={{ width, height: imagePagerHeight }} />
                 </ZoomArea>
               </View>
-            ))}
-          </ScrollView>
+            )}
+          />
         </BottomSheet.GestureArea>
       </BottomSheet.Body>
       <BottomSheet.BottomActions style={styles.viewer}>

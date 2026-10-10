@@ -1,6 +1,7 @@
 import CheckIcon from '@mui/icons-material/TaskAlt';
 import { alpha, Box, Button, ImageList, Stack, styled } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import { BottomArea } from '~shared/components/BottomArea';
 import { BottomNavigation } from '~shared/components/BottomNavigation';
 import { MultiSelectDropdown } from '~shared/components/MultiSelectDropdown';
@@ -27,6 +28,15 @@ export default function TripPhotoContent({ tripId }: TripPhotoContentProps) {
 
   const { data: places } = useTripPlaces(tripId);
   const placeOptions = useMemo(() => places.map((place) => ({ placeId: place.placeId, name: place.name })), [places]);
+
+  const removePhoto = async (photo: Photo) => {
+    try {
+      await remove(photo);
+      toast.success('사진을 삭제했어요');
+    } catch {
+      toast.error('사진을 삭제하지 못했어요');
+    }
+  };
   const [selectedPlaceIds, setSelectedPlaceIds] = useState<string[]>([]);
   const [selectedPhotoIds, setSelectedPhotoIds] = useState<string[]>([]);
   const [isReadonly, setIsReadonly] = useState(true)
@@ -101,7 +111,7 @@ export default function TripPhotoContent({ tripId }: TripPhotoContentProps) {
                           isOpen={isOpen}
                           onClose={close}
                           photos={filteredPhotos}
-                          onDelete={remove}
+                          onDelete={removePhoto}
                           onUpdate={(photo, patch) => update({ photoId: photo.id, ...patch })}
                           places={placeOptions}
                           initialIndex={i}
@@ -137,11 +147,16 @@ export default function TripPhotoContent({ tripId }: TripPhotoContentProps) {
             variant="contained"
             onClick={async () => {
               if (await confirm('정말 삭제하시겠어요?')) {
-                await Promise.all(
-                  selectedPhotoIds.map((selectedId) => (
-                    remove(photos.find(photo => photo.id === selectedId)!)
-                  ))
-                )
+                try {
+                  await Promise.all(
+                    selectedPhotoIds.map((selectedId) => (
+                      remove(photos.find(photo => photo.id === selectedId)!)
+                    ))
+                  )
+                  toast.success('사진을 삭제했어요')
+                } catch {
+                  toast.error('사진을 삭제하지 못했어요')
+                }
               }
             }}
             fullWidth
