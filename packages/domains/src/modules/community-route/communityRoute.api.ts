@@ -1,42 +1,27 @@
 import { supabase } from '@waylog/domains/clients'
-import type { CommunityTrip, CommunityRouteWithPlaces, CommunityPlace } from './communityRoute.types'
+import type { Coordinate } from '@waylog/utility'
+import type { CommunityPlace, CommunityRoute, CommunityTrip } from './communityRoute.types'
 
 export const communityRouteKey = 'community-routes'
 
-interface PreviewRouteRow {
-  scheduledDate?: string | null
-  coords: { lat: number; lng: number }[] | null
-}
-
 interface CommunityTripRow {
-  id: string
-  destinations: string[]
-  start_date: string
-  end_date: string
-  route_count: number
-  member_count: number
-  preview_coordinates: PreviewRouteRow[] | null
+  community_key: string
+  destinations: string[] | null
+  nights: number
+  preview_coordinates: Coordinate[] | null
 }
 
-interface CommunityRoutePlaceRow {
-  route_id: string
-  route_name: string
-  scheduled_date: string | null
-  /** 마스터 places.id. 순서 계산에 쓰는 trip_places.id 는 내보내지 않는다 */
-  place_id: string
-  place_name: string
-  place_address: string
-  place_lat: number
-  place_lng: number
-  place_order: number
+interface CommunityRouteRow {
+  day_number: number | null
+  places: CommunityPlace[] | null
 }
 
-export async function getTripsByDestination(
+export async function getCommunityTrips(
   destinations: string[],
   excludeTripId: string,
 ): Promise<CommunityTrip[]> {
   const { data, error } = await supabase.rpc(
-    'get_trips_by_destination',
+    'get_community_trips',
     { p_destinations: destinations, p_exclude_trip_id: excludeTripId },
   )
 
@@ -44,53 +29,24 @@ export async function getTripsByDestination(
 
   const rows = (data ?? []) as unknown as CommunityTripRow[]
   return rows.map((row) => ({
-    id: row.id,
+    communityKey: row.community_key,
     destinations: row.destinations ?? [],
-    startDate: row.start_date,
-    endDate: row.end_date,
-    routeCount: row.route_count,
-    memberCount: row.member_count,
-    previewRoutes: (row.preview_coordinates ?? []).map((r) => ({
-      scheduledDate: r.scheduledDate ?? undefined,
-      coords: r.coords ?? [],
-    })),
+    nights: row.nights,
+    previewCoordinates: row.preview_coordinates ?? [],
   }))
 }
 
-export async function getRoutesWithPlacesByTripId(
-  tripId: string,
-): Promise<CommunityRouteWithPlaces[]> {
+export async function getCommunityTripRoutes(communityKey: string): Promise<CommunityRoute[]> {
   const { data, error } = await supabase.rpc(
-    'get_routes_with_places_by_trip_id',
-    { p_trip_id: tripId },
+    'get_community_trip_routes',
+    { p_community_key: communityKey },
   )
 
   if (error) throw error
 
-  const rows = (data ?? []) as unknown as CommunityRoutePlaceRow[]
-
-  const routeMap = new Map<string, CommunityRouteWithPlaces>()
-  for (const row of rows) {
-    if (!routeMap.has(row.route_id)) {
-      routeMap.set(row.route_id, {
-        id: row.route_id,
-        name: row.route_name,
-        scheduledDate: row.scheduled_date ?? undefined,
-        places: [],
-      })
-    }
-    if (row.place_id) {
-      const place: CommunityPlace = {
-        placeId: row.place_id,
-        name: row.place_name,
-        address: row.place_address ?? '',
-        lat: row.place_lat,
-        lng: row.place_lng,
-        order: row.place_order,
-      }
-      routeMap.get(row.route_id)!.places.push(place)
-    }
-  }
-
-  return Array.from(routeMap.values())
+  const rows = (data ?? []) as unknown as CommunityRouteRow[]
+  return rows.map((row) => ({
+    dayNumber: row.day_number ?? undefined,
+    places: row.places ?? [],
+  }))
 }

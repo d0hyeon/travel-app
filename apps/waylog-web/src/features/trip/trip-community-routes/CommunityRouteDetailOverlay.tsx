@@ -48,7 +48,7 @@ function CommunityRouteDetailSheet({ communityTrip, tripId, isOpen, onClose }: P
 }
 
 function DetailContent({ communityTrip, tripId }: { communityTrip: CommunityTrip; tripId: string }) {
-  const { data: routes } = useCommunityRouteDetail(communityTrip.id)
+  const { data: routes } = useCommunityRouteDetail(communityTrip.communityKey)
   const { data: myPlaces } = useTripPlaces(tripId);
   const { data: { isOverseas } } = useTrip(tripId)
 
@@ -56,12 +56,12 @@ function DetailContent({ communityTrip, tripId }: { communityTrip: CommunityTrip
   // TripPlace.id 는 내 trip_places 행 id 라 종류가 다르다.
   const myPlaceIds = useMemo(() => new Set(myPlaces.map((p) => p.placeId)), [myPlaces])
 
-  const datedRoutes = routes.filter((r) => r.scheduledDate)
-  const undatedRoutes = routes.filter((r) => !r.scheduledDate)
+  const datedRoutes = routes.filter((r) => r.dayNumber != null)
+  const undatedRoutes = routes.filter((r) => r.dayNumber == null)
   const tabRoutes = datedRoutes.length > 0 ? datedRoutes : undatedRoutes
 
-  const [selectedRouteId, setSelectedRouteId] = useState<string>(tabRoutes[0]?.id ?? '')
-  const currentRoute = tabRoutes.find((r) => r.id === selectedRouteId) ?? tabRoutes[0]
+  const [selectedRouteIndex, setSelectedRouteIndex] = useState(0)
+  const currentRoute = tabRoutes[selectedRouteIndex] ?? tabRoutes[0]
 
   if (routes.length === 0) {
     return (
@@ -82,25 +82,19 @@ function DetailContent({ communityTrip, tripId }: { communityTrip: CommunityTrip
       {/* 날짜 탭 */}
       {tabRoutes.length > 1 && (
         <Tabs
-          value={selectedRouteId}
-          onChange={(_, v) => setSelectedRouteId(v)}
+          value={selectedRouteIndex}
+          onChange={(_, index: number) => setSelectedRouteIndex(index)}
           variant="scrollable"
           sx={{ borderBottom: 1, borderColor: 'divider', minHeight: 40, flexGrow: 0, }}
         >
-          {tabRoutes.map((route, idx) => {
-            const MS_PER_DAY = 24 * 60 * 60 * 1000
-            const dayNum = route.scheduledDate
-              ? Math.round((new Date(route.scheduledDate).getTime() - new Date(communityTrip.startDate).getTime()) / MS_PER_DAY) + 1
-              : idx + 1
-            return (
-              <Tab
-                key={route.id}
-                value={route.id}
-                label={`${dayNum}일차`}
-                sx={{ minHeight: 40 }}
-              />
-            )
-          })}
+          {tabRoutes.map((route, idx) => (
+            <Tab
+              key={idx}
+              value={idx}
+              label={`${route.dayNumber ?? idx + 1}일차`}
+              sx={{ minHeight: 40 }}
+            />
+          ))}
         </Tabs>
       )}
 

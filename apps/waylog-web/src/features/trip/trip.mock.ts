@@ -29,7 +29,6 @@ export const MOCK_CHECKLIST = [
   },
 ]
 
-export const MOCK_COMMUNITY_TRIP_ID = 'community-trip-001'
 
 export const MOCK_RECOMMENDED_PLACES = [
   {
@@ -45,18 +44,6 @@ export const MOCK_RECOMMENDED_PLACES = [
     photos: [],
     tripCount: 3,
     recommendLabel: '이 지역 인기 장소',
-  },
-]
-
-export const MOCK_COMMUNITY_TRIPS = [
-  {
-    id: MOCK_COMMUNITY_TRIP_ID,
-    destinations: ['도쿄'],
-    startDate: '2025-05-01',
-    endDate: '2025-05-05',
-    routeCount: 1,
-    memberCount: 2,
-    previewRoutes: [],
   },
 ]
 
@@ -171,29 +158,20 @@ export default [
   http.patch('*/rest/v1/checklist', () => HttpResponse.json({ ...MOCK_CHECKLIST[0], is_completed: true })),
   http.delete('*/rest/v1/checklist', () => new HttpResponse(null, { status: 204 })),
 
-  // RPC: 커뮤니티 경로 조회 (API가 snake_case row를 camelCase로 변환하므로 snake_case로 반환)
-  http.post('*/rest/v1/rpc/get_trips_by_destination', () => HttpResponse.json([
+  http.post('*/rest/v1/rpc/get_community_trips', () => HttpResponse.json([
     {
-      id: MOCK_COMMUNITY_TRIP_ID,
+      community_key: 'community-key-001',
       destinations: ['도쿄'],
-      start_date: '2025-05-01',
-      end_date: '2025-05-05',
-      route_count: 1,
-      member_count: 2,
-      preview_coordinates: [],
+      nights: 4,
+      preview_coordinates: [{ lat: 35.6580, lng: 139.7016 }],
     },
   ])),
-  http.post('*/rest/v1/rpc/get_routes_with_places_by_trip_id', () => HttpResponse.json([
+  http.post('*/rest/v1/rpc/get_community_trip_routes', () => HttpResponse.json([
     {
-      route_id: 'route-c-001',
-      route_name: '1일차 경로',
-      scheduled_date: '2025-05-01',
-      place_id: 'place-c-001',
-      place_name: '시부야',
-      place_address: '도쿄 시부야',
-      place_lat: 35.6580,
-      place_lng: 139.7016,
-      place_order: 0,
+      day_number: 1,
+      places: [
+        { placeId: 'place-c-001', name: '시부야', address: '도쿄 시부야', lat: 35.6580, lng: 139.7016 },
+      ],
     },
   ])),
 

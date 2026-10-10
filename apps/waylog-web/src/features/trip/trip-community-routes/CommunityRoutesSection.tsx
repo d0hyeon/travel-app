@@ -7,10 +7,7 @@ import { useCommunityRoutes } from '@waylog/domains/modules/community-route'
 import type { CommunityTrip } from '@waylog/domains/modules/community-route'
 export { CommunityRoutesSectionDesktop } from './CommunityRoutesSection.desktop'
 
-function getNightsAndDays(startDate: string, endDate: string): string {
-  const start = new Date(startDate)
-  const end = new Date(endDate)
-  const nights = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
+function getNightsAndDays(nights: number): string {
   if (nights <= 0) return '당일치기'
   return `${nights}박 ${nights + 1}일`
 }
@@ -29,8 +26,7 @@ export function CommunityRoutesSection(props: Props) {
 
 
 function CommunityRoutesSectionContent({ tripId, sx, ...props }: Props) {
-  const { data: allTrips } = useCommunityRoutes(tripId)
-  const trips = allTrips.filter((t) => t.id !== tripId)
+  const { data: trips } = useCommunityRoutes(tripId)
   const { open } = useCommunityRouteDetailOverlay()
 
   if (trips.length === 0) return null
@@ -67,7 +63,7 @@ export function CommunityRouteList({ trips, onTripClick, sx, ...props }: Communi
     >
       {trips.map((trip) => (
         <CommunityTripCard
-          key={trip.id}
+          key={trip.communityKey}
           trip={trip}
           onClick={() => onTripClick(trip)}
         />
@@ -77,7 +73,7 @@ export function CommunityRouteList({ trips, onTripClick, sx, ...props }: Communi
 }
 
 function CommunityTripCard({ trip, onClick }: { trip: CommunityTrip; onClick: () => void }) {
-  const duration = getNightsAndDays(trip.startDate, trip.endDate)
+  const duration = getNightsAndDays(trip.nights)
 
   return (
     <Box
@@ -98,7 +94,7 @@ function CommunityTripCard({ trip, onClick }: { trip: CommunityTrip; onClick: ()
       {/* SVG 썸네일 */}
       <CommunityRouteThumbnail
         destinations={trip.destinations}
-        previewRoutes={trip.previewRoutes}
+        previewCoordinates={trip.previewCoordinates}
         width={140}
         height={95}
       />

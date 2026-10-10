@@ -1,11 +1,11 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { communityRouteKey, getRoutesWithPlacesByTripId } from './communityRoute.api'
-import type { CommunityRouteWithPlaces } from './communityRoute.types'
+import { communityRouteKey, getCommunityTripRoutes } from './communityRoute.api'
+import type { CommunityRoute } from './communityRoute.types'
 
-export function useCommunityRouteDetail(communityTripId: string): { data: CommunityRouteWithPlaces[] } {
+export function useCommunityRouteDetail(communityKey: string): { data: CommunityRoute[] } {
   const { data } = useSuspenseQuery({
-    queryKey: [communityRouteKey, 'detail', communityTripId],
-    queryFn: () => getRoutesWithPlacesByTripId(communityTripId),
+    queryKey: [communityRouteKey, 'detail', communityKey],
+    queryFn: () => getCommunityTripRoutes(communityKey),
     staleTime: 10 * 60 * 1000,
   })
 

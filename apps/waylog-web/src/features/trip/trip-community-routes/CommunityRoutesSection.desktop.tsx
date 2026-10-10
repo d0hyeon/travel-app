@@ -13,8 +13,7 @@ export function CommunityRoutesSectionDesktop({ tripId }: { tripId: string }) {
 }
 
 function CommunityRoutesSectionDesktopContent({ tripId }: { tripId: string }) {
-  const { data: allTrips } = useCommunityRoutes(tripId)
-  const trips = allTrips.filter((t) => t.id !== tripId)
+  const { data: trips } = useCommunityRoutes(tripId)
   const { open } = useCommunityRouteDetailOverlay()
 
   if (trips.length === 0) return null

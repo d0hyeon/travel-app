@@ -64,8 +64,6 @@ function CommunityRouteDetailSheet({ communityTrip, tripId, isOpen, onClose }: P
   )
 }
 
-const MS_PER_DAY = 24 * 60 * 60 * 1000
-
 function DetailContent({
   communityTrip,
   tripId,
@@ -73,19 +71,19 @@ function DetailContent({
   communityTrip: CommunityTrip
   tripId: string
 }) {
-  const { data: routes } = useCommunityRouteDetail(communityTrip.id)
+  const { data: routes } = useCommunityRouteDetail(communityTrip.communityKey)
   const { data: myPlaces } = useTripPlaces(tripId)
 
   // 커뮤니티 장소와 맞춰 보려면 양쪽이 마스터 places.id 여야 한다.
   // TripPlace.id 는 내 trip_places 행 id 라 종류가 다르다.
   const myPlaceIds = useMemo(() => myPlaces.map((place) => place.placeId), [myPlaces])
 
-  const datedRoutes = routes.filter((route) => route.scheduledDate)
-  const undatedRoutes = routes.filter((route) => !route.scheduledDate)
+  const datedRoutes = routes.filter((route) => route.dayNumber != null)
+  const undatedRoutes = routes.filter((route) => route.dayNumber == null)
   const tabRoutes = datedRoutes.length > 0 ? datedRoutes : undatedRoutes
 
-  const [selectedRouteId, setSelectedRouteId] = useState<string>(tabRoutes[0]?.id ?? '')
-  const currentRoute = tabRoutes.find((route) => route.id === selectedRouteId) ?? tabRoutes[0]
+  const [selectedRouteIndex, setSelectedRouteIndex] = useState(0)
+  const currentRoute = tabRoutes[selectedRouteIndex] ?? tabRoutes[0]
 
   const mapRef = useRef<MapRef>(null);
 
@@ -109,18 +107,10 @@ function DetailContent({
   return (
     <Stack style={styles.content}>
       {tabRoutes.length > 1 && (
-        <Tabs value={selectedRouteId} onChange={(_, value) => setSelectedRouteId(value)}>
-          {tabRoutes.map((route, index) => {
-            const dayNumber = route.scheduledDate
-              ? Math.round(
-                (new Date(route.scheduledDate).getTime() -
-                  new Date(communityTrip.startDate).getTime()) /
-                MS_PER_DAY,
-              ) + 1
-              : index + 1
-
-            return <Tab key={route.id} value={route.id} label={`${dayNumber}일차`} />
-          })}
+        <Tabs value={String(selectedRouteIndex)} onChange={(_, value) => setSelectedRouteIndex(Number(value))}>
+          {tabRoutes.map((route, index) => (
+            <Tab key={index} value={String(index)} label={`${route.dayNumber ?? index + 1}일차`} />
+          ))}
         </Tabs>
       )}
 

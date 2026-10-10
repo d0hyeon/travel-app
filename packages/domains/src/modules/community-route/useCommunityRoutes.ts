@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useTrip } from '../trip'
-import { communityRouteKey, getTripsByDestination } from './communityRoute.api'
+import { communityRouteKey, getCommunityTrips } from './communityRoute.api'
 import type { CommunityTrip } from './communityRoute.types'
 
 export function useCommunityRoutes(tripId: string): { data: CommunityTrip[] } {
@@ -8,7 +8,7 @@ export function useCommunityRoutes(tripId: string): { data: CommunityTrip[] } {
 
   const { data } = useSuspenseQuery({
     queryKey: [communityRouteKey, 'list', tripId],
-    queryFn: () => getTripsByDestination(trip.destinations, tripId),
+    queryFn: () => getCommunityTrips(trip.destinations, tripId),
     staleTime: 5 * 60 * 1000,
   })
 
