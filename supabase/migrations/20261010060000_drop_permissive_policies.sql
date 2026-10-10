@@ -6,6 +6,7 @@ DROP POLICY IF EXISTS "Allow all for trip_members" ON "public"."trip_members";
 DROP POLICY IF EXISTS "Allow all for places" ON "public"."places";
 DROP POLICY IF EXISTS "trip_members_insert" ON "public"."trip_members";
 
+DROP POLICY IF EXISTS "trip_members_insert_host_self" ON "public"."trip_members";
 CREATE POLICY "trip_members_insert_host_self" ON "public"."trip_members"
   FOR INSERT TO "authenticated"
   WITH CHECK (
@@ -21,10 +22,7 @@ CREATE POLICY "places_select" ON "public"."places"
   FOR SELECT TO "anon", "authenticated"
   USING (true);
 
-CREATE POLICY "places_insert" ON "public"."places"
-  FOR INSERT TO "authenticated"
-  WITH CHECK (true);
-
+DROP POLICY IF EXISTS "places_update_missing_category" ON "public"."places";
 CREATE POLICY "places_update_missing_category" ON "public"."places"
   FOR UPDATE TO "authenticated"
   USING ("category" IS NULL)
