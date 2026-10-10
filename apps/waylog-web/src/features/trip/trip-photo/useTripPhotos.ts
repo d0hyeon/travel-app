@@ -1,4 +1,3 @@
-import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deletePhoto, getPhotosByTripId, photoKey, updatePhoto, uploadPhoto, type PhotoUpdate } from "~features/photo/photo.api";
 import { findNearestPlaceFromPhoto } from "~features/photo/photo.utils";
@@ -50,12 +49,8 @@ export function useTripPhotos(tripId: string, options?: Omit<QueryOptions, 'quer
     onMutate: async (photo) => {
       await queryClient.cancelQueries({ queryKey: useTripPhotos.key(tripId) })
       queryClient.setQueryData<Photo[]>(useTripPhotos.key(tripId), (curr) => curr?.filter((item) => item.id !== photo.id))
-      toast.success('사진을 삭제했어요')
     },
-    onError: () => {
-      toast.error('사진을 삭제하지 못했어요')
-      refetch()
-    }
+    onError: () => refetch()
   })
 
   const { mutateAsync: update } = useMutation({
