@@ -59,17 +59,16 @@ const config: ExpoConfig = {
       {
         locationWhenInUsePermission:
           "지도에 내 위치를 표시하고 가까운 장소를 찾기 위해 위치를 사용합니다.",
-        locationAlwaysAndWhenInUsePermission:
-          "지도에 내 위치를 표시하고 가까운 장소를 찾기 위해 위치를 사용합니다.",
-        locationAlwaysPermission:
-          "지도에 내 위치를 표시하고 가까운 장소를 찾기 위해 위치를 사용합니다.",
+        locationAlwaysAndWhenInUsePermission: false,
+        locationAlwaysPermission: false,
+        motionUsagePermission: false,
       },
     ],
     [
       "expo-media-library",
       {
         photosPermission:
-          "게시물에 사진을 추가하기 위해 사진 보관함에 접근합니다.",
+          "여행 사진, 게시물, 탑승권 이미지를 추가하기 위해 사진 보관함에 접근합니다.",
         savePhotosPermission:
           "여행 사진을 기기에 저장하기 위해 사진 보관함에 접근합니다.",
       },
