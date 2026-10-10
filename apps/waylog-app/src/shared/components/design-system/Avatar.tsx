@@ -17,10 +17,12 @@ export interface AvatarProps {
 export function Avatar({ src, children, style }: AvatarProps) {
   const flatStyle = (StyleSheet.flatten(style) ?? {}) as ViewStyle & TextStyle
   const size = typeof flatStyle.width === 'number' ? flatStyle.width : DEFAULT_SIZE
+  const fontSize = typeof flatStyle.fontSize === 'number' ? flatStyle.fontSize : size / 2
 
   const initial = (
     <Typography
-      style={[styles.typography, { fontSize: typeof flatStyle.fontSize === 'number' ? flatStyle.fontSize : size / 2 }]}
+      style={{ fontSize, lineHeight: fontSize * 1.3 }}
+      color="text.secondary"
     >
       {children}
     </Typography>
@@ -54,7 +56,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     overflow: 'hidden',
   },
-  typography: {
-    color: palette.textSecondary,
-  },
+
 })
