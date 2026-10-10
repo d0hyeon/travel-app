@@ -22,7 +22,6 @@ export interface PlaceFormValues {
   /** null은 미설정. 필드를 생략하면 서버가 기존 값을 유지한다 */
   category: PlaceCategoryType | null;
   memo: string
-  tags: string[]
 }
 
 interface InnerValue extends Omit<PlaceFormValues, 'category'> {
@@ -48,29 +47,6 @@ export function PlaceForm({
       category: defaultValues?.category ?? 'none',
     },
   })
-
-  const [tagInput, setTagInput] = useState('')
-  const tags = watch('tags')
-
-  const handleAddTag = () => {
-    const trimmed = tagInput.trim()
-    if (trimmed && !tags.includes(trimmed)) {
-      setValue('tags', [...tags, trimmed])
-      setTagInput('')
-    }
-  }
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    setValue('tags', tags.filter(t => t !== tagToRemove))
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      handleAddTag()
-    }
-  }
-
   const handleFormSubmit = handleSubmit((data) => {
     onSubmit({
       ...data,
@@ -133,38 +109,14 @@ export function PlaceForm({
               {...field}
               label="메모"
               multiline
-              rows={3}
+              rows={4}
               fullWidth
               size="small"
             />
           )}
         />
 
-        {/* 태그 */}
-        <Box>
-          <TextField
-            label="태그 추가"
-            value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            fullWidth
-            size="small"
-            placeholder="Enter로 추가"
-          />
-          {tags.length > 0 && (
-            <Stack direction="row" spacing={0.5} flexWrap="wrap" sx={{ mt: 1, gap: 0.5 }}>
-              {tags.map((tag) => (
-                <Chip
-                  key={tag}
-                  label={tag}
-                  size="small"
-                  onDelete={() => handleRemoveTag(tag)}
-                />
-              ))}
-            </Stack>
-          )}
-        </Box>
-
+ 
         {/* 버튼 */}
         {actions && (
           <Stack direction="row" spacing={1} sx={{ pt: 1 }}>

@@ -36,7 +36,7 @@ export function useTripPlaceFormOverlay() {
               safeArea
               onDismiss={close}
               onClose={onClose}
-              snapPoints={[0.7]}
+              snapPoints={[0.5]}
               defaultSnapIndex={0}
             >
               <AsyncBoundary
@@ -119,7 +119,6 @@ function PlaceFormSheetContent({ tripId, placeId, isOpen, onClose }: SheetProps)
             onClose()
           }}
         />
-        <PlacePhotoSection mt={3} tripId={tripId} placeId={place.placeId} />
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
         <Button variant="outlined" size="large" fullWidth onPress={onClose}>

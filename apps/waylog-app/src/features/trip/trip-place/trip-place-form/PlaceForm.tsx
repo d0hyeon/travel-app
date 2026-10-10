@@ -17,7 +17,6 @@ export interface PlaceFormValues {
   /** null은 미설정 */
   category: PlaceCategoryType | null
   memo: string
-  tags: string[]
 }
 
 export interface PlaceFormRef {
@@ -46,14 +45,11 @@ export const PlaceForm = forwardRef<PlaceFormRef, Props>(function PlaceForm(
       address: '',
       category: null,
       memo: '',
-      tags: [],
       ...defaultValues,
     },
   })
 
-  const [tagInput, setTagInput] = useState('')
   const category = watch('category')
-  const tags = watch('tags');
 
   const preservedOnSubmit = usePreservedCallback((data) => props.onSubmit?.(data));
 
@@ -101,53 +97,29 @@ export const PlaceForm = forwardRef<PlaceFormRef, Props>(function PlaceForm(
         />
       </Stack>
 
-      <Controller
-        control={control}
-        name="memo"
-        render={({ field }) => (
-          <TextField
-            placeholder="메모"
-            fullWidth
-            multiline
-            minRows={3}
-            value={field.value}
-            onChangeText={field.onChange}
-            readOnly={readonly}
-          />
-        )}
-      />
-
       <Stack gap={1}>
         <Typography variant="caption" color="text.secondary">
-          태그
+          메모
         </Typography>
-        <TextField
-          placeholder="입력 후 엔터"
-          fullWidth
-          variant="standard"
-          value={tagInput}
-          onChangeText={setTagInput}
-          readOnly={readonly}
-          onSubmitEditing={() => {
-            const next = tagInput.trim()
-            if (next === '' || tags.includes(next)) return
-            setValue('tags', [...tags, next])
-            setTagInput('')
-          }}
+
+        <Controller
+          control={control}
+          name="memo"
+          render={({ field }) => (
+            <TextField
+              placeholder="메모"
+              fullWidth
+              multiline
+              minRows={4}
+              value={field.value}
+              onChangeText={field.onChange}
+              readOnly={readonly}
+            />
+          )}
         />
-        {tags.length > 0 && (
-          <Stack direction="row" gap={0.5} style={styles.categories}>
-            {tags.map((tag) => (
-              <Chip
-                key={tag}
-                label={tag}
-                size="small"
-                onDelete={() => setValue('tags', tags.filter((x) => x !== tag))}
-              />
-            ))}
-          </Stack>
-        )}
       </Stack>
+
+      
     </Stack>
   )
 })

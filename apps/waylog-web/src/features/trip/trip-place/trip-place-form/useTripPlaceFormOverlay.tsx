@@ -113,7 +113,6 @@ export function PlaceFormSheet({ placeId, tripId, isOpen, onClose }: PlaceFormOv
           }}
           sx={{ 'h6': { display: 'none' } }}
         />
-        <PlacePhotoSection tripId={tripId} placeId={place.placeId} />
       </BottomSheet.Body>
       <BottomSheet.BottomActions>
         <Stack direction="row" gap={1} width="100%">
@@ -178,7 +177,6 @@ function PlaceFormDialog({ tripId, placeId, isOpen, onClose }: PlaceFormOverlayP
             onClose()
           }}
         />
-        <PlacePhotoSection tripId={tripId} placeId={place.placeId} />
       </DialogContent>
       <DialogActions>
         <Button type="button" onClick={onClose}>취소</Button>
