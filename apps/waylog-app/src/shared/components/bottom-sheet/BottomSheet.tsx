@@ -407,16 +407,23 @@ export function BottomSheet({
 
   const bodyStyle = useAnimatedStyle(() => {
     const lift = kbLift.get()
-    const visibleHeight = Math.min(sheetH.get(), baseH - lift - insets.top)
+    const limit = baseH - lift - insets.top
+    const visibleHeight = Math.min(sheetH.get(), limit)
 
     // 재는 동안에는 본문도 묶지 않는다. 여기서 뷰포트를 정하면 내용이 그 안에
     // 눌려 잰 값이 시트 높이를 따라간다.
     if (isMeasuring) return {}
 
     return {
-      // 시트 전체는 최대 높이로 렌더링하지만 본문 뷰포트는 현재 보이는
-      // 높이만 쓴다. 그래야 스크롤 끝의 콘텐츠가 화면 밖에 남지 않는다.
-      height: getSheetBodyHeight({ visibleHeight, handleHeight: HANDLE_AREA_HEIGHT }),
+      // 시트 전체는 최대 높이로 렌더링하지만 본문 뷰포트는 현재 스냅 높이만
+      // 쓴다. 그래야 스크롤 끝의 콘텐츠가 화면 밖에 남지 않는다.
+      // 열리고 닫히는 동안에는 스냅 높이에 머물러 내용이 매 프레임 다시
+      // 배치되지 않고, 스냅 위로 끌어올릴 때만 손을 따라 커진다.
+      height: getSheetBodyHeight({
+        visibleHeight,
+        snapHeight: Math.min(height, limit),
+        handleHeight: HANDLE_AREA_HEIGHT,
+      }),
       flexGrow: 0,
       flexShrink: 0,
       // 하단 안전영역은 바닥에 닿는 요소(BottomActions)가 자기 여백으로 가진다.

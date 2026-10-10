@@ -41,11 +41,13 @@ export function getSheetTranslateY({
 
 export function getSheetBodyHeight({
   visibleHeight,
+  snapHeight,
   handleHeight,
 }: {
   visibleHeight: number
+  snapHeight: number
   handleHeight: number
 }): number {
   'worklet'
-  return Math.max(visibleHeight - handleHeight, 0)
+  return Math.max(Math.max(visibleHeight, snapHeight) - handleHeight, 0)
 }
