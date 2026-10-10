@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { addPlaceBookmark, getBookmarkedPlaces, removePlaceBookmark } from '../placeBookmark.api'
+import {
+  addPlaceBookmark,
+  getBookmarkedPlaceIds,
+  getBookmarkedPlaces,
+  removePlaceBookmark,
+} from '../placeBookmark.api'
 
 vi.mock('../../../gateways/client', () => ({
   supabase: { from: vi.fn() },
@@ -7,23 +12,42 @@ vi.mock('../../../gateways/client', () => ({
 vi.mock('../../../gateways/auth', () => ({
   getSession: vi.fn(),
 }))
-vi.mock('../../place/place.api', () => ({
-  getPlacesByIds: vi.fn(),
-}))
 
 import { getSession } from '../../../gateways/auth'
 import { supabase } from '../../../gateways/client'
-import { getPlacesByIds } from '../../place/place.api'
 
 const mockFrom = vi.mocked(supabase.from)
 
+function placeRow(id: string) {
+  return {
+    id,
+    name: id,
+    address: null,
+    lat: 0,
+    lng: 0,
+    provider: 'kakao',
+    external_id: id,
+    category: null,
+    created_at: '',
+  }
+}
+
 function place(id: string) {
-  return { id, name: id, address: '', lat: 0, lng: 0, provider: 'kakao', externalId: id, createdAt: '' }
+  return {
+    id,
+    name: id,
+    address: '',
+    lat: 0,
+    lng: 0,
+    provider: 'kakao',
+    externalId: id,
+    category: undefined,
+    createdAt: '',
+  }
 }
 
 beforeEach(() => {
   mockFrom.mockReset()
-  vi.mocked(getPlacesByIds).mockReset()
   vi.mocked(getSession).mockReturnValue({ id: 'me' })
 })
 
@@ -75,24 +99,39 @@ describe('removePlaceBookmark', () => {
   })
 })
 
-describe('getBookmarkedPlaces', () => {
-  it('최근 북마크한 순서로 장소를 돌려준다', async () => {
+describe('getBookmarkedPlaceIds', () => {
+  it('최근 북마크한 순서로 장소 id 를 돌려준다', async () => {
     const order = vi.fn().mockResolvedValue({ data: [{ place_id: 'b' }, { place_id: 'a' }], error: null })
-    mockFrom.mockReturnValue({ select: vi.fn().mockReturnValue({ order }) } as never)
-    vi.mocked(getPlacesByIds).mockResolvedValue([place('a'), place('b')])
+    const select = vi.fn().mockReturnValue({ order })
+    mockFrom.mockReturnValue({ select } as never)
+
+    const placeIds = await getBookmarkedPlaceIds()
+
+    expect(select).toHaveBeenCalledWith('place_id')
+    expect(order).toHaveBeenCalledWith('created_at', { ascending: false })
+    expect(placeIds).toEqual(['b', 'a'])
+  })
+
+  it('비로그인이면 쿼리 없이 빈 배열을 돌려준다', async () => {
+    vi.mocked(getSession).mockReturnValue(null)
+
+    await expect(getBookmarkedPlaceIds()).resolves.toEqual([])
+    expect(mockFrom).not.toHaveBeenCalled()
+  })
+})
+
+describe('getBookmarkedPlaces', () => {
+  it('북마크한 장소를 한 번의 요청으로 최근 북마크한 순서대로 돌려준다', async () => {
+    const order = vi.fn().mockResolvedValue({ data: [{ places: placeRow('b') }, { places: placeRow('a') }], error: null })
+    const select = vi.fn().mockReturnValue({ order })
+    mockFrom.mockReturnValue({ select } as never)
 
     const places = await getBookmarkedPlaces()
 
+    expect(mockFrom).toHaveBeenCalledTimes(1)
+    expect(select).toHaveBeenCalledWith('places(*)')
     expect(order).toHaveBeenCalledWith('created_at', { ascending: false })
-    expect(places.map(({ id }) => id)).toEqual(['b', 'a'])
-  })
-
-  it('북마크가 없으면 장소를 조회하지 않고 빈 배열을 돌려준다', async () => {
-    const order = vi.fn().mockResolvedValue({ data: [], error: null })
-    mockFrom.mockReturnValue({ select: vi.fn().mockReturnValue({ order }) } as never)
-
-    await expect(getBookmarkedPlaces()).resolves.toEqual([])
-    expect(getPlacesByIds).not.toHaveBeenCalled()
+    expect(places).toEqual([place('b'), place('a')])
   })
 
   it('비로그인이면 쿼리 없이 빈 배열을 돌려준다', async () => {
