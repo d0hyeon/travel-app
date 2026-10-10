@@ -32,7 +32,7 @@ export function useInvitedTrip({ sharedLink }: UseInvitedTripParams) {
   });
 
   const { mutateAsync, ...mutation } = useMutation({
-    mutationFn: () => joinTrip(data.id),
+    mutationFn: () => joinTrip(sharedLink),
   });
 
   return {
