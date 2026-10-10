@@ -107,11 +107,12 @@ function RecommendedPlaceCard({
         width: 140,
         flexShrink: 0,
         cursor: 'pointer',
-        borderRadius: 1,
-        overflow: 'hidden',
+        borderRadius: 2,
         border: '1px solid',
         borderColor: 'divider',
-        '&:hover': { borderColor: accentColor ?? 'primary.main', boxShadow: 1 },
+        bgcolor: 'background.paper',
+        overflow: 'hidden',
+        '&:hover': { borderColor: 'primary.light', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' },
         transition: 'border-color 0.15s, box-shadow 0.15s',
       }}
     >
@@ -154,7 +155,7 @@ function RecommendedPlaceCard({
           />
         )}
       </Box>
-      <Box sx={{ p: 0.75 }}>
+      <Box sx={{ p: 1 }}>
         <Typography variant="caption" fontWeight="medium" noWrap display="block">
           {place.name}
         </Typography>
