@@ -1,4 +1,4 @@
-import { signInWithApple, signInWithEmail, signInWithKakao } from '@waylog/domains/clients'
+import { signInWithApple, signInWithKakao } from '@waylog/domains/clients'
 import * as AppleAuthentication from 'expo-apple-authentication'
 import * as Linking from 'expo-linking'
 import { useState } from 'react'
@@ -6,9 +6,10 @@ import { ActivityIndicator, Image, Platform, StyleSheet, View } from 'react-nati
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Svg, { Path } from 'react-native-svg'
 import { toast } from '~shared/components/toast/toast'
-import { Button, Divider, Stack, TextField, Typography } from '~shared/components/design-system'
+import { Button, Stack, Typography } from '~shared/components/design-system'
 import { palette, radius } from '~shared/config/tokens'
 import logoImage from '../../../assets/logo.png'
+import { useEmailSignInOverlay } from './useEmailSignInOverlay'
 
 const LOGO_SIZE = 72
 // 카카오 브랜드 가이드의 버튼 색과 라벨 색.
@@ -36,6 +37,7 @@ export function LoginScreen({ bottomContentInset }: LoginScreenProps) {
   const insets = useSafeAreaInsets()
   const bottomInset = bottomContentInset ?? insets.bottom
   const [isPending, setIsPending] = useState(false)
+  const emailSignInOverlay = useEmailSignInOverlay()
 
   async function handleSignIn(signIn: (input: { redirectTo: string }) => Promise<boolean>) {
     if (isPending) return
@@ -67,7 +69,7 @@ export function LoginScreen({ bottomContentInset }: LoginScreenProps) {
         </View>
       </View>
 
-      <Stack gap={2} direction="column">
+      <Stack gap={1} direction="column">
         <Button
           variant="contained"
           size="large"
@@ -89,53 +91,21 @@ export function LoginScreen({ bottomContentInset }: LoginScreenProps) {
             onPress={() => void handleSignIn(signInWithApple)}
             style={styles.appleButton}
           />
-
         )}
+
+        <Button
+          variant="contained"
+          size="large"
+          disabled={isPending}
+          onPress={emailSignInOverlay.open}
+          style={styles.emailButton}
+          textStyle={styles.emailLabel}
+          fullWidth
+        >
+          이메일로 로그인
+        </Button>
       </Stack>
-
-      {__DEV__ && <DevEmailLogin />}
     </View>
-  )
-}
-
-function DevEmailLogin() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-
-  async function handleSubmit() {
-    setError(null)
-    try {
-      await signInWithEmail(email, password)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : '로그인 실패')
-    }
-  }
-
-  return (
-    <Stack spacing={1.5} style={styles.devSection}>
-      <Divider />
-      <Typography variant="caption" color="text.secondary" textAlign="center">
-        dev only
-      </Typography>
-      <TextField
-        label="이메일"
-        fullWidth
-        autoCapitalize="none"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <TextField label="비밀번호" fullWidth secureTextEntry value={password} onChangeText={setPassword} />
-      {error != null && (
-        <Typography variant="body2" color="error">
-          {error}
-        </Typography>
-      )}
-      <Button variant="outlined" size="small" onPress={() => void handleSubmit()}>
-        이메일로 로그인
-      </Button>
-    </Stack>
   )
 }
 
@@ -161,6 +131,7 @@ const styles = StyleSheet.create({
   // Button 의 fullWidth 는 flex:1 이라 세로 컨테이너에서는 높이까지 늘어난다. 가로만 채운다.
   kakaoButton: { alignSelf: 'stretch', backgroundColor: KAKAO_BRAND_COLOR, height: 48, borderRadius: 8 },
   kakaoLabel: { color: KAKAO_LABEL_COLOR, fontSize: 16 },
-  appleButton: { alignSelf: 'stretch', height: 48, marginTop: 12 },
-  devSection: { alignSelf: 'stretch', marginTop: 24 },
+  appleButton: { alignSelf: 'stretch', height: 48, },
+  emailButton: { alignSelf: 'stretch', height: 48, borderRadius: 8, },
+  emailLabel: { fontSize: 16 },
 })
