@@ -7,7 +7,7 @@ import {
   isLocation,
   type Location,
 } from "@waylog/domains/modules/location";
-import type { Trip } from "@waylog/domains/modules/trip";
+import type { UserTrip } from "@waylog/domains/modules/user-profile";
 
 export interface VisitedLocation {
   location: Location;
@@ -16,10 +16,10 @@ export interface VisitedLocation {
   coordinate: Coordinate;
   visitCount: number;
   lastVisitedAt: string;
-  trips: Trip[];
+  trips: UserTrip[];
 }
 
-export function deriveVisitedLocations(trips: Trip[]): VisitedLocation[] {
+export function deriveVisitedLocations(trips: UserTrip[]): VisitedLocation[] {
   const aggregatedLocations = new Map<Location, VisitedLocation>();
 
   trips.forEach((trip) => {
@@ -53,7 +53,7 @@ export function deriveVisitedLocations(trips: Trip[]): VisitedLocation[] {
 }
 
 /** 나라별 방문 여행 수. 한 여행이 여러 나라를 거치면 각 나라에 1씩 센다. */
-export function deriveVisitedCountries(trips: Trip[]): Map<Country, number> {
+export function deriveVisitedCountries(trips: UserTrip[]): Map<Country, number> {
   const visitCountByCountry = new Map<Country, number>();
 
   trips.forEach((trip) => {

@@ -227,7 +227,7 @@ packages/
 │           ├── marine-activity/ # 해양 활동
 │           ├── map/             # 좌표·마커 타입, 클러스터링(순수)
 │           ├── photo/           # 사진 조회·삭제·수정
-│           ├── community-route/ # 커뮤니티 경로
+│           ├── community-route/ # 커뮤니티 경로. 목록 RPC `get_community_trips`는 같은 여행지의 남의 여행을 `community_key`·여행지·박 수·썸네일 좌표로, 상세 RPC `get_community_trip_routes(p_community_key)`는 일정별 일차·장소로 내준다. `trips.community_key`는 이 두 RPC 전용 무작위 키라 원본 여행 id·경로 id·절대 날짜는 내보내지 않으며, 둘 다 `authenticated` 전용이다(`20261010030000_community_trips_without_trip_identity.sql`). `toTrip`은 `community_key`를 `Trip`으로 매핑하지 않는다
 │           ├── open-graph/      # 링크 미리보기
 │           ├── place/           # 장소 조회·검색·추가, 제공자 카테고리 → PlaceCategoryType 변환(placeCategory.utils)
 │           ├── place-bookmark/  # 장소 북마크(내 북마크 추가·해제·목록). 여행에 담기(trip_places)와 무관
@@ -238,13 +238,13 @@ packages/
 │           ├── transport/       # 이동수단 vocabulary
 │           ├── trip/            # 여행
 │           ├── trip-chat/       # 여행 채팅
-│           ├── trip-recommend/  # 추천 장소
+│           ├── trip-recommend/  # 추천 장소. 후보 RPC `get_recommended_place_candidates`는 남의 여행을 장소 단위로 집계해(`trip_count`·`confirmed_count`·`latest_trip_start_date`) 원본 여행 ID와 여행별 장소 묶음을 내보내지 않으며 `authenticated` 전용이다(`20261010020000_recommended_place_candidates_by_place.sql`). 이름·100m 기준 병합과 점수는 클라이언트(`tripRecommend.api.ts`)에 남는다
 │           ├── trip-checklist/  # 여행 준비물
 │           ├── trip-member/     # 여행 멤버·역할 권한·탈퇴. 탈퇴는 `trip_members.left_at` 기록(행 삭제 없음, NULL=활성)이며 `leaveTrip`(`leave_trip` RPC, 결과 `'left' | 'last_member'`)·`joinTrip`(`join_trip` RPC, 탈퇴 멤버 복구)이 호출한다. `getTripMembersByTripId`는 탈퇴 멤버도 돌려주되 `tripMember.api.ts`의 `toTripMember`가 이름을 `LEFT_MEMBER_NAME`('탈퇴한 유저')·`profileUrl`을 null로 가린다(`hasLeft`·`joinedAt` 제공). `findHostSuccessor`(`tripMember.utils.ts`)는 호스트 승계 대상(가장 먼저 참여한 활성 멤버) 표시용이며 승계의 원천은 DB `leave_trip`이다. `TripPermission`(탈퇴·초대)과 역할별 정책 표(`tripPermission.utils.ts`: 호스트 탈퇴·초대, 멤버 탈퇴)를 소유하고, `useTripPermission(tripId, 권한 | 권한[])`이 단건은 boolean, 복수는 `permission[TripPermission.초대]`로 접근하는 객체를 돌려준다. 멤버가 아니거나 탈퇴했으면 모든 권한이 false(`getTripRole`). 서버 RLS 강제가 아닌 UI 권한이다. `useTrip().leave`·`useTrips().leave`는 결과가 `'last_member'`면 `deleteTrip`으로 여행을 삭제한다
 │           ├── trip-memo/       # 여행 메모
 │           ├── trip-transport/  # 여행 교통편·티켓
 │           ├── weather/         # 날씨 예보
-│           ├── user-profile/    # 유저 프로필
+│           ├── user-profile/    # 유저 프로필. 프로필 기록·통계용 `getUserTrips`(RPC `get_user_trips`)는 남의 프로필에서도 불리고 게스트(anon)도 호출하므로 `UserTrip`(id·name·destinations·endDate)만 돌려준다. 초대 링크(`share_link`)·`community_key`가 새지 않도록 `trips` 행 전체를 반환하지 않는다(`20261010040000_user_trips_profile_columns.sql`)
 │           └── tripPlanRefetch.ts  # 계획 탭 공동 편집 갱신 정책 (모듈 공용)
 └── react/                      # @waylog/react — 플랫폼 비의존 훅
 supabase/                       # DB 마이그레이션·엣지 함수·DB 시나리오 테스트(`tests/*.scenarios.sql`). 멤버 탈퇴는 `migrations/20261005010000_trip_member_soft_leave.sql`(`trip_members.left_at`, 뷰 `active_trip_members`, 접근 지점을 활성 멤버로 한정. 뷰는 `anon` 권한이 없으므로 이 뷰를 읽는 `trips_select` 정책은 `20261010010000_trips_select_authenticated_only.sql` 에서 `authenticated` 로 한정한다)과 `20261005020000_trip_member_leave_join_rpc.sql`(RPC `leave_trip`·`join_trip`)이 정의한다. 푸시·알림 Edge Function(`chat-web-push`·`airport-arrival-guidance`·`flight-status-watch`·`dispatch-notifications`)은 `active_trip_members`를 읽는다. `migrations/20261005000000_backfill_trip_host_members.sql`은 `trip_members` 행이 없는 호스트에게 행을 채우는 독립 마이그레이션(`left_at` 미참조)이다. 세 마이그레이션은 아직 적용 전이며 `packages/domains/src/gateways/client/_database.types.ts`의 `left_at`·`join_trip`·`leave_trip`은 `pnpm gen-types` 전까지 손으로 맞춘 값이다. 배포 순서와 옛 클라이언트: (0) 서버가 쥔 최소 앱 버전(`app_version_policies`, 강제 업데이트 장치)을 올려 이 변경 이전 앱 빌드가 계속 실행되지 못하게 한다 → (1) `20261005000000_backfill_trip_host_members.sql` 을 가장 먼저 단독 적용(독립적이며 안전, 적용 뒤에는 `toTripMember` 의 옛 호스트용 `id` 폴백이 불필요해짐) 후 나머지 두 마이그레이션 적용 → (2) Edge Function 4개 배포 → (3) 웹 배포 → (4) 앱 릴리스 → `pnpm gen-types` 후 `supabase/schema.sql` 재생성. 마이그레이션 적용 뒤 업데이트하지 않은 클라이언트는 (i) 옛 `joinTrip` 이 단순 insert 라 새 클라이언트로 탈퇴한 사용자에게는 유니크 제약(23505)에 걸리고 옛 코드가 그 에러를 삼켜 재가입이 조용히 실패하며 RLS 가 접근을 막는다, (ii) 옛 `getTripMembersByTripId` 가 `left_at` 을 무시해 탈퇴 멤버가 실명으로 목록·인원수·선택기에 나온다, (iii) 옛 `leaveTrip` 이 `trip_members_delete` 정책으로 자기 행을 DELETE 해 이력에서 이름이 사라진다, (iv) 앱의 옛 `TripLeaveButton` 은 호스트가 나가기를 누르면 `removeTrip()` 으로 여행 전체를 삭제하는데 `deleteTrip` 이 `trips` 행보다 사진을 먼저 지우므로, 이는 `trips_delete` 정책이 아니라 최소 앱 버전 게이트로 막아야 한다(정책만 두면 반쯤 지워진 여행이 남는다). 서버 보강 두 가지는 이 변경의 범위가 아니라 배포 게이트다: 운영에 `Allow all for trip_members` 정책(USING true)이 있는지 확인해 있으면 삭제하고, `trips_update` 를 제한한다(현재 활성 멤버 누구나 `trips.user_id` 를 바꿀 수 있다). 둘 다 클라이언트가 호스트 불변식을 우회하게 한다
@@ -575,11 +575,11 @@ src/
 │       │   ├── TripWeatherForecastSheet.tsx # DayPart(am/pm) 중 실제 시간별 데이터가 있는 구간만 노출 (판정은 weather/dayPart.utils)
 │       │   └── TripWeatherIconButton.tsx
 │       ├── trip-checklist/                # 체크리스트 탭
-│       ├── trip-community-routes/         # 커뮤니티 경로 탭
-│       │   ├── communityRoute.api.ts
-│       │   ├── communityRoute.types.ts
-│       │   ├── useCommunityRoutes.ts
-│       │   └── useCommunityRouteDetail.ts
+│       ├── trip-community-routes/         # 커뮤니티 경로 섹션(데이터는 `@waylog/domains/modules/community-route`)
+│       │   ├── CommunityRoutesSection.tsx
+│       │   ├── CommunityRoutesSection.desktop.tsx
+│       │   ├── CommunityRouteDetailOverlay.tsx
+│       │   └── CommunityRouteThumbnail.tsx
 │       ├── trip-create/                   # 여행 생성 마법사 (3단계). 앱은 탑승권·포스트 퍼널처럼 자체 네이티브 스택으로 스텝을 쌓아 뒤로가기가 한 스텝씩 돌아간다
 │       │   ├── TripCreatePage.tsx
 │       │   ├── DestinationStep.tsx

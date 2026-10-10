@@ -1,5 +1,5 @@
 import { supabase, type CreateDataType } from '../../gateways/client'
-import type { UserProfile } from '../user-profile'
+import type { UserProfile, UserTrip } from '../user-profile'
 import { TERMS_VERSION } from '../terms'
 
 export const userProfileKey = 'user-profile'
@@ -14,6 +14,18 @@ function toUserProfile(row: {
     name: row.name,
     profileUrl: row.avatar_url,
   }
+}
+
+export async function getUserTrips(userId: string): Promise<UserTrip[]> {
+  const { data, error } = await supabase.rpc('get_user_trips', { p_user_id: userId })
+
+  if (error) throw error
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    name: row.name,
+    destinations: row.destinations ?? [],
+    endDate: row.end_date,
+  }))
 }
 
 export async function getUserProfileById(id: string): Promise<UserProfile | null> {

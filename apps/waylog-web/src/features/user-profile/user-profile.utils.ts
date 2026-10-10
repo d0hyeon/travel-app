@@ -7,7 +7,7 @@ import {
   getCountryNameByLocation,
   isLocation,
 } from "@waylog/domains/modules/location";
-import type { Trip } from "@waylog/domains/modules/trip";
+import type { UserTrip } from "@waylog/domains/modules/user-profile";
 
 export interface VisitedLocation {
   location: Location;
@@ -16,14 +16,14 @@ export interface VisitedLocation {
   coordinate: Coordinate;
   visitCount: number;
   lastVisitedAt: string;
-  trips: Trip[];
+  trips: UserTrip[];
 }
 
 /**
  * 사용자의 trip 목록을 location 단위로 집계한다.
  * destinations vocabulary에 없는 자유 입력은 제외 (좌표를 알 수 없음).
  */
-export function deriveVisitedLocations(trips: Trip[]): VisitedLocation[] {
+export function deriveVisitedLocations(trips: UserTrip[]): VisitedLocation[] {
   const aggregated = new Map<Location, VisitedLocation>();
 
   for (const trip of trips) {
@@ -59,7 +59,7 @@ export function deriveVisitedLocations(trips: Trip[]): VisitedLocation[] {
 /**
  * 국가 단위 방문 trip 수 집계 (한 trip이 여러 국가를 방문하면 각 국가에 1씩).
  */
-export function deriveVisitedCountries(trips: Trip[]): Map<Country, number> {
+export function deriveVisitedCountries(trips: UserTrip[]): Map<Country, number> {
   const map = new Map<Country, number>();
   for (const trip of trips) {
     const countries = new Set<Country>();

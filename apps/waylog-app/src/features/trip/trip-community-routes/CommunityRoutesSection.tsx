@@ -7,10 +7,7 @@ import { palette, radius } from '~shared/config/tokens'
 import { useCommunityRouteDetailOverlay } from './CommunityRouteDetailOverlay'
 import { CommunityRouteThumbnail } from './CommunityRouteThumbnail'
 
-function getNightsAndDays(startDate: string, endDate: string): string {
-  const start = new Date(startDate)
-  const end = new Date(endDate)
-  const nights = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
+function getNightsAndDays(nights: number): string {
   if (nights <= 0) return '당일치기'
   return `${nights}박 ${nights + 1}일`
 }
@@ -28,8 +25,7 @@ export function CommunityRoutesSection(props: Props) {
 }
 
 function CommunityRoutesSectionContent({ tripId }: Props) {
-  const { data: allTrips } = useCommunityRoutes(tripId)
-  const trips = allTrips.filter((trip) => trip.id !== tripId)
+  const { data: trips } = useCommunityRoutes(tripId)
   const { open } = useCommunityRouteDetailOverlay()
 
   if (trips.length === 0) return null
@@ -43,7 +39,7 @@ function CommunityRoutesSectionContent({ tripId }: Props) {
         <Stack direction="row" gap={1.5} mr={1}>
           {trips.map((trip) => (
             <CommunityTripCard
-              key={trip.id}
+              key={trip.communityKey}
               trip={trip}
               onPress={() => open({ communityTrip: trip, tripId })}
             />
@@ -55,7 +51,7 @@ function CommunityRoutesSectionContent({ tripId }: Props) {
 }
 
 function CommunityTripCard({ trip, onPress }: { trip: CommunityTrip; onPress: () => void }) {
-  const duration = getNightsAndDays(trip.startDate, trip.endDate)
+  const duration = getNightsAndDays(trip.nights)
 
   return (
     <Pressable onPress={onPress}>
@@ -64,7 +60,7 @@ function CommunityTripCard({ trip, onPress }: { trip: CommunityTrip; onPress: ()
       >
         <CommunityRouteThumbnail
           destinations={trip.destinations}
-          previewRoutes={trip.previewRoutes}
+          previewCoordinates={trip.previewCoordinates}
           width={140}
           height={95}
         />

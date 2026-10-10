@@ -4,10 +4,10 @@ import {
   getCoordinateBounds,
   normalizeCoordsToCanvas,
   pointsToPath,
-  type PreviewRoute,
 } from '@waylog/domains/modules/community-route'
 import { isLocation } from '@waylog/domains/modules/location'
 import { getCachedLocationCoordinates, getLocationCoordinates } from '@waylog/domains/modules/map'
+import type { Coordinate } from '@waylog/utility'
 import Svg, { Circle, Path, Rect } from 'react-native-svg'
 import { useLocationGeoCoordinates } from '~features/location/useLocationGeoCoordinates'
 
@@ -17,7 +17,7 @@ const SHAPE_STROKE = '#b0c8d8'
 
 interface Props {
   destinations: string[]
-  previewRoutes: PreviewRoute[]
+  previewCoordinates: Coordinate[]
   width?: number
   height?: number
 }
@@ -31,15 +31,14 @@ interface Props {
  */
 export function CommunityRouteThumbnail({
   destinations,
-  previewRoutes,
+  previewCoordinates,
   width = 140,
   height = 90,
 }: Props) {
 
   const locations = destinations.filter(isLocation);
   const shapeRings = useLocationGeoCoordinates(locations.filter(isLocation));
-  const routeCoords = previewRoutes.flatMap((route) => route.coords)
-  const allCoords = [...shapeRings.flat(), ...routeCoords]
+  const allCoords = [...shapeRings.flat(), ...previewCoordinates]
 
   if (allCoords.length === 0) {
     return (
@@ -52,7 +51,7 @@ export function CommunityRouteThumbnail({
   const bounds = getCoordinateBounds(allCoords.flat())
   const canvas = { width, height, padding: 6 }
   const toCanvas = (coords: typeof allCoords) => normalizeCoordsToCanvas(coords.flat(), bounds, canvas)
-  const dots = dedupeNearbyPoints(toCanvas(routeCoords))
+  const dots = dedupeNearbyPoints(toCanvas(previewCoordinates))
 
   return (
     <Svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>

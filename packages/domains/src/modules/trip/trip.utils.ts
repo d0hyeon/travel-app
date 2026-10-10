@@ -15,7 +15,7 @@ export function isIncludeOverseas(destinations: Trip["destinations"]): boolean {
   });
 }
 
-export function countUniqueCountries(trips: Trip[]): number {
+export function countUniqueCountries(trips: Pick<Trip, "destinations">[]): number {
   const countries = new Set<Country>();
   trips.forEach((trip) => {
     trip.destinations.forEach((destination) => {
@@ -26,7 +26,7 @@ export function countUniqueCountries(trips: Trip[]): number {
   return countries.size;
 }
 
-export function countUniqueRegions(trips: Trip[]) {
+export function countUniqueRegions(trips: Pick<Trip, "destinations">[]) {
   const allDestinations = trips.flatMap((trip) => trip.destinations);
   return new Set(allDestinations).size;
 }

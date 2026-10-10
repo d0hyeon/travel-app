@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { getLocationCoordinates } from '~shared/components/Map/polygon-layer.utils'
 import { Locations, type Location } from '@waylog/domains/modules/location'
 import type { Coordinate } from '@waylog/utility'
-import type { PreviewRoute } from '@waylog/domains/modules/community-route'
 import {
   dedupeNearbyPoints,
   getCoordinateBounds,
@@ -14,7 +13,7 @@ const DOT_COLOR = '#1976d2'
 
 interface Props {
   destinations: string[]
-  previewRoutes: PreviewRoute[]
+  previewCoordinates: Coordinate[]
   width?: number
   height?: number
 }
@@ -22,7 +21,7 @@ interface Props {
 
 export function CommunityRouteThumbnail({
   destinations,
-  previewRoutes,
+  previewCoordinates,
   width = 140,
   height = 90,
 }: Props) {
@@ -41,8 +40,7 @@ export function CommunityRouteThumbnail({
     return () => { cancelled = true }
   }, [destinations])
 
-  const routeCoords = previewRoutes.flatMap((r) => r.coords)
-  const allCoords = [...shapeRings.flat(), ...routeCoords]
+  const allCoords = [...shapeRings.flat(), ...previewCoordinates]
 
   if (allCoords.length === 0) {
     return (
@@ -57,7 +55,7 @@ export function CommunityRouteThumbnail({
 
   const toSVG = (coords: Coordinate[]) => normalizeCoordsToCanvas(coords, bounds, size)
 
-  const dedupedDots = dedupeNearbyPoints(toSVG(routeCoords))
+  const dedupedDots = dedupeNearbyPoints(toSVG(previewCoordinates))
 
   return (
     <svg

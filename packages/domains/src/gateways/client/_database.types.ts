@@ -1095,6 +1095,7 @@ export type Database = {
       }
       trips: {
         Row: {
+          community_key: string
           created_at: string
           destination: string
           destinations: Json
@@ -1111,6 +1112,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          community_key?: string
           created_at?: string
           destination: string
           destinations: Json
@@ -1127,6 +1129,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          community_key?: string
           created_at?: string
           destination?: string
           destinations?: Json
@@ -1231,6 +1234,22 @@ export type Database = {
         }
         Returns: boolean
       }
+      get_community_trip_routes: {
+        Args: { p_community_key: string }
+        Returns: {
+          day_number: number
+          places: Json
+        }[]
+      }
+      get_community_trips: {
+        Args: { p_destinations: string[]; p_exclude_trip_id: string }
+        Returns: {
+          community_key: string
+          destinations: string[]
+          nights: number
+          preview_coordinates: Json
+        }[]
+      }
       get_explored_places: {
         Args: { category?: string; location?: string; since_date?: string }
         Returns: {
@@ -1269,6 +1288,7 @@ export type Database = {
       get_my_trips: {
         Args: { p_user_id: string }
         Returns: {
+          community_key: string
           created_at: string
           destination: string
           destinations: Json
@@ -1321,37 +1341,22 @@ export type Database = {
         Returns: {
           address: string
           category: string
+          confirmed_count: number
           external_id: string
-          is_confirmed: boolean
-          is_hidden: boolean
           lat: number
+          latest_trip_start_date: string
           lng: number
           name: string
           photo_urls: string[]
           place_id: string
           provider: string
-          trip_id: string
-          trip_place_id: string
-          trip_start_date: string
-        }[]
-      }
-      get_routes_with_places_by_trip_id: {
-        Args: { p_trip_id: string }
-        Returns: {
-          place_address: string
-          place_id: string
-          place_lat: number
-          place_lng: number
-          place_name: string
-          place_order: number
-          route_id: string
-          route_name: string
-          scheduled_date: string
+          trip_count: number
         }[]
       }
       get_trip_by_share_link: {
         Args: { link: string }
         Returns: {
+          community_key: string
           created_at: string
           destination: string
           destinations: Json
@@ -1381,42 +1386,14 @@ export type Database = {
           unread_count: number
         }[]
       }
-      get_trips_by_destination: {
-        Args: { p_destinations: string[]; p_exclude_trip_id: string }
+      get_user_trips: {
+        Args: { p_user_id: string }
         Returns: {
           destinations: string[]
           end_date: string
           id: string
-          member_count: number
-          preview_coordinates: Json
-          route_count: number
-          start_date: string
-        }[]
-      }
-      get_user_trips: {
-        Args: { p_user_id: string }
-        Returns: {
-          created_at: string
-          destination: string
-          destinations: Json
-          end_date: string
-          exchange_rate: number | null
-          exchange_rates: Json | null
-          id: string
-          is_overseas: boolean
-          lat: number
-          lng: number
           name: string
-          share_link: string
-          start_date: string
-          user_id: string
         }[]
-        SetofOptions: {
-          from: "*"
-          to: "trips"
-          isOneToOne: false
-          isSetofReturn: true
-        }
       }
       has_blocked: { Args: { target_user: string }; Returns: boolean }
       join_trip: { Args: { p_trip_id: string }; Returns: undefined }
