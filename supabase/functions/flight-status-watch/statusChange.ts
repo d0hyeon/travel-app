@@ -5,6 +5,8 @@
 // 규칙을 고칠 때는 원본과 함께 고친다 -- 갈라지면 화면은 "지연"이라 말하는데
 // 알림은 오지 않는다. 검증은 원본의 vitest 가 맡는다.
 
+import { josa } from '../_shared/josa.ts'
+
 export interface WatchedStatus {
   kind: string
   estimatedAt: string | null
@@ -88,7 +90,7 @@ function toClock(value: string | null) {
   return new Intl.DateTimeFormat('ko-KR', {
     hour: '2-digit',
     minute: '2-digit',
-    hour12: false,
+    hourCycle: 'h23',
     timeZone: 'Asia/Seoul',
   }).format(date)
 }
@@ -114,7 +116,7 @@ function toTitle(flight: WatchedFlight, label: string) {
 function withGateChangedBody(text: NotificationText, status: WatchedStatus, isGateChanged: boolean) {
   if (!isGateChanged || status.gate == null) return text
 
-  return { ...text, body: `${text.body} 탑승구가 ${status.gate}로 변경됐어요.` }
+  return { ...text, body: `${text.body} 탑승구가 ${josa(status.gate, '으로/로')} 변경됐어요.` }
 }
 
 export function toNotificationText(
@@ -161,7 +163,7 @@ export function toNotificationText(
   if (status.kind === 'scheduled' && isGateChanged && status.gate != null) {
     return {
       title: toTitle(flight, '탑승구 변경'),
-      body: `탑승구가 ${status.gate}로 변경됐어요.`,
+      body: `탑승구가 ${josa(status.gate, '으로/로')} 변경됐어요.`,
     }
   }
 

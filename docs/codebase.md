@@ -211,6 +211,7 @@ packages/
 ├── bridge/                     # @waylog/bridge — App↔WebView 정적 계약(contract), Native handler host, Web client
 ├── routes/                     # @waylog/routes — 웹/앱 공유 URL 경로 상수(AppRoute). 한글 키·콜론 경로(`/trip/:tripId`)
 ├── utility/                    # @waylog/utility — 플랫폼·도메인 비의존 순수 유틸리티·공용 타입
+│   └── src/josa.ts            # 조사 선택(`josa`, `josa.pick`). es-hangul 을 감싸 숫자로 끝나는 말은 읽은 소리로 고른다(`220` → 으로). Edge 사본 `supabase/functions/_shared/josa.ts`
 ├── domains/                    # @waylog/domains — 도메인·데이터 계층
 │   └── src/
 │       ├── api/                # 앱이 주입한 supabase client 연결, 생성 타입

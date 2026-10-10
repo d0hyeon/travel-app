@@ -1,5 +1,6 @@
 import type { DepartureGateRecommendation } from '../../airport-arrival-guidance/guidance.ts'
 import type { IncheonTerminalCode } from '../../airport-arrival-guidance/incheonTerminal.ts'
+import { josa } from '../../_shared/josa.ts'
 
 // 원본: packages/domains/src/modules/airport-arrival-guidance/airportArrivalGuidance.types.ts (GateId)
 const GATE_LABEL_BY_ID: Record<string, string> = {
@@ -33,7 +34,7 @@ const TERMINAL_LABEL_BY_CODE: Record<IncheonTerminalCode, string> = {
 const CLOCK_FORMAT = new Intl.DateTimeFormat('ko-KR', {
   hour: '2-digit',
   minute: '2-digit',
-  hour12: false,
+  hourCycle: 'h23',
   timeZone: 'Asia/Seoul',
 })
 
@@ -51,6 +52,6 @@ export function toDepartureGateRecommendationMessage(
 
   return {
     title: `인천공항 ${TERMINAL_LABEL_BY_CODE[departure.terminal]} 출국장 안내`,
-    body: `지금 ${gateLabel}이 가장 여유로워요. (${clock} 기준)`,
+    body: `지금 ${josa(gateLabel, '이/가')} 가장 여유로워요. (${clock} 기준)`,
   }
 }

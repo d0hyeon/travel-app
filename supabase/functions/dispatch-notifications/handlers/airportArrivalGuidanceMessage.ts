@@ -18,7 +18,7 @@ export interface AirportArrivalPushMessage {
 const CLOCK_FORMAT = new Intl.DateTimeFormat('ko-KR', {
   hour: '2-digit',
   minute: '2-digit',
-  hour12: false,
+  hourCycle: 'h23',
   timeZone: 'Asia/Seoul',
 })
 

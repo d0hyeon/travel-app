@@ -1,5 +1,5 @@
 import { assertEquals } from 'jsr:@std/assert@1'
-import { getIsGateChanged, getShouldNotify } from './statusChange.ts'
+import { getIsGateChanged, getShouldNotify, toNotificationText } from './statusChange.ts'
 
 const notNotified = { lastNotifiedKind: null, lastNotifiedEstimatedAt: null, lastNotifiedGate: null }
 
@@ -32,4 +32,14 @@ Deno.test('시간대 표기만 다른 같은 지연 시각이면 다시 보내�
 
 Deno.test('직전에 관측한 탑승구와 다르면 변경이다', () => {
   assertEquals(getIsGateChanged({ kind: 'scheduled', estimatedAt: null, gate: '242' }, '241', notNotified), true)
+})
+
+Deno.test('탑승구 번호의 읽는 소리에 맞춰 조사를 붙인다', () => {
+  const { body } = toNotificationText(
+    { airline: '대한항공', flightNumber: '011', arrivalCityName: '파리' },
+    { kind: 'scheduled', estimatedAt: null, gate: '220' },
+    true,
+  )
+
+  assertEquals(body, '탑승구가 220으로 변경됐어요.')
 })

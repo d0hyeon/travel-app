@@ -6,6 +6,7 @@ import {
 } from '@waylog/domains/modules/flight-status'
 import { TransportType } from '@waylog/domains/modules/transport'
 import { useTripTransportTickets } from '@waylog/domains/modules/trip-transport'
+import { josa } from '@waylog/utility'
 import { AsyncBoundary } from '@waylog/react'
 import { StyleSheet, View } from 'react-native'
 import { Skeleton, Typography } from '~shared/components/design-system'
@@ -77,7 +78,7 @@ function Resolved({ tripId, transportId }: Props) {
             <Typography style={[styles.description, { fontWeight: '900', color: color.fg }]}>
               {view.timeChange.toClock}
             </Typography>
-            로 변경됐어요.
+            으로 변경됐어요.
           </>
         )}
         {view.gateChange != null && (
@@ -88,7 +89,7 @@ function Resolved({ tripId, transportId }: Props) {
             <Typography style={[styles.description, { fontWeight: '900', color: color.fg }]}>
               {view.gateChange.toGate}
             </Typography>
-            (으)로 변경됐어요.
+            {josa.pick(view.gateChange.toGate, '으로/로')} 변경됐어요.
           </>
         )}
         {view.description}

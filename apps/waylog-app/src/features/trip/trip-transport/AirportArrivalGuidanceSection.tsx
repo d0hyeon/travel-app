@@ -7,6 +7,7 @@ import {
   type AirportCongestionTier,
 } from '@waylog/domains/modules/airport-arrival-guidance'
 import { useTripTransportTickets } from '@waylog/domains/modules/trip-transport'
+import { josa } from '@waylog/utility'
 import { AsyncBoundary } from '@waylog/react'
 import { format } from 'date-fns'
 import { StyleSheet, View } from 'react-native'
@@ -79,7 +80,7 @@ function DepartureGateRecommendationRow({ guidance }: { guidance: AirportArrival
     <View style={styles.realtimeRow}>
       <View style={styles.realtimeDot} />
       <Typography style={styles.realtimeText}>
-        현재 {toDepartureGateLabel(recommendation.gate)}이 가장 여유로워요
+        현재 {josa(toDepartureGateLabel(recommendation.gate), '이/가')} 가장 여유로워요
       </Typography>
       <Typography style={styles.realtimeTime}>
         {format(new Date(recommendation.observedAt), 'HH:mm')} 기준

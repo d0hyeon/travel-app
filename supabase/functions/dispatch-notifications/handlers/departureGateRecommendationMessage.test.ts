@@ -15,10 +15,17 @@ Deno.test("출국장 코드를 한글 라벨로 바꾼다", () => {
   );
 });
 
+Deno.test("받침 없이 끝나는 출국장 이름에는 가를 붙인다", () => {
+  assertEquals(
+    toDepartureGateRecommendationMessage({ ...recommendation, gate: "DG1_A" }, departure).body,
+    "지금 출국장 1A가 가장 여유로워요. (14:25 기준)",
+  );
+});
+
 Deno.test("모르는 출국장 코드는 원문을 쓴다", () => {
   assertEquals(
     toDepartureGateRecommendationMessage({ ...recommendation, gate: "DG9_X" }, departure).body,
-    "지금 DG9_X이 가장 여유로워요. (14:25 기준)",
+    "지금 DG9_X가 가장 여유로워요. (14:25 기준)",
   );
 });
 
