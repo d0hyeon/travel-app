@@ -42,11 +42,20 @@ describe('getSheetTranslateY', () => {
 
 describe('getSheetBodyHeight', () => {
   it('uses only the visible sheet space below the drag handle as the scroll viewport', () => {
-    expect(getSheetBodyHeight({ visibleHeight: 300, handleHeight: 32 })).toBe(268)
+    expect(getSheetBodyHeight({ visibleHeight: 300, snapHeight: 300, handleHeight: 32 })).toBe(268)
+  })
+
+  it('keeps the viewport at the snap height while the sheet slides in or out', () => {
+    expect(getSheetBodyHeight({ visibleHeight: 0, snapHeight: 600, handleHeight: 32 })).toBe(568)
+    expect(getSheetBodyHeight({ visibleHeight: 240, snapHeight: 600, handleHeight: 32 })).toBe(568)
+  })
+
+  it('follows the finger when the sheet is dragged above its snap height', () => {
+    expect(getSheetBodyHeight({ visibleHeight: 450, snapHeight: 300, handleHeight: 32 })).toBe(418)
   })
 
   it('does not create a negative body viewport while a sheet is closed', () => {
-    expect(getSheetBodyHeight({ visibleHeight: 0, handleHeight: 32 })).toBe(0)
+    expect(getSheetBodyHeight({ visibleHeight: 0, snapHeight: 0, handleHeight: 32 })).toBe(0)
   })
 
   // 시트 전체는 최대 높이로 레이아웃되므로, 본문 뷰포트가 그보다 커지면
@@ -58,6 +67,7 @@ describe('getSheetBodyHeight', () => {
 
     const bodyHeight = getSheetBodyHeight({
       visibleHeight: clampSheetHeight(draggedBeyondMaximum, maximumHeight),
+      snapHeight: maximumHeight,
       handleHeight: 32,
     })
 
