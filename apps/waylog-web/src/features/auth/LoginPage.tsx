@@ -1,4 +1,6 @@
 import { Button, Container, Stack } from '@mui/material'
+import { AppRoute } from '@waylog/routes'
+import { useNavigate } from 'react-router'
 import { IntroFullScreenBanner } from '~features/intro/IntroFullScreenBanner'
 import { useIsMobile } from '~shared/hooks/env/useIsMobile'
 import { signInWithApple, signInWithKakao } from '@waylog/domains/clients'
@@ -34,6 +36,13 @@ export default function LoginPage() {
   const isMobile = useIsMobile()
   const redirection = useAuthRedirection()
   const emailSignInOverlay = useEmailSignInOverlay()
+  const navigate = useNavigate()
+
+  async function signInWithEmail() {
+    const isSignedIn = await emailSignInOverlay.open()
+    if (!isSignedIn) return
+    navigate(redirection == null ? AppRoute.메인 : toInAppPath(redirection), { replace: true })
+  }
 
   return (
     <IntroFullScreenBanner>
@@ -61,7 +70,7 @@ export default function LoginPage() {
             Apple로 로그인
           </Button>
           <Button
-            onClick={emailSignInOverlay.open}
+            onClick={signInWithEmail}
             variant="contained"
             size="large"
             sx={{ minWidth: 300 }}
@@ -72,4 +81,9 @@ export default function LoginPage() {
       </Container>
     </IntroFullScreenBanner>
   )
+}
+
+function toInAppPath(href: string) {
+  const url = new URL(href)
+  return `${url.pathname}${url.search}${url.hash}`
 }

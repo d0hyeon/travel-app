@@ -12,7 +12,21 @@ export function useEmailSignInOverlay() {
   const overlay = useOverlay()
 
   const open = useCallback(() => {
-    overlay.open(({ isOpen, close }) => <EmailSignInDialog isOpen={isOpen} onClose={close} />)
+    return new Promise<boolean>((resolve) => {
+      overlay.open(({ isOpen, close }) => (
+        <EmailSignInDialog
+          isOpen={isOpen}
+          onSignedIn={() => {
+            close()
+            resolve(true)
+          }}
+          onClose={() => {
+            close()
+            resolve(false)
+          }}
+        />
+      ))
+    })
   }, [overlay])
 
   return { open }
@@ -20,10 +34,11 @@ export function useEmailSignInOverlay() {
 
 interface Props {
   isOpen: boolean
+  onSignedIn: () => void
   onClose: () => void
 }
 
-function EmailSignInDialog({ isOpen, onClose }: Props) {
+function EmailSignInDialog({ isOpen, onSignedIn, onClose }: Props) {
   const isMobile = useIsMobile()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -40,7 +55,7 @@ function EmailSignInDialog({ isOpen, onClose }: Props) {
     setIsSigningIn(true)
     try {
       await signInWithEmail(email.trim(), password)
-      onClose()
+      onSignedIn()
     } catch {
       setErrorMessage('로그인에 실패했어요. 이메일과 비밀번호를 확인해 주세요')
       setIsSigningIn(false)
