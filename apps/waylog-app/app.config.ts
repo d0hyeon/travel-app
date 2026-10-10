@@ -24,21 +24,8 @@ const config: ExpoConfig = {
     associatedDomains: ["applinks:waylog.me", "applinks:www.waylog.me"],
     icon: "./assets/logo.png",
   },
-  android: {
-    package: "me.waylog.app",
-    config: {
-      googleMaps: { apiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY },
-    },
-    adaptiveIcon: {
-      backgroundColor: "#E6F4FE",
-      foregroundImage: "./assets/logo.png",
-      backgroundImage: "./assets/logo.png",
-      monochromeImage: "./assets/logo.png",
-    },
-    predictiveBackGestureEnabled: false,
-  },
   web: { favicon: "./assets/logo.png" },
-  platforms: ["ios", "android"],
+  platforms: ["ios"],
   scheme: "waylog",
   runtimeVersion: { policy: "appVersion" },
   updates: {
