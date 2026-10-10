@@ -1389,28 +1389,11 @@ export type Database = {
       get_user_trips: {
         Args: { p_user_id: string }
         Returns: {
-          community_key: string
-          created_at: string
-          destination: string
-          destinations: Json
+          destinations: string[]
           end_date: string
-          exchange_rate: number | null
-          exchange_rates: Json | null
           id: string
-          is_overseas: boolean
-          lat: number
-          lng: number
           name: string
-          share_link: string
-          start_date: string
-          user_id: string
         }[]
-        SetofOptions: {
-          from: "*"
-          to: "trips"
-          isOneToOne: false
-          isSetofReturn: true
-        }
       }
       has_blocked: { Args: { target_user: string }; Returns: boolean }
       join_trip: { Args: { p_trip_id: string }; Returns: undefined }

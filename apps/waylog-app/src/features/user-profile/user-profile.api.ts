@@ -1,14 +1,6 @@
 import { supabase } from '@waylog/domains/clients'
 import { toPhoto, type Photo } from '@waylog/domains/modules/photo'
-import { toTrip, type Trip } from '@waylog/domains/modules/trip'
 import { getUserPosts } from '@waylog/domains/modules/post'
-
-export async function getUserTrips(userId: string): Promise<Trip[]> {
-  const { data, error } = await supabase.rpc('get_user_trips', { p_user_id: userId })
-
-  if (error) throw error
-  return (data ?? []).map(toTrip)
-}
 
 export async function getUserPhotos(userId: string): Promise<Photo[]> {
   const { data, error } = await supabase

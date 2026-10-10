@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { tripByUserKey, tripKey } from "@waylog/domains/modules/trip";
-import { getUserTrips } from "./user-profile.api";
+import { getUserTrips } from "@waylog/domains/modules/user-profile";
 
 export function useUserTrips(userId: string) {
   return useSuspenseQuery({
