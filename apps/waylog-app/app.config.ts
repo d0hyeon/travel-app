@@ -14,7 +14,7 @@ const config: ExpoConfig = {
   icon: "./assets/logo.png",
   userInterfaceStyle: "light",
   ios: {
-    supportsTablet: true,
+    supportsTablet: false,
     bundleIdentifier: "me.waylog.app",
     usesAppleSignIn: true,
     config: {
